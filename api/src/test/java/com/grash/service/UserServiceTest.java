@@ -776,7 +776,8 @@ class UserServiceTest {
         }
 
         @Test
-        void newCompanyNonLocalhost_roleSetOnRequest_notNullBranch() throws jakarta.mail.MessagingException, java.io.IOException {
+        void newCompanyNonLocalhost_roleSetOnRequest_notNullBranch() throws jakarta.mail.MessagingException,
+                java.io.IOException {
             ReflectionTestUtils.setField(userService, "PUBLIC_API_URL", "https://app.test.com");
             ReflectionTestUtils.setField(userService, "cloudVersion", false);
             signupRequest.setRole(role);
@@ -1177,10 +1178,17 @@ class UserServiceTest {
         void withoutTokenNoAuth_throws() {
             HttpServletRequest request = mock(HttpServletRequest.class);
             when(jwtTokenProvider.resolveToken(request)).thenReturn(null);
+            SecurityContext securityContext = mock(SecurityContext.class);
+            when(securityContext.getAuthentication()).thenReturn(null);
+            try (MockedStatic<org.springframework.security.core.context.SecurityContextHolder> holder =
+                         mockStatic(org.springframework.security.core.context.SecurityContextHolder.class)) {
+                holder.when(org.springframework.security.core.context.SecurityContextHolder::getContext)
+                        .thenReturn(securityContext);
 
-            CustomException ex = assertThrows(CustomException.class,
-                    () -> userService.whoami(request, true));
-            assertEquals(HttpStatus.UNAUTHORIZED, ex.getHttpStatus());
+                CustomException ex = assertThrows(CustomException.class,
+                        () -> userService.whoami(request, true));
+                assertEquals(HttpStatus.UNAUTHORIZED, ex.getHttpStatus());
+            }
         }
 
         @Test
@@ -1240,7 +1248,7 @@ class UserServiceTest {
             assertTrue(response.isSuccess());
             verify(verificationTokenRepository).save(any(VerificationToken.class));
             verify(mailService).sendMessageUsingThymeleafTemplate(
-                    eq(new String[]{"john@test.com"}), anyString(), anyMap(), anyString(), any(), any());
+                    eq(new String[]{"john@test.com"}), anyString(), anyMap(), eq("reset-password.html"), any(), any());
         }
 
         @Test
