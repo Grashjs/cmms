@@ -131,7 +131,7 @@ public class WorkOrder extends WorkOrderBase {
     public boolean isAccessibleBy(User user) {
         return (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS) &&
                 (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS) || (getCreatedBy() != null && getCreatedBy().equals(user.getId())) || isAssignedTo(user)))
-                || getParentRequest() != null && getParentRequest().getCreatedBy().equals(user.getId())
+                || getParentRequest() != null && user.getId().equals(getParentRequest().getCreatedBy())
                 ;
     }
 }

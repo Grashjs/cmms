@@ -390,7 +390,7 @@ public class AssetAnalyticsController {
         Date start = dateRange.getStart();
         Date end = dateRange.getEnd();
         if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS) &&
-                (user.getRole().getViewOtherPermissions().contains(PermissionEntity.ASSETS) || savedAsset.getCreatedBy().equals(user.getId()))) {
+                (user.getRole().getViewOtherPermissions().contains(PermissionEntity.ASSETS) || user.getId().equals(savedAsset.getCreatedBy()))) {
             AssetOverview result = AssetOverview.builder()
                     .mttr(assetService.getMTTR(id, start, end))
                     .mtbf(assetService.getMTBF(id, start, end))

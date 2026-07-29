@@ -44,7 +44,7 @@ public class MultiPartsController {
                 return multiPartsService.findByCompany(user.getCompany().getId()).stream().filter(multiPart -> {
                     boolean canViewOthers =
                             user.getRole().getViewOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS);
-                    return canViewOthers || multiPart.getCreatedBy().equals(user.getId());
+                    return canViewOthers || user.getId().equals(multiPart.getCreatedBy());
                 }).map(multiPartsMapper::toShowDto).collect(Collectors.toList());
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         } else return multiPartsService.getAll().stream().map(multiPartsMapper::toShowDto).collect(Collectors.toList());
@@ -58,7 +58,7 @@ public class MultiPartsController {
         if (optionalMultiParts.isPresent()) {
             MultiParts savedMultiParts = optionalMultiParts.get();
             if (user.getRole().getViewPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) &&
-                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) || savedMultiParts.getCreatedBy().equals(user.getId()))) {
+                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) || user.getId().equals(savedMultiParts.getCreatedBy()))) {
                 return multiPartsMapper.toShowDto(savedMultiParts);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -84,7 +84,7 @@ public class MultiPartsController {
 
         if (optionalMultiParts.isPresent()) {
             MultiParts savedMultiParts = optionalMultiParts.get();
-            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) || savedMultiParts.getCreatedBy().equals(user.getId())) {
+            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) || user.getId().equals(savedMultiParts.getCreatedBy())) {
                 return multiPartsMapper.toShowDto(multiPartsService.update(id, multiParts));
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("MultiParts not found", HttpStatus.NOT_FOUND);
@@ -105,7 +105,7 @@ public class MultiPartsController {
         Optional<MultiParts> optionalMultiParts = multiPartsService.findById(id);
         if (optionalMultiParts.isPresent()) {
             MultiParts savedMultiParts = optionalMultiParts.get();
-            if (savedMultiParts.getCreatedBy().equals(user.getId()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
+            if (user.getId().equals(savedMultiParts.getCreatedBy()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
                 multiPartsService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

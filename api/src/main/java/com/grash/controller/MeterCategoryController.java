@@ -93,7 +93,7 @@ public class MeterCategoryController {
         Optional<MeterCategory> optionalMeterCategory = meterCategoryService.findById(id);
         if (optionalMeterCategory.isPresent()) {
             MeterCategory savedMeterCategory = optionalMeterCategory.get();
-            if (savedMeterCategory.getCreatedBy().equals(user.getId()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.CATEGORIES)) {
+            if (user.getId().equals(savedMeterCategory.getCreatedBy()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.CATEGORIES)) {
                 meterCategoryService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

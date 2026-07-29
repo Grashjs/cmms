@@ -94,7 +94,7 @@ public class CustomerController {
 
         if (optionalCustomer.isPresent()) {
             Customer savedCustomer = optionalCustomer.get();
-            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS) || savedCustomer.getCreatedBy().equals(user.getId())) {
+            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS) || user.getId().equals(savedCustomer.getCreatedBy())) {
                 Customer updatedCustomer = customerService.update(id, customer, user.getCompany());
                 return customerMapper.toShowDto(updatedCustomer);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);

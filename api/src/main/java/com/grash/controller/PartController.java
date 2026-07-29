@@ -77,7 +77,7 @@ public class PartController {
         if (optionalPart.isPresent()) {
             Part savedPart = optionalPart.get();
             if (user.getRole().getViewPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) &&
-                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) || savedPart.getCreatedBy().equals(user.getId()))) {
+                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) || user.getId().equals(savedPart.getCreatedBy()))) {
                 return partMapper.toShowDto(savedPart);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -111,7 +111,7 @@ public class PartController {
         Optional<Part> optionalPart = partService.findById(id);
         if (optionalPart.isPresent()) {
             if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) ||
-                    optionalPart.get().getCreatedBy().equals(user.getId())) {
+                    user.getId().equals(optionalPart.get().getCreatedBy())) {
                 partService.restockPart(id, partRestockDTO.getQuantity(), partRestockDTO.getDescription());
                 return new ResponseEntity<>(new SuccessResponse(true, "Restocked successfully"), HttpStatus.OK);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
@@ -130,7 +130,7 @@ public class PartController {
         if (optionalPart.isPresent()) {
             Part savedPart = optionalPart.get();
             em.detach(savedPart);
-            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) || savedPart.getCreatedBy().equals(user.getId())) {
+            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) || user.getId().equals(savedPart.getCreatedBy())) {
                 if (part.getBarcode() != null) {
                     Optional<Part> optionalPartWithSameBarCode =
                             partService.findByBarcodeAndCompany(part.getBarcode(), user.getCompany().getId());
@@ -165,7 +165,7 @@ public class PartController {
         Optional<Part> optionalPart = partService.findById(id);
         if (optionalPart.isPresent()) {
             Part savedPart = optionalPart.get();
-            if (savedPart.getCreatedBy().equals(user.getId()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
+            if (user.getId().equals(savedPart.getCreatedBy()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
                 partService.delete(savedPart);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

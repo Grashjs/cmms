@@ -146,7 +146,7 @@ public class FileController {
         if (optionalFile.isPresent()) {
             File savedFile = optionalFile.get();
             if (user.getRole().getViewPermissions().contains(PermissionEntity.FILES) &&
-                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.FILES) || savedFile.getCreatedBy().equals(user.getId()))) {
+                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.FILES) || user.getId().equals(savedFile.getCreatedBy()))) {
                 return fileMapper.toShowDto(savedFile);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -162,7 +162,7 @@ public class FileController {
 
         if (optionalFile.isPresent()) {
             File savedFile = optionalFile.get();
-            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.FILES) || savedFile.getCreatedBy().equals(user.getId())) {
+            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.FILES) || user.getId().equals(savedFile.getCreatedBy())) {
                 savedFile.setName(file.getName());
                 return fileMapper.toShowDto(fileService.update(savedFile));
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);

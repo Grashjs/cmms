@@ -89,7 +89,7 @@ public class PartCategoryController {
 
         Optional<PartCategory> optionalPartCategory = partCategoryService.findById(id);
         if (optionalPartCategory.isPresent()) {
-            if (optionalPartCategory.get().getCreatedBy().equals(user.getId()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.CATEGORIES)) {
+            if (user.getId().equals(optionalPartCategory.get().getCreatedBy()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.CATEGORIES)) {
                 partCategoryService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

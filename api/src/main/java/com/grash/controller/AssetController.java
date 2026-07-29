@@ -106,7 +106,7 @@ public class AssetController {
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
             if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS) &&
-                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.ASSETS) || savedAsset.getCreatedBy().equals(user.getId()))) {
+                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.ASSETS) || user.getId().equals(savedAsset.getCreatedBy()))) {
                 return assetMapper.toShowDto(savedAsset, assetService);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -215,7 +215,7 @@ public class AssetController {
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
             em.detach(savedAsset);
-            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.ASSETS) || savedAsset.getCreatedBy().equals(user.getId())
+            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.ASSETS) || user.getId().equals(savedAsset.getCreatedBy())
             ) {
                 if (!asset.getStatus().isReallyDown() && savedAsset.getStatus().isReallyDown()) {
                     assetService.stopDownTime(savedAsset.getId(), Helper.getLocale(user));

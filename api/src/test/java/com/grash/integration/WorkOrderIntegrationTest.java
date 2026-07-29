@@ -1062,7 +1062,7 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
 
             Collection<WorkOrder> result = workOrderService.findByCreatedBy(user.getId());
 
-            assertTrue(result.stream().allMatch(wo -> wo.getCreatedBy().equals(user.getId())));
+            assertTrue(result.stream().allMatch(wo -> user.getId().equals(wo.getCreatedBy())));
         }
 
         @Test

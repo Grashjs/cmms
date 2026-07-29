@@ -89,7 +89,7 @@ public class AssetCategoryController {
 
         Optional<AssetCategory> optionalAssetCategory = assetCategoryService.findById(id);
         if (optionalAssetCategory.isPresent()) {
-            if (optionalAssetCategory.get().getCreatedBy().equals(user.getId()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.CATEGORIES)) {
+            if (user.getId().equals(optionalAssetCategory.get().getCreatedBy()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.CATEGORIES)) {
                 assetCategoryService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

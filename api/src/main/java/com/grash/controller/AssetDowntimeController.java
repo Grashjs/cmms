@@ -61,7 +61,7 @@ public class AssetDowntimeController {
             throw new CustomException("The downtime can't occur before the asset in service date",
                     HttpStatus.NOT_ACCEPTABLE);
         }
-        if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.ASSETS) || optionalAsset.get().getCreatedBy().equals(user.getId())) {
+        if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.ASSETS) || user.getId().equals(optionalAsset.get().getCreatedBy())) {
             return assetDowntimeService.create(assetDowntimeReq, true);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -111,7 +111,7 @@ public class AssetDowntimeController {
 
     private boolean canPatchAsset(Asset asset, User user) {
         return user.getRole().getEditOtherPermissions().contains(PermissionEntity.ASSETS)
-                || asset.getCreatedBy().equals(user.getId())
+                || user.getId().equals(asset.getCreatedBy())
                 || asset.getUsers().stream().anyMatch(u -> u.getId().equals(user.getId()));
     }
 }

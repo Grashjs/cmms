@@ -138,7 +138,7 @@ public class RequestController {
         if (optionalRequest.isPresent()) {
             Request savedRequest = optionalRequest.get();
             if (user.getRole().getViewPermissions().contains(PermissionEntity.REQUESTS) &&
-                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.REQUESTS) || savedRequest.getCreatedBy().equals(user.getId()))) {
+                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.REQUESTS) || user.getId().equals(savedRequest.getCreatedBy()))) {
                 return requestMapper.toShowDto(savedRequest);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -218,7 +218,7 @@ public class RequestController {
             if (savedRequest.getWorkOrder() != null) {
                 throw new CustomException("Can't patch an approved request", HttpStatus.NOT_ACCEPTABLE);
             }
-            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.REQUESTS) || savedRequest.getCreatedBy().equals(user.getId())) {
+            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.REQUESTS) || user.getId().equals(savedRequest.getCreatedBy())) {
                 Request patchedRequest = requestService.update(id, request, user.getCompany());
                 return requestMapper.toShowDto(patchedRequest);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
@@ -369,7 +369,7 @@ public class RequestController {
         Optional<Request> optionalRequest = requestService.findById(id);
         if (optionalRequest.isPresent()) {
             Request savedRequest = optionalRequest.get();
-            if (savedRequest.getCreatedBy().equals(user.getId()) ||
+            if (user.getId().equals(savedRequest.getCreatedBy()) ||
                     user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.REQUESTS)) {
                 requestService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),

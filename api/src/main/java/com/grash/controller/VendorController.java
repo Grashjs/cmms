@@ -97,7 +97,7 @@ public class VendorController {
 
         if (optionalVendor.isPresent()) {
             Vendor savedVendor = optionalVendor.get();
-            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS) || savedVendor.getCreatedBy().equals(user.getId())) {
+            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS) || user.getId().equals(savedVendor.getCreatedBy())) {
                 Vendor updatedVendor = vendorService.update(id, vendor, user.getCompany());
                 return vendorMapper.toShowDto(updatedVendor);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
