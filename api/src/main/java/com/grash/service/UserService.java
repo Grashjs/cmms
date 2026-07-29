@@ -299,9 +299,9 @@ public class UserService {
         return userOptional;
     }
 
-    public String refresh(String username) {
-        return jwtTokenProvider.createToken(username,
-                Arrays.asList(userRepository.findByEmailIgnoreCase(username).get().getRole().getRoleType()));
+    public String refresh(User user) {
+        return jwtTokenProvider.createToken(user.getEmail(),
+                Arrays.asList(user.getRole().getRoleType()));
     }
 
     public List<User> getAll() {

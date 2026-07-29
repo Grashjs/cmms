@@ -1119,11 +1119,10 @@ class UserServiceTest {
 
         @Test
         void returnsNewToken() {
-            when(userRepository.findByEmailIgnoreCase("john@test.com")).thenReturn(Optional.of(user));
             when(jwtTokenProvider.createToken("john@test.com",
                     List.of(user.getRole().getRoleType()))).thenReturn("refreshed-token");
 
-            String token = userService.refresh("john@test.com");
+            String token = userService.refresh(user);
 
             assertEquals("refreshed-token", token);
         }
