@@ -5,6 +5,7 @@ import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.LdapLoginRequest;
 import com.grash.dto.SignupSuccessResponse;
 import com.grash.dto.SuccessResponse;
+import com.grash.dto.UserInvitationDTO;
 import com.grash.dto.UserPatchDTO;
 import com.grash.dto.UserSignupRequest;
 import com.grash.dto.license.LicenseEntitlement;
@@ -14,6 +15,7 @@ import com.grash.exception.CustomException;
 import com.grash.factory.MailServiceFactory;
 import com.grash.mapper.UserMapper;
 import com.grash.model.*;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleCode;
 import com.grash.repository.UserRepository;
 import com.grash.repository.VerificationTokenRepository;
@@ -81,6 +83,7 @@ public class UserService {
     private final ApplicationEventPublisher applicationEventPublisher;
     private final LicenseService licenseService;
     private final CacheService cacheService;
+    private final IntercomService intercomService;
 
     @Value("${api.host}")
     private String PUBLIC_API_URL;
@@ -482,6 +485,98 @@ public class UserService {
         appendUtmParameters(body, request);
 
         return body.toString();
+    }
+
+    public SuccessResponse inviteUsers(UserInvitationDTO invitation, User user) {
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
+            int companyUsersCount =
+                    (int) findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.isEnabled() && user1.isEnabledInSubscriptionAndPaid()).count();
+            Optional<Role> optionalRole = roleService.findById(invitation.getRole().getId());
+            if (optionalRole.isPresent() && optionalRole.get().belongsToCompany(user.getCompany())) {
+                if (companyUsersCount + invitation.getEmails().size() <= user.getCompany().getSubscription().getUsersCount() || !optionalRole.get().isPaid()) {
+                    invitation.getEmails().forEach(email ->
+                            invite(email, optionalRole.get(), user, invitation.getDisableSendingEmail())
+                    );
+
+                    // Fire Intercom event for first user invitation
+                    if (!user.getCompany().isInvitedUsers() && !invitation.getEmails().isEmpty()) {
+                        user.getCompany().setInvitedUsers(true);
+                        companyService.update(user.getCompany());
+                        Map<String, Object> metadata = new HashMap<>();
+                        metadata.put("invited_count", invitation.getEmails().size());
+                        intercomService.createCompanyActivationEvent(
+                                "first-users-invited",
+                                user.getCompany().getId(),
+                                user.getEmail(),
+                                metadata
+                        );
+                    }
+
+                    return new SuccessResponse(true, "Users have been invited");
+                } else
+                    throw new CustomException("Your current subscription doesn't allow you to invite that many users"
+                            , HttpStatus.NOT_ACCEPTABLE);
+
+            } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+    }
+
+    public User patchUserRole(Long userId, Long roleId, User requester) {
+        Optional<User> optionalUserToPatch = findByIdAndCompany(userId, requester.getCompany().getId());
+        Optional<Role> optionalRole = roleService.findById(roleId);
+
+        if (optionalUserToPatch.isPresent() && optionalRole.isPresent() && optionalRole.get().belongsToCompany(requester.getCompany())) {
+            User userToPatch = optionalUserToPatch.get();
+            if (requester.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
+                int usersCount =
+                        (int) findByCompany(requester.getCompany().getId()).stream().filter(User::isEnabledInSubscriptionAndPaid).count();
+                if (usersCount <= requester.getCompany().getSubscription().getUsersCount()) {
+                    userToPatch.setRole(optionalRole.get());
+                    return save(userToPatch);
+                } else
+                    throw new CustomException("Company subscription users count doesn't allow this operation",
+                            HttpStatus.NOT_ACCEPTABLE);
+            } else {
+                throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
+            }
+        } else {
+            throw new CustomException("User or role not found", HttpStatus.NOT_FOUND);
+        }
+    }
+
+    public User disableUser(Long id, User requester) {
+        Optional<User> optionalUserToDisable = findByIdAndCompany(id, requester.getCompany().getId());
+
+        if (optionalUserToDisable.isPresent()) {
+            User userToDisable = optionalUserToDisable.get();
+            if (requester.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
+                userToDisable.setEnabled(false);
+                userToDisable.setEnabledInSubscription(false);
+                return save(userToDisable);
+            } else {
+                throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
+            }
+        } else {
+            throw new CustomException("User or role not found", HttpStatus.NOT_FOUND);
+        }
+    }
+
+    public User softDeleteUser(Long id, User requester) {
+        Optional<User> optionalUserToSoftDelete = findByIdAndCompany(id, requester.getCompany().getId());
+
+        if (optionalUserToSoftDelete.isPresent()) {
+            User userToSoftDelete = optionalUserToSoftDelete.get();
+            if (requester.getId().equals(id) || requester.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+                userToSoftDelete.setEnabled(false);
+                userToSoftDelete.setEnabledInSubscription(false);
+                userToSoftDelete.setEmail(userToSoftDelete.getEmail().concat("_".concat(id.toString())));
+                return save(userToSoftDelete);
+            } else {
+                throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
+            }
+        } else {
+            throw new CustomException("User not found", HttpStatus.NOT_FOUND);
+        }
     }
 
     private void appendUtmParameters(StringBuilder body, UserSignupRequest request) {
