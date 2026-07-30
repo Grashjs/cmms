@@ -29,7 +29,6 @@ class WrapperSpecificationTest {
 
     @jakarta.persistence.Entity
     static class TestEntity {
-        @Id
         private Long id;
     }
 

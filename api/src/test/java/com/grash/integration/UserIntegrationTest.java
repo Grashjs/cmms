@@ -23,7 +23,7 @@ import java.util.Optional;
 import static com.grash.utils.Helper.setCurrentUser;
 import static org.junit.jupiter.api.Assertions.*;
 
-class UserServiceIntegrationTest extends AbstractIntegrationTest {
+class UserIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private UserRepository userRepository;
