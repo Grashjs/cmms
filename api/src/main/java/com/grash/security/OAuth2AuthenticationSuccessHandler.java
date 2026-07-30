@@ -180,9 +180,6 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             case "google":
                 email = (String) attributes.get("email");
                 break;
-            case "github":
-                email = (String) attributes.get("email");
-                break;
             case "microsoft":
                 // Microsoft Entra ID (Azure AD) can return email in different attributes
                 email = (String) attributes.get("email");
@@ -206,8 +203,6 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             case "google":
             case "microsoft":
                 return (String) attributes.get("sub");
-            case "github":
-                return String.valueOf(attributes.get("id"));
             default:
                 return "unknown";
         }
@@ -218,9 +213,6 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             case "google":
             case "microsoft":
                 return (String) attributes.get("given_name");
-            case "github":
-                String name = (String) attributes.get("name");
-                return name != null ? name.split(" ")[0] : "User";
             default:
                 return "User";
         }
@@ -230,10 +222,6 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         switch (registrationId) {
             case "google":
                 return (String) attributes.get("family_name");
-            case "github":
-                String name = (String) attributes.get("name");
-                String[] parts = name != null ? name.split(" ") : new String[]{"User"};
-                return parts.length > 1 ? parts[1] : "";
             case "microsoft":
                 String lastName = (String) attributes.get("family_name");
                 if (lastName == null) {

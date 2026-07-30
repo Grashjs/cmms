@@ -1,7 +1,6 @@
 package com.grash.security;
 
 import com.grash.dto.BrandConfig;
-import com.grash.exception.CustomException;
 import com.grash.factory.MailServiceFactory;
 import com.grash.model.*;
 import com.grash.model.enums.PlanFeatures;
@@ -179,7 +178,7 @@ class OAuth2AuthenticationSuccessHandlerTest {
         @Test
         void existingUser_differentSsoProvider_updatesSsoDetails() {
             String email = "john@test.com";
-            User user = createUser(email, "github", "999");
+            User user = createUser(email, "microsoft", "999");
             Map<String, Object> attrs = Map.of("email", email, "given_name", "John", "family_name", "Doe", "sub", "456");
             stubOAuthFlow("google", attrs);
             when(request.getParameter("redirect_uri")).thenReturn(null);
@@ -343,64 +342,6 @@ class OAuth2AuthenticationSuccessHandlerTest {
             verify(companyService, never()).create(any());
             assertTrue(result.startsWith(failureUrl),
                     () -> "Expected failure URL but got: " + result);
-        }
-
-        @Test
-        void githubOAuth_createsUserAndReturnsUrlWithToken() {
-            String githubEmail = "user@github.com";
-            Map<String, Object> attrs = Map.of(
-                    "email", githubEmail,
-                    "name", "John Doe",
-                    "id", 12345
-            );
-            stubOAuthFlow("github", attrs);
-            when(request.getParameter("redirect_uri")).thenReturn(null);
-            lenient().when(oAuth2Properties.getSuccessRedirectUrl()).thenReturn(successUrl);
-            lenient().when(oAuth2Properties.getFailureRedirectUrl()).thenReturn(failureUrl);
-            when(userRepository.findByEmailIgnoreCase(githubEmail)).thenReturn(Optional.empty());
-            String githubDomain = "github.com";
-            when(userRepository.findBySSOCompany(githubDomain)).thenReturn(List.of());
-            lenient().when(utils.generateStringId()).thenReturn("randId");
-            lenient().when(passwordEncoder.encode("randId")).thenReturn("encoded");
-            lenient().when(jwtTokenProvider.createToken(eq(githubEmail), anyList())).thenReturn("jwt-token");
-            lenient().when(brandingService.getBrandConfig()).thenReturn(new BrandConfig());
-            stubCreateCompany(true);
-
-            String result = handler.determineTargetUrl(request, response, authToken);
-
-            assertTrue(result.startsWith(successUrl),
-                    () -> "Expected success URL but got: " + result);
-            verify(userRepository).save(argThat(u ->
-                    "John".equals(u.getFirstName()) && "Doe".equals(u.getLastName())));
-            assertTrue(result.contains("token=jwt-token"));
-        }
-
-        @Test
-        void githubOAuth_userWithNoName_setsDefaultName() {
-            String githubEmail = "user@github.com";
-            Map<String, Object> attrs = Map.of(
-                    "email", githubEmail,
-                    "id", 12345
-            );
-            stubOAuthFlow("github", attrs);
-            when(request.getParameter("redirect_uri")).thenReturn(null);
-            lenient().when(oAuth2Properties.getSuccessRedirectUrl()).thenReturn(successUrl);
-            lenient().when(oAuth2Properties.getFailureRedirectUrl()).thenReturn(failureUrl);
-            when(userRepository.findByEmailIgnoreCase(githubEmail)).thenReturn(Optional.empty());
-            String githubDomain = "github.com";
-            when(userRepository.findBySSOCompany(githubDomain)).thenReturn(List.of());
-            lenient().when(utils.generateStringId()).thenReturn("randId");
-            lenient().when(passwordEncoder.encode("randId")).thenReturn("encoded");
-            lenient().when(jwtTokenProvider.createToken(eq(githubEmail), anyList())).thenReturn("jwt-token");
-            lenient().when(brandingService.getBrandConfig()).thenReturn(new BrandConfig());
-            stubCreateCompany(true);
-
-            String result = handler.determineTargetUrl(request, response, authToken);
-
-            assertTrue(result.startsWith(successUrl),
-                    () -> "Expected success URL but got: " + result);
-            verify(userRepository).save(argThat(u ->
-                    "User".equals(u.getFirstName()) && "".equals(u.getLastName())));
         }
 
         @Test
