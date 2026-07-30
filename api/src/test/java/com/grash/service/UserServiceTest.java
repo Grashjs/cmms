@@ -282,7 +282,7 @@ class UserServiceTest {
                     LicensingState.builder().hasLicense(false).usersCount(0).build());
             com.grash.model.Currency currency = new com.grash.model.Currency();
             when(currencyService.findByCode("$")).thenReturn(Optional.of(currency));
-            when(roleService.findDefaultRoles()).thenReturn(List.of(role));
+            when(roleService.findDefaultRoleWithCode(RoleCode.ADMIN)).thenReturn(Optional.of(role));
             when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
                     .thenReturn("signup-token");
 
@@ -306,7 +306,7 @@ class UserServiceTest {
             com.grash.model.Currency currency = new com.grash.model.Currency();
             currency.setCode("$");
             when(currencyService.findByCode("$")).thenReturn(Optional.of(currency));
-            when(roleService.findDefaultRoles()).thenReturn(List.of(role));
+            when(roleService.findDefaultRoleWithCode(RoleCode.ADMIN)).thenReturn(Optional.of(role));
             when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
                     .thenReturn("signup-token");
 
@@ -337,7 +337,7 @@ class UserServiceTest {
             com.grash.model.Currency currency = new com.grash.model.Currency();
             currency.setCode("$");
             when(currencyService.findByCode("$")).thenReturn(Optional.of(currency));
-            when(roleService.findDefaultRoles()).thenReturn(List.of(role));
+            when(roleService.findDefaultRoleWithCode(RoleCode.ADMIN)).thenReturn(Optional.of(role));
             when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
                     .thenReturn("signup-token");
 
@@ -486,7 +486,7 @@ class UserServiceTest {
             com.grash.model.Currency currency = new com.grash.model.Currency();
             currency.setCode("$");
             when(currencyService.findByCode("$")).thenReturn(Optional.of(currency));
-            when(roleService.findDefaultRoles()).thenReturn(List.of(role));
+            when(roleService.findDefaultRoleWithCode(RoleCode.ADMIN)).thenReturn(Optional.of(role));
             when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
                     .thenReturn("signup-token");
 
@@ -603,7 +603,7 @@ class UserServiceTest {
             com.grash.model.Currency currency = new com.grash.model.Currency();
             currency.setCode("$");
             when(currencyService.findByCode("$")).thenReturn(Optional.of(currency));
-            when(roleService.findDefaultRoles()).thenReturn(List.of(role));
+            when(roleService.findDefaultRoleWithCode(RoleCode.ADMIN)).thenReturn(Optional.of(role));
             when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
             when(verificationTokenRepository.save(any(VerificationToken.class))).thenReturn(null);
             doNothing().when(mailService).sendMessageUsingThymeleafTemplate(
@@ -634,7 +634,7 @@ class UserServiceTest {
             com.grash.model.Currency ccy = new com.grash.model.Currency();
             ccy.setCode("$");
             when(currencyService.findByCode("$")).thenReturn(Optional.of(ccy));
-            when(roleService.findDefaultRoles()).thenReturn(List.of(role));
+            when(roleService.findDefaultRoleWithCode(RoleCode.ADMIN)).thenReturn(Optional.of(role));
             when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
                     .thenReturn("signup-token");
 
@@ -732,7 +732,7 @@ class UserServiceTest {
             com.grash.model.Currency ccy = new com.grash.model.Currency();
             ccy.setCode("$");
             when(currencyService.findByCode("$")).thenReturn(Optional.of(ccy));
-            when(roleService.findDefaultRoles()).thenReturn(List.of(role));
+            when(roleService.findDefaultRoleWithCode(RoleCode.ADMIN)).thenReturn(Optional.of(role));
             when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
             when(verificationTokenRepository.save(any(VerificationToken.class))).thenReturn(null);
 
@@ -764,7 +764,7 @@ class UserServiceTest {
             com.grash.model.Currency ccy = new com.grash.model.Currency();
             ccy.setCode("$");
             when(currencyService.findByCode("$")).thenReturn(Optional.of(ccy));
-            when(roleService.findDefaultRoles()).thenReturn(List.of(role));
+            when(roleService.findDefaultRoleWithCode(RoleCode.ADMIN)).thenReturn(Optional.of(role));
             when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
             when(verificationTokenRepository.save(any(VerificationToken.class))).thenReturn(null);
             doNothing().when(mailService).sendMessageUsingThymeleafTemplate(
@@ -798,7 +798,7 @@ class UserServiceTest {
             com.grash.model.Currency ccy = new com.grash.model.Currency();
             ccy.setCode("$");
             when(currencyService.findByCode("$")).thenReturn(Optional.of(ccy));
-            when(roleService.findDefaultRoles()).thenReturn(List.of(role));
+            when(roleService.findDefaultRoleWithCode(RoleCode.ADMIN)).thenReturn(Optional.of(role));
             when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
             doNothing().when(cacheService).putUserInCache(any());
             doNothing().when(mailService).sendHtmlMessage(any(), anyString(), anyString(), any());
@@ -1534,6 +1534,7 @@ class UserServiceTest {
                     .id(1L)
                     .name("Administrator")
                     .roleType(RoleType.ROLE_CLIENT)
+                    .code(RoleCode.ADMIN)
                     .createPermissions(new HashSet<>(Set.of(PermissionEntity.PEOPLE_AND_TEAMS)))
                     .build();
             user.setRole(adminRole);
@@ -1673,6 +1674,7 @@ class UserServiceTest {
             Role adminRole = Role.builder()
                     .id(1L)
                     .name("Administrator")
+                    .code(RoleCode.ADMIN)
                     .editOtherPermissions(new HashSet<>(Set.of(PermissionEntity.PEOPLE_AND_TEAMS)))
                     .build();
             user.setRole(adminRole);
@@ -1753,6 +1755,7 @@ class UserServiceTest {
             Role adminRole = Role.builder()
                     .id(1L)
                     .name("Administrator")
+                    .code(RoleCode.ADMIN)
                     .editOtherPermissions(new HashSet<>(Set.of(PermissionEntity.PEOPLE_AND_TEAMS)))
                     .build();
             user.setRole(adminRole);
@@ -1806,6 +1809,7 @@ class UserServiceTest {
             Role adminRole = Role.builder()
                     .id(1L)
                     .name("Administrator")
+                    .code(RoleCode.ADMIN)
                     .viewPermissions(new HashSet<>(Set.of(PermissionEntity.SETTINGS)))
                     .build();
             user.setRole(adminRole);

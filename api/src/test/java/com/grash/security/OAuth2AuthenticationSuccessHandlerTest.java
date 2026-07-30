@@ -4,6 +4,7 @@ import com.grash.dto.BrandConfig;
 import com.grash.factory.MailServiceFactory;
 import com.grash.model.*;
 import com.grash.model.enums.PlanFeatures;
+import com.grash.model.enums.RoleCode;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.UserRepository;
 import com.grash.service.*;
@@ -56,6 +57,8 @@ class OAuth2AuthenticationSuccessHandlerTest {
     private BrandingService brandingService;
     @Mock
     private MailService mailService;
+    @Mock
+    private RoleService roleService;
 
     @Mock
     private HttpServletRequest request;
@@ -142,7 +145,8 @@ class OAuth2AuthenticationSuccessHandlerTest {
         void existingUser_updatesSsoProviderOnFirstLogin() {
             String email = "john@test.com";
             User user = createUser(email, null, null);
-            Map<String, Object> attrs = Map.of("email", email, "given_name", "John", "family_name", "Doe", "sub", "456");
+            Map<String, Object> attrs = Map.of("email", email, "given_name", "John", "family_name", "Doe", "sub",
+                    "456");
             stubOAuthFlow("google", attrs);
             when(request.getParameter("redirect_uri")).thenReturn(null);
             when(oAuth2Properties.getSuccessRedirectUrl()).thenReturn(successUrl);
@@ -161,7 +165,8 @@ class OAuth2AuthenticationSuccessHandlerTest {
         void existingUser_doesNotUpdateSsoProviderIfSameProvider() {
             String email = "john@test.com";
             User user = createUser(email, "google", "existing-id");
-            Map<String, Object> attrs = Map.of("email", email, "given_name", "John", "family_name", "Doe", "sub", "456");
+            Map<String, Object> attrs = Map.of("email", email, "given_name", "John", "family_name", "Doe", "sub",
+                    "456");
             stubOAuthFlow("google", attrs);
             when(request.getParameter("redirect_uri")).thenReturn(null);
             when(oAuth2Properties.getSuccessRedirectUrl()).thenReturn(successUrl);
@@ -179,7 +184,8 @@ class OAuth2AuthenticationSuccessHandlerTest {
         void existingUser_differentSsoProvider_updatesSsoDetails() {
             String email = "john@test.com";
             User user = createUser(email, "microsoft", "999");
-            Map<String, Object> attrs = Map.of("email", email, "given_name", "John", "family_name", "Doe", "sub", "456");
+            Map<String, Object> attrs = Map.of("email", email, "given_name", "John", "family_name", "Doe", "sub",
+                    "456");
             stubOAuthFlow("google", attrs);
             when(request.getParameter("redirect_uri")).thenReturn(null);
             when(oAuth2Properties.getSuccessRedirectUrl()).thenReturn(successUrl);
@@ -255,6 +261,7 @@ class OAuth2AuthenticationSuccessHandlerTest {
             adminRole = new Role();
             adminRole.setName("Administrator");
             adminRole.setRoleType(RoleType.ROLE_CLIENT);
+            adminRole.setCode(RoleCode.ADMIN);
         }
 
         private void stubNewUserFlow() {
@@ -276,29 +283,22 @@ class OAuth2AuthenticationSuccessHandlerTest {
             lenient().when(brandingService.getBrandConfig()).thenReturn(new BrandConfig());
         }
 
-        private void stubCreateCompany(boolean addAdminRole) {
+        private void stubCreateCompany() {
             when(subscriptionPlanService.findByCode("BUSINESS"))
                     .thenReturn(Optional.of(SubscriptionPlan.builder()
                             .features(new HashSet<>(Set.of(PlanFeatures.API_ACCESS)))
                             .build()));
-            when(subscriptionService.create(any(Subscription.class))).thenAnswer(inv -> inv.getArgument(0));
-            when(currencyService.findByCode("$")).thenReturn(Optional.of(new com.grash.model.Currency()));
-            if (addAdminRole) {
-                doAnswer(inv -> {
-                    Company c = inv.getArgument(0);
-                    c.getCompanySettings().getRoleList().add(adminRole);
-                    return c;
-                }).when(companyService).create(any(Company.class));
-            } else {
-                lenient().when(companyService.create(any(Company.class))).thenAnswer(inv -> inv.getArgument(0));
-            }
-            when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+            lenient().when(subscriptionService.create(any(Subscription.class))).thenAnswer(inv -> inv.getArgument(0));
+            lenient().when(currencyService.findByCode("$")).thenReturn(Optional.of(new com.grash.model.Currency()));
+            lenient().when(companyService.create(any(Company.class))).thenAnswer(inv -> inv.getArgument(0));
+            lenient().when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+            lenient().when(roleService.findDefaultRoleWithCode(RoleCode.ADMIN)).thenReturn(Optional.of(adminRole));
         }
 
         @Test
         void createsCompanyAndUserAndReturnsUrlWithToken() {
             stubNewUserFlow();
-            stubCreateCompany(true);
+            stubCreateCompany();
 
             String result = handler.determineTargetUrl(request, response, authToken);
 
@@ -364,7 +364,7 @@ class OAuth2AuthenticationSuccessHandlerTest {
             lenient().when(passwordEncoder.encode("randId")).thenReturn("encoded");
             lenient().when(jwtTokenProvider.createToken(eq(msEmail), anyList())).thenReturn("jwt-token");
             lenient().when(brandingService.getBrandConfig()).thenReturn(new BrandConfig());
-            stubCreateCompany(true);
+            stubCreateCompany();
 
             String result = handler.determineTargetUrl(request, response, authToken);
 
@@ -394,7 +394,7 @@ class OAuth2AuthenticationSuccessHandlerTest {
             lenient().when(passwordEncoder.encode("randId")).thenReturn("encoded");
             lenient().when(jwtTokenProvider.createToken(eq(msEmail), anyList())).thenReturn("jwt-token");
             lenient().when(brandingService.getBrandConfig()).thenReturn(new BrandConfig());
-            stubCreateCompany(true);
+            stubCreateCompany();
 
             String result = handler.determineTargetUrl(request, response, authToken);
 
@@ -409,7 +409,7 @@ class OAuth2AuthenticationSuccessHandlerTest {
             ReflectionTestUtils.setField(handler, "cloudVersion", true);
             ReflectionTestUtils.setField(handler, "recipients", new String[]{"admin@test.com"});
             stubNewUserFlow();
-            stubCreateCompany(true);
+            stubCreateCompany();
             when(mailServiceFactory.getMailService()).thenReturn(mailService);
 
             String result = handler.determineTargetUrl(request, response, authToken);
@@ -429,7 +429,7 @@ class OAuth2AuthenticationSuccessHandlerTest {
             ReflectionTestUtils.setField(handler, "cloudVersion", true);
             ReflectionTestUtils.setField(handler, "recipients", new String[]{"admin@test.com"});
             stubNewUserFlow();
-            stubCreateCompany(true);
+            stubCreateCompany();
             when(mailServiceFactory.getMailService()).thenReturn(mailService);
             doThrow(new RuntimeException("Mail server down"))
                     .when(mailService).sendHtmlMessage(any(), anyString(), anyString());

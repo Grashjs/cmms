@@ -184,8 +184,7 @@ public class UserService {
             companyService.create(company);
             user.setOwnsCompany(true);
             user.setCompany(company);
-            user.setRole(roleService.findDefaultRoles().stream().filter(role -> role.getName().equals(
-                    "Administrator")).findFirst().get());
+            user.setRole(roleService.findDefaultRoleWithCode(RoleCode.ADMIN).get());
             checkUsageBasedLimit(1);
         } else {
             Role role = roleService.findById(user.getRole().getId()).orElseThrow(() -> new CustomException("Role not " +

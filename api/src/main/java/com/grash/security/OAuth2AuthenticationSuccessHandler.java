@@ -5,6 +5,8 @@ import com.grash.factory.MailServiceFactory;
 import com.grash.model.Company;
 import com.grash.model.User;
 import com.grash.model.Subscription;
+import com.grash.model.enums.RoleCode;
+import com.grash.model.enums.RoleCode;
 import com.grash.repository.UserRepository;
 import com.grash.service.*;
 import com.grash.utils.Helper;
@@ -42,6 +44,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private final CurrencyService currencyService;
     private final MailServiceFactory mailServiceFactory;
     private final CompanyService companyService;
+    private final RoleService roleService;
+
     @Value("${mail.recipients:#{null}}")
     private String[] recipients;
     @Value("${cloud-version}")
@@ -143,9 +147,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             companyService.create(company);
 
             user.setOwnsCompany(true);
-            user.setRole(company.getCompanySettings().getRoleList().stream()
-                    .filter(role -> role.getName().equals("Administrator"))
-                    .findFirst().get());
+            user.setRole(roleService.findDefaultRoleWithCode(RoleCode.ADMIN).get());
 
             user.setCompany(company);
             User savedUser = userRepository.save(user);

@@ -45,9 +45,9 @@ public class CompanySettings {
 //    @OneToOne
 //   private AssetFieldsConfiguration assetFieldsConfiguration;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "companySettings", fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<Role> roleList = new ArrayList<>();
+//    @OneToMany(cascade = CascadeType.ALL, mappedBy = "companySettings", fetch = FetchType.LAZY)
+//    @JsonIgnore
+//    private List<Role> roleList = new ArrayList<>();
 
     public CompanySettings(Company company) {
         this.company = company;

@@ -65,6 +65,10 @@ public class RoleService {
         return roleRepository.findDefaultRoles();
     }
 
+    public Optional<Role> findDefaultRoleWithCode(RoleCode code) {
+        return roleRepository.findDefaultRoleWithCode(code);
+    }
+
     public List<Role> saveAll(List<Role> roles) {
         return roleRepository.saveAll(roles);
     }

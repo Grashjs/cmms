@@ -20,4 +20,8 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
     @Query("SELECT r FROM Role r WHERE r.code !=com.grash.model.enums.RoleCode.USER_CREATED and r.companySettings is " +
             "null")
     List<Role> findDefaultRoles();
+
+    @Query("SELECT r FROM Role r WHERE r.code = :code AND r.code!=com.grash.model.enums.RoleCode.USER_CREATED and r" +
+            ".companySettings is null")
+    Optional<Role> findDefaultRoleWithCode(@Param("code") RoleCode code);
 }

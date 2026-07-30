@@ -7,6 +7,7 @@ import com.grash.model.User;
 import com.grash.model.Role;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
+import com.grash.model.enums.RoleCode;
 import com.grash.model.enums.RoleType;
 import com.grash.service.RoleService;
 import com.grash.service.UserService;
@@ -64,6 +65,7 @@ public class RoleController {
                 HttpServletRequest req) {
         User user = userService.whoami(req);
         roleReq.setPaid(true);
+        roleReq.setCode(RoleCode.USER_CREATED);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.ROLE)) {
             return roleService.create(roleReq);
