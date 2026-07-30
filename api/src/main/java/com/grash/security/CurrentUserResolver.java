@@ -2,6 +2,7 @@ package com.grash.security;
 
 import com.grash.model.User;
 import com.grash.service.UserService;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.MethodParameter;
@@ -30,7 +31,7 @@ public class CurrentUserResolver implements HandlerMethodArgumentResolver {
     }
 
     @Override
-    public User resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+    public User resolveArgument(@NotNull MethodParameter parameter, ModelAndViewContainer mavContainer,
                                 NativeWebRequest webRequest,
                                 WebDataBinderFactory binderFactory) throws Exception {
         return userService.whoami(webRequest.getNativeRequest(HttpServletRequest.class));
