@@ -2,6 +2,7 @@ package com.grash.service;
 
 import com.grash.dto.SignupSuccessResponse;
 import com.grash.dto.SuccessResponse;
+import com.grash.dto.UserInvitationDTO;
 import com.grash.dto.UserPatchDTO;
 import com.grash.dto.UserSignupRequest;
 import com.grash.dto.UtmParams;
@@ -14,6 +15,7 @@ import com.grash.mapper.UserMapper;
 import com.grash.dto.BrandConfig;
 import com.grash.model.*;
 import com.grash.model.enums.Language;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleCode;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.UserRepository;
@@ -98,6 +100,8 @@ class UserServiceTest {
     private CacheService cacheService;
     @Mock
     private MailService mailService;
+    @Mock
+    private IntercomService intercomService;
 
     private Company company;
     private User user;
@@ -1503,6 +1507,357 @@ class UserServiceTest {
             assertTrue(result.contains("UTM Content: content"));
             assertTrue(result.contains("Google Click ID: gclid123"));
             assertTrue(result.contains("Facebook Click ID: fbclid456"));
+        }
+    }
+
+    @Nested
+    class InviteUsers {
+
+        private UserInvitationDTO invitationDTO;
+        private Role invitedRole;
+
+        @BeforeEach
+        void init() {
+            invitedRole = Role.builder()
+                    .id(2L)
+                    .name("Technician")
+                    .roleType(RoleType.ROLE_CLIENT)
+                    .paid(true)
+                    .build();
+
+            invitationDTO = new UserInvitationDTO();
+            invitationDTO.setRole(invitedRole);
+            invitationDTO.setEmails(new ArrayList<>(List.of("invited@test.com")));
+            invitationDTO.setDisableSendingEmail(true);
+
+            Role adminRole = Role.builder()
+                    .id(1L)
+                    .name("Administrator")
+                    .roleType(RoleType.ROLE_CLIENT)
+                    .createPermissions(new HashSet<>(Set.of(PermissionEntity.PEOPLE_AND_TEAMS)))
+                    .build();
+            user.setRole(adminRole);
+        }
+
+        @Test
+        void accessDenied_noCreatePermission_throws403() {
+            Role restrictedRole = Role.builder()
+                    .id(3L).name("Restricted").roleType(RoleType.ROLE_CLIENT)
+                    .createPermissions(new HashSet<>())
+                    .build();
+            user.setRole(restrictedRole);
+
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> userService.inviteUsers(invitationDTO, user));
+            assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
+        }
+
+        @Test
+        void roleNotFound_throws404() {
+            when(roleService.findById(2L)).thenReturn(Optional.empty());
+
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> userService.inviteUsers(invitationDTO, user));
+            assertEquals(HttpStatus.NOT_FOUND, ex.getHttpStatus());
+        }
+
+        @Test
+        void roleNotInCompany_throws404() {
+            Company otherCompany = new Company();
+            otherCompany.setId(99L);
+            CompanySettings otherSettings = new CompanySettings();
+            otherSettings.setId(99L);
+            otherSettings.setCompany(otherCompany);
+            company.getCompanySettings().setId(1L);
+            invitedRole.setCompanySettings(otherSettings);
+
+            when(roleService.findById(2L)).thenReturn(Optional.of(invitedRole));
+
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> userService.inviteUsers(invitationDTO, user));
+            assertEquals(HttpStatus.NOT_FOUND, ex.getHttpStatus());
+        }
+
+        @Test
+        void subscriptionLimitExceeded_throws406() {
+            company.getSubscription().setUsersCount(1);
+            User paidUser = buildUser(3L, "paid@test.com");
+            when(roleService.findById(2L)).thenReturn(Optional.of(invitedRole));
+            when(userRepository.findByCompany_Id(1L)).thenReturn(List.of(user, paidUser));
+
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> userService.inviteUsers(invitationDTO, user));
+            assertEquals(HttpStatus.NOT_ACCEPTABLE, ex.getHttpStatus());
+        }
+
+        @Test
+        void nonPaidRole_bypassesSubscriptionLimit_success() {
+            invitedRole.setPaid(false);
+            when(roleService.findById(2L)).thenReturn(Optional.of(invitedRole));
+            when(userRepository.existsByEmailIgnoreCase("invited@test.com")).thenReturn(false);
+
+            SuccessResponse response = userService.inviteUsers(invitationDTO, user);
+
+            assertTrue(response.isSuccess());
+            verify(userInvitationService).create(any(UserInvitation.class));
+        }
+
+        @Test
+        void success_invitesUsersAndReturnsResponse() {
+            company.getSubscription().setUsersCount(10);
+            when(roleService.findById(2L)).thenReturn(Optional.of(invitedRole));
+            when(userRepository.findByCompany_Id(1L)).thenReturn(List.of(user));
+            when(userRepository.existsByEmailIgnoreCase("invited@test.com")).thenReturn(false);
+            when(licenseService.getLicensingState()).thenReturn(
+                    LicensingState.builder().hasLicense(false).usersCount(0).build());
+            when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)).thenReturn(true);
+
+            SuccessResponse response = userService.inviteUsers(invitationDTO, user);
+
+            assertTrue(response.isSuccess());
+            assertEquals("Users have been invited", response.getMessage());
+            verify(userInvitationService).create(any(UserInvitation.class));
+        }
+
+        @Test
+        void success_firesIntercomEventOnFirstInvite() {
+            company.getSubscription().setUsersCount(10);
+            when(roleService.findById(2L)).thenReturn(Optional.of(invitedRole));
+            when(userRepository.findByCompany_Id(1L)).thenReturn(List.of(user));
+            when(userRepository.existsByEmailIgnoreCase("invited@test.com")).thenReturn(false);
+            when(licenseService.getLicensingState()).thenReturn(
+                    LicensingState.builder().hasLicense(false).usersCount(0).build());
+            when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)).thenReturn(true);
+
+            userService.inviteUsers(invitationDTO, user);
+
+            assertTrue(company.isInvitedUsers());
+            verify(companyService).update(company);
+            verify(intercomService).createCompanyActivationEvent(
+                    eq("first-users-invited"), eq(1L), eq("john@test.com"), anyMap());
+        }
+
+        @Test
+        void success_skipsIntercomWhenAlreadyInvited() {
+            company.setInvitedUsers(true);
+            company.getSubscription().setUsersCount(10);
+            when(roleService.findById(2L)).thenReturn(Optional.of(invitedRole));
+            when(userRepository.findByCompany_Id(1L)).thenReturn(List.of(user));
+            when(userRepository.existsByEmailIgnoreCase("invited@test.com")).thenReturn(false);
+            when(licenseService.getLicensingState()).thenReturn(
+                    LicensingState.builder().hasLicense(false).usersCount(0).build());
+            when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)).thenReturn(true);
+
+            userService.inviteUsers(invitationDTO, user);
+
+            verify(intercomService, never()).createCompanyActivationEvent(any(), any(), any(), any());
+        }
+    }
+
+    @Nested
+    class PatchUserRole {
+
+        private User targetUser;
+        private Role newRole;
+
+        @BeforeEach
+        void init() {
+            newRole = Role.builder()
+                    .id(2L)
+                    .name("Technician")
+                    .paid(true)
+                    .build();
+            targetUser = buildUser(2L, "target@test.com");
+            targetUser.setCompany(company);
+
+            Role adminRole = Role.builder()
+                    .id(1L)
+                    .name("Administrator")
+                    .editOtherPermissions(new HashSet<>(Set.of(PermissionEntity.PEOPLE_AND_TEAMS)))
+                    .build();
+            user.setRole(adminRole);
+        }
+
+        @Test
+        void userNotFound_throws404() {
+            when(userRepository.findByIdAndCompany_Id(2L, 1L)).thenReturn(Optional.empty());
+
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> userService.patchUserRole(2L, 2L, user));
+            assertEquals(HttpStatus.NOT_FOUND, ex.getHttpStatus());
+        }
+
+        @Test
+        void roleNotFound_throws404() {
+            when(userRepository.findByIdAndCompany_Id(2L, 1L)).thenReturn(Optional.of(targetUser));
+            when(roleService.findById(2L)).thenReturn(Optional.empty());
+
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> userService.patchUserRole(2L, 2L, user));
+            assertEquals(HttpStatus.NOT_FOUND, ex.getHttpStatus());
+        }
+
+        @Test
+        void noEditPermission_throws406() {
+            Role restrictedRole = Role.builder()
+                    .id(3L).name("Restricted").editOtherPermissions(new HashSet<>()).build();
+            user.setRole(restrictedRole);
+
+            when(userRepository.findByIdAndCompany_Id(2L, 1L)).thenReturn(Optional.of(targetUser));
+            when(roleService.findById(2L)).thenReturn(Optional.of(newRole));
+
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> userService.patchUserRole(2L, 2L, user));
+            assertEquals(HttpStatus.NOT_ACCEPTABLE, ex.getHttpStatus());
+        }
+
+        @Test
+        void subscriptionLimitExceeded_throws406() {
+            company.getSubscription().setUsersCount(1);
+            User anotherPaidUser = buildUser(3L, "extra@test.com");
+
+            when(userRepository.findByIdAndCompany_Id(2L, 1L)).thenReturn(Optional.of(targetUser));
+            when(roleService.findById(2L)).thenReturn(Optional.of(newRole));
+            when(userRepository.findByCompany_Id(1L)).thenReturn(List.of(user, targetUser, anotherPaidUser));
+
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> userService.patchUserRole(2L, 2L, user));
+            assertEquals(HttpStatus.NOT_ACCEPTABLE, ex.getHttpStatus());
+        }
+
+        @Test
+        void success_updatesRoleAndSaves() {
+            company.getSubscription().setUsersCount(10);
+            when(userRepository.findByIdAndCompany_Id(2L, 1L)).thenReturn(Optional.of(targetUser));
+            when(roleService.findById(2L)).thenReturn(Optional.of(newRole));
+            when(userRepository.findByCompany_Id(1L)).thenReturn(List.of(user));
+            when(userRepository.save(targetUser)).thenReturn(targetUser);
+
+            User result = userService.patchUserRole(2L, 2L, user);
+
+            assertEquals(newRole, result.getRole());
+            verify(userRepository).save(targetUser);
+        }
+    }
+
+    @Nested
+    class DisableUser {
+
+        private User targetUser;
+
+        @BeforeEach
+        void init() {
+            targetUser = buildUser(2L, "target@test.com");
+            targetUser.setCompany(company);
+
+            Role adminRole = Role.builder()
+                    .id(1L)
+                    .name("Administrator")
+                    .editOtherPermissions(new HashSet<>(Set.of(PermissionEntity.PEOPLE_AND_TEAMS)))
+                    .build();
+            user.setRole(adminRole);
+        }
+
+        @Test
+        void userNotFound_throws404() {
+            when(userRepository.findByIdAndCompany_Id(2L, 1L)).thenReturn(Optional.empty());
+
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> userService.disableUser(2L, user));
+            assertEquals(HttpStatus.NOT_FOUND, ex.getHttpStatus());
+        }
+
+        @Test
+        void noEditPermission_throws406() {
+            Role restrictedRole = Role.builder()
+                    .id(3L).name("Restricted").editOtherPermissions(new HashSet<>()).build();
+            user.setRole(restrictedRole);
+
+            when(userRepository.findByIdAndCompany_Id(2L, 1L)).thenReturn(Optional.of(targetUser));
+
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> userService.disableUser(2L, user));
+            assertEquals(HttpStatus.NOT_ACCEPTABLE, ex.getHttpStatus());
+        }
+
+        @Test
+        void success_disablesUser() {
+            when(userRepository.findByIdAndCompany_Id(2L, 1L)).thenReturn(Optional.of(targetUser));
+            when(userRepository.save(targetUser)).thenReturn(targetUser);
+
+            User result = userService.disableUser(2L, user);
+
+            assertFalse(result.isEnabled());
+            assertFalse(result.isEnabledInSubscription());
+            verify(userRepository).save(targetUser);
+        }
+    }
+
+    @Nested
+    class SoftDeleteUser {
+
+        private User targetUser;
+
+        @BeforeEach
+        void init() {
+            targetUser = buildUser(2L, "target@test.com");
+            targetUser.setCompany(company);
+
+            Role adminRole = Role.builder()
+                    .id(1L)
+                    .name("Administrator")
+                    .viewPermissions(new HashSet<>(Set.of(PermissionEntity.SETTINGS)))
+                    .build();
+            user.setRole(adminRole);
+        }
+
+        @Test
+        void userNotFound_throws404() {
+            when(userRepository.findByIdAndCompany_Id(2L, 1L)).thenReturn(Optional.empty());
+
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> userService.softDeleteUser(2L, user));
+            assertEquals(HttpStatus.NOT_FOUND, ex.getHttpStatus());
+        }
+
+        @Test
+        void noPermission_throws406() {
+            Role restrictedRole = Role.builder()
+                    .id(3L).name("Restricted").viewPermissions(new HashSet<>()).build();
+            user.setRole(restrictedRole);
+
+            when(userRepository.findByIdAndCompany_Id(2L, 1L)).thenReturn(Optional.of(targetUser));
+
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> userService.softDeleteUser(2L, user));
+            assertEquals(HttpStatus.NOT_ACCEPTABLE, ex.getHttpStatus());
+        }
+
+        @Test
+        void success_selfSoftDelete() {
+            user.setId(2L);
+            when(userRepository.findByIdAndCompany_Id(2L, 1L)).thenReturn(Optional.of(targetUser));
+            when(userRepository.save(targetUser)).thenReturn(targetUser);
+
+            User result = userService.softDeleteUser(2L, user);
+
+            assertFalse(result.isEnabled());
+            assertFalse(result.isEnabledInSubscription());
+            assertTrue(result.getEmail().contains("_2"));
+            verify(userRepository).save(targetUser);
+        }
+
+        @Test
+        void success_adminWithSettingsPermission() {
+            when(userRepository.findByIdAndCompany_Id(2L, 1L)).thenReturn(Optional.of(targetUser));
+            when(userRepository.save(targetUser)).thenReturn(targetUser);
+
+            User result = userService.softDeleteUser(2L, user);
+
+            assertFalse(result.isEnabled());
+            assertFalse(result.isEnabledInSubscription());
+            assertTrue(result.getEmail().contains("_2"));
+            verify(userRepository).save(targetUser);
         }
     }
 }
