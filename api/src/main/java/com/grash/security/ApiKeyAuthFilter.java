@@ -41,8 +41,8 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
-                                    @NotNull HttpServletResponse response,
-                                    @NotNull FilterChain filterChain) throws ServletException, IOException {
+                                    @org.jetbrains.annotations.NotNull HttpServletResponse response,
+                                    @org.jetbrains.annotations.NotNull FilterChain filterChain) throws ServletException, IOException {
 
         String apiKey = request.getHeader("x-api-key");
 
