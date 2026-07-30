@@ -135,18 +135,18 @@ public class AssetController {
 
     @GetMapping("/children/{id}")
     @PreAuthorize("permitAll()")
+    @Deprecated
     public List<AssetShowDTO> getChildrenById(@PathVariable("id") Long id,
-                                              Pageable pageable,
                                               HttpServletRequest req) {
         User user = userService.whoami(req);
         if (id.equals(0L) && user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return assetService.findByCompanyAndParentAssetNull(user.getCompany().getId(), pageable).stream().map(asset -> assetMapper.toShowDto(asset, assetService)).collect(Collectors.toList());
+            return assetService.findByCompanyAndParentAssetNull(user.getCompany().getId(), Pageable.unpaged()).stream().map(asset -> assetMapper.toShowDto(asset, assetService)).collect(Collectors.toList());
         }
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
             if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS)) {
-                return assetService.findAssetChildren(id, pageable).stream().map(asset -> assetMapper.toShowDto(asset,
+                return assetService.findAssetChildren(id, Pageable.unpaged()).stream().map(asset -> assetMapper.toShowDto(asset,
                         assetService)).collect(Collectors.toList());
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
 
