@@ -84,8 +84,6 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             User user;
 
             if (!userOptional.isPresent()) {
-                // Auto-register new users from SSO if they don't exist
-                // In a real implementation, you might want more complex logic here
                 user = createUserFromOAuth(email, attributes, authToken.getAuthorizedClientRegistrationId());
             } else {
                 user = userOptional.get();
