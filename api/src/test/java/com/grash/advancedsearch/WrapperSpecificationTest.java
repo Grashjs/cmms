@@ -4,10 +4,11 @@ import com.grash.model.enums.EnumName;
 import com.grash.model.enums.Priority;
 import com.grash.model.enums.Status;
 import com.grash.utils.Helper;
-import jakarta.persistence.Id;
 import jakarta.persistence.criteria.*;
 import jakarta.persistence.metamodel.Attribute;
 import jakarta.persistence.metamodel.EntityType;
+import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.description.annotation.AnnotationDescription;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -27,10 +28,12 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class WrapperSpecificationTest {
 
-    @jakarta.persistence.Entity
-    static class TestEntity {
-        private Long id;
-    }
+    private static final Class<?> ENTITY_CLASS = new ByteBuddy()
+            .subclass(Object.class)
+            .annotateType(AnnotationDescription.Builder.ofType(jakarta.persistence.Entity.class).build())
+            .make()
+            .load(WrapperSpecificationTest.class.getClassLoader())
+            .getLoaded();
 
     @Mock(answer = Answers.RETURNS_DEFAULTS)
     private Root<Object> root;
@@ -156,7 +159,7 @@ class WrapperSpecificationTest {
 
         @Test
         void equal_withEntityField_shouldUseIdEquality() {
-            when(simplePath.getJavaType()).thenReturn((Class) TestEntity.class);
+            when(simplePath.getJavaType()).thenReturn((Class) ENTITY_CLASS);
             when(simplePath.get("id")).thenReturn(entityIdPath);
 
             assertNotNull(buildSpec(createFilterField("relatedEntity", "eq", 1L)));
@@ -171,7 +174,7 @@ class WrapperSpecificationTest {
 
         @Test
         void notEqual_withEntityField_shouldUseIdInequality() {
-            when(simplePath.getJavaType()).thenReturn((Class) TestEntity.class);
+            when(simplePath.getJavaType()).thenReturn((Class) ENTITY_CLASS);
             when(simplePath.get("id")).thenReturn(entityIdPath);
 
             assertNotNull(buildSpec(createFilterField("relatedEntity", "ne", 1L)));
@@ -261,7 +264,7 @@ class WrapperSpecificationTest {
 
         @Test
         void in_withEntityField_shouldUseIdIn() {
-            when(simplePath.getJavaType()).thenReturn((Class) TestEntity.class);
+            when(simplePath.getJavaType()).thenReturn((Class) ENTITY_CLASS);
             when(simplePath.get("id")).thenReturn(entityIdPath);
 
             FilterField filterField = FilterField.builder()
