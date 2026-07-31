@@ -1,6 +1,6 @@
 {
   "name": "atlas",
-  "version": "1.0.44",
+  "version": "1.0.45",
   "scripts": {
     "start": "expo start --dev-client",
     "android": "expo run:android",
@@ -8,6 +8,7 @@
     "web": "expo start --web",
     "test": "jest",
     "prebuild": "expo prebuild",
+    "bump-version": "node scripts/bump-version.mjs",
     "format": "prettier --write \"./**/*.{ts,tsx,js,jsx,json}\" --config ./.prettierrc",
     "postinstall": "patch-package"
   },
