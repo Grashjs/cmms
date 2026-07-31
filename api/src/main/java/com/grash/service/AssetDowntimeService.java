@@ -6,7 +6,6 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.AssetDowntimeMapper;
 import com.grash.model.AssetDowntime;
 import com.grash.repository.AssetDowntimeRepository;
-import com.grash.utils.DowntimeComparator;
 import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -84,7 +83,7 @@ public class AssetDowntimeService {
     public long getDowntimesMeantime(Collection<AssetDowntime> downtimes) {
         long result = 0;
         if (downtimes.size() > 2) {
-            DowntimeComparator downtimeComparator = new DowntimeComparator();
+            Comparator<AssetDowntime> downtimeComparator = Comparator.comparing(AssetDowntime::getStartsOn);
             AssetDowntime firstDowntime = Collections.min(downtimes, downtimeComparator);
             AssetDowntime lastDowntime = Collections.max(downtimes, downtimeComparator);
             result =
