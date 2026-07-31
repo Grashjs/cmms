@@ -128,8 +128,15 @@ export default function AssetsScreen({
 }: RootStackScreenProps<'Assets'>) {
   const { t } = useTranslation();
   const [startedSearch, setStartedSearch] = useState<boolean>(false);
-  const { assets, assetsHierarchy, loadingGet, currentPageNum, lastPage } =
-    useSelector((state) => state.assets);
+  const {
+    assets,
+    assetsHierarchy,
+    loadingGet,
+    currentPageNum,
+    lastPage,
+    assetChildrenPageNum,
+    assetChildrenLastPage
+  } = useSelector((state) => state.assets);
   const theme = useTheme();
   const [view, setView] = useState<'hierarchy' | 'list'>('hierarchy');
   const dispatch = useDispatch();
@@ -287,6 +294,23 @@ export default function AssetsScreen({
       ) : (
         <ScrollView
           style={styles.scrollView}
+          onScroll={({ nativeEvent }) => {
+            if (isCloseToBottom(nativeEvent)) {
+              if (
+                !loadingGet &&
+                !assetChildrenLastPage[route.params?.id ?? 0]
+              ) {
+                dispatch(
+                  getAssetChildren(
+                    route.params?.id ?? 0,
+                    route.params?.hierarchy ?? [],
+                    (assetChildrenPageNum[route.params?.id ?? 0] ?? 0) + 1
+                  )
+                );
+              }
+            }
+          }}
+          scrollEventThrottle={400}
           refreshControl={
             <RefreshControl
               refreshing={loadingGet}

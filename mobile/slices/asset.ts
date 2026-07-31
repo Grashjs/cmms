@@ -22,6 +22,8 @@ interface AssetState {
   assetsMini: AssetMiniDTO[];
   currentPageNum: number;
   lastPage: boolean;
+  assetChildrenPageNum: { [key: number]: number };
+  assetChildrenLastPage: { [key: number]: boolean };
   loadingGet: boolean;
   loadingWorkOrders: boolean;
 }
@@ -35,6 +37,8 @@ const initialState: AssetState = {
   assetsMini: [],
   currentPageNum: 0,
   lastPage: true,
+  assetChildrenPageNum: {},
+  assetChildrenLastPage: {},
   loadingGet: false,
   loadingWorkOrders: false
 };
@@ -109,9 +113,14 @@ const slice = createSlice({
     },
     getAssetChildren(
       state: AssetState,
-      action: PayloadAction<{ assets: AssetRow[]; id: number }>
+      action: PayloadAction<{
+        assets: AssetRow[];
+        id: number;
+        pageNum: number;
+        lastPage: boolean;
+      }>
     ) {
-      const { assets, id } = action.payload;
+      const { assets, id, pageNum, lastPage } = action.payload;
       const parent = state.assetsHierarchy.findIndex(
         (asset) => asset.id === id
       );
@@ -128,6 +137,9 @@ const slice = createSlice({
         acc[assetInState] = asset;
         return acc;
       }, state.assetsHierarchy);
+
+      state.assetChildrenPageNum[id] = pageNum;
+      state.assetChildrenLastPage[id] = lastPage;
     },
     getAssetDetails(
       state: AssetState,
@@ -255,14 +267,18 @@ export const deleteAsset =
   };
 
 export const getAssetChildren =
-  (id: number, parents: number[]): AppThunk =>
+  (id: number, parents: number[], pageNum = 0, pageSize = 20): AppThunk =>
   async (dispatch) => {
     dispatch(slice.actions.setLoadingGet({ loading: true }));
-    const assets = await api.get<AssetDTO[]>(`${basePath}/children/${id}`);
+    const page = await api.get<Page<AssetDTO>>(
+      `${basePath}/children/${id}/paginated?page=${pageNum}&size=${pageSize}`
+    );
     dispatch(
       slice.actions.getAssetChildren({
         id,
-        assets: assets.map((asset) => {
+        pageNum,
+        lastPage: page.last,
+        assets: page.content.map((asset) => {
           return { ...asset, hierarchy: [...parents, asset.id] };
         })
       })

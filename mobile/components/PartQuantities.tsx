@@ -186,10 +186,17 @@ export default function PartQuantities({
               style={{
                 display: 'flex',
                 flexDirection: 'column',
-                marginLeft: 5
+                marginLeft: 5,
+                flex: 1,
+                paddingRight: 5
               }}
             >
-              <Text style={{ fontWeight: 'bold' }} variant="bodyLarge">
+              <Text
+                style={{ fontWeight: 'bold' }}
+                variant="bodyLarge"
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
                 {partQuantity.part.name}
               </Text>
               <Text>

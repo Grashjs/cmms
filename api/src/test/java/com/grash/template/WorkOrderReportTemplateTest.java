@@ -94,6 +94,7 @@ class WorkOrderReportTemplateTest extends AbstractTemplateTest {
 
         assertTrue(html.contains(panelTitle("Comments")));
         assertTrue(html.contains("@Jane Smith"));
+        assertFalse(html.contains("user:3"));
         assertTrue(html.contains("Please confirm the replacement parts."));
         assertTrue(html.contains("https://s3.example.com/comment1.png"));
 
