@@ -140,3 +140,43 @@ jobs:
           platforms: linux/amd64,linux/arm64
           tags: |
             ${{ env.FRONTEND_IMAGE }}:${{ steps.docker-tag.outputs.TAG }}
+
+  deploy-netlify:
+    needs: test
+    if: ${{ always() && (vars.SKIP_TESTS == 'true' || success()) }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'npm'
+          cache-dependency-path: ./frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: ./frontend
+
+      - name: Build project
+        run: npm run build
+        working-directory: ./frontend
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+
+      - name: Deploy to Netlify
+        uses: nwtgck/actions-netlify@v2
+        with:
+          publish-dir: ./frontend/build
+          production-branch: main
+          deploy-message: ${{ github.event.head_commit.message }}
+          enable-pull-request-comment: true
+          enable-commit-comment: true
+          overwrites-pull-request-comment: true
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          NODE_OPTIONS: --max_old_space_size=4096
+        timeout-minutes: 20
