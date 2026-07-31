@@ -4,11 +4,10 @@ script({
     model:"google:gemini-2.5-flash"
 })
 
-const product = env.vars.product || "GenAIScript"
+const product = "Atlas CMMS"
+const previousVersion = "1.7.0"
+const version = "1.8.0"
 
-// find previous tag
-const version  = "1.6.0"
-const tag = await git.lastTag()
 const excludedPaths = [
     "package.json",
     "**/package.json",
@@ -22,21 +21,16 @@ const excludedPaths = [
     "slides/**",
     "THIRD_PARTY_LICENSES.md",
 ]
-const commits = (
-    await git.log({
-        excludedGrep:
-            "(skip ci|THIRD_PARTY_NOTICES|THIRD_PARTY_LICENSES|genai)",
-        base: tag,
-        head: "HEAD",
-        excludedPaths,
-    })
-)
-    .map(({ message }) => message)
-    .join("\n")
+const commits = await git.log({
+    base: `v${previousVersion}`,
+    head: `v${version}`,
+    excludedPaths,
+})
 console.debug(commits)
+
 const diff = await git.diff({
-    base: tag,
-    head: "HEAD",
+    base: `v${previousVersion}`,
+    head: `v${version}`,
     excludedPaths,
 })
 console.debug(diff)
