@@ -126,6 +126,13 @@ const slice = createSlice({
       );
       if (parent !== -1) state.assetsHierarchy[parent].childrenFetched = true;
 
+      if (pageNum === 0) {
+        state.assetsHierarchy = state.assetsHierarchy.filter((asset) => {
+          if (id === 0) return asset.hierarchy.length !== 1;
+          return asset.hierarchy[asset.hierarchy.length - 2] !== id;
+        });
+      }
+
       state.assetsHierarchy = assets.reduce((acc, asset) => {
         //check if asset already exists in state
         const assetInState = state.assetsHierarchy.findIndex(

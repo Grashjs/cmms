@@ -127,6 +127,15 @@ const slice = createSlice({
       if (parent !== -1)
         state.locationsHierarchy[parent].childrenFetched = true;
 
+      if (pageNum === 0) {
+        state.locationsHierarchy = state.locationsHierarchy.filter(
+          (location) => {
+            if (id === 0) return location.hierarchy.length !== 1;
+            return location.hierarchy[location.hierarchy.length - 2] !== id;
+          }
+        );
+      }
+
       state.locationsHierarchy = locations.reduce((acc, location) => {
         //check if location already exists in state
         const locationInState = state.locationsHierarchy.findIndex(
