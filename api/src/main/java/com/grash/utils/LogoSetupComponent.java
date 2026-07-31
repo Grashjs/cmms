@@ -22,6 +22,7 @@ public class LogoSetupComponent implements ApplicationRunner {
     // Path inside the container where the app can read static files at runtime
     private static final String STATIC_LOGO_PATH = "/app/static/images/custom-logo.png";
     private static final String STATIC_LOGO_WHITE_PATH = "/app/static/images/custom-logo-white.png";
+    private static final String LOGO_PARENT = "/app/static/images/";
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -30,21 +31,24 @@ public class LogoSetupComponent implements ApplicationRunner {
         }
     }
 
-    private void copyLogoToStaticResources() {
+    void copyLogoToStaticResources() {
+        copyLogoToStaticResources(LOGO_PARENT, STATIC_LOGO_PATH, STATIC_LOGO_WHITE_PATH);
+    }
+
+    void copyLogoToStaticResources(String logoParent, String staticLogoPath, String staticLogoWhitePath) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(customLogoPaths);
-            String logoParent = "/app/static/images/";
             // Source path inside container (must be accessible, mounted from host or included in container)
             Path source = Paths.get(logoParent + jsonNode.get("dark").asText());
-            Path target = Paths.get(STATIC_LOGO_PATH);
+            Path target = Paths.get(staticLogoPath);
 
             Files.createDirectories(target.getParent());
             Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING);
 
             //white
             Path sourceWhite = Paths.get(logoParent + jsonNode.get("white").asText());
-            Path targetWhite = Paths.get(STATIC_LOGO_WHITE_PATH);
+            Path targetWhite = Paths.get(staticLogoWhitePath);
 
             Files.createDirectories(targetWhite.getParent());
             Files.copy(sourceWhite, targetWhite, StandardCopyOption.REPLACE_EXISTING);
