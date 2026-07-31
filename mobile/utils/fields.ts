@@ -449,6 +449,7 @@ export const formatMeterValues = (values) => {
   newValues.location = formatSelect(newValues.location);
   newValues.asset = formatSelect(newValues.asset);
   newValues.updateFrequency = Number(newValues.updateFrequency);
+  newValues.category = formatSelect(newValues.category);
   return newValues;
 };
 export const getMeterFields = (t): IField[] => {
@@ -517,6 +518,7 @@ export const formatPartValues = (values) => {
   newValues.teams = formatSelectMultiple(newValues.teams);
   newValues.customers = formatSelectMultiple(newValues.customers);
   newValues.vendors = formatSelectMultiple(newValues.vendors);
+  newValues.category = formatSelect(newValues.category);
   // values.image = formatSelect(values.image);
   // values.files = formatSelect(values.files);
   return newValues;
