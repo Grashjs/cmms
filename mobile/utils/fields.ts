@@ -449,7 +449,7 @@ export const formatMeterValues = (values) => {
   newValues.location = formatSelect(newValues.location);
   newValues.asset = formatSelect(newValues.asset);
   newValues.updateFrequency = Number(newValues.updateFrequency);
-  newValues.category = formatSelect(newValues.category);
+  newValues.meterCategory = formatSelect(newValues.meterCategory);
   return newValues;
 };
 export const getMeterFields = (t): IField[] => {
@@ -476,7 +476,7 @@ export const getMeterFields = (t): IField[] => {
       required: true
     },
     {
-      name: 'category',
+      name: 'meterCategory',
       label: t('category'),
       placeholder: t('category'),
       type: 'select',
