@@ -22,7 +22,6 @@ import com.grash.repository.VerificationTokenRepository;
 import com.grash.security.CustomUserDetail;
 import com.grash.security.JwtTokenProvider;
 import com.grash.utils.Helper;
-import com.grash.utils.Utils;
 import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletRequest;
@@ -67,7 +66,6 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final EntityManager em;
     private final AuthenticationManager authenticationManager;
-    private final Utils utils;
     private final MessageSource messageSource;
     private final MailServiceFactory mailServiceFactory;
     private final RoleService roleService;
@@ -163,7 +161,7 @@ public class UserService {
                     HttpStatus.NOT_ACCEPTABLE);
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setUsername(utils.generateStringId());
+        user.setUsername(Helper.generateStringId());
         if (user.getRole() == null) {
             //create company with default roles
             if (!licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE) && companyService.existsAtLeastOneWithMinWorkOrders())

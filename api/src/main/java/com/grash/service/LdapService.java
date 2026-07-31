@@ -9,7 +9,6 @@ import com.grash.model.enums.RoleCode;
 import com.grash.repository.UserRepository;
 import com.grash.security.JwtTokenProvider;
 import com.grash.utils.Helper;
-import com.grash.utils.Utils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +37,6 @@ public class LdapService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
-    private final Utils utils;
     private final RoleService roleService;
     private final CompanyService companyService;
     private final CacheService cacheService;
@@ -162,7 +160,7 @@ public class LdapService {
 
     private User getNewLdapUser(String ldapUsername, Company company, Map<String, String> ldapDetails) {
         User user = new User();
-        user.setUsername(utils.generateStringId());
+        user.setUsername(Helper.generateStringId());
         user.setEmail(ldapDetails.get("email"));
         user.setFirstName(ldapDetails.get("firstName"));
         user.setLastName(ldapDetails.get("lastName"));

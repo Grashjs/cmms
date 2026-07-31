@@ -462,8 +462,7 @@
 <!--/*@thymesVar id="labors" type="java.util.List<com.grash.model.Labor>"*/-->
 <!--/*@thymesVar id="messageSource" type="org.springframework.context.MessageSource"*/-->
 <!--/*@thymesVar id="locale" type="java.util.Locale"*/-->
-<!--/*@thymesVar id="utils" type="com.grash.utils.Utils"*/-->
-<!--/*@thymesVar id="dateFormat" type="java.lang.String"*/-->
+<!--/*@thymesVar id="dateFormat" type="com.grash.model.enums.DateFormat"*/-->
 <!--/*@thymesVar id="timeZone" type="java.lang.String"*/-->
 <!--/*@thymesVar id="reportConfig" type="com.grash.dto.ReportConfig"*/-->
 <!--/*@thymesVar id="comments" type="java.util.List<com.grash.model.Comment>"*/-->
@@ -494,14 +493,14 @@
           <svg class="meta-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="12" height="12" rx="2"/><line x1="2" y1="5.5" x2="14" y2="5.5"/><line x1="5" y1="1" x2="5" y2="3.5"/><line x1="11" y1="1" x2="11" y2="3.5"/></svg>
           <span th:text="#{created_at}"></span>
         </span>
-                <span class="meta-value" th:text="${utils.getFormattedDate(workOrder.createdAt, dateFormat, timeZone)}"></span>
+                <span class="meta-value" th:text="${T(com.grash.utils.Helper).getFormattedDate(workOrder.createdAt, dateFormat, timeZone)}"></span>
             </td>
             <td>
         <span class="meta-label">
           <svg class="meta-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 8a7 7 0 0 1 13.3-3"/><polyline points="14.5 1.5 14.5 5 11 5"/><path d="M15 8a7 7 0 0 1-13.3 3"/><polyline points="1.5 14.5 1.5 11 5 11"/></svg>
           <span th:text="#{last_updated}"></span>
         </span>
-                <span class="meta-value" th:text="${utils.getFormattedDate(workOrder.updatedAt, dateFormat, timeZone)}"></span>
+                <span class="meta-value" th:text="${T(com.grash.utils.Helper).getFormattedDate(workOrder.updatedAt, dateFormat, timeZone)}"></span>
             </td>
             <td th:if="${primaryUserName}">
         <span class="meta-label">
@@ -601,7 +600,7 @@
                         </div>
                         <div th:if="${reportConfig.workOrderInformation and workOrder.completedOn!=null}" style="margin-bottom:10px;">
                             <span class="detail-label" th:text="#{completed_on}"></span>
-                            <span class="detail-value" th:text="${utils.getFormattedDate(workOrder.completedOn, dateFormat, timeZone)}"></span>
+                            <span class="detail-value" th:text="${T(com.grash.utils.Helper).getFormattedDate(workOrder.completedOn, dateFormat, timeZone)}"></span>
                         </div>
                         <div th:if="${reportConfig.workOrderInformation and workOrder.feedback!=null}" style="margin-bottom:10px;">
                             <span class="detail-label" th:text="#{feedback}"></span>
@@ -763,7 +762,7 @@
                     <span class="history-dot" th:style="'background:'+${backgroundColor}"></span>
                     <span class="history-user" th:text="${workOrderHistory.getUser().getFullName()}"></span>
                     <div class="history-name" th:text="${workOrderHistory.getName()}"></div>
-                    <div class="history-date" th:text="${utils.getFormattedDate(workOrderHistory.getCreatedAt(), dateFormat, timeZone)}"></div>
+                    <div class="history-date" th:text="${T(com.grash.utils.Helper).getFormattedDate(workOrderHistory.getCreatedAt(), dateFormat, timeZone)}"></div>
                 </div>
             </th:block>
         </div>
@@ -780,7 +779,7 @@
             <th:block th:each="comment : ${comments}">
                 <div class="comment-item">
                     <span class="comment-author" th:text="${comment.getUser().getFullName()}"></span>
-                    <span class="comment-date" th:text="${utils.getFormattedDate(comment.updatedAt == null ? comment.createdAt : comment.updatedAt, dateFormat, timeZone)}"></span>
+                    <span class="comment-date" th:text="${T(com.grash.utils.Helper).getFormattedDate(comment.updatedAt == null ? comment.createdAt : comment.updatedAt, dateFormat, timeZone)}"></span>
                     <div class="comment-body" th:text="${comment.getFormattedContent()}"></div>
                     <div class="comment-images" th:if="${commentFilesUrls.get(comment.getId()) != null}">
                         <th:block th:each="fileUrl : ${commentFilesUrls.get(comment.getId())}">
@@ -829,7 +828,7 @@
                             <span class="signature-box-label" th:text="#{date}"></span>
                             <span class="signature-date-value"
                                   th:if="${workOrder.signature!=null && workOrder.completedOn!=null}"
-                                  th:text="${utils.getFormattedDate(workOrder.completedOn, dateFormat, timeZone)}"></span>
+                                  th:text="${T(com.grash.utils.Helper).getFormattedDate(workOrder.completedOn, dateFormat, timeZone)}"></span>
                         </div>
                     </td>
                 </tr>

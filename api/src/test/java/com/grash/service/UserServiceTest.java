@@ -23,7 +23,6 @@ import com.grash.repository.VerificationTokenRepository;
 import com.grash.security.CustomUserDetail;
 import com.grash.security.JwtTokenProvider;
 import com.grash.utils.Helper;
-import com.grash.utils.Utils;
 import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,8 +65,6 @@ class UserServiceTest {
     private EntityManager em;
     @Mock
     private AuthenticationManager authenticationManager;
-    @Mock
-    private Utils utils;
     @Mock
     private MessageSource messageSource;
     @Mock
@@ -274,7 +271,6 @@ class UserServiceTest {
             when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
             when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
             when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(utils.generateStringId()).thenReturn("username123");
             when(licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE)).thenReturn(true);
             when(subscriptionPlanService.findByCode("BUSINESS"))
                     .thenReturn(Optional.of(subscriptionPlan));
@@ -297,7 +293,6 @@ class UserServiceTest {
             when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
             when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
             when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(utils.generateStringId()).thenReturn("username123");
             when(licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE)).thenReturn(true);
             when(subscriptionPlanService.findByCode("BUSINESS"))
                     .thenReturn(Optional.of(subscriptionPlan));
@@ -328,7 +323,6 @@ class UserServiceTest {
             when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
             when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
             when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(utils.generateStringId()).thenReturn("username123");
             when(licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE)).thenReturn(true);
             when(subscriptionPlanService.findByCode("BUSINESS"))
                     .thenReturn(Optional.of(subscriptionPlan));
@@ -361,7 +355,6 @@ class UserServiceTest {
             when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
             when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
             when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(utils.generateStringId()).thenReturn("username123");
             when(roleService.findById(2L)).thenReturn(Optional.of(invitedRole));
             when(userInvitationService.findByRoleAndEmail(2L, "new@test.com"))
                     .thenReturn(new ArrayList<>(List.of(invitation)));
@@ -389,7 +382,6 @@ class UserServiceTest {
             when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
             when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
             when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(utils.generateStringId()).thenReturn("username123");
             when(roleService.findById(2L)).thenReturn(Optional.of(invitedRole));
             when(userInvitationService.findByRoleAndEmail(2L, "new@test.com"))
                     .thenReturn(new ArrayList<>(List.of(invitation)));
@@ -418,7 +410,6 @@ class UserServiceTest {
             when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
             when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
             when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(utils.generateStringId()).thenReturn("username123");
             when(roleService.findById(2L)).thenReturn(Optional.of(invitedRole));
             when(userInvitationService.findByRoleAndEmail(2L, "new@test.com"))
                     .thenReturn(new ArrayList<>(List.of(invitation)));
@@ -448,7 +439,6 @@ class UserServiceTest {
             when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
             when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
             when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(utils.generateStringId()).thenReturn("username123");
             when(roleService.findById(99L)).thenReturn(Optional.empty());
 
             CustomException ex = assertThrows(CustomException.class,
@@ -461,7 +451,6 @@ class UserServiceTest {
             when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
             when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
             when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(utils.generateStringId()).thenReturn("username123");
             when(licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE)).thenReturn(false);
             when(companyService.existsAtLeastOneWithMinWorkOrders()).thenReturn(true);
 
@@ -477,7 +466,6 @@ class UserServiceTest {
             when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
             when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
             when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(utils.generateStringId()).thenReturn("username123");
             when(licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE)).thenReturn(true);
             when(subscriptionPlanService.findByCode("BUSINESS"))
                     .thenReturn(Optional.of(subscriptionPlan));
@@ -508,7 +496,6 @@ class UserServiceTest {
             when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
             when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
             when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(utils.generateStringId()).thenReturn("username123");
             when(roleService.findById(2L)).thenReturn(Optional.of(invitedRole));
             when(userInvitationService.findByRoleAndEmail(2L, "new@test.com"))
                     .thenReturn(new ArrayList<>());
@@ -535,7 +522,6 @@ class UserServiceTest {
             when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
             when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
             when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(utils.generateStringId()).thenReturn("username123");
             when(roleService.findById(2L)).thenReturn(Optional.of(invitedRole));
             when(userInvitationService.findByRoleAndEmail(2L, "new@test.com"))
                     .thenReturn(new ArrayList<>(List.of(invitation)));
@@ -571,7 +557,6 @@ class UserServiceTest {
             when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
             when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
             when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(utils.generateStringId()).thenReturn("username123");
             when(roleService.findById(2L)).thenReturn(Optional.of(invitedRole));
             when(userInvitationService.findByRoleAndEmail(2L, "new@test.com"))
                     .thenReturn(new ArrayList<>(List.of(invitation)));
@@ -594,7 +579,6 @@ class UserServiceTest {
             when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
             when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
             when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(utils.generateStringId()).thenReturn("username123");
             when(licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE)).thenReturn(true);
             when(subscriptionPlanService.findByCode("BUSINESS"))
                     .thenReturn(Optional.of(subscriptionPlan));
@@ -625,7 +609,6 @@ class UserServiceTest {
             when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
             when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
             when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(utils.generateStringId()).thenReturn("username123");
             when(licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE)).thenReturn(true);
             when(subscriptionPlanService.findByCode("BUSINESS"))
                     .thenReturn(Optional.of(subscriptionPlan));
@@ -658,7 +641,6 @@ class UserServiceTest {
             when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
             when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
             when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(utils.generateStringId()).thenReturn("username123");
             when(roleService.findById(2L)).thenReturn(Optional.of(invitedRole));
             when(userInvitationService.findByRoleAndEmail(2L, "new@test.com"))
                     .thenReturn(new ArrayList<>(List.of(invitation)));
@@ -695,7 +677,6 @@ class UserServiceTest {
             when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
             when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
             when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(utils.generateStringId()).thenReturn("username123");
             when(roleService.findById(2L)).thenReturn(Optional.of(invitedRole));
             when(userInvitationService.findByRoleAndEmail(2L, "new@test.com"))
                     .thenReturn(new ArrayList<>(List.of(invitation)));
@@ -723,7 +704,6 @@ class UserServiceTest {
             when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
             when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
             when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(utils.generateStringId()).thenReturn("username123");
             when(licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE)).thenReturn(true);
             when(subscriptionPlanService.findByCode("BUSINESS"))
                     .thenReturn(Optional.of(subscriptionPlan));
@@ -755,7 +735,6 @@ class UserServiceTest {
             when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
             when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
             when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(utils.generateStringId()).thenReturn("username123");
             when(licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE)).thenReturn(true);
             when(subscriptionPlanService.findByCode("BUSINESS"))
                     .thenReturn(Optional.of(subscriptionPlan));
@@ -789,7 +768,6 @@ class UserServiceTest {
             when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
             when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
             when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(utils.generateStringId()).thenReturn("username123");
             when(licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE)).thenReturn(true);
             when(subscriptionPlanService.findByCode("BUSINESS"))
                     .thenReturn(Optional.of(subscriptionPlan));

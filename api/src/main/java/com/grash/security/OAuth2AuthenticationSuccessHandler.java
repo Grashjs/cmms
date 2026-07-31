@@ -10,7 +10,6 @@ import com.grash.model.enums.RoleCode;
 import com.grash.repository.UserRepository;
 import com.grash.service.*;
 import com.grash.utils.Helper;
-import com.grash.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +49,6 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private String[] recipients;
     @Value("${cloud-version}")
     private boolean cloudVersion;
-    private final Utils utils;
     @Autowired
     @Lazy
     private PasswordEncoder passwordEncoder;
@@ -127,8 +125,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         user.setSsoProviderId(extractProviderId(attributes, provider));
         user.setFirstName(extractFirstName(attributes, provider));
         user.setLastName(extractLastName(attributes, provider));
-        user.setUsername(utils.generateStringId());
-        user.setPassword(passwordEncoder.encode(utils.generateStringId()));
+        user.setUsername(Helper.generateStringId());
+        user.setPassword(passwordEncoder.encode(Helper.generateStringId()));
 
         try {
             Subscription subscription = Subscription.builder()

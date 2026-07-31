@@ -8,7 +8,6 @@ import com.grash.model.enums.RoleCode;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.UserRepository;
 import com.grash.service.*;
-import com.grash.utils.Utils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,8 +48,6 @@ class OAuth2AuthenticationSuccessHandlerTest {
     private MailServiceFactory mailServiceFactory;
     @Mock
     private CompanyService companyService;
-    @Mock
-    private Utils utils;
     @Mock
     private PasswordEncoder passwordEncoder;
     @Mock
@@ -277,8 +274,7 @@ class OAuth2AuthenticationSuccessHandlerTest {
             lenient().when(oAuth2Properties.getFailureRedirectUrl()).thenReturn(failureUrl);
             when(userRepository.findByEmailIgnoreCase(email)).thenReturn(Optional.empty());
             when(userRepository.findBySSOCompany(emailDomain)).thenReturn(List.of());
-            lenient().when(utils.generateStringId()).thenReturn("randId");
-            lenient().when(passwordEncoder.encode("randId")).thenReturn("encoded");
+            lenient().when(passwordEncoder.encode(anyString())).thenReturn("encoded");
             lenient().when(jwtTokenProvider.createToken(eq(email), anyList())).thenReturn("jwt-token");
             lenient().when(brandingService.getBrandConfig()).thenReturn(new BrandConfig());
         }
@@ -360,8 +356,7 @@ class OAuth2AuthenticationSuccessHandlerTest {
             when(userRepository.findByEmailIgnoreCase(msEmail)).thenReturn(Optional.empty());
             String msDomain = "outlook.com";
             when(userRepository.findBySSOCompany(msDomain)).thenReturn(List.of());
-            lenient().when(utils.generateStringId()).thenReturn("randId");
-            lenient().when(passwordEncoder.encode("randId")).thenReturn("encoded");
+            lenient().when(passwordEncoder.encode(anyString())).thenReturn("encoded");
             lenient().when(jwtTokenProvider.createToken(eq(msEmail), anyList())).thenReturn("jwt-token");
             lenient().when(brandingService.getBrandConfig()).thenReturn(new BrandConfig());
             stubCreateCompany();
@@ -390,8 +385,7 @@ class OAuth2AuthenticationSuccessHandlerTest {
             when(userRepository.findByEmailIgnoreCase(msEmail)).thenReturn(Optional.empty());
             String msDomain = "outlook.com";
             when(userRepository.findBySSOCompany(msDomain)).thenReturn(List.of());
-            lenient().when(utils.generateStringId()).thenReturn("randId");
-            lenient().when(passwordEncoder.encode("randId")).thenReturn("encoded");
+            lenient().when(passwordEncoder.encode(anyString())).thenReturn("encoded");
             lenient().when(jwtTokenProvider.createToken(eq(msEmail), anyList())).thenReturn("jwt-token");
             lenient().when(brandingService.getBrandConfig()).thenReturn(new BrandConfig());
             stubCreateCompany();

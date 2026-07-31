@@ -39,19 +39,44 @@ import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class Helper {
 
+    private static final Random RANDOM = new SecureRandom();
+
     public String generateString() {
         return UUID.randomUUID().toString();
+    }
+
+    public static String generateStringId() {
+        StringBuilder returnValue = new StringBuilder(8);
+        for (int i = 0; i < 8; i++) {
+            String ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            returnValue.append(ALPHABET.charAt(RANDOM.nextInt(ALPHABET.length())));
+        }
+        return returnValue.toString();
+    }
+
+    public static String getFormattedDate(Object date, com.grash.model.enums.DateFormat dateFormat, String timeZone) {
+        if (date == null) return null;
+        String pattern = dateFormat == com.grash.model.enums.DateFormat.MMDDYY ? "MM/dd/yy" : "dd/MM/yy";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern)
+                .withZone(ZoneId.of(timeZone));
+        if (date instanceof Date) return formatter.format(((Date) date).toInstant());
+        if (date instanceof Instant) return formatter.format((Instant) date);
+        if (date instanceof LocalDateTime) return formatter.format(((LocalDateTime) date).atZone(ZoneId.of(timeZone)));
+        return date.toString();
     }
 
     /**

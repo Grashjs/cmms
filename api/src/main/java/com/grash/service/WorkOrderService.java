@@ -28,7 +28,6 @@ import com.grash.repository.WorkOrderRepository;
 import com.grash.utils.Helper;
 import com.grash.utils.MultipartFileImpl;
 import com.grash.utils.TenantAspectUtils;
-import com.grash.utils.Utils;
 import com.itextpdf.html2pdf.HtmlConverter;
 import com.itextpdf.html2pdf.ConverterProperties;
 import com.itextpdf.html2pdf.attach.ITagWorker;
@@ -98,7 +97,6 @@ public class WorkOrderService {
     private final IntercomService intercomService;
     private final ReviewEligibilityService reviewEligibilityService;
     private final BrandingService brandingService;
-    private final Utils utils;
     private final WorkOrderHistoryService workOrderHistoryService;
     private final SpringTemplateEngine thymeleafTemplateEngine;
     private final StorageServiceFactory storageServiceFactory;
@@ -939,7 +937,6 @@ public class WorkOrderService {
                     storageService.generateSignedUrl(user.getCompany().getLogo(), 5));
             put("currency",
                     user.getCompany().getCompanySettings().getGeneralPreferences().getCurrency().getCode());
-            put("utils", utils);
             put("dateFormat", user.getCompany().getCompanySettings().getGeneralPreferences().getDateFormat());
             put("timeZone", user.getCompany().getCompanySettings().getGeneralPreferences().getTimeZone());
             put("assignedTo",

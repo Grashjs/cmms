@@ -58,6 +58,8 @@ public class MultipartFileImpl implements MultipartFile {
 
     @Override
     public void transferTo(File dest) throws IOException, IllegalStateException {
-        new FileOutputStream(dest).write(imgContent);
+        try (FileOutputStream fos = new FileOutputStream(dest)) {
+            fos.write(imgContent);
+        }
     }
 }
