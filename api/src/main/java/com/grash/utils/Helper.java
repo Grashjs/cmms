@@ -183,6 +183,7 @@ public class Helper {
             if (index < size - 1) {
                 stringBuilder.append(",");
             }
+            index++;
         }
         return stringBuilder.toString();
     }
