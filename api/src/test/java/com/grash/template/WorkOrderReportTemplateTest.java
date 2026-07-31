@@ -8,36 +8,20 @@ import com.grash.model.enums.RelationTypeInternal;
 import com.grash.model.enums.Status;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.StandardEnvironment;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring5.SpringTemplateEngine;
-import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class WorkOrderReportTemplateTest {
+class WorkOrderReportTemplateTest extends AbstractTemplateTest {
 
     private static final String TEMPLATE = "work-order-report.html";
 
-    private SpringTemplateEngine templateEngine;
-    private Map<String, Object> variables;
-
     @BeforeEach
     void setUp() {
-        templateEngine = createTemplateEngine();
         variables = createVariables(createWorkOrder(), new ReportConfig());
     }
 
@@ -260,42 +244,13 @@ class WorkOrderReportTemplateTest {
         assertFalse(html.contains("/images/logo.png"));
     }
 
-    private String render(Map<String, Object> variables, Locale locale) {
-        Context context = new Context(locale);
-        context.setVariables(variables);
-        return templateEngine.process(TEMPLATE, context);
+    @Override
+    protected String templateName() {
+        return TEMPLATE;
     }
 
     private static String panelTitle(String title) {
         return "<span class=\"panel-title\">" + title + "</span>";
-    }
-
-    private SpringTemplateEngine createTemplateEngine() {
-        ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
-        templateResolver.setPrefix("templates/");
-        templateResolver.setSuffix(".html");
-        templateResolver.setTemplateMode("HTML");
-        templateResolver.setCharacterEncoding("UTF-8");
-        templateResolver.setCacheable(false);
-
-        SpringTemplateEngine engine = new SpringTemplateEngine();
-        engine.setTemplateResolver(templateResolver);
-        engine.setTemplateEngineMessageSource(messageSource());
-        return engine;
-    }
-
-    private ResourceBundleMessageSource messageSource() {
-        ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
-        messageSource.setBasename("mailMessages");
-        messageSource.setDefaultEncoding("UTF-8");
-        return messageSource;
-    }
-
-    private StandardEnvironment environment() {
-        StandardEnvironment environment = new StandardEnvironment();
-        environment.getPropertySources().addFirst(new MapPropertySource("api",
-                Collections.singletonMap("api.host", "https://api.example.com")));
-        return environment;
     }
 
     private Map<String, Object> createVariables(WorkOrder workOrder, ReportConfig config) {
@@ -472,9 +427,5 @@ class WorkOrderReportTemplateTest {
         user.setFirstName(firstName);
         user.setLastName(lastName);
         return user;
-    }
-
-    private Date utc(int day, int hour, int minute) {
-        return Date.from(LocalDateTime.of(2024, 1, day, hour, minute).atZone(ZoneId.of("UTC")).toInstant());
     }
 }
