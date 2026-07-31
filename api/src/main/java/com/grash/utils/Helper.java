@@ -54,14 +54,6 @@ public class Helper {
         return UUID.randomUUID().toString();
     }
 
-    public HttpHeaders getPagingHeaders(Page<?> page, int size, String name) {
-        HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.set("Content-Range", name + (page.getNumber() - 1) * size + "-" + page.getNumber() * size +
-                "/" + page.getTotalElements());
-        responseHeaders.set("Access-Control-Expose-Headers", "Content-Range");
-        return responseHeaders;
-    }
-
     /**
      * Get a diff between two dates
      *
@@ -91,20 +83,6 @@ public class Helper {
         c.setTime(date);
         c.add(Calendar.DATE, days);
         return c.getTime();
-    }
-
-    public static Date getNextOccurrence(Date date, int days) {
-        if (days == 0)
-            throw new CustomException("getNextOccurence should not have 0 as parameter",
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        Date result = date;
-        Date now = new Date();
-
-        while (!result.after(now)) {
-            result = incrementDays(result, days);
-        }
-
-        return result;
     }
 
     public static Date localDateToDate(LocalDate localDate) {
@@ -225,21 +203,6 @@ public class Helper {
         } catch (NumberFormatException e) {
             return false;
         }
-    }
-
-    public static <T> ResponseEntity<T> withCache(T entity) {
-        CacheControl cacheControl = CacheControl.maxAge(30, TimeUnit.MINUTES).cachePublic();
-        return ResponseEntity.ok()
-                .cacheControl(cacheControl).body(entity);
-    }
-
-    public static Date minusDays(Date date, int days) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        calendar.add(Calendar.DAY_OF_MONTH, -days);
-
-        // Get the resulting date after subtracting days
-        return calendar.getTime();
     }
 
     public static List<Role> getDefaultRoles() {
@@ -363,7 +326,8 @@ public class Helper {
         workOrderBase.setEstimatedDuration(dto.getEstimatedDuration());
 
         if (dto.getCategory() != null && !dto.getCategory().isBlank()) {
-            WorkOrderCategory category = workOrderCategoryService.getOrCreate(dto.getCategory(), company.getCompanySettings());
+            WorkOrderCategory category = workOrderCategoryService.getOrCreate(dto.getCategory(),
+                    company.getCompanySettings());
             workOrderBase.setCategory(category);
         }
 
@@ -437,11 +401,5 @@ public class Helper {
             throw new CustomException("Access denied to company", HttpStatus.FORBIDDEN);
         }
         return companyId;
-    }
-
-    public static <E> Optional<E> getRandomFromCollection(Collection<E> e) {
-        return e.stream()
-                .skip((int) (e.size() * Math.random()))
-                .findFirst();
     }
 }
