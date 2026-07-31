@@ -40,7 +40,7 @@ jobs:
         run: mvn test -DargLine="--add-opens java.base/java.lang=ALL-UNNAMED"
         working-directory: ./api
 
-  build-and-push-backend:
+  push-backend-docker:
     needs: test
     if: ${{ always() && (vars.SKIP_TESTS == 'true' || success()) }}
     runs-on: ubuntu-latest
@@ -103,7 +103,7 @@ jobs:
           git-workdir: ./api
           git-builder: docker
 
-  build-and-push-frontend:
+  push-frontend-docker:
     needs: test
     if: ${{ always() && (vars.SKIP_TESTS == 'true' || success()) }}
     runs-on: ubuntu-latest
