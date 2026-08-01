@@ -119,7 +119,7 @@ Format: `OU_NAME=ROLE_TYPE` (pipe-separated)
 - `TECHNICIAN` - Can perform maintenance
 - `LIMITED_TECHNICIAN` - Limited technician access
 - `REQUESTER` - Can create work requests
-- `VIEWER` - Read-only access
+- `VIEW_ONLY` - Read-only access
 
 Example mappings:
 
@@ -131,12 +131,12 @@ Backend=ADMIN|Finance=REQUESTER|IT=ADMIN|Operations=TECHNICIAN|Contractors=LIMIT
 
 ### Authentication Flow
 
-1. User enters username and password on login page
+1. User enters username and password on the login page
 2. Atlas attempts to bind to LDAP using the search bases and filter
 3. On successful bind, user details are fetched from LDAP
-4. If user doesn't exist in Atlas, they are created automatically
+4. If the user doesn't exist in Atlas, they are created automatically
 5. User is assigned a role based on their OU membership
-6. JWT token is generated for session
+6. JWT token is generated for the session
 
 ### User Synchronization
 
