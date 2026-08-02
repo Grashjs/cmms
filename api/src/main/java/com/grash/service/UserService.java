@@ -192,7 +192,15 @@ public class UserService {
             }
             List<UserInvitation> userInvitations =
                     userInvitationService.findByRoleAndEmail(role.getId(), user.getEmail());
-            if (enableInvitationViaEmail && userInvitations.isEmpty()) {
+            // Joining an existing organization always requires an invitation. This used
+            // to be gated behind enableInvitationViaEmail, which turned a mail-delivery
+            // setting into an authorization one: with mails off, /auth/signup is
+            // permitAll and a request carrying {"role":{"id":N}} joined the organization
+            // owning role N with that role, no invitation needed. Role ids are
+            // sequential, so an administrator role was guessable.
+            // invite() persists the UserInvitation before it checks the mail flag, so
+            // invitations still work with mail delivery disabled.
+            if (userInvitations.isEmpty()) {
                 throw new CustomException("You are not invited to this organization for this role",
                         HttpStatus.NOT_ACCEPTABLE);
             }

@@ -597,6 +597,32 @@ class UserServiceTest {
         }
 
         @Test
+        void invitedRole_noInvitationsFound_mailDisabled_throws() {
+            // Regression: the invitation check used to be skipped when mail delivery
+            // was off, which let an anonymous /auth/signup call join an existing
+            // organization by guessing a sequential role id. Mail delivery is a
+            // delivery setting, never an authorization one.
+            Role invitedRole = Role.builder()
+                    .id(2L).name("Administrator").roleType(RoleType.ROLE_CLIENT)
+                    .code(RoleCode.ADMIN).paid(false).build();
+            signupRequest.setRole(invitedRole);
+            mappedUser.setRole(invitedRole);
+            ReflectionTestUtils.setField(userService, "enableInvitationViaEmail", false);
+
+            when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
+            when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
+            when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
+            when(roleService.findById(2L)).thenReturn(Optional.of(invitedRole));
+            when(userInvitationService.findByRoleAndEmail(2L, "new@test.com"))
+                    .thenReturn(new ArrayList<>());
+
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> userService.signup(signupRequest));
+            assertEquals(HttpStatus.NOT_ACCEPTABLE, ex.getHttpStatus());
+            verify(userRepository, never()).save(any(User.class));
+        }
+
+        @Test
         void invitedRole_withCompanySettings_success() {
             Role invitedRole = Role.builder()
                     .id(2L).name("Technician").roleType(RoleType.ROLE_CLIENT)
