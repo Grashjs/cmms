@@ -13,7 +13,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   api:
-    image: intelloop/atlas-cmms-backend
+    image: ghcr.io/sayou2000/cmms4fm-api:latest
     container_name: atlas-cmms-backend
     depends_on:
       - postgres
@@ -91,7 +91,7 @@ services:
       - "8080"
 
   frontend:
-    image: intelloop/atlas-cmms-frontend
+    image: ghcr.io/sayou2000/cmms4fm-frontend:latest
     container_name: atlas-cmms-frontend
     environment:
       API_URL: /api
