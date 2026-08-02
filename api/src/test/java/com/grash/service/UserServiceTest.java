@@ -485,6 +485,97 @@ class UserServiceTest {
         }
 
         @Test
+        void newCompanyInProduction_cloudVersionTrue_publishesEvent() {
+            ReflectionTestUtils.setField(userService, "PUBLIC_API_URL", "https://app.test.com");
+            ReflectionTestUtils.setField(userService, "cloudVersion", true);
+            ReflectionTestUtils.setField(userService, "enableInvitationViaEmail", false);
+            when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
+            when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
+            when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
+            when(licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE)).thenReturn(true);
+            when(subscriptionPlanService.findByCode("BUSINESS"))
+                    .thenReturn(Optional.of(subscriptionPlan));
+            when(licenseService.getLicensingState()).thenReturn(
+                    LicensingState.builder().hasLicense(false).usersCount(0).build());
+            com.grash.model.Currency currency = new com.grash.model.Currency();
+            currency.setCode("$");
+            when(currencyService.findByCode("$")).thenReturn(Optional.of(currency));
+            when(roleService.findDefaultRoleWithCode(RoleCode.ADMIN)).thenReturn(Optional.of(role));
+            when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
+                    .thenReturn("signup-token");
+
+            ArgumentCaptor<Subscription> subscriptionCaptor = ArgumentCaptor.forClass(Subscription.class);
+            SignupSuccessResponse<User> response = userService.signup(signupRequest);
+
+            assertTrue(response.isSuccess());
+            assertNotNull(response.getUser());
+            assertTrue(response.getUser().isOwnsCompany());
+            assertTrue(response.getUser().isEnabled());
+            verify(applicationEventPublisher).publishEvent(any(CompanyCreatedEvent.class));
+            verify(subscriptionService).create(subscriptionCaptor.capture());
+            assertTrue(subscriptionCaptor.getValue().isMonthly());
+            assertNotNull(subscriptionCaptor.getValue().getEndsOn());
+        }
+
+        @Test
+        void newCompanyOnLocalhost_cloudVersion_subscriptionIsMonthlyWithTrialEnd() {
+            ReflectionTestUtils.setField(userService, "PUBLIC_API_URL", "http://localhost:8080");
+            ReflectionTestUtils.setField(userService, "cloudVersion", true);
+            when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
+            when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
+            when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
+            when(licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE)).thenReturn(true);
+            when(subscriptionPlanService.findByCode("BUSINESS"))
+                    .thenReturn(Optional.of(subscriptionPlan));
+            when(licenseService.getLicensingState()).thenReturn(
+                    LicensingState.builder().hasLicense(false).usersCount(0).build());
+            com.grash.model.Currency currency = new com.grash.model.Currency();
+            currency.setCode("$");
+            when(currencyService.findByCode("$")).thenReturn(Optional.of(currency));
+            when(roleService.findDefaultRoleWithCode(RoleCode.ADMIN)).thenReturn(Optional.of(role));
+            when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
+                    .thenReturn("signup-token");
+
+            ArgumentCaptor<Subscription> subscriptionCaptor = ArgumentCaptor.forClass(Subscription.class);
+            userService.signup(signupRequest);
+
+            verify(subscriptionService).create(subscriptionCaptor.capture());
+            Subscription created = subscriptionCaptor.getValue();
+            assertTrue(created.isMonthly());
+            assertNotNull(created.getEndsOn());
+            Date expectedEnd = Helper.incrementDays(new Date(), 15);
+            assertTrue(Math.abs(created.getEndsOn().getTime() - expectedEnd.getTime()) < 60_000);
+        }
+
+        @Test
+        void newCompanyOnLocalhost_nonCloud_subscriptionNotMonthlyWithoutEnd() {
+            ReflectionTestUtils.setField(userService, "PUBLIC_API_URL", "http://localhost:8080");
+            ReflectionTestUtils.setField(userService, "cloudVersion", false);
+            when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
+            when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
+            when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
+            when(licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE)).thenReturn(true);
+            when(subscriptionPlanService.findByCode("BUSINESS"))
+                    .thenReturn(Optional.of(subscriptionPlan));
+            when(licenseService.getLicensingState()).thenReturn(
+                    LicensingState.builder().hasLicense(false).usersCount(0).build());
+            com.grash.model.Currency currency = new com.grash.model.Currency();
+            currency.setCode("$");
+            when(currencyService.findByCode("$")).thenReturn(Optional.of(currency));
+            when(roleService.findDefaultRoleWithCode(RoleCode.ADMIN)).thenReturn(Optional.of(role));
+            when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
+                    .thenReturn("signup-token");
+
+            ArgumentCaptor<Subscription> subscriptionCaptor = ArgumentCaptor.forClass(Subscription.class);
+            userService.signup(signupRequest);
+
+            verify(subscriptionService).create(subscriptionCaptor.capture());
+            Subscription created = subscriptionCaptor.getValue();
+            assertFalse(created.isMonthly());
+            assertNull(created.getEndsOn());
+        }
+
+        @Test
         void invitedRole_noInvitationsFound_throws() {
             Role invitedRole = Role.builder()
                     .id(2L).name("Technician").roleType(RoleType.ROLE_CLIENT)
