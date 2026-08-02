@@ -75,7 +75,7 @@ We'd love to have **new contributors**, so feel free to join us!
 1. Download:
 
 - [docker-compose.yml](./docker-compose.yml)
-- [nginx.conf](./nginx.conf)
+- [docker/nginx/nginx.conf](./docker/nginx/nginx.conf)
 - [.env.example](.env.example) → rename to `.env`
 
 2. Run:

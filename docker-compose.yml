@@ -133,7 +133,9 @@ services:
     command: server --address ":9000" --console-address ":9001" /data
 
   nginx:
-    image: nginx:1.27-alpine
+    # Config is baked in (see docker/nginx/Dockerfile) — no bind mount.
+    image: ghcr.io/sayou2000/cmms4fm-nginx:${IMAGE_TAG:-latest}
+    pull_policy: always
     container_name: atlas_nginx
     depends_on:
       - frontend
@@ -144,8 +146,6 @@ services:
       # port 80 of this service and fills in the domain. Set the domain in the
       # Coolify UI — PUBLIC_SERVER_URL must be set to the same value.
       - SERVICE_FQDN_NGINX_80
-    volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     # No host port binding: Coolify's proxy routes to this container directly.
     # Publishing 3000:80 would bypass TLS and collide with other stacks.
     expose:

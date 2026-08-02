@@ -30,6 +30,9 @@ jobs:
           - name: frontend
             context: ./frontend
             image: cmms4fm-frontend
+          - name: nginx
+            context: ./docker/nginx
+            image: cmms4fm-nginx
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

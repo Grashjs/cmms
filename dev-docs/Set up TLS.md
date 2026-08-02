@@ -39,7 +39,7 @@ the published port:
       - api
       - minio
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.atlas.rule=Host(`cmms.example.com`)"
@@ -102,7 +102,7 @@ Cloudflare handles TLS at the edge. Set `PUBLIC_SERVER_URL=https://cmms.example.
 
 ## Certbot (manual TLS in nginx)
 
-Mount your certificates and uncomment the HTTPS server block in `nginx.conf`:
+Mount your certificates and uncomment the HTTPS server block in `docker/nginx/nginx.conf`:
 
 ```bash
 mkdir -p certs
@@ -114,13 +114,13 @@ In `docker-compose.yml`, add the cert volume to the nginx service:
 ```yaml
   nginx:
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - ./certs:/etc/nginx/certs:ro
     ports:
       - "443:443"
 ```
 
-Then uncomment the `server` block at the bottom of `nginx.conf` and set
+Then uncomment the `server` block at the bottom of `docker/nginx/nginx.conf` and set
 `server_name` to your domain.
 
 For automatic renewal, add a certbot container or cron job.
