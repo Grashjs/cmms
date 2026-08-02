@@ -13,7 +13,9 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   api:
-    image: ghcr.io/sayou2000/cmms4fm-api:latest
+    # Set IMAGE_TAG to sha-<commit> in Coolify to pin or roll back a release.
+    image: ghcr.io/sayou2000/cmms4fm-api:${IMAGE_TAG:-latest}
+    pull_policy: always
     container_name: atlas-cmms-backend
     depends_on:
       - postgres
@@ -91,7 +93,8 @@ services:
       - "8080"
 
   frontend:
-    image: ghcr.io/sayou2000/cmms4fm-frontend:latest
+    image: ghcr.io/sayou2000/cmms4fm-frontend:${IMAGE_TAG:-latest}
+    pull_policy: always
     container_name: atlas-cmms-frontend
     environment:
       API_URL: /api
@@ -136,13 +139,17 @@ services:
       - frontend
       - api
       - minio
+    environment:
+      # Coolify magic variable: binds its reverse proxy (TLS, certificates) to
+      # port 80 of this service and fills in the domain. Set the domain in the
+      # Coolify UI — PUBLIC_SERVER_URL must be set to the same value.
+      - SERVICE_FQDN_NGINX_80
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      # If terminating TLS directly in this container, also mount certs:
-      # - ./certs:/etc/nginx/certs:ro
-    ports:
-      - "3000:80"
-      # - "443:443"
+    # No host port binding: Coolify's proxy routes to this container directly.
+    # Publishing 3000:80 would bypass TLS and collide with other stacks.
+    expose:
+      - "80"
 
 volumes:
   postgres_data:

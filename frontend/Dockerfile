@@ -4,9 +4,10 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm config set fetch-retry-maxtimeout 6000000
 RUN npm config set fetch-retry-mintimeout 1000000
-RUN NODE_OPTIONS="--max_old_space_size=2048" npm install --legacy-peer-deps
+RUN npm install --legacy-peer-deps
 COPY . .
-RUN npm run build
+# Webpack, not npm install, is what runs out of heap here.
+RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build
 
 FROM nginx:1.27.0-alpine
 COPY --from=build /usr/src/app/build /usr/share/nginx/html

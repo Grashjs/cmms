@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+
+# A second push while a build is running cancels the first one — Coolify must
+# never be triggered by a build that has already been superseded.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -11,8 +18,18 @@ permissions:
 
 jobs:
   build-and-push:
-    name: Build & Push Docker Images to GHCR
+    name: Build & Push ${{ matrix.name }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - name: api
+            context: ./api
+            image: cmms4fm-api
+          - name: frontend
+            context: ./frontend
+            image: cmms4fm-frontend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -27,21 +44,43 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Backend API
+      # GHCR only accepts lowercase paths; the owner slug may not be.
+      - name: Resolve image name
+        id: img
+        run: echo "ref=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/${{ matrix.image }}" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push ${{ matrix.name }}
         uses: docker/build-push-action@v6
         with:
-          context: ./api
+          context: ${{ matrix.context }}
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/cmms4fm-api:latest
+          # `latest` is what docker-compose resolves by default; the sha tag is
+          # what makes a rollback possible (set IMAGE_TAG in Coolify).
+          tags: |
+            ${{ steps.img.outputs.ref }}:latest
+            ${{ steps.img.outputs.ref }}:sha-${{ github.sha }}
+          cache-from: type=gha,scope=${{ matrix.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.name }}
 
-      - name: Build and push Frontend
-        uses: docker/build-push-action@v6
-        with:
-          context: ./frontend
-          push: true
-          tags: ghcr.io/${{ github.repository_owner }}/cmms4fm-frontend:latest
-
+  deploy:
+    name: Trigger Coolify
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      # The `secrets` context is not available in step-level `if:`, so the
+      # emptiness check has to happen inside the shell.
       - name: Trigger Coolify Webhook
-        if: ${{ secrets.COOLIFY_WEBHOOK_URL != '' }}
+        env:
+          HOOK: ${{ secrets.COOLIFY_WEBHOOK_URL }}
+          TOKEN: ${{ secrets.COOLIFY_API_TOKEN }}
         run: |
-          curl -X GET "${{ secrets.COOLIFY_WEBHOOK_URL }}"
+          if [ -z "$HOOK" ]; then
+            echo "::warning::COOLIFY_WEBHOOK_URL not set — skipping deploy trigger."
+            exit 0
+          fi
+          if [ -n "$TOKEN" ]; then
+            curl -fsS -X GET -H "Authorization: Bearer $TOKEN" "$HOOK"
+          else
+            curl -fsS -X GET "$HOOK"
+          fi
+          echo "Coolify deploy triggered for sha-${GITHUB_SHA}"
