@@ -19,8 +19,11 @@ RUN apk add --update npm
 
 RUN npm i -g runtime-env-cra
 
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
 WORKDIR /usr/share/nginx/html
 EXPOSE 3000
 
-CMD ["/bin/sh", "-c", "runtime-env-cra && nginx -g \"daemon off;\""]
+CMD ["/bin/sh", "/docker-entrypoint.sh"]
 
