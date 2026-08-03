@@ -17,6 +17,13 @@ public class CustomFieldPatchDTO {
     @Schema(description = "Field type")
     private CustomFieldType fieldType;
 
+    @Schema(description = "Unit of measure for numeric fields, e.g. m³/h or kW")
+    private String unit;
+
+    @Schema(description = "Asset category ids this field applies to. Null leaves the current "
+            + "binding untouched; an empty list makes the field apply to every asset again.")
+    private List<Long> assetCategoryIds;
+
     @Schema(description = "Whether this field is required")
     private Boolean required;
 

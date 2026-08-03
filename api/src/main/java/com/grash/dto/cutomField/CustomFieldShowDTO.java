@@ -1,6 +1,7 @@
 package com.grash.dto.cutomField;
 
 import com.grash.dto.AuditShowDTO;
+import com.grash.dto.CategoryMiniDTO;
 import com.grash.model.enums.CustomFieldEntityType;
 import com.grash.model.enums.CustomFieldType;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -8,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -26,6 +28,12 @@ public class CustomFieldShowDTO extends AuditShowDTO {
 
     @Schema(description = "Entity type this field applies to")
     private CustomFieldEntityType entityType;
+
+    @Schema(description = "Unit of measure for numeric fields, e.g. m³/h or kW")
+    private String unit;
+
+    @Schema(description = "Asset categories this field applies to; empty means all assets")
+    private List<CategoryMiniDTO> assetCategories = new ArrayList<>();
 
     @Schema(description = "Whether this field is required")
     private boolean required;

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <!--
+      Type-specific asset properties.
+
+      Until now a custom field was scoped to a company and an entity type only, so
+      every asset in a company shared one flat set of extra fields. Binding fields to
+      asset categories lets "Volumenstrom" appear on ventilation units and "Anzahl
+      Haltestellen" on lifts, while a field that fits several classes (e.g. "Leistung")
+      can be attached to all of them.
+
+      A field with no rows in the join table keeps applying to every asset, so existing
+      configurations stay valid without a data migration.
+    -->
+
+    <changeSet id="2026_08_02_00000000001-1" author="lars">
+        <comment>Unit of measure for numeric custom fields (m³/h, kW, ...)</comment>
+        <addColumn tableName="custom_field">
+            <column name="unit" type="varchar(32)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="2026_08_02_00000000001-2" author="lars">
+        <comment>Many-to-many binding of custom fields to asset categories</comment>
+        <createTable tableName="custom_field_asset_categories">
+            <column name="custom_field_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="asset_category_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey tableName="custom_field_asset_categories"
+                       columnNames="custom_field_id, asset_category_id"
+                       constraintName="pk_custom_field_asset_categories"/>
+
+        <addForeignKeyConstraint baseTableName="custom_field_asset_categories"
+                                 baseColumnNames="custom_field_id"
+                                 constraintName="fk_cf_asset_categories_field"
+                                 referencedTableName="custom_field"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint baseTableName="custom_field_asset_categories"
+                                 baseColumnNames="asset_category_id"
+                                 constraintName="fk_cf_asset_categories_category"
+                                 referencedTableName="asset_category"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <createIndex tableName="custom_field_asset_categories"
+                     indexName="idx_cf_asset_categories_category">
+            <column name="asset_category_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

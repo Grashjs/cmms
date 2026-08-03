@@ -82,7 +82,7 @@ public class AssetService {
         if (asset instanceof AssetPostDTO assetPostDTO) {
             asset = assetMapper.fromPostDto(assetPostDTO);
             if (assetPostDTO.getCustomFields() != null && !assetPostDTO.getCustomFields().isEmpty()) {
-                setAssetCustomFields(asset, assetPostDTO.getCustomFields(), company);
+                setAssetCustomFields(asset, assetPostDTO.getCustomFields(), company, asset.getCategory());
             }
         }
         if (asset.getParentAsset() != null && !licenseService.hasEntitlement(LicenseEntitlement.ASSET_HIERARCHY))
@@ -107,15 +107,22 @@ public class AssetService {
         return "A" + String.format("%06d", nextSequence);
     }
 
+    /**
+     * @param effectiveCategory the category the asset will have *after* this operation. On
+     *                          update the values are written before the patch is mapped, so
+     *                          passing the persisted asset's category would validate against
+     *                          the category the user is moving away from.
+     */
     private void setAssetCustomFields(Asset asset, List<CustomFieldValuePostDTO> customFieldValuePostDTOS,
-                                      Company company) {
+                                      Company company, AssetCategory effectiveCategory) {
         customFieldValueService.setCustomFields(
                 asset,
                 asset.getCustomFieldValues(),
                 customFieldValuePostDTOS,
                 company,
                 CustomFieldEntityType.ASSET,
-                cfv -> cfv.setAsset(asset)
+                cfv -> cfv.setAsset(asset),
+                effectiveCategory == null ? null : effectiveCategory.getId()
         );
     }
 
@@ -128,7 +135,7 @@ public class AssetService {
             Asset savedAsset = assetRepository.findById(id).get();
             AssetStatus previousStatus = savedAsset.getStatus();
             if (asset.getCustomFields() != null && !asset.getCustomFields().isEmpty()) {
-                setAssetCustomFields(savedAsset, asset.getCustomFields(), company);
+                setAssetCustomFields(savedAsset, asset.getCustomFields(), company, asset.getCategory());
             }
             Asset patchedAsset = assetRepository.saveAndFlush(assetMapper.updateAsset(savedAsset, asset));
             em.refresh(patchedAsset);

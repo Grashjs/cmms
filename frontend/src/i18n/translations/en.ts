@@ -644,6 +644,12 @@ const locale = {
   last_reading: 'Last Reading',
   enter_meter_name: 'Enter Meter name',
   unit: 'Unit',
+  all_assets: 'All assets',
+  asset_categories: 'Asset categories',
+  custom_field_unit_description:
+    'Shown next to the field label, for example m³/h or kW',
+  custom_field_categories_description:
+    'Leave empty to show this field on every asset',
   update_frequency: 'Update Frequency',
   update_frequency_in_days: 'Update Frequency in days',
   required_meter_name: 'Meter name is required',

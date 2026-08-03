@@ -41,6 +41,7 @@ import AssetAnalytics from './AssetAnalytics';
 import { getCustomFields } from '../../../../slices/customField';
 import { CustomFieldEntityType } from '../../../../models/owns/customField';
 import {
+  customFieldAppliesToCategory,
   getCustomFieldsIFields,
   getCustomFieldsRequiredShape,
   getCustomFieldsValues
@@ -54,6 +55,11 @@ const ShowAsset = ({}: PropsType) => {
   const { assetId } = useParams();
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
   const [copyAssetData, setCopyAssetData] = useState<AssetDTO | null>(null);
+  // Which type-specific custom fields the edit form shows. Seeded from the asset being
+  // edited and updated as the user changes the category.
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
+    null
+  );
   const { setTitle } = useContext(TitleContext);
   const { uploadFiles } = useContext(CompanySettingsContext);
   const location = useLocation();
@@ -79,7 +85,12 @@ const ShowAsset = ({}: PropsType) => {
     if (openUpdateModal && !customFields.length) {
       dispatch(getCustomFields());
     }
-  }, [openUpdateModal]);
+    if (openUpdateModal) {
+      // "Duplicate" prefills the form from another asset, so the category to honour is
+      // that one's rather than the asset currently on screen.
+      setSelectedCategoryId((copyAssetData ?? asset)?.category?.id ?? null);
+    }
+  }, [openUpdateModal, copyAssetData]);
 
   const handleOpenUpdateModal = () => setOpenUpdateModal(true);
   const handleCopyAsset = () => {
@@ -360,15 +371,28 @@ const ShowAsset = ({}: PropsType) => {
       label: t('parent_asset'),
       excluded: Number(assetId)
     },
-    ...getCustomFieldsIFields(customFields, CustomFieldEntityType.ASSET)
+    ...getCustomFieldsIFields(
+      customFields,
+      CustomFieldEntityType.ASSET,
+      selectedCategoryId
+    )
   ];
+
+  // Only the fields the form actually shows may be submitted; see formatCustomFields.
+  const applicableCustomFieldIds = customFields
+    .filter((field) => field.entityType === CustomFieldEntityType.ASSET)
+    .filter((field) =>
+      customFieldAppliesToCategory(field, selectedCategoryId)
+    )
+    .map((field) => field.id);
 
   const shape = {
     name: Yup.string().required(t('required_asset_name')),
     ...getCustomFieldsRequiredShape(
       customFields,
       CustomFieldEntityType.ASSET,
-      t
+      t,
+      selectedCategoryId
     )
   };
   const onEditSuccess = () => {
@@ -423,9 +447,16 @@ const ShowAsset = ({}: PropsType) => {
                 ? { ...getAssetFormValues(copyAssetData), id: null }
                 : getAssetFormValues(asset)
             }
-            onChange={({ field, e }) => {}}
+            onChange={({ field, e }) => {
+              if (field === 'category') {
+                setSelectedCategoryId(e?.value != null ? Number(e.value) : null);
+              }
+            }}
             onSubmit={async (values) => {
-              let formattedValues = formatAssetValues(values);
+              let formattedValues = formatAssetValues(
+                values,
+                applicableCustomFieldIds
+              );
               try {
                 const imageAndFiles = await handleFileUpload(
                   {

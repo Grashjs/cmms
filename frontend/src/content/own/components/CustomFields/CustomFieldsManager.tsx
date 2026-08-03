@@ -42,6 +42,7 @@ import {
   updateCustomField,
   reorderCustomFieldsAPI
 } from '../../../../slices/customField';
+import { getCategories } from '../../../../slices/category';
 import useAuth from '../../../../hooks/useAuth';
 import {
   CustomField,
@@ -110,6 +111,69 @@ function CustomFieldsManager({ entityType }: CustomFieldsManagerProps) {
     .filter((cf) => cf.entityType === entityType)
     .sort((a, b) => a.order - b.order);
 
+  // Only asset fields can be bound to categories, so the list is fetched only there.
+  const isAssetEntity = entityType === CustomFieldEntityType.ASSET;
+  const assetCategories =
+    useSelector((state) => state.categories.categories['asset-categories']) ??
+    [];
+
+  /**
+   * Unit and category binding, shared by the add and the edit dialog so the two cannot
+   * drift apart. The unit only makes sense for numbers; the category binding only for
+   * assets.
+   */
+  const renderTypeSpecificFields = (
+    values: {
+      fieldType: CustomFieldType;
+      unit?: string;
+      assetCategoryIds?: number[];
+    },
+    setFieldValue: (field: string, value: any) => void
+  ) => (
+    <Fragment>
+      {values.fieldType === CustomFieldType.NUMBER && (
+        <Grid item xs={12}>
+          <TextField
+            fullWidth
+            label={t('unit')}
+            name="unit"
+            placeholder="m³/h"
+            helperText={t('custom_field_unit_description')}
+            value={values.unit ?? ''}
+            onChange={(event) => setFieldValue('unit', event.target.value)}
+            variant="outlined"
+          />
+        </Grid>
+      )}
+      {isAssetEntity && (
+        <Grid item xs={12}>
+          <Autocomplete
+            multiple
+            options={assetCategories}
+            getOptionLabel={(option) => option.name}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
+            value={assetCategories.filter((category) =>
+              (values.assetCategoryIds ?? []).includes(category.id)
+            )}
+            onChange={(event, newValue) =>
+              setFieldValue(
+                'assetCategoryIds',
+                newValue.map((category) => category.id)
+              )
+            }
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label={t('asset_categories')}
+                helperText={t('custom_field_categories_description')}
+              />
+            )}
+          />
+        </Grid>
+      )}
+    </Fragment>
+  );
+
   const handleDelete = (id: number) => {
     dispatch(deleteCustomField(id))
       .then(onDeleteSuccess)
@@ -120,6 +184,9 @@ function CustomFieldsManager({ entityType }: CustomFieldsManagerProps) {
   useEffect(() => {
     setTitle(t('custom_fields'));
     dispatch(getCustomFields());
+    if (isAssetEntity) {
+      dispatch(getCategories('asset-categories'));
+    }
   }, []);
 
   const onDeleteSuccess = () => {
@@ -258,6 +325,23 @@ function CustomFieldsManager({ entityType }: CustomFieldsManagerProps) {
                                         | {t('copy_on_repeat_wo')}: {t('yes')}
                                       </>
                                     )}
+                                  {customField.unit && (
+                                    <>
+                                      {' '}
+                                      | {t('unit')}: {customField.unit}
+                                    </>
+                                  )}
+                                  {isAssetEntity && (
+                                    <>
+                                      {' '}
+                                      | {t('asset_categories')}:{' '}
+                                      {customField.assetCategories?.length
+                                        ? customField.assetCategories
+                                            .map(({ name }) => name)
+                                            .join(', ')
+                                        : t('all_assets')}
+                                    </>
+                                  )}
                                 </Typography>
                               }
                             />
@@ -334,7 +418,9 @@ function CustomFieldsManager({ entityType }: CustomFieldsManagerProps) {
               fieldType: CustomFieldType.SHORT_TEXT,
               required: false,
               copyOnRepeat: false,
-              options: []
+              options: [],
+              unit: '',
+              assetCategoryIds: []
             }}
             validationSchema={Yup.object().shape({
               label: Yup.string().required(t('required_field')),
@@ -467,6 +553,7 @@ function CustomFieldsManager({ entityType }: CustomFieldsManagerProps) {
                         />
                       </Grid>
                     )}
+                    {renderTypeSpecificFields(values, setFieldValue)}
                   </Grid>
                 </DialogContent>
                 <DialogActions sx={{ p: 3 }}>
@@ -508,7 +595,11 @@ function CustomFieldsManager({ entityType }: CustomFieldsManagerProps) {
                 currentCustomField?.fieldType || CustomFieldType.SHORT_TEXT,
               required: currentCustomField?.required || false,
               copyOnRepeat: currentCustomField?.copyOnRepeat || false,
-              options: currentCustomField?.options || []
+              options: currentCustomField?.options || [],
+              unit: currentCustomField?.unit || '',
+              assetCategoryIds: (currentCustomField?.assetCategories ?? []).map(
+                (category) => category.id
+              )
             }}
             validationSchema={Yup.object().shape({
               label: Yup.string().required(t('required_field')),
@@ -637,6 +728,7 @@ function CustomFieldsManager({ entityType }: CustomFieldsManagerProps) {
                         />
                       </Grid>
                     )}
+                    {renderTypeSpecificFields(values, setFieldValue)}
                   </Grid>
                 </DialogContent>
                 <DialogActions sx={{ p: 3 }}>

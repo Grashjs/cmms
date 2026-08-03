@@ -79,9 +79,11 @@ export interface IHash<E> {
 }
 
 const getCustomFieldIField = (customField: CustomField): IField => {
-  const { label, fieldType, required, options } = customField;
+  const { label, fieldType, required, options, unit } = customField;
   const iField: IField = {
-    label,
+    // The unit belongs in the label because values are stored as plain strings —
+    // showing "Volumenstrom (m³/h)" is what tells the user which unit to type in.
+    label: unit ? `${label} (${unit})` : label,
     name: `customField_${customField.id}`,
     type: 'text',
     required
@@ -140,14 +142,31 @@ export const getCustomFieldsValues = <T extends EntityWithCustomFields>(
   });
   return values;
 };
+/**
+ * A field applies to an asset when it is bound to no category at all — the behaviour of
+ * every field before categories existed — or when it lists the asset's own category.
+ * Passing undefined for the category id disables the check, which is what every entity
+ * type other than ASSET needs.
+ */
+export const customFieldAppliesToCategory = (
+  field: CustomField,
+  assetCategoryId?: number | null
+): boolean => {
+  if (assetCategoryId === undefined) return true;
+  if (!field.assetCategories?.length) return true;
+  return field.assetCategories.some(({ id }) => id === assetCategoryId);
+};
+
 export const getCustomFieldsRequiredShape = (
   customFields: CustomField[],
   customFieldEntityType: CustomFieldEntityType,
-  t: TFunction
+  t: TFunction,
+  assetCategoryId?: number | null
 ): { [key: string]: Yup.StringSchema | Yup.ObjectSchema<any> } => {
   const shape: { [key: string]: Yup.StringSchema | Yup.ObjectSchema<any> } = {};
   customFields
     .filter(({ entityType }) => entityType === customFieldEntityType)
+    .filter((field) => customFieldAppliesToCategory(field, assetCategoryId))
     .forEach((field) => {
       if (field.required) {
         shape[`customField_${field.id}`] =
@@ -161,10 +180,12 @@ export const getCustomFieldsRequiredShape = (
 
 export const getCustomFieldsIFields = (
   customFields: CustomField[],
-  entityType: CustomFieldEntityType
+  entityType: CustomFieldEntityType,
+  assetCategoryId?: number | null
 ) =>
   [...customFields]
     .filter((field) => field.entityType === entityType)
+    .filter((field) => customFieldAppliesToCategory(field, assetCategoryId))
     .sort((a, b) => a.order - b.order)
     .map((field) => getCustomFieldIField(field));
 
@@ -175,7 +196,9 @@ export const getCustomFieldValuesForDetails = (
   [...(customFieldValues ?? [])]
     .sort((a, b) => a.customField.order - b.customField.order)
     .map(({ customField, value }) => ({
-      label: customField.label,
+      label: customField.unit
+        ? `${customField.label} (${customField.unit})`
+        : customField.label,
       value: customField.fieldType.includes('DATE')
         ? getFormattedDate(value)
         : value,

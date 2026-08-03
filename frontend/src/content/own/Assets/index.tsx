@@ -83,7 +83,10 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { getCustomFields } from '../../../slices/customField';
 import { CustomFieldEntityType } from '../../../models/owns/customField';
-import { getCustomFieldsRequiredShape } from '../type';
+import {
+  customFieldAppliesToCategory,
+  getCustomFieldsRequiredShape
+} from '../type';
 
 const PAGE_SIZE = 40;
 
@@ -127,6 +130,11 @@ function Assets() {
     locationsHierarchy.find(
       (location) => location.id === Number(locationParam)
     );
+  // Drives which type-specific custom fields the form shows. Kept in state rather than
+  // read from Formik because the field list is built before the form renders.
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
+    null
+  );
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openMenu = Boolean(anchorEl);
   type ViewType = 'hierarchy' | 'list';
@@ -265,6 +273,11 @@ function Assets() {
   useEffect(() => {
     if (openAddModal && !customFields.length) {
       dispatch(getCustomFields());
+    }
+    // A fresh form starts without a category, so only fields that apply to every asset
+    // are shown until one is picked.
+    if (openAddModal) {
+      setSelectedCategoryId(null);
     }
   }, [openAddModal]);
 
@@ -756,14 +769,27 @@ function Assets() {
       type2: 'asset',
       label: t('parent_asset')
     },
-    ...getCustomFieldsIFields(customFields, CustomFieldEntityType.ASSET)
+    ...getCustomFieldsIFields(
+      customFields,
+      CustomFieldEntityType.ASSET,
+      selectedCategoryId
+    )
   ];
+  // Only the fields the form actually shows may be submitted; see formatCustomFields.
+  const applicableCustomFieldIds = customFields
+    .filter((field) => field.entityType === CustomFieldEntityType.ASSET)
+    .filter((field) =>
+      customFieldAppliesToCategory(field, selectedCategoryId)
+    )
+    .map((field) => field.id);
+
   const shape = {
     name: Yup.string().required(t('required_asset_name')),
     ...getCustomFieldsRequiredShape(
       customFields,
       CustomFieldEntityType.ASSET,
-      t
+      t,
+      selectedCategoryId
     )
   };
   const handleReset = (callApi: boolean) => {
@@ -818,12 +844,20 @@ function Assets() {
                   }
                 : null
             }}
-            onChange={() => setIsFormDirty(true)}
+            onChange={({ field, e }) => {
+              setIsFormDirty(true);
+              if (field === 'category') {
+                setSelectedCategoryId(e?.value != null ? Number(e.value) : null);
+              }
+            }}
             onSubmit={async (values) => {
               setIsFormDirty(false);
               if (assetsHierarchy.length === 0)
                 fireGa4Event('first_asset_creation');
-              let formattedValues = formatAssetValues(values);
+              let formattedValues = formatAssetValues(
+                values,
+                applicableCustomFieldIds
+              );
               try {
                 const uploadedFiles = await uploadFiles(
                   formattedValues.files,

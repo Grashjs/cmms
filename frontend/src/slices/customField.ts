@@ -1,7 +1,10 @@
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
 import type { AppThunk } from 'src/store';
-import { CustomField } from '../models/owns/customField';
+import {
+  CustomField,
+  CustomFieldPayload
+} from '../models/owns/customField';
 import api from '../utils/api';
 import { revertAll } from 'src/utils/redux';
 
@@ -85,9 +88,7 @@ export const getCustomFields = (): AppThunk => async (dispatch) => {
 };
 
 export const createCustomField =
-  (
-    customField: Omit<CustomField, 'id' | 'createdAt' | 'updatedAt' | 'order'>
-  ): AppThunk =>
+  (customField: CustomFieldPayload): AppThunk =>
   async (dispatch) => {
     const customFieldResponse = await api.post<CustomField>(
       basePath,
@@ -100,7 +101,7 @@ export const createCustomField =
   };
 
 export const updateCustomField =
-  (id: number, customField: Partial<CustomField>): AppThunk =>
+  (id: number, customField: Partial<CustomFieldPayload>): AppThunk =>
   async (dispatch) => {
     const customFieldResponse = await api.patch<CustomField>(
       `${basePath}/${id}`,

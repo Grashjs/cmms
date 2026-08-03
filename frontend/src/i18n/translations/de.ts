@@ -693,6 +693,12 @@ const deJSON = {
   last_reading: 'Letzte Messung',
   enter_meter_name: 'Zählername eingeben',
   unit: 'Einheit',
+  all_assets: 'Alle Anlagen',
+  asset_categories: 'Anlagenkategorien',
+  custom_field_unit_description:
+    'Wird neben der Feldbezeichnung angezeigt, zum Beispiel m³/h oder kW',
+  custom_field_categories_description:
+    'Leer lassen, damit das Merkmal bei allen Anlagen erscheint',
   update_frequency: 'Aktualisierungsfrequenz',
   update_frequency_in_days: 'Aktualisierungsfrequenz in Tagen',
   required_meter_name: 'Zählername ist erforderlich',

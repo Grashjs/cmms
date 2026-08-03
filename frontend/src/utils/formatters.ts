@@ -17,7 +17,10 @@ export const formatSelect = (
   return object?.value ? { id: Number(object.value) } : null;
 };
 
-export const formatAssetValues = (values) => {
+export const formatAssetValues = (
+  values,
+  applicableCustomFieldIds?: number[]
+) => {
   const newValues = { ...values };
   newValues.primaryUser = formatSelect(newValues.primaryUser);
   newValues.location = formatSelect(newValues.location);
@@ -28,7 +31,7 @@ export const formatAssetValues = (values) => {
   newValues.assignedTo = formatSelectMultiple(newValues.assignedTo);
   newValues.teams = formatSelectMultiple(newValues.teams);
   newValues.parts = formatSelectMultiple(newValues.parts);
-  return formatCustomFields(newValues);
+  return formatCustomFields(newValues, applicableCustomFieldIds);
 };
 
 export const formatSwitch = (values: {}, key: string) => {
@@ -96,21 +99,34 @@ export const getFormattedCostPerUnit = (
     : getFormattedCurrency(cost);
 };
 
-export const formatCustomFields = (values: { [key: string]: any }) => {
+/**
+ * @param applicableFieldIds ids of the fields currently shown in the form. Formik keeps
+ *   values of fields that disappeared — switching an asset's category from lift to
+ *   ventilation leaves "Anzahl Haltestellen" in the form state — and submitting those
+ *   would be rejected by the backend. Omit to send everything, which is what entities
+ *   without category-bound fields need.
+ */
+export const formatCustomFields = (
+  values: { [key: string]: any },
+  applicableFieldIds?: number[]
+) => {
   const newValues = { ...values };
   let customFields: { id: number; value: string }[] = [];
   Object.keys(newValues).forEach((key) => {
     if (key.startsWith('customField_')) {
-      const customFieldId = key.split('customField_')[1];
+      const customFieldId = Number(key.split('customField_')[1]);
       const rawValue = newValues[key];
+      delete newValues[key];
+      if (applicableFieldIds && !applicableFieldIds.includes(customFieldId)) {
+        return;
+      }
       customFields.push({
-        id: Number(customFieldId),
+        id: customFieldId,
         value:
           rawValue && typeof rawValue === 'object' && 'value' in rawValue
             ? rawValue.value
             : rawValue
       });
-      delete newValues[key];
     }
   });
   newValues.customFields = customFields;

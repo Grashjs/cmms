@@ -26,6 +26,13 @@ public class CustomFieldPostDTO {
     @NotNull
     private CustomFieldEntityType entityType;
 
+    @Schema(description = "Unit of measure for numeric fields, e.g. m³/h or kW")
+    private String unit;
+
+    @Schema(description = "Asset category ids this field applies to. Empty or omitted means "
+            + "the field applies to every asset. Only evaluated for entityType ASSET.")
+    private List<Long> assetCategoryIds;
+
     @Schema(description = "Whether this field is required")
     private boolean required = false;
 

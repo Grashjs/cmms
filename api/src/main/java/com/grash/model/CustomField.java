@@ -43,6 +43,23 @@ public class CustomField extends Audit {
     @NotNull
     private CustomFieldEntityType entityType;
 
+    @Schema(description = "Unit of measure for numeric fields, e.g. m³/h or kW")
+    @Column(length = 32)
+    private String unit;
+
+    /**
+     * Asset categories this field belongs to. Empty means the field applies to every
+     * asset, which is what all fields did before categories existed — so existing
+     * configurations keep working untouched. Only meaningful for entityType ASSET.
+     */
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "custom_field_asset_categories",
+            joinColumns = @JoinColumn(name = "custom_field_id"),
+            inverseJoinColumns = @JoinColumn(name = "asset_category_id"))
+    @ToString.Exclude
+    @Schema(description = "Asset categories this field applies to; empty means all assets")
+    private List<AssetCategory> assetCategories = new ArrayList<>();
+
     @Schema(description = "Whether this field is required")
     private boolean required = false;
 
