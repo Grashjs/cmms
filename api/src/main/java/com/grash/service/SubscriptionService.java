@@ -2,27 +2,22 @@ package com.grash.service;
 
 import com.grash.dto.SubscriptionPatchDTO;
 import com.grash.exception.CustomException;
-import com.grash.factory.MailServiceFactory;
 import com.grash.job.SubscriptionEndJob;
 import com.grash.mapper.SubscriptionMapper;
 import com.grash.model.Company;
-import com.grash.model.SubscriptionChangeRequest;
 import com.grash.model.User;
 import com.grash.model.Subscription;
 import com.grash.repository.CompanyRepository;
 import com.grash.repository.ScheduleRepository;
-import com.grash.repository.SubscriptionChangeRequestRepository;
 import com.grash.repository.SubscriptionRepository;
 import com.grash.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityManager;
 
 import java.util.*;
@@ -41,11 +36,6 @@ public class SubscriptionService {
     private final UserRepository userRepository;
     private final Scheduler scheduler;
     private final ScheduleRepository scheduleRepository;
-    private final MailServiceFactory mailServiceFactory;
-    private final SubscriptionChangeRequestRepository subscriptionChangeRequestRepository;
-    private final BrandingService brandingService;
-    @Value("${mail.recipients:#{null}}")
-    private String[] recipients;
 
     public void upgrade(Collection<Long> usersIds, User user) {
         if (user.isOwnsCompany()) {
@@ -54,8 +44,9 @@ public class SubscriptionService {
             Subscription subscription = user.getCompany().getSubscription();
             int subscriptionUsersCount = subscription.getUsersCount();
             if (enabledUsersCount + usersIds.size() <= subscriptionUsersCount) {
-                Collection<User> users = usersIds.stream().map(userId -> userRepository.findByIdAndCompany_Id(userId,
-                        user.getCompany().getId()).get()).collect(Collectors.toList());
+                Collection<User> users = usersIds.stream().map(userId -> findUserInCompany(userId,
+                                user.getCompany().getId()))
+                        .collect(Collectors.toList());
                 if (users.stream().noneMatch(User::isEnabledInSubscription)) {
                     users.forEach(user1 -> {
                         user1.setEnabled(true);
@@ -71,21 +62,6 @@ public class SubscriptionService {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
-    public void requestUpgrade(SubscriptionChangeRequest subscriptionChangeRequest, User user) {
-        if (user.isOwnsCompany() && !user.getCompany().isDemo()) {
-            subscriptionChangeRequestRepository.save(subscriptionChangeRequest);
-            try {
-                mailServiceFactory.getMailService().sendHtmlMessage(recipients,
-                        "New " + brandingService.getBrandConfig().getShortName() +
-                                " subscription change request",
-                        user.getFirstName() + " " + user.getLastName() + " just requested a subscription change for " +
-                                "company " + user.getCompany().getName() + "\nUsers count: " + subscriptionChangeRequest.getUsersCount() + "\nCode: " + subscriptionChangeRequest.getCode() + "\nPeriod: " + (subscriptionChangeRequest.getMonthly() ? "Monthly" : "Annually") + "\nEmail: " + user.getEmail() + "\nPhone: " + user.getPhone(), null);
-            } catch (MessagingException | java.io.IOException exception) {
-                throw new CustomException(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
-    }
-
     public void downgrade(Collection<Long> usersIds, User user) {
         if (user.isOwnsCompany()) {
             int enabledUsersCount =
@@ -93,8 +69,8 @@ public class SubscriptionService {
             Subscription subscription = user.getCompany().getSubscription();
             int subscriptionUsersCount = user.getCompany().getSubscription().getUsersCount();
             if (enabledUsersCount - usersIds.size() <= subscriptionUsersCount) {
-                Collection<User> users = usersIds.stream().map(userId ->
-                                userRepository.findByIdAndCompany_Id(userId, user.getCompany().getId()).get())
+                Collection<User> users = usersIds.stream().map(userId -> findUserInCompany(userId,
+                                user.getCompany().getId()))
                         .filter(user1 -> !user1.isOwnsCompany()).collect(Collectors.toList());
                 if (users.stream().allMatch(User::isEnabledInSubscription)) {
                     users.forEach(user1 -> {
@@ -141,10 +117,11 @@ public class SubscriptionService {
     public void scheduleEnd(Subscription subscription) {
         boolean shouldSchedule =
                 !subscription.getSubscriptionPlan().getCode().equals("FREE") && subscription.getEndsOn() != null && subscription.getPaddleSubscriptionId() == null;
+        JobKey jobKey = new JobKey("subscription-end-job-" + subscription.getId(), "subscription-group");
         if (shouldSchedule) {
             try {
                 JobDetail jobDetail = JobBuilder.newJob(SubscriptionEndJob.class)
-                        .withIdentity("subscription-end-job-" + subscription.getId(), "subscription-group")
+                        .withIdentity(jobKey)
                         .usingJobData("subscriptionId", subscription.getId())
                         .build();
 
@@ -160,7 +137,20 @@ public class SubscriptionService {
             } catch (SchedulerException e) {
                 log.error("Error scheduling subscription end job for subscription " + subscription.getId(), e);
             }
+        } else {
+            try {
+                if (scheduler.checkExists(jobKey)) {
+                    scheduler.deleteJob(jobKey);
+                }
+            } catch (SchedulerException e) {
+                log.error("Error removing subscription end job for subscription " + subscription.getId(), e);
+            }
         }
+    }
+
+    private User findUserInCompany(Long userId, Long companyId) {
+        return userRepository.findByIdAndCompany_Id(userId, companyId)
+                .orElseThrow(() -> new CustomException("User not found in company", HttpStatus.NOT_FOUND));
     }
 
     public Optional<Subscription> findByPaddleSubscriptionId(String id) {

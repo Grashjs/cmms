@@ -1,13 +1,11 @@
 package com.grash.controller;
 
 import com.grash.dto.SuccessResponse;
-import com.grash.model.SubscriptionChangeRequest;
 import com.grash.model.User;
 import com.grash.service.SubscriptionService;
 import com.grash.service.UserService;
 
 
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -35,17 +33,7 @@ public class SubscriptionController {
         subscriptionService.upgrade(usersIds, user);
         return new SuccessResponse(true, "Users enabled successfully");
     }
-
-    @PostMapping("/request-upgrade")
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
-    @Hidden
-    @Deprecated
-    public SuccessResponse requestUpgrade(@Parameter(description = "Subscription change request details") @RequestBody SubscriptionChangeRequest subscriptionChangeRequest,
-                                          HttpServletRequest req) {
-        User user = userService.whoami(req);
-        subscriptionService.requestUpgrade(subscriptionChangeRequest, user);
-        return new SuccessResponse(true, "Success");
-    }
+    
 
     @GetMapping("/downgrade")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
