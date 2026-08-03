@@ -218,7 +218,8 @@ class PreventiveMaintenanceNotificationJobTest {
 
         ArgumentCaptor<Map<String, Object>> variablesCaptor = ArgumentCaptor.forClass(Map.class);
         verify(mailService).sendMessageUsingThymeleafTemplate(
-                any(String[].class), eq("Upcoming WO"), variablesCaptor.capture(), eq("coming-work-order.html"), eq(Locale.US));
+                any(String[].class), eq("Upcoming WO"), variablesCaptor.capture(), eq("coming-work-order.html"),
+                eq(Locale.getDefault()));
         assertEquals("http://localhost:3000/app/preventive-maintenances/1",
                 variablesCaptor.getValue().get("pmLink"));
         assertEquals("Engine Check", variablesCaptor.getValue().get("pmTitle"));
