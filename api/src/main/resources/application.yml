@@ -104,9 +104,6 @@ mail:
   recipients: ${MAIL_RECIPIENTS}
   enable: ${ENABLE_EMAIL_NOTIFICATIONS:false}
   type: ${MAIL_TYPE:SMTP}
-superAdmin:
-  role:
-    name: SuperAdministratorGrash@p;l
 management:
   health:
     mail:

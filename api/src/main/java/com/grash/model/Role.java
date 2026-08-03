@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleCode;
@@ -9,6 +10,7 @@ import lombok.*;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -63,7 +65,7 @@ public class Role {
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JsonIgnore
     @ToString.Exclude
     private CompanySettings companySettings;
 

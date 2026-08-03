@@ -23,8 +23,6 @@ public class ApplicationInitializer implements SmartInitializingSingleton {
     private final UserService userService;
     private final UserInvitationService userInvitationService;
     private final GeneralPreferencesRepository generalPreferencesRepository;
-    @Value("${superAdmin.role.name}")
-    private String superAdminRole;
     private final RoleService roleService;
     private final CompanyService companyService;
     private final SubscriptionPlanService subscriptionPlanService;
@@ -56,12 +54,12 @@ public class ApplicationInitializer implements SmartInitializingSingleton {
 
     private void initializeSuperAdmin() {
         // Find or create the super admin role
-        Role savedSuperAdminRole = roleService.findByName(superAdminRole)
-                .orElseGet(() -> {
+        Role savedSuperAdminRole = roleService.findByCodeAndRoleType(RoleCode.ADMIN, RoleType.ROLE_SUPER_ADMIN)
+                .stream().findFirst().orElseGet(() -> {
                     log.info("Creating super admin role...");
                     Company company = companyService.create(new Company());
                     return roleService.create(Role.builder()
-                            .name(superAdminRole)
+                            .name("Super admin")
                             .companySettings(company.getCompanySettings())
                             .code(RoleCode.ADMIN)
                             .roleType(RoleType.ROLE_SUPER_ADMIN)

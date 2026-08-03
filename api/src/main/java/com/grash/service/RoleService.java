@@ -8,6 +8,7 @@ import com.grash.mapper.RoleMapper;
 import com.grash.model.Company;
 import com.grash.model.Role;
 import com.grash.model.enums.RoleCode;
+import com.grash.model.enums.RoleType;
 import com.grash.repository.RoleRepository;
 import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
@@ -51,8 +52,8 @@ public class RoleService {
         return roleRepository.findById(id);
     }
 
-    public Optional<Role> findByName(String name) {
-        return roleRepository.findByName(name);
+    public List<Role> findByCodeAndRoleType(RoleCode code, RoleType roleType) {
+        return roleRepository.findByCodeAndRoleType(code, roleType);
     }
 
     public List<Role> findByCompany(Long id) {
