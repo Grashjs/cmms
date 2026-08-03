@@ -61,7 +61,10 @@ const colors = {
       menuItemColorActive: '#00b795',
       menuItemBg: '#fff',
       menuItemBgActive: '#f2fbfa',
-      menuItemIconColor: lighten(themeColors.secondary, 0.5),
+      // Not lightened: on the now-light sidebar the lightened tone only reached
+      // 2.6:1 against white and 2.4:1 against the active row. Plain secondary is
+      // 4.5:1 and still lighter than the label, so the hierarchy survives.
+      menuItemIconColor: themeColors.secondary,
       menuItemIconColorActive: '#00b795',
       menuItemHeadingColor: themeColors.black
     }

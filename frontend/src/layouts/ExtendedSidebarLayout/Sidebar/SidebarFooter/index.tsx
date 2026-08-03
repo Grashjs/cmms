@@ -1,5 +1,4 @@
 import {
-  alpha,
   Box,
   IconButton,
   styled,
@@ -23,14 +22,14 @@ const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
 ))(({ theme }) => ({
   [`& .${tooltipClasses.tooltip}`]: {
-    backgroundColor: theme.colors.alpha.trueWhite[100],
-    color: theme.palette.getContrastText(theme.colors.alpha.trueWhite[100]),
+    backgroundColor: theme.colors.alpha.black[100],
+    color: theme.palette.getContrastText(theme.colors.alpha.black[100]),
     boxShadow: theme.shadows[24],
     fontWeight: 'bold',
     fontSize: theme.typography.pxToRem(12)
   },
   [`& .${tooltipClasses.arrow}`]: {
-    color: theme.colors.alpha.trueWhite[100]
+    color: theme.colors.alpha.black[100]
   }
 }));
 
@@ -63,13 +62,13 @@ function SidebarFooter() {
         <LightTooltip placement="top" arrow title={t('upgrade_now')}>
           <IconButton
             sx={{
-              background: `${theme.colors.alpha.trueWhite[10]}`,
-              color: `${theme.colors.alpha.trueWhite[70]}`,
+              background: `${theme.sidebar.menuItemBgActive}`,
+              color: `${theme.sidebar.menuItemIconColor}`,
               transition: `${theme.transitions.create(['all'])}`,
 
               '&:hover': {
-                background: `${alpha(theme.colors.alpha.trueWhite[100], 0.2)}`,
-                color: `${theme.colors.alpha.trueWhite[100]}`
+                background: `${theme.colors.alpha.black[10]}`,
+                color: `${theme.sidebar.menuItemIconColorActive}`
               }
             }}
             component={isCloudVersion ? RouterLink : 'a'}
@@ -88,13 +87,13 @@ function SidebarFooter() {
       <LightTooltip placement="top" arrow title={t('documentation')}>
         <IconButton
           sx={{
-            background: `${theme.colors.alpha.trueWhite[10]}`,
-            color: `${theme.colors.alpha.trueWhite[70]}`,
+            background: `${theme.sidebar.menuItemBgActive}`,
+            color: `${theme.sidebar.menuItemIconColor}`,
             transition: `${theme.transitions.create(['all'])}`,
 
             '&:hover': {
-              background: `${alpha(theme.colors.alpha.trueWhite[100], 0.2)}`,
-              color: `${theme.colors.alpha.trueWhite[100]}`
+              background: `${theme.colors.alpha.black[10]}`,
+              color: `${theme.sidebar.menuItemIconColorActive}`
             }
           }}
           onClick={() => window.open('https://grashjs.github.io/user-guide')}
@@ -106,13 +105,13 @@ function SidebarFooter() {
         <LightTooltip placement="top" arrow title={t('wo_calendar')}>
           <IconButton
             sx={{
-              background: `${theme.colors.alpha.trueWhite[10]}`,
-              color: `${theme.colors.alpha.trueWhite[70]}`,
+              background: `${theme.sidebar.menuItemBgActive}`,
+              color: `${theme.sidebar.menuItemIconColor}`,
               transition: `${theme.transitions.create(['all'])}`,
 
               '&:hover': {
-                background: `${alpha(theme.colors.alpha.trueWhite[100], 0.2)}`,
-                color: `${theme.colors.alpha.trueWhite[100]}`
+                background: `${theme.colors.alpha.black[10]}`,
+                color: `${theme.sidebar.menuItemIconColorActive}`
               }
             }}
             to="/app/work-orders?view=calendar"
@@ -125,13 +124,13 @@ function SidebarFooter() {
       <LightTooltip placement="top" arrow title={t('Logout')}>
         <IconButton
           sx={{
-            background: `${theme.colors.alpha.trueWhite[10]}`,
-            color: `${theme.colors.alpha.trueWhite[70]}`,
+            background: `${theme.sidebar.menuItemBgActive}`,
+            color: `${theme.sidebar.menuItemIconColor}`,
             transition: `${theme.transitions.create(['all'])}`,
 
             '&:hover': {
-              background: `${alpha(theme.colors.alpha.trueWhite[100], 0.2)}`,
-              color: `${theme.colors.alpha.trueWhite[100]}`
+              background: `${theme.colors.alpha.black[10]}`,
+              color: `${theme.sidebar.menuItemIconColorActive}`
             }
           }}
           onClick={handleLogout}

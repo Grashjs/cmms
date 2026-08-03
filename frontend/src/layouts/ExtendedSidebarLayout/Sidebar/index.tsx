@@ -3,13 +3,10 @@ import Scrollbar from 'src/components/Scrollbar';
 import { SidebarContext } from 'src/contexts/SidebarContext';
 
 import {
-  alpha,
   Box,
   Button,
-  darken,
   Divider,
   Drawer,
-  lighten,
   Link,
   Stack,
   styled,
@@ -22,11 +19,14 @@ import { isCloudVersion } from '../../../config';
 import useAuth from '../../../hooks/useAuth';
 import dayjs from 'dayjs';
 
+// Colours come from theme.sidebar.* throughout. The Tokyo template this is forked
+// from painted the sidebar dark even in light mode, ignoring its own theme tokens —
+// every scheme here defines a light sidebar, so the tokens were simply unused.
 const SidebarWrapper = styled(Box)(
   ({ theme }) => `
         width: ${theme.sidebar.width};
         min-width: ${theme.sidebar.width};
-        color: ${theme.colors.alpha.trueWhite[70]};
+        color: ${theme.sidebar.textColor};
         position: relative;
         z-index: 7;
         height: 100%;
@@ -50,12 +50,8 @@ function Sidebar() {
           position: 'fixed',
           left: 0,
           top: 0,
-          background:
-            theme.palette.mode === 'dark'
-              ? alpha(lighten(theme.header.background, 0.1), 0.5)
-              : darken(theme.colors.alpha.black[100], 0.5),
-          boxShadow:
-            theme.palette.mode === 'dark' ? theme.sidebar.boxShadow : 'none'
+          background: theme.sidebar.background,
+          boxShadow: theme.sidebar.boxShadow
         }}
       >
         <Scrollbar>
@@ -68,7 +64,7 @@ function Sidebar() {
               }}
             >
               <Box>
-                <Logo white />
+                <Logo />
               </Box>
             </Box>
           </Box>
@@ -76,14 +72,14 @@ function Sidebar() {
             sx={{
               mt: theme.spacing(1),
               mx: theme.spacing(2),
-              background: theme.colors.alpha.trueWhite[10]
+              background: theme.sidebar.dividerBg
             }}
           />
           <SidebarMenu />
         </Scrollbar>
         <Divider
           sx={{
-            background: theme.colors.alpha.trueWhite[10]
+            background: theme.sidebar.dividerBg
           }}
         />
         <SidebarFooter />
@@ -100,10 +96,7 @@ function Sidebar() {
       >
         <SidebarWrapper
           sx={{
-            background:
-              theme.palette.mode === 'dark'
-                ? theme.colors.alpha.white[100]
-                : darken(theme.colors.alpha.black[100], 0.5)
+            background: theme.sidebar.background
           }}
         >
           <Scrollbar>
@@ -116,7 +109,7 @@ function Sidebar() {
                 }}
               >
                 <Box>
-                  <Logo white />
+                  <Logo />
                 </Box>
               </Box>
             </Box>
@@ -124,7 +117,7 @@ function Sidebar() {
               sx={{
                 mt: theme.spacing(1),
                 mx: theme.spacing(2),
-                background: theme.colors.alpha.trueWhite[10]
+                background: theme.sidebar.dividerBg
               }}
             />
             <SidebarMenu />

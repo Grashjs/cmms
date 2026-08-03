@@ -1,5 +1,4 @@
 import {
-  alpha,
   Box,
   Button,
   Link,
@@ -36,7 +35,7 @@ const MenuWrapper = styled(Box)(
       text-transform: uppercase;
       font-weight: bold;
       font-size: ${theme.typography.pxToRem(12)};
-      color: ${theme.colors.alpha.trueWhite[50]};
+      color: ${theme.sidebar.menuItemHeadingColor};
       padding: ${theme.spacing(0, 2.5)};
       line-height: 1.4;
     }
@@ -65,7 +64,7 @@ const SubMenuWrapper = styled(Box)(
     
         .MuiButton-root {
           display: flex;
-          color: ${theme.colors.alpha.trueWhite[70]};
+          color: ${theme.sidebar.menuItemColor};
           background-color: transparent;
           width: 100%;
           justify-content: flex-start;
@@ -82,13 +81,13 @@ const SubMenuWrapper = styled(Box)(
           }
 
           .MuiButton-startIcon {
-            color: ${theme.colors.alpha.trueWhite[30]};
+            color: ${theme.sidebar.menuItemIconColor};
             font-size: ${theme.typography.pxToRem(20)};
             margin-right: ${theme.spacing(1)};
           }
           
           .MuiButton-endIcon {
-            color: ${theme.colors.alpha.trueWhite[50]};
+            color: ${theme.sidebar.menuItemIconColor};
             margin-left: auto;
             opacity: .8;
             font-size: ${theme.typography.pxToRem(20)};
@@ -96,12 +95,12 @@ const SubMenuWrapper = styled(Box)(
 
           &.active,
           &:hover {
-            background-color: ${alpha(theme.colors.alpha.trueWhite[100], 0.06)};
-            color: ${theme.colors.alpha.trueWhite[100]};
+            background-color: ${theme.sidebar.menuItemBgActive};
+            color: ${theme.sidebar.menuItemColorActive};
 
             .MuiButton-startIcon,
             .MuiButton-endIcon {
-              color: ${theme.colors.alpha.trueWhite[100]};
+              color: ${theme.sidebar.menuItemIconColorActive};
             }
           }
         }
@@ -134,7 +133,7 @@ const SubMenuWrapper = styled(Box)(
 
               &:before {
                 content: ' ';
-                background: ${theme.colors.alpha.trueWhite[100]};
+                background: ${theme.sidebar.menuItemIconColorActive};
                 opacity: 0;
                 transition: ${theme.transitions.create([
                   'transform',
