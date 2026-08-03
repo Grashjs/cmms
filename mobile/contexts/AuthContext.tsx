@@ -7,12 +7,11 @@ import {
   useRef,
   useState
 } from 'react';
-import User, { OwnUser, UserResponseDTO } from '../models/user';
+import { OwnUser, UserResponseDTO } from '../models/user';
 import api, { authHeader } from '../utils/api';
 import { verify } from '../utils/jwt';
 import { Alert, AppState, Linking, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import PropTypes from 'prop-types';
 import {
   getCompanySettings,
   getUserInfos,
