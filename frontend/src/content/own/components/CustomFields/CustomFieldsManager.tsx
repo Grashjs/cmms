@@ -43,6 +43,7 @@ import {
   reorderCustomFieldsAPI
 } from '../../../../slices/customField';
 import { getCategories } from '../../../../slices/category';
+import Category from '../../../../models/owns/category';
 import useAuth from '../../../../hooks/useAuth';
 import {
   CustomField,
@@ -147,7 +148,9 @@ function CustomFieldsManager({ entityType }: CustomFieldsManagerProps) {
       )}
       {isAssetEntity && (
         <Grid item xs={12}>
-          <Autocomplete
+          {/* Generics are explicit because MUI otherwise widens the option type to
+              `string | Category` and `option.name` stops type-checking. */}
+          <Autocomplete<Category, true, false, false>
             multiple
             options={assetCategories}
             getOptionLabel={(option) => option.name}
