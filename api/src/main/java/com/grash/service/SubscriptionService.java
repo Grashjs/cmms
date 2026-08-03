@@ -2,25 +2,31 @@ package com.grash.service;
 
 import com.grash.dto.SubscriptionPatchDTO;
 import com.grash.exception.CustomException;
+import com.grash.factory.MailServiceFactory;
 import com.grash.job.SubscriptionEndJob;
 import com.grash.mapper.SubscriptionMapper;
 import com.grash.model.Company;
+import com.grash.model.SubscriptionChangeRequest;
 import com.grash.model.User;
 import com.grash.model.Subscription;
 import com.grash.repository.CompanyRepository;
 import com.grash.repository.ScheduleRepository;
+import com.grash.repository.SubscriptionChangeRequestRepository;
 import com.grash.repository.SubscriptionRepository;
 import com.grash.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityManager;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +41,75 @@ public class SubscriptionService {
     private final UserRepository userRepository;
     private final Scheduler scheduler;
     private final ScheduleRepository scheduleRepository;
+    private final MailServiceFactory mailServiceFactory;
+    private final SubscriptionChangeRequestRepository subscriptionChangeRequestRepository;
+    private final BrandingService brandingService;
+    @Value("${mail.recipients:#{null}}")
+    private String[] recipients;
+
+    public void upgrade(Collection<Long> usersIds, User user) {
+        if (user.isOwnsCompany()) {
+            int enabledUsersCount =
+                    (int) userRepository.findByCompany_Id(user.getCompany().getId()).stream().filter(User::isEnabledInSubscriptionAndPaid).count();
+            Subscription subscription = user.getCompany().getSubscription();
+            int subscriptionUsersCount = subscription.getUsersCount();
+            if (enabledUsersCount + usersIds.size() <= subscriptionUsersCount) {
+                Collection<User> users = usersIds.stream().map(userId -> userRepository.findByIdAndCompany_Id(userId,
+                        user.getCompany().getId()).get()).collect(Collectors.toList());
+                if (users.stream().noneMatch(User::isEnabledInSubscription)) {
+                    users.forEach(user1 -> {
+                        user1.setEnabled(true);
+                        user1.setEnabledInSubscription(true);
+                    });
+                    userRepository.saveAll(users);
+                    subscription.setUpgradeNeeded(false);
+                    save(subscription);
+                } else throw new CustomException("There are some already enabled users", HttpStatus.NOT_ACCEPTABLE);
+            } else
+                throw new CustomException("The subscription users count doesn't permit this operation",
+                        HttpStatus.NOT_ACCEPTABLE);
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    public void requestUpgrade(SubscriptionChangeRequest subscriptionChangeRequest, User user) {
+        if (user.isOwnsCompany() && !user.getCompany().isDemo()) {
+            subscriptionChangeRequestRepository.save(subscriptionChangeRequest);
+            try {
+                mailServiceFactory.getMailService().sendHtmlMessage(recipients,
+                        "New " + brandingService.getBrandConfig().getShortName() +
+                                " subscription change request",
+                        user.getFirstName() + " " + user.getLastName() + " just requested a subscription change for " +
+                                "company " + user.getCompany().getName() + "\nUsers count: " + subscriptionChangeRequest.getUsersCount() + "\nCode: " + subscriptionChangeRequest.getCode() + "\nPeriod: " + (subscriptionChangeRequest.getMonthly() ? "Monthly" : "Annually") + "\nEmail: " + user.getEmail() + "\nPhone: " + user.getPhone(), null);
+            } catch (MessagingException | java.io.IOException exception) {
+                throw new CustomException(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+    }
+
+    public void downgrade(Collection<Long> usersIds, User user) {
+        if (user.isOwnsCompany()) {
+            int enabledUsersCount =
+                    (int) userRepository.findByCompany_Id(user.getCompany().getId()).stream().filter(User::isEnabledInSubscriptionAndPaid).count();
+            Subscription subscription = user.getCompany().getSubscription();
+            int subscriptionUsersCount = user.getCompany().getSubscription().getUsersCount();
+            if (enabledUsersCount - usersIds.size() <= subscriptionUsersCount) {
+                Collection<User> users = usersIds.stream().map(userId ->
+                                userRepository.findByIdAndCompany_Id(userId, user.getCompany().getId()).get())
+                        .filter(user1 -> !user1.isOwnsCompany()).collect(Collectors.toList());
+                if (users.stream().allMatch(User::isEnabledInSubscription)) {
+                    users.forEach(user1 -> {
+                        user1.setEnabled(false);
+                        user1.setEnabledInSubscription(false);
+                    });
+                    userRepository.saveAll(users);
+                    subscription.setDowngradeNeeded(false);
+                    save(subscription);
+                } else throw new CustomException("There are some already disabled users", HttpStatus.NOT_ACCEPTABLE);
+            } else
+                throw new CustomException("The subscription users count doesn't permit this operation",
+                        HttpStatus.NOT_ACCEPTABLE);
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
 
     public Subscription create(Subscription subscription) {
         Subscription savedSubscription = subscriptionRepository.saveAndFlush(subscription);
@@ -114,6 +189,6 @@ public class SubscriptionService {
         subscription.setEndsOn(null);
         subscriptionRepository.save(subscription);
     }
-    
+
 }
 
