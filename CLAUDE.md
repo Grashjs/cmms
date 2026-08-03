@@ -168,7 +168,21 @@ upstream FREE behaviour again. When syncing upstream, re-check `LicenseService`,
 
 `dev-docs/` holds upstream documentation (TLS, LDAP, disabling users, running SQL,
 backups). It describes the upstream deployment model, not ours — treat compose snippets
-there as illustrative. When syncing upstream changes, re-check `UserService.signup`, the
-frontend Dockerfile entrypoint, `docker-compose.yml`, and the premium-unlock trio
-(`LicenseService`, `ApplicationInitializer`, `ApiKeyAuthFilter`), since our changes live
-there.
+there as illustrative.
+
+When syncing upstream changes, re-check the files we have diverged in. This list is what a
+merge has to walk, so keep it accurate — a wrong entry wastes time, a missing one gets a
+fix silently overwritten:
+
+| Area | Files |
+|---|---|
+| Signup hardening | `UserService.signup` |
+| Premium unlock | `LicenseService`, `ApplicationInitializer`, `application.yml` |
+| Category-bound custom fields | `CustomField`, `CustomFieldService`, `CustomFieldValueService`, `CustomFieldRepository`, `AssetService.setAssetCustomFields` |
+| Work order → purchase order | `PurchaseOrder`, `PurchaseOrderService`, `PurchaseOrderController`, `PurchaseOrderRepository` |
+| Light sidebar | `layouts/ExtendedSidebarLayout/Sidebar/**`, `theme/schemes/*.ts` |
+| Container plumbing | frontend `Dockerfile` + `docker-entrypoint.sh`, `docker/nginx/**`, `docker-compose.yml` |
+
+`ApiKeyAuthFilter` is **not** in that list. It reads the license and plan gates that
+`SELF_HOSTED_UNLOCK_PREMIUM` opens, so it is worth reading to understand the unlock — but
+it is untouched upstream code and needs no merge attention.
