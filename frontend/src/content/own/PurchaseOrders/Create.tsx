@@ -85,6 +85,14 @@ function CreatePurchaseOrder() {
       midWidth: true
     },
     {
+      name: 'workOrder',
+      type: 'select',
+      type2: 'workOrder',
+      label: t('work_order'),
+      helperText: t('purchase_order_work_order_description'),
+      midWidth: true
+    },
+    {
       name: 'partQuantities',
       type: 'partQuantity',
       label: t('parts'),
@@ -259,6 +267,7 @@ function CreatePurchaseOrder() {
                     }
                     values.category = formatSelect(values.category);
                     values.vendor = formatSelect(values.vendor);
+                    values.workOrder = formatSelect(values.workOrder);
                     values.approveOnSubmit = formatSwitch(
                       values,
                       'approveOnSubmit'

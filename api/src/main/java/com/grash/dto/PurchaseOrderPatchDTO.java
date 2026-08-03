@@ -2,6 +2,7 @@ package com.grash.dto;
 
 import com.grash.model.PurchaseOrderCategory;
 import com.grash.model.Vendor;
+import com.grash.model.WorkOrder;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -66,6 +67,10 @@ public class PurchaseOrderPatchDTO {
 
     @Schema(description = "Vendor reference", implementation = IdDTO.class)
     private Vendor vendor;
+
+    @Schema(description = "The work order that triggered this purchase order",
+            implementation = IdDTO.class)
+    private WorkOrder workOrder;
 
     // private Company requesterInformation;
 }

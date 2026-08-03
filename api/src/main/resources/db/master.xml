@@ -227,4 +227,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_08_02_00000000001_custom_field_asset_categories.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_08_03_00000000001_purchase_order_work_order.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

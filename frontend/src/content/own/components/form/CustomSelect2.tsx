@@ -26,6 +26,7 @@ import { getVendorsMini } from '../../../../slices/vendor';
 import { getUsersMini } from '../../../../slices/user';
 import { getAssetsMini } from '../../../../slices/asset';
 import { getTeamsMini } from '../../../../slices/team';
+import { getWorkOrdersMini } from '../../../../slices/workOrder';
 import AssignmentTwoToneIcon from '@mui/icons-material/AssignmentTwoTone';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import { getPriorityLabel } from '../../../../utils/formatters';
@@ -94,6 +95,7 @@ export const CustomSelect = ({
   const { teamsMini } = useSelector((state) => state.teams);
   const { roles } = useSelector((state) => state.roles);
   const { currencies } = useSelector((state) => state.currencies);
+  const { workOrdersMini } = useSelector((state) => state.workOrders);
 
   const fetchCustomers = async () => {
     dispatch(getCustomersMini());
@@ -123,6 +125,17 @@ export const CustomSelect = ({
   };
   const fetchCurrencies = async () => {
     if (!currencies.length) dispatch(getCurrencies());
+  };
+
+  const fetchWorkOrders = async () => {
+    dispatch(
+      getWorkOrdersMini({
+        filterFields: [],
+        pageSize: 100,
+        pageNum: 0,
+        direction: 'DESC'
+      })
+    );
   };
 
   // Handle inline category creation
@@ -214,6 +227,18 @@ export const CustomSelect = ({
         };
       });
       onOpen = fetchVendors;
+      break;
+    case 'workOrder':
+      options = workOrdersMini.content.map((workOrder) => {
+        return {
+          // The custom id is what people actually quote when they talk about an order.
+          label: workOrder.customId
+            ? `${workOrder.customId} - ${workOrder.title}`
+            : workOrder.title,
+          value: workOrder.id
+        };
+      });
+      onOpen = fetchWorkOrders;
       break;
     case 'user':
       const userOptions = usersMini.map((user) => {

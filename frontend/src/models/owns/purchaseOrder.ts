@@ -2,6 +2,7 @@ import { Audit } from './audit';
 import { Vendor } from './vendor';
 import { PartQuantityMiniDTO } from './partQuantity';
 import Category from './category';
+import { WorkOrderBaseMiniDTO } from './workOrderBase';
 
 export type PurchaseOrderStatus = 'APPROVED' | 'PENDING' | 'REJECTED';
 export default interface PurchaseOrder extends Audit {
@@ -26,5 +27,7 @@ export default interface PurchaseOrder extends Audit {
   additionalInfoShippingOrderCategory: string;
   additionalInfoTerm: string;
   additionalInfoNotes: string;
+  /** The work order this order was raised for. Informational link, optional. */
+  workOrder?: WorkOrderBaseMiniDTO;
   partQuantities: PartQuantityMiniDTO[];
 }

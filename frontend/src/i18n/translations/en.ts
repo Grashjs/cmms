@@ -645,6 +645,10 @@ const locale = {
   enter_meter_name: 'Enter Meter name',
   unit: 'Unit',
   all_assets: 'All assets',
+  purchase_order_work_order_description:
+    'Optional: the work order this purchase order was raised for',
+  no_purchase_orders_for_work_order:
+    'No purchase orders raised for this work order',
   asset_categories: 'Asset categories',
   custom_field_unit_description:
     'Shown next to the field label, for example m³/h or kW',

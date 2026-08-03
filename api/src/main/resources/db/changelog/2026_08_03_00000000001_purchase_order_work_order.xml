@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <!--
+      Traceability for the facility-management flow: request -> work order -> purchase
+      order. The first two were already linked; a purchase order had no idea which work
+      order caused it.
+
+      One work order can trigger several purchase orders (different vendors), so the key
+      sits on the purchase-order side — no join table needed. Nullable, because a purchase
+      order may well exist without a work order, which is also what keeps existing rows
+      valid without a data migration.
+
+      ON DELETE SET NULL rather than CASCADE: a purchase order is a procurement document
+      of its own. Deleting the work order that triggered it must not delete the order.
+    -->
+    <changeSet id="2026_08_03_00000000001-1" author="lars">
+        <addColumn tableName="purchase_order">
+            <column name="work_order_id" type="bigint"/>
+        </addColumn>
+
+        <addForeignKeyConstraint baseTableName="purchase_order"
+                                 baseColumnNames="work_order_id"
+                                 constraintName="fk_purchase_order_work_order"
+                                 referencedTableName="work_order"
+                                 referencedColumnNames="id"
+                                 onDelete="SET NULL"/>
+
+        <createIndex tableName="purchase_order" indexName="idx_purchase_order_work_order">
+            <column name="work_order_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

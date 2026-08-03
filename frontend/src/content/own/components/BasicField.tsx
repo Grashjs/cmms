@@ -1,6 +1,7 @@
 import { Grid, Stack, Typography, Link } from '@mui/material';
 import { getPriorityLabel } from '../../../utils/formatters';
 import { useTranslation } from 'react-i18next';
+import { getWorkOrderUrl } from '../../../utils/urlPaths';
 
 interface BasicFieldProps {
   label: string | number;
@@ -8,7 +9,7 @@ interface BasicFieldProps {
   isPriority?: boolean;
   isLink?: boolean;
   id?: number;
-  type?: 'location' | 'asset' | 'team' | 'vendor';
+  type?: 'location' | 'asset' | 'team' | 'vendor' | 'workOrder';
   linkPrefix?: string;
 }
 
@@ -27,6 +28,10 @@ const BasicField: React.FC<BasicFieldProps> = ({
   const getHref = () => {
     if (type === 'vendor' && id) {
       return `/app/vendors-customers/vendors/${id}`;
+    }
+    // Route is /app/work-orders/, not the `${type}s` the generic branch below builds.
+    if (type === 'workOrder' && id) {
+      return getWorkOrderUrl(id);
     }
     if (type && id) {
       return `/app/${type}s/${id}`;

@@ -7,7 +7,9 @@ import com.grash.dto.PurchaseOrderShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.PurchaseOrderMapper;
 import com.grash.model.PurchaseOrder;
+import com.grash.model.WorkOrder;
 import com.grash.repository.PurchaseOrderRepository;
+import com.grash.repository.WorkOrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,6 +29,7 @@ public class PurchaseOrderService {
     private final PurchaseOrderRepository purchaseOrderRepository;
     private final PurchaseOrderMapper purchaseOrderMapper;
     private final CompanyService companyService;
+    private final WorkOrderRepository workOrderRepository;
     private final EntityManager em;
 
     @Transactional
@@ -54,6 +57,26 @@ public class PurchaseOrderService {
 
     public void delete(Long id) {
         purchaseOrderRepository.deleteById(id);
+    }
+
+    public Collection<PurchaseOrder> findByWorkOrder(Long workOrderId) {
+        return purchaseOrderRepository.findByWorkOrder_Id(workOrderId);
+    }
+
+    /**
+     * The create endpoint binds the entity straight from the request body, so a caller could
+     * otherwise attach a work order belonging to another company — and learn its id by trial
+     * and error. Null passes: the link is optional.
+     */
+    public void checkWorkOrderInCompany(WorkOrder workOrder, Long companyId) {
+        if (workOrder == null || workOrder.getId() == null) {
+            return;
+        }
+        WorkOrder saved = workOrderRepository.findById(workOrder.getId())
+                .orElseThrow(() -> new CustomException("Work order not found", HttpStatus.NOT_FOUND));
+        if (!saved.getCompany().getId().equals(companyId)) {
+            throw new CustomException("Work order not found", HttpStatus.NOT_FOUND);
+        }
     }
 
     public Optional<PurchaseOrder> findById(Long id) {

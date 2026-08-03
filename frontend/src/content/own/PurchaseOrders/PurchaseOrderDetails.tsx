@@ -88,7 +88,7 @@ export default function PurchaseOrderDetails(props: PurchaseOrderDetailsProps) {
   ): {
     label: string;
     value: string | number;
-    type?: 'vendor';
+    type?: 'vendor' | 'workOrder';
     id?: number;
   }[] => [
     {
@@ -116,6 +116,16 @@ export default function PurchaseOrderDetails(props: PurchaseOrderDetailsProps) {
       type: 'vendor',
       value: purchaseOrder1.vendor?.companyName,
       id: purchaseOrder1.vendor?.id
+    },
+    {
+      label: t('work_order'),
+      type: 'workOrder',
+      value: purchaseOrder1.workOrder
+        ? purchaseOrder1.workOrder.customId
+          ? `${purchaseOrder1.workOrder.customId} - ${purchaseOrder1.workOrder.title}`
+          : purchaseOrder1.workOrder.title
+        : null,
+      id: purchaseOrder1.workOrder?.id
     }
   ];
   const shippingFieldsToRender = (

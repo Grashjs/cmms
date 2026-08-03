@@ -72,6 +72,9 @@ public class PurchaseOrderShowDTO extends AuditShowDTO {
     @Schema(description = "Vendor information")
     private VendorMiniDTO vendor;
 
+    @Schema(description = "The work order that triggered this purchase order, if any")
+    private WorkOrderBaseMiniDTO workOrder;
+
     @Schema(description = "Part quantities in the purchase order")
     private Collection<PartQuantityShowDTO> partQuantities;
 

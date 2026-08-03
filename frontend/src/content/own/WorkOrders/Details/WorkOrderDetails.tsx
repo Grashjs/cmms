@@ -40,6 +40,7 @@ import SendReportModal from './SendReportModal';
 import Tasks from './Tasks';
 import TimeSection from './TimeSection';
 import CostSection from './CostSection';
+import PurchaseOrdersSection from './PurchaseOrdersSection';
 import LinkTwoToneIcon from '@mui/icons-material/LinkTwoTone';
 import ArchiveTwoToneIcon from '@mui/icons-material/ArchiveTwoTone';
 import PictureAsPdfTwoToneIcon from '@mui/icons-material/PictureAsPdfTwoTone';
@@ -988,6 +989,10 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
                 additionalCosts={additionalCosts}
                 loading={loadingCosts[workOrder.id]}
               />
+            </Box>
+            <Box>
+              <Divider sx={{ mt: 2 }} />
+              <PurchaseOrdersSection workOrderId={workOrder.id} />
             </Box>
             <Box>
               <Divider sx={{ mt: 2 }} />

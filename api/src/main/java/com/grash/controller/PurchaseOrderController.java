@@ -92,6 +92,19 @@ public class PurchaseOrderController {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
+    @GetMapping("/work-order/{id}")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public Collection<PurchaseOrderShowDTO> getByWorkOrder(@PathVariable("id") Long id,
+                                                           HttpServletRequest req) {
+        User user = userService.whoami(req);
+        // Scoping by company is the access check here: an order of another company can never
+        // be reached, and an id that does not exist is indistinguishable from one that does.
+        return purchaseOrderService.findByWorkOrder(id).stream()
+                .filter(purchaseOrder -> purchaseOrder.getCompany().getId().equals(user.getCompany().getId()))
+                .map(purchaseOrder -> setPartQuantities(purchaseOrderMapper.toShowDto(purchaseOrder)))
+                .collect(Collectors.toList());
+    }
+
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     PurchaseOrderShowDTO create(@Parameter(description = "Purchase order data to create") @Valid @RequestBody PurchaseOrder purchaseOrderReq,
@@ -99,6 +112,8 @@ public class PurchaseOrderController {
         User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.PURCHASE_ORDERS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.PURCHASE_ORDER)) {
+            purchaseOrderService.checkWorkOrderInCompany(purchaseOrderReq.getWorkOrder(),
+                    user.getCompany().getId());
             PurchaseOrder savedPurchaseOrder = purchaseOrderService.create(purchaseOrderReq);
             Collection<Workflow> workflows =
                     workflowService.findByMainConditionAndCompany(WFMainCondition.PURCHASE_ORDER_CREATED,
@@ -142,6 +157,8 @@ public class PurchaseOrderController {
         if (optionalPurchaseOrder.isPresent()) {
             PurchaseOrder savedPurchaseOrder = optionalPurchaseOrder.get();
             if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.PURCHASE_ORDERS) || user.getId().equals(savedPurchaseOrder.getCreatedBy())) {
+                purchaseOrderService.checkWorkOrderInCompany(purchaseOrder.getWorkOrder(),
+                        user.getCompany().getId());
                 PurchaseOrder patchedPurchaseOrder = purchaseOrderService.update(id, purchaseOrder);
                 Collection<Workflow> workflows =
                         workflowService.findByMainConditionAndCompany(WFMainCondition.PURCHASE_ORDER_UPDATED,

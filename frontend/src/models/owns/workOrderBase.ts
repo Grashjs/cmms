@@ -38,4 +38,8 @@ export interface WorkOrderBaseMiniDTO {
   dueDate: string;
   createdAt: string;
   priority: Priority;
+  // The backend DTO has always sent these two; the type simply never listed them.
+  // customId is what people quote when they refer to an order ("WO000001").
+  status: string;
+  customId: string;
 }

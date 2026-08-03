@@ -339,6 +339,14 @@ function PurchaseOrders() {
       midWidth: true
     },
     {
+      name: 'workOrder',
+      type: 'select',
+      type2: 'workOrder',
+      label: t('work_order'),
+      helperText: t('purchase_order_work_order_description'),
+      midWidth: true
+    },
+    {
       name: 'partQuantities',
       type: 'partQuantity',
       label: t('parts'),
@@ -488,6 +496,14 @@ function PurchaseOrders() {
                     value: currentPurchaseOrder.vendor.id.toString()
                   }
                 : null,
+              workOrder: currentPurchaseOrder?.workOrder
+                ? {
+                    label: currentPurchaseOrder.workOrder.customId
+                      ? `${currentPurchaseOrder.workOrder.customId} - ${currentPurchaseOrder.workOrder.title}`
+                      : currentPurchaseOrder.workOrder.title,
+                    value: currentPurchaseOrder.workOrder.id.toString()
+                  }
+                : null,
               category: currentPurchaseOrder?.category
                 ? {
                     label: currentPurchaseOrder.category.name,
@@ -500,6 +516,7 @@ function PurchaseOrders() {
             onSubmit={async (values) => {
               values.vendor = formatSelect(values.vendor);
               values.category = formatSelect(values.category);
+              values.workOrder = formatSelect(values.workOrder);
               values = formatCustomFields(values);
               return new Promise<void>((resolve, rej) => {
                 dispatch(editPurchaseOrder(currentPurchaseOrder.id, values))

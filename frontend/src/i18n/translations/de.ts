@@ -694,6 +694,10 @@ const deJSON = {
   enter_meter_name: 'Zählername eingeben',
   unit: 'Einheit',
   all_assets: 'Alle Anlagen',
+  purchase_order_work_order_description:
+    'Optional: der Auftrag, zu dem diese Bestellung gehört',
+  no_purchase_orders_for_work_order:
+    'Keine Bestellungen zu diesem Auftrag',
   asset_categories: 'Anlagenkategorien',
   custom_field_unit_description:
     'Wird neben der Feldbezeichnung angezeigt, zum Beispiel m³/h oder kW',
