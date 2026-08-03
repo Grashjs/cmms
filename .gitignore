@@ -5,6 +5,11 @@
 **/.DS_Store
 atlas_backups
 docker-compose-dev.yml
-logo
+# Runtime directory bind-mounted into the api container (docker-compose: ./logo).
+# Anchored with a leading slash on purpose: the bare pattern "logo" matched *every*
+# directory of that name, so newly added files under
+# frontend/public/static/images/logo/ were silently ignored and never reached the
+# Docker image, while the manifest kept pointing at them.
+/logo/
 *.lic
 docker-compose-minio.yml
