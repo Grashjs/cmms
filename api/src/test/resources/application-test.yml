@@ -54,9 +54,6 @@ mail:
   recipients: test@example.com
   enable: false
   type: SMTP
-superAdmin:
-  role:
-    name: SuperAdministratorGrash@p;l
 management:
   health:
     mail:

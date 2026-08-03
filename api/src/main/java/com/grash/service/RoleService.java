@@ -76,12 +76,12 @@ public class RoleService {
 
     public void updateDefaultRoles() {
         List<Role> rolesToUpdate = new ArrayList<>();
-        List<Role> rolesToAdd = new ArrayList<>();
 
         // Iterate through each tenant type's roles to find roles that need updates or additions
         List<Role> upToDateRoles = Helper.getDefaultRoles();
         List<Role> existingDefaultRoles = findDefaultRoles();
-        rolesToAdd.addAll(upToDateRoles.stream().filter(upToDateRole -> existingDefaultRoles.stream().noneMatch(existingDefaultRole -> existingDefaultRole.getCode().equals(upToDateRole.getCode()))).collect(Collectors.toList()));
+        List<Role> rolesToAdd =
+                new ArrayList<>(upToDateRoles.stream().filter(upToDateRole -> existingDefaultRoles.stream().noneMatch(existingDefaultRole -> existingDefaultRole.getCode().equals(upToDateRole.getCode()))).toList());
 
         // Update roles by comparing privileges and 'paid' status between default and up-to-date roles
         for (Role existingDefaultRole : existingDefaultRoles) {
