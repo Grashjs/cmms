@@ -7,7 +7,7 @@ import {
   useRef,
   useState
 } from 'react';
-import { OwnUser, UserResponseDTO } from '../models/user';
+import User, { OwnUser, UserResponseDTO } from '../models/user';
 import api, { authHeader } from '../utils/api';
 import { verify } from '../utils/jwt';
 import { Alert, AppState, Linking, Platform } from 'react-native';
@@ -49,6 +49,7 @@ import { UiConfiguration } from '../models/uiConfiguration';
 import Constants from 'expo-constants';
 import moment from 'moment-timezone';
 import { getCustomFields } from '../slices/customField';
+import * as Clarity from '@microsoft/react-native-clarity';
 
 interface AuthState {
   isInitialized: boolean;
@@ -470,7 +471,10 @@ const handlers: Record<
     }
     return stateClone;
   },
-  REVIEW_ELIGIBLE: (state: AuthState, action: ReviewEligibleAction): AuthState => {
+  REVIEW_ELIGIBLE: (
+    state: AuthState,
+    action: ReviewEligibleAction
+  ): AuthState => {
     return {
       ...state,
       reviewEligible: action.payload
@@ -676,19 +680,28 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     if (token)
       api.post<{ success: boolean }>(`notifications/push-token`, { token });
   };
-  const setupUser = async (companySettings: CompanySettings) => {
+  const setupUser = async (
+    user: UserResponseDTO,
+    companySettings: CompanySettings
+  ) => {
     switchLanguage({
       lng: companySettings.generalPreferences.language.toLowerCase()
     });
     checkPushNotificationState();
     globalDispatch(getCustomFields());
-
+    getApiUrl().then((apiUrl) => {
+      if (apiUrl.toLowerCase().includes('api.atlas-cmms.com')) {
+        Clarity.initialize(Constants.expoConfig.extra.CLARITY_ID);
+        Clarity.setCustomUserId(user.email);
+      }
+    });
     try {
       await api.post('reviews/session', {});
-      const { eligible } = await api.get<{ eligible: boolean }>(
-        'reviews/eligibility'
-      );
-      dispatch({ type: 'REVIEW_ELIGIBLE', payload: eligible });
+      api
+        .get<{ eligible: boolean }>('reviews/eligibility')
+        .then(({ eligible }) =>
+          dispatch({ type: 'REVIEW_ELIGIBLE', payload: eligible })
+        );
     } catch (e) {
       console.error('Review eligibility check failed', e);
     }
@@ -703,7 +716,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         setSession(accessToken);
         const user = await updateUserInfos();
         const company = await api.get<Company>(`companies/${user.companyId}`);
-        await setupUser(company.companySettings);
+        await setupUser(user, company.companySettings);
         dispatch({
           type: 'INITIALIZE',
           payload: {
@@ -749,7 +762,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     setSession(accessToken);
     const user = await updateUserInfos();
     const company = await api.get<Company>(`companies/${user.companyId}`);
-    await setupUser(company.companySettings);
+    await setupUser(user, company.companySettings);
     dispatch({
       type: 'LOGIN',
       payload: {
@@ -812,7 +825,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       setSession(message);
       const user = await updateUserInfos();
       const company = await api.get<Company>(`companies/${user.companyId}`);
-      await setupUser(company.companySettings);
+      await setupUser(user, company.companySettings);
       await analytics().logEvent('sign_up', {
         email: values.email,
         firstName: values.firstName,

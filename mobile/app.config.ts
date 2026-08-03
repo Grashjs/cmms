@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { ExpoConfig, ConfigContext } from 'expo/config';
 
 const apiUrl = process.env.API_URL;
+const clarityId = process.env.CLARITY_ID;
 const googleServicesJson = process.env.GOOGLE_SERVICES_JSON;
 const googleServicesPlist = process.env.GOOGLE_SERVICES_PLIST;
 
@@ -56,6 +57,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   extra: {
     API_URL: apiUrl,
+    CLARITY_ID: clarityId,
     eas: {
       projectId: '803b5007-0c60-4030-ac3a-c7630b223b92'
     }
