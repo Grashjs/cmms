@@ -11,13 +11,6 @@ import org.thymeleaf.templateresolver.ITemplateResolver;
 public class EmailConfiguration {
 
     @Bean
-    public SimpleMailMessage templateSimpleMessage() {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setText("This is the test email template for your email:\n%s\n");
-        return message;
-    }
-
-    @Bean
     public ITemplateResolver emailTemplateResolver() {
         ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
         templateResolver.setPrefix("templates/");

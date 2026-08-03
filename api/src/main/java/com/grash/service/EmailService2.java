@@ -35,8 +35,6 @@ import java.util.Map;
 public class EmailService2 implements MailService {
 
     private final JavaMailSender emailSender;
-
-    private final SimpleMailMessage template;
     private final MailProperties mailProperties;
     private final BrandingService brandingService;
     @Value("${spring.mail.username:#{null}}")

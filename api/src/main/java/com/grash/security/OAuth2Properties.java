@@ -14,4 +14,6 @@ public class OAuth2Properties {
     private String successRedirectUrl;
     private String failureRedirectUrl;
     private String provider;
+    private String clientId;
+    private String clientSecret;
 }
