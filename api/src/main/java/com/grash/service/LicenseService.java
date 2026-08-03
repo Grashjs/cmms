@@ -48,12 +48,20 @@ public class LicenseService {
     @Value("${license-file-path:#{null}}")
     private String licenseFilePath;
 
+    @Value("${self-hosted.unlock-premium:false}")
+    private boolean unlockPremium;
+
     private volatile LicenseValidationResponse cachedLicenseResponse;
     private volatile DecryptedLicenseData cachedDecryptedLicenseData;
     private volatile Set<String> cachedEntitlements = new HashSet<>();
     private volatile long lastCheckedTime = 0;
 
     public synchronized LicensingState getLicensingState() {
+        // Self-hosted unlock: grant every entitlement without contacting api.keygen.sh.
+        if (unlockPremium) {
+            return buildUnlockedState();
+        }
+
         if (isCacheValid()) {
             return buildLicensingStateFromCache();
         }
@@ -78,6 +86,20 @@ public class LicenseService {
     public boolean hasEntitlement(LicenseEntitlement entitlement) {
         LicensingState state = getLicensingState();
         return state.isValid() && state.getEntitlements().contains(entitlement.toString());
+    }
+
+    private LicensingState buildUnlockedState() {
+        Set<String> allEntitlements = Arrays.stream(LicenseEntitlement.values())
+                .map(Enum::toString)
+                .collect(Collectors.toSet());
+        return LicensingState.builder()
+                .hasLicense(true)
+                .valid(true)
+                .planName("Self-Hosted (unlocked)")
+                .entitlements(allEntitlements)
+                .expirationDate(null)
+                .usersCount(Integer.MAX_VALUE)
+                .build();
     }
 
     private boolean isCacheValid() {

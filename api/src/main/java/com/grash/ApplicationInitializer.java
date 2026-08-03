@@ -25,6 +25,8 @@ public class ApplicationInitializer implements SmartInitializingSingleton {
     private final GeneralPreferencesRepository generalPreferencesRepository;
     @Value("${superAdmin.role.name}")
     private String superAdminRole;
+    @Value("${self-hosted.unlock-premium:false}")
+    private boolean unlockPremium;
     private final RoleService roleService;
     private final CompanyService companyService;
     private final SubscriptionPlanService subscriptionPlanService;
@@ -135,6 +137,28 @@ public class ApplicationInitializer implements SmartInitializingSingleton {
                     .features(new HashSet<>(Arrays.asList(PlanFeatures.values())))
                     .yearlyCostPerUser(400).build());
         }
+
+        if (unlockPremium) {
+            ensureFreePlanUnlocked();
+        }
+    }
+
+    /**
+     * Self-hosted unlock: every company defaults to the FREE plan, so granting FREE all
+     * PlanFeatures unlocks every plan-gated premium feature (API_ACCESS, WORKFLOW,
+     * WEBHOOK, IMPORT_CSV, ...) instance-wide. Idempotent on every boot. Note: this
+     * mutates persisted plan data, so turning the flag back off does not re-lock FREE —
+     * reset its features manually if you need upstream FREE behaviour again.
+     */
+    private void ensureFreePlanUnlocked() {
+        subscriptionPlanService.findByCode("FREE").ifPresent(freePlan -> {
+            Set<PlanFeatures> allFeatures = new HashSet<>(Arrays.asList(PlanFeatures.values()));
+            if (!allFeatures.equals(freePlan.getFeatures())) {
+                freePlan.setFeatures(allFeatures);
+                subscriptionPlanService.create(freePlan);
+                log.info("Self-hosted unlock: FREE plan granted all {} premium features", allFeatures.size());
+            }
+        });
     }
 
 

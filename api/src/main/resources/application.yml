@@ -139,6 +139,13 @@ oauth2:
 license-key: ${LICENSE_KEY:}
 license-fingerprint-required: ${LICENSE_FINGERPRINT_REQUIRED:true}
 license-file-path: ${LICENSE_FILE_PATH:}
+self-hosted:
+  # Self-hosting unlock for a private/single-tenant instance. When true, the license
+  # layer reports a fully-entitled state (without contacting api.keygen.sh) and the FREE
+  # plan is granted every PlanFeatures value on boot, so premium features — including
+  # API_ACCESS / x-api-key, webhooks, workflows, unlimited usage limits — work locally.
+  # Default false to keep upstream (hosted, paid) behaviour unchanged.
+  unlock-premium: ${SELF_HOSTED_UNLOCK_PREMIUM:false}
 white-labeling:
   logo-paths: ${LOGO_PATHS:}
   custom-colors: ${CUSTOM_COLORS:}
