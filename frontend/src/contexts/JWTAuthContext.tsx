@@ -517,6 +517,10 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   const updateUserInfos = async () => {
     const user = await getUserInfos();
     setCompanyId(user.companyId);
+    const clarity = (window as any).clarity;
+    if (typeof clarity === 'function') {
+      clarity('identify', user.email);
+    }
     return user;
   };
   const setupUser = async (companySettings: CompanySettings) => {
