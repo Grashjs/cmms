@@ -67,7 +67,7 @@ export default function RegisterScreen({
     return [fields, shape];
   };
 
-  const termsOfServiceUrl = 'https://atlas-cmms.com/terms-of-service';
+  const termsOfServiceUrl = 'https://www.cmms.corefm.de/terms-of-service';
   return (
     <View style={styles.container}>
       <ScrollView style={styles.scrollView}>

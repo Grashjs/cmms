@@ -95,7 +95,7 @@ ${selfHostedPlans
 Thank you.`,
   );
 
-  const mailtoLink = `mailto:contact@atlas-cmms.com?subject=${emailSubject}&body=${emailBody}`;
+  const mailtoLink = `mailto:lars2nd@gmail.com?subject=${emailSubject}&body=${emailBody}`;
 
   const handleOpenModal = (plan) => {
     setSelectedPlan(plan);

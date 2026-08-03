@@ -4,7 +4,7 @@ import { locales } from "src/i18n/request";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // const brand = await getBrandServer();
-  const baseUrl = "https://atlas-cmms.com";
+  const baseUrl = "https://www.cmms.corefm.de";
 
   const staticPaths = [
     "",

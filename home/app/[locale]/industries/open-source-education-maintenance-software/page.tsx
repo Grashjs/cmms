@@ -40,19 +40,19 @@ const educationData: IndustryLayoutProps = {
       title: "Campus-Wide Work Request Portal",
       description:
         "Give teachers and staff a simple way to report leaks, broken fixtures, or HVAC issues. No login required for requesters, keeping your hallways safe and functional.",
-      imageUrl: "https://atlas-cmms.com/assets/features/edu-requests.png",
+      imageUrl: "https://www.cmms.corefm.de/assets/features/edu-requests.png",
     },
     {
       title: "Regulatory & Safety Compliance",
       description:
         "Automate inspections for fire extinguishers, playground equipment, and lab safety. Maintain a digital paper trail for state audits and insurance requirements.",
-      imageUrl: "https://atlas-cmms.com/assets/features/compliance-tracking.png",
+      imageUrl: "https://www.cmms.corefm.de/assets/features/compliance-tracking.png",
     },
     {
       title: "Multi-Building Asset Mapping",
       description:
         "Organize maintenance by building, floor, or classroom. Track the lifecycle of expensive assets like HVAC units, boilers, and school bus fleets in one central database.",
-      imageUrl: "https://atlas-cmms.com/assets/features/asset-mapping.png",
+      imageUrl: "https://www.cmms.corefm.de/assets/features/asset-mapping.png",
       learnMoreUrl: "/features/assets",
     },
   ],

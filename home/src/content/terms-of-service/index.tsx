@@ -29,11 +29,9 @@ async function TermsOfService() {
           {IS_ORIGINAL_CLOUD && (
             <Typography paragraph>
               This Terms of Service Agreement (&#34;Agreement&#34;) is a legal agreement between you as an individual or
-              entity (&#34;You&#34; or &#34;Customer&#34;) and Intelloop s.a.r.l located at 410, Boulevard Zerktouni,
-              Hamad, N°1- Casablanca-Morocco 20040, Trade Register: 585917, Tax Id: 53800712, ICE: 003298628000019
-              (&#34;Company&#34;, &#34;we&#34;, &#34;us&#34; or &#34;our&#34;), a Morocco-based management consultancy
-              specializing in industrial Projects launch, Maintenance and Reliability, governing your use of the{" "}
-              {brandConfig.name} software and services (the &#34;Software&#34;).
+              entity (&#34;You&#34; or &#34;Customer&#34;) and {brandConfig.name} (&#34;Company&#34;, &#34;we&#34;,
+              &#34;us&#34; or &#34;our&#34;), governing your use of the {brandConfig.name} software and services (the
+              &#34;Software&#34;).
             </Typography>
           )}
           <Typography paragraph sx={{ fontWeight: "bold" }}>
@@ -48,8 +46,7 @@ async function TermsOfService() {
           <Typography paragraph>
             {IS_ORIGINAL_CLOUD && (
               <>
-                {brandConfig.name} is a solution developed and provided by Intelloop s.a.r.l as part of its ADDAPTIVE
-                Tech services, which guide companies through digital transformation in maintenance and reliability.{" "}
+                {brandConfig.name} is a maintenance and reliability management solution.{" "}
               </>
             )}
             The Software is offered as a service that may be deployed through self-hosted, cloud-based, or hybrid
@@ -233,7 +230,7 @@ async function TermsOfService() {
           </Typography>
           <Typography paragraph>
             The Software, {brandConfig.name} Logo, and all worldwide intellectual property rights therein are the
-            exclusive property of Company. {IS_ORIGINAL_CLOUD ? "Intelloop s.a.r.l" : brandConfig.name} owns all
+            exclusive property of Company. {brandConfig.name} owns all
             intellectual property rights to {brandConfig.name}, including its codebase, design, and documentation,
             except for open source components which are governed by their respective licenses. While {brandConfig.name}{" "}
             is open source, your use is subject to the terms of this Agreement.
@@ -600,12 +597,9 @@ async function TermsOfService() {
               </Typography>
               <Typography paragraph>If you have any questions about this Agreement, please contact us at:</Typography>
               <Typography sx={{ mb: 1 }}>
-                <strong>Intelloop s.a.r.l</strong>
+                <strong>{brandConfig.name}</strong>
               </Typography>
-              <Typography>410, Boulevard Zerktouni, Hamad, №1</Typography>
-              <Typography>Casablanca-Morocco 20040</Typography>
               <Typography>Email: {brandConfig.mail}</Typography>
-              <Typography sx={{ mb: 3 }}>Phone: +212 6 30 69 00 50</Typography>
 
               <Typography paragraph sx={{ mt: 4, fontStyle: "italic" }}>
                 By using the {brandConfig.name} software, you acknowledge that you have read, understood and agree to be

@@ -61,7 +61,7 @@ export const getLocalizedHomeUrl = (
   lang: string,
   params?: Record<string, string>
 ) => {
-  const base = homeUrl || 'https://atlas-cmms.com';
+  const base = homeUrl || 'https://www.cmms.corefm.de';
   const url = new URL(`${lang.replace('_', '-').toLowerCase()}/${path}`, base);
 
   if (params) {

@@ -394,23 +394,6 @@ export default function RequestPortalPublicPage() {
             </Typography>
 
             <Stack direction="row" spacing={2} alignItems="center">
-              {/* Powered by Logo */}
-              <Typography
-                variant="body2"
-                display={{ xs: 'none', sm: 'block' }}
-                sx={{
-                  color: 'text.secondary',
-                  cursor: 'pointer',
-                  '&:hover': {
-                    color: 'primary.main'
-                  }
-                }}
-                onClick={() => {
-                  window.open(brandConfig.website, '_blank');
-                }}
-              >
-                Powered by {brandConfig.name}
-              </Typography>
               {languageSwitcher}
             </Stack>
           </Toolbar>

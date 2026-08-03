@@ -37,40 +37,40 @@ const facilityManagementData: IndustryLayoutProps = {
       title: "Centralized maintenance operations",
       description:
         "Manage work orders, assets, locations, and technicians from a single CMMS designed for real-world facility workflows and multi-site coordination.",
-      imageUrl: "https://atlas-cmms.com/assets/features/work-orders.png",
+      imageUrl: "https://www.cmms.corefm.de/assets/features/work-orders.png",
       learnMoreUrl: "/features/work-orders",
     },
     {
       title: "Preventive maintenance that actually runs",
       description:
         "Automate recurring maintenance using time, usage, meter readings, or custom rules to reduce unexpected breakdowns and extend equipment lifespan.",
-      imageUrl: "https://atlas-cmms.com/assets/features/preventive-maintenance.png",
+      imageUrl: "https://www.cmms.corefm.de/assets/features/preventive-maintenance.png",
       learnMoreUrl: "/features/preventive-maintenance",
     },
     {
       title: "Complete asset lifecycle tracking",
       description:
         "Monitor asset history, maintenance costs, documents, warranties, and performance trends to make smarter repair-vs-replace decisions.",
-      imageUrl: "https://atlas-cmms.com/assets/features/assets.png",
+      imageUrl: "https://www.cmms.corefm.de/assets/features/assets.png",
       learnMoreUrl: "/features/assets",
     },
     {
       title: "Mobile maintenance in the field",
       description:
         "Technicians can receive work orders, update tasks, scan QR codes, attach photos, and close jobs directly from their mobile device—even offline.",
-      imageUrl: "https://atlas-cmms.com/assets/features/mobile.png",
+      imageUrl: "https://www.cmms.corefm.de/assets/features/mobile.png",
     },
     {
       title: "Inspections, checklists, and compliance",
       description:
         "Standardize safety inspections, regulatory checks, and routine walkthroughs with digital forms, audit trails, and automated reminders.",
-      imageUrl: "https://atlas-cmms.com/assets/features/inspections.png",
+      imageUrl: "https://www.cmms.corefm.de/assets/features/inspections.png",
     },
     {
       title: "Self-hosted, secure, and fully customizable",
       description:
         "Deploy on-premise or in your private cloud with full control over data, integrations, and workflows—without vendor lock-in or per-asset pricing.",
-      imageUrl: "https://atlas-cmms.com/assets/features/self-hosted.png",
+      imageUrl: "https://www.cmms.corefm.de/assets/features/self-hosted.png",
     },
   ],
 

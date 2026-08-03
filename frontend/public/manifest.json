@@ -3,26 +3,26 @@
   "background_color": "#f2f5f9",
   "display": "standalone",
   "start_url": ".",
-  "short_name": "Atlas",
-  "name": "Atlas CMMS",
+  "short_name": "AssetTrace",
+  "name": "AssetTrace - CMMS",
   "icons": [
     {
-      "src": "/static/images/logo/logo.png",
+      "src": "/static/images/logo/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/static/images/logo/logo.png",
+      "src": "/static/images/logo/icon-256.png",
       "sizes": "256x256",
       "type": "image/png"
     },
     {
-      "src": "/static/images/logo/logo.png",
+      "src": "/static/images/logo/icon-384.png",
       "sizes": "384x384",
       "type": "image/png"
     },
     {
-      "src": "/static/images/logo/logo.png",
+      "src": "/static/images/logo/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }

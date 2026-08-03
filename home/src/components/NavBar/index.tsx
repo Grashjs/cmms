@@ -130,17 +130,6 @@ export default function NavBar() {
           <Stack direction="row" alignItems="center">
             <Box alignItems={"center"}>
               <Logo />
-              {!isWhiteLabeled && (
-                <Typography
-                  style={{ cursor: "pointer" }}
-                  fontSize={13}
-                  onClick={() => {
-                    window.open("https://www.intel-loop.com/", "_blank");
-                  }}
-                >
-                  Powered by Intelloop
-                </Typography>
-              )}
             </Box>
             <Stack direction="row" alignItems="center" justifyContent="space-between" flex={1}>
               <Box />

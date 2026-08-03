@@ -1,8 +1,7 @@
 "use client";
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 
 import Logo from 'src/components/LogoSign';
-import { isWhiteLabeled } from 'src/config';
 
 function AppInit() {
   return (
@@ -22,17 +21,6 @@ function AppInit() {
     >
       <Box>
         <Logo />
-        {!isWhiteLabeled && (
-          <Typography
-            style={{ cursor: 'pointer' }}
-            fontSize={13}
-            onClick={() => {
-              window.open('https://www.intel-loop.com/', '_blank');
-            }}
-          >
-            Powered by Intelloop
-          </Typography>
-        )}
       </Box>
     </Box>
   );

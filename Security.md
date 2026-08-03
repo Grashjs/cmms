@@ -14,7 +14,7 @@ If you believe you have discovered a security vulnerability in Atlas CMMS, pleas
 
 Instead, please report them privately by one of the following methods:
 
-- Email: contact@atlas-cmms.com
+- Email: lars2nd@gmail.com
 - GitHub Security Advisory: https://github.com/grashjs/cmms/security/advisories/new
 
 You should receive a response within **48 hours** acknowledging your report.

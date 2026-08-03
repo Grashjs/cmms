@@ -40,20 +40,20 @@ const atlasHospitalityData: IndustryLayoutProps = {
       title: "Anonymous Guest Reporting",
       description:
         "Deploy QR codes in guest rooms that link to a lightweight web portal. Guests can report issues without creating an account, keeping your response times fast and frictionless.",
-      imageUrl: "https://atlas-cmms.com/assets/features/guest-portal.png",
+      imageUrl: "https://www.cmms.corefm.de/assets/features/guest-portal.png",
     },
     {
       title: "Preventive Housekeeping Cycles",
       description:
         "Schedule deep-cleaning rotations and mechanical inspections based on occupancy data. Ensure your high-traffic assets—from chillers to elevators—never fail during a full house.",
-      imageUrl: "https://atlas-cmms.com/assets/features/pm-scheduling.png",
+      imageUrl: "https://www.cmms.corefm.de/assets/features/pm-scheduling.png",
       learnMoreUrl: "/features/preventive-maintenance",
     },
     {
       title: "Unlimited Staff & Contractor Seats",
       description:
         "Stop paying per head. Add your entire housekeeping, engineering, and third-party vendor teams to the platform without increasing your monthly overhead.",
-      imageUrl: "https://atlas-cmms.com/assets/features/unlimited-users.png",
+      imageUrl: "https://www.cmms.corefm.de/assets/features/unlimited-users.png",
     },
   ],
 

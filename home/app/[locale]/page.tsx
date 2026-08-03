@@ -13,8 +13,8 @@ const ldJson = [
       "Atlas CMMS is a free, open-source CMMS to manage work orders, preventive maintenance, assets, and facilities.",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
-    url: "https://atlas-cmms.com/",
-    screenshot: "https://atlas-cmms.com/static/images/overview/work_orders_screenshot.png",
+    url: "https://www.cmms.corefm.de/",
+    screenshot: "https://www.cmms.corefm.de/static/images/overview/work_orders_screenshot.png",
     // aggregateRating: {
     //   '@type': 'AggregateRating',
     //   ratingValue: '4.5',
@@ -25,7 +25,7 @@ const ldJson = [
     publisher: {
       "@type": "Organization",
       name: "Atlas CMMS",
-      url: "https://atlas-cmms.com/",
+      url: "https://www.cmms.corefm.de/",
     },
     offers: {
       "@type": "Offer",

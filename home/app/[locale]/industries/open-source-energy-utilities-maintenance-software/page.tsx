@@ -22,21 +22,21 @@ const energyUtilitiesData: IndustryLayoutProps = {
       title: "Critical infrastructure reliability",
       description:
         "Manage maintenance for power plants, substations, water systems, and network equipment with full visibility into assets, failures, and interventions.",
-      imageUrl: "https://atlas-cmms.com/assets/features/assets.png",
+      imageUrl: "https://www.cmms.corefm.de/assets/features/assets.png",
       learnMoreUrl: "/features/assets",
     },
     {
       title: "Preventive & compliance-driven maintenance",
       description:
         "Automate inspections, regulatory checks, and preventive maintenance schedules to reduce downtime and stay compliant with safety standards.",
-      imageUrl: "https://atlas-cmms.com/assets/features/preventive-maintenance.png",
+      imageUrl: "https://www.cmms.corefm.de/assets/features/preventive-maintenance.png",
       learnMoreUrl: "/features/preventive-maintenance",
     },
     {
       title: "Field-ready work order management",
       description:
         "Coordinate technicians across sites, track interventions in real time, and maintain a complete service history for every critical asset.",
-      imageUrl: "https://atlas-cmms.com/assets/features/work-orders.png",
+      imageUrl: "https://www.cmms.corefm.de/assets/features/work-orders.png",
       learnMoreUrl: "/features/work-orders",
     },
   ],

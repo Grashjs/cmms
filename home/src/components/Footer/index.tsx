@@ -77,8 +77,8 @@ export default async function Footer() {
       items: [
         {
           icon: <Mail fontSize="small" />,
-          text: "contact@atlas-cmms.com",
-          href: "mailto:contact@atlas-cmms.com",
+          text: "hello@assettrace.org",
+          href: "mailto:hello@assettrace.org",
         },
         {
           icon: <Phone fontSize="small" />,
@@ -254,7 +254,7 @@ export default async function Footer() {
         </Grid>
         <Box mt={4} textAlign="center">
           <Typography variant="body2" suppressHydrationWarning>
-            © {new Date().getFullYear()} Intelloop. All rights reserved.
+            © {new Date().getFullYear()} AssetTrace. All rights reserved.
           </Typography>
         </Box>
       </Container>

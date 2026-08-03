@@ -40,21 +40,21 @@ const foodBeverageData: IndustryLayoutProps = {
       title: "Preventive maintenance for hygienic production",
       description:
         "Automate maintenance schedules for mixers, conveyors, refrigeration systems, and packaging lines to avoid contamination risks and unexpected shutdowns.",
-      imageUrl: "https://atlas-cmms.com/assets/features/preventive-maintenance.png",
+      imageUrl: "https://www.cmms.corefm.de/assets/features/preventive-maintenance.png",
       learnMoreUrl: "/features/preventive-maintenance",
     },
     {
       title: "Traceable work orders and compliance records",
       description:
         "Maintain complete maintenance logs, inspections, and corrective actions to support food safety standards, audits, and regulatory compliance.",
-      imageUrl: "https://atlas-cmms.com/assets/features/work-orders.png",
+      imageUrl: "https://www.cmms.corefm.de/assets/features/work-orders.png",
       learnMoreUrl: "/features/work-orders",
     },
     {
       title: "Spare parts and cold-chain asset monitoring",
       description:
         "Track spare parts availability, monitor critical refrigeration assets, and reduce spoilage caused by equipment failure or delayed repairs.",
-      imageUrl: "https://atlas-cmms.com/assets/features/assets.png",
+      imageUrl: "https://www.cmms.corefm.de/assets/features/assets.png",
       learnMoreUrl: "/features/assets",
     },
   ],

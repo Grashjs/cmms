@@ -40,21 +40,21 @@ const manufacturingData: IndustryLayoutProps = {
       title: "Production-ready work order management",
       description:
         "Create, prioritize, and track maintenance work orders across machines, lines, and facilities to keep production flowing.",
-      imageUrl: "https://atlas-cmms.com/assets/features/work-orders.png",
+      imageUrl: "https://www.cmms.corefm.de/assets/features/work-orders.png",
       learnMoreUrl: "/features/work-orders",
     },
     {
       title: "Preventive maintenance for critical equipment",
       description:
         "Automate maintenance schedules based on runtime, cycles, or calendar intervals to prevent costly breakdowns.",
-      imageUrl: "https://atlas-cmms.com/assets/features/preventive-maintenance.png",
+      imageUrl: "https://www.cmms.corefm.de/assets/features/preventive-maintenance.png",
       learnMoreUrl: "/features/preventive-maintenance",
     },
     {
       title: "Full asset history and cost tracking",
       description:
         "Monitor maintenance history, spare parts usage, downtime causes, and lifecycle costs for every production asset.",
-      imageUrl: "https://atlas-cmms.com/assets/features/assets.png",
+      imageUrl: "https://www.cmms.corefm.de/assets/features/assets.png",
       learnMoreUrl: "/features/assets",
     },
   ],
