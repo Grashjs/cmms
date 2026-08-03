@@ -39,6 +39,10 @@ cd frontend && npm install --legacy-peer-deps && npm run build
 cd frontend && npm run lint
 ```
 
+**`mvn compile` is not a check.** Without `clean` the compiler plugin's incremental pass can
+leave an edited file untranslated and still exit 0 — a type error that fails CI looks green
+locally. The image build runs `mvn clean package -DskipTests`; use that, or nothing.
+
 Java 17 is the target. Only a **Windows** Maven wrapper is checked in (`api/mvnw.cmd`) —
 there is no `api/mvnw`, so `./mvnw` fails on Linux and in containers. CI calls `mvn`
 directly. On a machine without Maven on `PATH`, use `api\mvnw.cmd` from PowerShell.

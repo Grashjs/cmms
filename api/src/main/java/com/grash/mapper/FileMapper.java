@@ -73,7 +73,8 @@ public abstract class FileMapper {
         dto.setStatus(workOrder.getStatus());
         dto.setPriority(workOrder.getPriority());
         dto.setDueDate(workOrder.getDueDate());
-        dto.setCreatedAt(workOrder.getCreatedAt());
+        // DateAudit stores a java.util.Date, the DTO exposes an Instant.
+        dto.setCreatedAt(workOrder.getCreatedAt() == null ? null : workOrder.getCreatedAt().toInstant());
         return dto;
     }
 
