@@ -254,14 +254,14 @@ function GeneralSettings() {
                         type={'text'}
                         defaultValue={generalPreferences.color || ''}
                         name="color"
-                        placeholder="#1975ff"
+                        placeholder="#1e3a8a"
                         InputProps={{
                           startAdornment: (
                             <InputAdornment position="start">
                               <input
                                 type="color"
                                 defaultValue={
-                                  generalPreferences.color || '#5569ff'
+                                  generalPreferences.color || '#1e3a8a'
                                 }
                                 onChange={debounce(
                                   (e) =>

@@ -111,7 +111,7 @@ const ColorSchemeWrapper = styled(Box)(
 
     &.pureLight {
         .primary {
-            background: #5569ff;
+            background: #1e3a8a;
         }
     
         .secondary {
