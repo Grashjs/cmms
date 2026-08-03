@@ -3,6 +3,7 @@ package com.grash.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.grash.model.*;
 import com.grash.model.enums.FileType;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import org.hibernate.annotations.OnDelete;
@@ -27,6 +28,12 @@ public class FileShowDTO extends AuditShowDTO {
 
     @Schema(description = "Indicates whether the file is hidden")
     private boolean hidden = false;
+
+    @ArraySchema(arraySchema = @Schema(description = "Assets this file is attached to"))
+    private List<AssetMiniDTO> assets = new ArrayList<>();
+
+    @ArraySchema(arraySchema = @Schema(description = "Work orders this file is attached to"))
+    private List<WorkOrderBaseMiniDTO> workOrders = new ArrayList<>();
 
 }
 

@@ -134,7 +134,8 @@ function Files() {
         : others
     );
   };
-  const debouncedQueryChange = useMemo(() => debounce(onQueryChange, 1300), []);
+  // 400 ms, not the 1300 ms the other list pages use — at 1.3 s the list feels stuck.
+  const debouncedQueryChange = useMemo(() => debounce(onQueryChange, 400), []);
 
   const handleOpenDelete = (id: number) => {
     setCurrentFile(files.content.find((file) => file.id === id));
@@ -213,6 +214,23 @@ function Files() {
       id: 'name',
       header: () => t('name'),
       cell: (info) => <Box sx={{ fontWeight: 'bold' }}>{info.getValue()}</Box>,
+      size: 200
+    }),
+    columnHelper.display({
+      id: 'linkedTo',
+      header: () => t('linked_to'),
+      // Plain text, not links: the row click already opens the file, and a link inside a
+      // clickable row swallows the click on some browsers.
+      cell: (info) => {
+        const file = info.row.original;
+        const labels = [
+          ...(file.assets ?? []).map((asset) => asset.name),
+          ...(file.workOrders ?? []).map(
+            (workOrder) => workOrder.customId ?? workOrder.title
+          )
+        ].filter(Boolean);
+        return labels.length ? labels.join(', ') : '';
+      },
       size: 200
     }),
     columnHelper.accessor('createdBy', {

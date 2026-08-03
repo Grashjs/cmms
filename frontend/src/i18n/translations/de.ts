@@ -1189,6 +1189,7 @@ const deJSON = {
   filters: 'Filter',
   more_filters: 'Weitere Filter',
   apply: 'Anwenden',
+  linked_to: 'Gehört zu',
   customer: 'Auftragnehmer',
   to: 'bis',
   dates: 'Daten',

@@ -6,6 +6,7 @@ import com.grash.model.enums.FileType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -42,8 +43,12 @@ public class File extends CompanyAudit {
     @JsonIgnore
     private Task task;
 
+    // Mirrors Asset.files onto the same table with the columns swapped, so both sides read
+    // the rows that Asset.files writes. Batched because FileShowDTO exposes the list and a
+    // page of files would otherwise cost one query per row.
     @ManyToMany
     @JsonIgnore
+    @BatchSize(size = 64)
     @JoinTable(name = "T_Asset_File_Associations",
             joinColumns = @JoinColumn(name = "id_file"),
             inverseJoinColumns = @JoinColumn(name = "id_asset"),
@@ -75,15 +80,23 @@ public class File extends CompanyAudit {
             })
     private List<Request> Requests = new ArrayList<>();
 
+    // Points at work_order_files, not at T_WorkOrder_File_Associations.
+    //
+    // Both tables exist, which is why the app boots with ddl-auto: validate, but only one of
+    // them is ever written: WorkOrderBase.files declares no @JoinTable, so Hibernate names it
+    // work_order_files(work_order_id, files_id), and that is where WorkOrderService puts
+    // attachments. This side previously mapped T_WorkOrder_File_Associations, which nothing
+    // writes — a filter over it returned an empty page instead of an error, which reads like
+    // "no files on this work order".
+    //
+    // Attachments on preventive maintenances live in preventive_maintenance_files and are
+    // deliberately out of scope here: this collection is typed to WorkOrder.
     @ManyToMany
     @JsonIgnore
-    @JoinTable(name = "T_WorkOrder_File_Associations",
-            joinColumns = @JoinColumn(name = "id_file"),
-            inverseJoinColumns = @JoinColumn(name = "id_work_order"),
-            indexes = {
-                    @Index(name = "idx_file_work_order_file_id", columnList = "id_file"),
-                    @Index(name = "idx_file_work_order_work_order_id", columnList = "id_work_order")
-            })
+    @BatchSize(size = 64)
+    @JoinTable(name = "work_order_files",
+            joinColumns = @JoinColumn(name = "files_id"),
+            inverseJoinColumns = @JoinColumn(name = "work_order_id"))
     private List<WorkOrder> workOrders = new ArrayList<>();
 
     @ManyToMany

@@ -112,6 +112,21 @@ silently return nothing:
   permission. A client-side filter on the same field is ANDed with that one, so it can only
   ever narrow to nothing. Check the controller before offering a field in the UI.
 
+Two more traps in the same area:
+
+- **`query.distinct(true)` is not a safe fix for the duplicate rows** an `inm` (many-to-many)
+  filter produces. Work orders sort by `asset.name`, `location.name`, `category.name` and
+  `primaryUser.firstName`; Postgres rejects `SELECT DISTINCT` with an `ORDER BY` expression
+  that is not in the select list, so the page 500s as soon as both are active. Use an
+  IN-subquery on the root id instead of a join if this ever needs fixing.
+- **`File`'s to-many sides are not all wired to the table that holds the data.**
+  `File.assets` mirrors `Asset.files` onto `t_asset_file_associations` and works.
+  `File.workOrders` originally mapped `T_WorkOrder_File_Associations`, but attachments live
+  in `work_order_files` — the default name Hibernate derives because `WorkOrderBase.files`
+  declares no `@JoinTable`. Both tables exist, so `ddl-auto: validate` passes and the wrong
+  one simply stays empty. `File.parts`, `File.locations` and `File.Requests` have not been
+  checked; `request_files` next to `t_request_file_associations` suggests the same split.
+
 Search inputs are debounced with `useMemo(..., [])`, which freezes the closure. Read
 `criteria` through a ref (`WorkOrders/index.tsx`, `Files/index.tsx`) — the `Parts.tsx`
 version closes over `criteria` directly and only survives because that page has no other
@@ -204,6 +219,7 @@ fix silently overwritten:
 | Work order → purchase order | `PurchaseOrder`, `PurchaseOrderService`, `PurchaseOrderController`, `PurchaseOrderRepository` |
 | Light sidebar | `layouts/ExtendedSidebarLayout/Sidebar/**`, `theme/schemes/*.ts` |
 | File search and filters | `content/own/Files/index.tsx`, `content/own/Files/Filters/**` |
+| File→asset/work-order links | `File` (`workOrders` join table), `FileShowDTO`, `FileMapper` |
 | Container plumbing | frontend `Dockerfile` + `docker-entrypoint.sh`, `docker/nginx/**`, `docker-compose.yml` |
 
 `ApiKeyAuthFilter` is **not** in that list. It reads the license and plan gates that

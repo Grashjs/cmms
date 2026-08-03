@@ -116,6 +116,14 @@ public class WrapperSpecification<T> implements Specification<T> {
                 break;
             }
             case IN_MANY_TO_MANY:
+                // Known limitation, left as is on purpose: the join yields one row per matching
+                // association, so an entity linked to several of the selected values shows up
+                // several times and inflates totalElements. `query.distinct(true)` looks like
+                // the fix but breaks every page that sorts by a joined column — work orders
+                // sort by asset.name, location.name, category.name and primaryUser.firstName,
+                // and Postgres rejects SELECT DISTINCT with an ORDER BY expression that is not
+                // in the select list. The safe fix is an IN-subquery on the root id instead of
+                // a join; that rewrites shared search behaviour and wants its own change.
                 Join<Object, Object> join = root.join(filterField.getField(), filterField.getJoinType());
                 CriteriaBuilder.In<Object> inClause1 = cb.in(join.get("id"));
                 filterField.getValues().forEach(value -> inClause1.value(getRealValue(filterField.getEnumName(),

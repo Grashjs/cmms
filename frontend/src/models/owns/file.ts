@@ -1,4 +1,6 @@
 import { Audit } from './audit';
+import { AssetMiniDTO } from './asset';
+import { WorkOrderBaseMiniDTO } from './workOrderBase';
 
 export type FileType = 'IMAGE' | 'OTHER';
 export default interface File extends Audit {
@@ -7,6 +9,10 @@ export default interface File extends Audit {
   url: string;
   type: FileType;
   hidden: boolean;
+  // What the file is attached to. Only assets and work orders are exposed; the entity has
+  // the same relation to parts, locations and requests, but nothing needs them yet.
+  assets: AssetMiniDTO[];
+  workOrders: WorkOrderBaseMiniDTO[];
 }
 export interface FileMiniDTO {
   name: string;
@@ -26,6 +32,8 @@ export const files: File[] = [
     updatedAt: 'string',
     updatedBy: 1,
     type: 'OTHER',
-    hidden: false
+    hidden: false,
+    assets: [],
+    workOrders: []
   }
 ];

@@ -1,10 +1,14 @@
 package com.grash.mapper;
 
+import com.grash.dto.AssetMiniDTO;
 import com.grash.dto.FileMiniDTO;
 import com.grash.dto.FileShowDTO;
 import com.grash.dto.FileThumbnailDTO;
+import com.grash.dto.WorkOrderBaseMiniDTO;
 import com.grash.factory.StorageServiceFactory;
+import com.grash.model.Asset;
 import com.grash.model.File;
+import com.grash.model.WorkOrder;
 import com.grash.model.enums.FileType;
 import com.grash.repository.FileRepository;
 import com.grash.service.StorageService;
@@ -17,6 +21,7 @@ import org.springframework.context.annotation.Lazy;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public abstract class FileMapper {
@@ -34,12 +39,42 @@ public abstract class FileMapper {
     @Mappings({})
     public abstract FileMiniDTO toMiniDto(File model);
 
+    // The linked assets and work orders are filled by hand below rather than through
+    // uses = {AssetMapper.class, WorkOrderMapper.class}: both of those mappers already use
+    // FileMapper, and the resulting bean cycle fails at startup because Spring Boot rejects
+    // circular references by default.
+    @Mapping(target = "assets", ignore = true)
+    @Mapping(target = "workOrders", ignore = true)
     public abstract FileShowDTO toShowDto(File model);
 
     @AfterMapping
     protected FileShowDTO toShowDto(File model, @MappingTarget FileShowDTO target) {
         target.setUrl(getSignedUrl(model));
+        target.setAssets(model.getAssets().stream().map(this::toAssetMiniDto).collect(Collectors.toList()));
+        target.setWorkOrders(model.getWorkOrders().stream().map(this::toWorkOrderMiniDto).collect(Collectors.toList()));
         return target;
+    }
+
+    private AssetMiniDTO toAssetMiniDto(Asset asset) {
+        AssetMiniDTO dto = new AssetMiniDTO();
+        dto.setId(asset.getId());
+        dto.setName(asset.getName());
+        dto.setCustomId(asset.getCustomId());
+        dto.setParentId(asset.getParentAsset() == null ? null : asset.getParentAsset().getId());
+        dto.setLocationId(asset.getLocation() == null ? null : asset.getLocation().getId());
+        return dto;
+    }
+
+    private WorkOrderBaseMiniDTO toWorkOrderMiniDto(WorkOrder workOrder) {
+        WorkOrderBaseMiniDTO dto = new WorkOrderBaseMiniDTO();
+        dto.setId(workOrder.getId());
+        dto.setTitle(workOrder.getTitle());
+        dto.setCustomId(workOrder.getCustomId());
+        dto.setStatus(workOrder.getStatus());
+        dto.setPriority(workOrder.getPriority());
+        dto.setDueDate(workOrder.getDueDate());
+        dto.setCreatedAt(workOrder.getCreatedAt());
+        return dto;
     }
 
     @AfterMapping

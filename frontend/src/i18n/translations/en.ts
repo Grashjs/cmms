@@ -1100,6 +1100,7 @@ const locale = {
   filters: 'Filters',
   more_filters: 'More Filters',
   apply: 'Apply',
+  linked_to: 'Linked To',
   customer: 'Contractor',
   to: 'to',
   dates: 'Dates',

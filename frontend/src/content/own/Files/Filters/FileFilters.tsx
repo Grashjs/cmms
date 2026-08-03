@@ -13,6 +13,7 @@ import {
 } from '../../../../utils/filter';
 import { useDispatch, useSelector } from '../../../../store';
 import { getUsersMini } from '../../../../slices/user';
+import { getAssetsMini } from '../../../../slices/asset';
 import { UserMiniDTO } from '../../../../models/user';
 
 /**
@@ -29,7 +30,12 @@ import { UserMiniDTO } from '../../../../models/user';
  *   for every client request and SpecificationBuilder ANDs all filter fields, so a
  *   user-supplied `hidden eq true` can only ever return an empty page.
  */
-export const FILE_FILTER_FIELDS = ['createdBy', 'createdAt'];
+export const FILE_FILTER_FIELDS = [
+  'assets',
+  'workOrders',
+  'createdBy',
+  'createdAt'
+];
 
 interface OwnProps {
   filterFields: FilterField[];
@@ -46,17 +52,41 @@ function FileFilters({ filterFields, onChange, showCreatedBy }: OwnProps) {
   const { t }: { t: any } = useTranslation();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const { usersMini } = useSelector((state) => state.users);
+  const { assetsMini } = useSelector((state) => state.assets);
+  const { workOrdersMini } = useSelector((state) => state.workOrders);
   const dispatch = useDispatch();
 
+  const selectedIds = (field: string): number[] =>
+    (filterFields.find((filterField) => filterField.field === field)?.values ??
+      []) as number[];
+
+  // Only to resolve already-selected ids to labels — the select loads its own options.
   useEffect(() => {
     if (showCreatedBy && !usersMini.length) dispatch(getUsersMini());
+    if (selectedIds('assets').length && !assetsMini.length)
+      dispatch(getAssetsMini());
   }, [showCreatedBy]);
 
   const isActive = filterFields.some((filterField) =>
     FILE_FILTER_FIELDS.includes(filterField.field)
   );
 
-  const fields: Array<IField> = [];
+  const fields: Array<IField> = [
+    {
+      name: 'assets',
+      type: 'select',
+      label: t('asset'),
+      type2: 'asset',
+      multiple: true
+    },
+    {
+      name: 'workOrders',
+      type: 'select',
+      label: t('work_order'),
+      type2: 'workOrder',
+      multiple: true
+    }
+  ];
   if (showCreatedBy) {
     fields.push({
       name: 'createdBy',
@@ -72,7 +102,21 @@ function FileFilters({ filterFields, onChange, showCreatedBy }: OwnProps) {
     label: t('uploaded_on')
   });
 
+  // getLabelAndValue renders an empty object when the id is not in the mini list, which
+  // shows up as "undefined". workOrdersMini is a single page, so a selected work order from
+  // outside it would hit exactly that — hence the explicit id fallback.
   const getValuesFromFilterFields = () => ({
+    assets: selectedIds('assets').map((id) => {
+      const asset = assetsMini.find((mini) => mini.id === id);
+      return { label: asset?.name ?? `#${id}`, value: id };
+    }),
+    workOrders: selectedIds('workOrders').map((id) => {
+      const workOrder = workOrdersMini.content.find((mini) => mini.id === id);
+      return {
+        label: workOrder?.customId ?? workOrder?.title ?? `#${id}`,
+        value: id
+      };
+    }),
     createdBy: getLabelAndValue(
       filterFields,
       usersMini,
@@ -133,6 +177,23 @@ function FileFilters({ filterFields, onChange, showCreatedBy }: OwnProps) {
             onChange={({ field, e }) => {}}
             onSubmit={async (values) => {
               let newFilterFields = [...filterFields];
+              // 'inm' joins the many-to-many association instead of comparing a column.
+              newFilterFields = filterSingleField(
+                newFilterFields,
+                values,
+                'assets',
+                'assets',
+                'array',
+                'inm'
+              );
+              newFilterFields = filterSingleField(
+                newFilterFields,
+                values,
+                'workOrders',
+                'workOrders',
+                'array',
+                'inm'
+              );
               if (showCreatedBy) {
                 newFilterFields = filterSingleField(
                   newFilterFields,
