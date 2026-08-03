@@ -113,6 +113,18 @@ management:
       enabled: ${ENABLE_MAIL_HEALTH_CHECK:true}
     ldap:
       enabled: ${LDAP_ENABLED:false}
+  endpoint:
+    health:
+      # Exposes /actuator/health/readiness for the container healthcheck. The group is
+      # narrowed to "has finished booting" plus "the database answers" on purpose: the
+      # aggregate /actuator/health also carries the mail indicator, which is enabled by
+      # default and reports DOWN whenever mail is unconfigured — a probe on that would
+      # never turn green on a self-hosted instance without SMTP.
+      probes:
+        enabled: true
+      group:
+        readiness:
+          include: readinessState,db
 api:
   host: ${PUBLIC_API_URL}
 storage:

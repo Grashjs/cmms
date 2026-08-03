@@ -11,6 +11,19 @@ services:
       - "5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      # pg_isready ships with the image. Without this the api can start before postgres
+      # accepts connections, and Spring wraps the resulting lookup failure in an
+      # AuthenticationException — the login form then claims the password is wrong.
+      # No variables on purpose. `$${VAR}` relies on Coolify passing the escape through
+      # untouched, and the api now waits for this check — a mangled probe would keep the
+      # stack down. Argument-less pg_isready answers the only question that matters here,
+      # "is the server accepting connections", and needs no credentials to do it.
+      test: ["CMD-SHELL", "pg_isready -q"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
 
   api:
     # Set IMAGE_TAG to sha-<commit> in Coolify to pin or roll back a release.
@@ -18,8 +31,13 @@ services:
     pull_policy: always
     container_name: atlas-cmms-backend
     depends_on:
-      - postgres
-      - minio
+      postgres:
+        condition: service_healthy
+      # Deliberately not service_healthy: the api boots fine without object storage, only
+      # uploads fail, so gating startup on minio would trade a working login for a
+      # dependency that does not block it.
+      minio:
+        condition: service_started
     volumes:
       - ./logo:/app/static/images
       - ./config:/app/static/config
@@ -91,6 +109,21 @@ services:
       LDAP_SYNC_CRON: ${LDAP_SYNC_CRON}
     expose:
       - "8080"
+    healthcheck:
+      # The readiness group is configured in application.yml to readinessState + db, so this
+      # goes green only once Liquibase, Hibernate and Quartz are done and the datasource
+      # answers. Not the plain /actuator/health: that includes the mail indicator, which is
+      # on by default (ENABLE_MAIL_HEALTH_CHECK) and reports DOWN when mail is unconfigured.
+      # wget comes from busybox in the alpine base image.
+      # Nothing depends on this being healthy — it is a signal for Coolify and docker ps,
+      # so a wrong probe cannot keep the stack from starting.
+      test:
+        - CMD-SHELL
+        - wget -qO- http://localhost:8080/actuator/health/readiness | grep -q '"status":"UP"'
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 150s
 
   frontend:
     image: ghcr.io/sayou2000/cmms4fm-frontend:${IMAGE_TAG:-latest}

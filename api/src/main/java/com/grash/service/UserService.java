@@ -37,6 +37,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -111,6 +112,15 @@ public class UserService {
             user.setLastLogin(new Date());
             userRepository.save(user);
             return jwtTokenProvider.createToken(email, Collections.singletonList(user.getRole().getRoleType()));
+            // Must be caught before AuthenticationException, which it extends. Spring wraps
+            // anything that goes wrong while *loading* the user — database unreachable, an
+            // empty connection pool during startup — in this exception. Reporting it as
+            // invalid credentials sent people to reset a password that was never wrong; on a
+            // restart the login form claimed the password was bad for as long as the api took
+            // to boot.
+        } catch (InternalAuthenticationServiceException e) {
+            throw new CustomException("Authentication is temporarily unavailable",
+                    HttpStatus.SERVICE_UNAVAILABLE);
         } catch (AuthenticationException e) {
             throw new CustomException("Invalid credentials", HttpStatus.FORBIDDEN);
         }

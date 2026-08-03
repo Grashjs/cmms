@@ -190,6 +190,8 @@ const deJSON = {
   no_account_yet: 'Noch kein Konto?',
   signup_here: 'Hier registrieren',
   wrong_credentials: 'Falsche Anmeldedaten angegeben',
+  server_unavailable:
+    'Der Server ist gerade nicht erreichbar. Das liegt nicht am Passwort — bitte in einem Moment erneut versuchen.',
   lost_password: 'Passwort vergessen?',
   //work-orders
   link_wo: 'Arbeitsaufträge verknüpfen',

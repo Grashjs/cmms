@@ -179,6 +179,8 @@ const locale = {
   no_account_yet: 'Don’t have an account, yet?',
   signup_here: 'Sign up here',
   wrong_credentials: 'Wrong credentials provided',
+  server_unavailable:
+    'The server is not reachable right now. This is not your password — please try again in a moment.',
   lost_password: 'Lost password ?',
   link_wo: 'Link Work Orders',
   link_wo_description: 'Create relationships between Work Orders',

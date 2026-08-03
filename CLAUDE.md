@@ -154,6 +154,30 @@ private single-tenant instance that default is wrong. Changes made here:
 - `ALLOWED_ORGANIZATION_ADMINS` restricts who may create a *new* organization. Empty means
   anyone.
 
+### "Wrong credentials" used to mean anything at all
+
+For minutes after every deploy the login form claimed the password was wrong. Three layers
+each turned "the api is not ready" into an authentication verdict, and all three are fixed —
+if a login failure ever looks implausible again, re-check them in this order:
+
+- nginx and the frontend are static and serve the login form within milliseconds. The api
+  needs Liquibase, Hibernate and Quartz — tens of seconds. `depends_on` alone waits for the
+  container to *start*, not to be *ready*, so the api could also outrun postgres. Postgres now
+  has a `pg_isready` healthcheck the api waits on, and the api has one on
+  `/actuator/health/readiness`.
+- `UserService.signin` caught `AuthenticationException` and answered 403 "Invalid
+  credentials". `InternalAuthenticationServiceException` extends it, and Spring wraps
+  *anything* that fails while loading the user in it — including an unreachable database. It
+  is now caught first and answers 503.
+- `utils/api.ts` threw away the HTTP status, and `LoginJWT` mapped every rejection to
+  `wrong_credentials`. The status now travels on `ApiError`; use `isServerUnavailable(err)`
+  rather than assuming a failed call means the user got something wrong.
+
+Healthcheck note: probe `/actuator/health/readiness`, never plain `/actuator/health`. The
+aggregate includes the mail indicator, which defaults to on (`ENABLE_MAIL_HEALTH_CHECK`) and
+reports DOWN without SMTP configured — a probe on it never turns green. The readiness group
+is pinned to `readinessState,db` in `application.yml` for exactly this reason.
+
 ### Known upstream issue: the default super admin
 
 `ApplicationInitializer` creates `superadmin@test.com` with the hardcoded password
@@ -199,8 +223,7 @@ upstream FREE behaviour again. When syncing upstream, re-check `LicenseService`,
 
 ## Open items
 
-- Healthchecks with `condition: service_healthy` for postgres and minio. Currently only
-  `depends_on`, so a cold start relies on the api container losing the race gracefully.
+- `signinLdap` still funnels every failure into one message, the way `signin` used to.
 - Make the nginx signup block toggleable via an environment variable (`envsubst` templates
   are supported by the nginx image) instead of editing the config.
 - Eliminate the default super admin password in code.
