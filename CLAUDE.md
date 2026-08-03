@@ -126,6 +126,36 @@ during authentication, so a disabled account cannot log in. Replacing the passwo
 a useful second lock. A proper fix — refusing to boot with a default password, or
 generating one — has not been implemented yet.
 
+### Self-hosting premium unlock
+
+Upstream gates API access (`x-api-key`), webhooks, workflows, CSV import and the usage
+limits (assets, work orders, users, ...) behind two stacked checks: the company's
+`SubscriptionPlan` features *and* a `LicenseEntitlement` that `LicenseService` validates
+against `api.keygen.sh`. For a private single-tenant instance that is both a paywall
+around AGPL source we already have and a hard dependency on a third party.
+
+`SELF_HOSTED_UNLOCK_PREMIUM=true` (default `false`) opens both gates without any outbound
+call:
+
+- `LicenseService.getLicensingState()` short-circuits to a fully-entitled state (every
+  `LicenseEntitlement`, `usersCount = MAX`) — this covers `hasEntitlement(...)` and every
+  `checkUsageBasedLimit(...)` across the services.
+- `ApplicationInitializer` grants the **FREE** plan all `PlanFeatures` on boot. Every
+  company defaults to FREE ([`SubscriptionService`](api/src/main/java/com/grash/service/SubscriptionService.java)),
+  so this unlocks the plan-gated half of the checks instance-wide.
+
+Both halves are required together — the `x-api-key` path checks license `AND` plan in
+`ApiKeyAuthFilter` and `ApiKeyService.create`. The asset/work-order REST endpoints
+themselves are **not** license-gated; only `ROLE_CLIENT` + the create permission. So a
+plain JWT login (`/auth/signin`) can already create assets without this flag — the flag is
+for the convenient long-lived API-key path and the rest of the premium surface.
+
+Leave it `false` on any hosted/multi-tenant deployment; it removes the paywall the
+upstream billing model relies on. **Caveat:** the FREE-plan change is persisted, so turning
+the flag back off does not re-lock FREE — reset its feature set by hand if you need
+upstream FREE behaviour again. When syncing upstream, re-check `LicenseService`,
+`ApplicationInitializer` and `ApiKeyAuthFilter`, since our changes live there.
+
 ## Open items
 
 - Healthchecks with `condition: service_healthy` for postgres and minio. Currently only
@@ -139,4 +169,6 @@ generating one — has not been implemented yet.
 `dev-docs/` holds upstream documentation (TLS, LDAP, disabling users, running SQL,
 backups). It describes the upstream deployment model, not ours — treat compose snippets
 there as illustrative. When syncing upstream changes, re-check `UserService.signup`, the
-frontend Dockerfile entrypoint and `docker-compose.yml`, since our changes live there.
+frontend Dockerfile entrypoint, `docker-compose.yml`, and the premium-unlock trio
+(`LicenseService`, `ApplicationInitializer`, `ApiKeyAuthFilter`), since our changes live
+there.
