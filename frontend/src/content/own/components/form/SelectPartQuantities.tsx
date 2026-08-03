@@ -1,6 +1,3 @@
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useDispatch } from '../../../../store';
 import PartQuantity, {
   PartQuantityMiniDTO
 } from '../../../../models/owns/partQuantity';
@@ -13,31 +10,32 @@ interface SelectPartQuantitiesProps {
   selected: PartQuantity[];
 }
 
+/**
+ * Fully controlled: the selection lives in the form value, not in local state.
+ *
+ * It used to keep its own copy and mirror it with
+ * `useEffect(() => setPartQuantities(selected), [selected])`, which lost the selection in
+ * two ways. Picking or deleting parts only wrote to the local copy and never called
+ * onChange, so the form value stayed undefined; the caller passes
+ * `formik.values[name] ?? []`, so undefined produced a fresh array literal on every
+ * render, the dependency changed identity each time, and the effect reset the local copy
+ * to empty. Any re-render between choosing parts and typing a quantity therefore wiped
+ * the parts — and a purchase order cannot be saved without them.
+ */
 export default function SelectPartQuantities({
   onChange,
   selected
 }: SelectPartQuantitiesProps) {
-  const [partQuantities, setPartQuantities] = useState<PartQuantityMiniDTO[]>(
-    []
-  );
+  const partQuantities = selected ?? [];
 
-  const { t }: { t: any } = useTranslation();
-  const dispatch = useDispatch();
   const onPartQuantityChange = (value: string, partQuantity) => {
-    let partQuantitiesClone = [...partQuantities];
-    partQuantitiesClone = partQuantitiesClone.map((pq) => {
-      if (pq.id === partQuantity.id) {
-        return { ...pq, quantity: Number(value) };
-      }
-      return pq;
-    });
-    setPartQuantities(partQuantitiesClone);
-    onChange(partQuantitiesClone);
+    onChange(
+      partQuantities.map((pq) =>
+        pq.id === partQuantity.id ? { ...pq, quantity: Number(value) } : pq
+      )
+    );
   };
 
-  useEffect(() => {
-    setPartQuantities(selected);
-  }, [selected]);
   return (
     <>
       <PartQuantitiesList
@@ -45,26 +43,32 @@ export default function SelectPartQuantities({
         onChange={onPartQuantityChange}
         disabled={false}
         onDelete={(partQuantity) =>
-          setPartQuantities((prevState) =>
-            prevState.filter((pq) => pq.id !== partQuantity.id)
-          )
+          onChange(partQuantities.filter((pq) => pq.id !== partQuantity.id))
         }
       />
       <SelectParts
         selected={partQuantities.map((partQuantity) => partQuantity.part.id)}
         onChange={(newParts) => {
-          const newPartQuantities = newParts.map((part) => {
-            return {
-              part,
-              quantity: 0,
-              id: randomInt(),
-              createdAt: new Date().toDateString(),
-              createdBy: null,
-              updatedAt: null,
-              updatedBy: null
-            };
-          });
-          setPartQuantities(newPartQuantities);
+          onChange(
+            newParts.map((part) => {
+              // Keep the quantity already typed for a part that stays selected —
+              // rebuilding every row from scratch reset earlier entries to zero.
+              const existing = partQuantities.find(
+                (pq) => pq.part.id === part.id
+              );
+              return (
+                existing ?? {
+                  part,
+                  quantity: 0,
+                  id: randomInt(),
+                  createdAt: new Date().toDateString(),
+                  createdBy: null,
+                  updatedAt: null,
+                  updatedBy: null
+                }
+              );
+            })
+          );
         }}
       />
     </>
