@@ -64,10 +64,12 @@ public class RoleController {
     Role create(@Parameter(description = "Role data to create") @Valid @RequestBody Role roleReq,
                 HttpServletRequest req) {
         User user = userService.whoami(req);
-        roleReq.setPaid(true);
-        roleReq.setCode(RoleCode.USER_CREATED);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.ROLE)) {
+            roleReq.setPaid(true);
+            roleReq.setCode(RoleCode.USER_CREATED);
+            roleReq.setRoleType(RoleType.ROLE_CLIENT);
+            roleReq.setCompanySettings(user.getCompany().getCompanySettings());
             return roleService.create(roleReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
