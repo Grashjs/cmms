@@ -1099,6 +1099,7 @@ const locale = {
   to_export: 'Export',
   filters: 'Filters',
   more_filters: 'More Filters',
+  apply: 'Apply',
   customer: 'Contractor',
   to: 'to',
   dates: 'Dates',

@@ -95,6 +95,28 @@ Each of these cost a failed deployment. They are not documented upstream.
 - Alpine images use `ash`. No `$'\r'`, no bashisms in entrypoints.
 - Commit messages: what broke and why, not just what changed.
 
+### Adding a list filter
+
+List pages post a `SearchCriteria` to `/<entity>/search`; `SpecificationBuilder` joins every
+`FilterField` with **AND**. Two things follow, and both have already produced filters that
+silently return nothing:
+
+- **Enums are stored as ordinals.** `2026_01_10_1768015926_enums_type.xml` converted those
+  columns to `SMALLINT`, and `WrapperSpecification.getRealValue` converts an incoming string
+  to an enum only for `PRIORITY`, `STATUS` and `JS_DATE`, and only in the `in` branch. A
+  filter carrying `"IMAGE"` therefore compares a string against a number. A new enum filter
+  needs an `EnumName` entry plus a `case` — i.e. an API change. Ordinal storage also means a
+  new enum constant may only be appended, never inserted.
+- **Controllers append their own filter fields.** `FileController.search` adds
+  `hidden eq false`, and `createdBy eq <own id>` for users without the view-other
+  permission. A client-side filter on the same field is ANDed with that one, so it can only
+  ever narrow to nothing. Check the controller before offering a field in the UI.
+
+Search inputs are debounced with `useMemo(..., [])`, which freezes the closure. Read
+`criteria` through a ref (`WorkOrders/index.tsx`, `Files/index.tsx`) — the `Parts.tsx`
+version closes over `criteria` directly and only survives because that page has no other
+filters.
+
 ## Security posture
 
 Upstream targets a hosted multi-tenant product where public signup is a feature. For a
@@ -181,6 +203,7 @@ fix silently overwritten:
 | Category-bound custom fields | `CustomField`, `CustomFieldService`, `CustomFieldValueService`, `CustomFieldRepository`, `AssetService.setAssetCustomFields` |
 | Work order → purchase order | `PurchaseOrder`, `PurchaseOrderService`, `PurchaseOrderController`, `PurchaseOrderRepository` |
 | Light sidebar | `layouts/ExtendedSidebarLayout/Sidebar/**`, `theme/schemes/*.ts` |
+| File search and filters | `content/own/Files/index.tsx`, `content/own/Files/Filters/**` |
 | Container plumbing | frontend `Dockerfile` + `docker-entrypoint.sh`, `docker/nginx/**`, `docker-compose.yml` |
 
 `ApiKeyAuthFilter` is **not** in that list. It reads the license and plan gates that

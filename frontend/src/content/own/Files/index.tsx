@@ -3,15 +3,17 @@ import {
   Box,
   Button,
   Card,
+  debounce,
   Dialog,
   DialogContent,
   DialogTitle,
+  Divider,
   Grid,
   Stack,
   Typography
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { TitleContext } from '../../../contexts/TitleContext';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
@@ -42,10 +44,12 @@ import ConfirmDialog from '../components/ConfirmDialog';
 import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
 import NoRowsMessageWrapper from '../components/NoRowsMessageWrapper';
 import { useParams } from 'react-router-dom';
-import { SearchCriteria } from '../../../models/owns/page';
+import { FilterField, SearchCriteria } from '../../../models/owns/page';
 import { isNumeric } from '../../../utils/validators';
 import { createColumnHelper } from '@tanstack/react-table';
 import useTableState from '../../../hooks/useTableState';
+import SearchInput from '../components/SearchInput';
+import FileFilters from './Filters/FileFilters';
 
 function Files() {
   const { t }: { t: any } = useTranslation();
@@ -99,6 +103,39 @@ function Files() {
     setCriteria,
     fieldMapping
   });
+
+  // The debounced handler below is memoized once, so it must not close over `criteria`.
+  // Parts.tsx does exactly that and gets away with it only because it has no other
+  // filters; here every keystroke would otherwise restore the filter state from mount.
+  const criteriaRef = useRef(criteria);
+  criteriaRef.current = criteria;
+
+  // Narrowing the result set has to go back to the first page — staying on page 3 of the
+  // unfiltered list shows an empty table, which reads like "nothing found". pageNum is set
+  // in the same update as the filters so the pagination effect in useTableState sees no
+  // change and does not trigger a second request.
+  const applyFilterFields = (newFilterFields: FilterField[]) => {
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+    setCriteria((prev) => ({
+      ...prev,
+      filterFields: newFilterFields,
+      pageNum: 0
+    }));
+  };
+
+  const onQueryChange = (event) => {
+    const query = event.target.value;
+    const others = criteriaRef.current.filterFields.filter(
+      (filterField) => filterField.field !== 'name'
+    );
+    applyFilterFields(
+      query
+        ? [...others, { field: 'name', operation: 'cn' as const, value: query }]
+        : others
+    );
+  };
+  const debouncedQueryChange = useMemo(() => debounce(onQueryChange, 1300), []);
+
   const handleOpenDelete = (id: number) => {
     setCurrentFile(files.content.find((file) => file.id === id));
     setOpenDelete(true);
@@ -120,6 +157,7 @@ function Files() {
 
   const {
     hasViewPermission,
+    hasViewOtherPermission,
     hasEditPermission,
     hasCreatePermission,
     hasDeletePermission,
@@ -364,6 +402,21 @@ function Files() {
                 justifyContent: 'space-between'
               }}
             >
+              <Stack
+                sx={{ ml: 1 }}
+                direction="row"
+                spacing={1}
+                justifyContent="flex-start"
+                width="95%"
+              >
+                <FileFilters
+                  filterFields={criteria.filterFields}
+                  onChange={applyFilterFields}
+                  showCreatedBy={hasViewOtherPermission(PermissionEntity.FILES)}
+                />
+                <SearchInput onChange={debouncedQueryChange} />
+              </Stack>
+              <Divider sx={{ mt: 1, width: '95%' }} />
               <Box sx={{ width: '95%' }}>
                 <CustomDatagrid2
                   columns={columns}

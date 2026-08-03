@@ -1188,6 +1188,7 @@ const deJSON = {
   to_export: 'Exportieren',
   filters: 'Filter',
   more_filters: 'Weitere Filter',
+  apply: 'Anwenden',
   customer: 'Auftragnehmer',
   to: 'bis',
   dates: 'Daten',
