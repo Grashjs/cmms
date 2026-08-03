@@ -43,26 +43,12 @@ public class SubscriptionService {
         return savedSubscription;
     }
 
-    public Subscription update(Long id, SubscriptionPatchDTO subscriptionPatchDTO) {
-        if (subscriptionRepository.existsById(id)) {
-            Subscription savedSubscription = subscriptionRepository.findById(id).get();
-            Subscription updatedSubscription =
-                    subscriptionRepository.saveAndFlush(subscriptionMapper.updateSubscription(savedSubscription,
-                            subscriptionPatchDTO));
-            em.refresh(updatedSubscription);
-            scheduleEnd(updatedSubscription);
-            return updatedSubscription;
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
-    }
 
     public void save(Subscription subscription) {
         subscriptionRepository.save(subscription);
         scheduleEnd(subscription);
     }
 
-    public Collection<Subscription> getAll() {
-        return subscriptionRepository.findAll();
-    }
 
     public void delete(Long id) {
         try {
@@ -128,9 +114,6 @@ public class SubscriptionService {
         subscription.setEndsOn(null);
         subscriptionRepository.save(subscription);
     }
-
-    public List<Subscription> findPaidAndEnding() {
-        return subscriptionRepository.findPaidAndEnding();
-    }
+    
 }
 

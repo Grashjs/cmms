@@ -12,6 +12,7 @@ import com.grash.service.SubscriptionService;
 import com.grash.service.UserService;
 
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -40,31 +41,7 @@ public class SubscriptionController {
     private final BrandingService brandingService;
     @Value("${mail.recipients:#{null}}")
     private String[] recipients;
-
-    @GetMapping("")
-    @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
-
-    public Collection<Subscription> getAll(HttpServletRequest req) {
-        return subscriptionService.getAll();
-    }
-
-
-    //    @DeleteMapping("/{id}")
-//    @PreAuthorize("hasRole('ROLE_CLIENT')")
-//    
-//    public ResponseEntity delete( @PathVariable("id") Long id, HttpServletRequest req) {
-//        OwnUser user = userService.whoami(req);
-//
-//        Optional<Subscription> optionalSubscription = subscriptionService.findById(id);
-//        if (optionalSubscription.isPresent()) {
-//            Subscription savedSubscription = optionalSubscription.get();
-//            if (subscriptionService.hasAccess(user, savedSubscription)) {
-//                subscriptionService.delete(id);
-//                return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
-//                        HttpStatus.OK);
-//            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-//        } else throw new CustomException("Subscription not found", HttpStatus.NOT_FOUND);
-//    }
+    
     @PostMapping("/upgrade")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public SuccessResponse upgrade(@Parameter(description = "List of user IDs to upgrade") @RequestBody Collection<Long> usersIds,
@@ -96,6 +73,8 @@ public class SubscriptionController {
 
     @PostMapping("/request-upgrade")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @Hidden
+    @Deprecated
     public SuccessResponse requestUpgrade(@Parameter(description = "Subscription change request details") @RequestBody SubscriptionChangeRequest subscriptionChangeRequest,
                                           HttpServletRequest req) {
         if (recipients == null || recipients.length == 0) {
