@@ -119,7 +119,7 @@ services:
       # so a wrong probe cannot keep the stack from starting.
       test:
         - CMD-SHELL
-        - wget -qO- http://localhost:8080/actuator/health/readiness | grep -q '"status":"UP"'
+        - wget -qO- http://127.0.0.1:8080/actuator/health/readiness | grep -q '"status":"UP"'
       interval: 10s
       timeout: 5s
       retries: 12
@@ -183,6 +183,17 @@ services:
     # Publishing 3000:80 would bypass TLS and collide with other stacks.
     expose:
       - "80"
+    healthcheck:
+      # This is the container Coolify's warning is about: without a healthcheck Traefik
+      # routes to it blindly and its status stays "unknown". /healthz is served by nginx
+      # itself, so this goes green within seconds of the container starting.
+      # 127.0.0.1, not localhost: `listen 80` binds IPv4 only, and localhost can resolve
+      # to ::1 first, which would refuse the connection and fail the probe forever.
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/healthz | grep -q ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
 volumes:
   postgres_data:
