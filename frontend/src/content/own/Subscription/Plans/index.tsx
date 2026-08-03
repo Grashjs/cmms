@@ -35,6 +35,7 @@ import { initializePaddle, Paddle } from '@paddle/paddle-js';
 import {
   apiUrl,
   homeUrl,
+  isCloudVersion,
   PADDLE_SECRET_TOKEN,
   paddleEnvironment
 } from '../../../../config';
@@ -210,6 +211,11 @@ function SubscriptionPlans() {
 
   useEffect(() => {
     fireGa4Event('pricing_view');
+    if (!isCloudVersion)
+      window.location.href = getLocalizedHomeUrl(
+        'pricing?type=selfhosted',
+        i18n.language
+      );
   }, []);
 
   if (user.ownsCompany)
