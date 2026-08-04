@@ -9,6 +9,7 @@ import {
 } from '@tanstack/react-table';
 import useTableStatePersist from './useTableStatePersist';
 import { SearchCriteria, SortDirection } from '../models/owns/page';
+import { TableLayout } from '../models/owns/savedView';
 
 export interface TableStateReturn {
   sorting: SortingState;
@@ -23,6 +24,10 @@ export interface TableStateReturn {
   setColumnVisibility: OnChangeFn<VisibilityState>;
   pinnedColumns: string[];
   setPinnedColumns: (pinnedColumns: string[]) => void;
+  /** The current layout, for storing in a saved view. */
+  getLayout: () => TableLayout;
+  /** Restores a layout from a saved view. Fields the layout omits are left as they are. */
+  applyLayout: (layout: TableLayout) => void;
 }
 
 interface UseTableStateProps {
@@ -139,6 +144,39 @@ const useTableState = ({
     setPinnedColumnsState(newPinnedColumns);
   }, []);
 
+  const getLayout = useCallback(
+    (): TableLayout => ({
+      sorting: sorting.map((sort) => ({ id: sort.id, desc: sort.desc })),
+      columnOrder,
+      columnSizing,
+      columnVisibility,
+      pinnedColumns,
+      pageSize: pagination.pageSize
+    }),
+    [sorting, columnOrder, columnSizing, columnVisibility, pinnedColumns, pagination]
+  );
+
+  /**
+   * Only assigns what the layout actually carries. A view saved before a field existed must
+   * not blank that field out — it would silently reset column widths or unpin a column when
+   * an older view is applied.
+   *
+   * pageIndex always goes back to 0: the rows are about to change, so staying on page 4 would
+   * likely land on an empty page.
+   */
+  const applyLayout = useCallback((layout: TableLayout) => {
+    if (!layout) return;
+    if (layout.sorting) setSortingState(layout.sorting);
+    if (layout.columnOrder) setColumnOrderState(layout.columnOrder);
+    if (layout.columnSizing) setColumnSizingState(layout.columnSizing);
+    if (layout.columnVisibility) setColumnVisibilityState(layout.columnVisibility);
+    if (layout.pinnedColumns) setPinnedColumnsState(layout.pinnedColumns);
+    setPaginationState((prev) => ({
+      pageIndex: 0,
+      pageSize: layout.pageSize ?? prev.pageSize
+    }));
+  }, []);
+
   // Sync criteria with TanStack Table state
   useEffect(() => {
     setCriteria((prev) => {
@@ -195,7 +233,9 @@ const useTableState = ({
     columnVisibility,
     setColumnVisibility,
     pinnedColumns,
-    setPinnedColumns
+    setPinnedColumns,
+    getLayout,
+    applyLayout
   };
 };
 
