@@ -31,7 +31,7 @@ const deJSON = {
   mobile_app: 'Mobile App',
   asset_management: 'Anlagenverwaltung',
   preventive_maintenance: 'Wartung',
-  parts_inventory: 'Teileinventar',
+  parts_inventory: 'Material',
   custom_dashboards: 'Benutzerdefinierte Dashboards',
   'work-orders.title': 'Verwalten Sie Ihre Arbeitsaufträge wie ein Chef',
   'work-orders.description.short': 'Alle Ihre Aufgaben anzeigen und verwalten',
@@ -386,13 +386,13 @@ const deJSON = {
   useful_life: 'Nutzungsdauer',
   requests: 'Meldungen',
   locations: 'Standorte',
-  parts_and_inventory: 'Teile & Inventar',
+  parts_and_inventory: 'Material',
   purchase_orders: 'Bestellungen',
   meters: 'Zähler',
-  people_teams: 'Personen & Teams',
+  people_teams: 'Personen',
   people: 'Personen',
   teams: 'Teams',
-  vendors_customers: 'Lieferanten & Auftragnehmer',
+  vendors_customers: 'Partner',
   vendors: 'Lieferanten',
   categories: 'Kategorien',
   settings: 'Einstellungen',
@@ -539,9 +539,9 @@ const deJSON = {
   no_access_location:
     'Sie haben keinen Zugriff auf Standorte. Bitte kontaktieren Sie Ihren Administrator, wenn Sie Zugriff haben sollten',
   no_access_vendors_customers:
-    'Sie haben keinen Zugriff auf Lieferanten und Auftragnehmer. Bitte kontaktieren Sie Ihren Administrator, wenn Sie Zugriff haben sollten',
+    'Sie haben keinen Zugriff auf Partner. Bitte kontaktieren Sie Ihren Administrator, wenn Sie Zugriff haben sollten',
   no_access_people_team:
-    'Sie haben keinen Zugriff auf Personen und Teams. Bitte kontaktieren Sie Ihren Administrator, wenn Sie Zugriff haben sollten',
+    'Sie haben keinen Zugriff auf Personen. Bitte kontaktieren Sie Ihren Administrator, wenn Sie Zugriff haben sollten',
   no_access_analytics:
     'Sie haben keinen Zugriff auf Analysen. Bitte kontaktieren Sie Ihren Administrator, wenn Sie Zugriff haben sollten',
   no_access_assets:
@@ -619,7 +619,7 @@ const deJSON = {
   no_file_found: 'Keine Datei gefunden',
   no_wo_found: 'Kein Arbeitsauftrag gefunden',
   workers: 'Arbeiter',
-  Parts_and_Inventory: 'Teile & Inventar',
+  Parts_and_Inventory: 'Material',
   //purchase order
   po_edit_failure: 'Die Bestellung konnte nicht bearbeitet werden',
   po_delete_success: 'Die Bestellung wurde erfolgreich gelöscht',
@@ -740,7 +740,7 @@ const deJSON = {
   you_have_uploaded: 'Sie haben hochgeladen',
   upload: 'Hochladen',
   //vendors_customers
-  Vendors_Customers: 'Lieferanten & Auftragnehmer',
+  Vendors_Customers: 'Partner',
   customer_create_success: 'Der Auftragnehmer wurde erfolgreich erstellt',
   customer_create_failure: 'Der Auftragnehmer konnte nicht erstellt werden',
   customer_edit_failure: 'Der Auftragnehmer konnte nicht bearbeitet werden',
@@ -1961,7 +1961,7 @@ const deJSON = {
   locations_settings_description:
     'Erstellen, verwalten und bearbeiten Sie Standorte in Ihrer Organisation.',
   parts_inventory_settings_description:
-    'Passen Sie das Teileinventar-Formular und Einstellungen an',
+    'Passen Sie das Material-Formular und Einstellungen an',
   meters_settings_description: 'Passen Sie das Zähler-Formular und Einstellungen an',
   vendors_contractors_settings_description:
     'Verwalten Sie externe Auftragnehmer und Lieferanten, mit denen Ihre Organisation zusammenarbeitet',

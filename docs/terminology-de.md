@@ -26,10 +26,32 @@ language for what FM calls an Anlage.
 | `parts_and_inventory` | Teile/Inventar | Teile & Inventar |
 | `files` | Dateien | Dokumente |
 | `file` | Datei | Dokument |
+| `vendors_customers`, `Vendors_Customers` | Lieferanten & Auftragnehmer | Partner |
+| `people_teams` | Personen & Teams | Personen |
+| `parts_and_inventory`, `Parts_and_Inventory`, `parts_inventory` | Teile & Inventar / Teileinventar | Material |
 
-These eight carry the whole navigation, every page title, the add-button labels and the chart
-series names, because those all resolve the same keys. That is why the visible result looks
-more complete than eight keys suggests.
+These carry the whole navigation, every page title, the add-button labels and the chart series
+names, because those all resolve the same keys. That is why the visible result looks more
+complete than the key count suggests.
+
+The last three replaced two-word labels with one word, so that no sidebar entry wraps to a
+second line. Three things that came out of it and apply to any further rename:
+
+- **Check for a second key.** Sidebar, page header and window title do not always read the same
+  key: Partner needed `vendors_customers` *and* `Vendors_Customers`, Material needed three
+  (`parts_inventory` labels the section in Settings → Features). Nothing enforces that they
+  agree, so a rename that changes only one leaves the app contradicting itself.
+- **The umbrella renames, the tabs do not.** Inside Partner the tabs stay `vendors:
+  'Lieferanten'` and `customers: 'Auftragnehmer'`; inside Personen they stay Personen and Teams;
+  inside Material they stay Teile and Teilesätze. Those are the distinctions the pages exist to
+  make.
+- **"Mitarbeiter" was rejected for `people_teams`.** The list also holds `REQUESTER` and
+  `VIEW_ONLY` accounts, which the app's own copy describes as "typischerweise Lieferanten und
+  Auftragnehmer" — external people who are precisely not employees, and who now live under
+  Partner. "Personen" is the truthful superset.
+
+Also renamed for consistency, being the same sections named in prose:
+`no_access_people_team`, `no_access_vendors_customers`, `parts_inventory_settings_description`.
 
 **English was deliberately left alone.** The target names were given in German, and the
 obvious English counterparts are worse than what is there: "Aufträge" → "Orders" collides with
