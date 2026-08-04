@@ -2,6 +2,11 @@
 
 Working notes for this repository. Read before changing build, deployment or auth code.
 
+Design documentation for individual subsystems lives in [`docs/`](docs/README.md) — currently
+[`docs/reporting.md`](docs/reporting.md), which covers the `rpt_*` reporting views, saved list
+views and filtered exports. Read it before changing anything under
+`controller/analytics/`, the `rpt_*` views, or the CSV export.
+
 ## What this is
 
 A fork of **Atlas CMMS** (upstream: `Grashjs/atlas-cmms`), a maintenance management
@@ -46,6 +51,14 @@ locally. The image build runs `mvn clean package -DskipTests`; use that, or noth
 Java 17 is the target. Only a **Windows** Maven wrapper is checked in (`api/mvnw.cmd`) —
 there is no `api/mvnw`, so `./mvnw` fails on Linux and in containers. CI calls `mvn`
 directly. On a machine without Maven on `PATH`, use `api\mvnw.cmd` from PowerShell.
+
+**The test suite cannot run on a JDK above 22.** Byte Buddy 1.14.12 refuses to instrument
+newer class files, so every Mockito-based test errors in `startMocking` before reaching any
+project code — `Java 25 (69) is not supported by the current version of Byte Buddy`.
+`-Dnet.bytebuddy.experimental=true` does not help. A local failure that looks like this is the
+environment, not the change; CI on JDK 17 is the authority. `mvn test-compile` is still worth
+running locally, and mock-free tests (e.g. `CsvColumnRegistriesTest`) do run — which is a good
+reason to write new tests without mocks where the collaborators allow it.
 
 ## Deployment
 
@@ -227,6 +240,13 @@ upstream FREE behaviour again. When syncing upstream, re-check `LicenseService`,
 - Make the nginx signup block toggleable via an environment variable (`envsubst` templates
   are supported by the nginx image) instead of editing the config.
 - Eliminate the default super admin password in code.
+- **`POST /work-orders/search` returns the whole company** for a user who has no work-order
+  view permission at all. `WorkOrderService.getSearchCriteria` only ever narrows: it adds the
+  company filter, then adds the own-records filter *inside* an `if (viewPermissions contains
+  WORK_ORDERS)`, so lacking that permission means no narrowing rather than no access.
+  Upstream behaviour, found while building the filtered export. `AssetService.getSearchCriteria`
+  gets this right (it throws), which is the shape the fix should take. Reporting-specific
+  detail in [`docs/reporting.md`](docs/reporting.md#5-stage-1--filtered-export).
 
 ## Upstream
 
@@ -245,6 +265,11 @@ fix silently overwritten:
 | Category-bound custom fields | `CustomField`, `CustomFieldService`, `CustomFieldValueService`, `CustomFieldRepository`, `AssetService.setAssetCustomFields` |
 | Work order → purchase order | `PurchaseOrder`, `PurchaseOrderService`, `PurchaseOrderController`, `PurchaseOrderRepository` |
 | Light sidebar | `layouts/ExtendedSidebarLayout/Sidebar/**`, `theme/schemes/*.ts` |
+| Reporting: column registry | `CsvFileGenerator` (work-order and asset writers now delegate), `utils/csv/**`, `CsvFileGeneratorTest` (constructs the generator instead of `@InjectMocks`) |
+| Reporting: filtered export | `ExportController`, `AsyncExportService`, `WorkOrderService.findForExport`, `AssetService.findForExport` |
+| Reporting: shared asset scoping | `AssetService.getSearchCriteria` (extracted out of `AssetController.search`) |
+| Reporting: export headers | `messages.properties`, `messages_de_DE.properties` (appended keys) |
+| Saved views | `SavedView*` (new files), `frontend` work-order and asset list pages, `hooks/useTableState.ts`, `hooks/useExport.ts` |
 | File search and filters | `content/own/Files/index.tsx`, `content/own/Files/Filters/**` |
 | File→asset/work-order links | `File` (`workOrders` join table), `FileShowDTO`, `FileMapper` |
 | Container plumbing | frontend `Dockerfile` + `docker-entrypoint.sh`, `docker/nginx/**`, `docker-compose.yml` |
