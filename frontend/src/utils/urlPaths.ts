@@ -1,15 +1,3 @@
-import {
-  Business,
-  Construction,
-  FlashOn,
-  Hotel,
-  LocalHospital,
-  PrecisionManufacturing,
-  Restaurant,
-  School
-} from '@mui/icons-material';
-import { ElementType } from 'react';
-import { TFunction } from 'react-i18next';
 import { homeUrl } from '../config';
 
 export const getAssetUrl = (id) => {

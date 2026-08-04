@@ -120,7 +120,6 @@ const getCustomFieldIField = (customField: CustomField): IField => {
 };
 
 import * as Yup from 'yup';
-import { TFunction } from 'react-i18next';
 
 interface EntityWithCustomFields {
   customFieldValues?: { customField: CustomField; value: string }[];
@@ -143,7 +142,7 @@ export const getCustomFieldsValues = <T extends EntityWithCustomFields>(
 export const getCustomFieldsRequiredShape = (
   customFields: CustomField[],
   customFieldEntityType: CustomFieldEntityType,
-  t: TFunction
+  t: (string: string) => string
 ): { [key: string]: Yup.StringSchema | Yup.ObjectSchema<any> } => {
   const shape: { [key: string]: Yup.StringSchema | Yup.ObjectSchema<any> } = {};
   customFields
