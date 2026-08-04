@@ -13,13 +13,21 @@ import { useEffect, useState } from 'react';
 import { useBrand } from '../../hooks/useBrand';
 import { getLocalizedHomeUrl } from '../../utils/urlPaths';
 
+/**
+ * The mark is shared across the product family, so what identifies this application is the
+ * caption under it. Deliberately not the brand name from useBrand(): that is "AssetTrace", the
+ * family, while this names the tool within it. Sibling applications carry their own caption and
+ * differ otherwise only in the favicon.
+ */
+const APP_CAPTION = 'CMMS Tool';
+
 const LogoWrapper = styled('a')(
   ({ theme }) => `
         color: ${theme.palette.text.primary};
         display: flex;
         text-decoration: none;
+        flex-direction: column;
         align-items: center;
-        width: 53px;
         margin: 0 auto;
         font-weight: ${theme.typography.fontWeightBold};
 `
@@ -27,8 +35,21 @@ const LogoWrapper = styled('a')(
 
 const LogoSignWrapper = styled(Box)(
   () => `
-        width: 52px;
-        height: 52px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+`
+);
+
+const LogoCaption = styled(Box)(
+  ({ theme }) => `
+        margin-top: ${theme.spacing(1)};
+        color: ${theme.sidebar.menuItemColor};
+        font-size: ${theme.typography.pxToRem(15)};
+        font-weight: ${theme.typography.fontWeightBold};
+        line-height: 1.2;
+        text-align: center;
+        white-space: nowrap;
 `
 );
 
@@ -55,8 +76,7 @@ interface OwnProps {
 function Logo({ white }: OwnProps) {
   const { t, i18n } = useTranslation();
   const theme = useTheme();
-  const width = 60;
-  const height = 60;
+  const size = 64;
   const mobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { logo, name: brandName } = useBrand();
 
@@ -66,11 +86,12 @@ function Logo({ white }: OwnProps) {
         <LogoSignWrapper>
           <img
             src={white ? logo.white : logo.dark}
-            width={`${width * (mobile ? 0.7 : 1)}px`}
-            height={`${height * (mobile ? 0.7 : 1)}px`}
-            alt={'logo'}
+            width={`${size * (mobile ? 0.7 : 1)}px`}
+            height={`${size * (mobile ? 0.7 : 1)}px`}
+            alt={brandName}
           />
         </LogoSignWrapper>
+        <LogoCaption>{APP_CAPTION}</LogoCaption>
       </LogoWrapper>
     </TooltipWrapper>
   );

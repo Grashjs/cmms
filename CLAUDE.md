@@ -266,6 +266,8 @@ fix silently overwritten:
 | Category-bound custom fields | `CustomField`, `CustomFieldService`, `CustomFieldValueService`, `CustomFieldRepository`, `AssetService.setAssetCustomFields` |
 | Work order → purchase order | `PurchaseOrder`, `PurchaseOrderService`, `PurchaseOrderController`, `PurchaseOrderRepository` |
 | Light sidebar | `layouts/ExtendedSidebarLayout/Sidebar/**`, `theme/schemes/*.ts` |
+| Sidebar order and labels | `Sidebar/SidebarMenu/items.ts` (order, no two-child dropdowns, `activePath`), `SidebarMenu/index.tsx`, `i18n/translations/de.ts` |
+| Branding | `components/LogoSign` (caption under the mark), `public/favicon*`, `public/static/images/logo/**`, `frontend/scripts/build-logo-assets.ps1`, `docs/logo_v3.png`, `docs/fav_fm_v2..png` |
 | Reporting: column registry | `CsvFileGenerator` (work-order and asset writers now delegate), `utils/csv/**`, `CsvFileGeneratorTest` (constructs the generator instead of `@InjectMocks`) |
 | Reporting: filtered export | `ExportController`, `AsyncExportService`, `WorkOrderService.findForExport`, `AssetService.findForExport` |
 | Reporting: shared asset scoping | `AssetService.getSearchCriteria` (extracted out of `AssetController.search`) |
