@@ -21,6 +21,7 @@ one. Documentation nobody is routed to is documentation nobody reads.
 | File | Subsystem |
 |---|---|
 | [reporting.md](reporting.md) | Reporting and BI: the `rpt_*` views, saved list views, filtered exports, and the roadmap beyond them |
+| [terminology-de.md](terminology-de.md) | German wording: which terms were changed, and the 155 keys still to migrate |
 
 ## What belongs in a file here
 

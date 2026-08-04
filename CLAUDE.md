@@ -2,10 +2,11 @@
 
 Working notes for this repository. Read before changing build, deployment or auth code.
 
-Design documentation for individual subsystems lives in [`docs/`](docs/README.md) — currently
-[`docs/reporting.md`](docs/reporting.md), which covers the `rpt_*` reporting views, saved list
-views and filtered exports. Read it before changing anything under
-`controller/analytics/`, the `rpt_*` views, or the CSV export.
+Design documentation for individual subsystems lives in [`docs/`](docs/README.md):
+[`docs/reporting.md`](docs/reporting.md) for the `rpt_*` reporting views, saved list views and
+filtered exports — read it before changing anything under `controller/analytics/`, the `rpt_*`
+views, or the CSV export; [`docs/terminology-de.md`](docs/terminology-de.md) for the partly
+finished German wording migration, before editing `de.ts`.
 
 ## What this is
 
