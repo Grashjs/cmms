@@ -229,4 +229,8 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_08_03_00000000001_purchase_order_work_order.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_08_04_00000000001_reporting_views.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2026_08_04_00000000002_saved_view.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

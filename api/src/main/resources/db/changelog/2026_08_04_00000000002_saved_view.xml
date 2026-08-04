@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <!--
+      Named, shareable list views (stage 1 of the reporting work — see docs/reporting.md).
+
+      Until now the list pages kept sorting, column order, column widths, pinning and the
+      filter set in localStorage: one slot per table, per browser, unnamed. Good enough as
+      a convenience, useless as reporting — you cannot have two of them, hand one to a
+      colleague, or come back to it from another machine. This table is that same state,
+      named and server-side.
+
+      criteria and columns are TEXT holding JSON, not jsonb: nothing queries inside them,
+      the application reads them whole and hands them back whole, and TEXT keeps the
+      entity a plain String field with no converter and no dialect-specific type. If a
+      later stage needs to query inside them (e.g. "which views filter on this field?"),
+      migrating TEXT -> jsonb is a one-line ALTER with a USING cast.
+
+      owner_id is an explicit column rather than relying on the inherited created_by from
+      Audit: created_by is filled by Spring Data auditing, which is not populated on every
+      path (imports, jobs, the API-key filter) and is meant as an audit trail, not as an
+      authorisation subject. Ownership decides who may edit and delete, so it gets a real
+      foreign key.
+    -->
+    <changeSet id="2026_08_04_00000000002-1" author="lars">
+        <createTable tableName="saved_view">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)" remarks="Display name chosen by the user">
+                <constraints nullable="false"/>
+            </column>
+            <column name="entity_type" type="VARCHAR(50)" remarks="Which list page the view belongs to">
+                <constraints nullable="false"/>
+            </column>
+            <column name="criteria" type="TEXT" remarks="Serialised SearchCriteria (filters, sort, page size)"/>
+            <!-- column_layout, not columns: COLUMNS is non-reserved in Postgres but reads
+                 like a keyword in every query that touches this table. -->
+            <column name="column_layout" type="TEXT" remarks="Serialised column layout (order, visibility, width, pinning)"/>
+            <column name="shared" type="BOOLEAN" defaultValueBoolean="false"
+                    remarks="Visible to the whole company, not only to the owner">
+                <constraints nullable="false"/>
+            </column>
+            <column name="company_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_saved_view_company"
+                             references="company(id)" deleteCascade="true"/>
+            </column>
+            <column name="owner_id" type="BIGINT" remarks="User who created the view and may change it">
+                <constraints foreignKeyName="fk_saved_view_owner"
+                             references="own_user(id)" deleteCascade="true"/>
+            </column>
+            <column name="created_by" type="BIGINT"/>
+            <column name="updated_by" type="BIGINT"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueDate="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueDate="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!--
+          The lookup is always "views for this company and this list page", so one index
+          covers every read path.
+        -->
+        <createIndex tableName="saved_view" indexName="idx_saved_view_company_entity">
+            <column name="company_id"/>
+            <column name="entity_type"/>
+        </createIndex>
+    </changeSet>
+
+    <!--
+      CompanyAudit declares @GeneratedValue(strategy = AUTO), which Hibernate 6 resolves to
+      a sequence named <table>_seq. Without this the insert fails at runtime, not at
+      startup — ddl-auto: validate does not check sequences. Same increment as the other
+      per-entity sequences in this schema (custom_field_value_seq, api_key_seq, ...); a
+      mismatch with hibernate's allocationSize hands out colliding ids.
+    -->
+    <changeSet id="2026_08_04_00000000002-2" author="lars">
+        <createSequence sequenceName="saved_view_seq" startValue="1" incrementBy="50"/>
+    </changeSet>
+
+</databaseChangeLog>

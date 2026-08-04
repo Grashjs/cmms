@@ -1,0 +1,481 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <!--
+      Reporting layer (stage 0). See docs/reporting.md for the rationale and the full
+      column contract; this file is the implementation only.
+
+      Why views and not queries in the application: the report-shaped work (labelling
+      ordinal enums, resolving foreign keys to names, pivoting EAV custom fields,
+      recomputing per-work-order costs) is identical for every consumer — the CSV export,
+      a future aggregation endpoint, a BI tool. Doing it once in SQL means one place to
+      fix when an enum gains a constant, and it makes the numbers agree across consumers.
+
+      Three rules these views follow, and any new rpt_ view must follow too:
+
+      1. Enum ordinals are translated with an inline CASE, next to the column, not via a
+         lookup table. 2026_01_10_1768015926_enums_type.xml turned the enum columns into
+         SMALLINT holding Java ordinals, so a wrong number here is a silent data bug —
+         it has to stay readable in the diff. The ordinal order is the declaration order
+         in api/src/main/java/com/grash/model/enums/*.java and may only be appended to.
+      2. Cost arithmetic mirrors WorkOrderRepository.findTotalWOCosts exactly, including
+         its integer truncation of labour cost. A report that disagrees with the number on
+         the work-order screen is worse than a slightly rounded one. If the application
+         formula changes, change it here in the same commit.
+      3. Timestamps are `timestamp without time zone` holding UTC, so "now" is
+         `now() AT TIME ZONE 'UTC'` — plain now() would be the server timezone and skew
+         every age and overdue flag.
+
+      No entity maps these views, so `ddl-auto: validate` ignores them. They are created
+      with CREATE OR REPLACE so a redeploy is idempotent; note that CREATE OR REPLACE
+      cannot reorder or retype existing columns — a changed column list needs a DROP,
+      which is why each view sits in its own changeSet with a DROP rollback.
+    -->
+
+    <!--
+      Per work order: labour, part and additional cost, plus logged labour time.
+
+      Kept as its own view rather than inlined into rpt_work_order because the tidy
+      rpt_cost_line view needs the same three components in long form, and the numbers
+      must not drift apart.
+
+      hourly_rate and duration are both BIGINT, so `hourly_rate * duration / 3600` is
+      integer division — the same truncation Labor.getCost() does in Java. Deliberate:
+      see rule 2 above.
+
+      Note both `labor.include_to_total_time` and `additional_cost.include_to_total_cost`
+      are ignored, because the application's own aggregate ignores them. That is arguably
+      a defect upstream; it is documented rather than silently corrected here.
+    -->
+    <changeSet id="2026_08_04_00000000001-1" author="lars">
+        <sql splitStatements="false"><![CDATA[
+CREATE OR REPLACE VIEW rpt_work_order_cost AS
+SELECT wo.id                                          AS work_order_id,
+       wo.company_id,
+       COALESCE(labor_stats.labor_cost, 0)            AS labor_cost,
+       COALESCE(labor_stats.labor_seconds, 0)         AS labor_seconds,
+       ROUND(COALESCE(labor_stats.labor_seconds, 0) / 3600.0, 2) AS labor_hours,
+       COALESCE(part_stats.part_cost, 0)              AS part_cost,
+       COALESCE(add_stats.additional_cost, 0)         AS additional_cost,
+       COALESCE(part_stats.part_cost, 0)
+           + COALESCE(add_stats.additional_cost, 0)   AS total_cost_excl_labor,
+       COALESCE(labor_stats.labor_cost, 0)
+           + COALESCE(part_stats.part_cost, 0)
+           + COALESCE(add_stats.additional_cost, 0)   AS total_cost_incl_labor
+FROM work_order wo
+         LEFT JOIN (SELECT l.work_order_id,
+                           SUM(l.hourly_rate * l.duration / 3600) AS labor_cost,
+                           SUM(l.duration)                        AS labor_seconds
+                    FROM labor l
+                    GROUP BY l.work_order_id) labor_stats ON labor_stats.work_order_id = wo.id
+         LEFT JOIN (SELECT pq.work_order_id,
+                           SUM(p.cost * pq.quantity) AS part_cost
+                    FROM part_quantity pq
+                             JOIN part p ON pq.part_id = p.id
+                    GROUP BY pq.work_order_id) part_stats ON part_stats.work_order_id = wo.id
+         LEFT JOIN (SELECT ac.work_order_id,
+                           SUM(ac.cost) AS additional_cost
+                    FROM additional_cost ac
+                    GROUP BY ac.work_order_id) add_stats ON add_stats.work_order_id = wo.id;
+
+COMMENT ON VIEW rpt_work_order_cost IS
+    'Reporting: cost and logged-time components per work order. Mirrors WorkOrderRepository.findTotalWOCosts, including its integer truncation of labour cost.';
+]]></sql>
+        <rollback>
+            <sql>DROP VIEW IF EXISTS rpt_work_order_cost;</sql>
+        </rollback>
+    </changeSet>
+
+    <!--
+      Custom field values in long form, with the value additionally offered as a typed
+      column.
+
+      A true column pivot is impossible in a static view: custom fields are rows in
+      `custom_field`, so the column list differs per company and changes at runtime. The
+      two workable shapes are both provided — this long view for row-wise analysis, and a
+      `custom_fields` jsonb column on rpt_work_order / rpt_asset for the common
+      "show me one field next to the work order" case. docs/reporting.md carries the
+      crosstab snippet for generating a real pivot per company when that is needed.
+
+      The typed columns are guarded twice: by the declared field_type and by a regex on
+      the value. field_type alone is not enough — the value column is plain TEXT and
+      nothing stops an older row from holding free text after a field's type was changed.
+    -->
+    <changeSet id="2026_08_04_00000000001-2" author="lars">
+        <sql splitStatements="false"><![CDATA[
+CREATE OR REPLACE VIEW rpt_custom_field_value AS
+SELECT cfv.id,
+       cf.entity_type,
+       COALESCE(cfv.work_order_id, cfv.asset_id, cfv.location_id, cfv.part_id,
+                cfv.meter_id, cfv.customer_id, cfv.vendor_id,
+                cfv.preventive_maintenance_id, cfv.request_id)  AS entity_id,
+       cfv.work_order_id,
+       cfv.asset_id,
+       cfv.location_id,
+       cf.id                                                    AS custom_field_id,
+       cf.label,
+       cf.field_type,
+       cf.unit,
+       cs.company_id,
+       cfv.value                                                AS value_text,
+       CASE
+           WHEN cf.field_type = 'NUMBER' AND cfv.value ~ '^\s*-?[0-9]+([.,][0-9]+)?\s*$'
+               THEN REPLACE(TRIM(cfv.value), ',', '.')::numeric
+           END                                                  AS value_number,
+       CASE
+           WHEN cf.field_type IN ('DATE', 'DATE_TIME') AND cfv.value ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}'
+               THEN SUBSTRING(cfv.value, 1, 10)::date
+           END                                                  AS value_date,
+       cfv.created_at,
+       cfv.updated_at
+FROM custom_field_value cfv
+         JOIN custom_field cf ON cfv.custom_field_id = cf.id
+         LEFT JOIN company_settings cs ON cf.company_settings_id = cs.id;
+
+COMMENT ON VIEW rpt_custom_field_value IS
+    'Reporting: custom field values in long form with type-guarded numeric and date columns. company_id comes via custom_field -> company_settings.';
+]]></sql>
+        <rollback>
+            <sql>DROP VIEW IF EXISTS rpt_custom_field_value;</sql>
+        </rollback>
+    </changeSet>
+
+    <!--
+      One row per work order, report-ready: labelled enums, resolved names, the derived
+      figures the analytics controllers compute in Java, and the costs from
+      rpt_work_order_cost.
+
+      The derived columns mirror the Java semantics exactly:
+        real_created_at   WorkOrder.getRealCreatedAt()  — the request's creation date if
+                          the work order came from one, so lead time counts from when the
+                          requester asked, not from when someone accepted.
+        is_compliant      WorkOrder.isCompliant() — no due date counts as compliant. The
+                          Java version throws NPE when completed_on is null; the extra
+                          null guard here is the same verdict without the crash.
+        is_reactive       WorkOrder.isReactive() — not generated by a maintenance plan.
+        cycle_time_days   WorkOrder.getAverageAge() per row, truncated to whole days like
+                          TimeUnit.DAYS does.
+
+      assigned_to_emails is aggregated from the join table so the export and the BI tool
+      see the same string. work_order.assigned_to is many-to-many; do not turn this into a
+      plain join, it would multiply rows.
+    -->
+    <changeSet id="2026_08_04_00000000001-3" author="lars">
+        <sql splitStatements="false"><![CDATA[
+CREATE OR REPLACE VIEW rpt_work_order AS
+SELECT wo.id,
+       wo.company_id,
+       c.name                                                        AS company_name,
+       wo.custom_id,
+       wo.title,
+       wo.description,
+       CASE wo.status
+           WHEN 0 THEN 'OPEN'
+           WHEN 1 THEN 'IN_PROGRESS'
+           WHEN 2 THEN 'ON_HOLD'
+           WHEN 3 THEN 'COMPLETE'
+           END                                                       AS status,
+       CASE wo.priority
+           WHEN 0 THEN 'NONE'
+           WHEN 1 THEN 'LOW'
+           WHEN 2 THEN 'MEDIUM'
+           WHEN 3 THEN 'HIGH'
+           END                                                       AS priority,
+       wo.archived,
+       wo.is_demo,
+       wo.required_signature,
+       wo.feedback,
+       -- relations, resolved
+       wo.asset_id,
+       a.name                                                        AS asset_name,
+       a.custom_id                                                   AS asset_custom_id,
+       ac.name                                                       AS asset_category,
+       wo.location_id,
+       loc.name                                                      AS location_name,
+       wo.category_id,
+       cat.name                                                      AS category_name,
+       wo.team_id,
+       tm.name                                                       AS team_name,
+       wo.primary_user_id,
+       TRIM(COALESCE(pu.first_name, '') || ' ' || COALESCE(pu.last_name, ''))  AS primary_user_name,
+       pu.email                                                      AS primary_user_email,
+       wo.completed_by_id,
+       TRIM(COALESCE(cb.first_name, '') || ' ' || COALESCE(cb.last_name, ''))  AS completed_by_name,
+       cb.email                                                      AS completed_by_email,
+       assignees.emails                                              AS assigned_to_emails,
+       COALESCE(assignees.assignee_count, 0)                         AS assigned_to_count,
+       wo.parent_request_id,
+       wo.parent_preventive_maintenance_id,
+       -- dates
+       wo.created_at,
+       wo.updated_at,
+       COALESCE(pr.created_at, wo.created_at)                        AS real_created_at,
+       wo.due_date,
+       wo.estimated_start_date,
+       wo.completed_on,
+       wo.first_time_to_react,
+       -- derived
+       (wo.status = 3)                                               AS is_complete,
+       (wo.parent_preventive_maintenance_id IS NULL)                 AS is_reactive,
+       (wo.due_date IS NULL
+           OR (wo.completed_on IS NOT NULL AND wo.completed_on < wo.due_date))  AS is_compliant,
+       (wo.status <> 3 AND wo.due_date IS NOT NULL
+           AND wo.due_date < (now() AT TIME ZONE 'UTC'))             AS is_overdue,
+       wo.estimated_duration                                         AS estimated_hours,
+       ROUND(EXTRACT(EPOCH FROM (wo.first_time_to_react - wo.created_at)) / 3600.0, 2) AS reaction_hours,
+       FLOOR(EXTRACT(EPOCH FROM (wo.completed_on - COALESCE(pr.created_at, wo.created_at))) / 86400.0)::int AS cycle_time_days,
+       CASE
+           WHEN wo.status <> 3
+               THEN FLOOR(EXTRACT(EPOCH FROM ((now() AT TIME ZONE 'UTC') - COALESCE(pr.created_at, wo.created_at))) / 86400.0)::int
+           END                                                       AS open_age_days,
+       -- costs and time
+       cost.labor_cost,
+       cost.labor_hours,
+       cost.part_cost,
+       cost.additional_cost,
+       cost.total_cost_excl_labor,
+       cost.total_cost_incl_labor,
+       -- custom fields as label -> value. Not aliased `values` anywhere below: VALUES is a
+       -- fully reserved word in Postgres and cannot be a column label even after AS.
+       COALESCE(cfields.field_values, '{}'::jsonb)                   AS custom_fields
+FROM work_order wo
+         LEFT JOIN company c ON wo.company_id = c.id
+         LEFT JOIN asset a ON wo.asset_id = a.id
+         LEFT JOIN asset_category ac ON a.category_id = ac.id
+         LEFT JOIN location loc ON wo.location_id = loc.id
+         LEFT JOIN work_order_category cat ON wo.category_id = cat.id
+         LEFT JOIN team tm ON wo.team_id = tm.id
+         LEFT JOIN own_user pu ON wo.primary_user_id = pu.id
+         LEFT JOIN own_user cb ON wo.completed_by_id = cb.id
+         LEFT JOIN request pr ON wo.parent_request_id = pr.id
+         LEFT JOIN rpt_work_order_cost cost ON cost.work_order_id = wo.id
+         LEFT JOIN (SELECT wau.work_order_id,
+                           STRING_AGG(u.email, ', ' ORDER BY u.email) AS emails,
+                           COUNT(*)                                   AS assignee_count
+                    FROM work_order_assigned_to wau
+                             JOIN own_user u ON wau.assigned_to_id = u.id
+                    GROUP BY wau.work_order_id) assignees ON assignees.work_order_id = wo.id
+         LEFT JOIN (SELECT v.work_order_id,
+                           JSONB_OBJECT_AGG(v.label, v.value_text) AS field_values
+                    FROM rpt_custom_field_value v
+                    WHERE v.work_order_id IS NOT NULL
+                    GROUP BY v.work_order_id) cfields ON cfields.work_order_id = wo.id;
+
+COMMENT ON VIEW rpt_work_order IS
+    'Reporting: one row per work order with labelled enums, resolved relations, derived KPIs and costs. Filter on company_id.';
+]]></sql>
+        <rollback>
+            <sql>DROP VIEW IF EXISTS rpt_work_order;</sql>
+        </rollback>
+    </changeSet>
+
+    <!--
+      One row per asset, with the work-order history rolled up.
+
+      downtime_hours / downtime_events come from asset_downtime, which is the table the
+      reliability analytics read; keeping them here means MTBF-style questions can be
+      answered without touching the 42 analytics endpoints.
+
+      The work-order rollup counts every non-archived work order, not only completed ones,
+      so open_work_orders and total cost can be read from the same row.
+    -->
+    <changeSet id="2026_08_04_00000000001-4" author="lars">
+        <sql splitStatements="false"><![CDATA[
+CREATE OR REPLACE VIEW rpt_asset AS
+SELECT a.id,
+       a.company_id,
+       a.custom_id,
+       a.name,
+       a.description,
+       CASE a.status
+           WHEN 0 THEN 'OPERATIONAL'
+           WHEN 1 THEN 'DOWN'
+           WHEN 2 THEN 'MODERNIZATION'
+           WHEN 3 THEN 'STANDBY'
+           WHEN 4 THEN 'INSPECTION_SCHEDULED'
+           WHEN 5 THEN 'COMMISSIONING'
+           WHEN 6 THEN 'EMERGENCY_SHUTDOWN'
+           END                                                  AS status,
+       (a.status IN (1, 6))                                     AS is_down,
+       a.archived,
+       a.area,
+       a.model,
+       a.manufacturer,
+       a.power,
+       a.serial_number,
+       a.bar_code,
+       a.nfc_id,
+       a.acquisition_cost,
+       a.in_service_date,
+       a.warranty_expiration_date,
+       (a.warranty_expiration_date IS NOT NULL
+           AND a.warranty_expiration_date < (now() AT TIME ZONE 'UTC'))  AS warranty_expired,
+       CASE
+           WHEN a.in_service_date IS NOT NULL
+               THEN FLOOR(EXTRACT(EPOCH FROM ((now() AT TIME ZONE 'UTC') - a.in_service_date)) / 86400.0)::int
+           END                                                  AS service_age_days,
+       a.category_id,
+       cat.name                                                 AS category_name,
+       a.location_id,
+       loc.name                                                 AS location_name,
+       a.parent_asset_id,
+       parent.name                                              AS parent_asset_name,
+       a.primary_user_id,
+       TRIM(COALESCE(pu.first_name, '') || ' ' || COALESCE(pu.last_name, ''))  AS primary_user_name,
+       a.created_at,
+       a.updated_at,
+       -- work order rollup
+       COALESCE(wo_roll.work_orders, 0)                          AS work_orders,
+       COALESCE(wo_roll.open_work_orders, 0)                     AS open_work_orders,
+       COALESCE(wo_roll.overdue_work_orders, 0)                  AS overdue_work_orders,
+       COALESCE(wo_roll.reactive_work_orders, 0)                 AS reactive_work_orders,
+       wo_roll.last_completed_on,
+       COALESCE(wo_roll.labor_cost, 0)                           AS labor_cost,
+       COALESCE(wo_roll.part_cost, 0)                            AS part_cost,
+       COALESCE(wo_roll.additional_cost, 0)                      AS additional_cost,
+       COALESCE(wo_roll.total_cost_incl_labor, 0)                AS total_maintenance_cost,
+       COALESCE(wo_roll.labor_hours, 0)                          AS labor_hours,
+       -- downtime
+       COALESCE(dt.downtime_events, 0)                           AS downtime_events,
+       ROUND(COALESCE(dt.downtime_seconds, 0) / 3600.0, 2)       AS downtime_hours,
+       COALESCE(cfields.field_values, '{}'::jsonb)               AS custom_fields
+FROM asset a
+         LEFT JOIN asset_category cat ON a.category_id = cat.id
+         LEFT JOIN location loc ON a.location_id = loc.id
+         LEFT JOIN asset parent ON a.parent_asset_id = parent.id
+         LEFT JOIN own_user pu ON a.primary_user_id = pu.id
+         LEFT JOIN (SELECT w.asset_id,
+                           COUNT(*)                                              AS work_orders,
+                           COUNT(*) FILTER (WHERE NOT w.is_complete)              AS open_work_orders,
+                           COUNT(*) FILTER (WHERE w.is_overdue)                   AS overdue_work_orders,
+                           COUNT(*) FILTER (WHERE w.is_reactive)                  AS reactive_work_orders,
+                           MAX(w.completed_on)                                    AS last_completed_on,
+                           SUM(w.labor_cost)                                      AS labor_cost,
+                           SUM(w.part_cost)                                       AS part_cost,
+                           SUM(w.additional_cost)                                 AS additional_cost,
+                           SUM(w.total_cost_incl_labor)                           AS total_cost_incl_labor,
+                           SUM(w.labor_hours)                                     AS labor_hours
+                    FROM rpt_work_order w
+                    WHERE w.asset_id IS NOT NULL
+                      AND NOT w.archived
+                    GROUP BY w.asset_id) wo_roll ON wo_roll.asset_id = a.id
+         LEFT JOIN (SELECT d.asset_id,
+                           COUNT(*)        AS downtime_events,
+                           SUM(d.duration) AS downtime_seconds
+                    FROM asset_downtime d
+                    GROUP BY d.asset_id) dt ON dt.asset_id = a.id
+         LEFT JOIN (SELECT v.asset_id,
+                           JSONB_OBJECT_AGG(v.label, v.value_text) AS field_values
+                    FROM rpt_custom_field_value v
+                    WHERE v.asset_id IS NOT NULL
+                    GROUP BY v.asset_id) cfields ON cfields.asset_id = a.id;
+
+COMMENT ON VIEW rpt_asset IS
+    'Reporting: one row per asset with work-order and downtime rollups. Filter on company_id.';
+]]></sql>
+        <rollback>
+            <sql>DROP VIEW IF EXISTS rpt_asset;</sql>
+        </rollback>
+    </changeSet>
+
+    <!--
+      Costs in tidy form: one row per cost line, with cost_type telling labour, part and
+      additional apart, and the work-order context denormalised onto it.
+
+      This is the shape a pivot or a "cost by category over time" question wants, and it
+      is the one shape the 42 analytics endpoints cannot produce at all — they return
+      pre-summed totals. Labour rows carry the logged duration so time and money can be
+      read from the same table.
+
+      cost_date is what the line itself is dated by where it has a date of its own
+      (additional costs do, labour has its start), and falls back to the work order's
+      creation date so no row is dateless.
+    -->
+    <changeSet id="2026_08_04_00000000001-5" author="lars">
+        <sql splitStatements="false"><![CDATA[
+CREATE OR REPLACE VIEW rpt_cost_line AS
+SELECT 'LABOR'                                  AS cost_type,
+       l.id                                     AS line_id,
+       l.work_order_id,
+       wo.company_id,
+       wo.title                                 AS work_order_title,
+       wo.status                                 AS work_order_status,
+       wo.asset_id,
+       wo.asset_name,
+       wo.location_id,
+       wo.location_name,
+       wo.category_name                          AS work_order_category,
+       tc.name                                   AS cost_category,
+       COALESCE(l.started_at, wo.created_at)     AS cost_date,
+       (l.hourly_rate * l.duration / 3600)       AS amount,
+       ROUND(l.duration / 3600.0, 2)             AS hours,
+       TRIM(COALESCE(u.first_name, '') || ' ' || COALESCE(u.last_name, '')) AS assigned_to_name,
+       NULL::varchar                             AS part_name,
+       NULL::double precision                    AS quantity
+FROM labor l
+         JOIN rpt_work_order wo ON l.work_order_id = wo.id
+         LEFT JOIN time_category tc ON l.time_category_id = tc.id
+         LEFT JOIN own_user u ON l.assigned_to_id = u.id
+
+UNION ALL
+
+SELECT 'PART'                                    AS cost_type,
+       pq.id                                     AS line_id,
+       pq.work_order_id,
+       wo.company_id,
+       wo.title                                  AS work_order_title,
+       wo.status                                 AS work_order_status,
+       wo.asset_id,
+       wo.asset_name,
+       wo.location_id,
+       wo.location_name,
+       wo.category_name                          AS work_order_category,
+       pcat.name                                 AS cost_category,
+       wo.created_at                             AS cost_date,
+       (p.cost * pq.quantity)                    AS amount,
+       NULL::numeric                             AS hours,
+       NULL::text                                AS assigned_to_name,
+       p.name                                    AS part_name,
+       pq.quantity                               AS quantity
+FROM part_quantity pq
+         JOIN rpt_work_order wo ON pq.work_order_id = wo.id
+         JOIN part p ON pq.part_id = p.id
+         LEFT JOIN part_category pcat ON p.category_id = pcat.id
+
+UNION ALL
+
+SELECT 'ADDITIONAL'                              AS cost_type,
+       ac.id                                     AS line_id,
+       ac.work_order_id,
+       wo.company_id,
+       wo.title                                  AS work_order_title,
+       wo.status                                 AS work_order_status,
+       wo.asset_id,
+       wo.asset_name,
+       wo.location_id,
+       wo.location_name,
+       wo.category_name                          AS work_order_category,
+       cc.name                                   AS cost_category,
+       COALESCE(ac.date, wo.created_at)          AS cost_date,
+       ac.cost                                   AS amount,
+       NULL::numeric                             AS hours,
+       NULL::text                                AS assigned_to_name,
+       NULL::varchar                             AS part_name,
+       NULL::double precision                    AS quantity
+FROM additional_cost ac
+         JOIN rpt_work_order wo ON ac.work_order_id = wo.id
+         LEFT JOIN cost_category cc ON ac.category_id = cc.id;
+
+COMMENT ON VIEW rpt_cost_line IS
+    'Reporting: one row per cost line (LABOR, PART, ADDITIONAL) with work-order context. Tidy shape for pivots and time series.';
+]]></sql>
+        <rollback>
+            <sql>DROP VIEW IF EXISTS rpt_cost_line;</sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
