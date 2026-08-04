@@ -1,17 +1,12 @@
-FROM node:22-alpine AS build
+FROM node:22 AS build
 
 WORKDIR /usr/src/app
-
-# Native module build deps (python3, make, g++) needed for bufferutil/node-gyp
-RUN apk add --no-cache python3 make g++
 
 COPY package*.json ./
 
 RUN npm config set fetch-retry-maxtimeout 6000000 \
     && npm config set fetch-retry-mintimeout 1000000 \
-    && npm ci --legacy-peer-deps \
-    && apk del python3 make g++
-
+    && npm ci --legacy-peer-deps
 COPY . .
 
 RUN NODE_OPTIONS="--max_old_space_size=4096" npm run build
