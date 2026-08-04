@@ -98,8 +98,14 @@ import { getPreventiveMaintenanceUrl } from 'src/utils/urlPaths';
 import { getErrorMessage } from '../../../utils/api';
 import SplitButton from '../components/SplitButton';
 import useTableState from '../../../hooks/useTableState';
+import SavedViews from '../components/SavedViews';
+import { SavedView } from '../../../models/owns/savedView';
 import { assetStatuses } from '../../../models/owns/asset';
-import { ExportEntityType, useExport } from '../../../hooks/useExport';
+import {
+  ExportEntityType,
+  NON_EXPORTABLE_COLUMNS,
+  useExport
+} from '../../../hooks/useExport';
 import { getCustomFields } from '../../../slices/customField';
 import { CustomFieldEntityType } from '../../../models/owns/customField';
 import { randomInt } from '../../../utils/generators';
@@ -284,7 +290,9 @@ function WorkOrders() {
     columnVisibility,
     setColumnVisibility,
     pinnedColumns,
-    setPinnedColumns
+    setPinnedColumns,
+    getLayout,
+    applyLayout
   } = useTableState({
     prefix: 'workOrder',
     initialSorting: [{ id: 'updatedAt', desc: true }],
@@ -374,6 +382,37 @@ function WorkOrders() {
     newCriteria.filterFields = newFilters;
     setCriteria(newCriteria);
     saveFilterFields(FILTERS_STORAGE_KEY, newFilters, QUERY_SEARCH_FIELDS);
+  };
+
+  /**
+   * Applying a saved view replaces the filters and restores the table layout. It goes through
+   * onFilterChange so the view's filters also become the localStorage default — otherwise a
+   * reload would silently drop back to whatever was filtered before.
+   *
+   * Sorting and paging are left to the layout: useTableState pushes them into the criteria
+   * itself, and setting them here as well would fire two searches for one click.
+   */
+  const handleApplySavedView = (view: SavedView) => {
+    if (view.columnLayout) applyLayout(view.columnLayout);
+    onFilterChange(view.criteria?.filterFields ?? DEFAULT_FILTER_FIELDS);
+  };
+
+  /**
+   * The columns the user currently sees, in the order they arranged them, as export column
+   * keys. Column ids double as export keys, so every data column here has a counterpart in the
+   * backend's registry — the backend rejects an unknown key rather than dropping it, which is
+   * what keeps the two lists honest. Only presentation-only columns are filtered out.
+   */
+  const getVisibleExportColumns = (): string[] => {
+    const ordered = columnOrder.length
+      ? columnOrder
+      : columns.map((column) => column.id as string);
+    return ordered.filter(
+      (id) =>
+        id &&
+        !NON_EXPORTABLE_COLUMNS.has(id) &&
+        columnVisibility[id] !== false
+    );
   };
   useEffect(() => {
     if (workOrderId && isNumeric(workOrderId)) {
@@ -984,6 +1023,31 @@ function WorkOrders() {
         'aria-labelledby': 'basic-button'
       }}
     >
+      {/*
+        The filtered export needs no view-other permission: the backend narrows the criteria to
+        what this user may see, so it can never return more than the list already shows. The
+        entries below dump the whole company and therefore stay gated.
+      */}
+      <MenuItem
+        disabled={loadingExport['work-orders']}
+        onClick={async () => {
+          try {
+            await exportEntity('work-orders', {
+              criteria,
+              columns: getVisibleExportColumns()
+            });
+          } catch (error) {
+            showSnackBar(t('Export failed'), 'error');
+          }
+          handleCloseMenu();
+        }}
+      >
+        <Stack spacing={2} direction="row">
+          {loadingExport['work-orders'] && <CircularProgress size="1rem" />}
+          <Typography>{t('export_filtered')}</Typography>
+        </Stack>
+      </MenuItem>
+      {hasViewOtherPermission(PermissionEntity.WORK_ORDERS) && <Divider />}
       {hasViewOtherPermission(PermissionEntity.WORK_ORDERS) &&
         exportMenuItems.map((item) => (
           <MenuItem
@@ -1107,6 +1171,12 @@ function WorkOrders() {
                     : 'contained'
                 }
                 startIcon={<FilterAltTwoToneIcon />}
+              />
+              <SavedViews
+                entityType="WORK_ORDER"
+                criteria={criteria}
+                getLayout={getLayout}
+                onApply={handleApplySavedView}
               />
               <EnumFilter
                 filterFields={criteria.filterFields}

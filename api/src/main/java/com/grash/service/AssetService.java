@@ -1,6 +1,7 @@
 package com.grash.service;
 
 import com.grash.advancedsearch.SearchCriteria;
+import com.grash.advancedsearch.SearchCriteriaUtils;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.AssetPatchDTO;
 import com.grash.dto.AssetPostDTO;
@@ -14,6 +15,8 @@ import com.grash.model.*;
 import com.grash.model.enums.AssetStatus;
 import com.grash.model.enums.CustomFieldEntityType;
 import com.grash.model.enums.NotificationType;
+import com.grash.model.enums.PermissionEntity;
+import com.grash.model.enums.RoleType;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.AssetRepository;
 import com.grash.service.CustomFieldValueService;
@@ -314,6 +317,41 @@ public class AssetService {
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(),
                 searchCriteria.getDirection(), searchCriteria.getSortField());
         return assetRepository.findAll(builder.build(), page).map(asset -> assetMapper.toShowDto(asset, this));
+    }
+
+    /**
+     * Narrows incoming criteria to what the user is allowed to see, and rejects the request if
+     * they may not see assets at all.
+     * <p>
+     * This used to live inline in {@code AssetController.search}. It moved here when the
+     * filtered export appeared, because an access rule that exists in two places is one that
+     * will be changed in one place — and the export is exactly the path where being too
+     * permissive is least visible.
+     */
+    public SearchCriteria getSearchCriteria(User user, SearchCriteria searchCriteria) {
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS)) {
+                searchCriteria.filterCompany(user);
+                boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.ASSETS);
+                if (!canViewOthers) {
+                    searchCriteria.filterCreatedBy(user);
+                }
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+        }
+        return searchCriteria;
+    }
+
+    /**
+     * One page of a filtered export. See
+     * {@link WorkOrderService#findForExport(SearchCriteria, int, int)} for why the sort carries
+     * an id tiebreaker and why the page size is the caller's. Returns entities rather than
+     * {@code AssetShowDTO} because the CSV columns read the entity graph directly.
+     */
+    public Page<Asset> findForExport(SearchCriteria searchCriteria, int pageNum, int pageSize) {
+        SpecificationBuilder<Asset> builder = new SpecificationBuilder<>();
+        searchCriteria.getFilterFields().forEach(builder::with);
+        return assetRepository.findAll(builder.build(),
+                PageRequest.of(pageNum, pageSize, SearchCriteriaUtils.stableSort(searchCriteria)));
     }
 
     public List<Asset> findByNameIgnoreCaseAndCompany(String assetName, Long companyId) {

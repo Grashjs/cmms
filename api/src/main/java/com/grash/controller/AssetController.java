@@ -62,16 +62,9 @@ public class AssetController {
     public ResponseEntity<Page<AssetShowDTO>> search(@Parameter(description = "Search criteria for filtering assets") @RequestBody SearchCriteria searchCriteria,
                                                      HttpServletRequest req) {
         User user = userService.whoami(req);
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS)) {
-                searchCriteria.filterCompany(user);
-                boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.ASSETS);
-                if (!canViewOthers) {
-                    searchCriteria.filterCreatedBy(user);
-                }
-            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
-        }
-        return ResponseEntity.ok(assetService.findBySearchCriteria(searchCriteria));
+        // Scoping moved to AssetService so the filtered export applies the identical rule.
+        return ResponseEntity.ok(assetService.findBySearchCriteria(
+                assetService.getSearchCriteria(user, searchCriteria)));
     }
 
     @GetMapping("/nfc")

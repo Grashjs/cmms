@@ -2070,7 +2070,20 @@ const deJSON = {
   trigger_work_order: 'Arbeitsauftrag auslösen',
   edit_reading: 'Lesung bearbeiten',
   are_you_sure_delete_reading: 'Sind Sie sicher, dass Sie diese Lesung löschen möchten?',
-  no_custom_fields_found: 'Keine benutzerdefinierten Felder gefunden'
+  no_custom_fields_found: 'Keine benutzerdefinierten Felder gefunden',
+  saved_views: 'Ansichten',
+  no_saved_views: 'Noch keine gespeicherten Ansichten',
+  save_current_view: 'Aktuelle Ansicht speichern',
+  saved_view_overwrite: 'Mit aktueller Ansicht überschreiben',
+  saved_view_share_with_company: 'Für alle im Unternehmen freigeben',
+  saved_view_shared: 'Freigegebene Ansicht',
+  saved_view_saved: 'Ansicht gespeichert',
+  saved_view_updated: 'Ansicht aktualisiert',
+  saved_view_deleted: 'Ansicht gelöscht',
+  saved_view_save_failed: 'Ansicht konnte nicht gespeichert werden',
+  saved_view_delete_failed: 'Ansicht konnte nicht gelöscht werden',
+  export_filtered: 'Gefilterte Liste exportieren',
+  export_filtered_columns: 'Nur sichtbare Spalten exportieren'
 };
 
 export default deJSON;

@@ -2,6 +2,7 @@ package com.grash.service;
 
 import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
+import com.grash.advancedsearch.SearchCriteriaUtils;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.*;
 import com.grash.dto.comment.CommentCriteria;
@@ -365,6 +366,32 @@ public class WorkOrderService {
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(),
                 searchCriteria.getDirection(), searchCriteria.getSortField());
         return workOrderRepository.findAll(builder.build(), page);
+    }
+
+    /**
+     * One page of a filtered export: the criteria's filters, but paging this method's caller
+     * controls and a sort order that is safe to page through.
+     * <p>
+     * Two differences from {@link #findBySearchCriteria} matter, and both are the reason this
+     * is a separate method rather than a flag:
+     * <ul>
+     *   <li>The id is appended as a tiebreaker. Paging over a non-unique sort column — and
+     *       every column a user sorts a list by is non-unique — lets rows shift between pages,
+     *       so an export can repeat one row and lose another. The user's chosen order is still
+     *       the primary sort, so the file matches what is on screen.</li>
+     *   <li>The page size comes from the caller, not from the criteria, because a saved view's
+     *       page size (10) is a display choice and would make an export of 5000 rows 500
+     *       round trips.</li>
+     * </ul>
+     * The caller is responsible for having passed the criteria through
+     * {@link #getSearchCriteria(User, SearchCriteria)} first — this method applies no scoping
+     * of its own.
+     */
+    public Page<WorkOrder> findForExport(SearchCriteria searchCriteria, int pageNum, int pageSize) {
+        SpecificationBuilder<WorkOrder> builder = new SpecificationBuilder<>();
+        searchCriteria.getFilterFields().forEach(builder::with);
+        return workOrderRepository.findAll(builder.build(),
+                PageRequest.of(pageNum, pageSize, SearchCriteriaUtils.stableSort(searchCriteria)));
     }
 
     public WorkOrder save(WorkOrder workOrder) {

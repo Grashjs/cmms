@@ -5,6 +5,8 @@ import com.grash.service.AdditionalCostService;
 import com.grash.service.AssetDowntimeService;
 import com.grash.service.LaborService;
 import com.grash.service.UserService;
+import com.grash.utils.csv.CsvColumn;
+import com.grash.utils.csv.CsvColumnRegistries;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -28,108 +30,57 @@ public class CsvFileGenerator {
     private final AdditionalCostService additionalCostService;
     private final LaborService laborService;
     private final UserService userService;
+    private final CsvColumnRegistries csvColumnRegistries;
 
-    public void writeWorkOrdersToCsv(Collection<WorkOrder> workOrders, Writer writer, Locale locale,
-                                     String csvSeparator, boolean includeHeaders) {
+    /**
+     * Writes any selection of columns for any entity. The per-entity {@code writeXToCsv}
+     * methods below are the unchanged, hand-written writers for the five entities that have
+     * no column registry yet; work orders and assets go through here instead — see
+     * {@link com.grash.utils.csv.CsvColumnRegistries}.
+     * <p>
+     * Called once per page of a streamed export, hence {@code includeHeaders}: the header row
+     * belongs to the first page only.
+     */
+    public <T> void writeToCsv(Collection<T> rows, List<CsvColumn<T>> columns, Writer writer,
+                               String csvSeparator, boolean includeHeaders) {
         try {
             CSVFormat csvFormat = CSVFormat.DEFAULT.withDelimiter(csvSeparator.charAt(0));
             CSVPrinter printer = new CSVPrinter(writer, csvFormat);
             if (includeHeaders) {
-                List<String> headers = Arrays.asList("ID", "Title", "Status", "Priority", "Description", "Due_Date",
-                        "Estimated_Duration", "Requires_Signature", "Category", "Location_Name", "Team_Name",
-                        "Primary_User_Email", "Assigned_To_Emails", "Asset_Name", "Completed_By_Email", "Completed_On",
-                        "Archived", "Feedback", "Customers", "Created_At");
-                printer.printRecord(headers.stream().map(header -> messageSource.getMessage(header, null, locale)).collect(Collectors.toList()));
+                printer.printRecord(columns.stream().map(CsvColumn::header).collect(Collectors.toList()));
             }
-            for (WorkOrder workOrder : workOrders) {
-                printer.printRecord(workOrder.getId(),
-                        workOrder.getTitle(),
-                        workOrder.getStatus() == null ? null :
-                                messageSource.getMessage(workOrder.getStatus().toString(), null, locale),
-                        workOrder.getPriority() == null ? null :
-                                messageSource.getMessage(workOrder.getPriority().toString(), null, locale),
-                        workOrder.getDescription(),
-                        workOrder.getDueDate(),
-                        workOrder.getEstimatedDuration(),
-                        Helper.getStringFromBoolean(workOrder.isRequiredSignature(), messageSource, locale),
-                        workOrder.getCategory() == null ? null : workOrder.getCategory().getName(),
-                        workOrder.getLocation() == null ? null : workOrder.getLocation().getName(),
-                        workOrder.getTeam() == null ? null : workOrder.getTeam().getName(),
-                        workOrder.getPrimaryUser() == null ? null : workOrder.getPrimaryUser().getEmail(),
-                        Helper.enumerate(workOrder.getAssignedTo().stream().map(User::getEmail).collect(Collectors.toList())),
-                        workOrder.getAsset() == null ? null : workOrder.getAsset().getName(),
-                        workOrder.getCompletedBy() == null ? null : workOrder.getCompletedBy().getEmail(),
-                        workOrder.getCompletedOn(),
-                        Helper.getStringFromBoolean(workOrder.isArchived(), messageSource, locale),
-                        workOrder.getFeedback(),
-                        Helper.enumerate(workOrder.getCustomers().stream().map(Customer::getName).collect(Collectors.toList())),
-                        workOrder.getCreatedAt()
-                );
+            for (T row : rows) {
+                printer.printRecord(columns.stream()
+                        .map(column -> column.extractor().apply(row))
+                        .collect(Collectors.toList()));
             }
             printer.flush();
         } catch (IOException e) {
+            // Same handling as the writers below: the export job logs and reports through the
+            // websocket, so a throw here would only replace one error path with two.
             e.printStackTrace();
         }
     }
 
+    /**
+     * The unfiltered work-order export. Column list and values now come from the registry so
+     * that this file and the filtered export cannot drift apart; the output is unchanged —
+     * the registry's default set is this method's former header list in its former order.
+     */
+    public void writeWorkOrdersToCsv(Collection<WorkOrder> workOrders, Writer writer, Locale locale,
+                                     String csvSeparator, boolean includeHeaders) {
+        writeToCsv(workOrders, csvColumnRegistries.workOrders(locale).all(), writer, csvSeparator, includeHeaders);
+    }
+
+    /**
+     * The unfiltered asset export. See {@link #writeWorkOrdersToCsv} — same reasoning, same
+     * columns in the same order. One difference in the values: the status column now tolerates
+     * a null status instead of throwing, matching how every other enum column in the registry
+     * behaves. The field has a default, so no existing row is affected.
+     */
     public void writeAssetsToCsv(Collection<Asset> assets, Writer writer, Locale locale, String csvSeparator,
                                  boolean includeHeaders) {
-        try {
-            CSVFormat csvFormat = CSVFormat.DEFAULT.withDelimiter(csvSeparator.charAt(0));
-            CSVPrinter printer = new CSVPrinter(writer, csvFormat);
-            if (includeHeaders) {
-                List<String> headers = Arrays.asList("ID", "Name",
-                        "Description",
-                        "Status",
-                        "Archived",
-                        "Location_Name",
-                        "Parent_Asset",
-                        "Area",
-                        "Barcode",
-                        "Category",
-                        "Primary_User_Email",
-                        "Warranty_Expiration_Date",
-                        "Additional_Information",
-                        "Serial_Number",
-                        "Assigned_To_Emails",
-                        "Teams_Names",
-                        "Parts",
-                        "Vendors",
-                        "Customers",
-                        "Downtime_Duration");
-                printer.printRecord(headers.stream().map(header -> messageSource.getMessage(header, null, locale)).collect(Collectors.toList()));
-            }
-            for (Asset asset : assets) {
-                Collection<AssetDowntime> downtimes = assetDowntimeService.findByAsset(asset.getId());
-                long downTimeDuration = downtimes.stream().map(AssetDowntime::getDuration)
-                        .reduce(0L, Long::sum);
-
-                printer.printRecord(asset.getId(),
-                        asset.getName(),
-                        asset.getDescription(),
-                        messageSource.getMessage(asset.getStatus().toString(), null, locale),
-                        Helper.getStringFromBoolean(asset.isArchived(), messageSource, locale),
-                        asset.getLocation() == null ? null : asset.getLocation().getName(),
-                        asset.getParentAsset() == null ? null : asset.getParentAsset().getName(),
-                        asset.getArea(),
-                        asset.getBarCode(),
-                        asset.getCategory() == null ? null : asset.getCategory().getName(),
-                        asset.getPrimaryUser() == null ? null : asset.getPrimaryUser().getEmail(),
-                        asset.getWarrantyExpirationDate(),
-                        asset.getAdditionalInfos(),
-                        asset.getSerialNumber(),
-                        Helper.enumerate(asset.getAssignedTo().stream().map(User::getEmail).collect(Collectors.toList())),
-                        Helper.enumerate(asset.getTeams().stream().map(Team::getName).collect(Collectors.toList())),
-                        Helper.enumerate(asset.getParts().stream().map(Part::getName).collect(Collectors.toList())),
-                        Helper.enumerate(asset.getVendors().stream().map(Vendor::getName).collect(Collectors.toList())),
-                        Helper.enumerate(asset.getCustomers().stream().map(Customer::getName).collect(Collectors.toList())),
-                        downTimeDuration
-                );
-            }
-            printer.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        writeToCsv(assets, csvColumnRegistries.assets(locale).all(), writer, csvSeparator, includeHeaders);
     }
 
     public void writeLocationsToCsv(Collection<Location> locations, Writer writer, Locale locale, String csvSeparator

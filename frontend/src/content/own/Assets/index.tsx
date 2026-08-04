@@ -54,7 +54,10 @@ import { PermissionEntity } from '../../../models/owns/role';
 import PermissionErrorMessage from '../components/PermissionErrorMessage';
 import { isNumeric } from '../../../utils/validators';
 import { getSingleLocation } from '../../../slices/location';
-import { useExport } from '../../../hooks/useExport';
+import {
+  NON_EXPORTABLE_COLUMNS,
+  useExport
+} from '../../../hooks/useExport';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
 import {
   FilterField,
@@ -79,6 +82,8 @@ import {
   Updater
 } from '@tanstack/react-table';
 import useTableState from '../../../hooks/useTableState';
+import SavedViews from '../components/SavedViews';
+import { SavedView } from '../../../models/owns/savedView';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { getCustomFields } from '../../../slices/customField';
@@ -328,6 +333,29 @@ function Assets() {
         'aria-labelledby': 'basic-button'
       }}
     >
+      {/*
+        The filtered export is scoped by the backend to what this user may see, so unlike the
+        full dump below it needs no view-other permission.
+      */}
+      <MenuItem
+        disabled={loadingExport['assets']}
+        onClick={async () => {
+          try {
+            await exportEntity('assets', {
+              criteria,
+              columns: getVisibleExportColumns()
+            });
+          } catch (error) {
+            showSnackBar(t('Export failed'), 'error');
+          }
+          handleCloseMenu();
+        }}
+      >
+        <Stack spacing={2} direction="row">
+          {loadingExport['assets'] && <CircularProgress size="1rem" />}
+          <Typography>{t('export_filtered')}</Typography>
+        </Stack>
+      </MenuItem>
       {hasViewOtherPermission(PermissionEntity.ASSETS) && (
         <MenuItem
           disabled={loadingExport['assets']}
@@ -965,6 +993,28 @@ function Assets() {
     initialPagination: { pageIndex: 0, pageSize: criteria.pageSize }
   });
 
+  /** Applies a saved view: its filters replace the current ones, its layout the current one. */
+  const handleApplySavedView = (view: SavedView) => {
+    if (view.columnLayout) tableState.applyLayout(view.columnLayout);
+    onFilterChange(view.criteria?.filterFields ?? []);
+  };
+
+  /**
+   * Visible columns in their arranged order, as backend export keys. Presentation-only columns
+   * are removed; every remaining id has a counterpart in the backend column registry.
+   */
+  const getVisibleExportColumns = (): string[] => {
+    const ordered = tableState.columnOrder.length
+      ? tableState.columnOrder
+      : columns.map((column) => column.id as string);
+    return ordered.filter(
+      (id) =>
+        id &&
+        !NON_EXPORTABLE_COLUMNS.has(id) &&
+        tableState.columnVisibility[id] !== false
+    );
+  };
+
   // Prepare data for the table based on view type
   const tableData: (AssetRow | AssetDTO)[] =
     view === 'hierarchy'
@@ -1031,6 +1081,12 @@ function Assets() {
           >
             <SearchInput onChange={debouncedQueryChange} />
             <Stack direction="row" spacing={1}>
+              <SavedViews
+                entityType="ASSET"
+                criteria={criteria}
+                getLayout={tableState.getLayout}
+                onApply={handleApplySavedView}
+              />
               <IconButton onClick={() => handleReset(true)} color="primary">
                 <ReplayTwoToneIcon />
               </IconButton>

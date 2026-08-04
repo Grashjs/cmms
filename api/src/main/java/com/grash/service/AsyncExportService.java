@@ -1,11 +1,14 @@
 package com.grash.service;
 
+import com.grash.advancedsearch.SearchCriteria;
 import com.grash.factory.StorageServiceFactory;
 import com.grash.model.*;
 import com.grash.model.User;
 import com.grash.utils.CsvFileGenerator;
 import com.grash.utils.Helper;
 import com.grash.utils.MultipartFileImpl;
+import com.grash.utils.csv.CsvColumn;
+import com.grash.utils.csv.CsvColumnRegistries;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Locale;
 
 @Service
@@ -34,9 +38,90 @@ public class AsyncExportService {
     private final MeterService meterService;
     private final PreventiveMaintenanceService preventiveMaintenanceService;
     private final CsvFileGenerator csvFileGenerator;
+    private final CsvColumnRegistries csvColumnRegistries;
     private final StorageServiceFactory storageServiceFactory;
     private final SimpMessageSendingOperations messagingTemplate;
     private final EntityManager entityManager;
+
+    /**
+     * Exports the work orders a filter selects, with the columns the caller asked for.
+     * <p>
+     * The mechanics are the same as {@link #exportWorkOrders}: read a page, append it, clear
+     * the persistence context so a large export does not grow the heap by every entity it has
+     * touched, upload the finished file and hand the signed URL to the websocket topic the
+     * client is already listening on. What differs is only where the rows come from and which
+     * columns are written.
+     * <p>
+     * A page size of 100 regardless of the criteria's own: see
+     * {@link WorkOrderService#findForExport}.
+     * <p>
+     * Known limitation, inherited: a filter using the many-to-many {@code inm} operator can
+     * return the same row once per matching association, and those duplicates reach the file.
+     * The join behind it is documented in {@code WrapperSpecification} and fixing it is a
+     * change to shared search behaviour, not to the export.
+     */
+    @Async
+    public void exportWorkOrdersFiltered(User user, String uuid, SearchCriteria criteria, List<String> columns) {
+        try {
+            ByteArrayOutputStream target = new ByteArrayOutputStream();
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
+            String csvSeparator = user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator();
+            Locale locale = Helper.getLocale(user);
+            List<CsvColumn<WorkOrder>> selected = csvColumnRegistries.workOrders(locale).resolve(columns);
+            SearchCriteria scoped = workOrderService.getSearchCriteria(user, criteria);
+            int page = 0;
+            Page<WorkOrder> result;
+            do {
+                result = workOrderService.findForExport(scoped, page, 100);
+                csvFileGenerator.writeToCsv(result.getContent(), selected, outputStreamWriter, csvSeparator, page == 0);
+                entityManager.clear();
+                page++;
+            }
+            while (result.hasNext());
+            outputStreamWriter.close();
+            MultipartFile file = new MultipartFileImpl(target.toByteArray(), "Work Orders.csv");
+            String filePath = storageServiceFactory.getStorageService().uploadAndSign(file,
+                    user.getCompany().getId() + "/exports/" + uuid + "/work-orders");
+            messagingTemplate.convertAndSend("/exports/" + uuid, filePath);
+            log.info("Filtered export completed for work-orders, uuid: {}", uuid);
+        } catch (Exception e) {
+            log.error("Filtered export failed for work-orders, uuid: {}", uuid, e);
+            messagingTemplate.convertAndSend("/exports/" + uuid, "error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Exports the assets a filter selects. See {@link #exportWorkOrdersFiltered}.
+     */
+    @Async
+    public void exportAssetsFiltered(User user, String uuid, SearchCriteria criteria, List<String> columns) {
+        try {
+            ByteArrayOutputStream target = new ByteArrayOutputStream();
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
+            String csvSeparator = user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator();
+            Locale locale = Helper.getLocale(user);
+            List<CsvColumn<Asset>> selected = csvColumnRegistries.assets(locale).resolve(columns);
+            SearchCriteria scoped = assetService.getSearchCriteria(user, criteria);
+            int page = 0;
+            Page<Asset> result;
+            do {
+                result = assetService.findForExport(scoped, page, 100);
+                csvFileGenerator.writeToCsv(result.getContent(), selected, outputStreamWriter, csvSeparator, page == 0);
+                entityManager.clear();
+                page++;
+            }
+            while (result.hasNext());
+            outputStreamWriter.close();
+            MultipartFile file = new MultipartFileImpl(target.toByteArray(), "Assets.csv");
+            String filePath = storageServiceFactory.getStorageService().uploadAndSign(file,
+                    user.getCompany().getId() + "/exports/" + uuid + "/assets");
+            messagingTemplate.convertAndSend("/exports/" + uuid, filePath);
+            log.info("Filtered export completed for assets, uuid: {}", uuid);
+        } catch (Exception e) {
+            log.error("Filtered export failed for assets, uuid: {}", uuid, e);
+            messagingTemplate.convertAndSend("/exports/" + uuid, "error: " + e.getMessage());
+        }
+    }
 
     @Async
     public void exportWorkOrders(User user, String uuid) {

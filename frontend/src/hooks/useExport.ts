@@ -3,11 +3,37 @@ import { Stomp } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { apiUrl } from 'src/config';
 import api from 'src/utils/api';
+import { SearchCriteria } from 'src/models/owns/page';
+
+/**
+ * Passing this turns the export into a filtered one: it POSTs the criteria and the column
+ * selection instead of GETting the whole entity. Only work orders and assets accept it; the
+ * other entities have no column registry on the backend yet.
+ */
+export interface ExportOptions {
+  criteria?: SearchCriteria;
+  /** Column keys in output order. Omit for the entity's default column set. */
+  columns?: string[];
+}
 
 interface UseExportReturn {
-  exportEntity: (entity: ExportEntityType) => Promise<void>;
+  exportEntity: (
+    entity: ExportEntityType,
+    options?: ExportOptions
+  ) => Promise<void>;
   loadingExport: Record<ExportEntityType, boolean>;
 }
+
+/**
+ * Table columns that render controls or images rather than data. When a page builds an export
+ * column selection from its visible columns, these are the ones to leave out — everything else
+ * must have a counterpart in the backend's column registry, which rejects unknown keys.
+ */
+export const NON_EXPORTABLE_COLUMNS = new Set([
+  'actions',
+  'expander',
+  'image'
+]);
 
 export type ExportEntityType =
   | 'work-orders'
@@ -54,7 +80,10 @@ export const useExport = (): UseExportReturn => {
   }, []);
 
   const exportEntity = useCallback(
-    async (entity: ExportEntityType): Promise<void> => {
+    async (
+      entity: ExportEntityType,
+      options?: ExportOptions
+    ): Promise<void> => {
       return new Promise((resolve, reject) => {
         // Check if stompClient is initialized
         if (!stompClient) {
@@ -91,17 +120,22 @@ export const useExport = (): UseExportReturn => {
           return;
         }
 
-        // Make request with UUID
+        // Make request with UUID. The response only acknowledges the job; the finished file
+        // arrives on the websocket topic subscribed to above, for both variants.
         setLoadingExport((prev) => ({ ...prev, [entity]: true }));
-        api
-          .get<{ success: boolean; message: string }>(
-            `export/${entity}?uuid=${uuid}`
-          )
-          .catch((error) => {
-            subscription.unsubscribe();
-            setLoadingExport((prev) => ({ ...prev, [entity]: false }));
-            reject(error);
-          });
+        const request = options
+          ? api.post<{ success: boolean; message: string }>(
+              `export/${entity}?uuid=${uuid}`,
+              { criteria: options.criteria ?? null, columns: options.columns ?? null }
+            )
+          : api.get<{ success: boolean; message: string }>(
+              `export/${entity}?uuid=${uuid}`
+            );
+        request.catch((error) => {
+          subscription.unsubscribe();
+          setLoadingExport((prev) => ({ ...prev, [entity]: false }));
+          reject(error);
+        });
       });
     },
     [stompClient]

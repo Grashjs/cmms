@@ -6,11 +6,11 @@ import com.grash.service.AdditionalCostService;
 import com.grash.service.AssetDowntimeService;
 import com.grash.service.LaborService;
 import com.grash.service.UserService;
+import com.grash.utils.csv.CsvColumnRegistries;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.MessageSource;
@@ -28,7 +28,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class CsvFileGeneratorTest {
 
-    @InjectMocks
     private CsvFileGenerator csvFileGenerator;
 
     @Mock
@@ -48,6 +47,13 @@ class CsvFileGeneratorTest {
     @BeforeEach
     void setUp() {
         lenient().when(messageSource.getMessage(anyString(), any(), any())).thenAnswer(inv -> inv.getArgument(0));
+        // A real registry rather than a mock: the work-order and asset assertions below check
+        // actual CSV content, and those two writers now get their columns from it. Mocking it
+        // would leave them asserting against an empty file.
+        CsvColumnRegistries csvColumnRegistries =
+                new CsvColumnRegistries(messageSource, assetDowntimeService, userService);
+        csvFileGenerator = new CsvFileGenerator(messageSource, assetDowntimeService, additionalCostService,
+                laborService, userService, csvColumnRegistries);
     }
 
     private StringWriter createWriter() {

@@ -1935,7 +1935,20 @@ const locale = {
   trigger_work_order: 'Trigger Work Order',
   edit_reading: 'Edit reading',
   are_you_sure_delete_reading: 'Are you sure to delete this reading?',
-  no_custom_fields_found: 'No custom fields found'
+  no_custom_fields_found: 'No custom fields found',
+  saved_views: 'Views',
+  no_saved_views: 'No saved views yet',
+  save_current_view: 'Save current view',
+  saved_view_overwrite: 'Overwrite with current view',
+  saved_view_share_with_company: 'Share with everyone in the company',
+  saved_view_shared: 'Shared view',
+  saved_view_saved: 'View saved',
+  saved_view_updated: 'View updated',
+  saved_view_deleted: 'View deleted',
+  saved_view_save_failed: 'Could not save the view',
+  saved_view_delete_failed: 'Could not delete the view',
+  export_filtered: 'Export filtered list',
+  export_filtered_columns: 'Export visible columns only'
 };
 
 export default locale;
