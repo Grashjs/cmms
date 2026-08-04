@@ -37,6 +37,7 @@ jobs:
         if: ${{ steps.ref.outputs.IS_TAG == 'false' }}
         uses: dorny/paths-filter@v3
         with:
+          base: ${{ github.ref }}
           filters: |
             backend:
               - 'api/**'
