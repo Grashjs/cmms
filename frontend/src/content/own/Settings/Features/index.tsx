@@ -79,7 +79,7 @@ function FeaturesSettings() {
     },
     {
       id: 'assets',
-      icon: Inventory2TwoToneIcon,
+      icon: HandymanTwoToneIcon,
       titleKey: 'assets',
       descriptionKey: 'assets_settings_description',
       preferencesPath: '/app/settings/features/asset'
@@ -102,7 +102,7 @@ function FeaturesSettings() {
     },
     {
       id: 'parts-inventory',
-      icon: HandymanTwoToneIcon,
+      icon: Inventory2TwoToneIcon,
       titleKey: 'parts_inventory',
       descriptionKey: 'parts_inventory_settings_description',
       preferencesPath: '/app/settings/features/parts'

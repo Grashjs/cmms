@@ -230,10 +230,10 @@ function HeaderNotifications() {
         .finally(handleClose);
   };
   const notificationIcons: Record<NotificationType, ReactElement> = {
-    ASSET: <Inventory2TwoToneIcon />,
+    ASSET: <HandymanTwoToneIcon />,
     LOCATION: <LocationOnTwoToneIcon />,
     METER: <SpeedTwoToneIcon />,
-    PART: <HandymanTwoToneIcon />,
+    PART: <Inventory2TwoToneIcon />,
     REQUEST: <MoveToInboxTwoToneIcon />,
     TEAM: <People />,
     WORK_ORDER: <AssignmentTwoToneIcon />,

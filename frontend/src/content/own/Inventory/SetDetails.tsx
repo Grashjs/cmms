@@ -14,7 +14,7 @@ import { useTranslation } from 'react-i18next';
 import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import SetType from '../../../models/owns/setType';
-import HandymanTwoToneIcon from '@mui/icons-material/HandymanTwoTone';
+import Inventory2TwoToneIcon from '@mui/icons-material/Inventory2TwoTone';
 import AttachMoneyTwoToneIcon from '@mui/icons-material/AttachMoneyTwoTone';
 import { useContext } from 'react';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
@@ -71,7 +71,7 @@ export default function SetDetails(props: PartDetailsProps) {
       <Divider />
       <Grid item xs={12}>
         <Box display="flex" flexDirection="row">
-          <HandymanTwoToneIcon />
+          <Inventory2TwoToneIcon />
           <Typography sx={{ mb: 1, ml: 1 }} variant="h4">
             {`${set?.parts.length} ${t('parts')}`}
           </Typography>

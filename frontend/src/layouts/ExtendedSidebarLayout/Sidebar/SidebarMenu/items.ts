@@ -100,7 +100,7 @@ const ownMenuItems: MenuItems[] = [
           },
           {
             name: 'assets',
-            icon: Inventory2TwoToneIcon,
+            icon: HandymanTwoToneIcon,
             items: [
               {
                 name: 'reliability_dashboard',
@@ -118,7 +118,7 @@ const ownMenuItems: MenuItems[] = [
           },
           {
             name: 'parts',
-            icon: HandymanTwoToneIcon,
+            icon: Inventory2TwoToneIcon,
             items: [
               {
                 name: 'parts_consumption',
@@ -146,9 +146,14 @@ const ownMenuItems: MenuItems[] = [
         uiConfigKey: 'locations'
       },
       {
+        // The box and the tools are swapped relative to upstream: a box reads as stock kept on
+        // a shelf, which is Material, and tools read as technical equipment, which is an Anlage.
+        // Upstream had it the other way round. Kept consistent everywhere these two icons stand
+        // for assets and parts — the analytics submenu above, the notification icons and the
+        // feature settings — so the sidebar does not contradict the rest of the app.
         name: 'assets',
         link: '/app/assets',
-        icon: Inventory2TwoToneIcon,
+        icon: HandymanTwoToneIcon,
         permission: PermissionEntity.ASSETS
       },
       {
@@ -191,7 +196,7 @@ const ownMenuItems: MenuItems[] = [
         name: 'parts_and_inventory',
         link: '/app/inventory/parts',
         activePath: '/app/inventory',
-        icon: HandymanTwoToneIcon,
+        icon: Inventory2TwoToneIcon,
         permission: PermissionEntity.PARTS_AND_MULTIPARTS
       },
       {
