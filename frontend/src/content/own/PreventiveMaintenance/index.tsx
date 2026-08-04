@@ -1,5 +1,4 @@
 import SplitButton from '../components/SplitButton';
-import { Helmet } from 'react-helmet-async';
 import {
   Box,
   Button,
@@ -773,10 +772,7 @@ function PMs() {
   if (hasViewPermission(PermissionEntity.PREVENTIVE_MAINTENANCES))
     return (
       <>
-        <Helmet>
-          <title>{t('preventive_maintenance')}</title>
-        </Helmet>
-        {renderAddModal()}
+{renderAddModal()}
         {renderUpdateModal()}
         <Stack
           justifyContent="center"

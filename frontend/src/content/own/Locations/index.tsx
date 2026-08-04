@@ -1,4 +1,3 @@
-import { Helmet } from 'react-helmet-async';
 import {
   Box,
   Button,
@@ -1011,10 +1010,7 @@ function Locations() {
   if (hasViewPermission(PermissionEntity.LOCATIONS))
     return (
       <>
-        <Helmet>
-          <title>{t('locations')}</title>
-        </Helmet>
-        <Box justifyContent="center" alignItems="stretch" paddingX={4}>
+<Box justifyContent="center" alignItems="stretch" paddingX={4}>
           <Box
             my={1}
             display="flex"

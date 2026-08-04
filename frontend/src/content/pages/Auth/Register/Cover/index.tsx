@@ -194,7 +194,6 @@ function RegisterCover() {
   return (
     <>
       <Helmet>
-        <title>{t('register')}</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
       <Content>

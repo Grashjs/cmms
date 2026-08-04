@@ -1,6 +1,5 @@
 import { useContext, useEffect } from 'react';
 
-import { Helmet } from 'react-helmet-async';
 
 import { Button, Grid } from '@mui/material';
 import useRefMounted from 'src/hooks/useRefMounted';
@@ -42,10 +41,7 @@ function UserProfile() {
 
   return (
     <>
-      <Helmet>
-        <title>{user.firstName} - Profile Details</title>
-      </Helmet>
-      <Grid
+<Grid
         sx={{
           px: 4
         }}

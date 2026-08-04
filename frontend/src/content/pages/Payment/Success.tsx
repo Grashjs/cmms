@@ -1,5 +1,4 @@
 import { Box, Card, Container, styled, Typography } from '@mui/material';
-import { Helmet } from 'react-helmet-async';
 
 import { useTranslation } from 'react-i18next';
 import Logo from 'src/components/LogoSign';
@@ -19,10 +18,7 @@ function PaymentSuccess() {
   const { t }: { t: any } = useTranslation();
   return (
     <>
-      <Helmet>
-        <title>{t('payment_success_title')}</title>
-      </Helmet>
-      <MainContent>
+<MainContent>
         <Container maxWidth="sm">
           <Logo />
           <Card

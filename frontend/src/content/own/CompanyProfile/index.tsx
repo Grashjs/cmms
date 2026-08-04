@@ -1,6 +1,5 @@
 import { useContext, useEffect } from 'react';
 
-import { Helmet } from 'react-helmet-async';
 
 import { Box, Grid } from '@mui/material';
 import CompanyCover from './CompanyCover';
@@ -24,10 +23,7 @@ function CompanyProfile() {
   }
   return (
     <>
-      <Helmet>
-        <title>{company.name} - Company Details</title>
-      </Helmet>
-      <Box
+<Box
         sx={{
           mt: 3
         }}

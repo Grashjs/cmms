@@ -1,4 +1,3 @@
-import { Helmet } from 'react-helmet-async';
 import {
   Box,
   Button,
@@ -553,10 +552,7 @@ function PurchaseOrders() {
     if (hasViewPermission(PermissionEntity.PURCHASE_ORDERS))
       return (
         <>
-          <Helmet>
-            <title>{t('purchase_orders')}</title>
-          </Helmet>
-          <Box justifyContent="center" alignItems="stretch" paddingX={4}>
+<Box justifyContent="center" alignItems="stretch" paddingX={4}>
             {hasCreatePermission(PermissionEntity.PURCHASE_ORDERS) && (
               <Stack
                 my={1}

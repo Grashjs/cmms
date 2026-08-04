@@ -9,7 +9,6 @@ import {
   Tooltip,
   Typography
 } from '@mui/material';
-import { Helmet } from 'react-helmet-async';
 import useAuth from 'src/hooks/useAuth';
 import JWTLogin from '../LoginJWT';
 import { useTranslation } from 'react-i18next';
@@ -74,10 +73,7 @@ function LoginBasic() {
 
   return (
     <>
-      <Helmet>
-        <title>Login - Basic</title>
-      </Helmet>
-      <MainContent>
+<MainContent>
         <TopWrapper>
           <Container maxWidth="sm">
             <Logo />

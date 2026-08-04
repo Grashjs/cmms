@@ -12,7 +12,6 @@ import {
   styled,
   Typography
 } from '@mui/material';
-import { Helmet } from 'react-helmet-async';
 
 import { useTranslation } from 'react-i18next';
 import { useContext, useEffect, useState } from 'react';
@@ -86,10 +85,7 @@ function Downgrade() {
   if (company.subscription.downgradeNeeded)
     return (
       <>
-        <Helmet>
-          <title>{t('downgrade')}</title>
-        </Helmet>
-        <MainContent>
+<MainContent>
           <Container maxWidth="md">
             <Box textAlign="center">
               <Typography

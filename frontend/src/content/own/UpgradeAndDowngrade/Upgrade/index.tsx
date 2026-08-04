@@ -12,7 +12,6 @@ import {
   styled,
   Typography
 } from '@mui/material';
-import { Helmet } from 'react-helmet-async';
 
 import { useTranslation } from 'react-i18next';
 import { useContext, useEffect, useState } from 'react';
@@ -88,10 +87,7 @@ function Upgrade() {
   if (company.subscription.upgradeNeeded && user.ownsCompany)
     return (
       <>
-        <Helmet>
-          <title>{t('upgrade')}</title>
-        </Helmet>
-        <MainContent>
+<MainContent>
           <Container maxWidth="md">
             <Box textAlign="center">
               <Typography

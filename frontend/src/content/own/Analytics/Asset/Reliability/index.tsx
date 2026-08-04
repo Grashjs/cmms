@@ -1,4 +1,3 @@
-import { Helmet } from 'react-helmet-async';
 import { Grid } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useContext, useEffect, useState } from 'react';
@@ -48,10 +47,7 @@ function WOStatusStats({ handleOpenWOModal }: WOStatusStatsProps) {
   }, [assetsMini]);
   return (
     <>
-      <Helmet>
-        <title>{t('reliability_dashboard')}</title>
-      </Helmet>
-      <Grid
+<Grid
         container
         justifyContent="center"
         alignItems="stretch"

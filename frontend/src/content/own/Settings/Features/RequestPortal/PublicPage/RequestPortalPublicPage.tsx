@@ -52,7 +52,6 @@ import { uploadToRequestPortal } from '../../../../../../slices/file';
 import { supportedLanguages } from '../../../../../../i18n/i18n';
 import { useBrand } from '../../../../../../hooks/useBrand';
 import { recaptchaSiteKey } from '../../../../../../config';
-import { Helmet } from 'react-helmet-async';
 
 interface FormValues {
   title: string;
@@ -362,12 +361,7 @@ export default function RequestPortalPublicPage() {
         bgcolor: { xs: 'background.paper', md: 'background.default' }
       }}
     >
-      <Helmet>
-        <title>
-          {t('request_portal')} - {portal.companyName}
-        </title>
-      </Helmet>
-      {/* Navbar */}
+{/* Navbar */}
       <AppBar
         position="static"
         elevation={0}

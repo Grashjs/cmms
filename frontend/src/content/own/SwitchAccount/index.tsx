@@ -13,7 +13,6 @@ import {
   styled,
   Typography
 } from '@mui/material';
-import { Helmet } from 'react-helmet-async';
 
 import { useTranslation } from 'react-i18next';
 import { useContext, useEffect, useState } from 'react';
@@ -55,10 +54,7 @@ function SwitchAccount() {
   if (user.superAccountRelations.length)
     return (
       <>
-        <Helmet>
-          <title>{t('switch_account')}</title>
-        </Helmet>
-        <MainContent>
+<MainContent>
           <Container maxWidth="lg">
             <Box textAlign="center">
               <Typography

@@ -1,4 +1,3 @@
-import { Helmet } from 'react-helmet-async';
 import { Grid } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useContext, useEffect, useState } from 'react';
@@ -39,10 +38,7 @@ function PartsConsumption({ handleOpenWOModal }: WOStatusStatsProps) {
 
   return (
     <>
-      <Helmet>
-        <title>{t('parts_consumption')}</title>
-      </Helmet>
-      <Grid
+<Grid
         container
         justifyContent="center"
         alignItems="stretch"

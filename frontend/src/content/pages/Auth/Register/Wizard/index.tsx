@@ -23,7 +23,6 @@ import * as Yup from 'yup';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckTwoToneIcon from '@mui/icons-material/CheckTwoTone';
 
-import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import Logo from 'src/components/LogoSign';
 
@@ -65,10 +64,7 @@ function RegisterWizard() {
 
   return (
     <>
-      <Helmet>
-        <title>Register - Wizard</title>
-      </Helmet>
-      <MainContent>
+<MainContent>
         <Container
           sx={{
             my: 4

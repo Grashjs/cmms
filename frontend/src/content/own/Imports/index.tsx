@@ -1,4 +1,3 @@
-import { Helmet } from 'react-helmet-async';
 import useAuth from 'src/hooks/useAuth';
 import { useTranslation } from 'react-i18next';
 import { PermissionEntity } from 'src/models/owns/role';
@@ -496,10 +495,7 @@ const Import = ({}: OwnProps) => {
     if (hasViewPermission(PermissionEntity.SETTINGS))
       return (
         <>
-          <Helmet>
-            <title>{t('import')}</title>
-          </Helmet>
-          <Grid
+<Grid
             container
             justifyContent="center"
             alignItems="stretch"

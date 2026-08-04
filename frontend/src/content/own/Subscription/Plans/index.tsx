@@ -1,4 +1,3 @@
-import { Helmet } from 'react-helmet-async';
 import PersonTwoToneIcon from '@mui/icons-material/PersonTwoTone';
 import { randomInt } from '../../../../utils/generators';
 import {
@@ -215,10 +214,7 @@ function SubscriptionPlans() {
   if (user.ownsCompany)
     return (
       <>
-        <Helmet>
-          <title>{t('plan')}</title>
-        </Helmet>
-        <Grid
+<Grid
           container
           justifyContent="center"
           alignItems="stretch"

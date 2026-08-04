@@ -1,4 +1,3 @@
-import { Helmet } from 'react-helmet-async';
 import {
   Box,
   Button,
@@ -390,10 +389,7 @@ function Files() {
     if (hasViewPermission(PermissionEntity.FILES))
       return (
         <>
-          <Helmet>
-            <title>{t('files')}</title>
-          </Helmet>
-          <Box justifyContent="center" alignItems="stretch" paddingX={4}>
+<Box justifyContent="center" alignItems="stretch" paddingX={4}>
             {hasCreatePermission(PermissionEntity.FILES) && (
               <Box
                 display="flex"

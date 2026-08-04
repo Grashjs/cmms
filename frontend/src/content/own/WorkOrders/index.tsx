@@ -1,4 +1,3 @@
-import { Helmet } from 'react-helmet-async';
 import {
   Box,
   Button,
@@ -1072,10 +1071,7 @@ function WorkOrders() {
   );
   return (
     <>
-      <Helmet>
-        <title>{t('work_orders')}</title>
-      </Helmet>
-      <Box justifyContent="center" alignItems="stretch" paddingX={4}>
+<Box justifyContent="center" alignItems="stretch" paddingX={4}>
         <Box
           my={1}
           display="flex"

@@ -13,7 +13,6 @@ import {
   FormHelperText,
   styled
 } from '@mui/material';
-import { Helmet } from 'react-helmet-async';
 import Logo from 'src/components/LogoSign';
 
 import { useTranslation } from 'react-i18next';
@@ -102,10 +101,7 @@ function StatusComingSoon() {
 
   return (
     <>
-      <Helmet>
-        <title>Status - Coming Soon</title>
-      </Helmet>
-      <MainContent>
+<MainContent>
         <Container maxWidth="md">
           <Logo />
           <Box textAlign="center" mb={3}>

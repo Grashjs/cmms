@@ -1,4 +1,3 @@
-import { Helmet } from 'react-helmet-async';
 import { Card, Grid } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { IField } from '../type';
@@ -222,10 +221,7 @@ function CreatePurchaseOrder() {
     if (hasCreatePermission(PermissionEntity.PURCHASE_ORDERS))
       return (
         <>
-          <Helmet>
-            <title>{t('purchase_orders')}</title>
-          </Helmet>
-          <Grid
+<Grid
             container
             justifyContent="center"
             alignItems="stretch"

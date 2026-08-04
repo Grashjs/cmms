@@ -21,7 +21,6 @@ function LoginCover() {
   return (
     <>
       <Helmet>
-        <title>{t('Login')}</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
       <Content>

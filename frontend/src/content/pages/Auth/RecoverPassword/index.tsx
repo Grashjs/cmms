@@ -19,7 +19,6 @@ import {
   TextField,
   Typography
 } from '@mui/material';
-import { Helmet } from 'react-helmet-async';
 import { TransitionProps } from '@mui/material/transitions';
 import useRefMounted from 'src/hooks/useRefMounted';
 import CloseIcon from '@mui/icons-material/Close';
@@ -93,10 +92,7 @@ function RecoverPasswordBasic() {
 
   return (
     <>
-      <Helmet>
-        <title>{t('Recover Password')}</title>
-      </Helmet>
-      <MainContent>
+<MainContent>
         <Container maxWidth="sm">
           <Logo />
           <Card

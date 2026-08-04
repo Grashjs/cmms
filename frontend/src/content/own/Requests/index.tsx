@@ -1,4 +1,3 @@
-import { Helmet } from 'react-helmet-async';
 import {
   Box,
   Button,
@@ -559,10 +558,7 @@ function Requests() {
   if (hasViewPermission(PermissionEntity.REQUESTS))
     return (
       <>
-        <Helmet>
-          <title>{t('requests')}</title>
-        </Helmet>
-        {renderAddModal()}
+{renderAddModal()}
         {renderUpdateModal()}
         <Box justifyContent="center" alignItems="stretch" paddingX={4}>
           {hasCreatePermission(PermissionEntity.REQUESTS) && (

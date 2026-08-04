@@ -1,5 +1,4 @@
 import { ChangeEvent, ReactNode } from 'react';
-import { Helmet } from 'react-helmet-async';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 import { Box, Button, Card, Stack, styled, Tab, Tabs } from '@mui/material';
 import { useTranslation } from 'react-i18next';
@@ -132,10 +131,7 @@ function MultipleTabsLayout(props: SettingsLayoutProps) {
 
   return (
     <Box mt={1}>
-      <Helmet>
-        <title>{title}</title>
-      </Helmet>
-      <Box display="flex" justifyContent="space-between">
+<Box display="flex" justifyContent="space-between">
         <TabsContainerWrapper>
           <Tabs
             onChange={handleTabsChange}

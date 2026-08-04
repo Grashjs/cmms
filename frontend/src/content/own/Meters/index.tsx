@@ -1,4 +1,3 @@
-import { Helmet } from 'react-helmet-async';
 import {
   Box,
   Button,
@@ -619,10 +618,7 @@ function Meters() {
     if (hasViewPermission(PermissionEntity.METERS))
       return (
         <>
-          <Helmet>
-            <title>{t('meters')}</title>
-          </Helmet>
-          {renderAddModal()}
+{renderAddModal()}
           {renderUpdateModal()}
           {renderMenu()}
           <Box justifyContent="center" alignItems="stretch" paddingX={4}>

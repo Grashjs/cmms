@@ -1,4 +1,3 @@
-import { Helmet } from 'react-helmet-async';
 import {
   Box,
   Button,
@@ -1068,10 +1067,7 @@ function Assets() {
     return (
       <>
         {renderAssetAddModal()}
-        <Helmet>
-          <title>{t('assets')}</title>
-        </Helmet>
-        <Box justifyContent="center" alignItems="stretch" paddingX={4}>
+<Box justifyContent="center" alignItems="stretch" paddingX={4}>
           <Box
             my={1}
             display="flex"
