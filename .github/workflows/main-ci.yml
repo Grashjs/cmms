@@ -12,9 +12,52 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.out.outputs.backend }}
+      frontend: ${{ steps.out.outputs.frontend }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Is tag push
+        id: ref
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            echo "IS_TAG=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "IS_TAG=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Filter changed paths
+        id: filter
+        if: ${{ steps.ref.outputs.IS_TAG == 'false' }}
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            backend:
+              - 'api/**'
+            frontend:
+              - 'frontend/**'
+
+      - name: Compute effective targets
+        id: out
+        run: |
+          if [[ "${{ steps.ref.outputs.IS_TAG }}" == "true" ]]; then
+            echo "backend=true" >> "$GITHUB_OUTPUT"
+            echo "frontend=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "backend=${{ steps.filter.outputs.backend }}" >> "$GITHUB_OUTPUT"
+            echo "frontend=${{ steps.filter.outputs.frontend }}" >> "$GITHUB_OUTPUT"
+          fi
+
   test:
+    needs: detect-changes
     timeout-minutes: 25
-    if: ${{ vars.SKIP_TESTS != 'true' }}
+    if: ${{ vars.SKIP_TESTS != 'true' && needs.detect-changes.outputs.backend == 'true' }}
     runs-on: ubuntu-latest
     env:
       SPRING_PROFILES_ACTIVE: ${{ vars.SPRING_PROFILES_ACTIVE }}
@@ -41,8 +84,8 @@ jobs:
         working-directory: ./api
 
   push-backend-docker:
-    needs: test
-    if: ${{ always() && (vars.SKIP_TESTS == 'true' || success()) }}
+    needs: [detect-changes, test]
+    if: ${{ always() && needs.detect-changes.outputs.backend == 'true' && (vars.SKIP_TESTS == 'true' || needs.test.result == 'success' || needs.test.result == 'skipped') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -77,8 +120,8 @@ jobs:
             intelloop/atlas-cmms-backend:${{ steps.docker-tag.outputs.TAG }}
 
   deploy-koyeb:
-    needs: test
-    if: ${{ always() && (vars.SKIP_TESTS == 'true' || success()) }}
+    needs: [detect-changes, test]
+    if: ${{ always() && needs.detect-changes.outputs.backend == 'true' && (vars.SKIP_TESTS == 'true' || needs.test.result == 'success' || needs.test.result == 'skipped') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -104,8 +147,8 @@ jobs:
           git-builder: docker
 
   push-frontend-docker:
-    needs: test
-    if: ${{ always() && (vars.SKIP_TESTS == 'true' || success()) }}
+    needs: [detect-changes, test]
+    if: ${{ always() && needs.detect-changes.outputs.frontend == 'true' && (vars.SKIP_TESTS == 'true' || needs.test.result == 'success' || needs.test.result == 'skipped') }}
     runs-on: ubuntu-latest
     env:
       FRONTEND_IMAGE: intelloop/atlas-cmms-frontend
@@ -142,8 +185,8 @@ jobs:
             ${{ env.FRONTEND_IMAGE }}:${{ steps.docker-tag.outputs.TAG }}
 
   deploy-netlify:
-    needs: test
-    if: ${{ always() && (vars.SKIP_TESTS == 'true' || success()) }}
+    needs: [detect-changes, test]
+    if: ${{ always() && needs.detect-changes.outputs.frontend == 'true' && (vars.SKIP_TESTS == 'true' || needs.test.result == 'success' || needs.test.result == 'skipped') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
