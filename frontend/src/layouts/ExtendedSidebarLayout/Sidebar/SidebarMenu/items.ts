@@ -38,6 +38,13 @@ export interface MenuItem {
   planFeature?: PlanFeature;
   uiConfigKey?: keyof Omit<UiConfiguration, 'id'>;
 
+  /**
+   * Path prefix that marks this entry active, for sections whose page has tabs or detail
+   * routes. Without it a leaf entry is highlighted only on an exact match of `link`, so
+   * switching to the second tab — or opening a record — would visibly unhighlight the section
+   * you are still in.
+   */
+  activePath?: string;
   items?: MenuItem[];
   name: string;
 }
@@ -48,21 +55,21 @@ export interface MenuItems {
   hidden?: PermissionEntity;
 }
 
+/**
+ * Order follows the facility-management workflow rather than the upstream default: where a
+ * thing is (locations, assets), what came in about it (requests), what is being done
+ * (work orders, maintenance), what it consumes (meters, purchase orders, parts), and only then
+ * the master data and settings. Statistics leads because it is the entry point people open
+ * first.
+ *
+ * Sections whose page is tab-based (parts, people, vendors) are single entries, not dropdowns.
+ * A dropdown whose two children land on the same page — which then shows those two as tabs —
+ * makes the user choose twice for one destination.
+ */
 const ownMenuItems: MenuItems[] = [
   {
     heading: '',
     items: [
-      {
-        name: 'work_orders',
-        link: '/app/work-orders',
-        icon: AssignmentTwoToneIcon
-      },
-      {
-        name: 'preventive_maintenance',
-        link: '/app/preventive-maintenances',
-        icon: PendingActionsTwoToneIcon,
-        permission: PermissionEntity.PREVENTIVE_MAINTENANCES
-      },
       {
         name: 'Statistics',
         icon: InsertChartTwoToneIcon,
@@ -132,11 +139,11 @@ const ownMenuItems: MenuItems[] = [
         ]
       },
       {
-        name: 'requests',
-        link: '/app/requests',
-        icon: MoveToInboxTwoToneIcon,
-        permission: PermissionEntity.REQUESTS,
-        uiConfigKey: 'requests'
+        name: 'locations',
+        link: '/app/locations',
+        icon: LocationOnTwoToneIcon,
+        permission: PermissionEntity.LOCATIONS,
+        uiConfigKey: 'locations'
       },
       {
         name: 'assets',
@@ -145,34 +152,22 @@ const ownMenuItems: MenuItems[] = [
         permission: PermissionEntity.ASSETS
       },
       {
-        name: 'locations',
-        link: '/app/locations',
-        icon: LocationOnTwoToneIcon,
-        permission: PermissionEntity.LOCATIONS,
-        uiConfigKey: 'locations'
+        name: 'requests',
+        link: '/app/requests',
+        icon: MoveToInboxTwoToneIcon,
+        permission: PermissionEntity.REQUESTS,
+        uiConfigKey: 'requests'
       },
       {
-        name: 'parts_and_inventory',
-        link: '/app/inventory',
-        icon: HandymanTwoToneIcon,
-        permission: PermissionEntity.PARTS_AND_MULTIPARTS,
-        items: [
-          {
-            name: 'parts',
-            link: '/app/inventory/parts'
-          },
-          {
-            name: 'sets_of_parts',
-            link: '/app/inventory/sets'
-          }
-        ]
+        name: 'work_orders',
+        link: '/app/work-orders',
+        icon: AssignmentTwoToneIcon
       },
       {
-        name: 'purchase_orders',
-        link: '/app/purchase-orders',
-        icon: ReceiptTwoToneIcon,
-        permission: PermissionEntity.PURCHASE_ORDERS,
-        planFeature: PlanFeature.PURCHASE_ORDER
+        name: 'preventive_maintenance',
+        link: '/app/preventive-maintenances',
+        icon: PendingActionsTwoToneIcon,
+        permission: PermissionEntity.PREVENTIVE_MAINTENANCES
       },
       {
         name: 'meters',
@@ -183,43 +178,36 @@ const ownMenuItems: MenuItems[] = [
         uiConfigKey: 'meters'
       },
       {
+        name: 'purchase_orders',
+        link: '/app/purchase-orders',
+        icon: ReceiptTwoToneIcon,
+        permission: PermissionEntity.PURCHASE_ORDERS,
+        planFeature: PlanFeature.PURCHASE_ORDER
+      },
+      {
+        // Links to the first tab, not to /app/inventory: that parent path has no route of its
+        // own, only `parts` and `sets` children, so it would render an empty page. Same for
+        // people-teams below.
+        name: 'parts_and_inventory',
+        link: '/app/inventory/parts',
+        activePath: '/app/inventory',
+        icon: HandymanTwoToneIcon,
+        permission: PermissionEntity.PARTS_AND_MULTIPARTS
+      },
+      {
         name: 'people_teams',
-        link: '/app/people-teams',
+        link: '/app/people-teams/people',
+        activePath: '/app/people-teams',
         icon: People,
-        permission: PermissionEntity.PEOPLE_AND_TEAMS,
-        items: [
-          {
-            name: 'people',
-            link: '/app/people-teams/people'
-          },
-          {
-            name: 'teams',
-            link: '/app/people-teams/teams'
-          }
-        ]
+        permission: PermissionEntity.PEOPLE_AND_TEAMS
       },
       {
         name: 'vendors_customers',
         link: '/app/vendors-customers/vendors',
+        activePath: '/app/vendors-customers',
         icon: GroupsTwoTone,
         permission: PermissionEntity.VENDORS_AND_CUSTOMERS,
-        uiConfigKey: 'vendorsAndCustomers',
-        items: [
-          {
-            name: 'vendors',
-            link: '/app/vendors-customers/vendors'
-          },
-          {
-            name: 'customers',
-            link: '/app/vendors-customers/customers'
-          }
-        ]
-      },
-      {
-        name: 'categories',
-        link: '/app/categories',
-        icon: CategoryTwoToneIcon,
-        permission: PermissionEntity.CATEGORIES
+        uiConfigKey: 'vendorsAndCustomers'
       },
       {
         name: 'files',
@@ -227,6 +215,12 @@ const ownMenuItems: MenuItems[] = [
         icon: AttachFileTwoToneIcon,
         permission: PermissionEntity.FILES,
         planFeature: PlanFeature.FILE
+      },
+      {
+        name: 'categories',
+        link: '/app/categories',
+        icon: CategoryTwoToneIcon,
+        permission: PermissionEntity.CATEGORIES
       },
       {
         name: 'settings',

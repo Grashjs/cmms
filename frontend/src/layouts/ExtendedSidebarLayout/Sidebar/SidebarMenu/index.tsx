@@ -187,7 +187,11 @@ const reduceChildRoutes = ({
   item: MenuItem;
 }): Array<JSX.Element> => {
   const key = item.name;
-  const exactMatch = item.link
+  // activePath wins where it is set: a tab-based section stays highlighted across its tabs and
+  // its detail routes, which an exact match on `link` cannot do. See MenuItem.activePath.
+  const exactMatch = item.activePath
+    ? !!matchPath({ path: item.activePath, end: false }, path)
+    : item.link
     ? !!matchPath(
         {
           path: item.link,
