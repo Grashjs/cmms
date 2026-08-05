@@ -211,11 +211,6 @@ function SubscriptionPlans() {
 
   useEffect(() => {
     fireGa4Event('pricing_view');
-    if (!isCloudVersion)
-      window.location.href = getLocalizedHomeUrl(
-        'pricing?type=selfhosted',
-        i18n.language
-      );
   }, []);
 
   if (user.ownsCompany)

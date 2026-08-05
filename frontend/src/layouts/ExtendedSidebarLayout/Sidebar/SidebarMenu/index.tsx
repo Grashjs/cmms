@@ -21,6 +21,7 @@ import { getPendingRequestsCount } from '../../../../slices/request';
 import { PermissionEntity } from '../../../../models/owns/role';
 import dayjs from 'dayjs';
 import { isCloudVersion } from 'src/config';
+import { getLocalizedHomeUrl } from '../../../../utils/urlPaths';
 
 const MenuWrapper = styled(Box)(
   ({ theme }) => `
@@ -245,7 +246,7 @@ const reduceChildRoutes = ({
 
 function SidebarMenu() {
   const location = useLocation();
-  const { t }: { t: any } = useTranslation();
+  const { t, i18n }: { t: any; i18n: any } = useTranslation();
   const dispatch = useDispatch();
   const { hasViewPermission, hasFeature, user, company } = useAuth();
   const { urgentCount } = useSelector((state) => state.workOrders);
@@ -287,7 +288,17 @@ function SidebarMenu() {
             </Typography>
             <Button
               component={Link}
-              href={'/app/subscription/plans'}
+              href={
+                isCloudVersion
+                  ? '/app/subscription/plans'
+                  : getLocalizedHomeUrl(
+                      'pricing?type=selfhosted',
+                      i18n.language
+                    )
+              }
+              {...(isCloudVersion
+                ? {}
+                : { target: '_blank', rel: 'noopener noreferrer' })}
               variant="contained"
               color="primary"
               sx={{ mt: 1 }}
