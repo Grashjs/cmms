@@ -227,8 +227,8 @@ public class PartQuantityController {
         if (optionalPartQuantity.isPresent()) {
             PartQuantity savedPartQuantity = optionalPartQuantity.get();
             boolean isWorkOrderPartQuantity = savedPartQuantity.getWorkOrder() != null;
-            if
-            ((isWorkOrderPartQuantity && savedPartQuantity.getWorkOrder().canBeEditedBy(user)) || savedPartQuantity.getPurchaseOrder().canBeEditedBy(user)) {
+            if (isWorkOrderPartQuantity ? savedPartQuantity.getWorkOrder().canBeEditedBy(user) :
+                    savedPartQuantity.getPurchaseOrder().canBeEditedBy(user)) {
                 if (isWorkOrderPartQuantity) {
                     partService.consumePart(savedPartQuantity.getPart().getId(),
                             -savedPartQuantity.getQuantity(),
