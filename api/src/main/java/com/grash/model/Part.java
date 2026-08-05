@@ -226,7 +226,7 @@ public class Part extends CompanyAudit {
 
     public boolean canBeDeletedBy(User user) {
         return user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)
-                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId())) || isAssignedTo(user);
+                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId()));
     }
 
     public boolean canBeViewedBy(User user) {

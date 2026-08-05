@@ -118,7 +118,7 @@ public class WorkOrder extends WorkOrderBase {
 
     public boolean canBeDeletedBy(User user) {
         return user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.WORK_ORDERS)
-                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId())) || isAssignedTo(user);
+                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId()));
     }
 
     //in days

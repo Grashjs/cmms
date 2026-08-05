@@ -1011,9 +1011,7 @@ public class WorkOrderService {
         Optional<WorkOrder> optionalWorkOrder = findById(id);
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
-            if (
-                    user.getId().equals(savedWorkOrder.getCreatedBy()) ||
-                            user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.WORK_ORDERS)) {
+            if (savedWorkOrder.canBeDeletedBy(user)) {
                 Map<String, Object> mailVariables = new HashMap<String, Object>() {{
                     put("workOrdersLink", frontendUrl + "/app/work-orders");
                     put("workOrderTitle", savedWorkOrder.getTitle());
