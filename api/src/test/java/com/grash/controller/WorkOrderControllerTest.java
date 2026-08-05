@@ -24,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -67,9 +68,17 @@ class WorkOrderControllerTest extends AbstractControllerTest {
                 .id(1L)
                 .roleType(RoleType.ROLE_CLIENT)
                 .name("Client Role")
-                .viewPermissions(new HashSet<>(Collections.singletonList(PermissionEntity.WORK_ORDERS)))
+                .viewPermissions(new HashSet<>(Arrays.asList(
+                        PermissionEntity.WORK_ORDERS,
+                        PermissionEntity.ASSETS,
+                        PermissionEntity.LOCATIONS,
+                        PermissionEntity.PARTS_AND_MULTIPARTS)))
                 .createPermissions(new HashSet<>(Collections.singletonList(PermissionEntity.WORK_ORDERS)))
-                .viewOtherPermissions(new HashSet<>(Collections.singletonList(PermissionEntity.WORK_ORDERS)))
+                .viewOtherPermissions(new HashSet<>(Arrays.asList(
+                        PermissionEntity.WORK_ORDERS,
+                        PermissionEntity.ASSETS,
+                        PermissionEntity.LOCATIONS,
+                        PermissionEntity.PARTS_AND_MULTIPARTS)))
                 .editOtherPermissions(new HashSet<>(Collections.singletonList(PermissionEntity.WORK_ORDERS)))
                 .deleteOtherPermissions(new HashSet<>(Collections.singletonList(PermissionEntity.WORK_ORDERS)))
                 .build();
@@ -101,6 +110,24 @@ class WorkOrderControllerTest extends AbstractControllerTest {
         showDto.setId(1L);
         showDto.setTitle("Test WO");
         showDto.setStatus(Status.OPEN);
+    }
+
+    private User restrictedClient() {
+        Role restrictedRole = Role.builder()
+                .id(4L)
+                .roleType(RoleType.ROLE_CLIENT)
+                .name("Restricted Client")
+                .viewPermissions(new HashSet<>(Collections.singletonList(PermissionEntity.WORK_ORDERS)))
+                .build();
+        User restrictedUser = new User();
+        restrictedUser.setId(4L);
+        restrictedUser.setFirstName("Restricted");
+        restrictedUser.setLastName("User");
+        restrictedUser.setEmail("restricted@test.com");
+        restrictedUser.setRole(restrictedRole);
+        restrictedUser.setEnabled(true);
+        restrictedUser.setUserSettings(new UserSettings());
+        return restrictedUser;
     }
 
     @Nested
@@ -233,6 +260,45 @@ class WorkOrderControllerTest extends AbstractControllerTest {
 
             mockMvc.perform(get("/work-orders/location/1"))
                     .andExpect(status().isOk());
+        }
+
+        @Test
+        void getByAsset_accessDenied_whenNotViewable() throws Exception {
+            User restrictedUser = restrictedClient();
+            setCurrentUser(restrictedUser);
+            when(userService.whoami(any())).thenReturn(restrictedUser);
+            Asset asset = new Asset();
+            asset.setId(1L);
+            when(assetService.findById(1L)).thenReturn(Optional.of(asset));
+
+            mockMvc.perform(get("/work-orders/asset/1"))
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        void getByLocation_accessDenied_whenNotViewable() throws Exception {
+            User restrictedUser = restrictedClient();
+            setCurrentUser(restrictedUser);
+            when(userService.whoami(any())).thenReturn(restrictedUser);
+            Location loc = new Location();
+            loc.setId(1L);
+            when(locationService.findById(1L)).thenReturn(Optional.of(loc));
+
+            mockMvc.perform(get("/work-orders/location/1"))
+                    .andExpect(status().isForbidden());
+        }
+
+        @Test
+        void getByPart_accessDenied_whenNotViewable() throws Exception {
+            User restrictedUser = restrictedClient();
+            setCurrentUser(restrictedUser);
+            when(userService.whoami(any())).thenReturn(restrictedUser);
+            Part part = new Part();
+            part.setId(1L);
+            when(partService.findById(1L)).thenReturn(Optional.of(part));
+
+            mockMvc.perform(get("/work-orders/part/1"))
+                    .andExpect(status().isForbidden());
         }
 
         @Test
