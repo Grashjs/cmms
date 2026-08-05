@@ -115,7 +115,7 @@ public class CustomFieldController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 
         if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
@@ -128,7 +128,7 @@ public class CustomFieldController {
             checkAccessToCompanySettings(field.getCompanySettings(), user);
 
             customFieldService.delete(id);
-            return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"), HttpStatus.OK);
+            return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"), HttpStatus.OK);
         } else throw new CustomException("Custom field not found", HttpStatus.NOT_FOUND);
     }
 

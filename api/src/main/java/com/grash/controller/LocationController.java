@@ -75,16 +75,15 @@ public class LocationController {
                                                        HttpServletRequest req) {
         //only sort is used
         User user = userService.whoami(req);
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.LOCATIONS))
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         if (id.equals(0L) && user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             return locationService.findByCompany(user.getCompany().getId(), Pageable.unpaged()).stream().filter(location -> location.getParentLocation() == null).map(location -> locationMapper.toShowDto(location, locationService)).collect(Collectors.toList());
         }
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {
             Location savedLocation = optionalLocation.get();
-            if (user.getRole().getViewPermissions().contains(PermissionEntity.LOCATIONS)) {
-                return locationService.findLocationChildren(id, Pageable.unpaged()).stream().map(location -> locationMapper.toShowDto(location, locationService)).collect(Collectors.toList());
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-
+            return locationService.findLocationChildren(id, Pageable.unpaged()).stream().map(location -> locationMapper.toShowDto(location, locationService)).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -94,6 +93,8 @@ public class LocationController {
                                                           Pageable pageable,
                                                           HttpServletRequest req) {
         User user = userService.whoami(req);
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.LOCATIONS))
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         if (id.equals(0L) && user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             Page<Location> locationsPage =
                     locationService.findByCompany_IdAndParentLocationIsNull(user.getCompany().getId(), pageable);
@@ -102,11 +103,8 @@ public class LocationController {
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {
             Location savedLocation = optionalLocation.get();
-            if (user.getRole().getViewPermissions().contains(PermissionEntity.LOCATIONS)) {
-                Page<Location> locationsPage = locationService.findLocationChildren(id, pageable);
-                return locationsPage.map(location -> locationMapper.toShowDto(location, locationService));
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-
+            Page<Location> locationsPage = locationService.findLocationChildren(id, pageable);
+            return locationsPage.map(location -> locationMapper.toShowDto(location, locationService));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -137,8 +135,7 @@ public class LocationController {
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {
             Location savedLocation = optionalLocation.get();
-            if (user.getRole().getViewPermissions().contains(PermissionEntity.LOCATIONS) &&
-                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.LOCATIONS) || user.getId().equals(savedLocation.getCreatedBy()))) {
+            if (savedLocation.canBeViewedBy(user)) {
                 return locationMapper.toShowDto(savedLocation, locationService);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -166,7 +163,7 @@ public class LocationController {
         if (optionalLocation.isPresent()) {
             Location savedLocation = optionalLocation.get();
             em.detach(savedLocation);
-            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.LOCATIONS) || user.getId().equals(savedLocation.getCreatedBy())) {
+            if (savedLocation.canBeEditedBy(user)) {
                 if (location.getParentLocation() != null && location.getParentLocation().getId().equals(id))
                     throw new CustomException("Parent location cannot be the same id", HttpStatus.NOT_ACCEPTABLE);
 
@@ -186,8 +183,7 @@ public class LocationController {
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {
             Location savedLocation = optionalLocation.get();
-            if (user.getId().equals(savedLocation.getCreatedBy()) ||
-                    user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.LOCATIONS)) {
+            if (savedLocation.canBeDeletedBy(user)) {
                 locationService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

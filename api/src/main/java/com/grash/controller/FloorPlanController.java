@@ -45,7 +45,7 @@ public class FloorPlanController {
         Optional<FloorPlan> optionalFloorPlan = floorPlanService.findById(id);
         if (optionalFloorPlan.isPresent()) {
             FloorPlan savedFloorPlan = optionalFloorPlan.get();
-            checkAccessToFloorPlan(savedFloorPlan, user);
+            checkAccessToFloorPlan(savedFloorPlan, user, true);
             return floorPlanMapper.toShowDto(savedFloorPlan);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -58,7 +58,7 @@ public class FloorPlanController {
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {
             Location location = optionalLocation.get();
-            checkAccessToLocation(location, user);
+            checkAccessToLocation(location, user, true);
             return floorPlanService.findByLocation(id).stream().map(floorPlanMapper::toShowDto).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -80,7 +80,7 @@ public class FloorPlanController {
 
         if (optionalFloorPlan.isPresent()) {
             FloorPlan savedFloorPlan = optionalFloorPlan.get();
-            checkAccessToFloorPlan(savedFloorPlan, user);
+            checkAccessToFloorPlan(savedFloorPlan, user, false);
             return floorPlanMapper.toShowDto(floorPlanService.update(id, floorPlan));
         } else throw new CustomException("FloorPlan not found", HttpStatus.NOT_FOUND);
     }
@@ -93,21 +93,20 @@ public class FloorPlanController {
         Optional<FloorPlan> optionalFloorPlan = floorPlanService.findById(id);
         if (optionalFloorPlan.isPresent()) {
             FloorPlan savedFloorPlan = optionalFloorPlan.get();
-            checkAccessToFloorPlan(savedFloorPlan, user);
+            checkAccessToFloorPlan(savedFloorPlan, user, false);
             floorPlanService.delete(id);
             return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                     HttpStatus.OK);
         } else throw new CustomException("FloorPlan not found", HttpStatus.NOT_FOUND);
     }
 
-    private void checkAccessToFloorPlan(FloorPlan floorPlan, User user) {
-        if (!floorPlan.getLocation().getCompany().getId().equals(user.getCompany().getId())) {
-            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-        }
+    private void checkAccessToFloorPlan(FloorPlan floorPlan, User user, boolean view) {
+        checkAccessToLocation(floorPlan.getLocation(), user, view);
     }
 
-    private void checkAccessToLocation(Location location, User user) {
-        if (!location.getCompany().getId().equals(user.getCompany().getId())) {
+    private void checkAccessToLocation(Location location, User user, boolean view) {
+        if (!location.getCompany().getId().equals(user.getCompany().getId()) || (view ?
+                !location.canBeViewedBy(user) : !location.canBeEditedBy(user))) {
             throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         }
     }

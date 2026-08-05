@@ -145,8 +145,7 @@ public class FileController {
         Optional<File> optionalFile = fileService.findById(id);
         if (optionalFile.isPresent()) {
             File savedFile = optionalFile.get();
-            if (user.getRole().getViewPermissions().contains(PermissionEntity.FILES) &&
-                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.FILES) || user.getId().equals(savedFile.getCreatedBy()))) {
+            if (savedFile.canBeViewedBy(user)) {
                 return fileMapper.toShowDto(savedFile);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -162,7 +161,7 @@ public class FileController {
 
         if (optionalFile.isPresent()) {
             File savedFile = optionalFile.get();
-            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.FILES) || user.getId().equals(savedFile.getCreatedBy())) {
+            if (savedFile.canBeEditedBy(user)) {
                 savedFile.setName(file.getName());
                 return fileMapper.toShowDto(fileService.update(savedFile));
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
@@ -177,25 +176,13 @@ public class FileController {
         Optional<File> optionalFile = fileService.findById(id);
         if (optionalFile.isPresent()) {
             File savedFile = optionalFile.get();
-            if (user.getId().equals(savedFile.getCreatedBy())
-                    || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.FILES)) {
+            if (savedFile.canBeDeletedBy(user)) {
                 fileService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("File not found", HttpStatus.NOT_FOUND);
     }
-
-//    @GetMapping("/download/tos")
-//    public byte[] downloadTOS() {
-//        return storageServiceFactory.getStorageService().download("terms and privacy/Atlas CMMS Terms of service
-//        .pdf");
-//    }
-//
-//    @GetMapping("/download/privacy-policy")
-//    public byte[] downloadPrivacyPolicy() {
-//        return storageServiceFactory.getStorageService().download("terms and privacy/Atlas CMMS privacy policy.pdf");
-//    }
 }
 
 
