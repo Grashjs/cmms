@@ -165,8 +165,7 @@ public class PreventiveMaintenanceController {
 
         if (optionalPreventiveMaintenance.isPresent()) {
             PreventiveMaintenance savedPreventiveMaintenance = optionalPreventiveMaintenance.get();
-            if (user.getId().equals(savedPreventiveMaintenance.getCreatedBy())
-                    || user.getRole().getEditOtherPermissions().contains(PermissionEntity.PREVENTIVE_MAINTENANCES)) {
+            if (savedPreventiveMaintenance.canBeEditedBy(user)) {
                 PreventiveMaintenance patchedPreventiveMaintenance = preventiveMaintenanceService.update(id,
                         preventiveMaintenance, user);
                 return preventiveMaintenanceMapper.toShowDto(patchedPreventiveMaintenance);
@@ -176,25 +175,23 @@ public class PreventiveMaintenanceController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceService.findById(id);
         if (optionalPreventiveMaintenance.isPresent()) {
             PreventiveMaintenance savedPreventiveMaintenance = optionalPreventiveMaintenance.get();
-            if (user.getId().equals(savedPreventiveMaintenance.getCreatedBy())
-                    || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PREVENTIVE_MAINTENANCES)) {
+            if (savedPreventiveMaintenance.canBeDeletedBy(user)) {
                 scheduleService.stopScheduleJobs(optionalPreventiveMaintenance.get().getSchedule().getId());
                 preventiveMaintenanceService.delete(id);
-                return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+                return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("PreventiveMaintenance not found", HttpStatus.NOT_FOUND);
     }
 
     private void checkAccessToPreventiveMaintenance(User user, PreventiveMaintenance preventiveMaintenance) {
-        if (!(user.getRole().getViewPermissions().contains(PermissionEntity.PREVENTIVE_MAINTENANCES) && (user.getId().equals(preventiveMaintenance.getCreatedBy())
-                || user.getRole().getViewOtherPermissions().contains(PermissionEntity.PREVENTIVE_MAINTENANCES)))) {
+        if (!preventiveMaintenance.canBeViewedBy(user)) {
             throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         }
     }

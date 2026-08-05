@@ -62,7 +62,7 @@ public class VendorController {
         Optional<Vendor> optionalVendor = vendorService.findById(id);
         if (optionalVendor.isPresent()) {
             Vendor savedVendor = optionalVendor.get();
-            if (user.getRole().getViewPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
+            if (savedVendor.canBeViewedBy(user)) {
                 return vendorMapper.toShowDto(savedVendor);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -97,7 +97,7 @@ public class VendorController {
 
         if (optionalVendor.isPresent()) {
             Vendor savedVendor = optionalVendor.get();
-            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS) || user.getId().equals(savedVendor.getCreatedBy())) {
+            if (savedVendor.canBeEditedBy(user)) {
                 Vendor updatedVendor = vendorService.update(id, vendor, user.getCompany());
                 return vendorMapper.toShowDto(updatedVendor);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
@@ -112,8 +112,7 @@ public class VendorController {
         Optional<Vendor> optionalVendor = vendorService.findById(id);
         if (optionalVendor.isPresent()) {
             Vendor savedVendor = optionalVendor.get();
-            if (user.getId().equals(savedVendor.getCreatedBy()) ||
-                    user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
+            if (savedVendor.canBeDeletedBy(user)) {
                 vendorService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

@@ -40,6 +40,8 @@ public class PaddleController {
     public SuccessResponse cancel(HttpServletRequest req) {
         checkIfCloudVersion();
         User user = userService.whoami(req);
+        if (!user.isOwnsCompany())
+            throw new CustomException("Only company owner can cancel subscription", HttpStatus.FORBIDDEN);
         Optional<Subscription> optionalSubscription =
                 subscriptionService.findById(user.getCompany().getSubscription().getId());
         if (optionalSubscription.isPresent()) {
@@ -60,6 +62,8 @@ public class PaddleController {
     public SuccessResponse resume(HttpServletRequest req) {
         checkIfCloudVersion();
         User user = userService.whoami(req);
+        if (!user.isOwnsCompany())
+            throw new CustomException("Only company owner can cancel subscription", HttpStatus.FORBIDDEN);
         Optional<Subscription> optionalSubscription =
                 subscriptionService.findById(user.getCompany().getSubscription().getId());
         if (optionalSubscription.isPresent()) {

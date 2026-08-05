@@ -85,8 +85,7 @@ public class PurchaseOrderController {
         Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrderService.findById(id);
         if (optionalPurchaseOrder.isPresent()) {
             PurchaseOrder savedPurchaseOrder = optionalPurchaseOrder.get();
-            if (user.getRole().getViewPermissions().contains(PermissionEntity.PURCHASE_ORDERS) &&
-                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.PURCHASE_ORDERS) || user.getId().equals(savedPurchaseOrder.getCreatedBy()))) {
+            if (savedPurchaseOrder.canBeViewedBy(user)) {
                 return setPartQuantities(purchaseOrderMapper.toShowDto(savedPurchaseOrder));
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -141,7 +140,7 @@ public class PurchaseOrderController {
 
         if (optionalPurchaseOrder.isPresent()) {
             PurchaseOrder savedPurchaseOrder = optionalPurchaseOrder.get();
-            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.PURCHASE_ORDERS) || user.getId().equals(savedPurchaseOrder.getCreatedBy())) {
+            if (savedPurchaseOrder.canBeEditedBy(user)) {
                 PurchaseOrder patchedPurchaseOrder = purchaseOrderService.update(id, purchaseOrder);
                 Collection<Workflow> workflows =
                         workflowService.findByMainConditionAndCompany(WFMainCondition.PURCHASE_ORDER_UPDATED,
@@ -194,8 +193,7 @@ public class PurchaseOrderController {
         Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrderService.findById(id);
         if (optionalPurchaseOrder.isPresent()) {
             PurchaseOrder savedPurchaseOrder = optionalPurchaseOrder.get();
-            if (user.getId().equals(savedPurchaseOrder.getCreatedBy()) ||
-                    user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PURCHASE_ORDERS)) {
+            if (savedPurchaseOrder.canBeDeletedBy(user)) {
                 purchaseOrderService.delete(id);
                 return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

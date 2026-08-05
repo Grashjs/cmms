@@ -8,6 +8,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.WebhookEndpointMapper;
 import com.grash.model.User;
 import com.grash.model.WebhookEndpoint;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.security.CurrentUser;
 import com.grash.service.WebhookEndpointService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -109,7 +110,9 @@ public class WebhookEndpointController {
     })
     public ResponseEntity<List<WebhookEndpointShowDTO>> listEndpoints(
             @Parameter(hidden = true) @CurrentUser User user) {
-
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        }
         List<WebhookEndpoint> endpoints = webhookEndpointService
                 .getActiveEndpointsByCompany(user.getCompany().getId());
 
@@ -176,6 +179,9 @@ public class WebhookEndpointController {
     public ResponseEntity<SuccessResponse> deleteEndpoint(
             @Parameter(hidden = true) @CurrentUser User user,
             @PathVariable Long id) {
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        }
         Optional<WebhookEndpoint> optionalWebhookEndpoint = webhookEndpointService.findById(id);
         if (optionalWebhookEndpoint.isPresent()) {
             webhookEndpointService.delete(id);
@@ -214,7 +220,9 @@ public class WebhookEndpointController {
     public ResponseEntity<SuccessResponse> rotateSecret(
             @Parameter(hidden = true) @CurrentUser User user,
             @PathVariable Long id) {
-
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        }
         String newSecret = webhookEndpointService.rotateSecret(
                 id,
                 user.getCompany().getId()

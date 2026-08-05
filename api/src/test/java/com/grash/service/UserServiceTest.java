@@ -1879,7 +1879,7 @@ class UserServiceTest {
                     .id(1L)
                     .name("Administrator")
                     .code(RoleCode.ADMIN)
-                    .viewPermissions(new HashSet<>(Set.of(PermissionEntity.SETTINGS)))
+                    .editOtherPermissions(new HashSet<>(Set.of(PermissionEntity.PEOPLE_AND_TEAMS)))
                     .build();
             user.setRole(adminRole);
         }
@@ -1896,7 +1896,7 @@ class UserServiceTest {
         @Test
         void noPermission_throws406() {
             Role restrictedRole = Role.builder()
-                    .id(3L).name("Restricted").viewPermissions(new HashSet<>()).build();
+                    .id(3L).name("Restricted").editOtherPermissions(new HashSet<>()).build();
             user.setRole(restrictedRole);
 
             when(userRepository.findByIdAndCompany_Id(2L, 1L)).thenReturn(Optional.of(targetUser));

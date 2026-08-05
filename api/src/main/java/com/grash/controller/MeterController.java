@@ -94,9 +94,7 @@ public class MeterController {
         Optional<Meter> optionalMeter = meterService.findById(id);
         if (optionalMeter.isPresent()) {
             Meter savedMeter = optionalMeter.get();
-            if (user.getRole().getViewPermissions().contains(PermissionEntity.METERS) &&
-                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.METERS) ||
-                            (user.getId().equals(savedMeter.getCreatedBy())) || savedMeter.getUsers().stream().anyMatch(u -> u.getId().equals(user.getId())))) {
+            if (savedMeter.canBeViewedBy(user)) {
                 return meterMapper.toShowDto(savedMeter, readingService);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -126,7 +124,7 @@ public class MeterController {
         if (optionalMeter.isPresent()) {
             Meter savedMeter = optionalMeter.get();
             em.detach(savedMeter);
-            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.METERS) || user.getId().equals(savedMeter.getCreatedBy())) {
+            if (savedMeter.canBeEditedBy(user)) {
                 Meter patchedMeter = meterService.update(id, meter, user.getCompany());
                 meterService.patchNotify(savedMeter, patchedMeter, Helper.getLocale(user));
                 return meterMapper.toShowDto(patchedMeter, readingService);
@@ -141,6 +139,8 @@ public class MeterController {
         User user = userService.whoami(req);
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent()) {
+            if (!optionalAsset.get().canBeViewedBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             return meterService.findByAsset(id).stream().map(meter -> meterMapper.toShowDto(meter, readingService)).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -154,8 +154,7 @@ public class MeterController {
         Optional<Meter> optionalMeter = meterService.findById(id);
         if (optionalMeter.isPresent()) {
             Meter savedMeter = optionalMeter.get();
-            if (user.getId().equals(savedMeter.getCreatedBy()) ||
-                    user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.METERS)) {
+            if (savedMeter.canBeDeletedBy(user)) {
                 meterService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

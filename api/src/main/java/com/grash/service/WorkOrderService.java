@@ -995,8 +995,7 @@ public class WorkOrderService {
         Optional<WorkOrder> optionalWorkOrder = findById(id);
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
-            if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS) &&
-                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS) || user.getId().equals(savedWorkOrder.getCreatedBy()) || savedWorkOrder.isAssignedTo(user))) {
+            if (savedWorkOrder.canBeViewedBy(user)) {
                 byte[] bytes = generatePdfBytes(savedWorkOrder, user, config);
                 MultipartFile file = new MultipartFileImpl(bytes, "Work Order Report.pdf");
                 return storageServiceFactory.getStorageService().uploadAndSign(file,
@@ -1079,10 +1078,7 @@ public class WorkOrderService {
         }
         WorkOrder savedWorkOrder = optionalWorkOrder.get();
 
-        if (!user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS) ||
-                (!user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS) &&
-                        !user.getId().equals(savedWorkOrder.getCreatedBy()) &&
-                        !savedWorkOrder.isAssignedTo(user))) {
+        if (!savedWorkOrder.canBeViewedBy(user)) {
             throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         }
 

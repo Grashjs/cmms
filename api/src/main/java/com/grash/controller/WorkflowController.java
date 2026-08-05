@@ -50,6 +50,9 @@ public class WorkflowController {
     public Collection<WorkflowShowDTO> getAll(HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            }
             return workflowService.findByCompany(user.getCompany().getId()).stream().map(workflowMapper::toShowDto).collect(Collectors.toList());
         } else
             return workflowService.getAll().stream().map(workflowMapper::toShowDto).collect(Collectors.toList());

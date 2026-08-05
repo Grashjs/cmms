@@ -57,8 +57,7 @@ public class MultiPartsController {
         Optional<MultiParts> optionalMultiParts = multiPartsService.findById(id);
         if (optionalMultiParts.isPresent()) {
             MultiParts savedMultiParts = optionalMultiParts.get();
-            if (user.getRole().getViewPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) &&
-                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) || user.getId().equals(savedMultiParts.getCreatedBy()))) {
+            if (savedMultiParts.canBeViewedBy(user)) {
                 return multiPartsMapper.toShowDto(savedMultiParts);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -84,7 +83,7 @@ public class MultiPartsController {
 
         if (optionalMultiParts.isPresent()) {
             MultiParts savedMultiParts = optionalMultiParts.get();
-            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) || user.getId().equals(savedMultiParts.getCreatedBy())) {
+            if (savedMultiParts.canBeEditedBy(user)) {
                 return multiPartsMapper.toShowDto(multiPartsService.update(id, multiParts));
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("MultiParts not found", HttpStatus.NOT_FOUND);
@@ -105,7 +104,7 @@ public class MultiPartsController {
         Optional<MultiParts> optionalMultiParts = multiPartsService.findById(id);
         if (optionalMultiParts.isPresent()) {
             MultiParts savedMultiParts = optionalMultiParts.get();
-            if (user.getId().equals(savedMultiParts.getCreatedBy()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
+            if (savedMultiParts.canBeDeletedBy(user)) {
                 multiPartsService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

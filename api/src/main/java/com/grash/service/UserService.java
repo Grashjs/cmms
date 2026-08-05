@@ -563,7 +563,7 @@ public class UserService {
 
         if (optionalUserToSoftDelete.isPresent()) {
             User userToSoftDelete = optionalUserToSoftDelete.get();
-            if (requester.getId().equals(id) || requester.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+            if (requester.getId().equals(id) || requester.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
                 userToSoftDelete.setEnabled(false);
                 userToSoftDelete.setEnabledInSubscription(false);
                 userToSoftDelete.setEmail(userToSoftDelete.getEmail().concat("_".concat(id.toString())));
