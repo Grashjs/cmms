@@ -88,6 +88,8 @@ public class WorkOrderController {
         User user = userService.whoami(req);
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent()) {
+            if (!optionalAsset.get().canBeViewedBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             return workOrderService.findByAsset(id).stream().map(workOrderMapper::toShowDto).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -99,6 +101,8 @@ public class WorkOrderController {
         User user = userService.whoami(req);
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {
+            if (!optionalLocation.get().canBeViewedBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             return workOrderService.findByLocation(id).stream().map(workOrderMapper::toShowDto).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -126,6 +130,8 @@ public class WorkOrderController {
         User user = userService.whoami(req);
         Optional<Part> optionalPart = partService.findById(id);
         if (optionalPart.isPresent()) {
+            if (!optionalPart.get().canBeViewedBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             return workOrderService.getWorkOrdersByPart(id).stream().map(workOrderMapper::toShowDto).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
