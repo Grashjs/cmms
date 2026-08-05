@@ -48,12 +48,12 @@ public class AssetCategoryController {
     @PreAuthorize("permitAll()")
     public AssetCategory getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
-        if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
-            Optional<AssetCategory> optionalAssetCategory = assetCategoryService.findById(id);
-            if (optionalAssetCategory.isPresent()) {
-                return assetCategoryService.findById(id).get();
-            } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
-        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+        Optional<AssetCategory> optionalAssetCategory = assetCategoryService.findById(id);
+        if (optionalAssetCategory.isPresent()) {
+            if (!optionalAssetCategory.get().canBeViewedBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return assetCategoryService.findById(id).get();
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("")
@@ -73,13 +73,13 @@ public class AssetCategoryController {
                                HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<AssetCategory> optionalAssetCategory = assetCategoryService.findById(id);
-        if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
-            if (optionalAssetCategory.isPresent()) {
-                return assetCategoryService.update(id, assetCategory);
-            } else {
-                throw new CustomException("Category not found", HttpStatus.NOT_FOUND);
-            }
-        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+        if (optionalAssetCategory.isPresent()) {
+            if (!optionalAssetCategory.get().canBeEditedBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return assetCategoryService.update(id, assetCategory);
+        } else {
+            throw new CustomException("Category not found", HttpStatus.NOT_FOUND);
+        }
     }
 
     @DeleteMapping("/{id}")
@@ -89,7 +89,7 @@ public class AssetCategoryController {
 
         Optional<AssetCategory> optionalAssetCategory = assetCategoryService.findById(id);
         if (optionalAssetCategory.isPresent()) {
-            if (user.getId().equals(optionalAssetCategory.get().getCreatedBy()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.CATEGORIES)) {
+            if (optionalAssetCategory.get().canBeDeletedBy(user)) {
                 assetCategoryService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
