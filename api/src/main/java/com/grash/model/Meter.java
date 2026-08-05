@@ -93,7 +93,12 @@ public class Meter extends CompanyAudit {
                 || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId())) || isAssignedTo(user);
     }
 
-    public boolean isAccessibleBy(User user) {
+    public boolean canBeDeletedBy(User user) {
+        return user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.METERS)
+                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId())) || isAssignedTo(user);
+    }
+
+    public boolean canBeViewedBy(User user) {
         return (user.getRole().getViewPermissions().contains(PermissionEntity.METERS) &&
                 (user.getRole().getViewOtherPermissions().contains(PermissionEntity.METERS) || (getCreatedBy() != null && getCreatedBy().equals(user.getId())) || isAssignedTo(user)));
     }

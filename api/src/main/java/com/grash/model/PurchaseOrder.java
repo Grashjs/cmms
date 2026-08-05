@@ -2,6 +2,7 @@ package com.grash.model;
 
 import com.grash.model.abstracts.CompanyAudit;
 import com.grash.model.enums.ApprovalStatus;
+import com.grash.model.enums.PermissionEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -82,6 +83,20 @@ public class PurchaseOrder extends CompanyAudit {
 //    @ManyToOne
 //    private Company requesterInformation;
 
+    public boolean canBeEditedBy(User user) {
+        return user.getRole().getEditOtherPermissions().contains(PermissionEntity.PURCHASE_ORDERS)
+                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId()));
+    }
+
+    public boolean canBeDeletedBy(User user) {
+        return user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PURCHASE_ORDERS)
+                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId()));
+    }
+
+    public boolean canBeViewedBy(User user) {
+        return (user.getRole().getViewPermissions().contains(PermissionEntity.PURCHASE_ORDERS) &&
+                (user.getRole().getViewOtherPermissions().contains(PermissionEntity.PURCHASE_ORDERS) || (getCreatedBy() != null && getCreatedBy().equals(user.getId()))));
+    }
 }
 
 

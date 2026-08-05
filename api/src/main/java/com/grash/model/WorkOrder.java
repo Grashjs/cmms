@@ -116,6 +116,11 @@ public class WorkOrder extends WorkOrderBase {
                 || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId())) || isAssignedTo(user);
     }
 
+    public boolean canBeDeletedBy(User user) {
+        return user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.WORK_ORDERS)
+                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId())) || isAssignedTo(user);
+    }
+
     //in days
     @JsonIgnore
     public static long getAverageAge(Collection<WorkOrder> completeWorkOrders) {
@@ -128,7 +133,7 @@ public class WorkOrder extends WorkOrderBase {
                 completionTimes.stream().mapToLong(value -> value).sum() / completionTimes.size();
     }
 
-    public boolean isAccessibleBy(User user) {
+    public boolean canBeViewedBy(User user) {
         return (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS) &&
                 (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS) || (getCreatedBy() != null && getCreatedBy().equals(user.getId())) || isAssignedTo(user)))
                 || getParentRequest() != null && user.getId().equals(getParentRequest().getCreatedBy())

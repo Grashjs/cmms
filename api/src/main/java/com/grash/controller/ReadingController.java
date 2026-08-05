@@ -58,7 +58,7 @@ public class ReadingController {
         User user = userService.whoami(req);
         Optional<Meter> optionalMeter = meterService.findById(id);
         if (optionalMeter.isPresent()) {
-            if (!meterService.isAccessibleBy(user, optionalMeter.get()))
+            if (!optionalMeter.get().canBeViewedBy(user))
                 throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             return readingService.findByMeter(id);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -76,7 +76,7 @@ public class ReadingController {
         if (optionalMeter.isEmpty()) {
             throw new CustomException("Meter not found", HttpStatus.NOT_FOUND);
         }
-        if (!meterService.isAccessibleBy(user, optionalMeter.get()))
+        if (!optionalMeter.get().canBeViewedBy(user))
             throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         if (dateRange.getStart() == null || dateRange.getEnd() == null) {
             throw new CustomException("Start and end dates are required", HttpStatus.BAD_REQUEST);
@@ -98,7 +98,7 @@ public class ReadingController {
         Optional<Meter> optionalMeter = meterService.findById(readingReq.getMeter().getId());
         if (optionalMeter.isPresent()) {
             Meter meter = optionalMeter.get();
-            if (!meterService.isAccessibleBy(user, meter))
+            if (!meter.canBeViewedBy(user))
                 throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             Optional<Reading> optionalLastReading = readingService.findLastByMeter(readingReq.getMeter().getId());
             if (optionalLastReading.isPresent()) {
@@ -128,7 +128,7 @@ public class ReadingController {
 
         if (optionalReading.isPresent()) {
             Reading savedReading = optionalReading.get();
-            if (!meterService.isAccessibleBy(user, savedReading.getMeter()))
+            if (!savedReading.getMeter().canBeViewedBy(user))
                 throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             Reading updated = readingService.update(id, reading);
             processMeterTriggers(savedReading.getMeter(), updated.getValue(), user);
@@ -143,7 +143,7 @@ public class ReadingController {
 
         Optional<Reading> optionalReading = readingService.findById(id);
         if (optionalReading.isPresent()) {
-            if (!meterService.isAccessibleBy(user, optionalReading.get().getMeter()))
+            if (!optionalReading.get().getMeter().canBeViewedBy(user))
                 throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             readingService.delete(id);
             return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),

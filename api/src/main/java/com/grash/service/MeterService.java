@@ -168,7 +168,8 @@ public class MeterService {
                 companyId).stream().findFirst();
         optionalAsset.ifPresent(meter::setAsset);
         if (dto.getMeterCategory() != null && !dto.getMeterCategory().isBlank()) {
-            MeterCategory category = meterCategoryService.getOrCreate(dto.getMeterCategory(), company.getCompanySettings());
+            MeterCategory category = meterCategoryService.getOrCreate(dto.getMeterCategory(),
+                    company.getCompanySettings());
             meter.setMeterCategory(category);
         }
         List<User> users = new ArrayList<>();
@@ -190,10 +191,6 @@ public class MeterService {
     public List<Meter> findByIdsAndCompany(List<Long> ids, Long companyId) {
         return meterRepository.findByIdInAndCompany_Id(ids, companyId);
     }
-
-    public boolean isAccessibleBy(User user, Meter meter) {
-        return (user.getRole().getViewPermissions().contains(PermissionEntity.METERS) &&
-                (user.getRole().getViewOtherPermissions().contains(PermissionEntity.METERS) || (meter.getCreatedBy() != null && meter.getCreatedBy().equals(user.getId())) || meter.isAssignedTo(user)));
-    }
+    
 }
 

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.dto.IdDTO;
 import com.grash.model.abstracts.CompanyAudit;
 import com.grash.model.enums.AssetStatus;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.utils.Helper;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -237,6 +238,25 @@ public class Asset extends CompanyAudit {
     @JsonIgnore
     public Date getRealCreatedAt() {
         return this.inServiceDate == null ? this.getCreatedAt() : this.inServiceDate;
+    }
+
+    public boolean isAssignedTo(User user) {
+        return getUsers().stream().anyMatch(u -> u.getId().equals(user.getId()));
+    }
+
+    public boolean canBeEditedBy(User user) {
+        return user.getRole().getEditOtherPermissions().contains(PermissionEntity.ASSETS)
+                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId())) || isAssignedTo(user);
+    }
+
+    public boolean canBeDeletedBy(User user) {
+        return user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.ASSETS)
+                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId())) || isAssignedTo(user);
+    }
+
+    public boolean canBeViewedBy(User user) {
+        return (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS) &&
+                (user.getRole().getViewOtherPermissions().contains(PermissionEntity.ASSETS) || (getCreatedBy() != null && getCreatedBy().equals(user.getId())) || isAssignedTo(user)));
     }
 }
 

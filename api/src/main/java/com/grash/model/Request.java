@@ -1,6 +1,7 @@
 package com.grash.model;
 
 import com.grash.model.abstracts.WorkOrderBase;
+import com.grash.model.enums.PermissionEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -56,5 +57,19 @@ public class Request extends WorkOrderBase {
             workOrder.setParentRequest(null);
     }
 
+    public boolean canBeEditedBy(User user) {
+        return user.getRole().getEditOtherPermissions().contains(PermissionEntity.REQUESTS)
+                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId())) || isAssignedTo(user);
+    }
+
+    public boolean canBeDeletedBy(User user) {
+        return user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.REQUESTS)
+                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId())) || isAssignedTo(user);
+    }
+
+    public boolean canBeViewedBy(User user) {
+        return (user.getRole().getViewPermissions().contains(PermissionEntity.REQUESTS) &&
+                (user.getRole().getViewOtherPermissions().contains(PermissionEntity.REQUESTS) || (getCreatedBy() != null && getCreatedBy().equals(user.getId())) || isAssignedTo(user)));
+    }
 }
 

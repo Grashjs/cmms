@@ -63,7 +63,7 @@ public class TaskController {
         User user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
-            if (!optionalWorkOrder.get().isAccessibleBy(user))
+            if (!optionalWorkOrder.get().canBeViewedBy(user))
                 throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             return taskService.findByWorkOrder(id).stream().map(taskMapper::toShowDto).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -75,7 +75,7 @@ public class TaskController {
                                                        @Parameter(hidden = true) @CurrentUser User user) {
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceService.findById(id);
         if (optionalPreventiveMaintenance.isPresent()) {
-            if (!optionalPreventiveMaintenance.get().isAccessibleBy(user))
+            if (!optionalPreventiveMaintenance.get().canBeViewedBy(user))
                 throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             return taskService.findByPreventiveMaintenance(id);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -245,12 +245,12 @@ public class TaskController {
         if (task.getWorkOrder() != null) {
             WorkOrder workOrder = task.getWorkOrder();
             hasAccess = view
-                    ? workOrder.isAccessibleBy(user)
+                    ? workOrder.canBeViewedBy(user)
                     : workOrder.canBeEditedBy(user);
         } else {
             PreventiveMaintenance preventiveMaintenance = task.getPreventiveMaintenance();
             hasAccess = view
-                    ? preventiveMaintenance.isAccessibleBy(user)
+                    ? preventiveMaintenance.canBeViewedBy(user)
                     : preventiveMaintenance.canBeEditedBy(user);
         }
 

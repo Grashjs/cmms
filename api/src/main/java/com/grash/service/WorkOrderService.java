@@ -283,7 +283,7 @@ public class WorkOrderService {
     public WorkOrder checkAccessToWorkOrderId(Long workOrderId, User user) {
         WorkOrder workOrder = findById(workOrderId).orElseThrow(() -> new CustomException("Work Order not found",
                 HttpStatus.NOT_FOUND));
-        if (!workOrder.isAccessibleBy(user))
+        if (!workOrder.canBeViewedBy(user))
             throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         return workOrder;
     }

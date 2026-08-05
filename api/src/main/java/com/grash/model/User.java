@@ -153,6 +153,21 @@ public class User extends Audit {
     public void setEmail(String email) {
         this.email = email == null ? null : email.trim().toLowerCase();
     }
+
+    public boolean canBeEditedBy(User user) {
+        return user.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)
+                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId())) || user.getId().equals(this.getId());
+    }
+
+    public boolean canBeDeletedBy(User user) {
+        return user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)
+                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId()));
+    }
+
+    public boolean canBeViewedBy(User user) {
+        return (user.getRole().getViewPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS) &&
+                (user.getRole().getViewOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS) || (getCreatedBy() != null && getCreatedBy().equals(user.getId())) || user.getId().equals(this.getId())));
+    }
 }
 
 
