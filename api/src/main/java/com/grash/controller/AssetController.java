@@ -105,8 +105,7 @@ public class AssetController {
     private AssetShowDTO getAsset(Optional<Asset> optionalAsset, User user) {
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
-            if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS) &&
-                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.ASSETS) || user.getId().equals(savedAsset.getCreatedBy()))) {
+            if (savedAsset.canBeViewedBy(user)) {
                 return assetMapper.toShowDto(savedAsset, assetService);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -118,6 +117,8 @@ public class AssetController {
         User user = userService.whoami(req);
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {
+            if (!optionalLocation.get().canBeViewedBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             return assetService.findByLocation(id).stream().map(asset -> assetMapper.toShowDto(asset, assetService)).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -129,6 +130,8 @@ public class AssetController {
         User user = userService.whoami(req);
         Optional<Part> optionalPart = partService.findById(id);
         if (optionalPart.isPresent()) {
+            if (!optionalPart.get().canBeViewedBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             return optionalPart.get().getAssets().stream().map(asset -> assetMapper.toShowDto(asset, assetService)).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -139,17 +142,16 @@ public class AssetController {
     public List<AssetShowDTO> getChildrenById(@PathVariable("id") Long id,
                                               HttpServletRequest req) {
         User user = userService.whoami(req);
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS))
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         if (id.equals(0L) && user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             return assetService.findByCompanyAndParentAssetNull(user.getCompany().getId(), Pageable.unpaged()).stream().map(asset -> assetMapper.toShowDto(asset, assetService)).collect(Collectors.toList());
         }
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
-            if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS)) {
-                return assetService.findAssetChildren(id, Pageable.unpaged()).stream().map(asset -> assetMapper.toShowDto(asset,
-                        assetService)).collect(Collectors.toList());
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-
+            return assetService.findAssetChildren(id, Pageable.unpaged()).stream().map(asset -> assetMapper.toShowDto(asset,
+                    assetService)).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -159,6 +161,8 @@ public class AssetController {
                                                        Pageable pageable,
                                                        HttpServletRequest req) {
         User user = userService.whoami(req);
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS))
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         if (id.equals(0L) && user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             Page<Asset> assetsPage = assetRepository.findByCompany_IdAndParentAssetIsNull(user.getCompany().getId(),
                     pageable);
@@ -167,11 +171,8 @@ public class AssetController {
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
-            if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS)) {
-                Page<Asset> assetsPage = assetService.findAssetChildren(id, pageable);
-                return assetsPage.map(asset -> assetMapper.toShowDto(asset, assetService));
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-
+            Page<Asset> assetsPage = assetService.findAssetChildren(id, pageable);
+            return assetsPage.map(asset -> assetMapper.toShowDto(asset, assetService));
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -215,8 +216,7 @@ public class AssetController {
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
             em.detach(savedAsset);
-            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.ASSETS) || user.getId().equals(savedAsset.getCreatedBy())
-            ) {
+            if (savedAsset.canBeEditedBy(user)) {
                 if (!asset.getStatus().isReallyDown() && savedAsset.getStatus().isReallyDown()) {
                     assetService.stopDownTime(savedAsset.getId(), Helper.getLocale(user));
                 } else if (asset.getStatus().isReallyDown() && !savedAsset.getStatus().isReallyDown()) {
@@ -250,7 +250,7 @@ public class AssetController {
     public Collection<AssetMiniDTO> getMini(@RequestParam(required = false) @Parameter(description = "Filter assets " +
             "by location ID. If not provided, returns all assets") Long locationId, HttpServletRequest req) {
         User user = userService.whoami(req);
-        List<Asset> assets = new ArrayList<>();
+        List<Asset> assets;
         if (locationId == null) {
             assets = assetService.findByCompany(user.getCompany().getId());
         } else {
@@ -269,7 +269,7 @@ public class AssetController {
         if (!rateLimiterService.resolvePublicMiniBucket(clientIp).tryConsume(1)) {
             throw new CustomException("Rate limit exceeded. Try again later.", HttpStatus.TOO_MANY_REQUESTS);
         }
-        List<Asset> assets = new ArrayList<>();
+        List<Asset> assets;
         RequestPortal requestPortal = requestPortalService.findByUuidByUser(portalUUID).get();
         if (requestPortal.getFields().stream().anyMatch(requestPortalField -> requestPortalField.getAsset() != null && requestPortalField.getType().equals(PortalFieldType.ASSET)))
             throw new CustomException("This portal is not configured to show assets", HttpStatus.FORBIDDEN);
@@ -289,8 +289,7 @@ public class AssetController {
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent()) {
             Asset savedAsset = optionalAsset.get();
-            if (user.getId().equals(savedAsset.getCreatedBy()) ||
-                    user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.ASSETS)) {
+            if (savedAsset.canBeDeletedBy(user)) {
                 assetService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
