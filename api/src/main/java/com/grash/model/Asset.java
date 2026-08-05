@@ -246,7 +246,7 @@ public class Asset extends CompanyAudit {
 
     public boolean canBeEditedBy(User user) {
         return user.getRole().getEditOtherPermissions().contains(PermissionEntity.ASSETS)
-                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId()));
+                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId())) || isAssignedTo(user);
     }
 
     public boolean canBeDeletedBy(User user) {
