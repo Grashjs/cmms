@@ -129,12 +129,13 @@ public class UserService {
     public void checkUsageBasedLimit(int newUsersCount) {
         LicensingState licensingState = licenseService.getLicensingState();
         Integer freeTierThreshold = usageBasedFreeLimits.get(LicenseEntitlement.UNLIMITED_USERS);
+        int limit = (licensingState.isHasLicense() ?
+                licensingState.getUsersCount() : freeTierThreshold);
         if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)
-                && userRepository.hasMorePaidUsersThan((licensingState.isHasLicense() ?
-                licensingState.getUsersCount() : freeTierThreshold) - newUsersCount)
+                && userRepository.hasMorePaidUsersThan(limit - newUsersCount)
         )
             throw new RuntimeException("Cannot create more users than the " + (licensingState.isHasLicense() ?
-                    "paid" : "free") + " license allows: " + freeTierThreshold + ". " +
+                    "paid" : "free") + " license allows: " + limit + ". " +
                     "Refer to" +
                     " https://github.com/Grashjs/cmms/blob/main/dev-docs/Disable%20users.md");
     }
