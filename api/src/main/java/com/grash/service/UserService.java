@@ -133,7 +133,8 @@ public class UserService {
                 && userRepository.hasMorePaidUsersThan((licensingState.isHasLicense() ?
                 licensingState.getUsersCount() : freeTierThreshold) - newUsersCount)
         )
-            throw new RuntimeException("Cannot create more users than the free license allows: " + freeTierThreshold + ". " +
+            throw new RuntimeException("Cannot create more users than the " + (licensingState.isHasLicense() ?
+                    "paid" : "free") + " license allows: " + freeTierThreshold + ". " +
                     "Refer to" +
                     " https://github.com/Grashjs/cmms/blob/main/dev-docs/Disable%20users.md");
     }

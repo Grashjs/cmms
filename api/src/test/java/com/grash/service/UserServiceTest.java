@@ -922,6 +922,59 @@ class UserServiceTest {
             assertDoesNotThrow(() -> userService.checkUsageBasedLimit(100));
             verify(userRepository, never()).hasMorePaidUsersThan(anyInt());
         }
+
+        @Test
+        void exactlyAtLicenseLimit_noException() {
+            when(licenseService.getLicensingState()).thenReturn(
+                    LicensingState.builder().hasLicense(true).usersCount(10).build());
+            when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)).thenReturn(false);
+            when(userRepository.hasMorePaidUsersThan(8)).thenReturn(false);
+
+            assertDoesNotThrow(() -> userService.checkUsageBasedLimit(2));
+        }
+
+        @Test
+        void exactlyAtFreeThreshold_noException() {
+            when(licenseService.getLicensingState()).thenReturn(
+                    LicensingState.builder().hasLicense(false).usersCount(0).build());
+            when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)).thenReturn(false);
+            when(userRepository.hasMorePaidUsersThan(4)).thenReturn(false);
+
+            assertDoesNotThrow(() -> userService.checkUsageBasedLimit(1));
+        }
+
+        @Test
+        void noLicense_overFreeThreshold_throws() {
+            when(licenseService.getLicensingState()).thenReturn(
+                    LicensingState.builder().hasLicense(false).usersCount(0).build());
+            when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)).thenReturn(false);
+            when(userRepository.hasMorePaidUsersThan(anyInt())).thenReturn(true);
+
+            assertThrows(RuntimeException.class, () -> userService.checkUsageBasedLimit(1));
+        }
+
+        @Test
+        void licensedSystemAlreadyOverLimit_throws() {
+            when(licenseService.getLicensingState()).thenReturn(
+                    LicensingState.builder().hasLicense(true).usersCount(5).build());
+            when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)).thenReturn(false);
+            when(userRepository.hasMorePaidUsersThan(5)).thenReturn(true);
+
+            assertThrows(RuntimeException.class, () -> userService.checkUsageBasedLimit(0));
+        }
+
+        @Test
+        void exceptionMessage_mentionsFreeThreshold() {
+            when(licenseService.getLicensingState()).thenReturn(
+                    LicensingState.builder().hasLicense(false).usersCount(0).build());
+            when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)).thenReturn(false);
+            when(userRepository.hasMorePaidUsersThan(anyInt())).thenReturn(true);
+
+            RuntimeException ex = assertThrows(RuntimeException.class,
+                    () -> userService.checkUsageBasedLimit(1));
+
+            assertTrue(ex.getMessage().contains("5"));
+        }
     }
 
     @Nested
