@@ -1,5 +1,8 @@
 package com.grash;
 
+// Modified by the Fierabrás CMMS fork, 2026-08 — AGPLv3: all PlanFeatures
+// enabled idempotently and existing subscriptions normalized. See NOTICE.md.
+
 import com.grash.dto.UserSignupRequest;
 import com.grash.model.*;
 import com.grash.model.enums.*;
@@ -26,6 +29,7 @@ public class ApplicationInitializer implements SmartInitializingSingleton {
     private final RoleService roleService;
     private final CompanyService companyService;
     private final SubscriptionPlanService subscriptionPlanService;
+    private final SubscriptionService subscriptionService;
 
     @Override
     public void afterSingletonsInstantiated() {
@@ -37,6 +41,12 @@ public class ApplicationInitializer implements SmartInitializingSingleton {
 
             log.info("Initializing subscription plans...");
             initializeSubscriptionPlans();
+
+            log.info("Applying AGPL plan features...");
+            applyAgplPlanFeatures();
+
+            log.info("Normalizing existing subscriptions (AGPL policy)...");
+            subscriptionService.normalizeExistingSubscriptions();
 
             log.info("Updating default roles...");
             roleService.updateDefaultRoles();
@@ -135,6 +145,22 @@ public class ApplicationInitializer implements SmartInitializingSingleton {
         }
     }
 
+
+    /**
+     * AGPLv3 fork: ensure every persisted SubscriptionPlan (new and existing,
+     * including FREE/STARTER/PROFESSIONAL/BUSINESS and any plan added upstream)
+     * contains every PlanFeature. Idempotent: only saves when the feature set
+     * differs, so subsequent boots perform no writes once converged.
+     */
+    void applyAgplPlanFeatures() {
+        Set<PlanFeatures> allFeatures = new HashSet<>(Arrays.asList(PlanFeatures.values()));
+        for (SubscriptionPlan plan : subscriptionPlanService.getAll()) {
+            if (!allFeatures.equals(plan.getFeatures())) {
+                plan.setFeatures(allFeatures);
+                subscriptionPlanService.create(plan); // create() = JPA save (upsert by id)
+            }
+        }
+    }
 
     @NotNull
     private static UserSignupRequest getSuperAdminSignupRequest(Role savedSuperAdminRole) {

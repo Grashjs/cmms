@@ -8,3 +8,4 @@ docker-compose-dev.yml
 logo
 *.lic
 docker-compose-minio.yml
+/fierabras/

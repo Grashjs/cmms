@@ -5,7 +5,7 @@ import JWTLogin from '../LoginJWT';
 
 import { useTranslation } from 'react-i18next';
 import Logo from 'src/components/LogoSign';
-import { ldapEnabled } from '../../../../../config';
+import { ldapEnabled, sourceTreeUrl } from '../../../../../config';
 
 const Content = styled(Box)(
   () => `
@@ -79,6 +79,19 @@ function LoginCover() {
               </Box>
             )}
           </Card>
+          {sourceTreeUrl && (
+            <Box mt={2} display="flex" justifyContent="center">
+              <Link
+                href={sourceTreeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="body2"
+                color="text.secondary"
+              >
+                {t('source_code_agplv3', 'Código fuente — AGPLv3')}
+              </Link>
+            </Box>
+          )}
         </Container>
       </Content>
     </>

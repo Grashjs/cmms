@@ -187,6 +187,11 @@ paddle:
 keygen:
   product-token: ${KEYGEN_PRODUCT_TOKEN:}
   account-id: 1ca3e517-f3d8-473f-a45c-81069900acb7
+# AGPLv3 fork: corresponding source offer (§13). SOURCE_REVISION should identify
+# the exact deployed commit/tag so remote users can obtain the matching source.
+source:
+  code-url: ${SOURCE_CODE_URL:}
+  revision: ${SOURCE_REVISION:}
 sendgrid:
   api:
     key: ${SENDGRID_API_KEY:}

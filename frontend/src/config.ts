@@ -104,4 +104,14 @@ export const paddleEnvironment = getRuntimeValue('PADDLE_ENVIRONMENT') as
 export const recaptchaSiteKey = getRuntimeValue('RECAPTCHA_SITE_KEY');
 
 export const intercomId = getRuntimeValue('INTERCOM_ID');
+// AGPLv3 fork: corresponding source offer (§13). Configurable at runtime via
+// window.__RUNTIME_CONFIG__ (runtime-env-cra) so no rebuild is needed to change
+// the repository/revision.
+export const sourceCodeUrl: string = getRuntimeValue('SOURCE_CODE_URL', '');
+export const sourceRevision: string = getRuntimeValue('SOURCE_REVISION', '');
+export const sourceTreeUrl: string =
+  sourceCodeUrl && sourceRevision
+    ? `${sourceCodeUrl.endsWith('/') ? sourceCodeUrl.slice(0, -1) : sourceCodeUrl}/tree/${sourceRevision}`
+    : sourceCodeUrl;
+
 export const ldapEnabled = getRuntimeValue('LDAP_ENABLED') === 'true';

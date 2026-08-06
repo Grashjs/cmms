@@ -23,6 +23,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import java.util.Optional;
 
+// Modified by the Fierabrás CMMS fork, 2026-08 — AGPLv3: public /source endpoint
+// for the corresponding source offer (§13). Only this route is newly opened.
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
@@ -59,6 +62,8 @@ public class WebSecurityConfig {
                         .requestMatchers("/auth/sendMail").permitAll()
                         .requestMatchers("/auth/resetpwd/**").permitAll()
                         .requestMatchers("/license/state").permitAll()
+                        // AGPLv3 fork: public corresponding source offer (§13)
+                        .requestMatchers("/source").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/login/oauth2/**").permitAll()
                         .requestMatchers("/health-check").permitAll()

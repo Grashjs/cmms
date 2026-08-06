@@ -6,6 +6,7 @@ import com.grash.model.Company;
 import com.grash.model.Subscription;
 import com.grash.model.SubscriptionPlan;
 import com.grash.model.User;
+import com.grash.model.enums.SubscriptionScheduledChangeType;
 import com.grash.model.enums.RoleCode;
 import com.grash.model.enums.RoleType;
 import com.grash.model.Role;
@@ -461,55 +462,152 @@ class SubscriptionServiceTest {
     @Nested
     class ResetToFreePlan {
 
+        // AGPLv3 fork: resetToFreePlan now delegates to applyAgplSubscriptionPolicy;
+        // it no longer degrades to FREE, sets usersCount=3, disables schedules, or
+        // looks up a company/plan. The historical plan and paddleSubscriptionId are
+        // preserved, and no commercial degradation is reintroduced.
+
         @Test
-        void noCompanyForSubscription_returnsEarly() {
-            when(companyRepository.findBySubscription_Id(1L)).thenReturn(Optional.empty());
+        void delegatesToAgplPolicy_preservesPlanAndPaddleId_clearsRestrictions() throws SchedulerException {
+            subscription.setUsersCount(3);
+            subscription.setEndsOn(new Date(System.currentTimeMillis() + 60_000));
+            subscription.setScheduledChangeType(SubscriptionScheduledChangeType.RESET_TO_FREE);
+            subscription.setScheduledChangeDate(new Date());
+            subscription.setDowngradeNeeded(true);
+            subscription.setUpgradeNeeded(true);
+            subscription.setPaddleSubscriptionId("pdl_keep_me");
+            when(scheduler.checkExists(any(JobKey.class))).thenReturn(true);
 
             subscriptionService.resetToFreePlan(subscription);
 
+            assertEquals(Integer.MAX_VALUE, subscription.getUsersCount());
+            assertNull(subscription.getEndsOn());
+            assertNull(subscription.getScheduledChangeType());
+            assertNull(subscription.getScheduledChangeDate());
+            assertFalse(subscription.isDowngradeNeeded());
+            assertFalse(subscription.isUpgradeNeeded());
+            // Historical plan preserved (not forced to FREE)
+            assertEquals(businessPlan, subscription.getSubscriptionPlan());
+            // Paddle id preserved (never destroyed)
+            assertEquals("pdl_keep_me", subscription.getPaddleSubscriptionId());
+            // No schedules disabled by the policy
+            verify(scheduleRepository, never()).updateDisabledTrueByCompanyId(anyLong());
+            verify(subscriptionRepository).save(subscription);
+            // endsOn=null => pending Quartz degradation job removed
+            verify(scheduler).deleteJob(new JobKey("subscription-end-job-1", "subscription-group"));
+            verify(scheduler, never()).scheduleJob(any(JobDetail.class), any(Trigger.class));
+        }
+    }
+
+    @Nested
+    class ApplyAgplSubscriptionPolicy {
+
+        @Test
+        void alreadyNormalized_doesNotSave() {
+            subscription.setUsersCount(Integer.MAX_VALUE);
+            subscription.setEndsOn(null);
+            subscription.setScheduledChangeType(null);
+            subscription.setScheduledChangeDate(null);
+            subscription.setDowngradeNeeded(false);
+            subscription.setUpgradeNeeded(false);
+            subscription.setPaddleSubscriptionId("pdl_keep_me");
+
+            subscriptionService.applyAgplSubscriptionPolicy(subscription);
+
             verify(subscriptionRepository, never()).save(any());
+            verifyNoInteractions(scheduler);
         }
 
         @Test
-        void resetsSubscriptionToFreePlan() {
-            User active = buildUser(2L, true, true, false);
-            when(companyRepository.findBySubscription_Id(1L)).thenReturn(Optional.of(company));
-            when(userRepository.findByCompany_Id(1L)).thenReturn(List.of(owner, active));
-            when(subscriptionPlanService.findByCode("FREE")).thenReturn(Optional.of(freePlan));
+        void degradedSubscription_normalizedAndJobRemoved() throws SchedulerException {
+            subscription.setUsersCount(3);
+            subscription.setEndsOn(new Date(System.currentTimeMillis() - 60_000));
+            subscription.setScheduledChangeType(SubscriptionScheduledChangeType.RESET_TO_FREE);
+            subscription.setScheduledChangeDate(new Date());
+            subscription.setDowngradeNeeded(true);
+            subscription.setUpgradeNeeded(true);
+            when(scheduler.checkExists(any(JobKey.class))).thenReturn(true);
 
-            subscriptionService.resetToFreePlan(subscription);
+            subscriptionService.applyAgplSubscriptionPolicy(subscription);
 
-            assertFalse(subscription.isActivated());
-            assertEquals(3, subscription.getUsersCount());
-            assertTrue(subscription.isMonthly());
-            assertEquals(freePlan, subscription.getSubscriptionPlan());
+            assertEquals(Integer.MAX_VALUE, subscription.getUsersCount());
             assertNull(subscription.getEndsOn());
+            assertNull(subscription.getScheduledChangeType());
+            assertNull(subscription.getScheduledChangeDate());
             assertFalse(subscription.isDowngradeNeeded());
-            verify(scheduleRepository).updateDisabledTrueByCompanyId(1L);
+            assertFalse(subscription.isUpgradeNeeded());
+            verify(subscriptionRepository).save(subscription);
+            verify(scheduler).deleteJob(new JobKey("subscription-end-job-1", "subscription-group"));
+        }
+
+        @Test
+        void paddleSubscriptionId_preserved() {
+            subscription.setUsersCount(3);
+            subscription.setPaddleSubscriptionId("pdl_preserved");
+
+            subscriptionService.applyAgplSubscriptionPolicy(subscription);
+
+            assertEquals("pdl_preserved", subscription.getPaddleSubscriptionId());
             verify(subscriptionRepository).save(subscription);
         }
 
         @Test
-        void currentUsersOverLimit_setsDowngradeNeeded() {
-            when(companyRepository.findBySubscription_Id(1L)).thenReturn(Optional.of(company));
-            when(userRepository.findByCompany_Id(1L)).thenReturn(List.of(owner,
-                    buildUser(2L, true, true, false),
-                    buildUser(3L, true, true, false),
-                    buildUser(4L, true, true, false)));
-            when(subscriptionPlanService.findByCode("FREE")).thenReturn(Optional.of(freePlan));
+        void historicalPlan_notChangedToBusiness() {
+            subscription.setUsersCount(3);
+            subscription.setSubscriptionPlan(freePlan);
 
-            subscriptionService.resetToFreePlan(subscription);
+            subscriptionService.applyAgplSubscriptionPolicy(subscription);
 
-            assertTrue(subscription.isDowngradeNeeded());
+            // The AGPL policy does not reassign the plan; it only removes restrictions.
+            assertEquals(freePlan, subscription.getSubscriptionPlan());
+            verify(subscriptionPlanService, never()).findByCode(any());
+        }
+    }
+
+    @Nested
+    class NormalizeExistingSubscriptions {
+
+        @Test
+        void appliesPolicyToAllSubscriptions() throws SchedulerException {
+            Subscription second = Subscription.builder()
+                    .id(2L)
+                    .usersCount(3)
+                    .subscriptionPlan(businessPlan)
+                    .build();
+            when(subscriptionRepository.findAll()).thenReturn(List.of(subscription, second));
+            when(scheduler.checkExists(any(JobKey.class))).thenReturn(false);
+
+            subscriptionService.normalizeExistingSubscriptions();
+
+            assertEquals(Integer.MAX_VALUE, subscription.getUsersCount());
+            assertEquals(Integer.MAX_VALUE, second.getUsersCount());
+            verify(subscriptionRepository).save(subscription);
+            verify(subscriptionRepository).save(second);
         }
 
         @Test
-        void freePlanNotFound_throws() {
-            when(companyRepository.findBySubscription_Id(1L)).thenReturn(Optional.of(company));
-            when(userRepository.findByCompany_Id(1L)).thenReturn(List.of(owner));
-            when(subscriptionPlanService.findByCode("FREE")).thenReturn(Optional.empty());
+        void emptyRepository_noInteractions() {
+            when(subscriptionRepository.findAll()).thenReturn(List.of());
 
-            assertThrows(NoSuchElementException.class, () -> subscriptionService.resetToFreePlan(subscription));
+            subscriptionService.normalizeExistingSubscriptions();
+
+            verify(subscriptionRepository, never()).save(any());
+            verifyNoInteractions(scheduler);
+        }
+
+        @Test
+        void fullyNormalizedSubscription_noWrite() {
+            subscription.setUsersCount(Integer.MAX_VALUE);
+            subscription.setEndsOn(null);
+            subscription.setScheduledChangeType(null);
+            subscription.setScheduledChangeDate(null);
+            subscription.setDowngradeNeeded(false);
+            subscription.setUpgradeNeeded(false);
+            when(subscriptionRepository.findAll()).thenReturn(List.of(subscription));
+
+            subscriptionService.normalizeExistingSubscriptions();
+
+            verify(subscriptionRepository, never()).save(any());
         }
     }
 }

@@ -1,5 +1,8 @@
 package com.grash.service;
 
+// Modified by the Fierabrás CMMS fork, 2026-08 — AGPLv3: commercial
+// subscription degradation neutralized via a reusable AGPL policy. See NOTICE.md.
+
 import com.grash.dto.SubscriptionPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.job.SubscriptionEndJob;
@@ -158,26 +161,66 @@ public class SubscriptionService {
     }
 
     public void resetToFreePlan(Subscription subscription) {
-        Optional<Company> optionalCompany = companyRepository.findBySubscription_Id(subscription.getId());
-        if (optionalCompany.isEmpty()) return;
+        // AGPLv3 fork: do not degrade to FREE. Apply the AGPL subscription policy,
+        // which removes seat limits and degradation schedules while preserving
+        // historical identifiers, the historical plan, and user-disabled schedules.
+        // Callers (SubscriptionEndJob, Paddle webhook handlers) thus neutralize
+        // any future degradation without destroying audit data.
+        applyAgplSubscriptionPolicy(subscription);
+    }
 
-        subscription.setActivated(false);
-        subscription.setUsersCount(3);
-        subscription.setMonthly(true);
-//        subscription.setPaddleSubscriptionId(null);
-        Long companyId = optionalCompany.get().getId();
-        int currentUsersCount =
-                (int) userRepository.findByCompany_Id(companyId).stream().filter(User::isEnabledInSubscriptionAndPaid).count();
-        if (currentUsersCount > subscription.getUsersCount()) {
-            subscription.setDowngradeNeeded(true);
+    /**
+     * AGPLv3 fork: neutralizes commercial seat limits and subscription
+     * degradation for an existing Subscription, without destroying historical
+     * or external identifiers (paddleSubscriptionId is preserved), without
+     * changing the historical plan, and without disabling schedules that the
+     * user may have disabled voluntarily. Idempotent: only persists when a
+     * field actually changes. Removing any pending Quartz degradation job is
+     * delegated to scheduleEnd() (endsOn=null => job removed).
+     */
+    public void applyAgplSubscriptionPolicy(Subscription subscription) {
+        boolean changed = false;
+        if (subscription.getUsersCount() != Integer.MAX_VALUE) {
+            subscription.setUsersCount(Integer.MAX_VALUE);
+            changed = true;
         }
-        subscription.setScheduledChangeType(null);
-        subscription.setScheduledChangeDate(null);
-        subscription.setSubscriptionPlan(subscriptionPlanService.findByCode("FREE").get());
-        scheduleRepository.updateDisabledTrueByCompanyId(companyId);
-        subscription.setStartsOn(new Date());
-        subscription.setEndsOn(null);
-        subscriptionRepository.save(subscription);
+        if (subscription.getEndsOn() != null) {
+            subscription.setEndsOn(null);
+            changed = true;
+        }
+        if (subscription.getScheduledChangeType() != null) {
+            subscription.setScheduledChangeType(null);
+            changed = true;
+        }
+        if (subscription.getScheduledChangeDate() != null) {
+            subscription.setScheduledChangeDate(null);
+            changed = true;
+        }
+        // upgradeNeeded/downgradeNeeded are purely commercial seat-flow flags (no
+        // backend functional gating); reset them so no seat banner is shown.
+        if (subscription.isUpgradeNeeded()) {
+            subscription.setUpgradeNeeded(false);
+            changed = true;
+        }
+        if (subscription.isDowngradeNeeded()) {
+            subscription.setDowngradeNeeded(false);
+            changed = true;
+        }
+        if (changed) {
+            subscriptionRepository.save(subscription);
+            scheduleEnd(subscription); // endsOn=null => removes any pending Quartz degradation job
+        }
+    }
+
+    /**
+     * AGPLv3 fork: apply the AGPL subscription policy to every existing
+     * subscription at startup. Converges after the first pass (no writes on
+     * subsequent boots).
+     */
+    public void normalizeExistingSubscriptions() {
+        for (Subscription subscription : subscriptionRepository.findAll()) {
+            applyAgplSubscriptionPolicy(subscription);
+        }
     }
 
 }

@@ -13,7 +13,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   api:
-    image: intelloop/atlas-cmms-backend
+    # AGPLv3 fork: build locally from the modified source. Do NOT use the
+    # upstream intelloop/atlas-cmms-backend image (it lacks the fork changes).
+    build:
+      context: ./api
+    image: fierabras/cmms-api:local
     container_name: atlas-cmms-backend
     depends_on:
       - postgres
@@ -53,6 +57,9 @@ services:
       LICENSE_KEY: ${LICENSE_KEY:-}
       LICENSE_FINGERPRINT_REQUIRED: ${LICENSE_FINGERPRINT_REQUIRED:-false}
       LICENSE_FILE_PATH: ${LICENSE_FILE_PATH:-}
+      # AGPLv3 fork: corresponding source offer (§13) consumed by /api/source
+      SOURCE_CODE_URL: ${SOURCE_CODE_URL:-}
+      SOURCE_REVISION: ${SOURCE_REVISION:-}
       ALLOWED_ORGANIZATION_ADMINS: ${ALLOWED_ORGANIZATION_ADMINS:-}
       LOGO_PATHS: ${LOGO_PATHS}
       CUSTOM_COLORS: ${CUSTOM_COLORS}
@@ -91,7 +98,11 @@ services:
       - "8080"
 
   frontend:
-    image: intelloop/atlas-cmms-frontend
+    # AGPLv3 fork: build locally from the modified source. Do NOT use the
+    # upstream intelloop/atlas-cmms-frontend image (it lacks the fork changes).
+    build:
+      context: ./frontend
+    image: fierabras/cmms-frontend:local
     container_name: atlas-cmms-frontend
     environment:
       API_URL: /api
@@ -109,6 +120,10 @@ services:
       HOME_URL: ${HOME_URL:-https://atlas-cmms.com}
       PADDLE_SECRET_TOKEN: ${PADDLE_SECRET_TOKEN:- }
       PADDLE_ENVIRONMENT: ${PADDLE_ENVIRONMENT:-sandbox}
+      # AGPLv3 fork: corresponding source offer (§13). Exposed at runtime via
+      # window.__RUNTIME_CONFIG__ (runtime-env-cra); no rebuild needed to change.
+      SOURCE_CODE_URL: ${SOURCE_CODE_URL:-}
+      SOURCE_REVISION: ${SOURCE_REVISION:-}
       RECAPTCHA_SITE_KEY: ${RECAPTCHA_SITE_KEY:- }
       LDAP_ENABLED: ${LDAP_ENABLED:-false}
     expose:

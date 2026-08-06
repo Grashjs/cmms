@@ -201,4 +201,55 @@ To enable commercial features, you must set a valid `LICENSE_KEY`.
 For commercial licenses, visit [atlas-cmms.com/pricing?type=selfhosted](https://atlas-cmms.com/pricing?type=selfhosted)
 or email us at [contact@atlas-cmms.com](mailto:contact@atlas-cmms.com).
 
+---
+
+## Fierabrás CMMS — Fork AGPLv3
+
+This repository is a community fork of [Atlas CMMS](https://github.com/Grashjs/cmms),
+modified and distributed **exclusively** under the
+[GNU Affero General Public License v3.0](./LICENSE) (AGPL-3.0-only).
+
+**Date of modification:** 2026-08. **Status:** unofficial community fork, not
+affiliated with or endorsed by INTELLOOP LLC or Grashjs. See [`NOTICE.md`](./NOTICE.md).
+
+### Licensing of the fork
+
+- All commercial license restrictions are removed by a local AGPL policy; no
+  `LICENSE_KEY`, license file, Keygen, or Paddle integration is required.
+- All `LicenseEntitlement` values and all `PlanFeatures` are enabled; there are
+  no per-resource usage caps for self-hosted deployments.
+- `LICENSE` and `COMMERCIAL_LICENSE.MD` are kept verbatim for attribution and
+  traceability, but this fork adopts **only** the AGPLv3; the Commercial
+  License Agreement does not apply to the fork.
+- Trademarks (name "Atlas CMMS", logos) belong to INTELLOOP LLC and are **not**
+  licensed under AGPLv3; the fork uses them only as historical attribution until
+  a distinguishable identity replaces them.
+
+### Corresponding source offer (AGPLv3 §13)
+
+Users interacting with this software remotely over a network may obtain the
+exact Corresponding Source for the deployed revision:
+
+- Configure `SOURCE_CODE_URL` (public repository URL of the fork) and
+  `SOURCE_REVISION` (exact commit/tag deployed) — at runtime, no rebuild needed.
+- A visible "Código fuente — AGPLv3" link is shown both on the login screen and
+  inside the authenticated app layout.
+- A public endpoint `GET /api/source` (`/source` on the backend) returns:
+  `{ "license": "AGPL-3.0-only", "sourceCodeUrl": ..., "revision": ..., "correspondingSourceUrl": ... }`.
+
+### Build & deploy (fork)
+
+- `docker compose build --no-cache` builds **local** `fierabras/cmms-api:local`
+  and `fierabras/cmms-frontend:local` images from the modified source (see
+  `docker-compose.yml`). The upstream `intelloop/atlas-cmms-backend` and
+  `intelloop/atlas-cmms-frontend` images are **not** used for the fork.
+- No `LICENSE_KEY` is required; leave commercial variables empty.
+- Set `SOURCE_CODE_URL` and `SOURCE_REVISION` to keep the source offer accurate.
+
+### Sync with upstream
+
+See [`fierabras/docs/planFork.md`](./fierabras/docs/planFork.md) for the
+synchronization strategy, the rationale, and the per-UPstream-integration
+checklist.
+
 <img src="https://api.star-history.com/svg?repos=grashjs/cmms&type=Date"/>

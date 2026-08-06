@@ -1,5 +1,8 @@
 package com.grash.service;
 
+// Modified by the Fierabrás CMMS fork, 2026-08 — AGPLv3: local entitlement
+// policy replaces commercial license validation. See NOTICE.md.
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grash.dto.license.*;
 import com.grash.model.KeygenRequestTracker;
@@ -53,23 +56,31 @@ public class LicenseService {
     private volatile Set<String> cachedEntitlements = new HashSet<>();
     private volatile long lastCheckedTime = 0;
 
+    // === AGPLv3 fork begin: local, deterministic policy (no Keygen, no license file) ===
+    // This fork is distributed exclusively under the GNU AGPLv3 and grants every
+    // LicenseEntitlement locally, without external validation, license keys, or
+    // license files, and without forging or bypassing any commercial mechanism.
+    // The legacy Keygen/offline-file validation code below is intentionally kept
+    // (inactive) to keep the diff minimal and simplify upstream synchronization;
+    // it no longer participates in the licensing decision.
+    private static final Set<String> AGPL_ENTITLEMENTS =
+            Arrays.stream(LicenseEntitlement.values())
+                    .map(Enum::name)
+                    .collect(Collectors.toUnmodifiableSet());
+
+    private static final LicensingState AGPL_LICENSE_STATE = LicensingState.builder()
+            .valid(true)
+            .hasLicense(false)
+            .entitlements(AGPL_ENTITLEMENTS)
+            .planName("AGPLv3")
+            .expirationDate(null)
+            .usersCount(Integer.MAX_VALUE)
+            .build();
+
     public synchronized LicensingState getLicensingState() {
-        if (isCacheValid()) {
-            return buildLicensingStateFromCache();
-        }
-
-        if (!hasLicenseKey() && !hasLicenseFile()) {
-            return clearCacheAndReturnInvalid();
-        }
-
-        // Try license file validation first if available
-        if (hasLicenseFile()) {
-            return validateAndCacheLicenseFile();
-        }
-
-        // Fall back to Keygen API validation
-        return validateAndCacheLicenseKey();
+        return AGPL_LICENSE_STATE;
     }
+    // === AGPLv3 fork end ===
 
     public boolean isSSOEnabled() {
         return hasEntitlement(LicenseEntitlement.SSO);
