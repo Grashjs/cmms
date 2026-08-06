@@ -37,7 +37,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.grash.utils.Consts.usageBasedLicenseLimits;
+import static com.grash.utils.Consts.usageBasedFreeLimits;
 
 @Service
 @RequiredArgsConstructor
@@ -125,7 +125,7 @@ public class PartService {
     }
 
     private void checkUsageBasedLimit(Company company) {
-        Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_PARTS);
+        Integer threshold = usageBasedFreeLimits.get(LicenseEntitlement.UNLIMITED_PARTS);
         if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_PARTS)
                 && partRepository.hasMoreThan(company.getId(), threshold.longValue() - 1
         ))

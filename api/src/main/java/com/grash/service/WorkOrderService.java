@@ -64,7 +64,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.grash.utils.Consts.usageBasedLicenseLimits;
+import static com.grash.utils.Consts.usageBasedFreeLimits;
 
 @Service
 @RequiredArgsConstructor
@@ -182,7 +182,7 @@ public class WorkOrderService {
     }
 
     void checkUsageBasedLimit(Company company) {
-        Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS);
+        Integer threshold = usageBasedFreeLimits.get(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS);
         if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS)
                 && workOrderRepository.hasMoreActiveThan(company.getId(), threshold.longValue() - 1
         ))

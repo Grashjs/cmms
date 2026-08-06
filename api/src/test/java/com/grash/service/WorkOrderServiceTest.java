@@ -16,7 +16,6 @@ import com.grash.factory.MailServiceFactory;
 import com.grash.mapper.PreventiveMaintenanceMapper;
 import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.*;
-import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.*;
 import com.grash.model.enums.webhook.WOField;
 import com.grash.model.enums.webhook.WebhookEvent;
@@ -30,12 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.MessageSource;
-import org.springframework.core.env.Environment;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.util.Pair;
-import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -1034,7 +1028,7 @@ class WorkOrderServiceTest {
         void underLimit_noException() {
             when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS)).thenReturn(false);
             when(workOrderRepository.hasMoreActiveThan(eq(1L),
-                    eq((long) (Consts.usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS) - 1)))).thenReturn(false);
+                    eq((long) (Consts.usageBasedFreeLimits.get(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS) - 1)))).thenReturn(false);
             assertDoesNotThrow(() -> workOrderService.checkUsageBasedLimit(company));
         }
 
@@ -1042,7 +1036,7 @@ class WorkOrderServiceTest {
         void atLimit_throwsForbidden() {
             when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS)).thenReturn(false);
             when(workOrderRepository.hasMoreActiveThan(eq(1L),
-                    eq((long) (Consts.usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS) - 1)))).thenReturn(true);
+                    eq((long) (Consts.usageBasedFreeLimits.get(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS) - 1)))).thenReturn(true);
             CustomException ex = assertThrows(CustomException.class,
                     () -> workOrderService.checkUsageBasedLimit(company));
             assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());

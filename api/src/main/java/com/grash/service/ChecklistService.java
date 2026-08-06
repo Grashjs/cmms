@@ -14,12 +14,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.grash.utils.Consts.usageBasedLicenseLimits;
+import static com.grash.utils.Consts.usageBasedFreeLimits;
 
 @Service
 @RequiredArgsConstructor
@@ -67,7 +68,7 @@ public class ChecklistService {
     private void checkUsageBasedLimit(Company company) {
         if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_CHECKLISTS)
                 && checklistRepository.hasMoreThan(company.getId(),
-                usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_CHECKLISTS).longValue()))
+                usageBasedFreeLimits.get(LicenseEntitlement.UNLIMITED_CHECKLISTS).longValue()))
             throw new CustomException("You need a license to add a checklist", HttpStatus.FORBIDDEN);
     }
 

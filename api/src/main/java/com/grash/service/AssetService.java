@@ -16,7 +16,6 @@ import com.grash.model.enums.CustomFieldEntityType;
 import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.AssetRepository;
-import com.grash.service.CustomFieldValueService;
 import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +36,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.grash.utils.Consts.usageBasedLicenseLimits;
+import static com.grash.utils.Consts.usageBasedFreeLimits;
 
 @Service
 @RequiredArgsConstructor
@@ -142,7 +141,7 @@ public class AssetService {
     }
 
     private void checkUsageBasedLimit(Company company) {
-        Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_ASSETS);
+        Integer threshold = usageBasedFreeLimits.get(LicenseEntitlement.UNLIMITED_ASSETS);
         if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ASSETS)
                 && assetRepository.hasMoreThan(company.getId(), threshold.longValue() - 1
         ))

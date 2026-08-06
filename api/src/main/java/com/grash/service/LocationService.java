@@ -15,13 +15,11 @@ import com.grash.model.enums.CustomFieldEntityType;
 import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.LocationRepository;
-import com.grash.service.CustomFieldValueService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +29,7 @@ import jakarta.persistence.EntityManager;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.grash.utils.Consts.usageBasedLicenseLimits;
+import static com.grash.utils.Consts.usageBasedFreeLimits;
 
 @Service
 @RequiredArgsConstructor
@@ -88,7 +86,7 @@ public class LocationService {
     }
 
     private void checkUsageBasedLimit(Company company) {
-        Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_LOCATIONS);
+        Integer threshold = usageBasedFreeLimits.get(LicenseEntitlement.UNLIMITED_LOCATIONS);
         if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_LOCATIONS)
                 && locationRepository.hasMoreThan(company.getId(), threshold.longValue() - 1
         ))

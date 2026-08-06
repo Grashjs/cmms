@@ -13,9 +13,7 @@ import com.grash.mapper.MeterMapper;
 import com.grash.model.*;
 import com.grash.model.enums.CustomFieldEntityType;
 import com.grash.model.enums.NotificationType;
-import com.grash.model.enums.PermissionEntity;
 import com.grash.repository.MeterRepository;
-import com.grash.service.CustomFieldValueService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
@@ -30,7 +28,7 @@ import jakarta.persistence.EntityManager;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.grash.utils.Consts.usageBasedLicenseLimits;
+import static com.grash.utils.Consts.usageBasedFreeLimits;
 
 @Service
 @RequiredArgsConstructor
@@ -66,7 +64,7 @@ public class MeterService {
     }
 
     private void checkUsageBasedLimit(Company company) {
-        Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_METERS);
+        Integer threshold = usageBasedFreeLimits.get(LicenseEntitlement.UNLIMITED_METERS);
         if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_METERS)
                 && meterRepository.hasMoreThan(company.getId(), threshold.longValue() - 1
         ))
@@ -191,6 +189,6 @@ public class MeterService {
     public List<Meter> findByIdsAndCompany(List<Long> ids, Long companyId) {
         return meterRepository.findByIdInAndCompany_Id(ids, companyId);
     }
-    
+
 }
 

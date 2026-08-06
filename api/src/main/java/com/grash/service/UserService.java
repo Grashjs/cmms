@@ -2,7 +2,6 @@ package com.grash.service;
 
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
-import com.grash.dto.LdapLoginRequest;
 import com.grash.dto.SignupSuccessResponse;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.UserInvitationDTO;
@@ -27,7 +26,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.MessageSource;
@@ -42,18 +40,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
-import org.springframework.ldap.core.AttributesMapper;
-import org.springframework.ldap.core.LdapTemplate;
-import org.springframework.ldap.filter.AndFilter;
-import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.*;
-import javax.naming.directory.SearchControls;
 
-import static com.grash.utils.Consts.usageBasedLicenseLimits;
+import static com.grash.utils.Consts.usageBasedFreeLimits;
 
 
 @Service
@@ -136,15 +128,12 @@ public class UserService {
 
     public void checkUsageBasedLimit(int newUsersCount) {
         LicensingState licensingState = licenseService.getLicensingState();
-        if (licensingState.isHasLicense()) {
-            if (userRepository.hasMorePaidUsersThan(licensingState.getUsersCount() - newUsersCount))
-                throw new RuntimeException("Cannot create more users than the license allows: " + licensingState.getUsersCount() + ". Refer to https://github.com/Grashjs/cmms/blob/main/dev-docs/Disable%20users.md");
-        }
-        Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_USERS);
+        Integer freeTierThreshold = usageBasedFreeLimits.get(LicenseEntitlement.UNLIMITED_USERS);
         if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)
-                && userRepository.hasMorePaidUsersThan(threshold - newUsersCount
-        ))
-            throw new RuntimeException("Cannot create more users than the free license allows: " + threshold + ". " +
+                && userRepository.hasMorePaidUsersThan((licensingState.isHasLicense() ?
+                licensingState.getUsersCount() : freeTierThreshold) - newUsersCount)
+        )
+            throw new RuntimeException("Cannot create more users than the free license allows: " + freeTierThreshold + ". " +
                     "Refer to" +
                     " https://github.com/Grashjs/cmms/blob/main/dev-docs/Disable%20users.md");
     }
