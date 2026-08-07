@@ -47,7 +47,6 @@ function SubscriptionPlans() {
   const brandConfig = useBrand();
   const subscription = company.subscription;
   const theme = useTheme();
-  const [item, setItem] = useState(null);
   const [usersCount, setUsersCount] = useState<number>(
     company.subscription.usersCount > 150 ? 10 : company.subscription.usersCount
   );
