@@ -1,0 +1,38 @@
+name: Java SAST Scan
+
+on:
+  push:
+    branches:
+      - security
+  pull_request:
+    branches:
+      - security
+
+jobs:
+  java-sast:
+    name: SpotBugs + FindSecBugs (api/)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build project with Maven (skip tests)
+        working-directory: api
+        run: mvn clean install -DskipTests
+
+      - name: Run SpotBugs with FindSecBugs
+        working-directory: api
+        run: mvn com.github.spotbugs:spotbugs-maven-plugin:4.7.3.0:spotbugs
+
+      - name: Upload SpotBugs report
+        uses: actions/upload-artifact@v4
+        with:
+          name: spotbugs-report
+          path: api/target/spotbugsXml.xml
