@@ -57,7 +57,6 @@ function SubscriptionPlans() {
   const { subscriptionPlans } = useSelector((state) => state.subscriptionPlans);
   const { setTitle } = useContext(TitleContext);
   const { showSnackBar } = useContext(CustomSnackBarContext);
-  const { getFormattedCurrency } = useContext(CompanySettingsContext);
   const [submitting, setSubmitting] = useState(false);
   const checkoutComplete = useRef<boolean>(false);
   const dispatch = useDispatch();
