@@ -965,8 +965,7 @@ class UserServiceTest {
 
         @Test
         void exceptionMessage_mentionsFreeThreshold() {
-            when(licenseService.getLicensingState()).thenReturn(
-                    LicensingState.builder().hasLicense(false).usersCount(0).build());
+            when(licenseService.getLicensingState()).thenReturn(LicensingState.builder().hasLicense(false).usersCount(0).build());
             when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)).thenReturn(false);
             when(userRepository.hasMorePaidUsersThan(anyInt())).thenReturn(true);
 
