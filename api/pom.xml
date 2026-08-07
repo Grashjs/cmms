@@ -283,7 +283,7 @@
                 <configuration>
                     <argLine>-Duser.timezone=UTC</argLine>
 <!--                    <argLine>-Xmx2048m -XX:MaxMetaspaceSize=512m</argLine>-->
-                    <argLine>--add-opens java.base/java.lang=ALL-UNNAMED</argLine>
+                    <argLine>@{argLine} --add-opens java.base/java.lang=ALL-UNNAMED</argLine>
                     <properties>
                         <configurationParameters>
                             junit.jupiter.execution.parallel.enabled = true
@@ -301,6 +301,28 @@
                 <configuration>
                     <argLine>-Duser.timezone=UTC</argLine>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.12</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.basedir}/htmlReport</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.liquibase</groupId>

@@ -122,7 +122,7 @@ public class AssetService {
     }
 
     @Transactional
-    public Asset update(Long id, AssetPatchDTO asset, Company company) {
+    protected Asset update(Long id, AssetPatchDTO asset, Company company) {
         if (asset.getParentAsset() != null && !licenseService.hasEntitlement(LicenseEntitlement.ASSET_HIERARCHY))
             throw new CustomException("You need a license to add a child asset to another asset.",
                     HttpStatus.FORBIDDEN);
