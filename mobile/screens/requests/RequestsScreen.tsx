@@ -237,7 +237,7 @@ export default function RequestsScreen({
             <ScrollView
               horizontal
               style={{
-                backgroundColor: 'white',
+                backgroundColor: theme.colors.surface,
                 paddingLeft: 5,
                 borderRadius: 5,
                 marginBottom: 2
@@ -287,7 +287,7 @@ export default function RequestsScreen({
                   }}
                   key={request.id}
                 >
-                  <View style={styles.card}>
+                  <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
                     <View
                       style={{
                         display: 'flex',
@@ -322,7 +322,7 @@ export default function RequestsScreen({
                             </Text>
                             <Text
                               variant={'bodySmall'}
-                              style={{ color: 'grey' }}
+                              style={{ color: theme.colors.onSurfaceVariant }}
                             >{`#${request.customId}`}</Text>
                           </View>
                           <Tag
@@ -380,7 +380,7 @@ export default function RequestsScreen({
             ) : loadingGet ? null : (
               <View
                 style={{
-                  backgroundColor: 'white',
+                  backgroundColor: theme.colors.surface,
                   padding: 20,
                   borderRadius: 10
                 }}
@@ -400,7 +400,7 @@ export default function RequestsScreen({
         </Fragment>
       ) : (
         <View
-          style={{ backgroundColor: 'white', padding: 20, borderRadius: 10 }}
+          style={{ backgroundColor: theme.colors.surface, padding: 20, borderRadius: 10 }}
         >
           <Text variant={'titleLarge'}>{t('no_access_requests')}</Text>
         </View>
@@ -429,7 +429,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   card: {
-    backgroundColor: 'white',
+    backgroundColor: 'transparent',
     marginBottom: 1,
     padding: 10
   },
