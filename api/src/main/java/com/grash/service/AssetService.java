@@ -14,6 +14,9 @@ import com.grash.model.*;
 import com.grash.model.enums.AssetStatus;
 import com.grash.model.enums.CustomFieldEntityType;
 import com.grash.model.enums.NotificationType;
+import com.grash.model.enums.PermissionEntity;
+import com.grash.model.enums.PortalFieldType;
+import com.grash.model.enums.RoleType;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.AssetRepository;
 import com.grash.utils.Helper;
@@ -43,9 +46,7 @@ import static com.grash.utils.Consts.usageBasedFreeLimits;
 public class AssetService {
     private final AssetRepository assetRepository;
     private LocationService locationService;
-    private final FileService fileService;
     private final AssetCategoryService assetCategoryService;
-    private final DeprecationService deprecationService;
     private final UserService userService;
     private final CustomerService customerService;
     private final VendorService vendorService;
@@ -60,6 +61,8 @@ public class AssetService {
     private final MessageSource messageSource;
     private final CustomSequenceService customSequenceService;
     private final LicenseService licenseService;
+    private final RateLimiterService rateLimiterService;
+    private final RequestPortalService requestPortalService;
     private WebhookDispatchService webhookDispatchService;
     private final CustomFieldValueService customFieldValueService;
 
@@ -290,22 +293,181 @@ public class AssetService {
         assetDowntimeService.create(downtime, false);
     }
 
-    public boolean isAssetInCompany(Asset asset, long companyId, boolean optional) {
-        if (optional) {
-            Optional<Asset> optionalAsset = asset == null ? Optional.empty() : findById(asset.getId());
-            return asset == null || (optionalAsset.isPresent() && optionalAsset.get().getCompany().getId().equals(companyId));
-        } else {
-            Optional<Asset> optionalAsset = findById(asset.getId());
-            return optionalAsset.isPresent() && optionalAsset.get().getCompany().getId().equals(companyId);
-        }
-    }
-
     public Page<AssetShowDTO> findBySearchCriteria(SearchCriteria searchCriteria) {
         SpecificationBuilder<Asset> builder = new SpecificationBuilder<>();
         searchCriteria.getFilterFields().forEach(builder::with);
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(),
                 searchCriteria.getDirection(), searchCriteria.getSortField());
         return assetRepository.findAll(builder.build(), page).map(asset -> assetMapper.toShowDto(asset, this));
+    }
+
+    public SearchCriteria getSearchCriteria(User user, SearchCriteria searchCriteria) {
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS)) {
+                searchCriteria.filterCompany(user);
+                boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.ASSETS);
+                if (!canViewOthers) {
+                    searchCriteria.filterCreatedBy(user);
+                }
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+        }
+        return searchCriteria;
+    }
+
+    public Asset getByNfcIdAndCompany(String nfcId, User user) {
+        if (!licenseService.hasEntitlement(LicenseEntitlement.NFC_BARCODE))
+            throw new CustomException("You need a license to scan an asset", HttpStatus.FORBIDDEN);
+        return findByNfcIdAndCompany(nfcId, user.getCompany().getId()).get();
+    }
+
+    public Asset getByBarcodeAndCompany(String data, User user) {
+        if (!licenseService.hasEntitlement(LicenseEntitlement.NFC_BARCODE))
+            throw new CustomException("You need a license to scan an asset", HttpStatus.FORBIDDEN);
+        return findByBarcodeAndCompany(data, user.getCompany().getId()).get();
+    }
+
+    public Asset checkAccessToAssetId(Long assetId, User user) {
+        Asset asset = findById(assetId).orElseThrow(() -> new CustomException("Not found", HttpStatus.NOT_FOUND));
+        if (!asset.canBeViewedBy(user))
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        return asset;
+    }
+
+    public Collection<Asset> findByLocationAndUser(Long locationId, User user) {
+        Optional<Location> optionalLocation = locationService.findById(locationId);
+        if (optionalLocation.isPresent()) {
+            if (!optionalLocation.get().canBeViewedBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return findByLocation(locationId);
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    public Collection<Asset> findByPartAndUser(Long partId, User user) {
+        Optional<Part> optionalPart = partService.findById(partId);
+        if (optionalPart.isPresent()) {
+            if (!optionalPart.get().canBeViewedBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return optionalPart.get().getAssets();
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    public List<Asset> findChildren(Long id, User user, Pageable pageable) {
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS))
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        if (id.equals(0L) && user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            return findByCompanyAndParentAssetNull(user.getCompany().getId(), pageable);
+        }
+        Optional<Asset> optionalAsset = findById(id);
+        if (optionalAsset.isPresent()) {
+            return findAssetChildren(id, pageable).getContent();
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    public Page<Asset> findChildrenPaginated(Long id, User user, Pageable pageable) {
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS))
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        if (id.equals(0L) && user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            return assetRepository.findByCompany_IdAndParentAssetIsNull(user.getCompany().getId(), pageable);
+        }
+        Optional<Asset> optionalAsset = findById(id);
+        if (optionalAsset.isPresent()) {
+            return findAssetChildren(id, pageable);
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    @Transactional
+    public Asset createByUser(AssetPostDTO assetReq, User user) {
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.ASSETS)) {
+            if (assetReq.getBarCode() != null) {
+                Optional<Asset> optionalAssetWithSameBarCode =
+                        findByBarcodeAndCompany(assetReq.getBarCode(), user.getCompany().getId());
+                if (optionalAssetWithSameBarCode.isPresent()) {
+                    throw new CustomException("Asset with same barCode exists", HttpStatus.NOT_ACCEPTABLE);
+                }
+            }
+            if (assetReq.getNfcId() != null) {
+                Optional<Asset> optionalAssetWithSameNfcId = findByNfcIdAndCompany(assetReq.getNfcId(),
+                        user.getCompany().getId());
+                if (optionalAssetWithSameNfcId.isPresent()) {
+                    throw new CustomException("Asset with same nfc code exists", HttpStatus.NOT_ACCEPTABLE);
+                }
+            }
+            Asset createdAsset = create(assetReq, user);
+            String message = messageSource.getMessage("notification_asset_assigned",
+                    new Object[]{createdAsset.getName()}, Helper.getLocale(user));
+            notify(createdAsset, messageSource.getMessage("new_assignment", null,
+                    Helper.getLocale(user)), message);
+            return createdAsset;
+        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+    }
+
+    @Transactional
+    public Asset patch(Long id, AssetPatchDTO asset, User user) {
+        Optional<Asset> optionalAsset = findById(id);
+
+        if (optionalAsset.isPresent()) {
+            Asset savedAsset = optionalAsset.get();
+            em.detach(savedAsset);
+            if (savedAsset.canBeEditedBy(user)) {
+                if (!asset.getStatus().isReallyDown() && savedAsset.getStatus().isReallyDown()) {
+                    stopDownTime(savedAsset.getId(), Helper.getLocale(user));
+                } else if (asset.getStatus().isReallyDown() && !savedAsset.getStatus().isReallyDown()) {
+                    triggerDownTime(savedAsset.getId(), Helper.getLocale(user), asset.getStatus());
+                }
+                if (asset.getBarCode() != null) {
+                    Optional<Asset> optionalAssetWithSameBarCode =
+                            findByBarcodeAndCompany(asset.getBarCode(), user.getCompany().getId());
+                    if (optionalAssetWithSameBarCode.isPresent() && !optionalAssetWithSameBarCode.get().getId().equals(id)) {
+                        throw new CustomException("Asset with same barcode exists", HttpStatus.NOT_ACCEPTABLE);
+                    }
+                }
+                if (asset.getNfcId() != null) {
+                    Optional<Asset> optionalAssetWithSameNfcId = findByNfcIdAndCompany(asset.getNfcId(),
+                            user.getCompany().getId());
+                    if (optionalAssetWithSameNfcId.isPresent() && !optionalAssetWithSameNfcId.get().getId().equals(id)) {
+                        throw new CustomException("Asset with same nfc code exists", HttpStatus.NOT_ACCEPTABLE);
+                    }
+                }
+                if (asset.getParentAsset() != null && asset.getParentAsset().getId().equals(id))
+                    throw new CustomException("Parent asset cannot be the same id", HttpStatus.NOT_ACCEPTABLE);
+                Asset patchedAsset = update(id, asset, user.getCompany());
+                patchNotify(savedAsset, patchedAsset, Helper.getLocale(user));
+                return patchedAsset;
+            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        } else throw new CustomException("Asset not found", HttpStatus.NOT_FOUND);
+    }
+
+    public List<Asset> findMini(Long locationId, User user) {
+        if (locationId == null) {
+            return findByCompany(user.getCompany().getId());
+        }
+        return findByLocation(locationId);
+    }
+
+    public List<Asset> findMiniPublic(String portalUUID, Long locationId, String clientIp) {
+        if (!rateLimiterService.resolvePublicMiniBucket(clientIp).tryConsume(1)) {
+            throw new CustomException("Rate limit exceeded. Try again later.", HttpStatus.TOO_MANY_REQUESTS);
+        }
+        List<Asset> assets;
+        RequestPortal requestPortal = requestPortalService.findByUuidByUser(portalUUID).get();
+        if (requestPortal.getFields().stream().anyMatch(requestPortalField -> requestPortalField.getAsset() != null && requestPortalField.getType().equals(PortalFieldType.ASSET)))
+            throw new CustomException("This portal is not configured to show assets", HttpStatus.FORBIDDEN);
+        if (locationId == null) {
+            assets = findByCompany(requestPortal.getCompany().getId());
+        } else {
+            assets = findByLocation(locationId);
+        }
+        return assets;
+    }
+
+    public void deleteByIdAndUser(Long id, User user) {
+        Optional<Asset> optionalAsset = findById(id);
+        if (optionalAsset.isPresent()) {
+            Asset savedAsset = optionalAsset.get();
+            if (savedAsset.canBeDeletedBy(user)) {
+                delete(id);
+            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        } else throw new CustomException("Asset not found", HttpStatus.NOT_FOUND);
     }
 
     public List<Asset> findByNameIgnoreCaseAndCompany(String assetName, Long companyId) {
