@@ -13,3 +13,8 @@ docker-compose-dev.yml
 /logo/
 *.lic
 docker-compose-minio.yml
+# Bildmarke des Ökosystems (mehrere MB, absichtlich nicht im Repo).
+# Genau wie in AssetTrace wird docs/logo_v4.png nur lokal vorgehalten und von
+# frontend/scripts/gen-logo-assets.ps1 verarbeitet. Die daraus erzeugten,
+# kleinen Assets unter */public/ bleiben davon unberührt und sind getrackt.
+docs/logo_v4.png
