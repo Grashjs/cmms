@@ -4,7 +4,8 @@ import { Pressable, StyleSheet, View, ViewStyle } from 'react-native';
 import { Avatar, Icon, Text } from 'react-native-paper';
 import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
 import { useAppTheme } from '../../custom-theme';
-import { elevation, fontWeight, radius, spacing, touchTarget } from '../../theme/tokens';
+import { fontWeight, radius, spacing, touchTarget } from '../../theme/tokens';
+import { raisedSurface } from '../../theme/surface';
 
 /**
  * A row of secondary information under the title, such as the asset a work
@@ -71,12 +72,8 @@ export default function EntityListCard({
       accessibilityLabel={derivedLabel}
       style={({ pressed }) => [
         styles.card,
-        elevation.card,
-        {
-          backgroundColor: theme.colors.card,
-          shadowColor: theme.dark ? 'transparent' : '#000',
-          opacity: pressed && onPress ? 0.7 : 1
-        },
+        raisedSurface(theme),
+        { opacity: pressed && onPress ? 0.7 : 1 },
         style
       ]}
     >

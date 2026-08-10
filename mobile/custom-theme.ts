@@ -27,6 +27,7 @@ const buildColors = (source: Record<PaletteColor, string>) => ({
   tertiaryContainer: source.tertiaryContainer,
   grey: source.grey,
   card: source.card,
+  border: source.border,
   text: source.text,
   textInverse: source.textInverse
 });
@@ -76,7 +77,7 @@ export const getNavigationTheme = (dark: boolean): NavigationTheme => {
       background: source.background,
       card: source.card,
       text: source.text,
-      border: dark ? '#2c2f3a' : '#d5d7e3',
+      border: source.border,
       notification: source.error
     }
   };

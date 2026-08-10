@@ -2,7 +2,8 @@ import * as React from 'react';
 import { useEffect, useRef } from 'react';
 import { Animated, Easing, StyleSheet, View } from 'react-native';
 import { useAppTheme } from '../../custom-theme';
-import { elevation, radius, spacing } from '../../theme/tokens';
+import { radius, spacing } from '../../theme/tokens';
+import { raisedSurface } from '../../theme/surface';
 
 export interface ListSkeletonProps {
   /** Number of placeholder rows. Roughly one screenful is usually right. */
@@ -60,14 +61,7 @@ export default function ListSkeleton({ count = 6 }: ListSkeletonProps) {
       {Array.from({ length: count }).map((_, index) => (
         <View
           key={index}
-          style={[
-            styles.card,
-            elevation.card,
-            {
-              backgroundColor: theme.colors.card,
-              shadowColor: theme.dark ? 'transparent' : '#000'
-            }
-          ]}
+          style={[styles.card, raisedSurface(theme)]}
         >
           <Animated.View
             style={[

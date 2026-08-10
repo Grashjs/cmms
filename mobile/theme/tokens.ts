@@ -81,6 +81,7 @@ export type PaletteColor =
   | 'white'
   | 'grey'
   | 'card'
+  | 'border'
   | 'text'
   | 'textInverse';
 
@@ -108,6 +109,9 @@ export const palette: Record<PaletteColor, string> = {
   grey: '#676b6b',
   // Raised surfaces (cards, sheets, list rows) sitting on `background`.
   card: '#ffffff',
+  // Hairline separator. Dark surfaces cannot rely on a drop shadow to read as
+  // raised, so cards outline themselves instead.
+  border: '#e0e2ee',
   // `black` above is a brand navy rather than true black. These two are the
   // plain foreground pair used by the `Themed` primitives, flipped by scheme.
   text: '#000000',
@@ -140,6 +144,7 @@ export const darkPalette: Record<PaletteColor, string> = {
   grey: '#9ba0a0',
   // Deliberately lighter than `background` so cards stay distinguishable.
   card: '#1e2029',
+  border: '#2c2f3a',
   text: '#ffffff',
   textInverse: '#000000'
 };

@@ -23,13 +23,8 @@ import { useAppTheme } from '../custom-theme';
 import { bucketFilters, getMyDay, MyDayBucket } from '../slices/myDay';
 import WorkOrderCard from './workOrders/components/WorkOrderCard';
 import { EmptyState, ListSkeleton } from '../components/ui';
-import {
-  elevation,
-  fontWeight,
-  radius,
-  spacing,
-  touchTarget
-} from '../theme/tokens';
+import { fontWeight, radius, spacing, touchTarget } from '../theme/tokens';
+import { raisedSurface } from '../theme/surface';
 
 const greetingKey = () => {
   const hour = new Date().getHours();
@@ -295,10 +290,9 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
             onPress={() => openStat(stat.filterFields)}
             style={[
               styles.statPill,
-              elevation.card,
+              raisedSurface(theme),
               {
-                backgroundColor: theme.colors.card,
-                shadowColor: theme.dark ? 'transparent' : '#000',
+                borderLeftWidth: 3,
                 borderLeftColor: getStatusColor(stat.label, theme)
               }
             ]}
@@ -421,7 +415,6 @@ const styles = StyleSheet.create({
   statPill: {
     flex: 1,
     borderRadius: radius.md,
-    borderLeftWidth: 3,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.sm,
     minHeight: touchTarget.min,

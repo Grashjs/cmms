@@ -1,10 +1,11 @@
 import * as React from 'react';
 import { ReactNode, useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View, ViewStyle } from 'react-native';
 import { Icon, Text } from 'react-native-paper';
 import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
 import { useAppTheme } from '../../custom-theme';
-import { elevation, fontWeight, radius, spacing, touchTarget } from '../../theme/tokens';
+import { fontWeight, radius, spacing, touchTarget } from '../../theme/tokens';
+import { raisedSurface } from '../../theme/surface';
 
 export interface SectionProps {
   title: string;
@@ -17,6 +18,8 @@ export interface SectionProps {
   defaultCollapsed?: boolean;
   /** Rendered at the right of the header, e.g. an add button. */
   action?: ReactNode;
+  /** Mainly to drop the horizontal margin when the parent already pads. */
+  style?: ViewStyle;
 }
 
 /**
@@ -34,7 +37,8 @@ export default function Section({
   children,
   collapsible = false,
   defaultCollapsed = false,
-  action
+  action,
+  style
 }: SectionProps) {
   const theme = useAppTheme();
   const [collapsed, setCollapsed] = useState(collapsible && defaultCollapsed);
@@ -67,14 +71,7 @@ export default function Section({
 
   return (
     <View
-      style={[
-        styles.container,
-        elevation.card,
-        {
-          backgroundColor: theme.colors.card,
-          shadowColor: theme.dark ? 'transparent' : '#000'
-        }
-      ]}
+      style={[styles.container, raisedSurface(theme), style]}
     >
       {collapsible ? (
         <Pressable
