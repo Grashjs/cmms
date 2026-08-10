@@ -1530,6 +1530,25 @@ const locale = {
   discard_changes_question:
     'Discard unsaved changes?\nIf you leave now, you will lose unsaved changes',
   edit_reading: 'Edit reading',
-  are_you_sure_delete_reading: 'Are you sure to delete this reading?'
+  are_you_sure_delete_reading: 'Are you sure to delete this reading?',
+  active: 'Active',
+  not_found: 'Not found',
+  schedule: 'Schedule',
+  no_schedule: 'No schedule',
+  schedule_paused_description:
+    'Paused automatically because recent work orders went unanswered. No new ones will be created until an administrator resumes it on the web',
+  no_upcoming_occurrence: 'No upcoming occurrence',
+  next_on: 'Next on {{date}}',
+  every_day: 'Every day',
+  every_week: 'Every week',
+  every_two_weeks: 'Every 2 weeks',
+  every_month: 'Every month',
+  every_year: 'Every year',
+  every_n_days: 'Every {{count}} days',
+  hours_value: '{{value}} h',
+  work_order_template: 'Work order template',
+  no_preventive_maintenance: 'No preventive maintenance yet',
+  no_preventive_maintenance_description:
+    'Recurring maintenance you schedule here creates work orders automatically'
 };
 export default locale;

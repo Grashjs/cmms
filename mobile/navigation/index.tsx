@@ -68,6 +68,8 @@ import VendorsAndCustomersScreen from '../screens/vendorsCustomers';
 import PeopleAndTeamsScreen from '../screens/peopleTeams';
 import NotificationsScreen from '../screens/NotificationsScreen';
 import GlobalSearchScreen from '../screens/GlobalSearchScreen';
+import PreventiveMaintenancesScreen from '../screens/preventiveMaintenances';
+import PMDetails from '../screens/preventiveMaintenances/PMDetails';
 import AssetsScreen from '../screens/assets/AssetsScreen';
 import LocationsScreen from '../screens/locations/LocationsScreen';
 import AssetDetails from '../screens/assets/details';
@@ -359,6 +361,16 @@ function RootNavigator() {
         name="GlobalSearch"
         component={GlobalSearchScreen}
         options={{ title: t('search') }}
+      />
+      <Stack.Screen
+        name="PreventiveMaintenances"
+        component={PreventiveMaintenancesScreen}
+        options={{ title: t('preventive_maintenance') }}
+      />
+      <Stack.Screen
+        name="PMDetails"
+        component={PMDetails}
+        options={{ title: t('preventive_maintenance') }}
       />
       <Stack.Screen
         name="Settings"

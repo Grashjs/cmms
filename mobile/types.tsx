@@ -160,6 +160,8 @@ export type RootStackParamList = {
   VendorsCustomers: undefined;
   Notifications: undefined;
   GlobalSearch: undefined;
+  PreventiveMaintenances: undefined;
+  PMDetails: { id: number };
   Settings: undefined;
   WorkOrderFilters: {
     filterFields: FilterField[];
