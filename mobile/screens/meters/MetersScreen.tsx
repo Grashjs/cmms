@@ -1,45 +1,26 @@
-import {
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View
-} from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useDispatch, useSelector } from '../../store';
 import * as React from 'react';
-import { useContext, useEffect, useState } from 'react';
-import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
+import { useCallback, useEffect, useState } from 'react';
 import useAuth from '../../hooks/useAuth';
 import { PermissionEntity } from '../../models/role';
 import { getMeters, getMoreMeters } from '../../slices/meter';
 import { FilterField, SearchCriteria } from '../../models/page';
-import {
-  Button,
-  Card,
-  IconButton,
-  Searchbar,
-  Text,
-  Avatar,
-  TouchableRipple
-} from 'react-native-paper';
+import { Searchbar } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import Meter from '../../models/meter';
-import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
-import {
-  canAddReading,
-  isCloseToBottom,
-  onSearchQueryChange
-} from '../../utils/overall';
-import Tag from '../../components/Tag';
+import { canAddReading, onSearchQueryChange } from '../../utils/overall';
 import { RootStackScreenProps } from '../../types';
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
-import { IconWithLabel } from '../../components/IconWithLabel';
 import { useAppTheme } from '../../custom-theme';
-import _ from 'lodash';
+import {
+  EmptyState,
+  EntityListCard,
+  PaginatedEntityList
+} from '../../components/ui';
 
 export default function MetersScreen({
-  navigation,
-  route
+  navigation
 }: RootStackScreenProps<'Meters'>) {
   const { t } = useTranslation();
   const [startedSearch, setStartedSearch] = useState<boolean>(false);
@@ -49,10 +30,8 @@ export default function MetersScreen({
   const theme = useAppTheme();
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState('');
-  const { getFormattedDate, getUserNameById } = useContext(
-    CompanySettingsContext
-  );
-  const { hasViewPermission, user } = useAuth();
+  const [refreshing, setRefreshing] = useState(false);
+  const { hasViewPermission } = useAuth();
   const defaultFilterFields: FilterField[] = [];
   const getCriteriaFromFilterFields = (filterFields: FilterField[]) => {
     const initialCriteria: SearchCriteria = {
@@ -76,6 +55,7 @@ export default function MetersScreen({
   const [criteria, setCriteria] = useState<SearchCriteria>(
     getCriteriaFromFilterFields([])
   );
+
   useEffect(() => {
     if (hasViewPermission(PermissionEntity.METERS)) {
       dispatch(
@@ -84,7 +64,12 @@ export default function MetersScreen({
     }
   }, [criteria]);
 
+  useEffect(() => {
+    if (!loadingGet) setRefreshing(false);
+  }, [loadingGet]);
+
   const onRefresh = () => {
+    setRefreshing(true);
     setCriteria(getCriteriaFromFilterFields([]));
   };
 
@@ -103,162 +88,90 @@ export default function MetersScreen({
     [searchQuery],
     1000
   );
+
+  const isFiltered = !!searchQuery;
+  const renderItem = useCallback(
+    ({ item: meter }: { item: Meter }) => {
+      const meta = [];
+      if (meter.asset) {
+        meta.push({ icon: 'package-variant-closed' as const, label: meter.asset.name });
+      }
+      if (meter.location) {
+        meta.push({ icon: 'map-marker-outline' as const, label: meter.location.name });
+      }
+      const pastDue = canAddReading(meter);
+      return (
+        <EntityListCard
+          title={meter.name}
+          imageUrl={meter.image?.url}
+          icon="gauge"
+          badge={
+            pastDue
+              ? { label: t('past_due'), color: theme.colors.error }
+              : undefined
+          }
+          meta={meta}
+          onPress={() =>
+            navigation.push('MeterDetails', {
+              id: meter.id,
+              meterProp: meter,
+              onNewReading: () => dispatch(getMeters(criteria))
+            })
+          }
+        />
+      );
+    },
+    [criteria, dispatch, navigation, t, theme.colors.error]
+  );
+
   return (
-    <View
-      style={{ ...styles.container, backgroundColor: theme.colors.background }}
-    >
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Searchbar
         placeholder={t('search')}
+        accessibilityLabel={t('search')}
         onFocus={() => setStartedSearch(true)}
         onChangeText={setSearchQuery}
         value={searchQuery}
-        style={{ backgroundColor: theme.colors.background }}
+        style={{ backgroundColor: theme.colors.card }}
       />
-      <ScrollView
-        contentContainerStyle={{ paddingBottom: 100 }}
-        style={styles.scrollView}
-        onScroll={({ nativeEvent }) => {
-          if (isCloseToBottom(nativeEvent)) {
-            if (!loadingGet && !lastPage)
-              dispatch(getMoreMeters(criteria, currentPageNum + 1));
-          }
+      <PaginatedEntityList
+        data={meters.content}
+        keyExtractor={(meter) => meter.id.toString()}
+        renderItem={renderItem}
+        loading={loadingGet}
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+        onEndReached={() => {
+          if (!loadingGet && !lastPage)
+            dispatch(getMoreMeters(criteria, currentPageNum + 1));
         }}
-        refreshControl={
-          <RefreshControl
-            refreshing={loadingGet}
-            onRefresh={onRefresh}
-            colors={[theme.colors.primary]}
+        ListEmptyComponent={
+          <EmptyState
+            icon={isFiltered ? 'filter-remove-outline' : 'gauge'}
+            title={t('no_element_match_criteria')}
+            description={
+              isFiltered ? t('no_element_match_criteria_description') : undefined
+            }
+            action={
+              isFiltered
+                ? {
+                    label: t('reset'),
+                    onPress: () => {
+                      setSearchQuery('');
+                      setCriteria(getCriteriaFromFilterFields([]));
+                    }
+                  }
+                : undefined
+            }
           />
         }
-        scrollEventThrottle={400}
-      >
-        {!!meters.content.length ? (
-          meters.content.map((meter) => (
-            <TouchableOpacity
-              onPress={() =>
-                navigation.push('MeterDetails', {
-                  id: meter.id,
-                  meterProp: meter,
-                  onNewReading: (readingValue) => {
-                    dispatch(getMeters(criteria));
-                  }
-                })
-              }
-              key={meter.id}
-            >
-              <View style={styles.card}>
-                <View
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    gap: 6
-                  }}
-                >
-                  {meter.image ? (
-                    <Avatar.Image
-                      size={50}
-                      source={{ uri: meter.image?.url }}
-                    />
-                  ) : (
-                    <Avatar.Icon
-                      style={{
-                        backgroundColor: theme.colors.background
-                      }}
-                      color={'white'}
-                      icon={'gauge'}
-                      size={50}
-                    />
-                  )}
-                  <View style={{ flex: 1 }}>
-                    <View style={styles.cardHeader}>
-                      <View style={{ flex: 1 }}>
-                        <Text variant="titleMedium" style={styles.cardTitle}>
-                          {meter.name}
-                        </Text>
-                      </View>
-                    </View>
-                    <View style={styles.cardBody}>
-                      {meter.asset && (
-                        <IconWithLabel
-                          label={meter.asset.name}
-                          icon="package-variant-closed"
-                          color={theme.colors.grey}
-                        />
-                      )}
-                      {meter.location && (
-                        <IconWithLabel
-                          label={meter.location.name}
-                          icon="map-marker-outline"
-                          color={theme.colors.grey}
-                        />
-                      )}
-                      {canAddReading(meter) && (
-                        <Tag
-                          text={t('past_due')}
-                          color={'white'}
-                          backgroundColor={theme.colors.error}
-                        />
-                      )}
-                    </View>
-                  </View>
-                </View>
-              </View>
-            </TouchableOpacity>
-          ))
-        ) : loadingGet ? null : (
-          <View
-            style={{ backgroundColor: 'white', padding: 20, borderRadius: 10 }}
-          >
-            <Text variant={'titleLarge'}>{t('no_element_match_criteria')}</Text>
-          </View>
-        )}
-      </ScrollView>
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    // alignItems: 'center',
-    justifyContent: 'center'
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold'
-  },
-  scrollView: {
-    width: '100%',
-    height: '100%'
-  },
-  row: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  card: {
-    backgroundColor: 'white',
-    marginBottom: 1,
-    padding: 10
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 8
-  },
-  cardTitle: {
-    fontWeight: 'bold',
-    marginBottom: 4,
-    flexShrink: 1
-  },
-  cardBody: {
-    gap: 10
-  },
-  cardFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 10
+    flex: 1
   }
 });
