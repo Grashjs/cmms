@@ -280,7 +280,7 @@ function ApplicationsCalendar({
           </Stack>
         )}
         <FullCalendar
-          allDayMaintainDuration
+          allDaySlot={false}
           initialDate={date}
           initialView={view}
           locale={calendarLocale}
