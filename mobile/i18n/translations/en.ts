@@ -1395,6 +1395,10 @@ const locale = {
   not_enough_part: 'There is not enough of this part',
   update_profile: 'Update profile',
   confirm_logout: 'Are you sure you want to logout ?',
+  appearance: 'Appearance',
+  theme_system: 'Match device',
+  theme_light: 'Light',
+  theme_dark: 'Dark',
   report: 'Report',
   end_cannot_be_ulterior_to_start: 'End date cannot be ulterior to start date',
   storage_permission_needed_description:

@@ -2,10 +2,9 @@
  * Thin wrappers around React Native's `Text` and `View` that resolve their
  * colors from the app theme, with an optional per-scheme override.
  *
- * Dark mode is not wired up yet, so `useColorScheme` currently only selects
- * between the caller's `lightColor` and `darkColor` overrides. Once the dark
- * theme lands these should read a scheme-aware surface color instead of
- * `colors.white`.
+ * `useColorScheme` here only selects between the caller's `lightColor` and
+ * `darkColor` overrides. The defaults come from the theme, which is already
+ * scheme-aware, so they flip without consulting the scheme directly.
  */
 
 import { Text as DefaultText, View as DefaultView } from 'react-native';
@@ -39,7 +38,7 @@ export function View(props: ViewProps) {
   const { style, lightColor, darkColor, ...otherProps } = props;
   const theme = useAppTheme();
   const override = useSchemeOverride({ lightColor, darkColor });
-  const backgroundColor = override ?? theme.colors.white;
+  const backgroundColor = override ?? theme.colors.card;
 
   return (
     <DefaultView style={[{ backgroundColor }, style]} {...otherProps} />

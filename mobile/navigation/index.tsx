@@ -4,11 +4,13 @@
  *
  */
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
+import {
+  NavigationContainer,
+  Theme as NavigationTheme
+} from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as React from 'react';
 import {
-  ColorSchemeName,
   GestureResponderEvent,
   Image,
   Platform,
@@ -109,17 +111,13 @@ import { FontAwesome, Ionicons, Feather } from '@expo/vector-icons';
 import { Fragment, ReactElement, ReactNode } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-export default function Navigation({
-  colorScheme
-}: {
-  colorScheme: ColorSchemeName;
-}) {
+export default function Navigation({ theme }: { theme: NavigationTheme }) {
   const { isAuthenticated, isInitialized, user } = useAuth();
   return (
     <NavigationContainer
       ref={navigationRef}
       linking={LinkingConfiguration}
-      theme={DefaultTheme}
+      theme={theme}
     >
       {isInitialized ? (
         isAuthenticated ? (

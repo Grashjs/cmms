@@ -40,6 +40,7 @@ import { reducer as licenseReducer } from '../slices/license';
 import { reducer as customFieldReducer } from '../slices/customField';
 import { reducer as commentReducer } from '../slices/comment';
 import { reducer as instanceConfigReducer } from '../slices/instanceConfig';
+import { reducer as themeModeReducer } from '../slices/themeMode';
 
 const rootReducer = combineReducers({
   customers: customerReducer,
@@ -82,7 +83,8 @@ const rootReducer = combineReducers({
   license: licenseReducer,
   customFields: customFieldReducer,
   comments: commentReducer,
-  instanceConfig: instanceConfigReducer
+  instanceConfig: instanceConfigReducer,
+  themeMode: themeModeReducer
 });
 
 export default rootReducer;

@@ -163,7 +163,9 @@ export const getStatusColor = (
     case 'HIGH_WO':
       return theme.colors.error;
     case 'COMPLETE':
-      return 'black';
+      // `black` is the strong-foreground role and inverts in dark mode; the
+      // literal color that used to be here disappeared against a dark surface.
+      return theme.colors.black;
   }
 };
 

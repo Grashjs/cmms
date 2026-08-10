@@ -80,6 +80,7 @@ export type PaletteColor =
   | 'black'
   | 'white'
   | 'grey'
+  | 'card'
   | 'text'
   | 'textInverse';
 
@@ -105,8 +106,40 @@ export const palette: Record<PaletteColor, string> = {
   black: '#223354',
   white: '#ffffff',
   grey: '#676b6b',
+  // Raised surfaces (cards, sheets, list rows) sitting on `background`.
+  card: '#ffffff',
   // `black` above is a brand navy rather than true black. These two are the
   // plain foreground pair used by the `Themed` primitives, flipped by scheme.
   text: '#000000',
   textInverse: '#ffffff'
+};
+
+/**
+ * Dark counterpart. Brand hues are lightened rather than reused directly:
+ * the light `primary` fails contrast against a dark surface, and the status
+ * colors need to stay distinguishable at low luminance since they are the
+ * primary signal in work order lists.
+ */
+export const darkPalette: Record<PaletteColor, string> = {
+  primary: '#8a99ff',
+  primaryAlt: '#c7ceff',
+  primaryContainer: '#3a3d8f',
+  secondary: '#a8adea',
+  secondaryContainer: '#4a4c5e',
+  tertiary: '#b6baba',
+  tertiaryContainer: '#e8eaea',
+  background: '#121318',
+  success: '#7BDC4B',
+  warning: '#FFB84D',
+  error: '#FF5C7A',
+  info: '#5FD0FF',
+  // `black` is the strong-foreground role rather than the literal color, so it
+  // inverts. `white` stays literal white; use `card` for raised surfaces.
+  black: '#e6e9f2',
+  white: '#ffffff',
+  grey: '#9ba0a0',
+  // Deliberately lighter than `background` so cards stay distinguishable.
+  card: '#1e2029',
+  text: '#ffffff',
+  textInverse: '#000000'
 };
