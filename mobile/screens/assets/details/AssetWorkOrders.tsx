@@ -10,7 +10,8 @@ import {
   StyleSheet,
   TouchableOpacity
 } from 'react-native';
-import { Divider, Text, useTheme } from 'react-native-paper';
+import { Divider, Text } from 'react-native-paper';
+import { useAppTheme } from '../../../custom-theme';
 import { View } from '../../../components/Themed';
 import Tag from '../../../components/Tag';
 import { getStatusColor } from '../../../utils/overall';
@@ -28,7 +29,7 @@ export default function AssetWorkOrders({
   );
   const workOrders = assetInfos[asset?.id]?.workOrders ?? [];
   const dispatch = useDispatch();
-  const theme = useTheme();
+  const theme = useAppTheme();
 
   useEffect(() => {
     if (asset) dispatch(getAssetWorkOrders(asset.id));

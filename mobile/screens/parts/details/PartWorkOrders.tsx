@@ -9,7 +9,8 @@ import {
   StyleSheet,
   TouchableOpacity
 } from 'react-native';
-import { Divider, Text, useTheme } from 'react-native-paper';
+import { Divider, Text } from 'react-native-paper';
+import { useAppTheme } from '../../../custom-theme';
 import { View } from '../../../components/Themed';
 import { getWorkOrdersByPart } from '../../../slices/workOrder';
 import { getStatusColor } from '../../../utils/overall';
@@ -24,7 +25,7 @@ export default function PartWorkOrders({
 }) {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
-  const theme = useTheme();
+  const theme = useAppTheme();
   const { workOrdersByPart, loadingGet } = useSelector(
     (state) => state.workOrders
   );

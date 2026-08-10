@@ -1,24 +1,37 @@
 import { MD3LightTheme as DefaultTheme, useTheme } from 'react-native-paper';
+import { palette } from './theme/tokens';
 
 export const customTheme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    primary: '#5569ff',
-    secondary: '#959be0',
-    tertiary: '#9DA1A1',
-    background: '#ebecf6',
-    secondaryContainer: '#7b7d93',
-    success: '#57CA22',
-    warning: '#FFA319',
-    error: '#FF1943',
-    info: '#33C2FF',
-    black: '#223354',
-    white: '#ffffff',
-    primaryAlt: '#000C57',
-    primaryContainer: '#333586',
-    tertiaryContainer: 'black',
-    grey: '#676b6b'
+    primary: palette.primary,
+    secondary: palette.secondary,
+    tertiary: palette.tertiary,
+    background: palette.background,
+    secondaryContainer: palette.secondaryContainer,
+    success: palette.success,
+    warning: palette.warning,
+    error: palette.error,
+    info: palette.info,
+    black: palette.black,
+    white: palette.white,
+    primaryAlt: palette.primaryAlt,
+    primaryContainer: palette.primaryContainer,
+    tertiaryContainer: palette.tertiaryContainer,
+    grey: palette.grey,
+    text: palette.text,
+    textInverse: palette.textInverse
   }
 };
-export const useAppTheme = () => useTheme<typeof customTheme>();
+
+/**
+ * The app theme extends MD3 with the semantic colors above. Paper's own
+ * `useTheme()` resolves to `MD3Theme`, which does not know about them, so
+ * anything reading `colors.success` and friends must go through `useAppTheme`
+ * or accept an `AppTheme`. `MD3Colors` is a type alias rather than an
+ * interface, so it cannot be widened by declaration merging.
+ */
+export type AppTheme = typeof customTheme;
+
+export const useAppTheme = () => useTheme<AppTheme>();

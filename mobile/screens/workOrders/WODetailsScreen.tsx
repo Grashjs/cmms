@@ -27,9 +27,9 @@ import {
   ProgressBar,
   Provider,
   Text,
-  TextInput,
-  useTheme
+  TextInput
 } from 'react-native-paper';
+import { useAppTheme } from '../../custom-theme';
 import * as DocumentPicker from 'expo-document-picker';
 import { useTranslation } from 'react-i18next';
 import * as React from 'react';
@@ -146,7 +146,7 @@ export default function WODetailsScreen({
   const [runningTimerDuration, setRunningTimerDuration] = useState<string>();
   const { workOrderConfiguration, generalPreferences } = companySettings;
   const [loading, setLoading] = useState<boolean>(false);
-  const theme = useTheme();
+  const theme = useAppTheme();
   const headerHeight = useHeaderHeight();
   const insets = useSafeAreaInsets();
   const scrollViewRef = useRef<ScrollView>(null);

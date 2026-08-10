@@ -1,26 +1,17 @@
 /**
- * Learn more about Light and Dark modes:
- * https://docs.expo.io/guides/color-schemes/
+ * Thin wrappers around React Native's `Text` and `View` that resolve their
+ * colors from the app theme, with an optional per-scheme override.
+ *
+ * Dark mode is not wired up yet, so `useColorScheme` currently only selects
+ * between the caller's `lightColor` and `darkColor` overrides. Once the dark
+ * theme lands these should read a scheme-aware surface color instead of
+ * `colors.white`.
  */
 
 import { Text as DefaultText, View as DefaultView } from 'react-native';
 
-import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
-
-export function useThemeColor(
-  props: { light?: string; dark?: string },
-  colorName: keyof typeof Colors.light & keyof typeof Colors.dark
-) {
-  const theme = useColorScheme();
-  const colorFromProps = props[theme];
-
-  if (colorFromProps) {
-    return colorFromProps;
-  } else {
-    return Colors[theme][colorName];
-  }
-}
+import { useAppTheme } from '../custom-theme';
 
 type ThemeProps = {
   lightColor?: string;
@@ -30,24 +21,27 @@ type ThemeProps = {
 export type TextProps = ThemeProps & DefaultText['props'];
 export type ViewProps = ThemeProps & DefaultView['props'];
 
+/** The caller's override for the active color scheme, if they supplied one. */
+function useSchemeOverride({ lightColor, darkColor }: ThemeProps) {
+  return useColorScheme() === 'dark' ? darkColor : lightColor;
+}
+
 export function Text(props: TextProps) {
   const { style, lightColor, darkColor, ...otherProps } = props;
-  const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
+  const theme = useAppTheme();
+  const override = useSchemeOverride({ lightColor, darkColor });
+  const color = override ?? theme.colors.text;
 
   return <DefaultText style={[{ color }, style]} {...otherProps} />;
 }
 
 export function View(props: ViewProps) {
   const { style, lightColor, darkColor, ...otherProps } = props;
-  const backgroundColor = useThemeColor(
-    { light: lightColor, dark: darkColor },
-    'background'
-  );
+  const theme = useAppTheme();
+  const override = useSchemeOverride({ lightColor, darkColor });
+  const backgroundColor = override ?? theme.colors.white;
 
   return (
-    <DefaultView
-      style={[{ backgroundColor: 'white' }, style]}
-      {...otherProps}
-    />
+    <DefaultView style={[{ backgroundColor }, style]} {...otherProps} />
   );
 }
