@@ -1,24 +1,27 @@
 import * as React from 'react';
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { ActivityIndicator, Text } from 'react-native-paper';
+import { ActivityIndicator, Switch, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { RootStackScreenProps } from '../../types';
 import { useDispatch, useSelector } from '../../store';
 import {
   clearSinglePM,
-  getSinglePreventiveMaintenance
+  getSinglePreventiveMaintenance,
+  patchSchedule
 } from '../../slices/preventiveMaintenance';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
+import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import { useAppTheme } from '../../custom-theme';
 import { getPriorityColor } from '../../utils/overall';
+import { getErrorMessage } from '../../utils/api';
 import {
   daysUntil,
   describeFrequency,
   getNextOccurrence
 } from '../../utils/schedule';
 import { EmptyState, Section } from '../../components/ui';
-import { fontWeight, spacing } from '../../theme/tokens';
+import { fontWeight, spacing, touchTarget } from '../../theme/tokens';
 
 function Field({ label, value }: { label: string; value?: string | number }) {
   const theme = useAppTheme();
@@ -44,9 +47,11 @@ export default function PMDetails({
   const theme = useAppTheme();
   const dispatch = useDispatch();
   const { getFormattedDate } = useContext(CompanySettingsContext);
+  const { showSnackBar } = useContext(CustomSnackBarContext);
   const { singlePreventiveMaintenance: pm, loadingGet } = useSelector(
     (state) => state.preventiveMaintenances
   );
+  const [toggling, setToggling] = useState(false);
 
   useEffect(() => {
     dispatch(getSinglePreventiveMaintenance(id));
@@ -81,31 +86,43 @@ export default function PMDetails({
   const next = getNextOccurrence(schedule);
   const days = next ? daysUntil(next) : null;
 
+  const onToggleSchedule = (enabled: boolean) => {
+    if (!schedule) return;
+    setToggling(true);
+    dispatch(patchSchedule(schedule.id, pm.id, { disabled: !enabled }))
+      .catch((error) => showSnackBar(getErrorMessage(error), 'error'))
+      .finally(() => setToggling(false));
+  };
+
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: theme.colors.background }}
       contentContainerStyle={styles.content}
     >
-      <Section
-        title={t('schedule')}
-        icon="calendar-sync-outline"
-        badge={schedule?.disabled ? t('paused') : t('active')}
-      >
-        <View>
-          <Text variant="titleMedium" style={{ fontWeight: fontWeight.bold }}>
-            {describeFrequency(schedule, t)}
-          </Text>
-          <Text variant="bodySmall" style={{ color: theme.colors.grey }}>
-            {schedule?.disabled
-              ? t('schedule_paused_description')
-              : next
-                ? days === 0
-                  ? t('due_today')
-                  : t('next_on', {
-                      date: getFormattedDate(next.toISOString(), true)
-                    })
-                : t('no_upcoming_occurrence')}
-          </Text>
+      <Section title={t('schedule')} icon="calendar-sync-outline">
+        <View style={styles.toggleRow}>
+          <View style={styles.toggleText}>
+            <Text variant="titleMedium" style={{ fontWeight: fontWeight.bold }}>
+              {describeFrequency(schedule, t)}
+            </Text>
+            <Text variant="bodySmall" style={{ color: theme.colors.grey }}>
+              {schedule?.disabled
+                ? t('schedule_paused_description')
+                : next
+                  ? days === 0
+                    ? t('due_today')
+                    : t('next_on', {
+                        date: getFormattedDate(next.toISOString(), true)
+                      })
+                  : t('no_upcoming_occurrence')}
+            </Text>
+          </View>
+          <Switch
+            value={!schedule?.disabled}
+            disabled={!schedule || toggling}
+            onValueChange={onToggleSchedule}
+            accessibilityLabel={t('schedule')}
+          />
         </View>
         <Field
           label={t('starts_on')}
@@ -200,5 +217,14 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center'
+  },
+  toggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    minHeight: touchTarget.min
+  },
+  toggleText: {
+    flex: 1
   }
 });

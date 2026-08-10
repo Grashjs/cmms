@@ -1,0 +1,6 @@
+# Runs the API from this repository's `api/` sources rather than the published
+# image, which lags behind them. Build with:
+#   docker build -t atlas-cmms-backend:local ../api
+services:
+  api:
+    image: atlas-cmms-backend:local

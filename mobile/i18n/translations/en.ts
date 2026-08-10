@@ -1535,8 +1535,7 @@ const locale = {
   not_found: 'Not found',
   schedule: 'Schedule',
   no_schedule: 'No schedule',
-  schedule_paused_description:
-    'Paused automatically because recent work orders went unanswered. No new ones will be created until an administrator resumes it on the web',
+  schedule_paused_description: 'No work orders are created while paused',
   no_upcoming_occurrence: 'No upcoming occurrence',
   next_on: 'Next on {{date}}',
   every_day: 'Every day',
