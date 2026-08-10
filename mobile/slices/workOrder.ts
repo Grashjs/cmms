@@ -15,6 +15,12 @@ interface WorkOrderState {
   workOrdersByPart: { [key: number]: WorkOrder[] };
   workOrderInfos: { [key: number]: { workOrder?: WorkOrder } };
   loadingGet: boolean;
+  /**
+   * Kept separate from `loadingGet` so that appending a page does not read as
+   * a full reload; sharing one flag made the pull-to-refresh spinner appear
+   * every time the list reached the bottom.
+   */
+  loadingMore: boolean;
   currentPageNum: number;
   lastPage: boolean;
   calendar: {
@@ -28,6 +34,7 @@ const initialState: WorkOrderState = {
   workOrdersByPart: {},
   workOrderInfos: {},
   loadingGet: false,
+  loadingMore: false,
   currentPageNum: 0,
   lastPage: true,
   calendar: {
@@ -129,6 +136,13 @@ const slice = createSlice({
     ) {
       const { loading } = action.payload;
       state.loadingGet = loading;
+    },
+    setLoadingMore(
+      state: WorkOrderState,
+      action: PayloadAction<{ loading: boolean }>
+    ) {
+      const { loading } = action.payload;
+      state.loadingMore = loading;
     }
   }
 });
@@ -154,14 +168,14 @@ export const getMoreWorkOrders =
   async (dispatch) => {
     criteria = { ...criteria, pageNum };
     try {
-      dispatch(slice.actions.setLoadingGet({ loading: true }));
+      dispatch(slice.actions.setLoadingMore({ loading: true }));
       const workOrders = await api.post<Page<WorkOrder>>(
         `${basePath}/search`,
         criteria
       );
       dispatch(slice.actions.getMoreWorkOrders({ workOrders }));
     } finally {
-      dispatch(slice.actions.setLoadingGet({ loading: false }));
+      dispatch(slice.actions.setLoadingMore({ loading: false }));
     }
   };
 export const getWorkOrderDetails =

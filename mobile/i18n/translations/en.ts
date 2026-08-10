@@ -1364,6 +1364,11 @@ const locale = {
   TODAY_WO: 'Today',
   HIGH_WO: 'High priority',
   no_element_match_criteria: 'No elements match this criteria',
+  no_element_match_criteria_description:
+    'Try widening or clearing the filters to see more results.',
+  no_work_orders: 'No work orders',
+  no_work_orders_description:
+    'Work orders assigned to you will appear here once they are created.',
   required_part_name: 'Part name is required',
   only_assigned_to_me: 'Only assigned to me',
   complete_work_orders: 'Complete Work Orders',
