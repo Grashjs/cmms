@@ -167,6 +167,7 @@ export default function WorkOrdersScreen({
     >
       <Searchbar
         placeholder={t('search')}
+        accessibilityLabel={t('search')}
         onFocus={() => setStartedSearch(true)}
         onChangeText={setSearchQuery}
         value={searchQuery}

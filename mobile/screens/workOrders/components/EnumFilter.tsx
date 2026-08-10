@@ -139,6 +139,7 @@ export default function EnumFilter({
         );
       }}
       accessibilityRole="button"
+      accessibilityLabel={t('filter_by', { field: t(fieldName) })}
       accessibilityState={{ selected: isSelected }}
       style={{
         backgroundColor: isSelected
