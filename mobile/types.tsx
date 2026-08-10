@@ -24,6 +24,7 @@ import Category from './models/category';
 import { FilterField } from './models/page';
 import Request from './models/request';
 import Meter, { MeterMiniDTO } from './models/meter';
+import PreventiveMaintenance from './models/preventiveMaintenance';
 
 declare global {
   namespace ReactNavigation {
@@ -162,6 +163,10 @@ export type RootStackParamList = {
   GlobalSearch: undefined;
   PreventiveMaintenances: undefined;
   PMDetails: { id: number };
+  AddPreventiveMaintenance: undefined;
+  EditPreventiveMaintenance: {
+    preventiveMaintenance: PreventiveMaintenance;
+  };
   Settings: undefined;
   WorkOrderFilters: {
     filterFields: FilterField[];

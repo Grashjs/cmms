@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useContext, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { ActivityIndicator, Switch, Text } from 'react-native-paper';
+import { ActivityIndicator, IconButton, Switch, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { RootStackScreenProps } from '../../types';
 import { useDispatch, useSelector } from '../../store';
@@ -15,6 +15,8 @@ import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import { useAppTheme } from '../../custom-theme';
 import { getPriorityColor } from '../../utils/overall';
 import { getErrorMessage } from '../../utils/api';
+import useAuth from '../../hooks/useAuth';
+import { PermissionEntity } from '../../models/role';
 import {
   daysUntil,
   describeFrequency,
@@ -48,6 +50,7 @@ export default function PMDetails({
   const dispatch = useDispatch();
   const { getFormattedDate } = useContext(CompanySettingsContext);
   const { showSnackBar } = useContext(CustomSnackBarContext);
+  const { hasEditPermission } = useAuth();
   const { singlePreventiveMaintenance: pm, loadingGet } = useSelector(
     (state) => state.preventiveMaintenances
   );
@@ -63,7 +66,22 @@ export default function PMDetails({
   }, [id]);
 
   useEffect(() => {
-    if (pm) navigation.setOptions({ title: pm.name || pm.title });
+    if (!pm) return;
+    navigation.setOptions({
+      title: pm.name || pm.title,
+      headerRight: () =>
+        hasEditPermission(PermissionEntity.PREVENTIVE_MAINTENANCES, pm) ? (
+          <IconButton
+            icon="pencil"
+            accessibilityLabel={t('edit')}
+            onPress={() =>
+              navigation.navigate('EditPreventiveMaintenance', {
+                preventiveMaintenance: pm
+              })
+            }
+          />
+        ) : null
+    });
   }, [pm]);
 
   if (!pm) {

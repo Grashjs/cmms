@@ -65,6 +65,12 @@ export default function CreateEntitiesSheet(
       entity: PermissionEntity.METERS
     },
     {
+      title: t('preventive_maintenance'),
+      icon: 'calendar-sync-outline',
+      goTo: 'AddPreventiveMaintenance',
+      entity: PermissionEntity.PREVENTIVE_MAINTENANCES
+    },
+    {
       title: t('user'),
       icon: 'account-outline',
       goTo: 'AddUser',

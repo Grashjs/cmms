@@ -70,6 +70,8 @@ import NotificationsScreen from '../screens/NotificationsScreen';
 import GlobalSearchScreen from '../screens/GlobalSearchScreen';
 import PreventiveMaintenancesScreen from '../screens/preventiveMaintenances';
 import PMDetails from '../screens/preventiveMaintenances/PMDetails';
+import CreatePMScreen from '../screens/preventiveMaintenances/CreatePMScreen';
+import EditPMScreen from '../screens/preventiveMaintenances/EditPMScreen';
 import AssetsScreen from '../screens/assets/AssetsScreen';
 import LocationsScreen from '../screens/locations/LocationsScreen';
 import AssetDetails from '../screens/assets/details';
@@ -371,6 +373,16 @@ function RootNavigator() {
         name="PMDetails"
         component={PMDetails}
         options={{ title: t('preventive_maintenance') }}
+      />
+      <Stack.Screen
+        name="AddPreventiveMaintenance"
+        component={CreatePMScreen}
+        options={{ title: t('add_preventive_maintenance') }}
+      />
+      <Stack.Screen
+        name="EditPreventiveMaintenance"
+        component={EditPMScreen}
+        options={{ title: t('edit_preventive_maintenance') }}
       />
       <Stack.Screen
         name="Settings"

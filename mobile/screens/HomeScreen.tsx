@@ -12,7 +12,7 @@ import { ExtendedWorkOrderStatus, getStatusColor } from '../utils/overall';
 import { FilterField, SearchCriteria } from '../models/page';
 import useAuth from '../hooks/useAuth';
 import * as React from 'react';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { getMobileOverviewStats } from '../slices/analytics/workOrder';
 import { useDispatch, useSelector } from '../store';
 import { getNotifications } from '../slices/notification';
@@ -25,6 +25,13 @@ import WorkOrderCard from './workOrders/components/WorkOrderCard';
 import { EmptyState, ListSkeleton } from '../components/ui';
 import { fontWeight, radius, spacing, touchTarget } from '../theme/tokens';
 import { raisedSurface } from '../theme/surface';
+import { getPreventiveMaintenances } from '../slices/preventiveMaintenance';
+import PreventiveMaintenanceCard from './preventiveMaintenances/components/PreventiveMaintenanceCard';
+import { daysUntil, getNextOccurrence } from '../utils/schedule';
+
+/** How far ahead the feed looks for scheduled maintenance. */
+const UPCOMING_HORIZON_DAYS = 7;
+const UPCOMING_SHOWN = 3;
 
 const greetingKey = () => {
   const hour = new Date().getHours();
@@ -52,6 +59,10 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
   const { buckets, counts, loading: loadingFeed, error } = useSelector(
     (state) => state.myDay
   );
+  const { preventiveMaintenances } = useSelector(
+    (state) => state.preventiveMaintenances
+  );
+  const canViewPM = hasViewPermission(PermissionEntity.PREVENTIVE_MAINTENANCES);
   const iconButtonStyle = {
     ...styles.iconButton,
     backgroundColor: theme.colors.background
@@ -65,11 +76,37 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
     pageNum: 0,
     direction: 'DESC'
   };
+  const pmCriteria: SearchCriteria = {
+    filterFields: [],
+    pageSize: 100,
+    pageNum: 0,
+    direction: 'DESC'
+  };
 
   useEffect(() => {
     fetchUserSettings();
     dispatch(getNotifications(notificationsCriteria));
+    if (canViewPM) dispatch(getPreventiveMaintenances(pmCriteria));
   }, []);
+
+  // The API has no notion of a next occurrence, so the whole set is pulled and
+  // the dates worked out here. A company's schedules number in the tens, not
+  // the thousands, which is what makes that affordable.
+  const upcoming = useMemo(
+    () =>
+      preventiveMaintenances.content
+        .map((preventiveMaintenance) => ({
+          preventiveMaintenance,
+          next: getNextOccurrence(preventiveMaintenance.schedule)
+        }))
+        .filter(({ next }) => {
+          if (!next) return false;
+          const days = daysUntil(next);
+          return days >= 0 && days <= UPCOMING_HORIZON_DAYS;
+        })
+        .sort((a, b) => a.next.getTime() - b.next.getTime()),
+    [preventiveMaintenances.content]
+  );
 
   useEffect(() => {
     if (userSettings?.statsForAssignedWorkOrders !== undefined) {
@@ -86,6 +123,7 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
       dispatch(getMobileOverviewStats(onlyMine));
       dispatch(getMyDay(onlyMine ? user.id : undefined));
     }
+    if (canViewPM) dispatch(getPreventiveMaintenances(pmCriteria));
   };
 
   const openBucket = (bucket: MyDayBucket) => {
@@ -384,6 +422,58 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
             </View>
           ) : null
         )
+      )}
+
+      {/* Scheduled work has not been raised as a work order yet, so it sits
+          below what is already outstanding rather than competing with it. */}
+      {canViewPM && !!upcoming.length && (
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <View
+              style={[styles.accent, { backgroundColor: theme.colors.tertiary }]}
+            />
+            <Text
+              variant="titleMedium"
+              style={{
+                color: theme.colors.text,
+                fontWeight: fontWeight.semibold
+              }}
+            >
+              {t('upcoming_maintenance')}
+            </Text>
+            <Text variant="bodyMedium" style={{ color: theme.colors.grey }}>
+              {upcoming.length}
+            </Text>
+            <View style={{ flex: 1 }} />
+            {upcoming.length > UPCOMING_SHOWN && (
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => navigation.navigate('PreventiveMaintenances')}
+                hitSlop={8}
+              >
+                <Text
+                  variant="bodyMedium"
+                  style={{ color: theme.colors.primary }}
+                >
+                  {t('see_all')}
+                </Text>
+              </Pressable>
+            )}
+          </View>
+          {upcoming
+            .slice(0, UPCOMING_SHOWN)
+            .map(({ preventiveMaintenance }) => (
+              <PreventiveMaintenanceCard
+                key={preventiveMaintenance.id}
+                preventiveMaintenance={preventiveMaintenance}
+                onPress={() =>
+                  navigation.navigate('PMDetails', {
+                    id: preventiveMaintenance.id
+                  })
+                }
+              />
+            ))}
+        </View>
       )}
     </ScrollView>
   );

@@ -2,6 +2,7 @@ import { Platform } from 'react-native';
 import { IField } from '../models/form';
 import { formatSelect, formatSelectMultiple } from './formatters';
 import { isTask } from '../models/tasks';
+import { getWOBaseFields } from './woBase';
 
 // iOS build must ignore NFC-specific fields and logic.
 const isIos = Platform.OS === 'ios';
@@ -139,6 +140,76 @@ export const formatWorkOrderValues = (values) => {
     }) ?? [];
   return newValues;
 };
+/**
+ * A preventive maintenance is a schedule plus the work order it stamps out, so
+ * the form is grouped that way: when it runs first, then what it creates.
+ */
+export const getPreventiveMaintenanceFields = (t): IField[] => [
+  {
+    name: 'nameGroup',
+    type: 'titleGroupField',
+    label: t('preventive_maintenance')
+  },
+  {
+    name: 'name',
+    type: 'text',
+    label: t('name'),
+    placeholder: t('pm_name_description'),
+    required: true
+  },
+  {
+    name: 'scheduleGroup',
+    type: 'titleGroupField',
+    label: t('schedule')
+  },
+  {
+    name: 'startsOn',
+    type: 'date',
+    label: t('starts_on'),
+    required: true,
+    midWidth: true
+  },
+  {
+    name: 'endsOn',
+    type: 'date',
+    label: t('ends_on'),
+    midWidth: true
+  },
+  {
+    name: 'frequency',
+    type: 'number',
+    label: t('frequency_in_days'),
+    placeholder: t('frequency_in_days_description'),
+    required: true
+  },
+  {
+    name: 'dueDateDelay',
+    type: 'number',
+    label: t('due_date_delay'),
+    placeholder: t('due_date_delay_description')
+  },
+  {
+    name: 'workOrderGroup',
+    type: 'titleGroupField',
+    label: t('work_order_template')
+  },
+  // A generated work order has no fixed due date, only the delay asked for
+  // above, which is stored alongside the rest of the recurrence.
+  ...getWOBaseFields(t).filter((field) => field.name !== 'dueDate')
+];
+
+export const formatPreventiveMaintenanceValues = (values) => {
+  const newValues = { ...values };
+  newValues.primaryUser = formatSelect(newValues.primaryUser);
+  newValues.location = formatSelect(newValues.location);
+  newValues.team = formatSelect(newValues.team);
+  newValues.asset = formatSelect(newValues.asset);
+  newValues.assignedTo = formatSelectMultiple(newValues.assignedTo);
+  newValues.customers = formatSelectMultiple(newValues.customers);
+  newValues.category = formatSelect(newValues.category);
+  return newValues;
+};
+
 export const formatRequestValues = (values) => {
   const newValues = { ...values };
   newValues.primaryUser = formatSelect(newValues.primaryUser);

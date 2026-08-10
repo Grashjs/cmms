@@ -1546,6 +1546,17 @@ const locale = {
   every_n_days: 'Every {{count}} days',
   hours_value: '{{value}} h',
   work_order_template: 'Work order template',
+  upcoming_maintenance: 'Upcoming maintenance',
+  add_preventive_maintenance: 'Add Preventive Maintenance',
+  edit_preventive_maintenance: 'Edit Preventive Maintenance',
+  pm_name_description: 'Name this recurring maintenance',
+  frequency_in_days: 'Repeat every (days)',
+  frequency_in_days_description: 'Number of days between work orders',
+  required_pm_name: 'The name is required',
+  required_starts_on: 'The start date is required',
+  pm_create_success: 'The preventive maintenance was created successfully',
+  pm_create_failure: 'The preventive maintenance could not be created',
+  pm_update_failure: 'The preventive maintenance could not be updated',
   no_preventive_maintenance: 'No preventive maintenance yet',
   no_preventive_maintenance_description:
     'Recurring maintenance you schedule here creates work orders automatically'
