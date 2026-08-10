@@ -29,6 +29,8 @@ import { isNumeric } from './utils/validators';
 import { customTheme, darkTheme, getNavigationTheme } from './custom-theme';
 import { RootLayout } from './components/RootLayout';
 import { ReviewModal } from './components/ReviewModal';
+import ErrorBoundary from './components/ErrorBoundary';
+import ConnectivityBanner from './components/ConnectivityBanner';
 import { Subscription } from 'expo-notifications';
 import { useSelector } from './store';
 
@@ -54,14 +56,17 @@ function ThemedApp({ colorScheme }: { colorScheme: 'light' | 'dark' }) {
     <PaperProvider theme={isDark ? darkTheme : customTheme}>
       <CustomSnackbarProvider>
         <SheetProvider>
-          <RootLayout>
-            <FlashMessage
-              position="top"
-              statusBarHeight={Constants.statusBarHeight}
-            />
-            <Navigation theme={getNavigationTheme(isDark)} />
-            <ReviewModal />
-          </RootLayout>
+          <ErrorBoundary>
+            <RootLayout>
+              <ConnectivityBanner />
+              <FlashMessage
+                position="top"
+                statusBarHeight={Constants.statusBarHeight}
+              />
+              <Navigation theme={getNavigationTheme(isDark)} />
+              <ReviewModal />
+            </RootLayout>
+          </ErrorBoundary>
           <StatusBar style={isDark ? 'light' : 'dark'} />
         </SheetProvider>
       </CustomSnackbarProvider>

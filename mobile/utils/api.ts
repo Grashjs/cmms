@@ -1,6 +1,7 @@
 import { getApiUrl } from '../config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
+import { ApiError, ApiErrorBody, getErrorMessage } from './errors';
 
 type Options = RequestInit & { raw?: boolean; headers?: HeadersInit };
 
@@ -10,22 +11,34 @@ async function parseJsonResponse(response: Response) {
   try {
     return JSON.parse(text);
   } catch {
-    throw new Error(
-      `Expected JSON but received: ${text.slice(0, 80).replace(/\s+/g, ' ')}`
+    throw new ApiError(
+      `Expected JSON but received: ${text.slice(0, 80).replace(/\s+/g, ' ')}`,
+      { status: response.status }
     );
   }
 }
 
 async function api<T>(url: string, options: Options): Promise<T> {
-  return fetch(url, { headers: await authHeader(false), ...options }).then(
-    async (response) => {
-      if (!response.ok) {
-        const body = await parseJsonResponse(response);
-        throw new Error(JSON.stringify(body ?? { message: response.statusText }));
-      }
-      return parseJsonResponse(response) as Promise<T>;
+  try {
+    const response = await fetch(url, {
+      headers: await authHeader(false),
+      ...options
+    });
+    if (!response.ok) {
+      const body = (await parseJsonResponse(response)) as ApiErrorBody | null;
+      throw new ApiError(body?.message ?? response.statusText, {
+        status: response.status,
+        body: body ?? undefined
+      });
     }
-  );
+    return parseJsonResponse(response) as Promise<T>;
+  } catch (error) {
+    if (error instanceof ApiError) throw error;
+    throw new ApiError(
+      error instanceof Error ? error.message : 'Network request failed',
+      { isNetworkError: true, cause: error }
+    );
+  }
 }
 
 async function get<T>(url: string, options?: Options) {
@@ -92,16 +105,6 @@ export async function authHeader(publicRoute: boolean) {
     return commonHeaders;
   }
 }
-export const getErrorMessage = (
-  error: any,
-  defaultMessage?: string
-): string => {
-  try {
-    const parsed = JSON.parse(error.message);
-    return parsed?.message ?? error.message ?? defaultMessage;
-  } catch {
-    return error.message ?? defaultMessage;
-  }
-};
+export { getErrorMessage } from './errors';
 
 export default { get, patch, post, deletes, getErrorMessage };

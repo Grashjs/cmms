@@ -78,6 +78,7 @@ import Labor from '../../models/labor';
 import { AudioPlayer } from '../../components/AudioPlayer';
 import { Task } from '../../models/tasks';
 import { getErrorMessage } from '../../utils/api';
+import { showMutationResult } from '../../utils/offlineFeedback';
 import ImageView from 'react-native-image-viewing';
 import { getCustomFieldValuesForDetails } from '../../models/form';
 import CommentItem from '../../components/CommentItem';
@@ -609,7 +610,7 @@ export default function WODetailsScreen({
       setCommentContent('');
       setCommentFiles([]);
     } catch (error) {
-      console.error('Failed to create comment:', error);
+      showMutationResult(error, showSnackBar, t, 'comment_create_failure');
     }
   };
 
@@ -1365,7 +1366,9 @@ export default function WODetailsScreen({
                 onPress={() => {
                   setControllingTime(true);
                   dispatch(controlTimer(!runningTimer, id))
-                    .catch((err) => showSnackBar(getErrorMessage(err), 'error'))
+                    .catch((err) =>
+                      showMutationResult(err, showSnackBar, t, 'timer_update_failure')
+                    )
                     .finally(() => setControllingTime(false));
                 }}
                 visible={true}

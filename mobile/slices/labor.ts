@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import type { AppThunk } from '../store';
 import Labor from '../models/labor';
 import api from '../utils/api';
+import { runOrQueue } from '../utils/offlineMutations';
 import { revertAll } from '../utils/redux';
 
 const basePath = 'labors';
@@ -152,15 +153,26 @@ export const deleteLabor =
 export const controlTimer =
   (start: boolean, id: number): AppThunk =>
   async (dispatch) => {
-    const response = await api.post<Labor>(
-      `${basePath}/work-order/${id}?start=${start}`,
-      {}
-    );
-    dispatch(
-      slice.actions.controlTimer({
-        labor: response,
-        workOrderId: id
-      })
+    await runOrQueue(
+      dispatch,
+      async () => {
+        const response = await api.post<Labor>(
+          `${basePath}/work-order/${id}?start=${start}`,
+          {}
+        );
+        dispatch(
+          slice.actions.controlTimer({
+            labor: response,
+            workOrderId: id
+          })
+        );
+        return response;
+      },
+      {
+        type: 'controlTimer',
+        workOrderId: id,
+        start
+      }
     );
   };
 

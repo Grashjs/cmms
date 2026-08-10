@@ -1559,6 +1559,17 @@ const locale = {
   pm_update_failure: 'The preventive maintenance could not be updated',
   no_preventive_maintenance: 'No preventive maintenance yet',
   no_preventive_maintenance_description:
-    'Recurring maintenance you schedule here creates work orders automatically'
+    'Recurring maintenance you schedule here creates work orders automatically',
+  offline_banner: 'You are offline. Changes will sync when you reconnect',
+  offline_sync_pending: '{{count}} change waiting to sync',
+  offline_syncing: 'Syncing {{count}} change…',
+  offline_queued_success: 'Saved offline — will sync when connected',
+  sync_now: 'Sync',
+  comment_create_failure: 'The comment could not be posted',
+  timer_update_failure: 'The timer could not be updated',
+  error_boundary_title: 'Something went wrong',
+  error_boundary_description:
+    'The app hit an unexpected error. Try again, or restart if it keeps happening',
+  try_again: 'Try again'
 };
 export default locale;

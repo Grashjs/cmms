@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import type { AppThunk } from '../store';
 import File, { FileType } from '../models/file';
 import api, { authHeader } from '../utils/api';
+import { runOrQueue } from '../utils/offlineMutations';
 import { getInitialPage, Page, SearchCriteria } from '../models/page';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { revertAll } from '../utils/redux';
@@ -115,29 +116,41 @@ export const addFiles =
     hidden?: 'true' | 'false'
   ): AppThunk =>
   async (dispatch) => {
-    let formData = new FormData();
-    const companyId = await AsyncStorage.getItem('companyId');
-    const headers = await authHeader(false);
-    delete headers['Content-Type'];
-    files.forEach((file) => {
-      //@ts-ignore
-      formData.append('files', file);
-    });
-    formData.append('folder', `company ${companyId}`);
-    formData.append('type', fileType);
-    formData.append('hidden', hidden);
-    const baseRoute = `${basePath}/upload`;
-    const filesResponse = await api.post<File[]>(
-      taskId ? `${baseRoute}?taskId=${taskId}` : baseRoute,
-      formData,
-      {
-        headers
+    return runOrQueue(
+      dispatch,
+      async () => {
+        let formData = new FormData();
+        const companyId = await AsyncStorage.getItem('companyId');
+        const headers = await authHeader(false);
+        delete headers['Content-Type'];
+        files.forEach((file) => {
+          //@ts-ignore
+          formData.append('files', file);
+        });
+        formData.append('folder', `company ${companyId}`);
+        formData.append('type', fileType);
+        formData.append('hidden', hidden);
+        const baseRoute = `${basePath}/upload`;
+        const filesResponse = await api.post<File[]>(
+          taskId ? `${baseRoute}?taskId=${taskId}` : baseRoute,
+          formData,
+          {
+            headers
+          },
+          true,
+          true
+        );
+        dispatch(slice.actions.addFiles({ files: filesResponse }));
+        return filesResponse.map((file) => file.id);
       },
-      true,
-      true
+      {
+        type: 'addFiles',
+        files,
+        fileType,
+        taskId,
+        hidden
+      }
     );
-    dispatch(slice.actions.addFiles({ files: filesResponse }));
-    return filesResponse.map((file) => file.id);
   };
 export const deleteFile =
   (id: number): AppThunk =>

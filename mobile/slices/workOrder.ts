@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import type { AppThunk } from '../store';
 import WorkOrder from '../models/workOrder';
 import api from '../utils/api';
+import { runOrQueue } from '../utils/offlineMutations';
 import { Task } from '../models/tasks';
 import { getInitialPage, Page, SearchCriteria } from '../models/page';
 import { revertAll } from '../utils/redux';
@@ -288,10 +289,22 @@ export const changeWorkOrderStatus =
     body: { status: string; feedback?: string; signature?: string }
   ): AppThunk =>
   async (dispatch) => {
-    const workOrderResponse = await api.patch<WorkOrder>(
-      `${basePath}/${id}/change-status`,
-      body
+    await runOrQueue(
+      dispatch,
+      async () => {
+        const workOrderResponse = await api.patch<WorkOrder>(
+          `${basePath}/${id}/change-status`,
+          body
+        );
+        dispatch(slice.actions.editWorkOrder({ workOrder: workOrderResponse }));
+        return workOrderResponse;
+      },
+      {
+        type: 'changeStatus',
+        workOrderId: id,
+        body,
+        optimistic: { status: body.status as WorkOrder['status'] }
+      }
     );
-    dispatch(slice.actions.editWorkOrder({ workOrder: workOrderResponse }));
   };
 export default slice;
