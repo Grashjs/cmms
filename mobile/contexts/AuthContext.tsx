@@ -624,7 +624,10 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
 
       token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
     } else {
-      Alert.alert('Must use physical device for Push Notifications');
+      // Simulators cannot register for push. This was a modal alert, which
+      // interrupted every launch during development with something the user
+      // cannot act on.
+      console.warn('Push notifications require a physical device.');
     }
 
     if (Platform.OS === 'android') {
