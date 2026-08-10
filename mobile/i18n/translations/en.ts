@@ -1363,6 +1363,7 @@ const locale = {
   LATE_WO: 'Late',
   TODAY_WO: 'Today',
   HIGH_WO: 'High priority',
+  completion: 'Completion',
   good_morning: 'Good morning, {{name}}',
   good_afternoon: 'Good afternoon, {{name}}',
   good_evening: 'Good evening, {{name}}',
