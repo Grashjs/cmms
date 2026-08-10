@@ -1364,6 +1364,11 @@ const locale = {
   TODAY_WO: 'Today',
   HIGH_WO: 'High priority',
   completion: 'Completion',
+  search_everything: 'Search everything',
+  global_search_hint:
+    'Find work orders, assets, locations and parts by name, description or ID.',
+  search_failed: "Couldn't run the search",
+  no_results_description: 'Nothing matched "{{query}}".',
   good_morning: 'Good morning, {{name}}',
   good_afternoon: 'Good afternoon, {{name}}',
   good_evening: 'Good evening, {{name}}',

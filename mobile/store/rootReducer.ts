@@ -42,6 +42,7 @@ import { reducer as commentReducer } from '../slices/comment';
 import { reducer as instanceConfigReducer } from '../slices/instanceConfig';
 import { reducer as themeModeReducer } from '../slices/themeMode';
 import { reducer as myDayReducer } from '../slices/myDay';
+import { reducer as globalSearchReducer } from '../slices/globalSearch';
 
 const rootReducer = combineReducers({
   customers: customerReducer,
@@ -86,7 +87,8 @@ const rootReducer = combineReducers({
   comments: commentReducer,
   instanceConfig: instanceConfigReducer,
   themeMode: themeModeReducer,
-  myDay: myDayReducer
+  myDay: myDayReducer,
+  globalSearch: globalSearchReducer
 });
 
 export default rootReducer;

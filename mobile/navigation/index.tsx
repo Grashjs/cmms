@@ -67,6 +67,7 @@ import PartsScreen from '../screens/parts/PartsScreen';
 import VendorsAndCustomersScreen from '../screens/vendorsCustomers';
 import PeopleAndTeamsScreen from '../screens/peopleTeams';
 import NotificationsScreen from '../screens/NotificationsScreen';
+import GlobalSearchScreen from '../screens/GlobalSearchScreen';
 import AssetsScreen from '../screens/assets/AssetsScreen';
 import LocationsScreen from '../screens/locations/LocationsScreen';
 import AssetDetails from '../screens/assets/details';
@@ -353,6 +354,11 @@ function RootNavigator() {
         name="Notifications"
         component={NotificationsScreen}
         options={{ title: t('Notifications') }}
+      />
+      <Stack.Screen
+        name="GlobalSearch"
+        component={GlobalSearchScreen}
+        options={{ title: t('search') }}
       />
       <Stack.Screen
         name="Settings"

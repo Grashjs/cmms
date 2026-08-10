@@ -159,6 +159,7 @@ export type RootStackParamList = {
   PeopleTeams: undefined;
   VendorsCustomers: undefined;
   Notifications: undefined;
+  GlobalSearch: undefined;
   Settings: undefined;
   WorkOrderFilters: {
     filterFields: FilterField[];

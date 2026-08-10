@@ -194,6 +194,12 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
       }
     >
       <View style={styles.quickActions}>
+        <IconButton
+          style={iconButtonStyle}
+          icon={'magnify'}
+          accessibilityLabel={t('search_everything')}
+          onPress={() => navigation.navigate('GlobalSearch')}
+        />
         {hasViewPermission(PermissionEntity.ASSETS) && (
           <IconButton
             style={iconButtonStyle}
