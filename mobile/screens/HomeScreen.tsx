@@ -1,12 +1,12 @@
 import {
+  Pressable,
   RefreshControl,
   ScrollView,
   StyleSheet,
-  TouchableOpacity
+  View
 } from 'react-native';
-import { View } from '../components/Themed';
 import { RootTabScreenProps } from '../types';
-import { Badge, IconButton, Switch, Text, useTheme } from 'react-native-paper';
+import { Badge, IconButton, Switch, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { ExtendedWorkOrderStatus, getStatusColor } from '../utils/overall';
 import { FilterField, SearchCriteria } from '../models/page';
@@ -20,6 +20,23 @@ import { useNetInfo } from '@react-native-community/netinfo';
 import { CustomSnackBarContext } from '../contexts/CustomSnackBarContext';
 import { PermissionEntity } from '../models/role';
 import { useAppTheme } from '../custom-theme';
+import { bucketFilters, getMyDay, MyDayBucket } from '../slices/myDay';
+import WorkOrderCard from './workOrders/components/WorkOrderCard';
+import { EmptyState, ListSkeleton } from '../components/ui';
+import {
+  elevation,
+  fontWeight,
+  radius,
+  spacing,
+  touchTarget
+} from '../theme/tokens';
+
+const greetingKey = () => {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'good_morning';
+  if (hour < 18) return 'good_afternoon';
+  return 'good_evening';
+};
 
 export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
   const theme = useAppTheme();
@@ -37,6 +54,9 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const { notifications } = useSelector((state) => state.notifications);
   const { mobileOverview, loading } = useSelector((state) => state.woAnalytics);
+  const { buckets, counts, loading: loadingFeed, error } = useSelector(
+    (state) => state.myDay
+  );
   const iconButtonStyle = {
     ...styles.iconButton,
     backgroundColor: theme.colors.background
@@ -50,13 +70,6 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
     pageNum: 0,
     direction: 'DESC'
   };
-  const getTodayDates = () => {
-    const date1 = new Date();
-    const date2 = new Date();
-    date1.setHours(0, 0, 0, 0);
-    date2.setHours(24, 0, 0, 0);
-    return [date1, date2];
-  };
 
   useEffect(() => {
     fetchUserSettings();
@@ -65,14 +78,40 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
 
   useEffect(() => {
     if (userSettings?.statsForAssignedWorkOrders !== undefined) {
-      dispatch(getMobileOverviewStats(userSettings.statsForAssignedWorkOrders));
-      setAssignedToMe(userSettings.statsForAssignedWorkOrders);
+      const onlyMine = userSettings.statsForAssignedWorkOrders;
+      dispatch(getMobileOverviewStats(onlyMine));
+      dispatch(getMyDay(onlyMine ? user.id : undefined));
+      setAssignedToMe(onlyMine);
     }
   }, [userSettings]);
 
   const onRefresh = () => {
-    if (userSettings)
-      dispatch(getMobileOverviewStats(userSettings.statsForAssignedWorkOrders));
+    if (userSettings) {
+      const onlyMine = userSettings.statsForAssignedWorkOrders;
+      dispatch(getMobileOverviewStats(onlyMine));
+      dispatch(getMyDay(onlyMine ? user.id : undefined));
+    }
+  };
+
+  const openBucket = (bucket: MyDayBucket) => {
+    navigation.navigate('WorkOrders', {
+      filterFields: bucketFilters(bucket, assignedToMe ? user.id : undefined),
+      fromHome: true
+    });
+  };
+
+  const openStat = (filterFields: FilterField[]) => {
+    navigation.navigate('WorkOrders', {
+      // Copied rather than appended in place: these arrays are rebuilt each
+      // render, so mutating one would compound across presses.
+      filterFields: assignedToMe
+        ? [
+            ...filterFields,
+            { field: 'assignedToUser', operation: 'eq', value: user.id }
+          ]
+        : filterFields,
+      fromHome: true
+    });
   };
 
   const stats: {
@@ -107,15 +146,15 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
       ]
     },
     {
-      label: 'IN_PROGRESS',
-      value: mobileOverview.inProgress,
+      label: 'HIGH_WO',
+      value: mobileOverview.high,
       filterFields: [
         {
-          field: 'status',
+          field: 'priority',
           operation: 'in',
           value: '',
-          values: ['IN_PROGRESS'],
-          enumName: 'STATUS'
+          values: ['HIGH'],
+          enumName: 'PRIORITY'
         }
       ]
     },
@@ -131,71 +170,40 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
           enumName: 'STATUS'
         }
       ]
-    },
-    // {
-    //   label: 'LATE_WO', value: 3,
-    //   filterField: {
-    //     field: 'dueDate',
-    //     operation: 'ge',
-    //     value: 'ON_HOLD'
-    //   }
-    // },
-    {
-      label: 'TODAY_WO',
-      value: mobileOverview.today,
-      filterFields: [
-        {
-          field: 'dueDate',
-          operation: 'ge',
-          value: getTodayDates()[0],
-          enumName: 'JS_DATE'
-        },
-        {
-          field: 'dueDate',
-          operation: 'le',
-          value: getTodayDates()[1],
-          enumName: 'JS_DATE'
-        }
-      ]
-    },
-    {
-      label: 'HIGH_WO',
-      value: mobileOverview.high,
-      filterFields: [
-        {
-          field: 'priority',
-          operation: 'in',
-          value: '',
-          values: ['HIGH'],
-          enumName: 'PRIORITY'
-        }
-      ]
     }
   ];
+
+  const feed: { bucket: MyDayBucket; title: string; accent: string }[] = [
+    { bucket: 'overdue', title: t('overdue'), accent: theme.colors.error },
+    { bucket: 'today', title: t('due_today'), accent: theme.colors.primary },
+    {
+      bucket: 'inProgress',
+      title: t('IN_PROGRESS'),
+      accent: theme.colors.success
+    }
+  ];
+
+  const isFeedEmpty = feed.every(({ bucket }) => !buckets[bucket].length);
+
   return (
     <ScrollView
       contentContainerStyle={{ paddingBottom: 100 }}
       style={{ ...styles.container, backgroundColor: theme.colors.background }}
       refreshControl={
         <RefreshControl
-          refreshing={loading.mobileOverview}
+          refreshing={loading.mobileOverview || loadingFeed}
           colors={[theme.colors.primary]}
+          tintColor={theme.colors.primary}
           onRefresh={onRefresh}
         />
       }
     >
-      <View
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center'
-        }}
-      >
+      <View style={styles.quickActions}>
         {hasViewPermission(PermissionEntity.ASSETS) && (
           <IconButton
             style={iconButtonStyle}
             icon={'magnify-scan'}
+            accessibilityLabel={t('scan_asset')}
             onPress={() => {
               if (netInfo.isInternetReachable) {
                 navigation.navigate('ScanAsset');
@@ -208,13 +216,13 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
         <IconButton
           style={iconButtonStyle}
           icon={'poll'}
-          onPress={() => {
-            navigation.navigate('WorkOrderStats');
-          }}
+          accessibilityLabel={t('statistics')}
+          onPress={() => navigation.navigate('WorkOrderStats')}
         />
         <View style={{ ...iconButtonStyle, position: 'relative' }}>
           <IconButton
             icon={'bell-outline'}
+            accessibilityLabel={t('notifications')}
             onPress={() => navigation.navigate('Notifications')}
           />
           <Badge
@@ -239,23 +247,27 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
           <IconButton
             style={iconButtonStyle}
             icon={'package-variant-closed'}
+            accessibilityLabel={t('assets')}
             onPress={() => navigation.navigate('Assets')}
           />
         )}
       </View>
+
+      <View style={styles.greeting}>
+        <Text variant="headlineSmall" style={{ color: theme.colors.text }}>
+          {t(greetingKey(), { name: user.firstName })}
+        </Text>
+        <Text variant="bodyMedium" style={{ color: theme.colors.grey }}>
+          {new Date().toLocaleDateString(undefined, {
+            weekday: 'long',
+            month: 'long',
+            day: 'numeric'
+          })}
+        </Text>
+      </View>
+
       {hasViewOtherPermission(PermissionEntity.WORK_ORDERS) && (
-        <View
-          style={{
-            marginHorizontal: 10,
-            marginTop: 20,
-            paddingHorizontal: 10,
-            paddingVertical: 5,
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            borderRadius: 10,
-            alignItems: 'center'
-          }}
-        >
+        <View style={styles.toggleRow}>
           <Text style={{ color: theme.colors.grey }}>
             {t('only_assigned_to_me')}
           </Text>
@@ -271,83 +283,108 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
           />
         </View>
       )}
-      {stats.map((stat) => (
-        <View
-          key={stat.label}
-          style={{
-            marginHorizontal: 10,
-            marginTop: 20,
-            paddingHorizontal: 10,
-            paddingVertical: 5,
-            borderRadius: 10
-          }}
-        >
-          <TouchableOpacity
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              width: '100%'
-            }}
-            onPress={() => {
-              if (userSettings) {
-                const filterFields = stat.filterFields;
-                if (userSettings.statsForAssignedWorkOrders) {
-                  filterFields.push({
-                    field: 'assignedToUser',
-                    operation: 'eq',
-                    value: user.id
-                  });
-                }
-                navigation.navigate('WorkOrders', {
-                  filterFields,
-                  fromHome: true
-                });
+
+      {/* Counts stay available as shortcuts, but compressed into one row so
+          that the actual work occupies the screen instead of six tallies. */}
+      <View style={styles.statRow}>
+        {stats.map((stat) => (
+          <Pressable
+            key={stat.label}
+            accessibilityRole="button"
+            accessibilityLabel={`${t(stat.label)}, ${stat.value}`}
+            onPress={() => openStat(stat.filterFields)}
+            style={[
+              styles.statPill,
+              elevation.card,
+              {
+                backgroundColor: theme.colors.card,
+                shadowColor: theme.dark ? 'transparent' : '#000',
+                borderLeftColor: getStatusColor(stat.label, theme)
               }
-            }}
+            ]}
           >
-            <View
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                justifyContent: 'flex-start',
-                alignItems: 'center'
-              }}
+            <Text
+              variant="titleMedium"
+              style={{ color: theme.colors.text, fontWeight: fontWeight.bold }}
             >
-              <View
-                style={{
-                  width: 2,
-                  height: 30,
-                  backgroundColor: getStatusColor(stat.label, theme)
-                }}
-              >
-                {null}
+              {stat.value}
+            </Text>
+            <Text
+              variant="bodySmall"
+              numberOfLines={2}
+              style={{ color: theme.colors.grey }}
+            >
+              {t(stat.label)}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+
+      {loadingFeed && isFeedEmpty ? (
+        <ListSkeleton count={3} />
+      ) : error ? (
+        <EmptyState
+          variant="error"
+          title={t('my_day_load_failed')}
+          description={t('my_day_load_failed_description')}
+          action={{ label: t('retry'), onPress: onRefresh }}
+        />
+      ) : isFeedEmpty ? (
+        <EmptyState
+          icon="check-circle-outline"
+          title={t('my_day_all_clear')}
+          description={t('my_day_all_clear_description')}
+        />
+      ) : (
+        feed.map(({ bucket, title, accent }) =>
+          buckets[bucket].length ? (
+            <View key={bucket} style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <View style={[styles.accent, { backgroundColor: accent }]} />
+                <Text
+                  variant="titleMedium"
+                  style={{
+                    color: theme.colors.text,
+                    fontWeight: fontWeight.semibold
+                  }}
+                >
+                  {title}
+                </Text>
+                <Text variant="bodyMedium" style={{ color: theme.colors.grey }}>
+                  {counts[bucket]}
+                </Text>
+                <View style={{ flex: 1 }} />
+                {counts[bucket] > buckets[bucket].length && (
+                  <Pressable
+                    accessibilityRole="button"
+                    onPress={() => openBucket(bucket)}
+                    hitSlop={8}
+                  >
+                    <Text
+                      variant="bodyMedium"
+                      style={{ color: theme.colors.primary }}
+                    >
+                      {t('see_all')}
+                    </Text>
+                  </Pressable>
+                )}
               </View>
-              <Text
-                variant={'titleSmall'}
-                style={{ fontWeight: 'bold', marginLeft: 10 }}
-              >
-                {t(stat.label)}
-              </Text>
+              {buckets[bucket].map((workOrder) => (
+                <WorkOrderCard
+                  key={workOrder.id}
+                  workOrder={workOrder}
+                  onPress={() =>
+                    navigation.push('WODetails', {
+                      id: workOrder.id,
+                      workOrderProp: workOrder
+                    })
+                  }
+                />
+              ))}
             </View>
-            <View
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'flex-start'
-              }}
-            >
-              <Text style={{ color: theme.colors.grey }}>{stat.value}</Text>
-              <IconButton
-                icon={'chevron-double-right'}
-                iconColor={theme.colors.grey}
-              />
-            </View>
-          </TouchableOpacity>
-        </View>
-      ))}
+          ) : null
+        )
+      )}
     </ScrollView>
   );
 }
@@ -356,5 +393,54 @@ const styles = StyleSheet.create({
   container: {
     flex: 1
   },
-  iconButton: { width: 50, height: 50, borderRadius: 25 }
+  iconButton: { width: 50, height: 50, borderRadius: radius.pill },
+  quickActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: spacing.sm
+  },
+  greeting: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.md
+  },
+  toggleRow: {
+    marginHorizontal: spacing.lg,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    minHeight: touchTarget.min
+  },
+  statRow: {
+    flexDirection: 'row',
+    paddingHorizontal: spacing.lg,
+    gap: spacing.sm,
+    marginBottom: spacing.lg
+  },
+  statPill: {
+    flex: 1,
+    borderRadius: radius.md,
+    borderLeftWidth: 3,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.sm,
+    minHeight: touchTarget.min,
+    justifyContent: 'center'
+  },
+  section: {
+    marginBottom: spacing.lg
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.sm,
+    minHeight: touchTarget.min
+  },
+  accent: {
+    width: 4,
+    height: 20,
+    borderRadius: radius.sm
+  }
 });

@@ -41,6 +41,7 @@ import { reducer as customFieldReducer } from '../slices/customField';
 import { reducer as commentReducer } from '../slices/comment';
 import { reducer as instanceConfigReducer } from '../slices/instanceConfig';
 import { reducer as themeModeReducer } from '../slices/themeMode';
+import { reducer as myDayReducer } from '../slices/myDay';
 
 const rootReducer = combineReducers({
   customers: customerReducer,
@@ -84,7 +85,8 @@ const rootReducer = combineReducers({
   customFields: customFieldReducer,
   comments: commentReducer,
   instanceConfig: instanceConfigReducer,
-  themeMode: themeModeReducer
+  themeMode: themeModeReducer,
+  myDay: myDayReducer
 });
 
 export default rootReducer;

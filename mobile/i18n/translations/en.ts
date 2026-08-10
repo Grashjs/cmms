@@ -1363,6 +1363,22 @@ const locale = {
   LATE_WO: 'Late',
   TODAY_WO: 'Today',
   HIGH_WO: 'High priority',
+  good_morning: 'Good morning, {{name}}',
+  good_afternoon: 'Good afternoon, {{name}}',
+  good_evening: 'Good evening, {{name}}',
+  overdue: 'Overdue',
+  due_today: 'Due today',
+  see_all: 'See all',
+  retry: 'Retry',
+  scan_asset: 'Scan asset',
+  statistics: 'Statistics',
+  notifications: 'Notifications',
+  my_day_all_clear: 'Nothing due right now',
+  my_day_all_clear_description:
+    'No overdue work, nothing due today, and nothing in progress.',
+  my_day_load_failed: "Couldn't load your work",
+  my_day_load_failed_description:
+    'Check your connection and try again.',
   no_element_match_criteria: 'No elements match this criteria',
   no_element_match_criteria_description:
     'Try widening or clearing the filters to see more results.',
