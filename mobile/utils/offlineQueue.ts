@@ -48,6 +48,21 @@ export type OfflineMutationInput =
 
 export type OfflineMutation = OfflineMutationInput & { id: string };
 
+/** Serializes every read/write so enqueue and flush never clobber each other. */
+let queueLock: Promise<void> = Promise.resolve();
+
+const withQueueLock = async <T>(fn: () => Promise<T>): Promise<T> => {
+  const result = queueLock.then(() => fn());
+  queueLock = result.then(
+    () => undefined,
+    () => undefined
+  );
+  return result;
+};
+
+/** Only one flush runs at a time; overlapping callers share the same promise. */
+let activeFlush: Promise<number> | null = null;
+
 const readQueue = async (): Promise<OfflineMutation[]> => {
   const raw = await AsyncStorage.getItem(STORAGE_KEY);
   if (!raw) return [];
@@ -64,47 +79,70 @@ const writeQueue = async (queue: OfflineMutation[]) => {
 };
 
 export const syncOfflineQueueCount = async (dispatch: AppDispatch) => {
-  const pending = await readQueue().then((q) => q.length);
-  dispatch(offlineQueueSlice.actions.setPending({ pending }));
-  return pending;
+  return withQueueLock(async () => {
+    const pending = (await readQueue()).length;
+    dispatch(offlineQueueSlice.actions.setPending({ pending }));
+    return pending;
+  });
 };
 
 export const enqueueOfflineMutation = async (
   mutation: OfflineMutation,
   dispatch: AppDispatch
 ) => {
-  const queue = await readQueue();
-  queue.push(mutation);
-  await writeQueue(queue);
-  dispatch(offlineQueueSlice.actions.setPending({ pending: queue.length }));
-  return queue.length;
+  return withQueueLock(async () => {
+    const queue = await readQueue();
+    queue.push(mutation);
+    await writeQueue(queue);
+    dispatch(offlineQueueSlice.actions.setPending({ pending: queue.length }));
+    return queue.length;
+  });
 };
 
 export const flushOfflineQueue = async (dispatch: AppDispatch): Promise<number> => {
-  const queue = await readQueue();
-  if (!queue.length) return 0;
+  if (activeFlush) return activeFlush;
 
-  dispatch(offlineQueueSlice.actions.setFlushing({ flushing: true }));
-  const remaining: OfflineMutation[] = [];
-  let flushed = 0;
+  activeFlush = (async () => {
+    dispatch(offlineQueueSlice.actions.setFlushing({ flushing: true }));
+    let flushed = 0;
 
-  try {
-    for (const item of queue) {
-      try {
-        await executeMutation(item, dispatch);
-        flushed += 1;
-      } catch {
-        remaining.push(item, ...queue.slice(queue.indexOf(item) + 1));
-        break;
+    try {
+      while (true) {
+        const item = await withQueueLock(async () => {
+          const queue = await readQueue();
+          if (!queue.length) return null;
+          const [head, ...rest] = queue;
+          await writeQueue(rest);
+          dispatch(offlineQueueSlice.actions.setPending({ pending: rest.length }));
+          return head;
+        });
+
+        if (!item) break;
+
+        try {
+          await executeMutation(item, dispatch);
+          flushed += 1;
+        } catch {
+          // Network still down — put the failed item back at the front.
+          await withQueueLock(async () => {
+            const queue = await readQueue();
+            await writeQueue([item, ...queue]);
+            dispatch(
+              offlineQueueSlice.actions.setPending({ pending: queue.length + 1 })
+            );
+          });
+          break;
+        }
       }
+    } finally {
+      dispatch(offlineQueueSlice.actions.setFlushing({ flushing: false }));
+      activeFlush = null;
     }
-    await writeQueue(remaining);
-    dispatch(offlineQueueSlice.actions.setPending({ pending: remaining.length }));
-  } finally {
-    dispatch(offlineQueueSlice.actions.setFlushing({ flushing: false }));
-  }
 
-  return flushed;
+    return flushed;
+  })();
+
+  return activeFlush;
 };
 
 async function executeMutation(

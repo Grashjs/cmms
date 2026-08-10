@@ -4,6 +4,7 @@ import Notification, { NotificationType } from '../models/notification';
 import {
   editNotification,
   getMoreNotifications,
+  getNotifications,
   readAllNotifications
 } from '../slices/notification';
 import { RootStackParamList, RootStackScreenProps } from '../types';
@@ -117,7 +118,10 @@ export default function NotificationsScreen({
         renderItem={renderItem}
         loading={loadingGet}
         refreshing={refreshing}
-        onRefresh={() => setRefreshing(true)}
+        onRefresh={() => {
+          setRefreshing(true);
+          dispatch(getNotifications(criteria));
+        }}
         onEndReached={() => {
           if (!loadingGet && !lastPage)
             dispatch(getMoreNotifications(criteria, currentPageNum + 1));

@@ -234,9 +234,7 @@ export default function AssetDowntimes({ asset, navigation }: AssetDowntimesProp
               title={t(assetStatus.status)}
               onPress={() => {
                 setStatusMenuOpen(false);
-                dispatch(
-                  editAsset(asset.id, { ...asset, status: assetStatus.status })
-                );
+                dispatch(editAsset(asset.id, { status: assetStatus.status }));
               }}
             />
           ))}

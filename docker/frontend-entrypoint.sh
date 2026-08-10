@@ -8,7 +8,12 @@ cd /usr/share/nginx/html
 node <<'EOF'
 const fs = require('fs');
 
-const envFile = fs.readFileSync('.env', 'utf8');
+let envFile = '';
+try {
+  envFile = fs.readFileSync('.env', 'utf8');
+} catch (err) {
+  if (err.code !== 'ENOENT') throw err;
+}
 const config = {};
 
 for (const rawLine of envFile.split(/\r?\n/)) {
