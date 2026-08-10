@@ -25,14 +25,14 @@ export const getWOBaseFields = (
       type: 'select',
       type2: 'location',
       label: t('location'),
-      placeholder: 'Select location'
+      placeholder: t('select_location')
     },
     {
       name: 'asset',
       type: 'select',
       type2: 'asset',
       label: t('asset'),
-      placeholder: 'Select Asset',
+      placeholder: t('select_asset'),
       required: true,
       relatedFields: [{ field: 'location' }]
     },
@@ -82,7 +82,7 @@ export const getWOBaseFields = (
       type: 'select',
       type2: 'team',
       label: t('team'),
-      placeholder: 'Select team'
+      placeholder: t('select_team')
     },
     {
       name: 'image',

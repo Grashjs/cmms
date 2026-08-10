@@ -22,6 +22,7 @@ import { TabBar, TabView } from 'react-native-tab-view';
 import AssetWorkOrders from './AssetWorkOrders';
 import AssetFiles from './AssetFiles';
 import AssetParts from './AssetParts';
+import AssetDowntimes from './AssetDowntimes';
 import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
 
 export default function AssetDetailsHome({
@@ -42,6 +43,7 @@ export default function AssetDetailsHome({
   const [tabs] = useState([
     { key: 'details', title: t('details') },
     { key: 'work-orders', title: t('work_orders') },
+    { key: 'downtimes', title: t('downtimes') },
     { key: 'files', title: t('files') },
     { key: 'parts', title: t('parts') }
   ]);
@@ -51,6 +53,8 @@ export default function AssetDetailsHome({
         return <AssetDetails asset={asset} navigation={navigation} />;
       case 'work-orders':
         return <AssetWorkOrders asset={asset} navigation={navigation} />;
+      case 'downtimes':
+        return <AssetDowntimes asset={asset} navigation={navigation} />;
       case 'files':
         return <AssetFiles asset={asset} />;
       case 'parts':

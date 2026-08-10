@@ -339,7 +339,7 @@ export const getAssetFields = (t): Array<IField> => {
       type2: 'user',
       multiple: true,
       label: t('additional_workers'),
-      placeholder: 'additional_workers_description'
+      placeholder: t('additional_workers_description')
     },
     {
       name: 'teams',
@@ -347,7 +347,7 @@ export const getAssetFields = (t): Array<IField> => {
       type2: 'team',
       multiple: true,
       label: t('teams'),
-      placeholder: 'Select teams'
+      placeholder: t('select_teams')
     },
     {
       name: 'moreInfos',
@@ -360,7 +360,7 @@ export const getAssetFields = (t): Array<IField> => {
       type2: 'customer',
       multiple: true,
       label: t('customers'),
-      placeholder: 'customers_description'
+      placeholder: t('customers_description')
     },
     {
       name: 'vendors',
