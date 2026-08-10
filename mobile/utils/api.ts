@@ -4,17 +4,26 @@ import { Platform } from 'react-native';
 
 type Options = RequestInit & { raw?: boolean; headers?: HeadersInit };
 
+async function parseJsonResponse(response: Response) {
+  const text = await response.text();
+  if (!text) return null;
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(
+      `Expected JSON but received: ${text.slice(0, 80).replace(/\s+/g, ' ')}`
+    );
+  }
+}
+
 async function api<T>(url: string, options: Options): Promise<T> {
   return fetch(url, { headers: await authHeader(false), ...options }).then(
     async (response) => {
       if (!response.ok) {
-        if (response.status === 403) {
-          //TODO
-          // AsyncStorage.clear();
-        }
-        throw new Error(JSON.stringify(await response.json()));
+        const body = await parseJsonResponse(response);
+        throw new Error(JSON.stringify(body ?? { message: response.statusText }));
       }
-      return response.json() as Promise<T>;
+      return parseJsonResponse(response) as Promise<T>;
     }
   );
 }

@@ -1,5 +1,6 @@
 PODS:
   - boost (1.84.0)
+  - Clarity (3.5.4)
   - DoubleConversion (1.1.6)
   - EASClient (0.14.4):
     - ExpoModulesCore
@@ -1775,6 +1776,9 @@ PODS:
     - React-jsiexecutor
     - React-RCTFBReactNativeSpec
     - ReactCommon/turbomodule/core
+  - react-native-clarity (4.6.3):
+    - Clarity (= 3.5.4)
+    - React-Core
   - react-native-netinfo (11.4.1):
     - React-Core
   - react-native-pager-view (6.7.1):
@@ -2309,6 +2313,7 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
+  - "react-native-clarity (from `../node_modules/@microsoft/react-native-clarity`)"
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -2353,6 +2358,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - Clarity
     - Firebase
     - FirebaseAnalytics
     - FirebaseCore
@@ -2504,6 +2510,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   React-microtasksnativemodule:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/microtasks"
+  react-native-clarity:
+    :path: "../node_modules/@microsoft/react-native-clarity"
   react-native-netinfo:
     :path: "../node_modules/@react-native-community/netinfo"
   react-native-pager-view:
@@ -2589,6 +2597,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
+  Clarity: 6fa0a13088ed8494c1a2244def86cd2ba70ae7ed
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   EASClient: fe396f88189ce51edd819abe12df16c99e98bcd2
   EXApplication: 1e06972201838375ca1ec1ba34d586a98a5dc718
@@ -2666,6 +2675,7 @@ SPEC CHECKSUMS:
   React-logger: 1426d04b594a2e68b0ac2add21d45422d06397a3
   React-Mapbuffer: 28c35d4355981ed4a9da6b13bd7f38189533ae05
   React-microtasksnativemodule: e46cff912b07dc383f04715b4225ca131b325a4a
+  react-native-clarity: ca8cce4c784e26e9a6b3d05cb6f8cd1b03494a83
   react-native-netinfo: cec9c4e86083cb5b6aba0e0711f563e2fbbff187
   react-native-pager-view: 5d74caaf2930623b258e3e8ee3e4692f5f4ae846
   react-native-safe-area-context: 9d72abf6d8473da73033b597090a80b709c0b2f1
@@ -2712,4 +2722,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 1ff7016db2116d072793b8f71df4e611acf27d19
 
-COCOAPODS: 1.16.2
+COCOAPODS: 1.17.0

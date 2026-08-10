@@ -18,6 +18,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAppTheme } from '../../custom-theme';
 import { useDispatch } from '../../store';
 import { getInstanceConfig } from '../../slices/instanceConfig';
+import {
+  getDefaultApiUrl,
+  isWebsiteHost,
+  normalizeApiUrl
+} from '../../config';
 
 export default function CustomServerScreen({
   navigation
@@ -64,10 +69,17 @@ export default function CustomServerScreen({
           ): Promise<void> => {
             setSubmitting(true);
             try {
-              // Ensure URL ends with a slash
-              let url = values.serverUrl;
+              let url = normalizeApiUrl(values.serverUrl.trim());
+              if (isWebsiteHost(url)) {
+                showSnackBar(
+                  'Use your API server URL (e.g. http://localhost:3001/api), not the marketing website.',
+                  'error'
+                );
+                setSubmitting(false);
+                return;
+              }
               if (!url.endsWith('/')) {
-                url = url + '/';
+                url = `${url}/`;
               }
 
               // Save the custom URL to AsyncStorage
@@ -105,8 +117,11 @@ export default function CustomServerScreen({
                 mode="outlined"
                 style={{ marginBottom: 10 }}
                 autoCapitalize="none"
-                placeholder="https://your-server-url.com"
+                placeholder={getDefaultApiUrl()}
               />
+              <HelperText type="info">
+                Local Docker: http://localhost:3001/api
+              </HelperText>
               {Boolean(touched.serverUrl && errors.serverUrl) && (
                 <HelperText type="error">
                   {errors.serverUrl?.toString()}
