@@ -1,0 +1,14 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet id="2026_08_11_00000000002_add_location_indexes" author="ibrahima">
+        <createIndex tableName="location" indexName="idx_location_parent_location_id">
+            <column name="parent_location_id"/>
+        </createIndex>
+        <rollback>
+            <dropIndex tableName="location" indexName="idx_location_parent_location_id"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
