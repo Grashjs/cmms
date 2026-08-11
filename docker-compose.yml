@@ -111,6 +111,7 @@ services:
       PADDLE_ENVIRONMENT: ${PADDLE_ENVIRONMENT:-sandbox}
       RECAPTCHA_SITE_KEY: ${RECAPTCHA_SITE_KEY:- }
       LDAP_ENABLED: ${LDAP_ENABLED:-false}
+      INTERCOM_ID: ${INTERCOM_ID:- }
     expose:
       - "3000"
     depends_on:
