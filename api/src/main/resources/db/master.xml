@@ -227,4 +227,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_08_11_00000000001_add_asset_indexes.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_08_11_00000000002_add_location_indexes.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>
