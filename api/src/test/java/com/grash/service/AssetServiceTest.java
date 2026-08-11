@@ -1561,6 +1561,20 @@ class AssetServiceTest {
 
             assertFalse(assetService.hasChildren(1L));
         }
+
+        @Test
+        void getParentIdsWithChildren_returnsDistinctParents() {
+            when(assetRepository.findParentIdsWithChildren(List.of(1L, 2L))).thenReturn(List.of(1L));
+
+            Set<Long> result = assetService.getParentIdsWithChildren(List.of(1L, 2L));
+
+            assertEquals(Set.of(1L), result);
+        }
+
+        @Test
+        void getParentIdsWithChildren_emptyInput_returnsEmpty() {
+            assertTrue(assetService.getParentIdsWithChildren(Collections.emptyList()).isEmpty());
+        }
     }
 
     @Nested
@@ -1572,12 +1586,13 @@ class AssetServiceTest {
             Asset asset = buildAsset(1L);
             when(assetRepository.findAll((Specification<Asset>) isNull(), any(Pageable.class)))
                     .thenReturn(new PageImpl<>(Collections.singletonList(asset)));
-            stubWebhookShowDto();
+            when(assetRepository.findParentIdsWithChildren(any())).thenReturn(Collections.emptyList());
+            when(assetMapper.toShowDto(any(Asset.class), anySet())).thenReturn(new AssetShowDTO());
 
             Page<AssetShowDTO> result = assetService.findBySearchCriteria(criteria);
 
             assertEquals(1, result.getContent().size());
-            verify(assetMapper).toShowDto(asset, assetService);
+            verify(assetMapper).toShowDto(eq(asset), anySet());
         }
     }
 

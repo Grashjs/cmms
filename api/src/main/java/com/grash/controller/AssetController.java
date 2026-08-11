@@ -7,6 +7,7 @@ import com.grash.dto.AssetPostDTO;
 import com.grash.dto.AssetShowDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.mapper.AssetMapper;
+import com.grash.model.Asset;
 import com.grash.model.User;
 import com.grash.security.CurrentUser;
 import com.grash.service.*;
@@ -27,6 +28,7 @@ import jakarta.validation.Valid;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -72,14 +74,20 @@ public class AssetController {
     @PreAuthorize("permitAll()")
     public Collection<AssetShowDTO> getByLocation(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
-        return assetService.findByLocationAndUser(id, user).stream().map(asset -> assetMapper.toShowDto(asset, assetService)).collect(Collectors.toList());
+        Collection<Asset> assets = assetService.findByLocationAndUser(id, user);
+        Set<Long> parentIdsWithChildren = assetService.getParentIdsWithChildren(
+                assets.stream().map(Asset::getId).collect(Collectors.toList()));
+        return assets.stream().map(asset -> assetMapper.toShowDto(asset, parentIdsWithChildren)).collect(Collectors.toList());
     }
 
     @GetMapping("/part/{id}")
     @PreAuthorize("permitAll()")
     public Collection<AssetShowDTO> getByPart(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
-        return assetService.findByPartAndUser(id, user).stream().map(asset -> assetMapper.toShowDto(asset, assetService)).collect(Collectors.toList());
+        Collection<Asset> assets = assetService.findByPartAndUser(id, user);
+        Set<Long> parentIdsWithChildren = assetService.getParentIdsWithChildren(
+                assets.stream().map(Asset::getId).collect(Collectors.toList()));
+        return assets.stream().map(asset -> assetMapper.toShowDto(asset, parentIdsWithChildren)).collect(Collectors.toList());
     }
 
     @GetMapping("/children/{id}")
@@ -88,7 +96,10 @@ public class AssetController {
     public List<AssetShowDTO> getChildrenById(@PathVariable("id") Long id,
                                               HttpServletRequest req) {
         User user = userService.whoami(req);
-        return assetService.findChildren(id, user, Pageable.unpaged()).stream().map(asset -> assetMapper.toShowDto(asset, assetService)).collect(Collectors.toList());
+        List<Asset> assets = assetService.findChildren(id, user, Pageable.unpaged());
+        Set<Long> parentIdsWithChildren = assetService.getParentIdsWithChildren(
+                assets.stream().map(Asset::getId).collect(Collectors.toList()));
+        return assets.stream().map(asset -> assetMapper.toShowDto(asset, parentIdsWithChildren)).collect(Collectors.toList());
     }
 
     @GetMapping("/children/{id}/paginated")
@@ -97,7 +108,10 @@ public class AssetController {
                                                        Pageable pageable,
                                                        HttpServletRequest req) {
         User user = userService.whoami(req);
-        return assetService.findChildrenPaginated(id, user, pageable).map(asset -> assetMapper.toShowDto(asset, assetService));
+        Page<Asset> assetPage = assetService.findChildrenPaginated(id, user, pageable);
+        Set<Long> parentIdsWithChildren = assetService.getParentIdsWithChildren(
+                assetPage.getContent().stream().map(Asset::getId).collect(Collectors.toList()));
+        return assetPage.map(asset -> assetMapper.toShowDto(asset, parentIdsWithChildren));
     }
 
     @PostMapping("")

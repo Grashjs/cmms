@@ -28,6 +28,9 @@ public interface AssetRepository extends JpaRepository<Asset, Long>, JpaSpecific
 
     Integer countByParentAsset_Id(Long id);
 
+    @Query("SELECT DISTINCT a.parentAsset.id FROM Asset a WHERE a.parentAsset.id IN :ids")
+    List<Long> findParentIdsWithChildren(@Param("ids") Collection<Long> ids);
+
     List<Asset> findByLocation_Id(Long id);
 
     List<Asset> findByNameIgnoreCaseAndCompany_Id(String assetName, Long companyId);

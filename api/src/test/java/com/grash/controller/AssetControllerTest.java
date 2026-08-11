@@ -32,6 +32,7 @@ import java.util.HashSet;
 
 import static com.grash.utils.Helper.setCurrentUser;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -122,6 +123,7 @@ class AssetControllerTest extends AbstractControllerTest {
 
     private void mockShowMapping() {
         when(assetMapper.toShowDto(any(Asset.class), any(AssetService.class))).thenReturn(showDto);
+        when(assetMapper.toShowDto(any(Asset.class), anySet())).thenReturn(showDto);
     }
 
     private void mockMiniMapping() {

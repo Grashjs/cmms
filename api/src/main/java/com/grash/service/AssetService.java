@@ -298,7 +298,10 @@ public class AssetService {
         searchCriteria.getFilterFields().forEach(builder::with);
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(),
                 searchCriteria.getDirection(), searchCriteria.getSortField());
-        return assetRepository.findAll(builder.build(), page).map(asset -> assetMapper.toShowDto(asset, this));
+        Page<Asset> assets = assetRepository.findAll(builder.build(), page);
+        Set<Long> parentIdsWithChildren = getParentIdsWithChildren(
+                assets.getContent().stream().map(Asset::getId).collect(Collectors.toList()));
+        return assets.map(asset -> assetMapper.toShowDto(asset, parentIdsWithChildren));
     }
 
     public SearchCriteria getSearchCriteria(User user, SearchCriteria searchCriteria) {
@@ -639,6 +642,13 @@ public class AssetService {
 
     public Boolean hasChildren(Long assetId) {
         return assetRepository.countByParentAsset_Id(assetId) > 0;
+    }
+
+    public Set<Long> getParentIdsWithChildren(Collection<Long> assetIds) {
+        if (assetIds == null || assetIds.isEmpty()) {
+            return Collections.emptySet();
+        }
+        return new HashSet<>(assetRepository.findParentIdsWithChildren(assetIds));
     }
 
     public long getMTBF(Long assetId, Date start, Date end) {
