@@ -105,3 +105,8 @@ export const recaptchaSiteKey = getRuntimeValue('RECAPTCHA_SITE_KEY');
 
 export const intercomId = getRuntimeValue('INTERCOM_ID');
 export const ldapEnabled = getRuntimeValue('LDAP_ENABLED') === 'true';
+
+// Holostaff (optional in-app copilot for maintenance teams). The copilot
+// only loads when both ids are set; leave them empty to keep it off.
+export const holostaffTenantId = getRuntimeValue('HOLOSTAFF_TENANT_ID');
+export const holostaffSourceId = getRuntimeValue('HOLOSTAFF_SOURCE_ID');

@@ -1,12 +1,13 @@
 import { FC, ReactNode, useEffect } from 'react';
 import { alpha, Box, lighten, useTheme } from '@mui/material';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 
 import Sidebar from './Sidebar';
 import Header from './Header';
 import Intercom from '@intercom/messenger-js-sdk';
 import useAuth from '../../hooks/useAuth';
 import { intercomId, isCloudVersion } from '../../config';
+import { holostaffMarkPath } from '../../plugins/holostaff';
 
 interface ExtendedSidebarLayoutProps {
   children?: ReactNode;
@@ -15,6 +16,14 @@ interface ExtendedSidebarLayoutProps {
 const ExtendedSidebarLayout: FC<ExtendedSidebarLayoutProps> = () => {
   const theme = useTheme();
   const { user } = useAuth();
+  const location = useLocation();
+
+  // Holostaff copilot (no-op unless both ids are configured). Mounted in
+  // this layout only, so it never runs on the public request portal or
+  // the auth pages.
+  useEffect(() => {
+    holostaffMarkPath(location.pathname);
+  }, [location.pathname]);
 
   useEffect(() => {
     if (user && user.ownsCompany && isCloudVersion && intercomId)

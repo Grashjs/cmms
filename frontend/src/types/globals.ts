@@ -9,6 +9,8 @@ declare global {
       GOOGLE_KEY: string;
       API_URL: string;
       NODE_ENV: string;
+      HOLOSTAFF_TENANT_ID: string;
+      HOLOSTAFF_SOURCE_ID: string;
     };
   }
 }
