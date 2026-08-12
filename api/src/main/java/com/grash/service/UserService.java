@@ -329,22 +329,27 @@ public class UserService {
 
     public SuccessResponse resetPasswordRequest(String email) {
         throwIfEmailNotificationsNotEnabled();
-        email = email.toLowerCase();
-        User user = findByEmail(email).get();
-        Helper helper = new Helper();
-        String password = helper.generateString().replace("-", "").substring(0, 8).toUpperCase();
+        try {
+            email = email.toLowerCase();
+            User user = findByEmail(email).get();
+            Helper helper = new Helper();
+            String password = helper.generateString().replace("-", "").substring(0, 8).toUpperCase();
 
-        String token = UUID.randomUUID().toString();
-        Map<String, Object> variables = new HashMap<String, Object>() {{
-            put("resetConfirmLink", PUBLIC_API_URL + "/auth/reset-pwd-confirm?token=" + token);
-            put("password", password);
-        }};
-        VerificationToken newUserToken = new VerificationToken(token, user, password);
-        verificationTokenRepository.save(newUserToken);
-        mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(new String[]{email},
-                messageSource.getMessage("password_reset"
-                        , new String[]{brandingService.getBrandConfig().getName()}, Helper.getLocale(user)), variables,
-                "reset-password.html", Helper.getLocale(user), null);
+            String token = UUID.randomUUID().toString();
+            Map<String, Object> variables = new HashMap<String, Object>() {{
+                put("resetConfirmLink", PUBLIC_API_URL + "/auth/reset-pwd-confirm?token=" + token);
+                put("password", password);
+            }};
+            VerificationToken newUserToken = new VerificationToken(token, user, password);
+            verificationTokenRepository.save(newUserToken);
+            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(new String[]{email},
+                    messageSource.getMessage("password_reset"
+                            , new String[]{brandingService.getBrandConfig().getName()}, Helper.getLocale(user)),
+                    variables,
+                    "reset-password.html", Helper.getLocale(user), null);
+        } catch (Exception ignored) {
+            //this is done to prevent the user from knowing if email exists or not
+        }
         return new SuccessResponse(true, "Password changed successfully");
     }
 
