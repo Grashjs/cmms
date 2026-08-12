@@ -55,10 +55,11 @@ class WebSocketConfigTest {
 
         Collection<String> brokerPrefixes = registry.getBrokerHandler(new ExecutorSubscribableChannel())
                 .getDestinationPrefixes();
-        assertEquals(3, brokerPrefixes.size());
+        assertEquals(4, brokerPrefixes.size());
         assertTrue(brokerPrefixes.contains("/notifications"));
         assertTrue(brokerPrefixes.contains("/exports"));
         assertTrue(brokerPrefixes.contains("/imports"));
+        assertTrue(brokerPrefixes.contains("/user"));
     }
 
     @Test
