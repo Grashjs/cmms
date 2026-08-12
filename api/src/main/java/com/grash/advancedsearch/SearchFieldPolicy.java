@@ -3,47 +3,22 @@ package com.grash.advancedsearch;
 import com.grash.model.ApiKey;
 import com.grash.model.User;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Central, DRY source of truth for which properties may NOT be used in
- * advanced searches.
- * <p>
- * Every {@link WrapperSpecification} validates the field path it receives
- * against this policy before any JPA query is built. This prevents clients
- * from probing internal or sensitive properties (e.g. {@code password},
- * {@code createdBy.password}, API keys, tokens, ...) through the search
- * engine.
- * <p>
- * Validation rules:
- * <ul>
- *     <li>Names in {@link #SENSITIVE_PROPERTIES} are never searchable, at any
- *     depth of a dotted path, for any entity.</li>
- *     <li>Paths listed in {@link #DISALLOWED_FIELDS} for an entity are never
- *     searchable on that entity. The check is applied to the full dotted path
- *     and to every prefix, so disallowing {@code createdBy} also rejects
- *     {@code createdBy.password}, {@code createdBy.internalField}, etc.</li>
- * </ul>
- */
 public final class SearchFieldPolicy {
 
-    /**
-     * Property names that must never be used as search criteria, regardless of
-     * the root entity or the depth of the path. Applied to every segment of a
-     * dotted path.
-     */
     public static final Set<String> SENSITIVE_PROPERTIES = Set.of(
             "password",
             "secret",
             "token"
     );
 
-    /**
-     * Dotted paths that are explicitly forbidden for search on a given root
-     * entity. Each entry is matched against the full path and against every
-     * prefix of it.
-     */
     private static final Map<Class<?>, Set<String>> DISALLOWED_FIELDS = Map.ofEntries(
             Map.entry(User.class, Set.of(
                     "userSettings",
@@ -56,6 +31,11 @@ public final class SearchFieldPolicy {
 
     /**
      * Validates a field path against the policy for the given root entity.
+     * The per-entity blocklist is enforced at every level of the path, not
+     * just the root: each segment's declared Java type is resolved via
+     * reflection (unwrapping Collection/Map element types), so a rule
+     * defined for {@code User} also applies to e.g. {@code primaryUser.*}
+     * when the root entity has a {@code User}-typed relation.
      *
      * @param entityClass the JPA entity being searched; may be null when the
      *                    type is not resolvable (e.g. in unit tests), in which
@@ -81,15 +61,55 @@ public final class SearchFieldPolicy {
         if (entityClass == null) {
             return false;
         }
-        Set<String> disallowed = DISALLOWED_FIELDS.get(entityClass);
-        if (disallowed == null || disallowed.isEmpty()) {
-            return false;
-        }
-        for (String path : disallowed) {
-            if (field.equals(path) || field.startsWith(path + ".")) {
-                return true;
+        String[] segments = field.split("\\.");
+        Class<?> currentClass = entityClass;
+
+        for (int i = 0; i < segments.length && currentClass != null; i++) {
+            String remainder = String.join(".", Arrays.copyOfRange(segments, i, segments.length));
+            Set<String> disallowed = DISALLOWED_FIELDS.get(currentClass);
+            if (disallowed != null) {
+                for (String path : disallowed) {
+                    if (remainder.equals(path) || remainder.startsWith(path + ".")) {
+                        return true;
+                    }
+                }
             }
+            currentClass = resolveFieldType(currentClass, segments[i]);
         }
         return false;
+    }
+
+    /**
+     * Resolves the Java type a field name points to, walking up the
+     * superclass chain, and unwrapping Collection/Map generics to their
+     * element/value type so relation lists (e.g. {@code List<User>}) are
+     * checked against the target entity's rules too.
+     */
+    private static Class<?> resolveFieldType(Class<?> owner, String fieldName) {
+        Class<?> current = owner;
+        while (current != null && current != Object.class) {
+            try {
+                return unwrapType(current.getDeclaredField(fieldName));
+            } catch (NoSuchFieldException e) {
+                current = current.getSuperclass();
+            }
+        }
+        return null;
+    }
+
+    private static Class<?> unwrapType(Field f) {
+        Class<?> type = f.getType();
+        if (Collection.class.isAssignableFrom(type) || Map.class.isAssignableFrom(type)) {
+            Type generic = f.getGenericType();
+            if (generic instanceof ParameterizedType pt) {
+                Type[] args = pt.getActualTypeArguments();
+                Type target = args[args.length - 1]; // element type for Collection, value type for Map
+                if (target instanceof Class<?> cls) {
+                    return cls;
+                }
+            }
+            return null;
+        }
+        return type;
     }
 }

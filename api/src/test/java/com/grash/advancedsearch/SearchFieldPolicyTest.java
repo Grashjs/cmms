@@ -96,4 +96,71 @@ class SearchFieldPolicyTest {
         assertThrows(InvalidSearchFieldException.class, () -> SearchFieldPolicy.validate(User.class, null));
         assertThrows(InvalidSearchFieldException.class, () -> SearchFieldPolicy.validate(User.class, "  "));
     }
+
+    @Test
+    void validate_nestedUserRelation_shouldApplyUserBlocklist() {
+        assertThrows(InvalidSearchFieldException.class,
+                () -> SearchFieldPolicy.validate(WorkOrder.class, "primaryUser.userSettings"));
+        assertThrows(InvalidSearchFieldException.class,
+                () -> SearchFieldPolicy.validate(WorkOrder.class, "primaryUser.appStats"));
+        assertThrows(InvalidSearchFieldException.class,
+                () -> SearchFieldPolicy.validate(WorkOrder.class, "primaryUser.superAccountRelations"));
+        assertThrows(InvalidSearchFieldException.class,
+                () -> SearchFieldPolicy.validate(ApiKey.class, "user.userSettings"));
+        assertThrows(InvalidSearchFieldException.class,
+                () -> SearchFieldPolicy.validate(Asset.class, "primaryUser.parentSuperAccount"));
+    }
+
+    @Test
+    void validate_nestedUserRelation_shouldAllowNonDisallowedPath() {
+        assertDoesNotThrow(() -> SearchFieldPolicy.validate(WorkOrder.class, "primaryUser.email"));
+        assertDoesNotThrow(() -> SearchFieldPolicy.validate(ApiKey.class, "user.firstName"));
+    }
+
+    @Test
+    void validate_collectionRelation_shouldUnwrapElementType() {
+        assertThrows(InvalidSearchFieldException.class,
+                () -> SearchFieldPolicy.validate(WorkOrder.class, "assignedTo.userSettings"));
+        assertThrows(InvalidSearchFieldException.class,
+                () -> SearchFieldPolicy.validate(WorkOrder.class, "assignedTo.appStats"));
+        assertThrows(InvalidSearchFieldException.class,
+                () -> SearchFieldPolicy.validate(Asset.class, "assignedTo.superAccountRelations"));
+        assertThrows(InvalidSearchFieldException.class,
+                () -> SearchFieldPolicy.validate(WorkOrder.class, "team.users.parentSuperAccount"));
+    }
+
+    @Test
+    void validate_collectionRelation_shouldAllowNonDisallowedPath() {
+        assertDoesNotThrow(() -> SearchFieldPolicy.validate(WorkOrder.class, "assignedTo.email"));
+        assertDoesNotThrow(() -> SearchFieldPolicy.validate(WorkOrder.class, "team.users.firstName"));
+    }
+
+    @Test
+    void validate_deepNestedChain_shouldResolveEverySegment() {
+        assertThrows(InvalidSearchFieldException.class,
+                () -> SearchFieldPolicy.validate(WorkOrder.class, "asset.primaryUser.userSettings"));
+        assertThrows(InvalidSearchFieldException.class,
+                () -> SearchFieldPolicy.validate(WorkOrder.class, "team.users.userSettings"));
+        assertDoesNotThrow(() -> SearchFieldPolicy.validate(WorkOrder.class, "asset.primaryUser.email"));
+    }
+
+    @Test
+    void validate_mapValueType_shouldUnwrapToValueClass() {
+        assertThrows(InvalidSearchFieldException.class,
+                () -> SearchFieldPolicy.validate(TestSearchEntity.class, "userMap.userSettings"));
+        assertThrows(InvalidSearchFieldException.class,
+                () -> SearchFieldPolicy.validate(TestSearchEntity.class, "userSet.appStats"));
+        assertDoesNotThrow(() -> SearchFieldPolicy.validate(TestSearchEntity.class, "userMap.email"));
+    }
+
+    @Test
+    void validate_unresolvableSegment_shouldStopBlocklistTraversal() {
+        assertDoesNotThrow(() -> SearchFieldPolicy.validate(WorkOrder.class, "noSuchField.userSettings"));
+    }
+
+    @SuppressWarnings("unused")
+    private static class TestSearchEntity {
+        private final java.util.Map<String, User> userMap = new java.util.HashMap<>();
+        private final java.util.Set<User> userSet = new java.util.HashSet<>();
+    }
 }
