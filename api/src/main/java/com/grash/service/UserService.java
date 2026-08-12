@@ -512,7 +512,9 @@ public class UserService {
     public User patchUserRole(Long userId, Long roleId, User requester) {
         Optional<User> optionalUserToPatch = findByIdAndCompany(userId, requester.getCompany().getId());
         Optional<Role> optionalRole = roleService.findById(roleId);
-
+        if (requester.getId().equals(userId)) {
+            throw new CustomException("You can't change your own role", HttpStatus.NOT_ACCEPTABLE);
+        }
         if (optionalUserToPatch.isPresent() && optionalRole.isPresent() && optionalRole.get().belongsToCompany(requester.getCompany())) {
             User userToPatch = optionalUserToPatch.get();
             if (requester.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
