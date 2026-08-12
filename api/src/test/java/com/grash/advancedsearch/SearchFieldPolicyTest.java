@@ -158,9 +158,17 @@ class SearchFieldPolicyTest {
         assertDoesNotThrow(() -> SearchFieldPolicy.validate(WorkOrder.class, "noSuchField.userSettings"));
     }
 
-    @SuppressWarnings("unused")
+    @Test
+    void validate_nonParameterizedOrNestedGenericCollection_shouldStopBlocklistTraversal() {
+        assertDoesNotThrow(() -> SearchFieldPolicy.validate(TestSearchEntity.class, "rawList.userSettings"));
+        assertDoesNotThrow(() -> SearchFieldPolicy.validate(TestSearchEntity.class, "userListMap.appStats"));
+    }
+
+    @SuppressWarnings({"unused", "rawtypes"})
     private static class TestSearchEntity {
         private final java.util.Map<String, User> userMap = new java.util.HashMap<>();
         private final java.util.Set<User> userSet = new java.util.HashSet<>();
+        private final java.util.List rawList = new java.util.ArrayList();
+        private final java.util.Map<String, java.util.List<User>> userListMap = new java.util.HashMap<>();
     }
 }
