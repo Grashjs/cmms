@@ -7,6 +7,7 @@ import io.minio.*;
 import io.minio.errors.*;
 import io.minio.http.Method;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MinioService implements StorageService {
     @Value("${storage.minio.endpoint}")
     private String minioEndpoint;
@@ -72,8 +74,12 @@ public class MinioService implements StorageService {
 
     public String upload(MultipartFile file, String folder) {
         checkIfConfigured();
-        Helper helper = new Helper();
-        String filePath = folder + "/" + helper.generateString() + " " + file.getOriginalFilename();
+
+        if (file == null || file.isEmpty()) {
+            throw new CustomException("Uploaded file is empty.", HttpStatus.BAD_REQUEST);
+        }
+
+        String filePath = Helper.generateUniqueFilePath(file.getOriginalFilename(), folder);
         try {
             minioClient.putObject(
                     PutObjectArgs.builder()
@@ -86,13 +92,19 @@ public class MinioService implements StorageService {
 
             return filePath;
         } catch (MinioException | IOException | InvalidKeyException | NoSuchAlgorithmException e) {
-            throw new CustomException(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+            log.error("MinIO error during upload to {}", filePath, e);
+            throw new CustomException("Failed to save the file to storage.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     public String upload(byte[] data, String fileName, String folder) {
         checkIfConfigured();
-        String filePath = folder + "/" + fileName;
+
+        if (data == null || data.length == 0) {
+            throw new CustomException("Uploaded file is empty.", HttpStatus.BAD_REQUEST);
+        }
+
+        String filePath = Helper.generateUniqueFilePath(fileName, folder);
         try {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
             minioClient.putObject(
@@ -105,7 +117,8 @@ public class MinioService implements StorageService {
             );
             return filePath;
         } catch (MinioException | IOException | InvalidKeyException | NoSuchAlgorithmException e) {
-            throw new CustomException(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+            log.error("MinIO error during upload to {}", filePath, e);
+            throw new CustomException("Failed to save the file to storage.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

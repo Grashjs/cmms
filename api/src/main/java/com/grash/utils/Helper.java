@@ -20,6 +20,7 @@ import com.grash.service.WorkOrderCategoryService;
 import com.grash.security.CustomUserDetail;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.MessageSource;
+import org.springframework.util.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
@@ -57,6 +58,14 @@ public class Helper {
 
     public String generateString() {
         return UUID.randomUUID().toString();
+    }
+
+    public static String generateUniqueFilePath(String fileName, String folder) {
+        String cleanName = StringUtils.cleanPath(fileName != null && !fileName.isBlank() ? fileName : "unnamed");
+        String sanitizedOriginalName = cleanName.replaceAll("[^a-zA-Z0-9._-]", "_");
+        String safeFileName = UUID.randomUUID() + "_" + sanitizedOriginalName;
+        String sanitizedFolder = folder == null ? "" : folder.replaceAll("[^a-zA-Z0-9._-]", "_").replaceAll("^/+|/+$", "");
+        return sanitizedFolder.isEmpty() ? safeFileName : sanitizedFolder + "/" + safeFileName;
     }
 
     public static String generateStringId() {
