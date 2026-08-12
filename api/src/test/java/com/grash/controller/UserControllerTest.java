@@ -70,6 +70,7 @@ class UserControllerTest extends AbstractControllerTest {
                 .roleType(RoleType.ROLE_CLIENT)
                 .name("Client Role")
                 .viewPermissions(new HashSet<>(Collections.singletonList(PermissionEntity.PEOPLE_AND_TEAMS)))
+                .viewOtherPermissions(new HashSet<>(Collections.singletonList(PermissionEntity.PEOPLE_AND_TEAMS)))
                 .editOtherPermissions(new HashSet<>(Collections.singletonList(PermissionEntity.PEOPLE_AND_TEAMS)))
                 .build();
         clientRole.getViewPermissions().add(PermissionEntity.SETTINGS);
