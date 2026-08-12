@@ -920,7 +920,7 @@ class AssetServiceTest {
             portal.setCompany(company);
             when(requestPortalService.findByUuidByUser("uuid")).thenReturn(Optional.of(portal));
             List<Asset> assets = Collections.singletonList(buildAsset(1L));
-            when(assetRepository.findByLocation_Id(5L)).thenReturn(assets);
+            when(assetRepository.findByLocation_IdAndCompany_Id(5L, 1L)).thenReturn(assets);
 
             List<Asset> result = assetService.findMiniPublic("uuid", 5L, "1.2.3.4");
 
@@ -1693,7 +1693,8 @@ class AssetServiceTest {
             stubAssetLimit(false, true);
 
             CustomException ex = assertThrows(CustomException.class,
-                    () -> assetService.setAssetFieldsFromImportDto(buildAsset(1L), new AssetImportDTO(), company, null));
+                    () -> assetService.setAssetFieldsFromImportDto(buildAsset(1L), new AssetImportDTO(), company,
+                            null));
 
             assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
         }
