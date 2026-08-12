@@ -1,10 +1,13 @@
 package com.grash.exception;
 
+import com.grash.advancedsearch.InvalidSearchFieldException;
 import com.grash.dto.SuccessResponse;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.context.annotation.Bean;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -40,6 +43,11 @@ public class GlobalExceptionHandlerController {
     public ResponseEntity<SuccessResponse> handleCustomException(HttpServletResponse res, CustomException ex) {
         ex.printStackTrace();
         return new ResponseEntity<>(new SuccessResponse(false, ex.getMessage()), ex.getHttpStatus());
+    }
+
+    @ExceptionHandler(InvalidSearchFieldException.class)
+    public ResponseEntity<SuccessResponse> handleInvalidSearchField(InvalidSearchFieldException ex) {
+        return new ResponseEntity<>(new SuccessResponse(false, ex.getClientMessage()), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
