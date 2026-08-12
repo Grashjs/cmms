@@ -121,7 +121,7 @@ public class RoleController {
     }
 
     private void assertCanGrant(Collection<PermissionEntity> requested, Collection<PermissionEntity> owned) {
-        if (requested != null && !owned.containsAll(requested)) {
+        if (requested != null && owned != null && !owned.containsAll(requested)) {
             throw new CustomException("Cannot grant permissions you don't have", HttpStatus.FORBIDDEN);
         }
     }
