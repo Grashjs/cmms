@@ -10,7 +10,8 @@ import {
 import {
   alpha,
   Badge,
-  Box, Button,
+  Box,
+  Button,
   CircularProgress,
   Divider,
   IconButton,
@@ -36,7 +37,8 @@ import {
   editNotification,
   getMoreNotifications,
   getNotifications,
-  newReceivedNotification, readAllNotifications
+  newReceivedNotification,
+  readAllNotifications
 } from '../../../../../slices/notification';
 import Notification, {
   NotificationType
@@ -157,18 +159,19 @@ function HeaderNotifications() {
       if (!stompClient) {
         const socket = new SockJS(`${apiUrl}ws`);
         const client = Stomp.over(socket);
-        client.connect({ token: localStorage.getItem('accessToken') }, function(frame) {
-          const subscription = client.subscribe(
-            `/notifications/${user.id}`,
-            function(message) {
-              const notification: Notification = JSON.parse(message.body);
-              dispatch(
-                newReceivedNotification(notification)
-              );
-            }
-          );
-          setStompClient(client);
-        });
+        client.connect(
+          { token: localStorage.getItem('accessToken') },
+          function (frame) {
+            const subscription = client.subscribe(
+              `/user/${user.email}/notifications`,
+              function (message) {
+                const notification: Notification = JSON.parse(message.body);
+                dispatch(newReceivedNotification(notification));
+              }
+            );
+            setStompClient(client);
+          }
+        );
       }
     } else {
       disconnect();
@@ -261,12 +264,12 @@ function HeaderNotifications() {
             notifications.content.filter((notification) => !notification.seen)
               .length
               ? {
-                '.MuiBadge-badge': {
-                  background: theme.colors.success.main,
-                  animation: 'pulse 1s infinite',
-                  transition: `${theme.transitions.create(['all'])}`
+                  '.MuiBadge-badge': {
+                    background: theme.colors.success.main,
+                    animation: 'pulse 1s infinite',
+                    transition: `${theme.transitions.create(['all'])}`
+                  }
                 }
-              }
               : {}
           }
         >
@@ -348,10 +351,15 @@ function HeaderNotifications() {
               </Typography>
             </BoxComposedContent>
           </BoxComposed>
-          {!!notifications.content.filter(notification => !notification.seen).length &&
-            <Button onClick={() => dispatch(readAllNotifications())}
-                    startIcon={
-                      <CheckCircleOutlineIcon />}>{t('mark_all_as_seen')}</Button>}
+          {!!notifications.content.filter((notification) => !notification.seen)
+            .length && (
+            <Button
+              onClick={() => dispatch(readAllNotifications())}
+              startIcon={<CheckCircleOutlineIcon />}
+            >
+              {t('mark_all_as_seen')}
+            </Button>
+          )}
         </Box>
         <Divider />
         {!!notifications.content.length && (

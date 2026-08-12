@@ -567,7 +567,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
             { token: await AsyncStorage.getItem('accessToken') },
             function (frame) {
               const subscription = client.subscribe(
-                `/notifications/${state.user.id}`,
+                `/user/${state.user.email}/notifications`,
                 function (message) {
                   const notification: Notification = JSON.parse(message.body);
                   globalDispatch(newReceivedNotification(notification));

@@ -3,6 +3,7 @@ import { Stomp } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { apiUrl } from 'src/config';
 import api from 'src/utils/api';
+import useAuth from './useAuth';
 
 interface UseExportReturn {
   exportEntity: (entity: ExportEntityType) => Promise<void>;
@@ -37,7 +38,7 @@ export const useExport = (): UseExportReturn => {
     'part-transactions': false
   });
   const [stompClient, setStompClient] = useState(null);
-
+  const { user } = useAuth();
   // Initialize WebSocket connection
   useEffect(() => {
     const socket = new SockJS(`${apiUrl}ws`);
@@ -67,7 +68,7 @@ export const useExport = (): UseExportReturn => {
 
         // Subscribe to WebSocket topic before making request
         const subscription = stompClient.subscribe(
-          `/exports/${uuid}`,
+          `/user/${user.email}/exports/${uuid}`,
           function (message) {
             try {
               const url = message.body;
