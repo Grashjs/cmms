@@ -114,10 +114,9 @@ public class UserController {
     @PreAuthorize("permitAll()")
     public UserResponseDTO getById(@PathVariable("id") Long id, @Parameter(hidden = true) @CurrentUser User user) {
         Optional<User> optionalUser = userService.findByIdAndCompany(id, user.getCompany().getId());
-        //TODO add permission check
         if (optionalUser.isPresent()) {
             User savedUser = optionalUser.get();
-            if (user.getCompany().getId().equals(savedUser.getCompany().getId())) {
+            if (savedUser.canBeViewedBy(user)) {
                 return userMapper.toResponseDtoWithShift(savedUser);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
