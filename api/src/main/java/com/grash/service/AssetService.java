@@ -458,7 +458,7 @@ public class AssetService {
         if (locationId == null) {
             assets = findByCompany(requestPortal.getCompany().getId());
         } else {
-            assets = findByLocation(locationId);
+            assets = assetRepository.findByLocation_IdAndCompany_Id(locationId, requestPortal.getCompany().getId());
         }
         return assets;
     }
