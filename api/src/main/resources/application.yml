@@ -97,6 +97,11 @@ security:
         short-term-period-minutes: ${RATE_LIMIT_FILE_UPLOAD_AUTH_SHORT_PERIOD:1}
         long-term-requests: ${RATE_LIMIT_FILE_UPLOAD_AUTH_LONG:200}
         long-term-period-hours: ${RATE_LIMIT_FILE_UPLOAD_AUTH_LONG_PERIOD:1}
+      bypass:
+        short-term-requests: ${RATE_LIMIT_FILE_UPLOAD_BYPASS_SHORT:2}
+        short-term-period-minutes: ${RATE_LIMIT_FILE_UPLOAD_BYPASS_SHORT_PERIOD:1}
+        long-term-requests: ${RATE_LIMIT_FILE_UPLOAD_BYPASS_LONG:4}
+        long-term-period-hours: ${RATE_LIMIT_FILE_UPLOAD_BYPASS_LONG_PERIOD:24}
 frontend:
   url: ${PUBLIC_FRONT_URL}
   home-url: ${PUBLIC_HOME_URL:}
