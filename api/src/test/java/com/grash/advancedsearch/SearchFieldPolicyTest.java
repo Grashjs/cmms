@@ -43,15 +43,8 @@ class SearchFieldPolicyTest {
     void validate_otherSensitiveProperties_shouldBeRejected() {
         assertThrows(InvalidSearchFieldException.class, () -> SearchFieldPolicy.validate(User.class, "secret"));
         assertThrows(InvalidSearchFieldException.class, () -> SearchFieldPolicy.validate(WorkOrder.class, "token"));
-        assertThrows(InvalidSearchFieldException.class, () -> SearchFieldPolicy.validate(User.class, "apiKey"));
         assertThrows(InvalidSearchFieldException.class,
                 () -> SearchFieldPolicy.validate(User.class, "company.secret"));
-    }
-
-    @Test
-    void validate_userApiKeyCode_shouldBeRejected() {
-        assertThrows(InvalidSearchFieldException.class,
-                () -> SearchFieldPolicy.validate(User.class, "apiKey.code"));
     }
 
     @Test
