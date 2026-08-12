@@ -69,9 +69,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) {
         try {
-            Optional<String> redirectUri = Optional.ofNullable(request.getParameter("redirect_uri"));
-
-            String targetUrl = redirectUri.orElse(oAuth2Properties.getSuccessRedirectUrl());
+            String targetUrl = oAuth2Properties.getSuccessRedirectUrl();
 
             // Extract user details and generate token
             OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authentication;
