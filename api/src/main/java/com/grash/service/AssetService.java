@@ -455,10 +455,11 @@ public class AssetService {
         RequestPortal requestPortal = requestPortalService.findByUuidByUser(portalUUID).get();
         if (requestPortal.getFields().stream().anyMatch(requestPortalField -> requestPortalField.getAsset() != null && requestPortalField.getType().equals(PortalFieldType.ASSET)))
             throw new CustomException("This portal is not configured to show assets", HttpStatus.FORBIDDEN);
+        Long companyId = requestPortal.getCompany().getId();
         if (locationId == null) {
-            assets = findByCompany(requestPortal.getCompany().getId());
+            assets = findByCompany(companyId);
         } else {
-            assets = assetRepository.findByLocation_IdAndCompany_Id(locationId, requestPortal.getCompany().getId());
+            assets = assetRepository.findByLocation_IdAndCompany_Id(locationId, companyId);
         }
         return assets;
     }
