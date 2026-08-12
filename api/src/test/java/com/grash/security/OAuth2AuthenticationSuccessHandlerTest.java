@@ -127,7 +127,6 @@ class OAuth2AuthenticationSuccessHandlerTest {
         void existingUser_returnsUrlWithToken() {
             String email = "john@test.com";
             stubOAuthFlow("google", Map.of("email", email, "given_name", "John", "family_name", "Doe", "sub", "123"));
-            when(request.getParameter("redirect_uri")).thenReturn(null);
             when(oAuth2Properties.getSuccessRedirectUrl()).thenReturn(successUrl);
             when(userRepository.findByEmailIgnoreCase(email)).thenReturn(Optional.of(createUser(email, null, null)));
             when(jwtTokenProvider.createToken(eq(email), anyList())).thenReturn("jwt-token");
@@ -145,7 +144,6 @@ class OAuth2AuthenticationSuccessHandlerTest {
             Map<String, Object> attrs = Map.of("email", email, "given_name", "John", "family_name", "Doe", "sub",
                     "456");
             stubOAuthFlow("google", attrs);
-            when(request.getParameter("redirect_uri")).thenReturn(null);
             when(oAuth2Properties.getSuccessRedirectUrl()).thenReturn(successUrl);
             when(userRepository.findByEmailIgnoreCase(email)).thenReturn(Optional.of(user));
             when(userRepository.save(user)).thenReturn(user);
@@ -165,7 +163,6 @@ class OAuth2AuthenticationSuccessHandlerTest {
             Map<String, Object> attrs = Map.of("email", email, "given_name", "John", "family_name", "Doe", "sub",
                     "456");
             stubOAuthFlow("google", attrs);
-            when(request.getParameter("redirect_uri")).thenReturn(null);
             when(oAuth2Properties.getSuccessRedirectUrl()).thenReturn(successUrl);
             when(userRepository.findByEmailIgnoreCase(email)).thenReturn(Optional.of(user));
             when(jwtTokenProvider.createToken(eq(email), anyList())).thenReturn("jwt-token");
@@ -184,7 +181,6 @@ class OAuth2AuthenticationSuccessHandlerTest {
             Map<String, Object> attrs = Map.of("email", email, "given_name", "John", "family_name", "Doe", "sub",
                     "456");
             stubOAuthFlow("google", attrs);
-            when(request.getParameter("redirect_uri")).thenReturn(null);
             when(oAuth2Properties.getSuccessRedirectUrl()).thenReturn(successUrl);
             when(userRepository.findByEmailIgnoreCase(email)).thenReturn(Optional.of(user));
             when(userRepository.save(user)).thenReturn(user);
@@ -196,21 +192,7 @@ class OAuth2AuthenticationSuccessHandlerTest {
             assertEquals("456", user.getSsoProviderId());
             verify(userRepository).save(user);
         }
-
-        @Test
-        void redirectUriParam_overridesDefault() {
-            String email = "john@test.com";
-            stubOAuthFlow("google", Map.of("email", email, "given_name", "John", "family_name", "Doe", "sub", "123"));
-            when(request.getParameter("redirect_uri")).thenReturn("https://custom.com/callback");
-            when(userRepository.findByEmailIgnoreCase(email)).thenReturn(Optional.of(createUser(email, null, null)));
-            when(jwtTokenProvider.createToken(eq(email), anyList())).thenReturn("jwt-token");
-
-            String result = handler.determineTargetUrl(request, response, authToken);
-
-            assertTrue(result.startsWith("https://custom.com/callback"));
-            assertTrue(result.contains("token=jwt-token"));
-        }
-
+        
         @Test
         void unsupportedProvider_returnsFailureUrlWithError() {
             Map<String, Object> attrs = Map.of("email", "user@test.com");
@@ -269,7 +251,6 @@ class OAuth2AuthenticationSuccessHandlerTest {
                     "sub", "oauth456"
             );
             stubOAuthFlow("google", attrs);
-            when(request.getParameter("redirect_uri")).thenReturn(null);
             lenient().when(oAuth2Properties.getSuccessRedirectUrl()).thenReturn(successUrl);
             lenient().when(oAuth2Properties.getFailureRedirectUrl()).thenReturn(failureUrl);
             when(userRepository.findByEmailIgnoreCase(email)).thenReturn(Optional.empty());
@@ -314,7 +295,6 @@ class OAuth2AuthenticationSuccessHandlerTest {
                     "sub", "oauth456"
             );
             stubOAuthFlow("google", attrs);
-            when(request.getParameter("redirect_uri")).thenReturn(null);
             lenient().when(oAuth2Properties.getSuccessRedirectUrl()).thenReturn(successUrl);
             lenient().when(oAuth2Properties.getFailureRedirectUrl()).thenReturn(failureUrl);
             when(userRepository.findByEmailIgnoreCase(email)).thenReturn(Optional.empty());
@@ -350,7 +330,6 @@ class OAuth2AuthenticationSuccessHandlerTest {
                     "sub", "ms-sub-123"
             );
             stubOAuthFlow("microsoft", attrs);
-            when(request.getParameter("redirect_uri")).thenReturn(null);
             lenient().when(oAuth2Properties.getSuccessRedirectUrl()).thenReturn(successUrl);
             lenient().when(oAuth2Properties.getFailureRedirectUrl()).thenReturn(failureUrl);
             when(userRepository.findByEmailIgnoreCase(msEmail)).thenReturn(Optional.empty());
@@ -379,7 +358,6 @@ class OAuth2AuthenticationSuccessHandlerTest {
                     "sub", "ms-sub-456"
             );
             stubOAuthFlow("microsoft", attrs);
-            when(request.getParameter("redirect_uri")).thenReturn(null);
             lenient().when(oAuth2Properties.getSuccessRedirectUrl()).thenReturn(successUrl);
             lenient().when(oAuth2Properties.getFailureRedirectUrl()).thenReturn(failureUrl);
             when(userRepository.findByEmailIgnoreCase(msEmail)).thenReturn(Optional.empty());
