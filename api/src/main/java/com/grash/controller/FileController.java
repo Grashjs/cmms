@@ -61,8 +61,6 @@ public class FileController {
                                                       "folder") String folder,
                                               @Parameter(description = "Whether files should be hidden (true/false)") @RequestParam("hidden") String hidden, HttpServletRequest req,
                                               @Parameter(description = "Type of file") @RequestParam("type") FileType fileType,
-                                              @Parameter(hidden = true) @RequestParam(value = "bypass", required =
-                                                      false) Boolean bypass,
                                               @Parameter(description = "Optional task ID to associate files with") @RequestParam(value = "taskId", required = false) Integer taskId) {
         if (!licenseService.hasEntitlement(LicenseEntitlement.FILE_ATTACHMENTS))
             throw new CustomException("You need a license to add a file", HttpStatus.FORBIDDEN);
@@ -70,8 +68,8 @@ public class FileController {
         if (!rateLimiterService.resolveFileUploadAuthenticatedBucket(String.valueOf(user.getId())).tryConsume(1)) {
             throw new CustomException("Rate limit exceeded. Try again later.", HttpStatus.TOO_MANY_REQUESTS);
         }
-        if (Boolean.TRUE.equals(bypass) || (user.getRole().getCreatePermissions().contains(PermissionEntity.FILES) &&
-                user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.FILE))) {
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.FILES) &&
+                user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.FILE)) {
             Collection<File> result = new ArrayList<>();
             Arrays.asList(filesReq).forEach(fileReq -> {
                 String filePath = storageServiceFactory.getStorageService().upload(fileReq, folder);
