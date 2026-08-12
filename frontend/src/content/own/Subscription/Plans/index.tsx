@@ -28,7 +28,7 @@ import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContex
 import { SubscriptionPlan } from '../../../../models/owns/subscriptionPlan';
 import { useNavigate } from 'react-router-dom';
 import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
-import api from '../../../../utils/api';
+import api, { authHeader } from '../../../../utils/api';
 import { useBrand } from '../../../../hooks/useBrand';
 import { fireGa4Event } from '../../../../utils/overall';
 import { initializePaddle, Paddle } from '@paddle/paddle-js';
@@ -120,7 +120,7 @@ function SubscriptionPlans() {
       const response = await fetch(`${apiUrl}paddle/create-checkout-session`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          ...authHeader(false)
         },
         body: JSON.stringify({
           planId: path,

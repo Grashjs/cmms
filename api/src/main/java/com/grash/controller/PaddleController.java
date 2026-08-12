@@ -94,8 +94,17 @@ public class PaddleController {
     }
 
     @PostMapping("/create-checkout-session")
-    public CheckoutResponse createCheckoutSession(@Parameter(description = "Checkout session request") @Valid @RequestBody CheckoutRequest request) {
-        return paddleService.createCheckoutSession(request);
+    public CheckoutResponse createCheckoutSession(@Parameter(description = "Checkout session request") @Valid @RequestBody CheckoutRequest request,
+                                                  HttpServletRequest req) {
+        String email = null;
+        if (request.getUserId() != null) {
+            User currentUser = userService.whoami(req);
+            if (!currentUser.getId().equals(request.getUserId())) {
+                throw new CustomException("You can only create a checkout session for your own account", HttpStatus.FORBIDDEN);
+            }
+            email = currentUser.getEmail();
+        }
+        return paddleService.createCheckoutSession(request, email);
     }
 }
 
