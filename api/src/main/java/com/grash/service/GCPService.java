@@ -7,9 +7,12 @@ import com.grash.exception.CustomException;
 import com.grash.model.File;
 import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.annotation.PostConstruct;
@@ -22,9 +25,12 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class GCPService implements StorageService {
     @Value("${storage.gcp.value}")
     private String gcpJson;
@@ -61,19 +67,38 @@ public class GCPService implements StorageService {
 
     public String upload(MultipartFile file, String folder) {
         checkIfConfigured();
-        Helper helper = new Helper();
-        try {
-            String filePath = folder + "/" + helper.generateString() + " " + file.getOriginalFilename();
-            BlobInfo blobInfo = storage.create(
-                    BlobInfo.newBuilder(gcpBucketName, filePath
-                    ).build(), //get
-                    // original file name
-                    file.getBytes(),
-                    Storage.BlobTargetOption.predefinedAcl(Storage.PredefinedAcl.PRIVATE)
-            );
+
+        if (file == null || file.isEmpty()) {
+            throw new CustomException("Uploaded file is empty.", HttpStatus.BAD_REQUEST);
+        }
+
+        String rawFilename = StringUtils.cleanPath(
+                file.getOriginalFilename() != null ? file.getOriginalFilename() : "unnamed"
+        );
+
+        String sanitizedOriginalName = rawFilename.replaceAll("[^a-zA-Z0-9._-]", "_");
+
+        String safeFileName = UUID.randomUUID() + "_" + sanitizedOriginalName;
+
+        String sanitizedFolder= folder.replaceAll("[^a-zA-Z0-9._-]", "_");
+        String filePath = sanitizedFolder + "/" + safeFileName;
+
+        // Upload via InputStream (avoids loading the whole file into memory)
+        try (InputStream inputStream = file.getInputStream()) {
+            BlobId blobId = BlobId.of(gcpBucketName, filePath);
+            BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
+                    .setContentType(file.getContentType())
+                    .build();
+
+            storage.createFrom(blobInfo, inputStream,Storage.BlobWriteOption.predefinedAcl(Storage.PredefinedAcl.PRIVATE);
+
             return filePath;
-        } catch (IllegalStateException | IOException e) {
-            throw new CustomException(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+        } catch (IOException e) {
+            log.error("Failed to read/write file during upload to {}", filePath, e);
+            throw new CustomException("Failed to save the file.", HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (StorageException e) {
+            log.error("GCS error during upload to {}", filePath, e);
+            throw new CustomException("Failed to save the file to storage.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
