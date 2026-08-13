@@ -376,15 +376,15 @@ public class WorkOrderService {
         Specification<WorkOrder> baseSpec = builder.build();
         Specification<WorkOrder> fetchSpec = (root, query, criteriaBuilder) -> {
             if (query.getResultType() != Long.class && query.getResultType() != long.class) {
-                root.fetch("asset", JoinType.LEFT);
-                root.fetch("location", JoinType.LEFT);
-                root.fetch("category", JoinType.LEFT);
-                root.fetch("primaryUser", JoinType.LEFT);
-                root.fetch("team", JoinType.LEFT);
-                root.fetch("image", JoinType.LEFT);
-                root.fetch("completedBy", JoinType.LEFT);
-                root.fetch("parentPreventiveMaintenance", JoinType.LEFT);
-                root.fetch("parentRequest", JoinType.LEFT);
+                root.fetch(WorkOrder_.asset, JoinType.LEFT);
+                root.fetch(WorkOrder_.location, JoinType.LEFT);
+                root.fetch(WorkOrder_.category, JoinType.LEFT);
+                root.fetch(WorkOrder_.primaryUser, JoinType.LEFT);
+                root.fetch(WorkOrder_.team, JoinType.LEFT);
+                root.fetch(WorkOrder_.image, JoinType.LEFT);
+                root.fetch(WorkOrder_.completedBy, JoinType.LEFT);
+                root.fetch(WorkOrder_.parentPreventiveMaintenance, JoinType.LEFT);
+                root.fetch(WorkOrder_.parentRequest, JoinType.LEFT);
             }
             return baseSpec == null ? null : baseSpec.toPredicate(root, query, criteriaBuilder);
         };
