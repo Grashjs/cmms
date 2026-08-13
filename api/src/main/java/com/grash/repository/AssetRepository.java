@@ -4,6 +4,7 @@ import com.grash.model.Asset;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -20,9 +21,19 @@ public interface AssetRepository extends JpaRepository<Asset, Long>, JpaSpecific
 
     List<Asset> findByCompany_Id(Long id, Sort sort);
 
-    Page<Asset> findByCompany_IdAndParentAssetIsNull(Long id, Pageable pageable);
+    @EntityGraph(attributePaths = {
+            "parentAsset", "location", "category", "primaryUser", "image", "deprecation",
+            "assignedTo", "teams", "vendors", "customers", "parts", "files", "customFieldValues"
+    })
+    @Query("SELECT DISTINCT a FROM Asset a WHERE a.company.id = :companyId AND a.parentAsset IS NULL")
+    Page<Asset> findByCompany_IdAndParentAssetIsNull(@Param("companyId") Long companyId, Pageable pageable);
 
-    Page<Asset> findByParentAsset_Id(Long id, Pageable pageable);
+    @EntityGraph(attributePaths = {
+            "parentAsset", "location", "category", "primaryUser", "image", "deprecation",
+            "assignedTo", "teams", "vendors", "customers", "parts", "files", "customFieldValues"
+    })
+    @Query("SELECT DISTINCT a FROM Asset a WHERE a.parentAsset.id = :id")
+    Page<Asset> findByParentAsset_Id(@Param("id") Long id, Pageable pageable);
 
     Integer countByParentAsset_Id(Long id);
 
