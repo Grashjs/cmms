@@ -49,6 +49,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -365,6 +366,29 @@ public class WorkOrderService {
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(),
                 searchCriteria.getDirection(), searchCriteria.getSortField());
         return workOrderRepository.findAll(builder.build(), page);
+    }
+
+    public Page<WorkOrder> findBySearchCriteriaWithEntityGraph(SearchCriteria searchCriteria) {
+        SpecificationBuilder<WorkOrder> builder = new SpecificationBuilder<>();
+        searchCriteria.getFilterFields().forEach(builder::with);
+        Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(),
+                searchCriteria.getDirection(), searchCriteria.getSortField());
+        Specification<WorkOrder> baseSpec = builder.build();
+        Specification<WorkOrder> fetchSpec = (root, query, criteriaBuilder) -> {
+            if (query.getResultType() != Long.class && query.getResultType() != long.class) {
+                root.fetch("asset", JoinType.LEFT);
+                root.fetch("location", JoinType.LEFT);
+                root.fetch("category", JoinType.LEFT);
+                root.fetch("primaryUser", JoinType.LEFT);
+                root.fetch("team", JoinType.LEFT);
+                root.fetch("image", JoinType.LEFT);
+                root.fetch("completedBy", JoinType.LEFT);
+                root.fetch("parentPreventiveMaintenance", JoinType.LEFT);
+                root.fetch("parentRequest", JoinType.LEFT);
+            }
+            return baseSpec == null ? null : baseSpec.toPredicate(root, query, criteriaBuilder);
+        };
+        return workOrderRepository.findAll(fetchSpec, page);
     }
 
     public WorkOrder save(WorkOrder workOrder) {

@@ -138,7 +138,7 @@ class WorkOrderControllerTest extends AbstractControllerTest {
             setCurrentUser(clientUser);
             when(userService.whoami(any())).thenReturn(clientUser);
             when(workOrderService.getSearchCriteria(any(), any())).thenReturn(new com.grash.advancedsearch.SearchCriteria());
-            when(workOrderService.findBySearchCriteria(any())).thenReturn(
+            when(workOrderService.findBySearchCriteriaWithEntityGraph(any())).thenReturn(
                     new org.springframework.data.domain.PageImpl<>(Collections.emptyList()));
 
             mockMvc.perform(post("/work-orders/search")

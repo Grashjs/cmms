@@ -53,7 +53,7 @@ public class WorkOrderController {
                                                          HttpServletRequest req) {
         User user = userService.whoami(req);
         return ResponseEntity.ok(TenantAspectUtils.executeWithDisabledCompanyCheck(() ->
-                workOrderService.findBySearchCriteria(workOrderService.getSearchCriteria(user,
+                workOrderService.findBySearchCriteriaWithEntityGraph(workOrderService.getSearchCriteria(user,
                         searchCriteria)).map(workOrderMapper::toShowDto)
         ));
     }
