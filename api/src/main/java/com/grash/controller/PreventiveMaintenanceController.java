@@ -85,7 +85,8 @@ public class PreventiveMaintenanceController {
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         }
         return ResponseEntity.ok(TenantAspectUtils.executeWithDisabledCompanyCheck(() ->
-                preventiveMaintenanceService.findBySearchCriteria(searchCriteria)
+                preventiveMaintenanceService.findBySearchCriteriaWithEntityGraph(searchCriteria)
+                        .map(preventiveMaintenanceMapper::toShowDto)
         ));
     }
 

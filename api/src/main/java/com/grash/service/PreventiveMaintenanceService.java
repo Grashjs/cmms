@@ -27,11 +27,13 @@ import org.quartz.spi.OperableTrigger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.JoinType;
 
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -179,6 +181,27 @@ public class PreventiveMaintenanceService {
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(),
                 searchCriteria.getDirection(), searchCriteria.getSortField());
         return preventiveMaintenanceRepository.findAll(builder.build(), page).map(preventiveMaintenanceMapper::toShowDto);
+    }
+
+    public Page<PreventiveMaintenance> findBySearchCriteriaWithEntityGraph(SearchCriteria searchCriteria) {
+        SpecificationBuilder<PreventiveMaintenance> builder = new SpecificationBuilder<>();
+        searchCriteria.getFilterFields().forEach(builder::with);
+        Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(),
+                searchCriteria.getDirection(), searchCriteria.getSortField());
+        Specification<PreventiveMaintenance> baseSpec = builder.build();
+        Specification<PreventiveMaintenance> fetchSpec = (root, query, criteriaBuilder) -> {
+            if (query.getResultType() != Long.class && query.getResultType() != long.class) {
+                root.fetch("asset", JoinType.LEFT);
+                root.fetch("location", JoinType.LEFT);
+                root.fetch("category", JoinType.LEFT);
+                root.fetch("primaryUser", JoinType.LEFT);
+                root.fetch("team", JoinType.LEFT);
+                root.fetch("image", JoinType.LEFT);
+                root.fetch("schedule", JoinType.LEFT);
+            }
+            return baseSpec == null ? null : baseSpec.toPredicate(root, query, criteriaBuilder);
+        };
+        return preventiveMaintenanceRepository.findAll(fetchSpec, page);
     }
 
     public boolean isPreventiveMaintenanceInCompany(PreventiveMaintenance preventiveMaintenance, long companyId,
