@@ -36,7 +36,6 @@ import java.util.stream.Collectors;
 @RequestMapping("/assets")
 @Tag(name = "Assets", description = "Operations on assets")
 @RequiredArgsConstructor
-@Slf4j
 public class AssetController {
 
     private final AssetService assetService;
@@ -111,13 +110,8 @@ public class AssetController {
                                                        Pageable pageable,
                                                        HttpServletRequest req) {
         User user = userService.whoami(req);
-        long start = System.nanoTime();
-
         Page<Asset> assetPage =
                 assetService.findChildrenPaginated(id, user, pageable);
-
-        long afterDb = System.nanoTime();
-
         Set<Long> parentIdsWithChildren =
                 assetService.getParentIdsWithChildren(
                         assetPage.getContent()
@@ -125,21 +119,8 @@ public class AssetController {
                                 .map(Asset::getId)
                                 .collect(Collectors.toList()));
 
-        long afterChildren = System.nanoTime();
-
-        Page<AssetShowDTO> result =
-                assetPage.map(asset ->
-                        assetMapper.toShowDto(asset, parentIdsWithChildren));
-
-        long afterMapping = System.nanoTime();
-
-        log.info(
-                "Asset endpoint: mainQuery={}ms, childrenQuery={}ms, mapping={}ms",
-                (afterDb - start) / 1_000_000,
-                (afterChildren - afterDb) / 1_000_000,
-                (afterMapping - afterChildren) / 1_000_000
-        );
-        return result;
+        return assetPage.map(asset ->
+                assetMapper.toShowDto(asset, parentIdsWithChildren));
     }
 
     @PostMapping("")
