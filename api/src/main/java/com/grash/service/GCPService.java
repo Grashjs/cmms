@@ -9,6 +9,7 @@ import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -130,22 +131,14 @@ public class GCPService implements StorageService {
         return download(file.getPath());
     }
 
-    private Blob getBlob(String filePath) {
-        Blob blob = storage.get(BlobId.of(gcpBucketName, filePath));
-
-        if (blob == null) {
-            throw new CustomException("File not found", HttpStatus.NOT_FOUND);
-        }
-        return blob;
-    }
-
     public String generateSignedUrl(File file, long expirationMinutes) {
         return generateSignedUrl(file.getPath(), expirationMinutes);
     }
 
+    @Cacheable(cacheNames = "signedUrls", key = "#filePath + ':' + #expirationMinutes")
     public String generateSignedUrl(String filePath, long expirationMinutes) {
-        Blob blob = getBlob(filePath);
-        BlobInfo blobInfo = BlobInfo.newBuilder(blob.getBlobId()).setContentType(blob.getContentType()).build();
+        checkIfConfigured();
+        BlobInfo blobInfo = BlobInfo.newBuilder(BlobId.of(gcpBucketName, filePath)).build();
         return generateSignedUrl(blobInfo, expirationMinutes);
     }
 
