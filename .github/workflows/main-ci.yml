@@ -86,7 +86,7 @@ jobs:
 
   push-backend-docker:
     needs: [detect-changes, test]
-    if: ${{ always() && needs.detect-changes.outputs.backend == 'true' && (vars.SKIP_TESTS == 'true' || needs.test.result == 'success' || needs.test.result == 'skipped') }}
+    if: ${{ needs.detect-changes.outputs.backend == 'true' && (vars.SKIP_TESTS == 'true' || needs.test.result == 'success' || needs.test.result == 'skipped') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -122,7 +122,7 @@ jobs:
 
   deploy-koyeb:
     needs: [detect-changes, test]
-    if: ${{ always() && needs.detect-changes.outputs.backend == 'true' && (vars.SKIP_TESTS == 'true' || needs.test.result == 'success' || needs.test.result == 'skipped') }}
+    if: ${{ needs.detect-changes.outputs.backend == 'true' && (vars.SKIP_TESTS == 'true' || needs.test.result == 'success' || needs.test.result == 'skipped') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -149,7 +149,7 @@ jobs:
 
   push-frontend-docker:
     needs: [detect-changes, test]
-    if: ${{ always() && needs.detect-changes.outputs.frontend == 'true' && (vars.SKIP_TESTS == 'true' || needs.test.result == 'success' || needs.test.result == 'skipped') }}
+    if: ${{ needs.detect-changes.outputs.frontend == 'true' && (vars.SKIP_TESTS == 'true' || needs.test.result == 'success' || needs.test.result == 'skipped') }}
     runs-on: ubuntu-latest
     env:
       FRONTEND_IMAGE: intelloop/atlas-cmms-frontend
@@ -187,7 +187,7 @@ jobs:
 
   deploy-netlify:
     needs: [detect-changes, test]
-    if: ${{ always() && needs.detect-changes.outputs.frontend == 'true' && (vars.SKIP_TESTS == 'true' || needs.test.result == 'success' || needs.test.result == 'skipped') }}
+    if: ${{ needs.detect-changes.outputs.frontend == 'true' && (vars.SKIP_TESTS == 'true' || needs.test.result == 'success' || needs.test.result == 'skipped') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
