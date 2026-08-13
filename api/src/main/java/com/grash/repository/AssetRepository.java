@@ -22,8 +22,6 @@ public interface AssetRepository extends JpaRepository<Asset, Long>, JpaSpecific
 
     Page<Asset> findByCompany_IdAndParentAssetIsNull(Long id, Pageable pageable);
 
-    List<Asset> findByParentAsset_Id(Long id, Sort sort);
-
     Page<Asset> findByParentAsset_Id(Long id, Pageable pageable);
 
     Integer countByParentAsset_Id(Long id);

@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/assets")
 @Tag(name = "Assets", description = "Operations on assets")
 @RequiredArgsConstructor
+@Slf4j
 public class AssetController {
 
     private final AssetService assetService;
@@ -46,7 +48,8 @@ public class AssetController {
     public ResponseEntity<Page<AssetShowDTO>> search(@Parameter(description = "Search criteria for filtering assets") @RequestBody SearchCriteria searchCriteria,
                                                      HttpServletRequest req) {
         User user = userService.whoami(req);
-        return ResponseEntity.ok(assetService.findBySearchCriteria(assetService.getSearchCriteria(user, searchCriteria)));
+        return ResponseEntity.ok(assetService.findBySearchCriteria(assetService.getSearchCriteria(user,
+                searchCriteria)));
     }
 
     @GetMapping("/nfc")
@@ -108,10 +111,35 @@ public class AssetController {
                                                        Pageable pageable,
                                                        HttpServletRequest req) {
         User user = userService.whoami(req);
-        Page<Asset> assetPage = assetService.findChildrenPaginated(id, user, pageable);
-        Set<Long> parentIdsWithChildren = assetService.getParentIdsWithChildren(
-                assetPage.getContent().stream().map(Asset::getId).collect(Collectors.toList()));
-        return assetPage.map(asset -> assetMapper.toShowDto(asset, parentIdsWithChildren));
+        long start = System.nanoTime();
+
+        Page<Asset> assetPage =
+                assetService.findChildrenPaginated(id, user, pageable);
+
+        long afterDb = System.nanoTime();
+
+        Set<Long> parentIdsWithChildren =
+                assetService.getParentIdsWithChildren(
+                        assetPage.getContent()
+                                .stream()
+                                .map(Asset::getId)
+                                .collect(Collectors.toList()));
+
+        long afterChildren = System.nanoTime();
+
+        Page<AssetShowDTO> result =
+                assetPage.map(asset ->
+                        assetMapper.toShowDto(asset, parentIdsWithChildren));
+
+        long afterMapping = System.nanoTime();
+
+        log.info(
+                "Asset endpoint: mainQuery={}ms, childrenQuery={}ms, mapping={}ms",
+                (afterDb - start) / 1_000_000,
+                (afterChildren - afterDb) / 1_000_000,
+                (afterMapping - afterChildren) / 1_000_000
+        );
+        return result;
     }
 
     @PostMapping("")
