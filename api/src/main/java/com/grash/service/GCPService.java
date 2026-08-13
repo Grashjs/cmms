@@ -78,7 +78,8 @@ public class GCPService implements StorageService {
                     .setContentType(file.getContentType())
                     .build();
 
-            storage.createFrom(blobInfo, inputStream, Storage.BlobWriteOption.predefinedAcl(Storage.PredefinedAcl.PRIVATE));
+            storage.createFrom(blobInfo, inputStream,
+                    Storage.BlobWriteOption.predefinedAcl(Storage.PredefinedAcl.PRIVATE));
 
             return filePath;
         } catch (IOException e) {
@@ -131,11 +132,11 @@ public class GCPService implements StorageService {
         return download(file.getPath());
     }
 
+    @Cacheable(cacheNames = "signedUrls", key = "#file.path + ':' + #expirationMinutes")
     public String generateSignedUrl(File file, long expirationMinutes) {
         return generateSignedUrl(file.getPath(), expirationMinutes);
     }
 
-    @Cacheable(cacheNames = "signedUrls", key = "#filePath + ':' + #expirationMinutes")
     public String generateSignedUrl(String filePath, long expirationMinutes) {
         checkIfConfigured();
         BlobInfo blobInfo = BlobInfo.newBuilder(BlobId.of(gcpBucketName, filePath)).build();
