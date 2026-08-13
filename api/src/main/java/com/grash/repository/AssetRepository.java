@@ -22,18 +22,14 @@ public interface AssetRepository extends JpaRepository<Asset, Long>, JpaSpecific
     List<Asset> findByCompany_Id(Long id, Sort sort);
 
     @EntityGraph(attributePaths = {
-            "parentAsset", "location", "category", "primaryUser", "image", "deprecation",
-            "assignedTo", "teams", "vendors", "customers", "parts", "files", "customFieldValues"
+            "parentAsset", "location", "category", "primaryUser", "image", "deprecation"
     })
-    @Query("SELECT DISTINCT a FROM Asset a WHERE a.company.id = :companyId AND a.parentAsset IS NULL")
-    Page<Asset> findByCompany_IdAndParentAssetIsNull(@Param("companyId") Long companyId, Pageable pageable);
+    Page<Asset> findByCompany_IdAndParentAssetIsNull(Long id, Pageable pageable);
 
     @EntityGraph(attributePaths = {
-            "parentAsset", "location", "category", "primaryUser", "image", "deprecation",
-            "assignedTo", "teams", "vendors", "customers", "parts", "files", "customFieldValues"
+            "parentAsset", "location", "category", "primaryUser", "image", "deprecation"
     })
-    @Query("SELECT DISTINCT a FROM Asset a WHERE a.parentAsset.id = :id")
-    Page<Asset> findByParentAsset_Id(@Param("id") Long id, Pageable pageable);
+    Page<Asset> findByParentAsset_Id(Long id, Pageable pageable);
 
     Integer countByParentAsset_Id(Long id);
 
