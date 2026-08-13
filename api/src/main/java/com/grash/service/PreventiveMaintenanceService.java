@@ -191,13 +191,13 @@ public class PreventiveMaintenanceService {
         Specification<PreventiveMaintenance> baseSpec = builder.build();
         Specification<PreventiveMaintenance> fetchSpec = (root, query, criteriaBuilder) -> {
             if (query.getResultType() != Long.class && query.getResultType() != long.class) {
-                root.fetch("asset", JoinType.LEFT);
-                root.fetch("location", JoinType.LEFT);
-                root.fetch("category", JoinType.LEFT);
-                root.fetch("primaryUser", JoinType.LEFT);
-                root.fetch("team", JoinType.LEFT);
-                root.fetch("image", JoinType.LEFT);
-                root.fetch("schedule", JoinType.LEFT);
+                root.fetch(PreventiveMaintenance_.asset, JoinType.LEFT);
+                root.fetch(PreventiveMaintenance_.location, JoinType.LEFT);
+                root.fetch(PreventiveMaintenance_.category, JoinType.LEFT);
+                root.fetch(PreventiveMaintenance_.primaryUser, JoinType.LEFT);
+                root.fetch(PreventiveMaintenance_.team, JoinType.LEFT);
+                root.fetch(PreventiveMaintenance_.image, JoinType.LEFT);
+                root.fetch(PreventiveMaintenance_.schedule, JoinType.LEFT);
             }
             return baseSpec == null ? null : baseSpec.toPredicate(root, query, criteriaBuilder);
         };
