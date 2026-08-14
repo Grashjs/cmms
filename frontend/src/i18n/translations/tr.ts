@@ -177,6 +177,8 @@ const trJSON = {
   no_account_yet: 'Henüz bir hesabınız yok mu?',
   signup_here: 'Buradan kaydolun',
   wrong_credentials: 'Yanlış kimlik bilgileri sağlandı',
+  server_not_reachable:
+    'Arka uç sunucusuna ulaşılamıyor. Başlamasını bekleyip tekrar deneyebilirsiniz.',
   lost_password: 'Kayıp Şifre ?',
   link_wo: 'Bağlantı İş Emirleri',
   link_wo_description: 'İş Emirleri arasında ilişkiler oluşturma',

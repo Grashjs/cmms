@@ -192,6 +192,8 @@ const locale = {
   no_account_yet: 'Még nincs fiókod?',
   signup_here: 'Regisztrálj itt',
   wrong_credentials: 'Hibás bejelentkezési adatok',
+  server_not_reachable:
+    'A háttérszerver nem elérhető. Megvárhatod, amíg elindul, és újra próbálkozhatsz.',
   lost_password: 'Elfelejtett jelszó?',
   //work-orders
   link_wo: 'Munkarendelés Összekapcsolása',

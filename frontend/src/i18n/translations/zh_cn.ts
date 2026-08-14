@@ -167,6 +167,7 @@ const locale = {
   no_account_yet: '还没有账户？',
   signup_here: '在此注册',
   wrong_credentials: '提供的凭据错误',
+  server_not_reachable: '后端服务器不可达。您可以等待它启动后再试一次。',
   lost_password: '忘记密码？',
   //work-orders
   link_wo: '链接工单',

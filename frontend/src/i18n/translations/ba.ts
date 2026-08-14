@@ -188,6 +188,8 @@ const locale = {
   no_account_yet: 'Još nemate nalog?',
   signup_here: 'Prijavite se ovdje',
   wrong_credentials: 'Uneseni su pogrešni podaci za prijavu',
+  server_not_reachable:
+    'Backend server nije dostupan. Možete sačekati da se pokrene i pokušati ponovo.',
   lost_password: 'Zaboravljena lozinka?',
   link_wo: 'Poveži radne naloge',
   link_wo_description: 'Kreirajte veze između radnih naloga',

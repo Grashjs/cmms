@@ -189,6 +189,8 @@ const esJSON = {
   no_account_yet: '¿Todavía no tiene una cuenta?',
   signup_here: 'Regístrese aquí',
   wrong_credentials: 'Los datos proporcionados son incorrectos',
+  server_not_reachable:
+    'El servidor backend no está disponible. Puede esperar a que se inicie e intentarlo de nuevo.',
   lost_password: '¿Olvido su contraseña?',
   link_wo: 'Vincular Órdenes de Trabajo',
   link_wo_description: 'Crear relaciones entre Órdenes de Trabajo',

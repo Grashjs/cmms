@@ -195,6 +195,8 @@ const ptBRJSON = {
   no_account_yet: 'Ainda não tem uma conta?',
   signup_here: 'Inscreva-se aqui',
   wrong_credentials: 'Credenciais incorretas fornecidas',
+  server_not_reachable:
+    'O servidor de backend não está acessível. Você pode aguardar a inicialização e tentar novamente.',
   lost_password: 'Perdeu a senha?',
   //work-orders
   link_wo: 'Vincular Ordens de Serviço',

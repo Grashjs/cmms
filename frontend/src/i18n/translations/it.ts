@@ -187,6 +187,8 @@ const locale = {
   no_account_yet: 'Non hai ancora un account?',
   signup_here: 'Iscriviti qui',
   wrong_credentials: 'Sono state fornite credenziali errate',
+  server_not_reachable:
+    'Il server di backend non è raggiungibile. Puoi attendere che si avvii e riprovare.',
   lost_password: 'Password dimenticata?',
   link_wo: 'Collega gli ordini di lavoro',
   link_wo_description: 'Creare relazioni tra ordini di lavoro',

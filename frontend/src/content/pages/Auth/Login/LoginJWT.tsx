@@ -19,6 +19,7 @@ import useRefMounted from 'src/hooks/useRefMounted';
 import { useTranslation } from 'react-i18next';
 import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import { isNetworkError } from '../../../../utils/api';
 import {
   apiUrl,
   isSSOEnabled,
@@ -57,7 +58,10 @@ const LoginJWT: FC = () => {
         setSubmitting(true);
         return login(values.email, values.password, ldapEnabled)
           .catch((err) => {
-            showSnackBar(t('wrong_credentials'), 'error');
+            showSnackBar(
+              isNetworkError(err) ? t('server_not_reachable') : t('wrong_credentials'),
+              'error'
+            );
             setStatus({ success: false });
           })
           .finally(() => {

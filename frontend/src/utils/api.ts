@@ -67,4 +67,18 @@ export const getErrorMessage = (
   }
 };
 
+export const isNetworkError = (error: any): boolean => {
+  if (!error) return false;
+  if (error instanceof TypeError) return true;
+  const message = String(error?.message ?? '').toLowerCase();
+  return (
+    message.includes('failed to fetch') ||
+    message.includes('networkerror') ||
+    message.includes('network error') ||
+    message.includes('load failed') ||
+    message.includes('connection refused') ||
+    message.includes('err_connection_refused')
+  );
+};
+
 export default { get, patch, post, deletes };
