@@ -70,6 +70,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     '@react-native-community/datetimepicker',
     '@react-native-firebase/app',
     './plugins/ios/withFmtXcode26Fix',
+    '@microsoft/react-native-clarity',
     [
       'expo-camera',
       {

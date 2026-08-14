@@ -707,7 +707,9 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       if (apiUrl.toLowerCase().includes('api.atlas-cmms.com')) {
         const clarityId = Constants.expoConfig.extra.CLARITY_ID;
         if (clarityId) {
-          Clarity.initialize(clarityId);
+          Clarity.initialize(clarityId, {
+            logLevel: Clarity.LogLevel.Verbose
+          });
           Clarity.setCustomUserId(user.email);
         }
       }
@@ -828,7 +830,11 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   };
 
   const register = async (values): Promise<void> => {
-    const response = await api.post<{ message: string; success: boolean }>(
+    const response = await api.post<{
+      message: string;
+      success: boolean;
+      refreshToken: string;
+    }>(
       'auth/signup',
       {
         ...values,
@@ -837,11 +843,11 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       },
       { headers: await authHeader(true) }
     );
-    const { message, success } = response;
+    const { message, success, refreshToken } = response;
     if (message.startsWith('Successful')) {
       return;
     } else {
-      setSession(message);
+      setSession(message, refreshToken);
       const user = await updateUserInfos();
       const company = await api.get<Company>(`companies/${user.companyId}`);
       await setupUser(user, company.companySettings);
