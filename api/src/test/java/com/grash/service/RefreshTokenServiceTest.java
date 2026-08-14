@@ -98,15 +98,9 @@ class RefreshTokenServiceTest {
 
     @Test
     void revokeAllForUser_marksAllTokensRevoked() {
-        RefreshToken t1 = RefreshToken.builder().id(1L).revoked(false).build();
-        RefreshToken t2 = RefreshToken.builder().id(2L).revoked(false).build();
-        when(refreshTokenRepository.findAllByUser(user)).thenReturn(List.of(t1, t2));
-
         refreshTokenService.revokeAllForUser(user);
 
-        assertTrue(t1.isRevoked());
-        assertTrue(t2.isRevoked());
-        verify(refreshTokenRepository).saveAll(List.of(t1, t2));
+        verify(refreshTokenRepository).revokeAllByUser(user.getId());
     }
 
     @Nested
@@ -160,12 +154,11 @@ class RefreshTokenServiceTest {
             stored.setRevoked(true);
             when(refreshTokenRepository.findByTokenHash(refreshTokenService.hash(raw)))
                     .thenReturn(Optional.of(stored));
-            when(refreshTokenRepository.findAllByUser(user)).thenReturn(List.of(stored));
 
             CustomException ex = assertThrows(CustomException.class,
                     () -> refreshTokenService.rotate(raw));
             assertEquals(HttpStatus.UNAUTHORIZED, ex.getHttpStatus());
-            verify(refreshTokenRepository).findAllByUser(user);
+            verify(refreshTokenRepository).revokeAllByUser(user.getId());
         }
 
         @Test

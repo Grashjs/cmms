@@ -88,13 +88,7 @@ public class RefreshTokenService {
 
     @Transactional
     public void revokeAllForUser(User user) {
-        List<RefreshToken> tokens = refreshTokenRepository.findAllByUser(user);
-        for (RefreshToken token : tokens) {
-            token.setRevoked(true);
-        }
-        if (!tokens.isEmpty()) {
-            refreshTokenRepository.saveAll(tokens);
-        }
+        refreshTokenRepository.revokeAllByUser(user.getId());
     }
 
     String hash(String rawToken) {
