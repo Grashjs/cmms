@@ -57,6 +57,20 @@ interface OwnProps {
   navigation: any;
 }
 
+/**
+ * Whether a field's validation error should be visible yet.
+ *
+ * Formik validates on every change, so gating purely on `errors` put a red
+ * outline and an error message under a required field as soon as the user
+ * typed the first character and before they had any chance to finish. Waiting
+ * for `touched` reports the problem once they leave the field. Submitting
+ * marks every field touched, so a blank required field still reports then.
+ */
+const shouldShowError = (
+  formik: { touched: IHash<any>; errors: IHash<any> },
+  name: string
+): boolean => Boolean(formik.touched[name] && formik.errors[name]);
+
 export default function Form(props: OwnProps) {
   const { t } = useTranslation();
   const shape: IHash<any> = {};
@@ -527,7 +541,7 @@ export default function Form(props: OwnProps) {
                       <TextInput
                         style={{ width: '100%' }}
                         mode="outlined"
-                        error={!!formik.errors[field.name] || field.error}
+                        error={shouldShowError(formik, field.name) || field.error}
                         label={field.label}
                         placeholder={field.placeholder ?? field.label}
                         onBlur={formik.handleBlur(field.name)}
@@ -542,7 +556,7 @@ export default function Form(props: OwnProps) {
                       <NumberInput
                         style={{ width: '100%' }}
                         mode="outlined"
-                        error={!!formik.errors[field.name] || field.error}
+                        error={shouldShowError(formik, field.name) || field.error}
                         label={field.label}
                         defaultValue={formik.values[field.name]}
                         placeholder={field.placeholder ?? field.label}
@@ -678,7 +692,7 @@ export default function Form(props: OwnProps) {
                     ) : (
                       renderSelect(formik, field)
                     )}
-                    {Boolean(formik.errors[field.name]) && (
+                    {shouldShowError(formik, field.name) && (
                       <HelperText type="error">
                         {t(formik.errors[field.name]?.toString())}
                       </HelperText>

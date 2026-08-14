@@ -1,26 +1,23 @@
-import {
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View
-} from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useDispatch, useSelector } from '../../store';
 import * as React from 'react';
-import { useContext, useEffect, useState } from 'react';
-import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
+import { useCallback, useEffect, useState } from 'react';
 import useAuth from '../../hooks/useAuth';
 import { PermissionEntity } from '../../models/role';
 import { getMoreVendors, getVendors } from '../../slices/vendor';
 import { FilterField, SearchCriteria } from '../../models/page';
-import { Avatar, Searchbar, Text } from 'react-native-paper';
+import { Searchbar } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { Vendor } from '../../models/vendor';
-import { isCloseToBottom, onSearchQueryChange } from '../../utils/overall';
+import { onSearchQueryChange } from '../../utils/overall';
 import { RootStackScreenProps } from '../../types';
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
 import { useAppTheme } from '../../custom-theme';
-import { IconWithLabel } from '../../components/IconWithLabel';
+import {
+  EmptyState,
+  EntityListCard,
+  PaginatedEntityList
+} from '../../components/ui';
 
 export default function VendorsScreen({
   navigation
@@ -33,9 +30,7 @@ export default function VendorsScreen({
   const theme = useAppTheme();
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState('');
-  const { getFormattedDate, getUserNameById } = useContext(
-    CompanySettingsContext
-  );
+  const [refreshing, setRefreshing] = useState(false);
   const { hasViewPermission } = useAuth();
   const defaultFilterFields: FilterField[] = [];
   const getCriteriaFromFilterFields = (filterFields: FilterField[]) => {
@@ -60,6 +55,7 @@ export default function VendorsScreen({
   const [criteria, setCriteria] = useState<SearchCriteria>(
     getCriteriaFromFilterFields([])
   );
+
   useEffect(() => {
     if (hasViewPermission(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
       dispatch(
@@ -68,7 +64,12 @@ export default function VendorsScreen({
     }
   }, [criteria]);
 
+  useEffect(() => {
+    if (!loadingGet) setRefreshing(false);
+  }, [loadingGet]);
+
   const onRefresh = () => {
+    setRefreshing(true);
     setCriteria(getCriteriaFromFilterFields([]));
   };
 
@@ -90,142 +91,82 @@ export default function VendorsScreen({
     [searchQuery],
     1000
   );
+
+  const isFiltered = !!searchQuery;
+  const renderItem = useCallback(
+    ({ item: vendor }: { item: Vendor }) => {
+      const meta = [];
+      if (vendor.vendorType) {
+        meta.push({ icon: 'truck-outline' as const, label: vendor.vendorType });
+      }
+      if (vendor.address) {
+        meta.push({ icon: 'map-marker-outline' as const, label: vendor.address });
+      }
+      return (
+        <EntityListCard
+          title={vendor.name}
+          icon="store-outline"
+          meta={meta}
+          onPress={() =>
+            navigation.push('VendorDetails', {
+              id: vendor.id,
+              vendorProp: vendor
+            })
+          }
+        />
+      );
+    },
+    [navigation]
+  );
+
   return (
-    <View
-      style={{ ...styles.container, backgroundColor: theme.colors.background }}
-    >
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Searchbar
         placeholder={t('search')}
+        accessibilityLabel={t('search')}
         onFocus={() => setStartedSearch(true)}
         onChangeText={setSearchQuery}
         value={searchQuery}
-        style={{ backgroundColor: theme.colors.background }}
+        style={{ backgroundColor: theme.colors.card }}
       />
-      <ScrollView
-        style={styles.scrollView}
-        onScroll={({ nativeEvent }) => {
-          if (isCloseToBottom(nativeEvent)) {
-            if (!loadingGet && !lastPage)
-              dispatch(getMoreVendors(criteria, currentPageNum + 1));
-          }
+      <PaginatedEntityList
+        data={vendors.content}
+        keyExtractor={(vendor) => vendor.id.toString()}
+        renderItem={renderItem}
+        loading={loadingGet}
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+        onEndReached={() => {
+          if (!loadingGet && !lastPage)
+            dispatch(getMoreVendors(criteria, currentPageNum + 1));
         }}
-        refreshControl={
-          <RefreshControl
-            refreshing={loadingGet}
-            onRefresh={onRefresh}
-            colors={[theme.colors.primary]}
+        ListEmptyComponent={
+          <EmptyState
+            icon={isFiltered ? 'filter-remove-outline' : 'store-outline'}
+            title={t('no_element_match_criteria')}
+            description={
+              isFiltered ? t('no_element_match_criteria_description') : undefined
+            }
+            action={
+              isFiltered
+                ? {
+                    label: t('reset'),
+                    onPress: () => {
+                      setSearchQuery('');
+                      setCriteria(getCriteriaFromFilterFields([]));
+                    }
+                  }
+                : undefined
+            }
           />
         }
-        scrollEventThrottle={400}
-      >
-        {!!vendors.content.length ? (
-          vendors.content.map((vendor) => (
-            <TouchableOpacity
-              key={vendor.id}
-              onPress={() =>
-                navigation.push('VendorDetails', {
-                  id: vendor.id,
-                  vendorProp: vendor
-                })
-              }
-            >
-              <View style={styles.card}>
-                <View
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    gap: 6
-                  }}
-                >
-                  <Avatar.Icon
-                    size={50}
-                    icon="store-outline"
-                    style={{ backgroundColor: theme.colors.background }}
-                    color={theme.colors.primary}
-                  />
-                  <View style={{ flex: 1 }}>
-                    <View style={styles.cardHeader}>
-                      <View style={{ flex: 1 }}>
-                        <Text variant="titleMedium" style={styles.cardTitle}>
-                          {vendor.name}
-                        </Text>
-                      </View>
-                    </View>
-                    <View style={styles.cardBody}>
-                      {vendor.vendorType && (
-                        <IconWithLabel
-                          label={vendor.vendorType}
-                          icon="truck-outline"
-                          color={theme.colors.grey}
-                        />
-                      )}
-                      {vendor.address && (
-                        <IconWithLabel
-                          label={vendor.address}
-                          icon="map-marker-outline"
-                          color={theme.colors.grey}
-                        />
-                      )}
-                    </View>
-                  </View>
-                </View>
-              </View>
-            </TouchableOpacity>
-          ))
-        ) : loadingGet ? null : (
-          <View
-            style={{ backgroundColor: 'white', padding: 20, borderRadius: 10 }}
-          >
-            <Text variant={'titleLarge'}>{t('no_element_match_criteria')}</Text>
-          </View>
-        )}
-      </ScrollView>
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    // alignItems: 'center',
-    justifyContent: 'center'
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold'
-  },
-  scrollView: {
-    width: '100%',
-    height: '100%'
-  },
-  row: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  card: {
-    backgroundColor: 'white',
-    marginBottom: 1,
-    padding: 10
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 8
-  },
-  cardTitle: {
-    fontWeight: 'bold',
-    marginBottom: 4,
-    flexShrink: 1
-  },
-  cardBody: {
-    gap: 10
-  },
-  cardFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 10
+    flex: 1
   }
 });

@@ -2,6 +2,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
 import Comment, { CommentPostDTO, CommentPatchDTO } from '../models/comment';
 import api, { authHeader } from '../utils/api';
+import { runOrQueue } from '../utils/offlineMutations';
 import { AppThunk } from '../store';
 import { revertAll } from '../utils/redux';
 
@@ -134,14 +135,23 @@ export const createComment =
   async (dispatch) => {
     try {
       dispatch(slice.actions.setLoadingCreate({ loading: true }));
-      const newComment = await api.post<Comment>(basePath, comment);
-      dispatch(
-        slice.actions.addComment({
-          workOrderId: comment.workOrder.id,
-          comment: newComment
-        })
+      await runOrQueue(
+        dispatch,
+        async () => {
+          const newComment = await api.post<Comment>(basePath, comment);
+          dispatch(
+            slice.actions.addComment({
+              workOrderId: comment.workOrder.id,
+              comment: newComment
+            })
+          );
+          return newComment;
+        },
+        {
+          type: 'createComment',
+          comment
+        }
       );
-      return newComment;
     } finally {
       dispatch(slice.actions.setLoadingCreate({ loading: false }));
     }

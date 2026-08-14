@@ -1,28 +1,40 @@
-import {
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity
-} from 'react-native';
+import { StyleSheet } from 'react-native';
 import { View } from '../components/Themed';
-import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
 import Notification, { NotificationType } from '../models/notification';
 import {
   editNotification,
   getMoreNotifications,
+  getNotifications,
   readAllNotifications
 } from '../slices/notification';
 import { RootStackParamList, RootStackScreenProps } from '../types';
 import { useDispatch, useSelector } from '../store';
 import { getNotificationUrl } from '../utils/urlPaths';
-import { List, Text, useTheme } from 'react-native-paper';
+import { Text, useTheme } from 'react-native-paper';
 import * as React from 'react';
-import { useContext, useEffect } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { CompanySettingsContext } from '../contexts/CompanySettingsContext';
 import { useTranslation } from 'react-i18next';
 import { SearchCriteria } from '../models/page';
-import { isCloseToBottom } from '../utils/overall';
+import { TouchableOpacity } from 'react-native';
+import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
+import {
+  EmptyState,
+  EntityListCard,
+  PaginatedEntityList
+} from '../components/ui';
+
+const notificationIcons: Record<NotificationType, IconSource> = {
+  ASSET: 'package-variant-closed',
+  LOCATION: 'map-marker-outline',
+  METER: 'gauge',
+  PART: 'archive-outline',
+  REQUEST: 'inbox-arrow-down-outline',
+  TEAM: 'account-outline',
+  WORK_ORDER: 'clipboard-text-outline',
+  INFO: 'information',
+  PURCHASE_ORDER: 'comma-circle-outline'
+};
 
 export default function NotificationsScreen({
   navigation
@@ -40,15 +52,20 @@ export default function NotificationsScreen({
   const theme = useTheme();
   const { t } = useTranslation();
   const { getFormattedDate } = useContext(CompanySettingsContext);
+  const [refreshing, setRefreshing] = useState(false);
+
+  useEffect(() => {
+    if (!loadingGet) setRefreshing(false);
+  }, [loadingGet]);
 
   useEffect(() => {
     if (notifications.content.some((notification) => !notification.seen))
       navigation.setOptions({
         headerRight: () => (
           <TouchableOpacity
-            onPress={() => {
-              dispatch(readAllNotifications());
-            }}
+            accessibilityRole="button"
+            accessibilityLabel={t('mark_all_as_seen')}
+            onPress={() => dispatch(readAllNotifications())}
           >
             <Text style={{ color: theme.colors.primary }} variant="titleMedium">
               {t('mark_all_as_seen')}
@@ -56,109 +73,73 @@ export default function NotificationsScreen({
           </TouchableOpacity>
         )
       });
-  }, [notifications]);
+  }, [notifications, dispatch, navigation, t, theme.colors.primary]);
 
   const onReadNotification = (notification: Notification) => {
-    let url: { route: keyof RootStackParamList; params: {} };
-    const id = notification.resourceId;
-    url = getNotificationUrl(notification.notificationType, id);
+    const url: { route: keyof RootStackParamList; params: {} } | null =
+      getNotificationUrl(notification.notificationType, notification.resourceId);
     if (notification.seen) {
       if (url) {
         // @ts-ignore
         navigation.navigate(url.route, url.params);
       }
-    } else
-      dispatch(editNotification(notification.id, { seen: true })).then(() => {
-        if (url) {
-          // @ts-ignore
-          navigation.navigate(url.route, url.params);
-        }
-      });
-  };
-  const notificationIcons: Record<NotificationType, IconSource> = {
-    ASSET: 'package-variant-closed',
-    LOCATION: 'map-marker-outline',
-    METER: 'gauge',
-    PART: 'archive-outline',
-    REQUEST: 'inbox-arrow-down-outline',
-    TEAM: 'account-outline',
-    WORK_ORDER: 'clipboard-text-outline',
-    INFO: 'information',
-    PURCHASE_ORDER: 'comma-circle-outline'
+      return;
+    }
+    dispatch(editNotification(notification.id, { seen: true })).then(() => {
+      if (url) {
+        // @ts-ignore
+        navigation.navigate(url.route, url.params);
+      }
+    });
   };
 
+  const renderItem = useCallback(
+    ({ item: notification }: { item: Notification }) => (
+      <EntityListCard
+        title={notification.message}
+        subtitle={getFormattedDate(notification.createdAt)}
+        icon={notificationIcons[notification.notificationType]}
+        onPress={() => onReadNotification(notification)}
+        style={
+          notification.seen
+            ? undefined
+            : { borderLeftWidth: 3, borderLeftColor: theme.colors.primary }
+        }
+      />
+    ),
+    [getFormattedDate, theme.colors.primary]
+  );
+
   return (
-    <ScrollView
-      style={styles.container}
-      refreshControl={
-        <RefreshControl
-          refreshing={loadingGet}
-          colors={[theme.colors.primary]}
-        />
-      }
-      onScroll={({ nativeEvent }) => {
-        if (isCloseToBottom(nativeEvent)) {
+    <View style={styles.container}>
+      <PaginatedEntityList
+        data={notifications.content}
+        keyExtractor={(notification) => notification.id.toString()}
+        renderItem={renderItem}
+        loading={loadingGet}
+        refreshing={refreshing}
+        onRefresh={() => {
+          setRefreshing(true);
+          dispatch(getNotifications(criteria));
+        }}
+        onEndReached={() => {
           if (!loadingGet && !lastPage)
             dispatch(getMoreNotifications(criteria, currentPageNum + 1));
+        }}
+        ListEmptyComponent={
+          <EmptyState
+            icon="bell-outline"
+            title={t('no_notification')}
+            description={t('no_notification_message')}
+          />
         }
-      }}
-    >
-      {Boolean(notifications.content.length) ? (
-        <List.Section>
-          {notifications.content.map((notification) => (
-            // @ts-ignore
-            <List.Item
-              title={notification.message}
-              titleNumberOfLines={2}
-              description={getFormattedDate(notification.createdAt)}
-              left={(props) => (
-                <List.Icon
-                  {...props}
-                  icon={notificationIcons[notification.notificationType]}
-                  color={notification.seen ? 'black' : theme.colors.primary}
-                />
-              )}
-              style={{
-                backgroundColor: notification.seen
-                  ? 'white'
-                  : theme.colors.background
-              }}
-              key={notification.id}
-              onPress={() => onReadNotification(notification)}
-            ></List.Item>
-          ))}
-        </List.Section>
-      ) : (
-        <View
-          style={{
-            backgroundColor: 'white',
-            padding: 20,
-            alignItems: 'center',
-            borderRadius: 10
-          }}
-        >
-          <Text variant={'titleMedium'} style={{ fontWeight: 'bold' }}>
-            {' '}
-            {t('no_notification')}
-          </Text>
-          <Text variant={'bodyMedium'}>{t('no_notification_message')}</Text>
-        </View>
-      )}
-    </ScrollView>
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold'
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%'
   }
 });

@@ -25,7 +25,14 @@ public class AppDelegate: ExpoAppDelegate {
 #if os(iOS) || os(tvOS)
     window = UIWindow(frame: UIScreen.main.bounds)
 // @generated begin @react-native-firebase/app-didFinishLaunchingWithOptions - expo prebuild (DO NOT MODIFY) sync-10e8520570672fd76b2403b7e1e27f5198a6349a
-FirebaseApp.configure()
+    if let path = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
+       let plist = NSDictionary(contentsOfFile: path),
+       let apiKey = plist["API_KEY"] as? String,
+       apiKey.hasPrefix("AIza") {
+      FirebaseApp.configure()
+    } else {
+      print("[Firebase] Skipping configure — add a real GoogleService-Info.plist for analytics")
+    }
 // @generated end @react-native-firebase/app-didFinishLaunchingWithOptions
     factory.startReactNative(
       withModuleName: "main",

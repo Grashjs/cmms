@@ -12,9 +12,9 @@ import {
   IconButton,
   Portal,
   Text,
-  TextInput,
-  useTheme
+  TextInput
 } from 'react-native-paper';
+import { useAppTheme } from '../../custom-theme';
 import { useTranslation } from 'react-i18next';
 import { View } from '../../components/Themed';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
@@ -39,7 +39,7 @@ export default function RequestDetails({
   const { id, requestProp } = route.params;
   const { loadingGet, requestInfos } = useSelector((state) => state.requests);
   const request = requestInfos[id]?.request ?? requestProp;
-  const theme = useTheme();
+  const theme = useAppTheme();
   const [approving, setApproving] = useState<boolean>(false);
   const [cancelling, setCancelling] = useState<boolean>(false);
   const { showSnackBar } = useContext(CustomSnackBarContext);
@@ -232,12 +232,20 @@ export default function RequestDetails({
     if (value) {
       return (
         <TouchableOpacity
+          // Requesters cannot open these records. The press handler used to
+          // return early instead, so the card stayed fully interactive and
+          // simply did nothing when tapped.
+          disabled={user.role.code === 'REQUESTER'}
+          accessibilityRole="button"
           onPress={() => {
-            if (user.role.code === 'REQUESTER') return;
             // @ts-ignore
             navigation.navigate(link.route, { id: link.id });
           }}
-          style={{ marginTop: 20, padding: 20, backgroundColor: 'white' }}
+          style={{
+            marginTop: 20,
+            padding: 20,
+            backgroundColor: theme.colors.card
+          }}
         >
           <Text variant="titleMedium" style={{ fontWeight: 'bold' }}>
             {label}

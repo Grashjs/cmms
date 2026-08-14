@@ -40,6 +40,10 @@ import { reducer as licenseReducer } from '../slices/license';
 import { reducer as customFieldReducer } from '../slices/customField';
 import { reducer as commentReducer } from '../slices/comment';
 import { reducer as instanceConfigReducer } from '../slices/instanceConfig';
+import { reducer as themeModeReducer } from '../slices/themeMode';
+import { reducer as myDayReducer } from '../slices/myDay';
+import { reducer as globalSearchReducer } from '../slices/globalSearch';
+import { reducer as offlineQueueReducer } from '../slices/offlineQueue';
 
 const rootReducer = combineReducers({
   customers: customerReducer,
@@ -82,7 +86,11 @@ const rootReducer = combineReducers({
   license: licenseReducer,
   customFields: customFieldReducer,
   comments: commentReducer,
-  instanceConfig: instanceConfigReducer
+  instanceConfig: instanceConfigReducer,
+  themeMode: themeModeReducer,
+  myDay: myDayReducer,
+  globalSearch: globalSearchReducer,
+  offlineQueue: offlineQueueReducer
 });
 
 export default rootReducer;

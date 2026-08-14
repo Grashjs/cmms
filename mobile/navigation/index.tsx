@@ -4,11 +4,13 @@
  *
  */
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
+import {
+  NavigationContainer,
+  Theme as NavigationTheme
+} from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as React from 'react';
 import {
-  ColorSchemeName,
   GestureResponderEvent,
   Image,
   Platform,
@@ -65,6 +67,11 @@ import PartsScreen from '../screens/parts/PartsScreen';
 import VendorsAndCustomersScreen from '../screens/vendorsCustomers';
 import PeopleAndTeamsScreen from '../screens/peopleTeams';
 import NotificationsScreen from '../screens/NotificationsScreen';
+import GlobalSearchScreen from '../screens/GlobalSearchScreen';
+import PreventiveMaintenancesScreen from '../screens/preventiveMaintenances';
+import PMDetails from '../screens/preventiveMaintenances/PMDetails';
+import CreatePMScreen from '../screens/preventiveMaintenances/CreatePMScreen';
+import EditPMScreen from '../screens/preventiveMaintenances/EditPMScreen';
 import AssetsScreen from '../screens/assets/AssetsScreen';
 import LocationsScreen from '../screens/locations/LocationsScreen';
 import AssetDetails from '../screens/assets/details';
@@ -109,17 +116,13 @@ import { FontAwesome, Ionicons, Feather } from '@expo/vector-icons';
 import { Fragment, ReactElement, ReactNode } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-export default function Navigation({
-  colorScheme
-}: {
-  colorScheme: ColorSchemeName;
-}) {
+export default function Navigation({ theme }: { theme: NavigationTheme }) {
   const { isAuthenticated, isInitialized, user } = useAuth();
   return (
     <NavigationContainer
       ref={navigationRef}
       linking={LinkingConfiguration}
-      theme={DefaultTheme}
+      theme={theme}
     >
       {isInitialized ? (
         isAuthenticated ? (
@@ -355,6 +358,31 @@ function RootNavigator() {
         name="Notifications"
         component={NotificationsScreen}
         options={{ title: t('Notifications') }}
+      />
+      <Stack.Screen
+        name="GlobalSearch"
+        component={GlobalSearchScreen}
+        options={{ title: t('search') }}
+      />
+      <Stack.Screen
+        name="PreventiveMaintenances"
+        component={PreventiveMaintenancesScreen}
+        options={{ title: t('preventive_maintenance') }}
+      />
+      <Stack.Screen
+        name="PMDetails"
+        component={PMDetails}
+        options={{ title: t('preventive_maintenance') }}
+      />
+      <Stack.Screen
+        name="AddPreventiveMaintenance"
+        component={CreatePMScreen}
+        options={{ title: t('add_preventive_maintenance') }}
+      />
+      <Stack.Screen
+        name="EditPreventiveMaintenance"
+        component={EditPMScreen}
+        options={{ title: t('edit_preventive_maintenance') }}
       />
       <Stack.Screen
         name="Settings"

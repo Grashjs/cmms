@@ -1,13 +1,7 @@
-import {
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  View
-} from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useDispatch, useSelector } from '../../store';
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import useAuth from '../../hooks/useAuth';
 import { PermissionEntity } from '../../models/role';
 import {
@@ -16,25 +10,65 @@ import {
   getMoreLocations
 } from '../../slices/location';
 import { FilterField, SearchCriteria } from '../../models/page';
-import {
-  Avatar,
-  Button,
-  Card,
-  IconButton,
-  List,
-  Searchbar,
-  Text,
-  useTheme
-} from 'react-native-paper';
+import { Button, Searchbar } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import Location from '../../models/location';
-import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
-import { isCloseToBottom, onSearchQueryChange } from '../../utils/overall';
+import { onSearchQueryChange } from '../../utils/overall';
 import { RootStackScreenProps } from '../../types';
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
-import Tag from '../../components/Tag';
 import { useAppTheme } from '../../custom-theme';
-import { IconWithLabel } from '../../components/IconWithLabel';
+import {
+  EmptyState,
+  EntityListCard,
+  PaginatedEntityList
+} from '../../components/ui';
+
+interface LocationRow extends Location {
+  hierarchy?: number[];
+  hasChildren?: boolean;
+}
+
+interface LocationCardProps {
+  location: LocationRow;
+  navigation: RootStackScreenProps<'Locations'>['navigation'];
+  showChildrenButton?: boolean;
+  onViewChildren?: () => void;
+}
+
+function LocationCard({
+  location,
+  navigation,
+  showChildrenButton = false,
+  onViewChildren
+}: LocationCardProps) {
+  const { t } = useTranslation();
+
+  return (
+    <EntityListCard
+      title={location.name}
+      subtitle={`#${location.customId}`}
+      icon="map-marker-outline"
+      meta={
+        location.address
+          ? [{ icon: 'map-legend', label: location.address }]
+          : undefined
+      }
+      onPress={() =>
+        navigation.push('LocationDetails', {
+          id: location.id,
+          locationProp: location
+        })
+      }
+      footer={
+        showChildrenButton && location.hasChildren ? (
+          <Button compact onPress={onViewChildren} accessibilityLabel={t('view_children')}>
+            {t('view_children')}
+          </Button>
+        ) : undefined
+      }
+    />
+  );
+}
 
 export default function LocationsScreen({
   navigation,
@@ -55,6 +89,7 @@ export default function LocationsScreen({
   const [view, setView] = useState<'hierarchy' | 'list'>('hierarchy');
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
   const { hasViewPermission } = useAuth();
   const defaultFilterFields: FilterField[] = [];
   const getCriteriaFromFilterFields = (filterFields: FilterField[]) => {
@@ -79,6 +114,7 @@ export default function LocationsScreen({
   const [criteria, setCriteria] = useState<SearchCriteria>(
     getCriteriaFromFilterFields([])
   );
+
   useEffect(() => {
     if (hasViewPermission(PermissionEntity.LOCATIONS) && view === 'list') {
       dispatch(
@@ -90,8 +126,12 @@ export default function LocationsScreen({
         })
       );
     }
-  }, [criteria]);
-  const [currentLocations, setCurrentLocations] = useState([]);
+  }, [criteria, dispatch, hasViewPermission, view]);
+
+  useEffect(() => {
+    if (!loadingGet) setRefreshing(false);
+  }, [loadingGet]);
+
   useEffect(() => {
     if (
       route.params?.id &&
@@ -106,10 +146,28 @@ export default function LocationsScreen({
     dispatch(
       getLocationChildren(route.params?.id ?? 0, route.params?.hierarchy ?? [])
     );
-  }, [route]);
+  }, [dispatch, locationsHierarchy, route.params?.hierarchy, route.params?.id]);
+
+  const currentLocations = useMemo(() => {
+    if (route.params?.id) {
+      return locationsHierarchy.filter(
+        (location) =>
+          location.hierarchy[location.hierarchy.length - 2] === route.params.id &&
+          location.id !== route.params.id
+      );
+    }
+    return locationsHierarchy.filter((location) => location.hierarchy.length === 1);
+  }, [locationsHierarchy, route.params?.id]);
 
   const onRefresh = () => {
-    setCriteria(getCriteriaFromFilterFields([]));
+    setRefreshing(true);
+    if (view === 'list') {
+      setCriteria(getCriteriaFromFilterFields([]));
+    } else {
+      dispatch(
+        getLocationChildren(route.params?.id ?? 0, route.params?.hierarchy ?? [])
+      );
+    }
   };
 
   const onQueryChange = (query) => {
@@ -130,227 +188,92 @@ export default function LocationsScreen({
     1000
   );
 
-  useEffect(() => {
-    let result = [];
-    if (route.params?.id) {
-      result = locationsHierarchy.filter((location, index) => {
-        return (
-          location.hierarchy[location.hierarchy.length - 2] ===
-            route.params.id && location.id !== route.params.id
-        );
+  const handleViewChildren = useCallback(
+    (location: LocationRow) => {
+      navigation.push('Locations', {
+        id: location.id,
+        hierarchy: location.hierarchy
       });
-    } else
-      result = locationsHierarchy.filter(
-        (location) => location.hierarchy.length === 1
-      );
-    setCurrentLocations(result);
-  }, [locationsHierarchy]);
-
-  const LocationCard = ({
-    location,
-    showChildrenButton = false
-  }: {
-    location: any;
-    showChildrenButton?: boolean;
-  }) => (
-    <TouchableOpacity
-      onPress={() =>
-        navigation.push('LocationDetails', {
-          id: location.id,
-          locationProp: location
-        })
-      }
-      key={location.id}
-    >
-      <View style={styles.card}>
-        <View
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            gap: 6
-          }}
-        >
-          <Avatar.Icon
-            style={{
-              backgroundColor: theme.colors.background
-            }}
-            color={'white'}
-            icon={'map-marker-outline'}
-            size={50}
-          />
-          <View style={{ flex: 1 }}>
-            <View style={styles.cardHeader}>
-              <View style={{ flex: 1 }}>
-                <Text variant="titleMedium" style={styles.cardTitle}>
-                  {location.name}
-                </Text>
-                <Text
-                  variant={'bodySmall'}
-                  style={{ color: 'grey' }}
-                >{`#${location.customId}`}</Text>
-              </View>
-            </View>
-            <View style={styles.cardBody}>
-              {location.address && (
-                <IconWithLabel
-                  label={location.address}
-                  icon="map-legend"
-                  color={theme.colors.grey}
-                />
-              )}
-            </View>
-            {showChildrenButton && location.hasChildren && (
-              <View style={styles.cardFooter}>
-                <View style={{ flex: 1 }} />
-                <Button
-                  compact
-                  onPress={() => {
-                    navigation.push('Locations', {
-                      id: location.id,
-                      hierarchy: location.hierarchy
-                    });
-                  }}
-                >
-                  {t('view_children')}
-                </Button>
-              </View>
-            )}
-          </View>
-        </View>
-      </View>
-    </TouchableOpacity>
+    },
+    [navigation]
   );
 
+  const isFiltered = !!searchQuery;
+  const listData = view === 'list' ? locations.content : currentLocations;
+
+  const renderListItem = useCallback(
+    ({ item: location }: { item: LocationRow }) => (
+      <LocationCard
+        location={location}
+        navigation={navigation}
+        showChildrenButton={view === 'hierarchy'}
+        onViewChildren={() => handleViewChildren(location)}
+      />
+    ),
+    [handleViewChildren, navigation, view]
+  );
+
+  const loadMore = () => {
+    if (loadingGet) return;
+    if (view === 'list') {
+      if (!lastPage) dispatch(getMoreLocations(criteria, currentPageNum + 1));
+    } else if (!locationChildrenLastPage[route.params?.id ?? 0]) {
+      dispatch(
+        getLocationChildren(
+          route.params?.id ?? 0,
+          route.params?.hierarchy ?? [],
+          (locationChildrenPageNum[route.params?.id ?? 0] ?? 0) + 1
+        )
+      );
+    }
+  };
+
   return (
-    <View
-      style={{ ...styles.container, backgroundColor: theme.colors.background }}
-    >
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <Searchbar
         placeholder={t('search')}
+        accessibilityLabel={t('search')}
         onFocus={() => setStartedSearch(true)}
         onChangeText={setSearchQuery}
         value={searchQuery}
-        style={{ backgroundColor: theme.colors.background }}
+        style={{ backgroundColor: theme.colors.card }}
       />
-      {view === 'list' ? (
-        <ScrollView
-          style={styles.scrollView}
-          onScroll={({ nativeEvent }) => {
-            if (isCloseToBottom(nativeEvent)) {
-              if (!loadingGet && !lastPage)
-                dispatch(getMoreLocations(criteria, currentPageNum + 1));
+      <PaginatedEntityList
+        data={listData}
+        keyExtractor={(location) => location.id.toString()}
+        renderItem={renderListItem}
+        loading={loadingGet}
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+        onEndReached={loadMore}
+        ListEmptyComponent={
+          <EmptyState
+            icon={isFiltered ? 'filter-remove-outline' : 'map-marker-outline'}
+            title={t('no_element_match_criteria')}
+            description={
+              isFiltered ? t('no_element_match_criteria_description') : undefined
             }
-          }}
-          refreshControl={
-            <RefreshControl
-              refreshing={loadingGet}
-              onRefresh={onRefresh}
-              colors={[theme.colors.primary]}
-            />
-          }
-          scrollEventThrottle={400}
-        >
-          {!!locations.content.length ? (
-            locations.content.map((location) => (
-              <LocationCard key={location.id} location={location} />
-            ))
-          ) : loadingGet ? null : (
-            <View
-              style={{
-                backgroundColor: 'white',
-                padding: 20,
-                borderRadius: 10
-              }}
-            >
-              <Text variant={'titleLarge'}>
-                {t('no_element_match_criteria')}
-              </Text>
-            </View>
-          )}
-        </ScrollView>
-      ) : (
-        <ScrollView
-          style={styles.scrollView}
-          onScroll={({ nativeEvent }) => {
-            if (isCloseToBottom(nativeEvent)) {
-              if (
-                !loadingGet &&
-                !locationChildrenLastPage[route.params?.id ?? 0]
-              ) {
-                dispatch(
-                  getLocationChildren(
-                    route.params?.id ?? 0,
-                    route.params?.hierarchy ?? [],
-                    (locationChildrenPageNum[route.params?.id ?? 0] ?? 0) + 1
-                  )
-                );
-              }
+            action={
+              isFiltered
+                ? {
+                    label: t('reset'),
+                    onPress: () => {
+                      setSearchQuery('');
+                      setView('hierarchy');
+                      setCriteria(getCriteriaFromFilterFields([]));
+                    }
+                  }
+                : undefined
             }
-          }}
-          scrollEventThrottle={400}
-          refreshControl={
-            <RefreshControl
-              refreshing={loadingGet}
-              colors={[theme.colors.primary]}
-            />
-          }
-        >
-          {!!currentLocations.length &&
-            currentLocations.map((location) => (
-              <LocationCard
-                key={location.id}
-                location={location}
-                showChildrenButton={true}
-              />
-            ))}
-        </ScrollView>
-      )}
+          />
+        }
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    // alignItems: 'center',
-    justifyContent: 'center'
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold'
-  },
-  scrollView: {
-    width: '100%',
-    height: '100%'
-  },
-  row: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  card: {
-    backgroundColor: 'white',
-    marginBottom: 1,
-    padding: 10
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 8
-  },
-  cardTitle: {
-    fontWeight: 'bold',
-    marginBottom: 4,
-    flexShrink: 1
-  },
-  cardBody: {
-    gap: 10
-  },
-  cardFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 10
+    flex: 1
   }
 });

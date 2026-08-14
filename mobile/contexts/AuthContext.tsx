@@ -624,7 +624,10 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
 
       token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
     } else {
-      Alert.alert('Must use physical device for Push Notifications');
+      // Simulators cannot register for push. This was a modal alert, which
+      // interrupted every launch during development with something the user
+      // cannot act on.
+      console.warn('Push notifications require a physical device.');
     }
 
     if (Platform.OS === 'android') {
@@ -688,22 +691,22 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     });
     checkPushNotificationState();
     globalDispatch(getCustomFields());
-    getApiUrl().then((apiUrl) => {
+    getApiUrl().then(async (apiUrl) => {
       if (apiUrl.toLowerCase().includes('api.atlas-cmms.com')) {
         Clarity.initialize(Constants.expoConfig.extra.CLARITY_ID);
         Clarity.setCustomUserId(user.email);
+
+        try {
+          await api.post('reviews/session', {});
+          const { eligible } = await api.get<{ eligible: boolean }>(
+            'reviews/eligibility'
+          );
+          dispatch({ type: 'REVIEW_ELIGIBLE', payload: eligible });
+        } catch (e) {
+          console.warn('Review eligibility check failed', e);
+        }
       }
     });
-    try {
-      await api.post('reviews/session', {});
-      api
-        .get<{ eligible: boolean }>('reviews/eligibility')
-        .then(({ eligible }) =>
-          dispatch({ type: 'REVIEW_ELIGIBLE', payload: eligible })
-        );
-    } catch (e) {
-      console.error('Review eligibility check failed', e);
-    }
   };
   const getInfos = async (): Promise<void> => {
     // AsyncStorage.clear();

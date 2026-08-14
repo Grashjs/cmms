@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copy this file to GoogleService-Info.plist before the first iOS build.
+
+      cp GoogleService-Info.plist.example GoogleService-Info.plist
+
+  The real file is gitignored because it carries project credentials, but the
+  Xcode build declares it as a required input, so the build fails without it.
+
+  These placeholder values are enough to build and run against a self-hosted
+  backend. AppDelegate.swift only calls FirebaseApp.configure() when API_KEY
+  looks like a real key (it starts with "AIza"), so analytics and push stay
+  disabled until you drop in a genuine file from the Firebase console.
+-->
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>REPLACE_WITH_FIREBASE_API_KEY</string>
+	<key>GCM_SENDER_ID</key>
+	<string>000000000000</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.cmms.atlas</string>
+	<key>PROJECT_ID</key>
+	<string>atlas-cmms-local-dev</string>
+	<key>STORAGE_BUCKET</key>
+	<string>atlas-cmms-local-dev.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false/>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false/>
+	<key>IS_APPINVITE_ENABLED</key>
+	<false/>
+	<key>IS_GCM_ENABLED</key>
+	<false/>
+	<key>IS_SIGNIN_ENABLED</key>
+	<false/>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:000000000000:ios:0000000000000000</string>
+</dict>
+</plist>

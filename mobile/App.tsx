@@ -15,11 +15,7 @@ import 'text-encoding';
 
 import Constants from 'expo-constants';
 
-import {
-  MD3LightTheme as DefaultTheme,
-  Provider as PaperProvider,
-  useTheme
-} from 'react-native-paper';
+import { Provider as PaperProvider } from 'react-native-paper';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Linking, LogBox } from 'react-native';
 import { SheetProvider } from 'react-native-actions-sheet';
@@ -30,10 +26,13 @@ import { NotificationType } from './models/notification';
 import { navigate } from './navigation/RootNavigation';
 import subscriptionPlan from './slices/subscriptionPlan';
 import { isNumeric } from './utils/validators';
-import { customTheme } from './custom-theme';
+import { customTheme, darkTheme, getNavigationTheme } from './custom-theme';
 import { RootLayout } from './components/RootLayout';
 import { ReviewModal } from './components/ReviewModal';
+import ErrorBoundary from './components/ErrorBoundary';
+import ConnectivityBanner from './components/ConnectivityBanner';
 import { Subscription } from 'expo-notifications';
+import { useSelector } from './store';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -44,6 +43,36 @@ Notifications.setNotificationHandler({
     shouldShowList: true
   })
 });
+
+/**
+ * Rendered inside the redux <Provider> so it can read the persisted theme
+ * preference, which App itself cannot reach from above the store.
+ */
+function ThemedApp({ colorScheme }: { colorScheme: 'light' | 'dark' }) {
+  const mode = useSelector((state) => state.themeMode.mode);
+  const isDark = mode === 'system' ? colorScheme === 'dark' : mode === 'dark';
+
+  return (
+    <PaperProvider theme={isDark ? darkTheme : customTheme}>
+      <CustomSnackbarProvider>
+        <SheetProvider>
+          <ErrorBoundary>
+            <RootLayout>
+              <ConnectivityBanner />
+              <FlashMessage
+                position="top"
+                statusBarHeight={Constants.statusBarHeight}
+              />
+              <Navigation theme={getNavigationTheme(isDark)} />
+              <ReviewModal />
+            </RootLayout>
+          </ErrorBoundary>
+          <StatusBar style={isDark ? 'light' : 'dark'} />
+        </SheetProvider>
+      </CustomSnackbarProvider>
+    </PaperProvider>
+  );
+}
 
 export default function App() {
   const isLoadingComplete = useCachedResources();
@@ -132,21 +161,7 @@ export default function App() {
           <PersistGate loading={null} persistor={persistor}>
             <AuthProvider>
               <CompanySettingsProvider>
-                <PaperProvider theme={customTheme}>
-                  <CustomSnackbarProvider>
-                    <SheetProvider>
-                      <RootLayout>
-                        <FlashMessage
-                          position="top"
-                          statusBarHeight={Constants.statusBarHeight}
-                        />
-                        <Navigation colorScheme={colorScheme} />
-                        <ReviewModal />
-                      </RootLayout>
-                      <StatusBar />
-                    </SheetProvider>
-                  </CustomSnackbarProvider>
-                </PaperProvider>
+                <ThemedApp colorScheme={colorScheme} />
               </CompanySettingsProvider>
             </AuthProvider>
           </PersistGate>

@@ -1,47 +1,38 @@
 import {
-  Image,
+  ActivityIndicator,
+  FlatList,
   Pressable,
   RefreshControl,
   ScrollView,
   StyleSheet,
-  TouchableOpacity,
   View
 } from 'react-native';
 import { useDispatch, useSelector } from '../../store';
 import * as React from 'react';
-import { Fragment, useContext, useEffect, useState } from 'react';
+import { Fragment, useCallback, useContext, useEffect, useState } from 'react';
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
 import useAuth from '../../hooks/useAuth';
 import { PermissionEntity } from '../../models/role';
 import { getMoreRequests, getRequests } from '../../slices/request';
-import { FAB } from 'react-native-paper';
 import { FilterField, SearchCriteria } from '../../models/page';
-import {
-  Badge,
-  Card,
-  IconButton,
-  Searchbar,
-  Text,
-  Avatar,
-  TouchableRipple
-} from 'react-native-paper';
+import { Badge, IconButton, Searchbar, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import Request from '../../models/request';
-import {
-  getPriorityColor,
-  isCloseToBottom,
-  onSearchQueryChange
-} from '../../utils/overall';
+import { getPriorityColor, onSearchQueryChange } from '../../utils/overall';
 import { RootTabScreenProps } from '../../types';
-import Tag from '../../components/Tag';
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
 import { dayDiff } from '../../utils/dates';
 import { getNotifications } from '../../slices/notification';
-import { SheetManager } from 'react-native-actions-sheet';
 import _ from 'lodash';
 import EnumFilter from '../workOrders/components/EnumFilter';
-import { IconWithLabel } from '../../components/IconWithLabel';
 import { useAppTheme } from '../../custom-theme';
+import { spacing } from '../../theme/tokens';
+import {
+  EmptyState,
+  EntityListCard,
+  EntityListCardMeta,
+  ListSkeleton
+} from '../../components/ui';
 
 export default function RequestsScreen({
   navigation,
@@ -56,9 +47,8 @@ export default function RequestsScreen({
   const dispatch = useDispatch();
   const { notifications } = useSelector((state) => state.notifications);
   const [searchQuery, setSearchQuery] = useState('');
-  const { getFormattedDate, getUserNameById } = useContext(
-    CompanySettingsContext
-  );
+  const [refreshing, setRefreshing] = useState(false);
+  const { getFormattedDate } = useContext(CompanySettingsContext);
   const notificationsCriteria: SearchCriteria = {
     filterFields: [],
     pageSize: 15,
@@ -104,6 +94,7 @@ export default function RequestsScreen({
   const [criteria, setCriteria] = useState<SearchCriteria>(
     getCriteriaFromFilterFields([])
   );
+
   useEffect(() => {
     if (hasViewPermission(PermissionEntity.REQUESTS)) {
       dispatch(
@@ -118,32 +109,27 @@ export default function RequestsScreen({
   }, [criteria]);
 
   useEffect(() => {
+    if (!loadingGet) setRefreshing(false);
+  }, [loadingGet]);
+
+  useEffect(() => {
     if (user.role.code === 'REQUESTER')
       navigation.setOptions({
         title: t('requests'),
         headerRight: () => (
-          <View
-            style={{
-              display: 'flex',
-              flexDirection: 'row'
-            }}
-          >
+          <View style={styles.headerActions}>
             <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('notifications')}
               onPress={() => navigation.navigate('Notifications')}
               style={{ position: 'relative' }}
             >
-              <IconButton icon={'bell-outline'} />
+              <IconButton icon="bell-outline" />
               <Badge
-                style={{
-                  position: 'absolute',
-                  bottom: 0,
-                  right: 0,
-                  backgroundColor: theme.colors.error
-                }}
+                style={styles.notificationBadge}
                 visible={
-                  notifications.content.filter(
-                    (notification) => !notification.seen
-                  ).length > 0
+                  notifications.content.filter((notification) => !notification.seen)
+                    .length > 0
                 }
               >
                 {
@@ -154,23 +140,24 @@ export default function RequestsScreen({
               </Badge>
             </Pressable>
             <Pressable
-              onPress={() => {
-                navigation.navigate('Settings');
-              }}
+              accessibilityRole="button"
+              accessibilityLabel={t('settings')}
+              onPress={() => navigation.navigate('Settings')}
             >
               <IconButton icon="cog-outline" />
             </Pressable>
           </View>
         )
       });
-  }, []);
+  }, [navigation, notifications.content, t, user.role.code]);
 
   useEffect(() => {
     if (user.role.code === 'REQUESTER')
       dispatch(getNotifications(notificationsCriteria));
-  }, []);
+  }, [dispatch, user.role.code]);
 
   const onRefresh = () => {
+    setRefreshing(true);
     setCriteria(getCriteriaFromFilterFields([]));
   };
 
@@ -178,16 +165,22 @@ export default function RequestsScreen({
     if (request.workOrder) {
       // @ts-ignore
       return [t('approved'), theme.colors.success];
-    } else if (request.cancelled) {
+    }
+    if (request.cancelled) {
       return [t('rejected'), theme.colors.error];
-    } else return [t('pending'), theme.colors.primary];
+    }
+    return [t('pending'), theme.colors.primary];
   };
 
   const onFilterChange = (newFilters: FilterField[]) => {
-    const newCriteria = { ...criteria };
-    newCriteria.filterFields = newFilters;
-    setCriteria(newCriteria);
+    setCriteria({ ...criteria, filterFields: newFilters });
   };
+
+  const onResetFilters = () => {
+    setSearchQuery('');
+    setCriteria(getCriteriaFromFilterFields([]));
+  };
+
   const onQueryChange = (query) => {
     onSearchQueryChange<Request>(query, criteria, setCriteria, setSearchQuery, [
       'title',
@@ -203,207 +196,157 @@ export default function RequestsScreen({
     [searchQuery],
     1000
   );
-  return (
-    <View
-      style={{ ...styles.container, backgroundColor: theme.colors.background }}
+
+  const filtersAreDefault = _.isEqual(criteria.filterFields, defaultFilterFields);
+  const isFiltered = !filtersAreDefault || !!searchQuery;
+  const isInitialLoad = loadingGet && !requests.content.length;
+
+  const renderItem = useCallback(
+    ({ item: request }: { item: Request }) => {
+      const [statusLabel, statusColor] = getStatusMeta(request);
+      const meta: EntityListCardMeta[] = [];
+      if (request.asset) {
+        meta.push({ icon: 'package-variant-closed', label: request.asset.name });
+      }
+      if (request.location) {
+        meta.push({ icon: 'map-marker-outline', label: request.location.name });
+      }
+      if (request.priority && request.priority !== 'NONE') {
+        meta.push({
+          icon: 'flag',
+          label: t(request.priority),
+          color: getPriorityColor(request.priority, theme)
+        });
+      }
+      if (request.dueDate) {
+        const overdue =
+          (dayDiff(new Date(request.dueDate), new Date()) <= 2 ||
+            new Date() > new Date(request.dueDate)) &&
+          request.workOrder?.status !== 'COMPLETE';
+        meta.push({
+          icon: 'clock-alert-outline',
+          label: getFormattedDate(request.dueDate),
+          color: overdue ? theme.colors.error : undefined
+        });
+      }
+      return (
+        <EntityListCard
+          title={request.title}
+          subtitle={`#${request.customId}`}
+          imageUrl={request.image?.url}
+          icon="inbox-arrow-down-outline"
+          badge={{ label: statusLabel, color: statusColor }}
+          meta={meta}
+          onPress={() => {
+            if (request.workOrder) {
+              navigation.push('WODetails', { id: request.workOrder.id });
+            } else {
+              navigation.push('RequestDetails', {
+                id: request.id,
+                requestProp: request
+              });
+            }
+          }}
+        />
+      );
+    },
+    [getFormattedDate, navigation, t, theme]
+  );
+
+  const filterBar = (
+    <ScrollView
+      horizontal
+      style={[styles.filterBar, { backgroundColor: theme.colors.card }]}
+      contentContainerStyle={styles.filterBarContent}
+      showsHorizontalScrollIndicator={false}
     >
+      <EnumFilter
+        filterFields={criteria.filterFields}
+        onChange={onFilterChange}
+        completeOptions={['NONE', 'LOW', 'MEDIUM', 'HIGH']}
+        initialOptions={[]}
+        fieldName="priority"
+        icon="signal"
+      />
+      <EnumFilter
+        filterFields={criteria.filterFields}
+        onChange={onFilterChange}
+        completeOptions={['APPROVED', 'CANCELLED', 'PENDING']}
+        initialOptions={['APPROVED', 'CANCELLED', 'PENDING']}
+        fieldName="status"
+        icon="circle-double"
+      />
+      {!filtersAreDefault && (
+        <IconButton
+          icon="close"
+          iconColor={theme.colors.error}
+          accessibilityLabel={t('reset')}
+          style={{ backgroundColor: theme.colors.background }}
+          onPress={() => onFilterChange(defaultFilterFields)}
+        />
+      )}
+    </ScrollView>
+  );
+
+  return (
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       {hasViewPermission(PermissionEntity.REQUESTS) ? (
         <Fragment>
           <Searchbar
             placeholder={t('search')}
+            accessibilityLabel={t('search')}
             onFocus={() => setStartedSearch(true)}
             onChangeText={setSearchQuery}
             value={searchQuery}
-            style={{ backgroundColor: theme.colors.background }}
+            style={{ backgroundColor: theme.colors.card }}
           />
-          <ScrollView
-            contentContainerStyle={{ paddingBottom: 100 }}
-            style={styles.scrollView}
-            onScroll={({ nativeEvent }) => {
-              if (isCloseToBottom(nativeEvent)) {
+          {isInitialLoad ? (
+            <>
+              {filterBar}
+              <ListSkeleton />
+            </>
+          ) : (
+            <FlatList
+              data={requests.content}
+              keyExtractor={(request) => request.id.toString()}
+              renderItem={renderItem}
+              ListHeaderComponent={filterBar}
+              contentContainerStyle={styles.listContent}
+              onEndReached={() => {
                 if (!loadingGet && !lastPage)
                   dispatch(getMoreRequests(criteria, currentPageNum + 1));
-              }
-            }}
-            refreshControl={
-              <RefreshControl
-                refreshing={loadingGet}
-                onRefresh={onRefresh}
-                colors={[theme.colors.primary]}
-              />
-            }
-            scrollEventThrottle={400}
-          >
-            <ScrollView
-              horizontal
-              style={{
-                backgroundColor: 'white',
-                paddingLeft: 5,
-                borderRadius: 5,
-                marginBottom: 2
               }}
-              showsHorizontalScrollIndicator={false}
-            >
-              <EnumFilter
-                filterFields={criteria.filterFields}
-                onChange={onFilterChange}
-                completeOptions={['NONE', 'LOW', 'MEDIUM', 'HIGH']}
-                initialOptions={[]}
-                fieldName="priority"
-                icon="signal"
-              />
-              <EnumFilter
-                filterFields={criteria.filterFields}
-                onChange={onFilterChange}
-                completeOptions={['APPROVED', 'CANCELLED', 'PENDING']}
-                initialOptions={['APPROVED', 'CANCELLED', 'PENDING']}
-                fieldName="status"
-                icon="circle-double"
-              />
-              {!_.isEqual(criteria.filterFields, defaultFilterFields) && (
-                <IconButton
-                  icon={'close'}
-                  iconColor={theme.colors.error}
-                  style={{
-                    backgroundColor: theme.colors.background
-                  }}
-                  onPress={() => onFilterChange(defaultFilterFields)}
+              onEndReachedThreshold={0.4}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                  colors={[theme.colors.primary]}
+                  tintColor={theme.colors.primary}
                 />
-              )}
-            </ScrollView>
-            {!!requests.content.length ? (
-              requests.content.map((request) => (
-                <TouchableOpacity
-                  onPress={() => {
-                    if (request.workOrder) {
-                      navigation.push('WODetails', {
-                        id: request.workOrder.id
-                      });
-                    } else
-                      navigation.push('RequestDetails', {
-                        id: request.id,
-                        requestProp: request
-                      });
-                  }}
-                  key={request.id}
-                >
-                  <View style={styles.card}>
-                    <View
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        gap: 6
-                      }}
-                    >
-                      {request.image ? (
-                        <Avatar.Image
-                          size={50}
-                          source={{ uri: request.image?.url }}
-                        />
-                      ) : (
-                        <Avatar.Icon
-                          style={{
-                            backgroundColor: theme.colors.background
-                          }}
-                          color={'white'}
-                          icon={'inbox-arrow-down-outline'}
-                          size={50}
-                        />
-                      )}
-                      <View style={{ flex: 1 }}>
-                        <View style={styles.cardHeader}>
-                          <View style={{ flex: 1 }}>
-                            <Text
-                              variant="titleMedium"
-                              style={styles.cardTitle}
-                              numberOfLines={2}
-                            >
-                              {request.title}
-                            </Text>
-                            <Text
-                              variant={'bodySmall'}
-                              style={{ color: 'grey' }}
-                            >{`#${request.customId}`}</Text>
-                          </View>
-                          <Tag
-                            text={getStatusMeta(request)[0]}
-                            color="white"
-                            backgroundColor={getStatusMeta(request)[1]}
-                          />
-                        </View>
-                        <View style={styles.cardBody}>
-                          {request.asset && (
-                            <IconWithLabel
-                              label={request.asset.name}
-                              icon="package-variant-closed"
-                              color={theme.colors.grey}
-                            />
-                          )}
-                          {request.location && (
-                            <IconWithLabel
-                              label={request.location.name}
-                              icon="map-marker-outline"
-                              color={theme.colors.grey}
-                            />
-                          )}
-                          {request.priority && request.priority !== 'NONE' && (
-                            <Tag
-                              text={t(request.priority)}
-                              color={getPriorityColor(request.priority, theme)}
-                              backgroundColor={'transparent'}
-                            />
-                          )}
-                        </View>
-                        <View style={styles.cardFooter}>
-                          {request.dueDate && (
-                            <IconWithLabel
-                              color={
-                                (dayDiff(
-                                  new Date(request.dueDate),
-                                  new Date()
-                                ) <= 2 ||
-                                  new Date() > new Date(request.dueDate)) &&
-                                request.workOrder?.status !== 'COMPLETE'
-                                  ? theme.colors.error
-                                  : theme.colors.grey
-                              }
-                              label={getFormattedDate(request.dueDate)}
-                              icon="clock-alert-outline"
-                            />
-                          )}
-                        </View>
-                      </View>
-                    </View>
-                  </View>
-                </TouchableOpacity>
-              ))
-            ) : loadingGet ? null : (
-              <View
-                style={{
-                  backgroundColor: 'white',
-                  padding: 20,
-                  borderRadius: 10
-                }}
-              >
-                <Text variant={'titleLarge'}>
-                  {t('no_element_match_criteria')}
-                </Text>
-              </View>
-            )}
-          </ScrollView>
-          {/*{user.role.code === 'REQUESTER' && <FAB*/}
-          {/*  icon='plus'*/}
-          {/*  style={[styles.fab, { backgroundColor: theme.colors.primary }]}*/}
-          {/*  color={'white'}*/}
-          {/*  onPress={() => navigation.navigate('AddRequest')}*/}
-          {/*/>}*/}
+              }
+              ListEmptyComponent={
+                <EmptyState
+                  icon={isFiltered ? 'filter-remove-outline' : 'inbox-arrow-down-outline'}
+                  title={t('no_element_match_criteria')}
+                  description={
+                    isFiltered ? t('no_element_match_criteria_description') : undefined
+                  }
+                  action={
+                    isFiltered
+                      ? { label: t('reset'), onPress: onResetFilters }
+                      : undefined
+                  }
+                />
+              }
+            />
+          )}
         </Fragment>
       ) : (
-        <View
-          style={{ backgroundColor: 'white', padding: 20, borderRadius: 10 }}
-        >
-          <Text variant={'titleLarge'}>{t('no_access_requests')}</Text>
-        </View>
+        <EmptyState
+          icon="lock-outline"
+          title={t('no_access_requests')}
+        />
       )}
     </View>
   );
@@ -411,52 +354,28 @@ export default function RequestsScreen({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    // alignItems: 'center',
-    justifyContent: 'center'
+    flex: 1
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold'
+  headerActions: {
+    flexDirection: 'row'
   },
-  scrollView: {
-    width: '100%',
-    height: '100%'
-  },
-  row: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  card: {
-    backgroundColor: 'white',
-    marginBottom: 1,
-    padding: 10
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 8
-  },
-  cardTitle: {
-    fontWeight: 'bold',
-    marginBottom: 4,
-    flexShrink: 1
-  },
-  cardBody: {
-    gap: 10
-  },
-  cardFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 10
-  },
-  fab: {
+  notificationBadge: {
     position: 'absolute',
-    margin: 16,
-    right: 0,
-    bottom: 0
+    bottom: 0,
+    right: 0
+  },
+  filterBar: {
+    flexGrow: 0,
+    marginBottom: spacing.sm
+  },
+  filterBarContent: {
+    alignItems: 'center',
+    paddingHorizontal: spacing.sm,
+    gap: spacing.xs
+  },
+  listContent: {
+    paddingTop: spacing.xs,
+    paddingBottom: 100,
+    flexGrow: 1
   }
 });

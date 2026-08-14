@@ -2,6 +2,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
 import type { AppThunk } from '../store';
 import api from '../utils/api';
+import { runOrQueue } from '../utils/offlineMutations';
 import { Task } from '../models/tasks';
 import { revertAll } from '../utils/redux';
 
@@ -126,17 +127,29 @@ export const deleteTask =
 export const patchTask =
   (workOrderId: number, taskId: number, task): AppThunk =>
   async (dispatch) => {
-    const taskResponse = await api.patch<Task>(
-      `${basePath}/${taskId}`,
-      task,
-      null,
-      true
-    );
-    dispatch(
-      slice.actions.patchTask({
+    await runOrQueue(
+      dispatch,
+      async () => {
+        const taskResponse = await api.patch<Task>(
+          `${basePath}/${taskId}`,
+          task,
+          null,
+          true
+        );
+        dispatch(
+          slice.actions.patchTask({
+            workOrderId,
+            task: taskResponse
+          })
+        );
+        return taskResponse;
+      },
+      {
+        type: 'patchTask',
         workOrderId,
-        task: taskResponse
-      })
+        taskId,
+        task
+      }
     );
   };
 export default slice;

@@ -4,7 +4,7 @@ import { FilterField, SearchCriteria, SearchOperator } from '../models/page';
 import React from 'react';
 import { sameDay } from './dates';
 import { Priority, WorkOrderStatus } from '../models/workOrder';
-import { MD3Theme } from 'react-native-paper';
+import { AppTheme } from '../custom-theme';
 import mime from 'mime';
 import ImagePicker from 'expo-image-picker';
 import { NativeSyntheticEvent } from 'react-native/Libraries/Types/CoreEventTypes';
@@ -127,16 +127,14 @@ export const onSearchQueryChange = <T>(
 
 export const getPriorityColor = (
   priority: Priority,
-  theme: MD3Theme
+  theme: AppTheme
 ): string => {
   switch (priority) {
     case 'NONE':
       return theme.colors.tertiary;
     case 'LOW':
-      // @ts-ignore
       return theme.colors.info;
     case 'MEDIUM':
-      // @ts-ignore
       return theme.colors.warning;
     case 'HIGH':
       return theme.colors.error;
@@ -149,16 +147,14 @@ export type ExtendedWorkOrderStatus =
   | 'HIGH_WO';
 export const getStatusColor = (
   status: ExtendedWorkOrderStatus,
-  theme: MD3Theme
+  theme: AppTheme
 ): string => {
   switch (status) {
     case 'OPEN':
       return theme.colors.tertiary;
     case 'IN_PROGRESS':
-      // @ts-ignore
       return theme.colors.success;
     case 'ON_HOLD':
-      // @ts-ignore
       return theme.colors.warning;
     case 'LATE_WO':
       return theme.colors.error;
@@ -167,7 +163,9 @@ export const getStatusColor = (
     case 'HIGH_WO':
       return theme.colors.error;
     case 'COMPLETE':
-      return 'black';
+      // `black` is the strong-foreground role and inverts in dark mode; the
+      // literal color that used to be here disappeared against a dark surface.
+      return theme.colors.black;
   }
 };
 

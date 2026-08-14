@@ -1,5 +1,6 @@
 import { SafeAreaView, StyleSheet } from 'react-native';
-import { SegmentedButtons, useTheme } from 'react-native-paper';
+import { SegmentedButtons } from 'react-native-paper';
+import { useAppTheme } from '../../custom-theme';
 import { getPriorityLabel } from '../../utils/formatters';
 import { useTranslation } from 'react-i18next';
 import { getPriorityColor } from '../../utils/overall';
@@ -13,7 +14,7 @@ export default function PriorityPicker({
   onChange: (value: string) => void;
 }) {
   const { t } = useTranslation();
-  const theme = useTheme();
+  const theme = useAppTheme();
   const options = (['NONE', 'LOW', 'MEDIUM', 'HIGH'] as Priority[]).map(
     (option) => {
       return {

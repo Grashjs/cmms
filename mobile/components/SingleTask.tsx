@@ -15,6 +15,9 @@ import { SheetManager } from 'react-native-actions-sheet';
 import { PermissionEntity } from '../models/role';
 import { PlanFeature } from '../models/subscriptionPlan';
 import { Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../types';
 
 interface SingleTaskProps {
   task: Task;
@@ -41,6 +44,10 @@ export default function SingleTask({
 }: SingleTaskProps) {
   const theme = useTheme();
   const { t }: { t: any } = useTranslation();
+  // Taken from context rather than a prop so the callers, which render this in
+  // several places, do not all have to thread navigation through.
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [savingNotes, setSavingNotes] = useState<boolean>(false);
   const { user, hasCreatePermission, hasFeature } = useAuth();
   const [inputValue, setInputValue] = useState<string>('');
@@ -198,7 +205,14 @@ export default function SingleTask({
           }}
         >
           <Text style={{ fontWeight: 'bold' }}>{t('concerned_asset')}</Text>
-          <TouchableOpacity>
+          <TouchableOpacity
+            accessibilityRole="button"
+            onPress={() =>
+              navigation.navigate('AssetDetails', {
+                id: task.taskBase.asset.id
+              })
+            }
+          >
             <Text style={{ color: theme.colors.primary }}>
               {task.taskBase.asset.name}
             </Text>
@@ -215,7 +229,12 @@ export default function SingleTask({
           }}
         >
           <Text style={{ fontWeight: 'bold' }}>{t('assigned_to')}</Text>
-          <TouchableOpacity>
+          <TouchableOpacity
+            accessibilityRole="button"
+            onPress={() =>
+              navigation.navigate('UserDetails', { id: task.taskBase.user.id })
+            }
+          >
             <Text
               style={{ color: theme.colors.primary }}
             >{`${task.taskBase.user.firstName} ${task.taskBase.user.lastName}`}</Text>

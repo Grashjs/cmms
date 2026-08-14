@@ -8,6 +8,7 @@ import {
   IconButton,
   List,
   Portal,
+  RadioButton,
   Text,
   useTheme
 } from 'react-native-paper';
@@ -21,7 +22,8 @@ import Constants from 'expo-constants';
 import * as Updates from 'expo-updates';
 import { showMessage } from 'react-native-flash-message';
 import { CustomSnackBarContext } from '../contexts/CustomSnackBarContext';
-import tr from '../i18n/translations/tr';
+import { useDispatch, useSelector } from '../store';
+import { setThemeMode, ThemeMode } from '../slices/themeMode';
 
 export default function SettingsScreen({
                                          navigation
@@ -35,6 +37,14 @@ export default function SettingsScreen({
   const [openDevInfo, setOpenDevInfo] = useState<boolean>(false);
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const [devMode, setDevMode] = useState<boolean>(false);
+  const dispatch = useDispatch();
+  const themeMode = useSelector((state) => state.themeMode.mode);
+  const [openAppearance, setOpenAppearance] = useState<boolean>(false);
+  const themeModes: { value: ThemeMode; label: string }[] = [
+    { value: 'system', label: t('theme_system') },
+    { value: 'light', label: t('theme_light') },
+    { value: 'dark', label: t('theme_dark') }
+  ];
   useEffect(() => {
     if (versionPressCount > 2 && versionPressCount < 6) {
       showSnackBar(`Dev mode in ${6 - versionPressCount}`, 'info');
@@ -76,10 +86,41 @@ export default function SettingsScreen({
       </Portal>
     );
   };
+  const renderAppearance = () => {
+    return (
+      <Portal theme={theme}>
+        <Dialog
+          visible={openAppearance}
+          onDismiss={() => setOpenAppearance(false)}
+        >
+          <Dialog.Title>{t('appearance')}</Dialog.Title>
+          <Dialog.Content>
+            <RadioButton.Group
+              value={themeMode}
+              onValueChange={(value) => {
+                dispatch(setThemeMode(value as ThemeMode));
+                setOpenAppearance(false);
+              }}
+            >
+              {themeModes.map(({ value, label }) => (
+                <RadioButton.Item key={value} label={label} value={value} />
+              ))}
+            </RadioButton.Group>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setOpenAppearance(false)}>
+              {t('cancel')}
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+    );
+  };
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       {renderConfirmLogout()}
       {renderDevInfo()}
+      {renderAppearance()}
       <View>
         <List.Item
           style={{ paddingHorizontal: 20 }}
@@ -105,6 +146,15 @@ export default function SettingsScreen({
               .finally(() => setSwitchingAccount(false));
           }}
         />}
+        <List.Item
+          style={{ paddingHorizontal: 20 }}
+          left={(props) => <IconButton icon={'theme-light-dark'} />}
+          title={t('appearance')}
+          description={
+            themeModes.find(({ value }) => value === themeMode)?.label
+          }
+          onPress={() => setOpenAppearance(true)}
+        />
         <List.Item
           style={{ paddingHorizontal: 20 }}
           left={(props) => (

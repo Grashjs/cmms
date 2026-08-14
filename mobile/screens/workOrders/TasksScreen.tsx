@@ -11,6 +11,7 @@ import { addFiles } from '../../slices/file';
 import * as ImagePicker from 'expo-image-picker';
 import mime from 'mime';
 import { formatImages } from '../../utils/overall';
+import { showMutationResult } from '../../utils/offlineFeedback';
 import ImageView from 'react-native-image-viewing';
 import { SheetManager } from 'react-native-actions-sheet';
 import { openLibraryWithPermission } from '../../utils/mediaPermissions';
@@ -43,7 +44,9 @@ export default function TasksScreen({
     const task = tasks.find((task) => task.id === id);
     dispatch(patchTask(workOrderId, id, { ...task, value }))
       .then(() => showSnackBar(t('task_update_success'), 'success'))
-      .catch(() => showSnackBar(t('task_update_failure'), 'error'));
+      .catch((err) =>
+        showMutationResult(err, showSnackBar, t, 'task_update_failure')
+      );
 
     const newTasks = tasks.map((task) => {
       if (task.id === id) {
@@ -72,19 +75,21 @@ export default function TasksScreen({
 
   function handleSaveNotes(value: string, id: number) {
     const task = tasks.find((task) => task.id === id);
-    return dispatch(patchTask(workOrderId, id, { ...task, notes: value })).then(
-      () => {
+    return dispatch(patchTask(workOrderId, id, { ...task, notes: value }))
+      .then(() => {
         showSnackBar(t('notes_save_success'), 'success');
         toggleNotes(task.id);
-      }
-    );
+      })
+      .catch((err) =>
+        showMutationResult(err, showSnackBar, t, 'task_update_failure')
+      );
   }
 
   const onImageUploadSuccess = () => {
     showSnackBar(t('images_add_task_success'), 'success');
   };
   const onImageUploadFailure = (err) =>
-    showSnackBar(t('images_add_task_failure'), 'error');
+    showMutationResult(err, showSnackBar, t, 'images_add_task_failure');
   const handleZoomImage = (images: string[], image: string) => {
     setCurrentImage(image);
     setCurrentImages(images);

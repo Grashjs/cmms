@@ -27,9 +27,9 @@ import {
   ProgressBar,
   Provider,
   Text,
-  TextInput,
-  useTheme
+  TextInput
 } from 'react-native-paper';
+import { useAppTheme } from '../../custom-theme';
 import * as DocumentPicker from 'expo-document-picker';
 import { useTranslation } from 'react-i18next';
 import * as React from 'react';
@@ -67,6 +67,8 @@ import {
 } from '../../slices/workOrder';
 import { PlanFeature } from '../../models/subscriptionPlan';
 import PartQuantities from '../../components/PartQuantities';
+import { Section } from '../../components/ui';
+import { radius, spacing } from '../../theme/tokens';
 import AdditionalCostsCard from './components/AdditionalCostsCard';
 import AdditionalTimesCard from './components/AdditionalTimesCard';
 import { SheetManager } from 'react-native-actions-sheet';
@@ -76,6 +78,7 @@ import Labor from '../../models/labor';
 import { AudioPlayer } from '../../components/AudioPlayer';
 import { Task } from '../../models/tasks';
 import { getErrorMessage } from '../../utils/api';
+import { showMutationResult } from '../../utils/offlineFeedback';
 import ImageView from 'react-native-image-viewing';
 import { getCustomFieldValuesForDetails } from '../../models/form';
 import CommentItem from '../../components/CommentItem';
@@ -146,7 +149,7 @@ export default function WODetailsScreen({
   const [runningTimerDuration, setRunningTimerDuration] = useState<string>();
   const { workOrderConfiguration, generalPreferences } = companySettings;
   const [loading, setLoading] = useState<boolean>(false);
-  const theme = useTheme();
+  const theme = useAppTheme();
   const headerHeight = useHeaderHeight();
   const insets = useSafeAreaInsets();
   const scrollViewRef = useRef<ScrollView>(null);
@@ -607,7 +610,7 @@ export default function WODetailsScreen({
       setCommentContent('');
       setCommentFiles([]);
     } catch (error) {
-      console.error('Failed to create comment:', error);
+      showMutationResult(error, showSnackBar, t, 'comment_create_failure');
     }
   };
 
@@ -670,7 +673,8 @@ export default function WODetailsScreen({
             // @ts-ignore
             navigation.navigate(link.route, { id: link.id });
           }}
-          style={{ marginTop: 20 }}
+          // Vertical rhythm comes from the enclosing Section's gap.
+          accessibilityRole="button"
         >
           <Text style={{ fontSize: 14, color: theme.colors.onSurfaceVariant }}>
             {label}
@@ -732,7 +736,7 @@ export default function WODetailsScreen({
     };
 
     return (
-      <View style={{ marginTop: 20 }}>
+      <View>
         <Text style={{ fontSize: 14, color: theme.colors.onSurfaceVariant }}>
           {label}
         </Text>
@@ -793,7 +797,14 @@ export default function WODetailsScreen({
     : null;
   if (workOrder)
     return (
-      <View style={styles.container}>
+      <View
+        style={[
+          styles.container,
+          // Set explicitly so the sections above it read as raised surfaces;
+          // the themed default is the card color.
+          { backgroundColor: theme.colors.background }
+        ]}
+      >
         <Provider theme={theme}>
           {renderConfirmDelete()}
           {renderConfirmArchive()}
@@ -820,13 +831,13 @@ export default function WODetailsScreen({
                 />
               }
             >
-              <Text style={{ marginTop: 5 }} variant="displaySmall">
+              <Text style={{ marginTop: 5 }} variant="headlineMedium">
                 {workOrder.title}
               </Text>
-              <View style={styles.row}>
+              <View style={[styles.row, { backgroundColor: 'transparent' }]}>
                 <Text
                   variant="titleMedium"
-                  style={{ marginRight: 10, color: 'grey' }}
+                  style={{ marginRight: 10, color: theme.colors.grey }}
                 >{`#${workOrder.customId}`}</Text>
                 {workOrder.priority !== 'NONE' && (
                   <Tag
@@ -884,50 +895,110 @@ export default function WODetailsScreen({
                 </TouchableOpacity>
                 {workOrder.audioDescription && (
                   <View
-                    style={{ backgroundColor: 'white', paddingVertical: 20 }}
+                    style={{
+                      backgroundColor: theme.colors.card,
+                      paddingVertical: 20
+                    }}
                   >
                     <Text>{t('audio_description')}</Text>
                     <AudioPlayer url={workOrder.audioDescription.url} />
                   </View>
                 )}
-                {fieldsToRender.map(
-                  ({ label, value, isLink }, index) =>
-                    value && (
-                      <BasicField
-                        key={label}
-                        label={label}
-                        value={value}
-                        isLink={isLink}
-                      />
-                    )
-                )}
-                {touchableFields.map(
-                  ({ label, value, link, permissionEntity }) =>
-                    value && (
-                      <ObjectField
-                        key={label}
-                        label={label}
-                        value={value}
-                        link={link}
-                        permissionEntity={permissionEntity}
-                        address={workOrder?.location?.address}
-                      />
-                    )
-                )}
+                <Section
+                  title={t('details')}
+                  icon="information-outline"
+                  style={styles.flushSection}
+                >
+                  {fieldsToRender.map(
+                    ({ label, value, isLink }, index) =>
+                      value && (
+                        <BasicField
+                          key={label}
+                          label={label}
+                          value={value}
+                          isLink={isLink}
+                        />
+                      )
+                  )}
+                  {touchableFields.map(
+                    ({ label, value, link, permissionEntity }) =>
+                      value && (
+                        <ObjectField
+                          key={label}
+                          label={label}
+                          value={value}
+                          link={link}
+                          permissionEntity={permissionEntity}
+                          address={workOrder?.location?.address}
+                        />
+                      )
+                  )}
+                </Section>
                 {(workOrder.parentRequest || workOrder.createdBy) && (
-                  <ObjectField
-                    label={
-                      workOrder.parentRequest
-                        ? t('approved_by')
-                        : t('created_by')
-                    }
-                    value={getUserNameById(workOrder.createdBy)}
-                    link={{ route: 'UserDetails', id: workOrder.createdBy }}
-                    permissionEntity={PermissionEntity.PEOPLE_AND_TEAMS}
-                  />
+                  <Section
+                    title={t('people')}
+                    icon="account-group-outline"
+                    style={styles.flushSection}
+                  >
+                    <ObjectField
+                      label={
+                        workOrder.parentRequest
+                          ? t('approved_by')
+                          : t('created_by')
+                      }
+                      value={getUserNameById(workOrder.createdBy)}
+                      link={{ route: 'UserDetails', id: workOrder.createdBy }}
+                      permissionEntity={PermissionEntity.PEOPLE_AND_TEAMS}
+                    />
+                    {workOrder.parentRequest && (
+                      <ObjectField
+                        label={t('requested_by')}
+                        value={getUserNameById(
+                          workOrder.parentRequest.createdBy
+                        )}
+                        link={{
+                          route: 'RequestDetails',
+                          id: workOrder.parentRequest.id
+                        }}
+                        permissionEntity={PermissionEntity.PEOPLE_AND_TEAMS}
+                      />
+                    )}
+                    {!!workOrder.assignedTo.length && (
+                      <View>
+                        <Text
+                          style={{
+                            fontSize: 14,
+                            color: theme.colors.onSurfaceVariant
+                          }}
+                        >
+                          {t('assigned_to')}
+                        </Text>
+                        {workOrder.assignedTo.map((user) => (
+                          <Text
+                            key={user.id}
+                            variant="titleMedium"
+                            style={{ fontWeight: 'bold' }}
+                          >{`${user.firstName} ${user.lastName}`}</Text>
+                        ))}
+                        {workOrder.customers.map((customer) => (
+                          <Text
+                            key={customer.id}
+                            variant="titleMedium"
+                            style={{ fontWeight: 'bold' }}
+                          >
+                            {customer.name}
+                          </Text>
+                        ))}
+                      </View>
+                    )}
+                  </Section>
                 )}
                 {workOrder.status === 'COMPLETE' && (
-                  <View>
+                  <Section
+                    title={t('completion')}
+                    icon="check-circle-outline"
+                    style={styles.flushSection}
+                  >
                     {workOrder.completedBy && (
                       <ObjectField
                         label={t('completed_by')}
@@ -950,8 +1021,7 @@ export default function WODetailsScreen({
                       />
                     )}
                     {workOrder.signature && (
-                      <View style={{ marginTop: 20 }}>
-                        <Divider style={{ marginBottom: 20 }} />
+                      <View>
                         <Text
                           variant="titleMedium"
                           style={{ fontWeight: 'bold' }}
@@ -964,60 +1034,16 @@ export default function WODetailsScreen({
                         />
                       </View>
                     )}
-                  </View>
-                )}
-                {workOrder.parentRequest && (
-                  <ObjectField
-                    label={t('requested_by')}
-                    value={getUserNameById(workOrder.parentRequest.createdBy)}
-                    link={{
-                      route: 'RequestDetails',
-                      id: workOrder.parentRequest.id
-                    }}
-                    permissionEntity={PermissionEntity.PEOPLE_AND_TEAMS}
-                  />
-                )}
-                {!!workOrder.assignedTo.length && (
-                  <View style={{ marginTop: 20 }}>
-                    <Text
-                      style={{
-                        fontSize: 14,
-                        color: theme.colors.onSurfaceVariant
-                      }}
-                    >
-                      {t('assigned_to')}
-                    </Text>
-                    {workOrder.assignedTo.map((user) => (
-                      <TouchableOpacity key={user.id} style={{ marginTop: 5 }}>
-                        <Text
-                          variant="bodyLarge"
-                          style={{ marginTop: 15 }}
-                        >{`${user.firstName} ${user.lastName}`}</Text>
-                      </TouchableOpacity>
-                    ))}
-                    {workOrder.customers.map((customer) => (
-                      <TouchableOpacity
-                        key={customer.id}
-                        style={{ marginTop: 5 }}
-                      >
-                        <Text variant="bodyLarge" style={{ marginTop: 15 }}>
-                          {customer.name}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
+                  </Section>
                 )}
                 {!generalPreferences.simplifiedWorkOrder && (
                   <View>
-                    <View style={styles.shadowedCard}>
-                      <Text
-                        style={{
-                          marginBottom: 10,
-                          color: theme.colors.onSurfaceVariant
-                        }}
-                      >
-                        {t('parts')}
-                      </Text>
+                    <Section
+                      title={t('parts')}
+                      icon="package-variant-closed"
+                      badge={partQuantities.length ? `${partQuantities.length}` : undefined}
+                      style={styles.flushSection}
+                    >
                       <PartQuantities
                         partQuantities={partQuantities}
                         isPO={false}
@@ -1059,7 +1085,7 @@ export default function WODetailsScreen({
                           </Button>
                         </Fragment>
                       )}
-                    </View>
+                    </Section>
                     <AdditionalCostsCard
                       additionalCosts={additionalCosts}
                       workOrder={workOrder}
@@ -1072,16 +1098,18 @@ export default function WODetailsScreen({
                   </View>
                 )}
                 {!!tasks.length && (
-                  <View style={styles.shadowedCard}>
-                    <Text
-                      style={{
-                        marginBottom: 10,
-                        color: theme.colors.onSurfaceVariant
-                      }}
-                    >
-                      {t('tasks')}
-                    </Text>
+                  <Section
+                    title={t('tasks')}
+                    icon="format-list-checks"
+                    badge={`${tasks.length - remainingTasksLength}/${tasks.length}`}
+                    style={styles.flushSection}
+                  >
                     <TouchableOpacity
+                      accessibilityRole="button"
+                      accessibilityLabel={t('remaining_tasks', {
+                        count: remainingTasksLength
+                      })}
+                      style={styles.taskSummary}
                       onPress={() =>
                         navigation.navigate('Tasks', {
                           workOrderId: id,
@@ -1089,41 +1117,35 @@ export default function WODetailsScreen({
                         })
                       }
                     >
-                      <Text variant="titleLarge" style={{ fontWeight: 'bold' }}>
-                        {' '}
-                        {t('remaining_tasks', {
-                          count: remainingTasksLength
-                        })}
-                      </Text>
-                      <Text variant="bodyMedium">
-                        {t('complete_tasks_percent', {
-                          percent: (
-                            ((tasks.length - remainingTasksLength) * 100) /
-                            tasks.length
-                          ).toFixed(0)
-                        })}
-                      </Text>
-                      <Divider style={{ marginTop: 5 }} />
-                      <ProgressBar
-                        progress={
-                          (tasks.length - remainingTasksLength) / tasks.length
-                        }
-                      />
+                      <View style={{ flex: 1 }}>
+                        <Text
+                          variant="titleMedium"
+                          style={{ fontWeight: 'bold' }}
+                        >
+                          {t('remaining_tasks', {
+                            count: remainingTasksLength
+                          })}
+                        </Text>
+                        <ProgressBar
+                          style={styles.taskProgress}
+                          progress={
+                            (tasks.length - remainingTasksLength) / tasks.length
+                          }
+                        />
+                      </View>
+                      <IconButton icon="chevron-right" size={20} />
                     </TouchableOpacity>
-                  </View>
+                  </Section>
                 )}
                 {!generalPreferences.simplifiedWorkOrder && (
                   <View>
                     {!!workOrder.files.length && (
-                      <View style={styles.shadowedCard}>
-                        <Text
-                          style={{
-                            marginBottom: 10,
-                            color: theme.colors.onSurfaceVariant
-                          }}
-                        >
-                          {t('files')}
-                        </Text>
+                      <Section
+                        title={t('files')}
+                        icon="paperclip"
+                        badge={`${workOrder.files.length}`}
+                        style={styles.flushSection}
+                      >
                         {workOrder.files.map((file) => (
                           <List.Item
                             key={file.id}
@@ -1134,29 +1156,27 @@ export default function WODetailsScreen({
                             }}
                           />
                         ))}
-                      </View>
+                      </Section>
                     )}
                     {!!currentWorkOrderRelations.length && (
-                      <View style={styles.shadowedCard}>
-                        <Text
-                          style={{
-                            marginBottom: 10,
-                            color: theme.colors.onSurfaceVariant
-                          }}
-                        >
-                          {t('links')}
-                        </Text>
+                      <Section
+                        title={t('links')}
+                        icon="link-variant"
+                        badge={`${currentWorkOrderRelations.length}`}
+                        style={styles.flushSection}
+                      >
                         {Object.entries(
                           groupRelations(currentWorkOrderRelations)
                         ).map(
                           ([relationType, relations]) =>
                             !!relations.length && (
-                              <View>
+                              <View key={relationType}>
                                 <Text style={{ fontWeight: 'bold' }}>
                                   {t(relationType)}
                                 </Text>
                                 {relations.map((relation) => (
                                   <List.Item
+                                    key={relation.id}
                                     title={relation.workOrder.title}
                                     onPress={() =>
                                       navigation.push('WODetails', {
@@ -1171,22 +1191,19 @@ export default function WODetailsScreen({
                               </View>
                             )
                         )}
-                      </View>
+                      </Section>
                     )}
                     <AdditionalTimesCard
                       labors={labors}
                       workOrder={workOrder}
                       navigation={navigation}
                     />
-                    <View style={styles.shadowedCard}>
-                      <Text
-                        style={{
-                          marginBottom: 10,
-                          color: theme.colors.onSurfaceVariant
-                        }}
-                      >
-                        {t('comments')}
-                      </Text>
+                    <Section
+                      title={t('comments')}
+                      icon="comment-outline"
+                      badge={comments.length ? `${comments.length}` : undefined}
+                      style={styles.flushSection}
+                    >
                       {loadingComments ? (
                         <ActivityIndicator
                           size="small"
@@ -1236,10 +1253,12 @@ export default function WODetailsScreen({
                               {mentionKeyword && filteredUsers.length > 0 && (
                                 <View
                                   style={{
-                                    backgroundColor: '#fff',
+                                    backgroundColor: theme.colors.card,
                                     borderRadius: 8,
                                     elevation: 5,
-                                    shadowColor: '#000',
+                                    shadowColor: theme.dark
+                                      ? 'transparent'
+                                      : '#000',
                                     shadowOffset: { width: 0, height: 2 },
                                     shadowOpacity: 0.2,
                                     marginBottom: 8,
@@ -1259,7 +1278,7 @@ export default function WODetailsScreen({
                                       style={{
                                         padding: 12,
                                         borderBottomWidth: 1,
-                                        borderBottomColor: '#eee'
+                                        borderBottomColor: theme.colors.background
                                       }}
                                     >
                                       <Text>{item.name}</Text>
@@ -1324,7 +1343,7 @@ export default function WODetailsScreen({
                           </Button>
                         </View>
                       )}
-                    </View>
+                    </Section>
                   </View>
                 )}
               </View>
@@ -1342,11 +1361,14 @@ export default function WODetailsScreen({
                 disabled={controllingTime}
                 theme={theme}
                 variant={runningTimer ? 'primary' : 'secondary'}
-                color="white"
+                color={theme.colors.white}
+                accessibilityLabel={t(runningTimer ? 'stop_timer' : 'start_timer')}
                 onPress={() => {
                   setControllingTime(true);
                   dispatch(controlTimer(!runningTimer, id))
-                    .catch((err) => showSnackBar(getErrorMessage(err), 'error'))
+                    .catch((err) =>
+                      showMutationResult(err, showSnackBar, t, 'timer_update_failure')
+                    )
                     .finally(() => setControllingTime(false));
                 }}
                 visible={true}
@@ -1388,6 +1410,20 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     marginHorizontal: 5,
     elevation: 5
+  },
+  // The scroll view already pads horizontally, so sections drop their own
+  // margin rather than indenting twice.
+  flushSection: {
+    marginHorizontal: 0
+  },
+  taskSummary: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  taskProgress: {
+    marginTop: spacing.sm,
+    height: 6,
+    borderRadius: radius.sm
   },
   fabStyle: {
     bottom: 16,
