@@ -705,8 +705,11 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     globalDispatch(getCustomFields());
     getApiUrl().then((apiUrl) => {
       if (apiUrl.toLowerCase().includes('api.atlas-cmms.com')) {
-        Clarity.initialize(Constants.expoConfig.extra.CLARITY_ID);
-        Clarity.setCustomUserId(user.email);
+        const clarityId = Constants.expoConfig.extra.CLARITY_ID;
+        if (clarityId) {
+          Clarity.initialize();
+          Clarity.setCustomUserId(user.email);
+        }
       }
     });
     try {

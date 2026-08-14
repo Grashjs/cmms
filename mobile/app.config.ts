@@ -48,6 +48,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     versionCode: 31,
     package: 'com.atlas.cmms',
     jsEngine: 'hermes',
+    edgeToEdgeEnabled: true,
     googleServicesFile:
       googleServicesJson ?? './android/app/google-services.json',
     runtimeVersion: '1.0.46' // Changed from policy object to fixed string
@@ -83,8 +84,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
           deploymentTarget: '15.1'
         },
         android: {
-          compileSdkVersion: 35,
-          targetSdkVersion: 35
+          compileSdkVersion: 36,
+          targetSdkVersion: 36
         }
       }
     ]
