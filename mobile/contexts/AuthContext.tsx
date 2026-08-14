@@ -62,6 +62,13 @@ interface AuthState {
 
 export type FieldConfigurationsType = 'workOrder' | 'request';
 
+interface AuthResponse {
+  accessToken: string;
+  refreshToken: string;
+  tokenType: string;
+  expiresAt: string;
+}
+
 interface AuthContextValue extends AuthState {
   method: 'JWT';
   login: (email: string, password: string, ldap?: boolean) => Promise<void>;
@@ -260,12 +267,20 @@ const initialAuthState: AuthState = {
   reviewEligible: false
 };
 
-const setSession = (accessToken: string | null): void => {
+const setSession = (
+  accessToken: string | null,
+  refreshToken: string | null
+): void => {
   if (accessToken) {
     AsyncStorage.setItem('accessToken', accessToken);
   } else {
     AsyncStorage.removeItem('accessToken');
     AsyncStorage.removeItem('companyId');
+  }
+  if (refreshToken) {
+    AsyncStorage.setItem('refreshToken', refreshToken);
+  } else {
+    AsyncStorage.removeItem('refreshToken');
   }
 };
 
@@ -710,9 +725,10 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
 
     try {
       const accessToken = await AsyncStorage.getItem('accessToken');
+      const refreshToken = await AsyncStorage.getItem('refreshToken');
 
       if (accessToken && (await verify(accessToken))) {
-        setSession(accessToken);
+        setSession(accessToken, refreshToken);
         const user = await updateUserInfos();
         const company = await api.get<Company>(`companies/${user.companyId}`);
         await setupUser(user, company.companySettings);
@@ -750,15 +766,15 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     }
   };
   const switchAccount = async (id: number): Promise<void> => {
-    const response = await api.get<{ accessToken: string }>(
+    const response = await api.get<AuthResponse>(
       `auth/switch-account?id=${id}`
     );
-    const { accessToken } = response;
-    return loginInternal(accessToken);
+    const { accessToken, refreshToken } = response;
+    return loginInternal(accessToken, refreshToken);
   };
-  const loginInternal = async (accessToken: string) => {
+  const loginInternal = async (accessToken: string, refreshToken: string) => {
     globalDispatch(revertAll());
-    setSession(accessToken);
+    setSession(accessToken, refreshToken);
     const user = await updateUserInfos();
     const company = await api.get<Company>(`companies/${user.companyId}`);
     await setupUser(user, company.companySettings);
@@ -776,7 +792,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     password: string,
     ldap?: boolean
   ): Promise<void> => {
-    const response = await api.post<{ accessToken: string }>(
+    const response = await api.post<AuthResponse>(
       `auth/signin${ldap ? '-ldap' : ''}`,
       ldap
         ? {
@@ -790,13 +806,13 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
           },
       { headers: await authHeader(true) }
     );
-    const { accessToken } = response;
-    return loginInternal(accessToken);
+    const { accessToken, refreshToken } = response;
+    return loginInternal(accessToken, refreshToken);
   };
 
   const logout = async (): Promise<void> => {
     await api.post('auth/logout', {});
-    setSession(null);
+    setSession(null, null);
     dispatch({ type: 'LOGOUT' });
   };
 
@@ -809,7 +825,11 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   };
 
   const register = async (values): Promise<void> => {
-    const response = await api.post<{ message: string; success: boolean }>(
+    const response = await api.post<{
+      message: string;
+      success: boolean;
+      refreshToken: string;
+    }>(
       'auth/signup',
       {
         ...values,
@@ -818,11 +838,11 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       },
       { headers: await authHeader(true) }
     );
-    const { message, success } = response;
+    const { message, success, refreshToken } = response;
     if (message.startsWith('Successful')) {
       return;
     } else {
-      setSession(message);
+      setSession(message, refreshToken);
       const user = await updateUserInfos();
       const company = await api.get<Company>(`companies/${user.companyId}`);
       await setupUser(user, company.companySettings);
