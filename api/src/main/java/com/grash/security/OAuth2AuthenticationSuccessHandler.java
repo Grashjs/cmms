@@ -44,6 +44,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private final MailServiceFactory mailServiceFactory;
     private final CompanyService companyService;
     private final RoleService roleService;
+    private final RefreshTokenService refreshTokenService;
 
     @Value("${mail.recipients:#{null}}")
     private String[] recipients;
@@ -96,11 +97,13 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                 }
             }
 
-            // Generate JWT token
+            // Generate JWT access token and a refresh token
             String token = jwtTokenProvider.createToken(user.getEmail(),
                     Collections.singletonList(user.getRole().getRoleType()));
+            String refreshToken = refreshTokenService.createRefreshToken(user);
             return UriComponentsBuilder.fromUriString(targetUrl)
                     .queryParam("token", token)
+                    .queryParam("refreshToken", refreshToken)
                     .build().toUriString();
         } catch (Exception e) {
             return UriComponentsBuilder.fromUriString(oAuth2Properties.getFailureRedirectUrl())

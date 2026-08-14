@@ -47,6 +47,13 @@ interface AuthState {
   companySettings: CompanySettings | null;
 }
 
+interface AuthResponse {
+  accessToken: string;
+  refreshToken: string;
+  tokenType: string;
+  expiresAt: string; // ISO date string
+}
+
 export type FieldConfigurationsType = 'workOrder' | 'request';
 
 interface AuthContextValue extends AuthState {
@@ -56,7 +63,7 @@ interface AuthContextValue extends AuthState {
     password: string,
     ldapEnabled?: boolean
   ) => Promise<void>;
-  loginInternal: (accessToken: string) => void;
+  loginInternal: (accessToken: string, refreshToken: string) => void;
   logout: () => void;
   register: (
     values: any,
@@ -245,12 +252,20 @@ const initialAuthState: AuthState = {
   companySettings: null
 };
 
-const setSession = (accessToken: string | null): void => {
+const setSession = (
+  accessToken: string | null,
+  refreshToken: string | null
+): void => {
   if (accessToken) {
     localStorage.setItem('accessToken', accessToken);
   } else {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('companyId');
+  }
+  if (refreshToken) {
+    localStorage.setItem('refreshToken', refreshToken);
+  } else {
+    localStorage.removeItem('refreshToken');
   }
 };
 
@@ -531,9 +546,10 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   const getInfos = async (): Promise<void> => {
     try {
       const accessToken = window.localStorage.getItem('accessToken');
+      const refreshToken = window.localStorage.getItem('refreshToken');
 
       if (accessToken && (await verify(accessToken))) {
-        setSession(accessToken);
+        setSession(accessToken, refreshToken);
         const user = await updateUserInfos();
         const company = await api.get<Company>(`companies/${user.companyId}`);
         await setupUser(company.companySettings);
@@ -575,7 +591,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     password: string,
     ldap?: boolean
   ): Promise<void> => {
-    const response = await api.post<{ accessToken: string }>(
+    const response = await api.post<AuthResponse>(
       `auth/signin${ldap ? '-ldap' : ''}`,
       ldap
         ? {
@@ -589,12 +605,12 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
           },
       { headers: authHeader(true) }
     );
-    const { accessToken } = response;
-    return loginInternal(accessToken);
+    const { accessToken, refreshToken } = response;
+    return loginInternal(accessToken, refreshToken);
   };
-  const loginInternal = async (accessToken: string) => {
+  const loginInternal = async (accessToken: string, refreshToken: string) => {
     globalDispatch(revertAll());
-    setSession(accessToken);
+    setSession(accessToken, refreshToken);
     try {
       loginZendesk(accessToken);
     } catch (err) {
@@ -614,14 +630,14 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     });
   };
   const switchAccount = async (id: number): Promise<void> => {
-    const response = await api.get<{ accessToken: string }>(
+    const response = await api.get<AuthResponse>(
       `auth/switch-account?id=${id}`
     );
-    const { accessToken } = response;
+    const { accessToken, refreshToken } = response;
     Object.keys(localStorage)
       .filter((key) => key.endsWith('_filters'))
       .forEach((key) => localStorage.removeItem(key));
-    return loginInternal(accessToken);
+    return loginInternal(accessToken, refreshToken);
   };
   const logout = async (): Promise<void> => {
     try {
@@ -635,7 +651,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       console.error(err);
     }
     await api.post('auth/logout', {});
-    setSession(null);
+    setSession(null, null);
     dispatch({ type: 'LOGOUT' });
   };
 
@@ -658,7 +674,11 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       // @ts-ignore
       window.lintrk('track', { conversion_id: 24670282 });
     }
-    const response = await api.post<{ message: string; success: boolean }>(
+    const response = await api.post<{
+      message: string;
+      success: boolean;
+      refreshToken: string;
+    }>(
       'auth/signup',
       {
         ...values,
@@ -670,11 +690,11 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       },
       { headers: authHeader(true) }
     );
-    const { message, success } = response;
+    const { message, success, refreshToken } = response;
     if (message.startsWith('Successful') || invitationMode) {
       return;
     } else {
-      await loginInternal(message);
+      await loginInternal(message, refreshToken);
       return response;
     }
   };

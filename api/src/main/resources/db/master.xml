@@ -231,4 +231,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_08_14_00000000001_add_user_session_invalidated_at.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_08_14_00000000002_add_refresh_token.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

@@ -94,6 +94,10 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token).getBody().getSubject();
     }
 
+    public Date computeAccessTokenExpiration() {
+        return new Date(System.currentTimeMillis() + validityInMilliseconds);
+    }
+
     public String resolveToken(HttpServletRequest req) {
         String bearerToken = req.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith(Consts.TOKEN_PREFIX)) {

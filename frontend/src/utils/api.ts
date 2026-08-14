@@ -1,16 +1,80 @@
 import { apiUrl } from '../config';
 
 type Options = RequestInit & { raw?: boolean; headers?: HeadersInit };
-function api<T>(url: string, options: Options): Promise<T> {
-  return fetch(url, { headers: authHeader(false), ...options }).then(
-    async (response) => {
-      if (!response.ok) {
-        throw new Error(JSON.stringify(await response.json()));
-      }
-      if (options?.raw) return response as unknown as Promise<T>;
-      return response.json() as Promise<T>;
+
+const REFRESH_URL = `${apiUrl}auth/refresh`;
+
+let refreshPromise: Promise<boolean> | null = null;
+
+function clearTokens(): void {
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
+}
+
+async function performRefresh(): Promise<boolean> {
+  const refreshToken = localStorage.getItem('refreshToken');
+  if (!refreshToken) {
+    return false;
+  }
+  try {
+    const response = await fetch(REFRESH_URL, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ refreshToken })
+    });
+    if (!response.ok) {
+      clearTokens();
+      return false;
     }
-  );
+    const data = await response.json();
+    if (!data?.accessToken) {
+      clearTokens();
+      return false;
+    }
+    localStorage.setItem('accessToken', data.accessToken);
+    if (data.refreshToken) {
+      localStorage.setItem('refreshToken', data.refreshToken);
+    }
+    return true;
+  } catch {
+    clearTokens();
+    return false;
+  }
+}
+
+export function refreshAccessToken(): Promise<boolean> {
+  if (!refreshPromise) {
+    refreshPromise = performRefresh().finally(() => {
+      refreshPromise = null;
+    });
+  }
+  return refreshPromise;
+}
+
+function isRefreshRequest(url: string): boolean {
+  return url.replace(/\/+$/, '').endsWith('/auth/refresh');
+}
+
+async function doFetch<T>(url: string, options: Options, retried: boolean): Promise<T> {
+  const response = await fetch(url, { headers: authHeader(false), ...options });
+  if (!response.ok) {
+    if (response.status === 401 && !retried && !isRefreshRequest(url)) {
+      const refreshed = await refreshAccessToken();
+      if (refreshed) {
+        return doFetch<T>(url, options, true);
+      }
+    }
+    throw new Error(JSON.stringify(await response.json()));
+  }
+  if (options?.raw) return response as unknown as Promise<T>;
+  return response.json() as Promise<T>;
+}
+
+function api<T>(url: string, options: Options): Promise<T> {
+  return doFetch<T>(url, options, false);
 }
 
 function get<T>(url, options?: Options) {

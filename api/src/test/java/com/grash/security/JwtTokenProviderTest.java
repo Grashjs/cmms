@@ -64,6 +64,18 @@ class JwtTokenProviderTest {
         assertEquals(username, extractedUsername);
     }
 
+    @Test
+    void computeAccessTokenExpiration_returnsExpirationAfterValidity() {
+        ReflectionTestUtils.setField(jwtTokenProvider, "validityInMilliseconds", 1800000L);
+
+        Date before = new Date(System.currentTimeMillis());
+        Date expiration = jwtTokenProvider.computeAccessTokenExpiration();
+        Date after = new Date(System.currentTimeMillis());
+
+        assertTrue(expiration.getTime() >= before.getTime() + 1800000L);
+        assertTrue(expiration.getTime() <= after.getTime() + 1800000L);
+    }
+
     @Nested
     class GetAuthentication {
 

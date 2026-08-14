@@ -9,9 +9,9 @@ import com.grash.model.SuperAccountRelation;
 import com.grash.repository.SuperAccountRelationRepository;
 import com.grash.repository.UserRepository;
 import com.grash.security.CurrentUser;
-import com.grash.security.JwtTokenProvider;
 import com.grash.service.CompanyService;
 import com.grash.service.LdapService;
+import com.grash.service.RefreshTokenService;
 import com.grash.service.UserService;
 import com.grash.service.VerificationTokenService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -42,10 +42,10 @@ public class AuthController {
     private final VerificationTokenService verificationTokenService;
     private final UserMapper userMapper;
     private final SuperAccountRelationRepository superAccountRelationRepository;
-    private final JwtTokenProvider jwtTokenProvider;
     private final CompanyService companyService;
     private final UserRepository userRepository;
     private final LdapService ldapService;
+    private final RefreshTokenService refreshTokenService;
     @Value("${frontend.url}")
     private String frontendUrl;
 
@@ -57,8 +57,9 @@ public class AuthController {
     )
     public ResponseEntity<AuthResponse> login(
             @Parameter(description = "User login credentials") @Valid @RequestBody UserLoginRequest userLoginRequest) {
-        AuthResponse authResponse = new AuthResponse(userService.signin(userLoginRequest.getEmail().toLowerCase(),
-                userLoginRequest.getPassword(), userLoginRequest.getType()));
+        AuthTokens tokens = userService.signin(userLoginRequest.getEmail().toLowerCase(),
+                userLoginRequest.getPassword(), userLoginRequest.getType());
+        AuthResponse authResponse = AuthResponse.of(tokens);
         return new ResponseEntity<>(authResponse, HttpStatus.OK);
     }
 
@@ -70,7 +71,7 @@ public class AuthController {
     )
     public ResponseEntity<AuthResponse> signinLdap(
             @Parameter(description = "LDAP login credentials") @Valid @RequestBody LdapLoginRequest ldapLoginRequest) {
-        AuthResponse authResponse = new AuthResponse(ldapService.signinLdap(ldapLoginRequest));
+        AuthResponse authResponse = AuthResponse.of(ldapService.signinLdap(ldapLoginRequest));
         return new ResponseEntity<>(authResponse, HttpStatus.OK);
     }
 
@@ -82,7 +83,7 @@ public class AuthController {
     public SignupSuccessResponse<UserResponseDTO> signup(@Parameter(description = "User signup data") @Valid @RequestBody UserSignupRequest user) {
         SignupSuccessResponse<User> response = userService.signup(user);
         return new SignupSuccessResponse<>(response.isSuccess(), response.getMessage(),
-                userMapper.toResponseDto(response.getUser()));
+                userMapper.toResponseDto(response.getUser()), response.getRefreshToken());
     }
 
 //    @PostMapping(
@@ -154,11 +155,11 @@ public class AuthController {
         return userMapper.toResponseDto(userService.whoami(req, false));
     }
 
-    @GetMapping("/refresh")
+    @PostMapping("/refresh")
     @PreAuthorize("permitAll()")
-    public AuthResponse refresh(HttpServletRequest req) {
-        User user = userService.whoami(req, false);
-        return new AuthResponse(userService.refresh(user));
+    public AuthResponse refresh(@Parameter(description = "Refresh token request") @Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
+        AuthTokens tokens = refreshTokenService.rotate(refreshTokenRequest.getRefreshToken());
+        return AuthResponse.of(tokens);
     }
 
     @PostMapping("/logout")
@@ -202,16 +203,14 @@ public class AuthController {
             if (superAccountRelation == null) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             User childUser = userService.findById(id).get();
             if (!childUser.isEnabled()) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-            return new AuthResponse(jwtTokenProvider.createToken(childUser.getEmail(),
-                    Collections.singletonList(childUser.getRole().getRoleType())));
+            return AuthResponse.of(refreshTokenService.createTokenPair(childUser));
         } else if (user.getParentSuperAccount() != null) { //user is child
             SuperAccountRelation superAccountRelation =
                     superAccountRelationRepository.findBySuperUser_IdAndChildUser_Id(id, user.getId());
             if (superAccountRelation == null) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             User superUser = userService.findById(id).get();
             if (!superUser.isEnabled()) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-            return new AuthResponse(jwtTokenProvider.createToken(superUser.getEmail(),
-                    Collections.singletonList(superUser.getRole().getRoleType())));
+            return AuthResponse.of(refreshTokenService.createTokenPair(superUser));
         }
         throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }

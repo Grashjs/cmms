@@ -2,6 +2,7 @@ package com.grash.service;
 
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
+import com.grash.dto.AuthTokens;
 import com.grash.dto.SignupSuccessResponse;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.UserInvitationDTO;
@@ -74,6 +75,7 @@ public class UserService {
     private final LicenseService licenseService;
     private final CacheService cacheService;
     private final IntercomService intercomService;
+    private final RefreshTokenService refreshTokenService;
 
     @Value("${api.host}")
     private String PUBLIC_API_URL;
@@ -90,7 +92,7 @@ public class UserService {
     @Value("${allowed-organization-admins}")
     private String[] allowedOrganizationAdmins;
 
-    public String signin(String email, String password, String type) {
+    public AuthTokens signin(String email, String password, String type) {
         try {
             cacheService.evictUserFromCache(email);
             Authentication authentication =
@@ -102,7 +104,7 @@ public class UserService {
             User user = optionalUser.get();
             user.setLastLogin(new Date());
             userRepository.save(user);
-            return jwtTokenProvider.createToken(email, Collections.singletonList(user.getRole().getRoleType()));
+            return refreshTokenService.createTokenPair(user);
         } catch (AuthenticationException e) {
             throw new CustomException("Invalid credentials", HttpStatus.FORBIDDEN);
         }
@@ -122,8 +124,10 @@ public class UserService {
         if (sendEmailToSuperAdmins)
             sendRegistrationMailToSuperAdmins(user, userSignupRequest);
         onCompanyAndUserCreation(user);
-        return new SignupSuccessResponse<>(true, jwtTokenProvider.createToken(user.getEmail(),
-                Collections.singletonList(user.getRole().getRoleType())), user);
+        String accessToken = jwtTokenProvider.createToken(user.getEmail(),
+                Collections.singletonList(user.getRole().getRoleType()));
+        String refreshToken = refreshTokenService.createRefreshToken(user);
+        return new SignupSuccessResponse<>(true, accessToken, user, refreshToken);
     }
 
     public void checkUsageBasedLimit(int newUsersCount) {
@@ -233,7 +237,7 @@ public class UserService {
             onCompanyAndUserCreation(user);
             sendRegistrationMailToSuperAdmins(user, userReq);
             return new SignupSuccessResponse<>(true, "Successful registration. Check your mailbox to activate your " +
-                    "account", null);
+                    "account", null, null);
         }
 
     }
@@ -288,11 +292,6 @@ public class UserService {
         userOptional.ifPresent(cacheService::putUserInCache);
 
         return userOptional;
-    }
-
-    public String refresh(User user) {
-        return jwtTokenProvider.createToken(user.getEmail(),
-                Arrays.asList(user.getRole().getRoleType()));
     }
 
     public List<User> getAll() {
@@ -402,6 +401,7 @@ public class UserService {
 
                 savedUser.setPassword(passwordEncoder.encode(userReq.getNewPassword()));
                 savedUser.setSessionInvalidatedAt(new Date());
+                refreshTokenService.revokeAllForUser(savedUser);
             }
             User updatedUser = userRepository.saveAndFlush(userMapper.updateUser(savedUser, userReq));
             em.refresh(updatedUser);
@@ -418,6 +418,7 @@ public class UserService {
         user.setSessionInvalidatedAt(new Date());
         User saved = userRepository.save(user);
         cacheService.evictUserFromCache(user.getEmail());
+        refreshTokenService.revokeAllForUser(saved);
         return saved;
     }
 

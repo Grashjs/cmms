@@ -1,5 +1,6 @@
 package com.grash.service;
 
+import com.grash.dto.AuthTokens;
 import com.grash.dto.SignupSuccessResponse;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.UserInvitationDTO;
@@ -99,6 +100,8 @@ class UserServiceTest {
     private MailService mailService;
     @Mock
     private IntercomService intercomService;
+    @Mock
+    private RefreshTokenService refreshTokenService;
 
     private Company company;
     private User user;
@@ -180,14 +183,16 @@ class UserServiceTest {
             when(authentication.getAuthorities())
                     .thenAnswer(inv -> List.of(new SimpleGrantedAuthority("ROLE_CLIENT")));
             when(userRepository.findByEmailIgnoreCase("john@test.com")).thenReturn(Optional.of(user));
-            when(jwtTokenProvider.createToken(eq("john@test.com"), anyList()))
-                    .thenReturn("jwt-token");
+            when(refreshTokenService.createTokenPair(user))
+                    .thenReturn(new AuthTokens("jwt-token", "refresh-token", new Date()));
 
-            String token = userService.signin("john@test.com", "password", "CLIENT");
+            AuthTokens tokens = userService.signin("john@test.com", "password", "CLIENT");
 
-            assertEquals("jwt-token", token);
+            assertEquals("jwt-token", tokens.getAccessToken());
+            assertEquals("refresh-token", tokens.getRefreshToken());
             verify(cacheService).evictUserFromCache("john@test.com");
             verify(userRepository).save(user);
+            verify(refreshTokenService).createTokenPair(user);
             assertNotNull(user.getLastLogin());
         }
 
@@ -1203,6 +1208,7 @@ class UserServiceTest {
             verify(passwordEncoder).encode("newpassword123");
             assertEquals("encoded-new", user.getPassword());
             assertNotNull(user.getSessionInvalidatedAt());
+            verify(refreshTokenService).revokeAllForUser(user);
         }
 
         @Test
@@ -1237,20 +1243,6 @@ class UserServiceTest {
             CustomException ex = assertThrows(CustomException.class,
                     () -> userService.update(1L, patch));
             assertEquals(HttpStatus.NOT_FOUND, ex.getHttpStatus());
-        }
-    }
-
-    @Nested
-    class Refresh {
-
-        @Test
-        void returnsNewToken() {
-            when(jwtTokenProvider.createToken("john@test.com",
-                    List.of(user.getRole().getRoleType()))).thenReturn("refreshed-token");
-
-            String token = userService.refresh(user);
-
-            assertEquals("refreshed-token", token);
         }
     }
 
@@ -1917,6 +1909,7 @@ class UserServiceTest {
             assertNotNull(result.getSessionInvalidatedAt());
             verify(userRepository).save(targetUser);
             verify(cacheService).evictUserFromCache("target@test.com");
+            verify(refreshTokenService).revokeAllForUser(targetUser);
         }
     }
 
@@ -1975,6 +1968,7 @@ class UserServiceTest {
             assertNotNull(result.getSessionInvalidatedAt());
             verify(userRepository).save(targetUser);
             verify(cacheService).evictUserFromCache(result.getEmail());
+            verify(refreshTokenService).revokeAllForUser(targetUser);
         }
 
         @Test
@@ -1990,6 +1984,7 @@ class UserServiceTest {
             assertNotNull(result.getSessionInvalidatedAt());
             verify(userRepository).save(targetUser);
             verify(cacheService).evictUserFromCache(result.getEmail());
+            verify(refreshTokenService).revokeAllForUser(targetUser);
         }
     }
 
@@ -1997,7 +1992,7 @@ class UserServiceTest {
     class InvalidateSessions {
 
         @Test
-        void setsInvalidationTimestamp_savesAndEvictsCache() {
+        void setsInvalidationTimestamp_savesEvictsCacheAndRevokesRefreshTokens() {
             User targetUser = buildUser(2L, "target@test.com");
             assertNull(targetUser.getSessionInvalidatedAt());
             when(userRepository.save(targetUser)).thenReturn(targetUser);
@@ -2007,6 +2002,7 @@ class UserServiceTest {
             assertNotNull(result.getSessionInvalidatedAt());
             verify(userRepository).save(targetUser);
             verify(cacheService).evictUserFromCache("target@test.com");
+            verify(refreshTokenService).revokeAllForUser(targetUser);
         }
     }
 }
