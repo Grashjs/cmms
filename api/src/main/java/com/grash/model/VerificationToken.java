@@ -14,7 +14,7 @@ import java.util.Date;
 @Schema(description = "Verification token for email verification and authentication")
 public class VerificationToken {
 
-    private static final int EXPIRATION = 60 * 24;
+    private static final int EXPIRATION = 20; //minutes
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,13 +49,13 @@ public class VerificationToken {
         this.user = user;
         this.createdAt = new Date(calendar.getTime().getTime());
         this.payload = payload;
-        this.expiryDate = calculateExpiryDate(EXPIRATION);
+        this.expiryDate = calculateExpiryDate();
     }
 
-    private Date calculateExpiryDate(int expiryTimeInMinutes) {
+    private Date calculateExpiryDate() {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Timestamp(calendar.getTime().getTime()));
-        calendar.add(Calendar.MINUTE, expiryTimeInMinutes);
+        calendar.add(Calendar.MINUTE, VerificationToken.EXPIRATION);
         return new Date(calendar.getTime().getTime());
     }
 }
