@@ -48,7 +48,11 @@ import { UiConfiguration } from '../models/uiConfiguration';
 import Constants from 'expo-constants';
 import moment from 'moment-timezone';
 import { getCustomFields } from '../slices/customField';
-import * as Clarity from '@microsoft/react-native-clarity';
+import {
+  initialize as initClarity,
+  setCustomUserId,
+  LogLevel
+} from '@microsoft/react-native-clarity';
 
 interface AuthState {
   isInitialized: boolean;
@@ -707,10 +711,10 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       if (apiUrl.toLowerCase().includes('api.atlas-cmms.com')) {
         const clarityId = Constants.expoConfig.extra.CLARITY_ID;
         if (clarityId) {
-          Clarity.initialize(clarityId, {
-            logLevel: Clarity.LogLevel.Verbose
+          initClarity('clarityId', {
+            logLevel: LogLevel.Verbose
           });
-          Clarity.setCustomUserId(user.email);
+          setCustomUserId(user.email);
         }
       }
     });
