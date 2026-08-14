@@ -49,18 +49,23 @@ public class Role {
     private String externalId;
 
     @ElementCollection(targetClass = PermissionEntity.class)
+    @Builder.Default
     private Set<PermissionEntity> createPermissions = new HashSet<>();
 
     @ElementCollection(targetClass = PermissionEntity.class)
+    @Builder.Default
     private Set<PermissionEntity> viewPermissions = new HashSet<>();
 
     @ElementCollection(targetClass = PermissionEntity.class)
+    @Builder.Default
     private Set<PermissionEntity> viewOtherPermissions = new HashSet<>();
 
     @ElementCollection(targetClass = PermissionEntity.class)
+    @Builder.Default
     private Set<PermissionEntity> editOtherPermissions = new HashSet<>();
 
     @ElementCollection(targetClass = PermissionEntity.class)
+    @Builder.Default
     private Set<PermissionEntity> deleteOtherPermissions = new HashSet<>();
 
 

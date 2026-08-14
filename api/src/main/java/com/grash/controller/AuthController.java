@@ -161,6 +161,13 @@ public class AuthController {
         return new AuthResponse(userService.refresh(user));
     }
 
+    @PostMapping("/logout")
+    @PreAuthorize("permitAll()")
+    public SuccessResponse logout(@Parameter(hidden = true) @CurrentUser User user) {
+        userService.invalidateSessions(user);
+        return new SuccessResponse(true, "Logged out successfully");
+    }
+
     @PreAuthorize("permitAll()")
     @GetMapping(value = "/resetpwd", produces = "application/json")
     public SuccessResponse resetPassword(@Parameter(description = "User email address for password reset") @RequestParam String email) {
@@ -175,7 +182,7 @@ public class AuthController {
         String oldPassword = updatePasswordRequest.getOldPassword();
         if (passwordEncoder.matches(oldPassword, password)) {
             user.setPassword(passwordEncoder.encode(updatePasswordRequest.getNewPassword()));
-            userService.save(user);
+            userService.invalidateSessions(user);
             return ResponseEntity.ok(new SuccessResponse(true, "Password changed successfully"));
         } else {
             return new ResponseEntity(new SuccessResponse(false, "Bad credentials"),

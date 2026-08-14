@@ -60,7 +60,7 @@ public class VerificationTokenService {
         VerificationToken verificationToken = verifyToken(token);
         User user = verificationToken.getUser();
         user.setPassword(passwordEncoder.encode(verificationToken.getPayload()));
-        User savedUser = userRepository.save(user);
+        User savedUser = userService.invalidateSessions(user);
         verificationTokenRepository.deleteAll(
                 verificationTokenRepository.findAllVerificationTokenEntityByUser(user));
         return savedUser;

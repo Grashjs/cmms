@@ -105,6 +105,36 @@ class JwtTokenProviderTest {
             assertEquals(HttpStatus.UNAUTHORIZED, ex.getHttpStatus());
             assertEquals("User account is disabled", ex.getMessage());
         }
+
+        @Test
+        void tokenIssuedBeforeSessionInvalidation_isRejected() {
+            String username = "revoked@test.com";
+            String token = jwtTokenProvider.createToken(username, List.of(RoleType.ROLE_CLIENT));
+            User user = createUserWithRole(username, true);
+            user.setSessionInvalidatedAt(new Date(System.currentTimeMillis() + 1000));
+            CustomUserDetail userDetail = CustomUserDetail.builder().user(user).build();
+            when(customUserDetailsService.loadUserByUsername(username)).thenReturn(userDetail);
+
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> jwtTokenProvider.getAuthentication(token));
+            assertEquals(HttpStatus.UNAUTHORIZED, ex.getHttpStatus());
+            assertEquals("Session has been revoked. Please sign in again", ex.getMessage());
+        }
+
+        @Test
+        void tokenIssuedAfterSessionInvalidation_isAccepted() {
+            String username = "revalid@test.com";
+            User user = createUserWithRole(username, true);
+            user.setSessionInvalidatedAt(new Date(System.currentTimeMillis() - 5000));
+            String token = jwtTokenProvider.createToken(username, List.of(RoleType.ROLE_CLIENT));
+            CustomUserDetail userDetail = CustomUserDetail.builder().user(user).build();
+            when(customUserDetailsService.loadUserByUsername(username)).thenReturn(userDetail);
+
+            Authentication auth = jwtTokenProvider.getAuthentication(token);
+
+            assertNotNull(auth);
+            assertTrue(auth.isAuthenticated());
+        }
     }
 
     @Nested

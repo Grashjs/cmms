@@ -1202,6 +1202,7 @@ class UserServiceTest {
 
             verify(passwordEncoder).encode("newpassword123");
             assertEquals("encoded-new", user.getPassword());
+            assertNotNull(user.getSessionInvalidatedAt());
         }
 
         @Test
@@ -1913,7 +1914,9 @@ class UserServiceTest {
 
             assertFalse(result.isEnabled());
             assertFalse(result.isEnabledInSubscription());
+            assertNotNull(result.getSessionInvalidatedAt());
             verify(userRepository).save(targetUser);
+            verify(cacheService).evictUserFromCache("target@test.com");
         }
     }
 
@@ -1969,7 +1972,9 @@ class UserServiceTest {
             assertFalse(result.isEnabled());
             assertFalse(result.isEnabledInSubscription());
             assertTrue(result.getEmail().contains("_2"));
+            assertNotNull(result.getSessionInvalidatedAt());
             verify(userRepository).save(targetUser);
+            verify(cacheService).evictUserFromCache(result.getEmail());
         }
 
         @Test
@@ -1982,7 +1987,26 @@ class UserServiceTest {
             assertFalse(result.isEnabled());
             assertFalse(result.isEnabledInSubscription());
             assertTrue(result.getEmail().contains("_2"));
+            assertNotNull(result.getSessionInvalidatedAt());
             verify(userRepository).save(targetUser);
+            verify(cacheService).evictUserFromCache(result.getEmail());
+        }
+    }
+
+    @Nested
+    class InvalidateSessions {
+
+        @Test
+        void setsInvalidationTimestamp_savesAndEvictsCache() {
+            User targetUser = buildUser(2L, "target@test.com");
+            assertNull(targetUser.getSessionInvalidatedAt());
+            when(userRepository.save(targetUser)).thenReturn(targetUser);
+
+            User result = userService.invalidateSessions(targetUser);
+
+            assertNotNull(result.getSessionInvalidatedAt());
+            verify(userRepository).save(targetUser);
+            verify(cacheService).evictUserFromCache("target@test.com");
         }
     }
 }

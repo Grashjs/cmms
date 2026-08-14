@@ -401,6 +401,7 @@ public class UserService {
                     throw new CustomException("Please tell the user to reset his password", HttpStatus.NOT_FOUND);
 
                 savedUser.setPassword(passwordEncoder.encode(userReq.getNewPassword()));
+                savedUser.setSessionInvalidatedAt(new Date());
             }
             User updatedUser = userRepository.saveAndFlush(userMapper.updateUser(savedUser, userReq));
             em.refresh(updatedUser);
@@ -411,6 +412,13 @@ public class UserService {
 
     public User save(User user) {
         return userRepository.save(user);
+    }
+
+    public User invalidateSessions(User user) {
+        user.setSessionInvalidatedAt(new Date());
+        User saved = userRepository.save(user);
+        cacheService.evictUserFromCache(user.getEmail());
+        return saved;
     }
 
     public Collection<User> saveAll(Collection<User> users) {
@@ -547,7 +555,7 @@ public class UserService {
             if (requester.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
                 userToDisable.setEnabled(false);
                 userToDisable.setEnabledInSubscription(false);
-                return save(userToDisable);
+                return invalidateSessions(userToDisable);
             } else {
                 throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
             }
@@ -565,7 +573,7 @@ public class UserService {
                 userToSoftDelete.setEnabled(false);
                 userToSoftDelete.setEnabledInSubscription(false);
                 userToSoftDelete.setEmail(userToSoftDelete.getEmail().concat("_".concat(id.toString())));
-                return save(userToSoftDelete);
+                return invalidateSessions(userToSoftDelete);
             } else {
                 throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
             }

@@ -624,7 +624,6 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     return loginInternal(accessToken);
   };
   const logout = async (): Promise<void> => {
-    setSession(null);
     try {
       logoutZendesk();
     } catch (err) {
@@ -635,12 +634,8 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     } catch (err) {
       console.error(err);
     }
-    //TODO this is not working
-    // caches.keys().then((names) => {
-    //   names.forEach((name) => {
-    //     caches.delete(name);
-    //   });
-    // });
+    await api.post('auth/logout', {});
+    setSession(null);
     dispatch({ type: 'LOGOUT' });
   };
 

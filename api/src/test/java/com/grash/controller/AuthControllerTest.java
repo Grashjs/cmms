@@ -338,7 +338,7 @@ class AuthControllerTest extends AbstractControllerTest {
             when(userService.whoami(any())).thenReturn(clientUser);
             when(passwordEncoder.matches("oldPass", "encoded-password")).thenReturn(true);
             when(passwordEncoder.encode("newPass")).thenReturn("new-encoded");
-            when(userService.save(any())).thenReturn(clientUser);
+            when(userService.invalidateSessions(any())).thenReturn(clientUser);
 
             mockMvc.perform(post("/auth/updatepwd")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -346,6 +346,22 @@ class AuthControllerTest extends AbstractControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.success").value(true))
                     .andExpect(jsonPath("$.message").value("Password changed successfully"));
+
+            verify(userService).invalidateSessions(clientUser);
+        }
+
+        @Test
+        void logout_revokesSessionsAndReturnsSuccess() throws Exception {
+            setCurrentUser(clientUser);
+            when(userService.whoami(any())).thenReturn(clientUser);
+            when(userService.invalidateSessions(clientUser)).thenReturn(clientUser);
+
+            mockMvc.perform(post("/auth/logout"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.success").value(true))
+                    .andExpect(jsonPath("$.message").value("Logged out successfully"));
+
+            verify(userService).invalidateSessions(clientUser);
         }
 
         @Test

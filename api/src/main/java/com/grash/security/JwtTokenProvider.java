@@ -1,6 +1,7 @@
 package com.grash.security;
 
 import com.grash.exception.CustomException;
+import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.utils.Consts;
 import io.jsonwebtoken.Claims;
@@ -38,7 +39,7 @@ public class JwtTokenProvider {
     private String secretKey;
 
     @Value("${security.jwt.token.expire-length:3600000}")
-    private long validityInMilliseconds = 3600000; // 1h
+    private long validityInMilliseconds;
 
     private SecretKey key;
 
@@ -68,9 +69,20 @@ public class JwtTokenProvider {
     }
 
     public Authentication getAuthentication(String token) {
-        UserDetails userDetails = customUserDetailsService.loadUserByUsername(getUsername(token));
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token).getBody();
+        CustomUserDetail userDetails = customUserDetailsService.loadUserByUsername(claims.getSubject());
         if (!userDetails.isEnabled()) {
             throw new CustomException("User account is disabled", HttpStatus.UNAUTHORIZED);
+        }
+        User user = userDetails.getUser();
+        Date sessionInvalidatedAt = user.getSessionInvalidatedAt();
+        Date issuedAt = claims.getIssuedAt();
+        if (sessionInvalidatedAt != null && issuedAt != null && issuedAt.before(sessionInvalidatedAt)) {
+            throw new CustomException("Session has been revoked. Please sign in again",
+                    HttpStatus.UNAUTHORIZED);
         }
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }

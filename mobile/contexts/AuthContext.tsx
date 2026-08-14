@@ -795,6 +795,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   };
 
   const logout = async (): Promise<void> => {
+    await api.post('auth/logout', {});
     setSession(null);
     dispatch({ type: 'LOGOUT' });
   };
