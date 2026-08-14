@@ -24,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.HtmlUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -47,6 +48,7 @@ public class CommentService {
 
     public Comment create(@Valid CommentPostDTO commentReq, User user) {
         Comment comment = commentMapper.fromPostDto(commentReq);
+        comment.setContent(HtmlUtils.htmlEscape(comment.getContent()));
         WorkOrder workOrder = workOrderService.checkAccessToWorkOrderId(commentReq.getWorkOrder().getId(), user);
 
         comment.setUser(user);
@@ -83,6 +85,8 @@ public class CommentService {
 
         Comment updatedComment = commentRepository.saveAndFlush(commentMapper.updateComment(savedComment,
                 commentPatchDTO));
+        updatedComment.setContent(HtmlUtils.htmlEscape(updatedComment.getContent()));
+        
         em.refresh(updatedComment);
 
         Set<User> notifiedUsers = getNotifiedUsers(updatedComment, workOrder, user);
