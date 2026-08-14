@@ -711,7 +711,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       if (apiUrl.toLowerCase().includes('api.atlas-cmms.com')) {
         const clarityId = Constants.expoConfig.extra.CLARITY_ID;
         if (clarityId) {
-          initClarity('clarityId', {
+          initClarity(clarityId, {
             logLevel: LogLevel.Verbose
           });
           setCustomUserId(user.email);
