@@ -52,6 +52,9 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
                     User user = key.getUser();
                     CustomUserDetail customUserDetail =
                             CustomUserDetail.builder().user(user).build();
+                    if (!customUserDetail.isEnabled()) {
+                        throw new CustomException("User account is disabled", HttpStatus.UNAUTHORIZED);
+                    }
                     Authentication authentication = new UsernamePasswordAuthenticationToken(
                             customUserDetail,
                             null,
