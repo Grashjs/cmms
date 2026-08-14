@@ -830,6 +830,14 @@ public class WorkOrderService {
         if (dto.getSignature() != null && !licenseService.hasEntitlement(LicenseEntitlement.SIGNATURE_CAPTURE))
             throw new CustomException("You need a license to add signature to work order",
                     HttpStatus.FORBIDDEN);
+        if (dto.getSignature() != null && !dto.getSignature().trim().isEmpty()
+                && !dto.getSignature().trim().startsWith("data:image/"))
+            throw new CustomException("Invalid signature format",
+                    HttpStatus.BAD_REQUEST);
+        if (dto.getStatus() == Status.COMPLETE && mutableWO.isRequiredSignature()
+                && (dto.getSignature() == null || dto.getSignature().trim().isEmpty()))
+            throw new CustomException("Signature is required to complete this work order",
+                    HttpStatus.BAD_REQUEST);
         mutableWO.setSignature(dto.getSignature());
         mutableWO.setStatus(dto.getStatus());
         mutableWO.setFeedback(dto.getFeedback());

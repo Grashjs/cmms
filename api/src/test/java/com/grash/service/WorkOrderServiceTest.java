@@ -1090,14 +1090,14 @@ class WorkOrderServiceTest {
         @Test
         void signatureWithLicenseAndPlanFeature_proceeds() {
             stubBasic();
-            dto.setSignature("base64sig");
+            dto.setSignature("data:image/png;base64,c2ln");
             assertDoesNotThrow(() -> workOrderService.changeStatus(dto, 1L, user, "ios"));
         }
 
         @Test
         void signatureWithEntitlementButPlanLacksFeature_throwsForbidden() {
             stubBasic();
-            dto.setSignature("base64sig");
+            dto.setSignature("data:image/png;base64,c2ln");
             SubscriptionPlan planWithoutSignature = SubscriptionPlan.builder()
                     .id(2L)
                     .name("Basic")
@@ -1111,6 +1111,84 @@ class WorkOrderServiceTest {
             CustomException ex = assertThrows(CustomException.class,
                     () -> workOrderService.changeStatus(dto, 1L, user, "ios"));
             assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
+        }
+
+        @Test
+        void invalidSignatureFormat_throwsBadRequest() {
+            stubBasic();
+            dto.setStatus(Status.COMPLETE);
+            dto.setSignature("signed=true");
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> workOrderService.changeStatus(dto, 1L, user, "ios"));
+            assertEquals(HttpStatus.BAD_REQUEST, ex.getHttpStatus());
+        }
+
+        @Test
+        void completeWithRequiredSignatureAndNoSignature_throwsBadRequest() {
+            wo.setStatus(Status.IN_PROGRESS);
+            wo.setRequiredSignature(true);
+            dto.setStatus(Status.COMPLETE);
+            stubBasic();
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> workOrderService.changeStatus(dto, 1L, user, "ios"));
+            assertEquals(HttpStatus.BAD_REQUEST, ex.getHttpStatus());
+        }
+
+        @Test
+        void completeWithRequiredSignatureAndBlankSignature_throwsBadRequest() {
+            wo.setStatus(Status.IN_PROGRESS);
+            wo.setRequiredSignature(true);
+            dto.setStatus(Status.COMPLETE);
+            dto.setSignature("   ");
+            stubBasic();
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> workOrderService.changeStatus(dto, 1L, user, "ios"));
+            assertEquals(HttpStatus.BAD_REQUEST, ex.getHttpStatus());
+        }
+
+        @Test
+        void completeWithRequiredSignatureAndValidSignature_proceeds() {
+            wo.setStatus(Status.IN_PROGRESS);
+            wo.setRequiredSignature(true);
+            dto.setStatus(Status.COMPLETE);
+            dto.setSignature("data:image/png;base64,c2ln");
+            stubBasic();
+            when(workOrderRepository.saveAndFlush(any())).thenAnswer(inv -> {
+                WorkOrder saved = inv.getArgument(0);
+                saved.setId(1L);
+                return saved;
+            });
+            doNothing().when(assetService).stopDownTime(anyLong(), any());
+            when(workOrderRepository.findByAsset_Id(10L)).thenReturn(Collections.emptyList());
+
+            assertDoesNotThrow(() -> workOrderService.changeStatus(dto, 1L, user, "ios"));
+        }
+
+        @Test
+        void completeWithoutRequiredSignatureAndNoSignature_proceeds() {
+            wo.setStatus(Status.IN_PROGRESS);
+            wo.setRequiredSignature(false);
+            dto.setStatus(Status.COMPLETE);
+            stubBasic();
+            when(workOrderRepository.saveAndFlush(any())).thenAnswer(inv -> {
+                WorkOrder saved = inv.getArgument(0);
+                saved.setId(1L);
+                return saved;
+            });
+            doNothing().when(assetService).stopDownTime(anyLong(), any());
+            when(workOrderRepository.findByAsset_Id(10L)).thenReturn(Collections.emptyList());
+
+            assertDoesNotThrow(() -> workOrderService.changeStatus(dto, 1L, user, "ios"));
+        }
+
+        @Test
+        void nonCompleteStatusWithRequiredSignatureAndNoSignature_proceeds() {
+            wo.setStatus(Status.OPEN);
+            wo.setRequiredSignature(true);
+            dto.setStatus(Status.IN_PROGRESS);
+            stubBasic();
+
+            assertDoesNotThrow(() -> workOrderService.changeStatus(dto, 1L, user, "ios"));
         }
 
         @Test
