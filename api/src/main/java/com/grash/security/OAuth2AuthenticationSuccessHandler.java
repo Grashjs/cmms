@@ -84,7 +84,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             Optional<User> userOptional = userRepository.findByEmailIgnoreCase(email);
             User user;
 
-            if (!userOptional.isPresent()) {
+            if (userOptional.isEmpty()) {
                 user = createUserFromOAuth(email, attributes, authToken.getAuthorizedClientRegistrationId());
             } else {
                 user = userOptional.get();

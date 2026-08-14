@@ -67,6 +67,7 @@ class ApiKeyAuthFilterTest {
         user.setId(1L);
         user.setEmail("api@test.com");
         user.setRole(role);
+        user.setEnabled(true);
         user.setCompany(company);
         return user;
     }
@@ -159,5 +160,20 @@ class ApiKeyAuthFilterTest {
         CustomException ex = assertThrows(CustomException.class,
                 () -> filter.doFilterInternal(request, response, filterChain));
         assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
+    }
+
+    @Test
+    void disabledUser_throwsCustomException() throws Exception {
+        String rawKey = "disabled-user-key";
+        User user = createUserWithAccess();
+        user.setEnabled(false);
+        ApiKey apiKey = createApiKey(user);
+        when(request.getHeader("x-api-key")).thenReturn(rawKey);
+        when(apiKeyRepository.findByCode(Helper.hashKey(rawKey))).thenReturn(Optional.of(apiKey));
+
+        CustomException ex = assertThrows(CustomException.class,
+                () -> filter.doFilterInternal(request, response, filterChain));
+        assertEquals(HttpStatus.UNAUTHORIZED, ex.getHttpStatus());
+        assertEquals("User account is disabled", ex.getMessage());
     }
 }

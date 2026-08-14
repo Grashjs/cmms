@@ -56,6 +56,8 @@ class OAuth2AuthenticationSuccessHandlerTest {
     private MailService mailService;
     @Mock
     private RoleService roleService;
+    @Mock
+    private RefreshTokenService refreshTokenService;
 
     @Mock
     private HttpServletRequest request;
@@ -78,6 +80,7 @@ class OAuth2AuthenticationSuccessHandlerTest {
         ReflectionTestUtils.setField(handler, "cloudVersion", false);
         ReflectionTestUtils.setField(handler, "passwordEncoder", passwordEncoder);
         ReflectionTestUtils.setField(handler, "brandingService", brandingService);
+        lenient().when(refreshTokenService.createRefreshToken(any(User.class))).thenReturn("refresh-token");
     }
 
     private User createUser(String email, String ssoProvider, String ssoProviderId) {
@@ -192,7 +195,7 @@ class OAuth2AuthenticationSuccessHandlerTest {
             assertEquals("456", user.getSsoProviderId());
             verify(userRepository).save(user);
         }
-        
+
         @Test
         void unsupportedProvider_returnsFailureUrlWithError() {
             Map<String, Object> attrs = Map.of("email", "user@test.com");
