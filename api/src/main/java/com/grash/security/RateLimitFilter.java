@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -27,9 +28,9 @@ public class RateLimitFilter extends OncePerRequestFilter {
     private final RateLimiterService rateLimiterService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NotNull HttpServletRequest request,
+                                    @NotNull HttpServletResponse response,
+                                    @NotNull FilterChain filterChain) throws ServletException, IOException {
         // Skip rate limiting if disabled
         if (!rateLimiterService.isRateLimitEnabled()) {
             filterChain.doFilter(request, response);
@@ -40,8 +41,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         // Only apply rate limiting to authenticated users
-        if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof CustomUserDetail) {
-            CustomUserDetail userDetail = (CustomUserDetail) authentication.getPrincipal();
+        if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof CustomUserDetail userDetail) {
             Long userId = userDetail.getUser().getId();
             String userIdKey = "user:" + userId;
 
@@ -51,7 +51,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
                 response.setStatus(429); // HTTP 429 Too Many Requests
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
-                response.getWriter().write("{\"error\":\"Rate limit exceeded\",\"message\":\"Too many requests. Please try again later.\"}");
+                response.getWriter().write("{\"error\":\"Rate limit exceeded\",\"message\":\"Too many requests. " +
+                        "Please try again later.\"}");
                 return;
             }
         }
