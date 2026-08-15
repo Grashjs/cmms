@@ -712,7 +712,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         const clarityId = Constants.expoConfig.extra.CLARITY_ID;
         if (clarityId) {
           initClarity(clarityId, {
-            logLevel: LogLevel.Verbose
+            // logLevel: LogLevel.Verbose
           });
           setCustomUserId(user.email);
         }
