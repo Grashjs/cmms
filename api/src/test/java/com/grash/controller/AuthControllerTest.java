@@ -359,21 +359,25 @@ class AuthControllerTest extends AbstractControllerTest {
         }
 
         @Test
-        void updatePassword_success_returnsOk() throws Exception {
+        void updatePassword_success_returnsNewTokens() throws Exception {
             setCurrentUser(clientUser);
             when(userService.whoami(any())).thenReturn(clientUser);
             when(passwordEncoder.matches("oldPass", "encoded-password")).thenReturn(true);
             when(passwordEncoder.encode("newPass")).thenReturn("new-encoded");
             when(userService.invalidateSessions(any())).thenReturn(clientUser);
+            when(refreshTokenService.createTokenPair(clientUser))
+                    .thenReturn(new AuthTokens("new-access", "new-refresh", accessTokenExpiresAt));
 
             mockMvc.perform(post("/auth/updatepwd")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"oldPassword\":\"oldPass\",\"newPassword\":\"newPass\"}"))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.success").value(true))
-                    .andExpect(jsonPath("$.message").value("Password changed successfully"));
+                    .andExpect(jsonPath("$.accessToken").value("new-access"))
+                    .andExpect(jsonPath("$.refreshToken").value("new-refresh"))
+                    .andExpect(jsonPath("$.tokenType").value("Bearer"));
 
             verify(userService).invalidateSessions(clientUser);
+            verify(refreshTokenService).createTokenPair(clientUser);
         }
 
         @Test

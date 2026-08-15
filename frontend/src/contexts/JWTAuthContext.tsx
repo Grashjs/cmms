@@ -769,12 +769,13 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     oldPassword: string;
     newPassword: string;
   }): Promise<boolean> => {
-    const response = await api.post<{ success: boolean }>(
-      `auth/updatepwd`,
-      values
-    );
-    const { success } = response;
-    return success;
+    const response = await api.post<{
+      accessToken: string;
+      refreshToken: string;
+    }>(`auth/updatepwd`, values);
+    const { accessToken, refreshToken } = response;
+    setSession(accessToken, refreshToken);
+    return true;
   };
   const resetPassword = async (email: string): Promise<boolean> => {
     const response = await api.get<{ success: boolean }>(

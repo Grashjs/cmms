@@ -177,17 +177,17 @@ public class AuthController {
 
     @PreAuthorize("permitAll()")
     @PostMapping(value = "/updatepwd", produces = "application/json")
-    public ResponseEntity<SuccessResponse> updatePassword(@Parameter(description = "Password update request") @Valid @RequestBody UpdatePasswordRequest updatePasswordRequest, HttpServletRequest req) {
+    public AuthResponse updatePassword(@Parameter(description = "Password update request") @Valid @RequestBody UpdatePasswordRequest updatePasswordRequest, HttpServletRequest req) {
         User user = userService.whoami(req);
         String password = user.getPassword();
         String oldPassword = updatePasswordRequest.getOldPassword();
         if (passwordEncoder.matches(oldPassword, password)) {
             user.setPassword(passwordEncoder.encode(updatePasswordRequest.getNewPassword()));
             userService.invalidateSessions(user);
-            return ResponseEntity.ok(new SuccessResponse(true, "Password changed successfully"));
+            AuthTokens tokens = refreshTokenService.createTokenPair(user);
+            return AuthResponse.of(tokens);
         } else {
-            return new ResponseEntity(new SuccessResponse(false, "Bad credentials"),
-                    HttpStatus.NOT_ACCEPTABLE);
+            throw new CustomException("Bad credentials", HttpStatus.NOT_ACCEPTABLE);
         }
     }
 
