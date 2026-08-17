@@ -1,10 +1,16 @@
 import 'dotenv/config';
 import { ExpoConfig, ConfigContext } from 'expo/config';
+import fs from 'fs';
+import path from 'path';
 
 const apiUrl = process.env.API_URL;
 const clarityId = process.env.CLARITY_ID;
-const googleServicesJson = process.env.GOOGLE_SERVICES_JSON;
 const googleServicesPlist = process.env.GOOGLE_SERVICES_PLIST;
+
+const androidGoogleServicesPath = path.resolve(__dirname, 'android/app/google-services.json');
+if (process.env.GOOGLE_SERVICES_BASE64) {
+  fs.writeFileSync(androidGoogleServicesPath, Buffer.from(process.env.GOOGLE_SERVICES_BASE64, 'base64').toString('utf-8'));
+}
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
@@ -49,8 +55,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     package: 'com.atlas.cmms',
     jsEngine: 'hermes',
     edgeToEdgeEnabled: true,
-    googleServicesFile:
-      googleServicesJson ?? './android/app/google-services.json',
+    googleServicesFile: androidGoogleServicesPath,
     runtimeVersion: '1.0.46' // Changed from policy object to fixed string
   },
   web: {
