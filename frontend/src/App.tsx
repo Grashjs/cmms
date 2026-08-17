@@ -11,6 +11,7 @@ import useAuth from 'src/hooks/useAuth';
 import { Alert, CssBaseline } from '@mui/material';
 import ThemeProvider from './theme/ThemeProvider';
 import AppInit from './components/AppInit';
+import ThemeSettings from './components/ThemeSettings';
 import { CustomSnackBarProvider } from './contexts/CustomSnackBarContext';
 import ReactGA from 'react-ga4';
 import {
@@ -219,6 +220,7 @@ function App() {
                   open={shouldShowPrompt}
                   onClose={dismissPrompt}
                 />
+                <ThemeSettings />
               </CompanySettingsProvider>
             </CustomSnackBarProvider>
           </SnackbarProvider>

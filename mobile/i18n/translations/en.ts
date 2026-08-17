@@ -826,6 +826,10 @@ const locale = {
   acquisition_cost: 'Acquisition Cost',
   //settings
   general_settings: 'General Settings',
+  theme_selection: 'Theme selection',
+  theme_system: 'Follow system theme',
+  theme_light: 'Light theme',
+  theme_dark: 'Dark theme',
   request_form_configuration: 'Request form configuration',
   roles: 'Roles',
   checklists: 'Checklists',

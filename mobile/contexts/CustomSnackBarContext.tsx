@@ -30,8 +30,8 @@ export const CustomSnackbarProvider: FC<{ children: ReactNode }> = ({
       message: t(type),
       description: text,
       color: getColor(type),
-      textStyle: { color: 'white' },
-      titleStyle: { color: 'white' },
+      textStyle: { color: theme.colors.onSurface },
+      titleStyle: { color: theme.colors.onSurface },
       type: type === 'error' ? 'danger' : type,
       onPress: action?.onPress
     });

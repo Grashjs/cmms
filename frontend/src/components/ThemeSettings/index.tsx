@@ -1,10 +1,8 @@
-import { FC, useContext, useRef, useState, MouseEvent } from 'react';
+import { FC, useContext, useRef, useState } from 'react';
 import {
   Popover,
   styled,
   Button,
-  MenuItem,
-  Menu,
   Typography,
   Stack,
   Divider,
@@ -16,8 +14,6 @@ import CheckTwoToneIcon from '@mui/icons-material/CheckTwoTone';
 import SettingsTwoToneIcon from '@mui/icons-material/SettingsTwoTone';
 import Fab from '@mui/material/Fab';
 import { useTranslation } from 'react-i18next';
-import UnfoldMoreTwoToneIcon from '@mui/icons-material/UnfoldMoreTwoTone';
-import { NavLink } from 'react-router-dom';
 
 const ThemeSettingsButton = styled(Box)(
   ({ theme }) => `
@@ -25,7 +21,7 @@ const ThemeSettingsButton = styled(Box)(
           z-index: 9999;
           right: ${theme.spacing(4)};
           bottom: ${theme.spacing(4)};
-          
+
           &::before {
               width: 30px;
               height: 30px;
@@ -86,7 +82,7 @@ const ColorSchemeWrapper = styled(Box)(
 
     border-radius: ${theme.general.borderRadiusXl};
     height: 28px;
-    
+
     &.colorSchemeWrapper {
         display: flex;
         align-items: stretch;
@@ -113,7 +109,7 @@ const ColorSchemeWrapper = styled(Box)(
         .primary {
             background: #5569ff;
         }
-    
+
         .secondary {
             background: #f2f5f9;
         }
@@ -123,19 +119,49 @@ const ColorSchemeWrapper = styled(Box)(
         .primary {
             background: #2442AF;
         }
-    
+
         .secondary {
             background: #F8F8F8;
         }
     }
-    
+
     &.purpleFlow {
         .primary {
             background: #9b52e1;
         }
-    
+
         .secondary {
             background: #00b795;
+        }
+    }
+
+    &.theme1 {
+        .primary {
+            background: #0EA5E9;
+        }
+
+        .secondary {
+            background: #06B6D4;
+        }
+    }
+
+    &.theme2 {
+        .primary {
+            background: #EC4899;
+        }
+
+        .secondary {
+            background: #8B5CF6;
+        }
+    }
+
+    &.theme3 {
+        .primary {
+            background: #06B6D4;
+        }
+
+        .secondary {
+            background: #6366F1;
         }
     }
   `
@@ -189,15 +215,6 @@ const ThemeSettings: FC = () => {
     setThemeName(theme);
   };
 
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
-  const openMenu = (event: MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const closeMenu = () => {
-    setAnchorEl(null);
-  };
-
   return (
     <>
       <ThemeSettingsButton>
@@ -220,110 +237,6 @@ const ThemeSettings: FC = () => {
             horizontal: 'right'
           }}
         >
-          <Box p={2}>
-            <Typography
-              sx={{
-                mb: 2,
-                textAlign: 'center',
-                fontWeight: 'bold',
-                textTransform: 'uppercase'
-              }}
-              variant="body1"
-            >
-              Layout Blueprints
-            </Typography>
-            <Button
-              fullWidth
-              size="large"
-              variant="outlined"
-              endIcon={<UnfoldMoreTwoToneIcon />}
-              color="primary"
-              aria-haspopup="true"
-              aria-expanded={open ? 'true' : undefined}
-              onClick={openMenu}
-            >
-              Choose layout
-            </Button>
-            <Menu
-              disableScrollLock
-              anchorEl={anchorEl}
-              open={open}
-              onClose={closeMenu}
-              anchorOrigin={{
-                vertical: 'center',
-                horizontal: 'center'
-              }}
-              transformOrigin={{
-                vertical: 'center',
-                horizontal: 'center'
-              }}
-            >
-              <MenuItem
-                sx={{
-                  fontWeight: 'bold'
-                }}
-                component={NavLink}
-                to="/extended-sidebar/dashboards"
-              >
-                Extended Sidebar
-              </MenuItem>
-              <MenuItem
-                sx={{
-                  fontWeight: 'bold'
-                }}
-                component={NavLink}
-                to="/accent-header/dashboards"
-              >
-                Accent Header
-              </MenuItem>
-              <MenuItem
-                sx={{
-                  fontWeight: 'bold'
-                }}
-                component={NavLink}
-                to="/accent-sidebar/dashboards"
-              >
-                Accent Sidebar
-              </MenuItem>
-              <MenuItem
-                sx={{
-                  fontWeight: 'bold'
-                }}
-                component={NavLink}
-                to="/boxed-sidebar/dashboards"
-              >
-                Boxed Sidebar
-              </MenuItem>
-              <MenuItem
-                sx={{
-                  fontWeight: 'bold'
-                }}
-                component={NavLink}
-                to="/collapsed-sidebar/dashboards"
-              >
-                Collapsed Sidebar
-              </MenuItem>
-              <MenuItem
-                sx={{
-                  fontWeight: 'bold'
-                }}
-                component={NavLink}
-                to="/bottom-navigation/dashboards"
-              >
-                Bottom Navigation
-              </MenuItem>
-              <MenuItem
-                sx={{
-                  fontWeight: 'bold'
-                }}
-                component={NavLink}
-                to="/top-navigation/dashboards"
-              >
-                Top Navigation
-              </MenuItem>
-            </Menu>
-          </Box>
-          <Divider />
           <ThemeToggleWrapper>
             <Typography
               sx={{
@@ -387,6 +300,74 @@ const ThemeSettings: FC = () => {
                     </CheckSelected>
                   )}
                   <ColorSchemeWrapper className="colorSchemeWrapper purpleFlow">
+                    <Box className="primary" />
+                    <Box className="secondary" />
+                  </ColorSchemeWrapper>
+                </ButtonWrapper>
+              </Tooltip>
+              <Tooltip placement="left" title="SkyView" arrow>
+                <ButtonWrapper
+                  className={theme === 'SkyView' ? 'active' : ''}
+                  onClick={() => {
+                    changeTheme('SkyView');
+                  }}
+                >
+                  {theme === 'SkyView' && (
+                    <CheckSelected>
+                      <CheckTwoToneIcon />
+                    </CheckSelected>
+                  )}
+                  <ColorSchemeWrapper className="colorSchemeWrapper theme1">
+                    <Box className="primary" />
+                    <Box className="secondary" />
+                  </ColorSchemeWrapper>
+                </ButtonWrapper>
+              </Tooltip>
+            </Stack>
+            <Divider sx={{ my: 2 }} />
+            <Typography
+              sx={{
+                mb: 3,
+                textAlign: 'center',
+                fontWeight: 'bold',
+                textTransform: 'uppercase'
+              }}
+              variant="body1"
+            >
+              Dark color schemes
+            </Typography>
+            <Stack alignItems="center" spacing={2}>
+              <Tooltip placement="left" title="PureDarkTheme" arrow>
+                <ButtonWrapper
+                  className={theme === 'PureDarkTheme' ? 'active' : ''}
+                  onClick={() => {
+                    changeTheme('PureDarkTheme');
+                  }}
+                >
+                  {theme === 'PureDarkTheme' && (
+                    <CheckSelected>
+                      <CheckTwoToneIcon />
+                    </CheckSelected>
+                  )}
+                  <ColorSchemeWrapper className="colorSchemeWrapper theme2">
+                    <Box className="primary" />
+                    <Box className="secondary" />
+                  </ColorSchemeWrapper>
+                </ButtonWrapper>
+              </Tooltip>
+              <Tooltip placement="left" title="Elegant Night" arrow>
+                <ButtonWrapper
+                  className={theme === 'ElegantNightTheme' ? 'active' : ''}
+                  onClick={() => {
+                    changeTheme('ElegantNightTheme');
+                  }}
+                >
+                  {theme === 'ElegantNightTheme' && (
+                    <CheckSelected>
+                      <CheckTwoToneIcon />
+                    </CheckSelected>
+                  )}
+                  <ColorSchemeWrapper className="colorSchemeWrapper theme3">
                     <Box className="primary" />
                     <Box className="secondary" />
                   </ColorSchemeWrapper>
