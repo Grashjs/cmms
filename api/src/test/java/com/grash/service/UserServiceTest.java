@@ -89,8 +89,6 @@ class UserServiceTest {
     @Mock
     private BrandingService brandingService;
     @Mock
-    private DemoDataService demoDataService;
-    @Mock
     private ApplicationEventPublisher applicationEventPublisher;
     @Mock
     private LicenseService licenseService;
@@ -102,6 +100,8 @@ class UserServiceTest {
     private IntercomService intercomService;
     @Mock
     private RefreshTokenService refreshTokenService;
+    @Mock
+    private ApiKeyService apiKeyService;
 
     private Company company;
     private User user;

@@ -70,7 +70,6 @@ public class UserService {
     private final SubscriptionService subscriptionService;
     private final UserMapper userMapper;
     private final BrandingService brandingService;
-    private final DemoDataService demoDataService;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final LicenseService licenseService;
     private final CacheService cacheService;
