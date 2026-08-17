@@ -35,7 +35,7 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: Install dependencies
-        run: npm install --legacy-peer-deps
+        run: npm ci
         working-directory: mobile
 
       - name: Publish update

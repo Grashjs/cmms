@@ -386,7 +386,7 @@ export default function UserProfile({
             {switches.map(({ title, value, accessor }, index) => (
               <Fragment key={accessor}>
                 <View style={styles.switchRow}>
-                  <Text style={{ flexShrink: 1, fontSize: 16 }}>{title}</Text>
+                  <Text variant="bodyMedium" style={{ flexShrink: 1 }}>{title}</Text>
                   <Switch
                     value={Boolean(
                       userSettings ? userSettings[accessor] : false
