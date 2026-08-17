@@ -1,6 +1,8 @@
 name: update
 on:
   push:
+    branches:
+      - main
     paths:
       - 'mobile/**'
 
