@@ -20,7 +20,7 @@
       }
     },
     "production": {
-      "channel": "production-1-0-31",
+      "channel": "production",
       "ios": {
         "resourceClass": "m1-medium"
       },
