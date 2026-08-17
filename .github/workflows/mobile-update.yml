@@ -43,5 +43,5 @@ jobs:
           API_URL=${{secrets.API_URL}} \
           CLARITY_ID=${{secrets.CLARITY_ID}} \
           GOOGLE_SERVICES_BASE64=${{secrets.GOOGLE_SERVICES_BASE64}} \
-          eas update --channel production --message "${{ github.event.head_commit.message }}"
+          eas update --channel production-1-0-31 --message "${{ github.event.head_commit.message }}"
         working-directory: mobile
