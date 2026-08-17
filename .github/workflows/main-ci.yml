@@ -7,13 +7,15 @@ on:
     tags:
       - 'v*'
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+permissions:
+  contents: write   # needed to push the deployed-backend / deployed-frontend tags
 
 jobs:
   detect-changes:
     runs-on: ubuntu-latest
+    concurrency:
+      group: detect-changes-${{ github.ref }}
+      cancel-in-progress: true
     outputs:
       backend: ${{ steps.out.outputs.backend }}
       frontend: ${{ steps.out.outputs.frontend }}
@@ -32,17 +34,35 @@ jobs:
             echo "IS_TAG=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Filter changed paths
-        id: filter
-        if: ${{ steps.ref.outputs.IS_TAG == 'false' }}
-        uses: dorny/paths-filter@v3
-        with:
-          base: ${{ github.ref }}
-          filters: |
-            backend:
-              - 'api/**'
-            frontend:
-              - 'frontend/**'
+      - name: Fetch deploy-marker tags
+        run: git fetch --tags --force
+
+      - name: Determine backend changes since last deploy
+        id: backend-diff
+        run: |
+          if git rev-parse deployed-backend >/dev/null 2>&1; then
+            if git diff --quiet deployed-backend..HEAD -- api/; then
+              echo "changed=false" >> "$GITHUB_OUTPUT"
+            else
+              echo "changed=true" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            # No prior deploy recorded yet - treat as changed so it builds/deploys once.
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Determine frontend changes since last deploy
+        id: frontend-diff
+        run: |
+          if git rev-parse deployed-frontend >/dev/null 2>&1; then
+            if git diff --quiet deployed-frontend..HEAD -- frontend/; then
+              echo "changed=false" >> "$GITHUB_OUTPUT"
+            else
+              echo "changed=true" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Compute effective targets
         id: out
@@ -51,8 +71,8 @@ jobs:
             echo "backend=true" >> "$GITHUB_OUTPUT"
             echo "frontend=true" >> "$GITHUB_OUTPUT"
           else
-            echo "backend=${{ steps.filter.outputs.backend }}" >> "$GITHUB_OUTPUT"
-            echo "frontend=${{ steps.filter.outputs.frontend }}" >> "$GITHUB_OUTPUT"
+            echo "backend=${{ steps.backend-diff.outputs.changed }}" >> "$GITHUB_OUTPUT"
+            echo "frontend=${{ steps.frontend-diff.outputs.changed }}" >> "$GITHUB_OUTPUT"
           fi
 
   test:
@@ -60,6 +80,9 @@ jobs:
     timeout-minutes: 25
     if: ${{ vars.SKIP_TESTS != 'true' && needs.detect-changes.outputs.backend == 'true' }}
     runs-on: ubuntu-latest
+    concurrency:
+      group: backend-test-${{ github.ref }}
+      cancel-in-progress: true
     env:
       SPRING_PROFILES_ACTIVE: ${{ vars.SPRING_PROFILES_ACTIVE }}
     steps:
@@ -73,7 +96,6 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
@@ -88,6 +110,9 @@ jobs:
     needs: [detect-changes, test]
     if: ${{ needs.detect-changes.outputs.backend == 'true' && (vars.SKIP_TESTS == 'true' || needs.test.result == 'success' || needs.test.result == 'skipped') }}
     runs-on: ubuntu-latest
+    concurrency:
+      group: backend-deploy-${{ github.ref }}
+      cancel-in-progress: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -110,7 +135,6 @@ jobs:
             TAG="latest"
           fi
           echo "TAG=$TAG" >> $GITHUB_OUTPUT
-
       - name: Build and push backend image
         uses: docker/build-push-action@v6
         with:
@@ -121,9 +145,12 @@ jobs:
             intelloop/atlas-cmms-backend:${{ steps.docker-tag.outputs.TAG }}
 
   deploy-koyeb:
-    needs: [detect-changes, test]
+    needs: [detect-changes, test, push-backend-docker]
     if: ${{ needs.detect-changes.outputs.backend == 'true' && (vars.SKIP_TESTS == 'true' || needs.test.result == 'success' || needs.test.result == 'skipped') }}
     runs-on: ubuntu-latest
+    concurrency:
+      group: backend-deploy-${{ github.ref }}
+      cancel-in-progress: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -147,10 +174,20 @@ jobs:
           git-workdir: ./api
           git-builder: docker
 
+      - name: Mark backend as deployed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -f deployed-backend
+          git push origin deployed-backend --force
+
   push-frontend-docker:
     needs: [detect-changes, test]
     if: ${{ needs.detect-changes.outputs.frontend == 'true' && (vars.SKIP_TESTS == 'true' || needs.test.result == 'success' || needs.test.result == 'skipped') }}
     runs-on: ubuntu-latest
+    concurrency:
+      group: frontend-deploy-${{ github.ref }}
+      cancel-in-progress: true
     env:
       FRONTEND_IMAGE: intelloop/atlas-cmms-frontend
     steps:
@@ -175,7 +212,6 @@ jobs:
             TAG="latest"
           fi
           echo "TAG=$TAG" >> $GITHUB_OUTPUT
-
       - name: Build and push frontend image
         uses: docker/build-push-action@v6
         with:
@@ -186,9 +222,12 @@ jobs:
             ${{ env.FRONTEND_IMAGE }}:${{ steps.docker-tag.outputs.TAG }}
 
   deploy-netlify:
-    needs: [detect-changes, test]
+    needs: [detect-changes, test, push-frontend-docker]
     if: ${{ needs.detect-changes.outputs.frontend == 'true' && (vars.SKIP_TESTS == 'true' || needs.test.result == 'success' || needs.test.result == 'skipped') }}
     runs-on: ubuntu-latest
+    concurrency:
+      group: frontend-deploy-${{ github.ref }}
+      cancel-in-progress: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -237,3 +276,10 @@ jobs:
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
           NODE_OPTIONS: --max_old_space_size=4096
         timeout-minutes: 20
+
+      - name: Mark frontend as deployed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -f deployed-frontend
+          git push origin deployed-frontend --force
