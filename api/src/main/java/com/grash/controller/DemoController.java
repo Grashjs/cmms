@@ -11,6 +11,7 @@ import com.grash.model.enums.Language;
 import com.grash.security.CurrentUser;
 import com.grash.security.CustomUserDetail;
 import com.grash.service.*;
+import com.grash.security.ClientIpResolver;
 import com.grash.utils.Helper;
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
@@ -48,11 +49,12 @@ public class DemoController {
     private final ImportService importService;
     private final AssetService assetService;
     private final DemoDataService demoDataService;
+    private final ClientIpResolver clientIpResolver;
 
     @Hidden
     @GetMapping("/generate-account")
     public SuccessResponse generateAccount(HttpServletRequest req) {
-        String clientIp = Helper.extractClientIp(req);
+        String clientIp = clientIpResolver.resolve(req);
         if (!rateLimiterService.resolveDemoBucket(clientIp).tryConsume(1)) {
             return new SuccessResponse(false, "Rate limit exceeded. Try again later.");
         }

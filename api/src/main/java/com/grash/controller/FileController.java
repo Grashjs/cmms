@@ -21,6 +21,7 @@ import com.grash.service.RateLimiterService;
 import com.grash.service.RequestPortalService;
 import com.grash.service.TaskService;
 import com.grash.service.UserService;
+import com.grash.security.ClientIpResolver;
 import com.grash.utils.Helper;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -54,6 +55,7 @@ public class FileController {
     private final LicenseService licenseService;
     private final RequestPortalService requestPortalService;
     private final RateLimiterService rateLimiterService;
+    private final ClientIpResolver clientIpResolver;
 
     @PostMapping(value = "/upload", produces = "application/json")
     public List<FileShowDTO> handleFileUpload(@Parameter(description = "Files to upload") @RequestParam("files") MultipartFile[] filesReq,
@@ -95,7 +97,7 @@ public class FileController {
                                                                    @Parameter(description = "Files to upload") @RequestParam("files") MultipartFile[] filesReq,
                                                                    @Parameter(description = "Type of file") @RequestParam("type") FileType fileType,
                                                                    HttpServletRequest req) {
-        String clientIp = Helper.extractClientIp(req);
+        String clientIp = clientIpResolver.resolve(req);
         if (!rateLimiterService.resolveFileUploadBucket(clientIp).tryConsume(1)) {
             throw new CustomException("Rate limit exceeded. Try again later.", HttpStatus.TOO_MANY_REQUESTS);
         }

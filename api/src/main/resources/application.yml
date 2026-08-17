@@ -86,6 +86,9 @@ security:
   recaptcha-secret-key: ${RECAPTCHA_SECRET_KEY:}
   cors:
     enabled: ${ENABLE_CORS:true}
+  trusted-proxies:
+    single-ingress: ${SINGLE_INGRESS:true}
+    ips: ${TRUSTED_PROXY_IPS:}
   rate-limit:
     enabled: ${RATE_LIMIT_ENABLED:true}
     authenticated:

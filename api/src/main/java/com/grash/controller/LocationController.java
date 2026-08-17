@@ -15,6 +15,7 @@ import com.grash.service.LocationService;
 import com.grash.service.RateLimiterService;
 import com.grash.service.RequestPortalService;
 import com.grash.service.UserService;
+import com.grash.security.ClientIpResolver;
 import com.grash.utils.Helper;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -48,6 +49,7 @@ public class LocationController {
     private final EntityManager em;
     private final RateLimiterService rateLimiterService;
     private final RequestPortalService requestPortalService;
+    private final ClientIpResolver clientIpResolver;
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
@@ -117,7 +119,7 @@ public class LocationController {
 
     @GetMapping("/public/mini/{portalUUID}")
     public Collection<LocationMiniDTO> getMiniPublic(@Parameter(description = "Portal UUID") @PathVariable String portalUUID, HttpServletRequest req) {
-        String clientIp = Helper.extractClientIp(req);
+        String clientIp = clientIpResolver.resolve(req);
         if (!rateLimiterService.resolvePublicMiniBucket(clientIp).tryConsume(1)) {
             throw new CustomException("Rate limit exceeded. Try again later.", HttpStatus.TOO_MANY_REQUESTS);
         }

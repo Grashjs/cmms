@@ -11,6 +11,7 @@ import com.grash.model.Asset;
 import com.grash.model.User;
 import com.grash.security.CurrentUser;
 import com.grash.service.*;
+import com.grash.security.ClientIpResolver;
 import com.grash.utils.Helper;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -41,6 +42,7 @@ public class AssetController {
     private final AssetService assetService;
     private final AssetMapper assetMapper;
     private final UserService userService;
+    private final ClientIpResolver clientIpResolver;
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
@@ -154,7 +156,7 @@ public class AssetController {
                                                           "assets by location ID. If not provided, returns all assets" +
                                                           " for the portal") Long locationId,
                                                   HttpServletRequest req) {
-        return assetService.findMiniPublic(portalUUID, locationId, Helper.extractClientIp(req)).stream().map(assetMapper::toMiniDto).collect(Collectors.toList());
+        return assetService.findMiniPublic(portalUUID, locationId, clientIpResolver.resolve(req)).stream().map(assetMapper::toMiniDto).collect(Collectors.toList());
     }
 
     @DeleteMapping("/{id}")
