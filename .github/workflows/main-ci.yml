@@ -47,7 +47,6 @@ jobs:
               echo "changed=true" >> "$GITHUB_OUTPUT"
             fi
           else
-            # No prior deploy recorded yet - treat as changed so it builds/deploys once.
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
@@ -111,7 +110,7 @@ jobs:
     if: ${{ needs.detect-changes.outputs.backend == 'true' && (vars.SKIP_TESTS == 'true' || needs.test.result == 'success' || needs.test.result == 'skipped') }}
     runs-on: ubuntu-latest
     concurrency:
-      group: backend-deploy-${{ github.ref }}
+      group: backend-docker-${{ github.ref }}
       cancel-in-progress: true
     steps:
       - name: Checkout code
@@ -145,11 +144,11 @@ jobs:
             intelloop/atlas-cmms-backend:${{ steps.docker-tag.outputs.TAG }}
 
   deploy-koyeb:
-    needs: [detect-changes, test, push-backend-docker]
+    needs: [detect-changes, test]
     if: ${{ needs.detect-changes.outputs.backend == 'true' && (vars.SKIP_TESTS == 'true' || needs.test.result == 'success' || needs.test.result == 'skipped') }}
     runs-on: ubuntu-latest
     concurrency:
-      group: backend-deploy-${{ github.ref }}
+      group: backend-koyeb-${{ github.ref }}
       cancel-in-progress: true
     steps:
       - name: Checkout code
@@ -186,7 +185,7 @@ jobs:
     if: ${{ needs.detect-changes.outputs.frontend == 'true' && (vars.SKIP_TESTS == 'true' || needs.test.result == 'success' || needs.test.result == 'skipped') }}
     runs-on: ubuntu-latest
     concurrency:
-      group: frontend-deploy-${{ github.ref }}
+      group: frontend-docker-${{ github.ref }}
       cancel-in-progress: true
     env:
       FRONTEND_IMAGE: intelloop/atlas-cmms-frontend
@@ -222,11 +221,11 @@ jobs:
             ${{ env.FRONTEND_IMAGE }}:${{ steps.docker-tag.outputs.TAG }}
 
   deploy-netlify:
-    needs: [detect-changes, test, push-frontend-docker]
+    needs: [detect-changes, test]
     if: ${{ needs.detect-changes.outputs.frontend == 'true' && (vars.SKIP_TESTS == 'true' || needs.test.result == 'success' || needs.test.result == 'skipped') }}
     runs-on: ubuntu-latest
     concurrency:
-      group: frontend-deploy-${{ github.ref }}
+      group: frontend-netlify-${{ github.ref }}
       cancel-in-progress: true
     steps:
       - name: Checkout code
