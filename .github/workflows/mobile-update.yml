@@ -1,4 +1,4 @@
-name: update
+name: EAS Update
 on:
   push:
     branches:
