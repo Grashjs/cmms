@@ -39,5 +39,5 @@ jobs:
         working-directory: mobile
 
       - name: Publish update
-        run: API_URL=${{secrets.API_URL}} CLARITY_ID=${{secrets.CLARITY_ID}} GOOGLE_SERVICES_BASE64=${{secrets.GOOGLE_SERVICES_BASE64}} eas update --auto
+        run: API_URL=${{secrets.API_URL}} CLARITY_ID=${{secrets.CLARITY_ID}} GOOGLE_SERVICES_BASE64=${{secrets.GOOGLE_SERVICES_BASE64}} eas update --branch production-1-0-31
         working-directory: mobile
