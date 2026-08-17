@@ -1704,6 +1704,14 @@ const locale = {
   never: 'Soha',
   delete_api_key: 'API kulcs törlése',
   delete_api_key_confirm: 'Biztosan törölni szeretné ezt az API kulcsot?',
+  rotate: 'Rotáció',
+  rotate_api_key: 'API kulcs rotálása',
+  rotate_api_key_confirm:
+    'Ez visszavonja a jelenlegi kulcsot és újat generál. A régi kulcs azonnal működésképtelenné válik.',
+  api_key_rotated_success: 'API kulcs sikeresen rotálva',
+  active: 'Aktív',
+  expired: 'Lejárt',
+  revoked: 'Visszavonva',
   upgrade_api:
     'Frissítsen a csomagra az API, csatlakozók és webhookok eléréséhez',
   comments: 'Hozzászólások',

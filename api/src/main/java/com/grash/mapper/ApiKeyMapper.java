@@ -7,6 +7,7 @@ import com.grash.model.ApiKey;
 import jakarta.validation.Valid;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
@@ -14,6 +15,7 @@ public interface ApiKeyMapper {
     ApiKey updateApiKey(@MappingTarget ApiKey entity,
                         ApiKeyPatchDTO dto);
 
+    @Mapping(target = "revokedAt", ignore = true)
     ApiKey fromPostDto(@Valid ApiKeyPostDTO dto);
 
     ApiKeyShowDTO toShowDto(@Valid ApiKey model);

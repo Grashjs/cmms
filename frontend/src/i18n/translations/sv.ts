@@ -1818,6 +1818,14 @@ const locale = {
   delete_api_key: 'Ta bort API-nyckel',
   delete_api_key_confirm:
     'Är du säker på att du vill ta bort denna API-nyckel?',
+  rotate: 'Rotera',
+  rotate_api_key: 'Rotera API-nyckel',
+  rotate_api_key_confirm:
+    'Detta kommer att återkalla den aktuella nyckeln och generera en ny. Den gamla nyckeln slutar fungera omedelbart.',
+  api_key_rotated_success: 'API-nyckel roterad framgångsrikt',
+  active: 'Aktiv',
+  expired: 'Utgången',
+  revoked: 'Återkallad',
   upgrade_api:
     'Uppgradera för att få åtkomst till API, kopplingar och webhooks',
   comments: 'Kommentarer',

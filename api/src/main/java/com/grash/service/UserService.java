@@ -76,6 +76,7 @@ public class UserService {
     private final CacheService cacheService;
     private final IntercomService intercomService;
     private final RefreshTokenService refreshTokenService;
+    private final ApiKeyService apiKeyService;
 
     @Value("${api.host}")
     private String PUBLIC_API_URL;
@@ -556,6 +557,7 @@ public class UserService {
             if (requester.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
                 userToDisable.setEnabled(false);
                 userToDisable.setEnabledInSubscription(false);
+                apiKeyService.revokeAllByUser(userToDisable);
                 return invalidateSessions(userToDisable);
             } else {
                 throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
@@ -574,6 +576,7 @@ public class UserService {
                 userToSoftDelete.setEnabled(false);
                 userToSoftDelete.setEnabledInSubscription(false);
                 userToSoftDelete.setEmail(userToSoftDelete.getEmail().concat("_".concat(id.toString())));
+                apiKeyService.revokeAllByUser(userToSoftDelete);
                 return invalidateSessions(userToSoftDelete);
             } else {
                 throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);

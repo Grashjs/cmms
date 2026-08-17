@@ -46,9 +46,9 @@ function IntegrationsLayout() {
     navigate(`/app/settings/integrations/${value}`);
   };
 
-  if (!hasFeature(PlanFeature.API_ACCESS) || !hasAPIEntitlement) {
-    return <FeatureErrorMessage message={'upgrade_api'} />;
-  }
+  // if (!hasFeature(PlanFeature.API_ACCESS) || !hasAPIEntitlement) {
+  //   return <FeatureErrorMessage message={'upgrade_api'} />;
+  // }
 
   return (
     <Grid item xs={12}>

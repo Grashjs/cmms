@@ -1848,6 +1848,14 @@ const locale = {
   delete_api_key: 'API-sleutel verwijderen',
   delete_api_key_confirm:
     'Weet je zeker dat je deze API-sleutel wilt verwijderen?',
+  rotate: 'Draaien',
+  rotate_api_key: 'API-sleutel draaien',
+  rotate_api_key_confirm:
+    'Dit zal de huidige sleutel intrekken en een nieuwe genereren. De oude sleutel stopt onmiddellijk met werken.',
+  api_key_rotated_success: 'API-sleutel succesvol gedraaid',
+  active: 'Actief',
+  expired: 'Verlopen',
+  revoked: 'Ingetrokken',
   upgrade_api: 'Upgrade om toegang te krijgen tot API, connectors en webhooks',
   comments: 'Opmerkingen',
   add_comment_placeholder: 'Voeg een opmerking toe...',

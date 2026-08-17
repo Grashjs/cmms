@@ -1835,6 +1835,14 @@ const locale = {
   delete_api_key: 'Obriši API ključ',
   delete_api_key_confirm:
     'Da li ste sigurni da želite obrisati ovaj API ključ?',
+  rotate: 'Rotiraj',
+  rotate_api_key: 'Rotiraj API ključ',
+  rotate_api_key_confirm:
+    'Ovo će poništiti trenutni ključ i generisati novi. Stari ključ će odmah prestati raditi.',
+  api_key_rotated_success: 'API ključ uspješno rotiran',
+  active: 'Aktivan',
+  expired: 'Istekao',
+  revoked: 'Poništen',
   upgrade_api: 'Nadogradite za pristup API-ju, konektorima i webhookovima',
   comments: 'Komentari',
   add_comment_placeholder: 'Dodaj komentar...',

@@ -1734,6 +1734,14 @@ const locale = {
   never: 'أبدًا',
   delete_api_key: 'حذف مفتاح API',
   delete_api_key_confirm: 'هل أنت متأكد أنك تريد حذف مفتاح API هذا؟',
+  rotate: 'تدوير',
+  rotate_api_key: 'تدوير مفتاح API',
+  rotate_api_key_confirm:
+    'سيتم إلغاء المفتاح الحالي وإنشاء مفتاح جديد. سيتوقف المفتاح القديم عن العمل فوراً.',
+  api_key_rotated_success: 'تم تدوير مفتاح API بنجاح',
+  active: 'نشط',
+  expired: 'منتهي الصلاحية',
+  revoked: 'ملغى',
   upgrade_api: 'قم بالترقية للحصول على الوصول إلى API والموصلات وWebhooks',
   // Webhooks
   webhook_endpoints: 'نقاط نهاية Webhook',

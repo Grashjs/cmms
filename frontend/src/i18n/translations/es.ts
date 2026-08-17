@@ -1869,6 +1869,14 @@ const esJSON = {
   never: 'Nunca',
   delete_api_key: 'Eliminar clave API',
   delete_api_key_confirm: '¿Está seguro de que desea eliminar esta clave API?',
+  rotate: 'Rotar',
+  rotate_api_key: 'Rotar clave API',
+  rotate_api_key_confirm:
+    'Esto revocará la clave actual y generará una nueva. La clave anterior dejará de funcionar inmediatamente.',
+  api_key_rotated_success: 'Clave API rotada con éxito',
+  active: 'Activo',
+  expired: 'Expirado',
+  revoked: 'Revocado',
   upgrade_api: 'Actualice para obtener acceso a la API, conectores y webhooks',
   // Webhooks
   webhook_endpoints: 'Endpoints de Webhook',

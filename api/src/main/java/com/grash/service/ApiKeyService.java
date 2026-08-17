@@ -28,6 +28,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -86,14 +87,47 @@ public class ApiKeyService {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.equal(root.get(ApiKey_.company).get("id"), user.getCompany().getId()));
 
-//            if (criteria.getQuery() != null && !criteria.getQuery().isBlank()) {
-//                predicates.add(cb.like(cb.lower(root.get(ApiKey_.recipientName)),
-//                        "%" + criteria.getQuery().toLowerCase().trim() + "%"));
-//            }
+            if (criteria.getActive() != null) {
+                if (criteria.getActive()) {
+                    predicates.add(cb.isNull(root.get(ApiKey_.revokedAt)));
+                } else {
+                    predicates.add(cb.isNotNull(root.get(ApiKey_.revokedAt)));
+                }
+            }
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 
         return apiKeyRepository.findAll(specification, pageable);
     }
+
+    public void revokeAllByUser(User user) {
+        apiKeyRepository.revokeAllByUser(user, new Date());
+    }
+
+    public Pair<ApiKey, String> rotateKey(Long id, User user) {
+        ApiKey oldKey = apiKeyRepository.findById(id)
+                .orElseThrow(() -> new CustomException("API key not found", HttpStatus.NOT_FOUND));
+        if (!oldKey.getUser().getId().equals(user.getId())) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        }
+        if (oldKey.getRevokedAt() != null) {
+            throw new CustomException("API key is already revoked", HttpStatus.BAD_REQUEST);
+        }
+
+        oldKey.setRevokedAt(new Date());
+        apiKeyRepository.save(oldKey);
+
+        ApiKeyPostDTO newKeyReq = new ApiKeyPostDTO();
+        newKeyReq.setLabel(oldKey.getLabel());
+        if (oldKey.getExpiresAt() != null) {
+            long originalTtlMs = oldKey.getExpiresAt().getTime() - oldKey.getCreatedAt().getTime();
+            if (originalTtlMs > 0) {
+                long remainingTtlMs = oldKey.getExpiresAt().getTime() - System.currentTimeMillis();
+                newKeyReq.setExpiresAt(new Date(System.currentTimeMillis() + Math.max(remainingTtlMs, 0)));
+            }
+        }
+        return create(newKeyReq, user);
+    }
+
 }

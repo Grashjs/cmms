@@ -1,7 +1,7 @@
 package com.grash.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grash.dto.license.LicenseEntitlement;
-import com.grash.exception.CustomException;
 import com.grash.model.ApiKey;
 import com.grash.model.User;
 import com.grash.model.enums.PlanFeatures;
@@ -12,9 +12,9 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,6 +27,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -34,10 +35,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ApiKeyAuthFilter extends OncePerRequestFilter {
 
     private final ApiKeyRepository apiKeyRepository;
-
     private final Map<Long, Instant> lastUsedCache = new ConcurrentHashMap<>();
     private static final Duration UPDATE_INTERVAL = Duration.ofMinutes(5);
     private final LicenseService licenseService;
+    private final ObjectMapper objectMapper;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -48,30 +49,55 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
 
         if (apiKey != null) {
             try {
-                apiKeyRepository.findByCode(Helper.hashKey(apiKey)).ifPresent(key -> {
+                Optional<ApiKey> foundKey = apiKeyRepository.findByCode(Helper.hashKey(apiKey));
+                if (foundKey.isPresent()) {
+                    ApiKey key = foundKey.get();
+                    if (key.getRevokedAt() != null) {
+                        sendError(response, HttpStatus.UNAUTHORIZED, "API key has been revoked");
+                        return;
+                    }
+                    if (key.getExpiresAt() != null && key.getExpiresAt().before(new Date())) {
+                        sendError(response, HttpStatus.UNAUTHORIZED, "API key has expired");
+                        return;
+                    }
                     User user = key.getUser();
                     CustomUserDetail customUserDetail =
                             CustomUserDetail.builder().user(user).build();
                     if (!customUserDetail.isEnabled()) {
-                        throw new CustomException("User account is disabled", HttpStatus.UNAUTHORIZED);
+                        sendError(response, HttpStatus.UNAUTHORIZED, "User account is disabled");
+                        return;
+                    }
+                    if (!(licenseService.hasEntitlement(LicenseEntitlement.API_ACCESS) && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.API_ACCESS))) {
+                        sendError(response, HttpStatus.FORBIDDEN, "Access denied");
+                        return;
                     }
                     Authentication authentication = new UsernamePasswordAuthenticationToken(
                             customUserDetail,
                             null,
                             customUserDetail.getAuthorities()
                     );
-                    if (!(licenseService.hasEntitlement(LicenseEntitlement.API_ACCESS) && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.API_ACCESS)))
-                        throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
                     SecurityContextHolder.getContext().setAuthentication(authentication);
 
                     updateLastUsedIfNeeded(key);
-                });
+                }
             } catch (NoSuchAlgorithmException e) {
-                throw new RuntimeException(e);
+                sendError(response, HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error");
+                return;
             }
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private void sendError(HttpServletResponse response, HttpStatus status, String message) {
+        try {
+            response.setStatus(status.value());
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            objectMapper.writeValue(response.getOutputStream(),
+                    Map.of("success", false, "message", message));
+        } catch (IOException e) {
+            logger.error("Failed to write error response", e);
+        }
     }
 
     private void updateLastUsedIfNeeded(ApiKey key) {

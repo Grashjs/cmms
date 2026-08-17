@@ -1747,6 +1747,14 @@ const locale = {
   never: 'Never',
   delete_api_key: 'Delete API Key',
   delete_api_key_confirm: 'Are you sure you want to delete this API Key?',
+  rotate: 'Rotate',
+  rotate_api_key: 'Rotate API Key',
+  rotate_api_key_confirm:
+    'This will revoke the current key and generate a new one. The old key will stop working immediately.',
+  api_key_rotated_success: 'API Key rotated successfully',
+  active: 'Active',
+  expired: 'Expired',
+  revoked: 'Revoked',
   upgrade_api: 'Upgrade to get access to the API, connectors, and webhooks',
   // Webhooks
   webhook_endpoints: 'Webhook Endpoints',

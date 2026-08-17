@@ -1879,6 +1879,14 @@ const deJSON = {
   delete_api_key: 'API-Schlüssel löschen',
   delete_api_key_confirm:
     'Sind Sie sicher, dass Sie diesen API-Schlüssel löschen möchten?',
+  rotate: 'Drehen',
+  rotate_api_key: 'API-Schlüssel drehen',
+  rotate_api_key_confirm:
+    'Dadurch wird der aktuelle Schlüssel widerrufen und ein neuer generiert. Der alte Schlüssel hört sofort auf zu funktionieren.',
+  api_key_rotated_success: 'API-Schlüssel erfolgreich gedreht',
+  active: 'Aktiv',
+  expired: 'Abgelaufen',
+  revoked: 'Widerrufen',
   upgrade_api:
     'Upgrade durchführen, um Zugriff auf API, Konnektoren und Webhooks zu erhalten',
   // Webhooks

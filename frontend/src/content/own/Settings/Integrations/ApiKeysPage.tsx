@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Chip,
   CircularProgress,
   Dialog,
   Grid,
@@ -27,7 +28,12 @@ import {
 } from 'react';
 import { TransitionProps } from '@mui/material/transitions';
 import { useDispatch, useSelector } from '../../../../store';
-import { addApiKey, deleteApiKey, getApiKeys } from '../../../../slices/apiKey';
+import {
+  addApiKey,
+  deleteApiKey,
+  getApiKeys,
+  rotateApiKey
+} from '../../../../slices/apiKey';
 import { ApiKey, ApiKeyPostDTO } from '../../../../models/owns/apiKey';
 import { Page, Pageable, SearchCriteria } from '../../../../models/owns/page';
 import CustomDatagrid2, {
@@ -37,6 +43,7 @@ import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CloseIcon from '@mui/icons-material/Close';
+import SyncTwoToneIcon from '@mui/icons-material/SyncTwoTone';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
 import { Formik, Form, Field } from 'formik';
@@ -68,6 +75,7 @@ function ApiKeys() {
   const [openCreateModal, setOpenCreateModal] = useState(false);
   const [loadingCreate, setLoadingCreate] = useState(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [openRotateDialog, setOpenRotateDialog] = useState(false);
   const [currentApiKey, setCurrentApiKey] = useState<ApiKey | null>(null);
   const [pageable, setPageable] = useState<Pageable>({
     page: 0,
@@ -78,6 +86,11 @@ function ApiKeys() {
     null
   );
   const [showCode, setShowCode] = useState(false);
+  const [loadingRotate, setLoadingRotate] = useState(false);
+  const [rotatedApiKeyCode, setRotatedApiKeyCode] = useState<string | null>(
+    null
+  );
+  const [showRotatedCode, setShowRotatedCode] = useState(false);
 
   const handleOpenCreateModal = () => {
     setOpenCreateModal(true);
@@ -123,6 +136,33 @@ function ApiKeys() {
     }
   };
 
+  const handleOpenRotateDialog = (apiKey: ApiKey) => {
+    setCurrentApiKey(apiKey);
+    setOpenRotateDialog(true);
+  };
+
+  const handleCloseRotateDialog = () => {
+    setOpenRotateDialog(false);
+    setCurrentApiKey(null);
+    setRotatedApiKeyCode(null);
+    setShowRotatedCode(false);
+  };
+
+  const handleRotateApiKey = async () => {
+    if (!currentApiKey) return;
+    setLoadingRotate(true);
+    try {
+      const result: ApiKey = await dispatch(rotateApiKey(currentApiKey.id));
+      if (result) {
+        setRotatedApiKeyCode(result.code || null);
+        setShowRotatedCode(true);
+        showSnackBar(t('api_key_rotated_success'), 'success');
+      }
+    } finally {
+      setLoadingRotate(false);
+    }
+  };
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     showSnackBar(t('api_key_code_copied'), 'success');
@@ -131,6 +171,13 @@ function ApiKeys() {
   useEffect(() => {
     dispatch(getApiKeys({}, pageable));
   }, [pageable]);
+
+  const getKeyStatus = (apiKey: ApiKey): 'active' | 'expired' | 'revoked' => {
+    if (apiKey.revokedAt) return 'revoked';
+    if (apiKey.expiresAt && new Date(apiKey.expiresAt) < new Date())
+      return 'expired';
+    return 'active';
+  };
 
   const columns: CustomDatagridColumn2<ApiKey>[] = [
     {
@@ -144,7 +191,21 @@ function ApiKeys() {
       cell: (info) => {
         const user = info.getValue() as { firstName: string; lastName: string };
         return user ? `${user.firstName} ${user.lastName}` : '-';
-      }
+      },
+      size: 70
+    },
+    {
+      header: t('status'),
+      accessorKey: 'status',
+      cell: (info) => {
+        const status = getKeyStatus(info.row.original);
+        if (status === 'revoked')
+          return <Chip label={t('revoked')} color="error" size="small" />;
+        if (status === 'expired')
+          return <Chip label={t('expired')} color="warning" size="small" />;
+        return <Chip label={t('active')} color="success" size="small" />;
+      },
+      size: 50
     },
     {
       header: t('last_used'),
@@ -156,14 +217,29 @@ function ApiKeys() {
     },
     {
       header: t('actions'),
-      cell: (info) => (
-        <IconButton
-          color="error"
-          onClick={() => handleOpenDeleteDialog(info.row.original)}
-        >
-          <DeleteTwoToneIcon />
-        </IconButton>
-      ),
+      cell: (info) => {
+        const apiKey = info.row.original;
+        const status = getKeyStatus(apiKey);
+        return (
+          <Stack direction="row" spacing={0.5}>
+            {status !== 'revoked' && (
+              <IconButton
+                color="primary"
+                onClick={() => handleOpenRotateDialog(apiKey)}
+                title={t('rotate')}
+              >
+                <SyncTwoToneIcon />
+              </IconButton>
+            )}
+            <IconButton
+              color="error"
+              onClick={() => handleOpenDeleteDialog(apiKey)}
+            >
+              <DeleteTwoToneIcon />
+            </IconButton>
+          </Stack>
+        );
+      },
       size: 50
     }
   ];
@@ -335,6 +411,110 @@ function ApiKeys() {
         confirmText={t('delete')}
         question={t('delete_api_key_confirm')}
       />
+
+      {/* Rotate Confirmation Dialog */}
+      <DialogWrapper
+        open={openRotateDialog}
+        maxWidth="sm"
+        fullWidth
+        TransitionComponent={Transition}
+        keepMounted
+        onClose={handleCloseRotateDialog}
+      >
+        <DialogTitle>
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Typography variant="h4">
+              {showRotatedCode ? t('api_key_code') : t('rotate_api_key')}
+            </Typography>
+            <IconButton onClick={handleCloseRotateDialog}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          {!showRotatedCode ? (
+            <Box py={2}>
+              <Typography variant="body1" mb={3}>
+                {t('rotate_api_key_confirm')}
+              </Typography>
+              <Box display="flex" justifyContent="flex-end">
+                <Button
+                  variant="text"
+                  onClick={handleCloseRotateDialog}
+                  sx={{ mr: 1 }}
+                >
+                  {t('cancel')}
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={handleRotateApiKey}
+                  disabled={loadingRotate}
+                >
+                  {loadingRotate ? (
+                    <CircularProgress size={24} color="inherit" />
+                  ) : (
+                    t('rotate')
+                  )}
+                </Button>
+              </Box>
+            </Box>
+          ) : (
+            <Box py={3}>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="space-between"
+                p={2}
+                sx={{
+                  backgroundColor: 'grey.100',
+                  borderRadius: 1,
+                  border: '1px solid',
+                  borderColor: 'grey.300'
+                }}
+              >
+                <Typography
+                  variant="body1"
+                  fontFamily="monospace"
+                  sx={{ wordBreak: 'break-all' }}
+                >
+                  {rotatedApiKeyCode}
+                </Typography>
+                <IconButton
+                  onClick={() => copyToClipboard(rotatedApiKeyCode)}
+                  color="primary"
+                >
+                  <ContentCopyIcon />
+                </IconButton>
+              </Box>
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                mt={3}
+                p={2}
+                sx={{
+                  borderRadius: 1,
+                  border: '1px solid',
+                  borderColor: 'warning.main'
+                }}
+              >
+                <Typography variant="body2" color="warning.dark" align="center">
+                  {t('api_key_code_view_once')}
+                </Typography>
+              </Box>
+              <Box mt={3} display="flex" justifyContent="flex-end">
+                <Button variant="contained" onClick={handleCloseRotateDialog}>
+                  {t('close')}
+                </Button>
+              </Box>
+            </Box>
+          )}
+        </DialogContent>
+      </DialogWrapper>
     </Box>
   );
 }

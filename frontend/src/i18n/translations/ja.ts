@@ -1752,6 +1752,14 @@ const locale = {
   never: 'なし',
   delete_api_key: 'APIキーを削除',
   delete_api_key_confirm: 'このAPIキーを削除してもよろしいですか？',
+  rotate: 'ローテート',
+  rotate_api_key: 'APIキーをローテート',
+  rotate_api_key_confirm:
+    '現在のキーを失効し、新しいキーを生成します。古いキーはすぐに機能しなくなります。',
+  api_key_rotated_success: 'APIキーが正常にローテートされました',
+  active: 'アクティブ',
+  expired: '期限切れ',
+  revoked: '失効済み',
   upgrade_api:
     'API、コネクタ、Webhookへのアクセスを得るにはアップグレードしてください',
   // Webhooks

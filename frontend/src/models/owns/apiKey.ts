@@ -7,6 +7,8 @@ export interface ApiKey extends Audit {
   code: string;
   user: UserMiniDTO;
   lastUsed?: Date;
+  expiresAt: string;
+  revokedAt: string;
 }
 
 export interface ApiKeyPostDTO {
@@ -19,9 +21,10 @@ export interface ApiKeyShowDTO extends Audit {
   code?: string;
   user: UserMiniDTO;
   lastUsed?: Date;
+  expiresAt?: string;
+  revokedAt?: string;
 }
 
 export interface ApiKeyCriteria {
-  label?: string;
-  user?: number;
+  active?: boolean;
 }

@@ -1849,6 +1849,14 @@ const trJSON = {
   delete_api_key: 'API Anahtarını Sil',
   delete_api_key_confirm:
     'Bu API anahtarını silmek istediğinizden emin misiniz?',
+  rotate: 'Döndür',
+  rotate_api_key: 'API Anahtarını Döndür',
+  rotate_api_key_confirm:
+    'Bu, mevcut anahtarı iptal edecek ve yeni bir tane oluşturacaktır. Eski anahtar hemen çalışmaya başlayacaktır.',
+  api_key_rotated_success: 'API Anahtarı başarıyla döndürüldü',
+  active: 'Aktif',
+  expired: 'Süresi dolmuş',
+  revoked: 'İptal edilmiş',
   upgrade_api: 'API, bağlayıcılar ve webhooklara erişmek için yükseltin',
   comments: 'Yorumlar',
   add_comment_placeholder: 'Yorum ekle...',
