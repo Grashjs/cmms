@@ -8,7 +8,7 @@ import {
   useState
 } from 'react';
 import { OwnUser, UserResponseDTO } from '../models/user';
-import api, { authHeader } from '../utils/api';
+import api, { authHeader, refreshAccessToken } from '../utils/api';
 import { verify } from '../utils/jwt';
 import { Alert, AppState, Linking, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -736,8 +736,20 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       const accessToken = await AsyncStorage.getItem('accessToken');
       const refreshToken = await AsyncStorage.getItem('refreshToken');
 
+      let authenticated = false;
       if (accessToken && (await verify(accessToken))) {
-        setSession(accessToken, refreshToken);
+        authenticated = true;
+      } else if (refreshToken) {
+        const refreshed = await refreshAccessToken();
+        if (refreshed) {
+          authenticated = true;
+        }
+      }
+
+      if (authenticated) {
+        const newAccessToken = await AsyncStorage.getItem('accessToken');
+        const newRefreshToken = await AsyncStorage.getItem('refreshToken');
+        setSession(newAccessToken, newRefreshToken);
         const user = await updateUserInfos();
         const company = await api.get<Company>(`companies/${user.companyId}`);
         await setupUser(user, company.companySettings);

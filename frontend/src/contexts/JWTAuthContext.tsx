@@ -1,6 +1,6 @@
 import { createContext, FC, ReactNode, useEffect, useReducer } from 'react';
 import { OwnUser, UserResponseDTO } from 'src/models/user';
-import api, { authHeader } from 'src/utils/api';
+import api, { authHeader, refreshAccessToken } from 'src/utils/api';
 import { verify } from 'src/utils/jwt';
 import PropTypes from 'prop-types';
 import {
@@ -548,8 +548,20 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       const accessToken = window.localStorage.getItem('accessToken');
       const refreshToken = window.localStorage.getItem('refreshToken');
 
+      let authenticated = false;
       if (accessToken && (await verify(accessToken))) {
-        setSession(accessToken, refreshToken);
+        authenticated = true;
+      } else if (refreshToken) {
+        const refreshed = await refreshAccessToken();
+        if (refreshed) {
+          authenticated = true;
+        }
+      }
+
+      if (authenticated) {
+        const newAccessToken = window.localStorage.getItem('accessToken');
+        const newRefreshToken = window.localStorage.getItem('refreshToken');
+        setSession(newAccessToken, newRefreshToken);
         const user = await updateUserInfos();
         const company = await api.get<Company>(`companies/${user.companyId}`);
         await setupUser(company.companySettings);
