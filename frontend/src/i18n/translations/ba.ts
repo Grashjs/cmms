@@ -1831,6 +1831,8 @@ const locale = {
   api_key_code: 'Kod API ključa',
   copy_code: 'Kopiraj kod',
   last_used: 'Zadnje korištenje',
+  expiration: 'Istek',
+  expiration_optional: 'Istek (opcionalno)',
   never: 'Nikada',
   delete_api_key: 'Obriši API ključ',
   delete_api_key_confirm:

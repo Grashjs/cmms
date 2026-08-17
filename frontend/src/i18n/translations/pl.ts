@@ -1846,6 +1846,8 @@ const plJSON = {
   api_key_code: 'Kod klucza API',
   copy_code: 'Kopiuj kod',
   last_used: 'Ostatnio używany',
+  expiration: 'Ważność',
+  expiration_optional: 'Ważność (opcjonalne)',
   never: 'Nigdy',
   delete_api_key: 'Usuń klucz API',
   delete_api_key_confirm: 'Czy na pewno chcesz usunąć ten klucz API?',

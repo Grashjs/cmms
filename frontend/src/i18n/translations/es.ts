@@ -1866,6 +1866,8 @@ const esJSON = {
   api_key_code: 'Código de la clave API',
   copy_code: 'Copiar código',
   last_used: 'Último uso',
+  expiration: 'Vencimiento',
+  expiration_optional: 'Vencimiento (opcional)',
   never: 'Nunca',
   delete_api_key: 'Eliminar clave API',
   delete_api_key_confirm: '¿Está seguro de que desea eliminar esta clave API?',

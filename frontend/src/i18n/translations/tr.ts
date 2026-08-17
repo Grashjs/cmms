@@ -1845,6 +1845,8 @@ const trJSON = {
   api_key_code: 'API Anahtarı Kodu',
   copy_code: 'Kodu Kopyala',
   last_used: 'Son Kullanım',
+  expiration: 'Son Kullanma Tarihi',
+  expiration_optional: 'Son Kullanma Tarihi (isteğe bağlı)',
   never: 'Hiçbir Zaman',
   delete_api_key: 'API Anahtarını Sil',
   delete_api_key_confirm:

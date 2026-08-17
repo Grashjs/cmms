@@ -1844,6 +1844,8 @@ const locale = {
   api_key_code: 'API-sleutelcode',
   copy_code: 'Code kopiëren',
   last_used: 'Laatst gebruikt',
+  expiration: 'Vervaldatum',
+  expiration_optional: 'Vervaldatum (optioneel)',
   never: 'Nooit',
   delete_api_key: 'API-sleutel verwijderen',
   delete_api_key_confirm:

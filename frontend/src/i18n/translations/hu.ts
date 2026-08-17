@@ -1701,6 +1701,8 @@ const locale = {
   api_key_code: 'API kulcs kód',
   copy_code: 'Kód másolása',
   last_used: 'Utoljára használva',
+  expiration: 'Lejárat',
+  expiration_optional: 'Lejárat (opcionális)',
   never: 'Soha',
   delete_api_key: 'API kulcs törlése',
   delete_api_key_confirm: 'Biztosan törölni szeretné ezt az API kulcsot?',

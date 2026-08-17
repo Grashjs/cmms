@@ -1744,6 +1744,8 @@ const locale = {
   api_key_code: 'API Key Code',
   copy_code: 'Copy Code',
   last_used: 'Last Used',
+  expiration: 'Expiration',
+  expiration_optional: 'Expiration (optional)',
   never: 'Never',
   delete_api_key: 'Delete API Key',
   delete_api_key_confirm: 'Are you sure you want to delete this API Key?',

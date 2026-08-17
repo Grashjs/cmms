@@ -1850,6 +1850,8 @@ const locale = {
   api_key_code: 'Codice chiave API',
   copy_code: 'Copia codice',
   last_used: 'Ultimo utilizzo',
+  expiration: 'Scadenza',
+  expiration_optional: 'Scadenza (opzionale)',
   never: 'Mai',
   delete_api_key: 'Elimina chiave API',
   delete_api_key_confirm: 'Sei sicuro di voler eliminare questa chiave API?',

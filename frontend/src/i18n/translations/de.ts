@@ -1875,6 +1875,8 @@ const deJSON = {
   api_key_code: 'API-Schlüsselcode',
   copy_code: 'Code kopieren',
   last_used: 'Zuletzt verwendet',
+  expiration: 'Ablaufdatum',
+  expiration_optional: 'Ablaufdatum (optional)',
   never: 'Nie',
   delete_api_key: 'API-Schlüssel löschen',
   delete_api_key_confirm:

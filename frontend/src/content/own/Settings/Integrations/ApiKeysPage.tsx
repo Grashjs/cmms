@@ -50,6 +50,7 @@ import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
 import { onOpenApiDocs } from '../../../../utils/overall';
+import DateTimePicker from '@mui/lab/DateTimePicker';
 
 const DialogWrapper = styled(Dialog)(
   () => `
@@ -186,11 +187,11 @@ function ApiKeys() {
       cell: (info) => info.getValue() as string
     },
     {
-      header: t('user'),
-      accessorKey: 'user',
+      header: t('expiration'),
+      accessorKey: 'expiresAt',
       cell: (info) => {
-        const user = info.getValue() as { firstName: string; lastName: string };
-        return user ? `${user.firstName} ${user.lastName}` : '-';
+        const expiresAt = info.getValue() as string;
+        return expiresAt ? getFormattedDate(expiresAt) : t('never');
       },
       size: 70
     },
@@ -304,15 +305,30 @@ function ApiKeys() {
         <DialogContent>
           {!createdApiKeyCode ? (
             <Formik
-              initialValues={{ label: '' }}
+              initialValues={{ label: '', expiresAt: null }}
               validationSchema={Yup.object({
                 label: Yup.string().required(
                   t('api_key_label') + ' ' + t('required')
                 )
               })}
-              onSubmit={handleCreateApiKey}
+              onSubmit={(values, { setFieldValue }) => {
+                const payload = {
+                  label: values.label,
+                  ...(values.expiresAt && {
+                    expiresAt: values.expiresAt.toISOString()
+                  })
+                };
+                return handleCreateApiKey(payload);
+              }}
             >
-              {({ errors, touched, values, handleChange, handleSubmit }) => (
+              {({
+                errors,
+                touched,
+                values,
+                handleChange,
+                handleSubmit,
+                setFieldValue
+              }) => (
                 <Form onSubmit={handleSubmit}>
                   <Box py={2}>
                     <TextField
@@ -325,6 +341,22 @@ function ApiKeys() {
                       fullWidth
                       autoFocus
                     />
+                    <Box mt={2}>
+                      <DateTimePicker
+                        label={t('expiration_optional')}
+                        value={values.expiresAt}
+                        onChange={(value) => setFieldValue('expiresAt', value)}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            margin="normal"
+                            variant="outlined"
+                            fullWidth
+                            name={'expiresAt'}
+                          />
+                        )}
+                      />
+                    </Box>
                     <Box mt={3} display="flex" justifyContent="flex-end">
                       <Button
                         variant="text"

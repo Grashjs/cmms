@@ -1814,6 +1814,8 @@ const locale = {
   api_key_code: 'API-nyckelkod',
   copy_code: 'Kopiera kod',
   last_used: 'Senast använd',
+  expiration: 'Utgångsdatum',
+  expiration_optional: 'Utgångsdatum (valfritt)',
   never: 'Aldrig',
   delete_api_key: 'Ta bort API-nyckel',
   delete_api_key_confirm:

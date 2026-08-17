@@ -1731,6 +1731,8 @@ const locale = {
   api_key_code: 'رمز مفتاح API',
   copy_code: 'نسخ الرمز',
   last_used: 'آخر استخدام',
+  expiration: 'انتهاء الصلاحية',
+  expiration_optional: 'انتهاء الصلاحية (اختياري)',
   never: 'أبدًا',
   delete_api_key: 'حذف مفتاح API',
   delete_api_key_confirm: 'هل أنت متأكد أنك تريد حذف مفتاح API هذا؟',

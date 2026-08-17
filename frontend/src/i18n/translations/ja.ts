@@ -1749,6 +1749,8 @@ const locale = {
   api_key_code: 'APIキーコード',
   copy_code: 'コードをコピー',
   last_used: '最終使用',
+  expiration: '有効期限',
+  expiration_optional: '有効期限（任意）',
   never: 'なし',
   delete_api_key: 'APIキーを削除',
   delete_api_key_confirm: 'このAPIキーを削除してもよろしいですか？',

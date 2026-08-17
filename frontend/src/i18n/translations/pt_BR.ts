@@ -1876,6 +1876,8 @@ const ptBRJSON = {
   api_key_code: 'Código da chave API',
   copy_code: 'Copiar código',
   last_used: 'Último uso',
+  expiration: 'Expiração',
+  expiration_optional: 'Expiração (opcional)',
   never: 'Nunca',
   delete_api_key: 'Excluir chave API',
   delete_api_key_confirm: 'Tem certeza de que deseja excluir esta chave API?',

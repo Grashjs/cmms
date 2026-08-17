@@ -1949,6 +1949,8 @@ const frJSON = {
   api_key_code: 'Code de la clé API',
   copy_code: 'Copier le code',
   last_used: 'Dernière utilisation',
+  expiration: 'Expiration',
+  expiration_optional: 'Expiration (optionnel)',
   never: 'Jamais',
   delete_api_key: 'Supprimer la clé API',
   delete_api_key_confirm: 'Êtes-vous sûr de vouloir supprimer cette clé API ?',

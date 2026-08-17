@@ -41,6 +41,8 @@ public class ApiKeyService {
     private final LicenseService licenseService;
 
     public Pair<ApiKey, String> create(@Valid ApiKeyPostDTO apiKeyReq, User user) {
+        if (apiKeyReq.getExpiresAt() != null && apiKeyReq.getExpiresAt().before(new Date()))
+            throw new CustomException("expiring date can't be in the past", HttpStatus.NOT_ACCEPTABLE);
         if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
                 || !user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.API_ACCESS)
                 || !licenseService.hasEntitlement(LicenseEntitlement.API_ACCESS))

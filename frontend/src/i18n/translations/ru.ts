@@ -1909,6 +1909,8 @@ const ruJSON = {
   api_key_code: 'Код API ключа',
   copy_code: 'Скопировать код',
   last_used: 'Последнее использование',
+  expiration: 'Срок действия',
+  expiration_optional: 'Срок действия (необязательно)',
   never: 'Никогда',
   delete_api_key: 'Удалить API ключ',
   delete_api_key_confirm: 'Вы уверены, что хотите удалить этот API ключ?',

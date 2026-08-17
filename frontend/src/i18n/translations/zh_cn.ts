@@ -1515,6 +1515,8 @@ const locale = {
   api_key_code: 'API 密钥代码',
   copy_code: '复制代码',
   last_used: '上次使用',
+  expiration: '过期时间',
+  expiration_optional: '过期时间（可选）',
   never: '从不',
   delete_api_key: '删除 API 密钥',
   delete_api_key_confirm: '您确定要删除此 API 密钥吗？',
