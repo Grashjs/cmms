@@ -119,11 +119,10 @@ export default function UserProfile({
             }}
             validationSchema={Yup.object().shape({
               oldPassword: Yup.string()
-                .required(t('required_old_password'))
-                .min(8, t('invalid_password')),
+                .required(t('required_old_password')),
               newPassword: Yup.string()
                 .required(t('required_new_password'))
-                .min(8, t('invalid_password')),
+                .min(12, t('invalid_password')),
               confirmPassword: Yup.string().oneOf(
                 [Yup.ref('newPassword'), null],
                 t('passwords_must_match')

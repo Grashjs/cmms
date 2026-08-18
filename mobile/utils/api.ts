@@ -59,6 +59,15 @@ function isRefreshRequest(url: string): boolean {
   return url.replace(/\/+$/, '').endsWith('/auth/refresh');
 }
 
+let onConflictError: (() => void) | null = null;
+
+export function setConflictErrorHandler(handler: () => void): () => void {
+  onConflictError = handler;
+  return () => {
+    onConflictError = null;
+  };
+}
+
 async function doFetch<T>(
   url: string,
   options: Options,
@@ -69,12 +78,16 @@ async function doFetch<T>(
     ...options
   });
   if (!response.ok) {
-    if (response.status === 401 && !retried && !isRefreshRequest(url)) {
-      const refreshed = await refreshAccessToken();
-      if (refreshed) {
-        return doFetch<T>(url, options, true);
+      if (response.status === 401 && !retried && !isRefreshRequest(url)) {
+        const refreshed = await refreshAccessToken();
+        if (refreshed) {
+          return doFetch<T>(url, options, true);
+        }
       }
-    }
+      if (response.status === 409) {
+        if (onConflictError) onConflictError();
+        throw new Error('conflict_error');
+      }
     throw new Error(JSON.stringify(await response.json()));
   }
   if (options?.raw) return response as unknown as Promise<T>;

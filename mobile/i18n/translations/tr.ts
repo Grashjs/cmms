@@ -993,7 +993,7 @@ const trJSON = {
   po_emails: 'Satın Alma Siparişi E-postaları',
   required_job_title: 'İş unvanı alanı zorunludur',
   required_old_password: 'Lütfen mevcut şifreyi girin.',
-  invalid_password: 'Şifre çok kısa; minimum 8 karakter olmalıdır.',
+  invalid_password: 'Şifre çok kısa; minimum 12 karakter olmalıdır.',
   required_new_password: 'Şifre sağlanmadı.',
   passwords_must_match: 'Şifreler aynı olmalıdır',
   password_change_success: 'parola başarıyla değiştirildi',
@@ -1574,6 +1574,7 @@ const trJSON = {
   reset: 'Sıfırla',
   operation_success: 'İşlem başarılı oldu',
   edit_reading: 'Okumayı Düzenle',
-  are_you_sure_delete_reading: 'Bu okumayı silmek istediğinizden emin misiniz?'
+  are_you_sure_delete_reading: 'Bu okumayı silmek istediğinizden emin misiniz?',
+  conflict_retry: 'Kaynak başka bir istek tarafından değiştirildi. Lütfen 5 saniye sonra tekrar deneyin.'
 };
 export default trJSON;

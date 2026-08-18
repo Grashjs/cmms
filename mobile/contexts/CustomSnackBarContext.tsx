@@ -1,7 +1,8 @@
-import { createContext, FC, ReactNode, useState } from 'react';
+import { createContext, FC, ReactNode, useEffect } from 'react';
 import { Snackbar, useTheme } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { showMessage } from 'react-native-flash-message';
+import { setConflictErrorHandler } from '../utils/api';
 
 type CustomSnackBarContext = {
   showSnackBar: (
@@ -48,6 +49,13 @@ export const CustomSnackbarProvider: FC<{ children: ReactNode }> = ({
         return theme.colors.success;
     }
   };
+
+  useEffect(() => {
+    return setConflictErrorHandler(() => {
+      showSnackBar(t('conflict_retry'), 'error');
+    });
+  }, [t]);
+
   return (
     <CustomSnackBarContext.Provider value={{ showSnackBar }}>
       {children}
