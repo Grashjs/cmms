@@ -2,8 +2,10 @@ package com.grash.dto;
 
 import com.grash.model.File;
 import com.grash.model.Location;
+import com.grash.validation.ValidPassword;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -34,5 +36,7 @@ public class UserPatchDTO {
     private File image;
 
     @Schema(description = "New password for the user")
+    @Size(max = 128)
+    @ValidPassword
     private String newPassword;
 }

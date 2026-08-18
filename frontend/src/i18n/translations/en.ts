@@ -986,7 +986,7 @@ const locale = {
   po_emails: 'Purchase Request Emails',
   required_job_title: 'The Job title field is required',
   required_old_password: 'Please provide the current password.',
-  invalid_password: 'Password is too short - should be 8 chars minimum.',
+  invalid_password: 'Password is too short - should be 12 chars minimum.',
   required_new_password: 'No password provided.',
   passwords_must_match: 'Passwords must match',
   password_change_success: 'Password changed successfully',
@@ -1933,7 +1933,8 @@ const locale = {
   trigger_work_order: 'Trigger Work Order',
   edit_reading: 'Edit reading',
   are_you_sure_delete_reading: 'Are you sure to delete this reading?',
-  no_custom_fields_found: 'No custom fields found'
+  no_custom_fields_found: 'No custom fields found',
+  conflict_retry: 'The resource was modified by another request. Please retry in 5 seconds.'
 };
 
 export default locale;

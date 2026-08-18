@@ -1031,7 +1031,7 @@ const locale = {
   required_job_title: 'Il campo Titolo del lavoro è obbligatorio',
   required_old_password: 'Inserisci la password attuale.',
   invalid_password:
-    'La password è troppo corta: dovrebbe contenere almeno 8 caratteri.',
+    'La password è troppo corta: dovrebbe contenere almeno 12 caratteri.',
   required_new_password: 'Nessuna password fornita.',
   passwords_must_match: 'Le password devono essere identiche',
   password_change_success: 'Password modificata con successo',

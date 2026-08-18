@@ -1073,7 +1073,7 @@ const deJSON = {
   required_job_title: 'Das Feld für die Berufsbezeichnung ist erforderlich',
   required_old_password: 'Bitte geben Sie das aktuelle Passwort ein.',
   invalid_password:
-    'Passwort ist zu kurz - sollte mindestens 8 Zeichen lang sein.',
+    'Passwort ist zu kurz - sollte mindestens 12 Zeichen lang sein.',
   required_new_password: 'Kein Passwort angegeben.',
   passwords_must_match: 'Passwörter müssen übereinstimmen',
   password_change_success: 'Passwort erfolgreich geändert',

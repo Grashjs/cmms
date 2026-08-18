@@ -1011,7 +1011,7 @@ const locale = {
   po_emails: 'E-postmeddelanden för inköpsorder',
   required_job_title: 'Fältet för jobbtitel är obligatoriskt',
   required_old_password: 'Vänligen ange det nuvarande lösenordet.',
-  invalid_password: 'Lösenordet är för kort – bör vara minst 8 tecken långt.',
+  invalid_password: 'Lösenordet är för kort – bör vara minst 12 tecken långt.',
   required_new_password: 'Inget lösenord tillhandahålls.',
   passwords_must_match: 'Lösenorden måste matcha',
   password_change_success: 'Lösenordet har ändrats',

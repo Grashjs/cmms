@@ -737,7 +737,7 @@ const locale = {
   po_emails: '采购订单电子邮件',
   required_job_title: '职位字段是必需的',
   required_old_password: '输入当前密码。',
-  invalid_password: '密码太短 - 必须至少8个字符。',
+  invalid_password: '密码太短 - 必须至少12个字符。',
   required_new_password: '未提供密码。',
   passwords_must_match: '密码必须匹配',
   password_change_success: '密码更改成功',

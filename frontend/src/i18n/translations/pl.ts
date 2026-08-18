@@ -1035,7 +1035,7 @@ const plJSON = {
   po_emails: 'E-maile dotyczące zamówień',
   required_job_title: 'Pole stanowiska jest wymagane',
   required_old_password: 'Podaj obecne hasło',
-  invalid_password: 'Hasło jest za krótkie - minimum 8 znaków',
+  invalid_password: 'Hasło jest za krótkie - minimum 12 znaków',
   required_new_password: 'Nie podano hasła',
   passwords_must_match: 'Hasła muszą się zgadzać',
   password_change_success: 'Hasło zostało pomyślnie zmienione',

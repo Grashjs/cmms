@@ -1,5 +1,6 @@
 package com.grash.controller;
 
+import com.grash.configuration.PasswordPolicyProperties;
 import com.grash.dto.*;
 import com.grash.exception.CustomException;
 import com.grash.mapper.UserMapper;
@@ -17,6 +18,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -38,6 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(AuthController.class)
 @AutoConfigureMockMvc(addFilters = false)
+@EnableConfigurationProperties(PasswordPolicyProperties.class)
 class AuthControllerTest extends AbstractControllerTest {
 
     @Autowired
@@ -154,7 +158,7 @@ class AuthControllerTest extends AbstractControllerTest {
 
             mockMvc.perform(post("/auth/signup")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content("{\"email\":\"existing@test.com\",\"password\":\"pass123\"," +
+                            .content("{\"email\":\"existing@test.com\",\"password\":\"pass123pass12\"," +
                                     "\"firstName\":\"John\",\"lastName\":\"Doe\",\"phone\":\"12345678\"}"))
                     .andExpect(status().isUnprocessableEntity());
         }
@@ -178,7 +182,7 @@ class AuthControllerTest extends AbstractControllerTest {
 
             mockMvc.perform(post("/auth/updatepwd")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content("{\"oldPassword\":\"wrong1\",\"newPassword\":\"newpass123\"}"))
+                            .content("{\"oldPassword\":\"wrong1\",\"newPassword\":\"newpass123456\"}"))
                     .andExpect(status().isNotAcceptable())
                     .andExpect(jsonPath("$.success").value(false))
                     .andExpect(jsonPath("$.message").value("Bad credentials"));
@@ -239,7 +243,7 @@ class AuthControllerTest extends AbstractControllerTest {
 
             mockMvc.perform(post("/auth/signup")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content("{\"email\":\"new@test.com\",\"password\":\"pass123\",\"firstName\":\"John\"," +
+                            .content("{\"email\":\"new@test.com\",\"password\":\"pass123pass12\",\"firstName\":\"John\"," +
                                     "\"lastName\":\"Doe\",\"phone\":\"12345678\"}"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.success").value(true))
@@ -363,14 +367,14 @@ class AuthControllerTest extends AbstractControllerTest {
             setCurrentUser(clientUser);
             when(userService.whoami(any())).thenReturn(clientUser);
             when(passwordEncoder.matches("oldPass", "encoded-password")).thenReturn(true);
-            when(passwordEncoder.encode("newPass")).thenReturn("new-encoded");
+            when(passwordEncoder.encode("newPassPass12")).thenReturn("new-encoded");
             when(userService.invalidateSessions(any())).thenReturn(clientUser);
             when(refreshTokenService.createTokenPair(clientUser))
                     .thenReturn(new AuthTokens("new-access", "new-refresh", accessTokenExpiresAt));
 
             mockMvc.perform(post("/auth/updatepwd")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content("{\"oldPassword\":\"oldPass\",\"newPassword\":\"newPass\"}"))
+                            .content("{\"oldPassword\":\"oldPass\",\"newPassword\":\"newPassPass12\"}"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.accessToken").value("new-access"))
                     .andExpect(jsonPath("$.refreshToken").value("new-refresh"))

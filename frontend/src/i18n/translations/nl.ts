@@ -1027,7 +1027,7 @@ const locale = {
   po_emails: 'E-mails voor inkooporders',
   required_job_title: 'Het veld Functietitel is verplicht',
   required_old_password: 'Geef het huidige wachtwoord op.',
-  invalid_password: 'Wachtwoord is te kort - moet minimaal 8 tekens bevatten.',
+  invalid_password: 'Wachtwoord is te kort - moet minimaal 12 tekens bevatten.',
   required_new_password: 'Geen wachtwoord opgegeven.',
   passwords_must_match: 'Wachtwoorden moeten overeenkomen',
   password_change_success: 'Wachtwoord succesvol gewijzigd',

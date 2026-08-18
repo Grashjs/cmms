@@ -394,8 +394,6 @@ public class UserService {
         if (userRepository.existsById(id)) {
             User savedUser = userRepository.findById(id).get();
             if (userReq.getNewPassword() != null) {
-                if (userReq.getNewPassword().length() < 8)
-                    throw new CustomException("Password must be at least 8 characters", HttpStatus.NOT_ACCEPTABLE);
                 if (enableInvitationViaEmail)
                     throw new CustomException("Please tell the user to reset his password", HttpStatus.NOT_FOUND);
 

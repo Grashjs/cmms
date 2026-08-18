@@ -1039,7 +1039,7 @@ const esJSON = {
   required_job_title: 'El campo título del puesto es obligatorio',
   required_old_password: 'Por favor proporcione la contraseña actual.',
   invalid_password:
-    'La contraseña es demasiado corta. Debe tener un mínimo de 8 caracteres.',
+    'La contraseña es demasiado corta. Debe tener un mínimo de 12 caracteres.',
   required_new_password: 'No se proporcionó contraseña.',
   passwords_must_match: 'Las contraseñas deben coincidir',
   password_change_success: 'Contraseña modificada exitosamente',

@@ -990,7 +990,7 @@ const locale = {
   po_emails: '購入リクエストメール',
   required_job_title: '役職フィールドは必須です',
   required_old_password: '現在のパスワードを入力してください。',
-  invalid_password: 'パスワードが短すぎます - 最低8文字必要です。',
+  invalid_password: 'パスワードが短すぎます - 最低12文字必要です。',
   required_new_password: 'パスワードが入力されていません。',
   passwords_must_match: 'パスワードが一致しません',
   password_change_success: 'パスワードが正常に変更されました',

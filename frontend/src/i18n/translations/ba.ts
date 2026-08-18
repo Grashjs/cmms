@@ -1007,7 +1007,7 @@ const locale = {
   required_job_title: 'Polje naziva radnog mjesta je obavezno',
   required_old_password: 'Molimo unesite trenutnu lozinku.',
   invalid_password:
-    'Lozinka je prekratka - trebala bi imati najmanje 8 znakova.',
+    'Lozinka je prekratka - trebala bi imati najmanje 12 znakova.',
   required_new_password: 'Nije unesena lozinka.',
   passwords_must_match: 'Lozinke se moraju podudarati',
   password_change_success: 'Lozinka uspješno promijenjena',

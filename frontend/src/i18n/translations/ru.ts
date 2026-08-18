@@ -1047,7 +1047,7 @@ const ruJSON = {
   // --- Password & Security ---
   required_job_title: 'Поле должности обязательно',
   required_old_password: 'Введите текущий пароль',
-  invalid_password: 'Пароль слишком короткий — минимум 8 символов',
+  invalid_password: 'Пароль слишком короткий — минимум 12 символов',
   required_new_password: 'Пароль не указан',
   passwords_must_match: 'Пароли должны совпадать',
   password_change_success: 'Пароль успешно изменён',

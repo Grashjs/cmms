@@ -136,8 +136,8 @@ function RegisterWizard() {
                     .max(255)
                     .required(t('The first name field is required')),
                   password: Yup.string()
-                    .min(8)
-                    .max(255)
+                    .min(12)
+                    .max(128)
                     .required(t('The password field is required')),
                   password_confirm: Yup.string()
                     .oneOf(

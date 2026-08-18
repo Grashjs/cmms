@@ -986,7 +986,7 @@ const trJSON = {
   po_emails: 'Satın Alma Siparişi E-postaları',
   required_job_title: 'İş unvanı alanı zorunludur',
   required_old_password: 'Lütfen mevcut şifreyi girin.',
-  invalid_password: 'Şifre çok kısa; minimum 8 karakter olmalıdır.',
+  invalid_password: 'Şifre çok kısa; minimum 12 karakter olmalıdır.',
   required_new_password: 'Şifre sağlanmadı.',
   passwords_must_match: 'Şifreler aynı olmalıdır',
   password_change_success: 'parola başarıyla değiştirildi',

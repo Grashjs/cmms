@@ -1149,7 +1149,7 @@ const frJSON = {
   required_job_title: 'Le champ Intitulé du poste est obligatoire',
   required_old_password: 'Veuillez fournir le mot de passe actuel.',
   invalid_password:
-    'Le mot de passe est trop court - doit comporter au moins 8 caractères.',
+    'Le mot de passe est trop court - doit comporter au moins 12 caractères.',
   required_new_password: 'Aucun mot de passe fourni.',
   passwords_must_match: 'les mots de passe doivent correspondre',
   password_change_success: 'Le mot de passe a été changé avec succès',
@@ -2160,7 +2160,8 @@ const frJSON = {
   edit_reading: 'Modifier la lecture',
   are_you_sure_delete_reading:
     'Êtes-vous sûr de vouloir supprimer cette lecture ?',
-  no_custom_fields_found: 'Aucun champ personnalisé trouvé'
+  no_custom_fields_found: 'Aucun champ personnalisé trouvé',
+  conflict_retry: "La ressource a été modifiée par une autre requête. Veuillez réessayer dans 5 secondes."
 };
 
 export default frJSON;

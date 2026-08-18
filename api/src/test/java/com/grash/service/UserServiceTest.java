@@ -1212,18 +1212,6 @@ class UserServiceTest {
         }
 
         @Test
-        void rejectsShortPassword() {
-            UserPatchDTO patch = new UserPatchDTO();
-            patch.setNewPassword("1234567");
-            when(userRepository.existsById(1L)).thenReturn(true);
-            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-
-            CustomException ex = assertThrows(CustomException.class,
-                    () -> userService.update(1L, patch));
-            assertEquals(HttpStatus.NOT_ACCEPTABLE, ex.getHttpStatus());
-        }
-
-        @Test
         void nonExistentUser_throws() {
             when(userRepository.existsById(999L)).thenReturn(false);
 

@@ -832,7 +832,7 @@ const locale = {
   po_emails: 'Beszerzési Rendelés E-mail',
   required_job_title: 'A beosztás mező kötelező',
   required_old_password: 'Add meg a jelenlegi jelszót.',
-  invalid_password: 'A jelszó túl rövid - legalább 8 karakternek kell lennie.',
+  invalid_password: 'A jelszó túl rövid - legalább 12 karakternek kell lennie.',
   required_new_password: 'Nincs jelszó megadva.',
   passwords_must_match: 'A jelszavaknak egyezniük kell',
   password_change_success: 'Jelszó sikeresen módosítva',

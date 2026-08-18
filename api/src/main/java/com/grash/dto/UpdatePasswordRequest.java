@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.grash.validation.ValidPassword;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -15,12 +16,13 @@ import jakarta.validation.constraints.Size;
 public class UpdatePasswordRequest {
     @Schema(description = "Current password")
     @NotNull
-    @Size(min = 6, max = 50)
+    @Size(max = 128)
     private String oldPassword;
     
     @Schema(description = "New password")
     @NotNull
-    @Size(min = 6, max = 50)
+    @Size(max = 128)
+    @ValidPassword
     private String newPassword;
 }
 

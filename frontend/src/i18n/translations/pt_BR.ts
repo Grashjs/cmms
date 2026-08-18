@@ -1056,7 +1056,7 @@ const ptBRJSON = {
   po_emails: 'E-mails de Ordem de Compra',
   required_job_title: 'O campo de cargo é obrigatório',
   required_old_password: 'Por favor, forneça a senha atual.',
-  invalid_password: 'A senha é muito curta - deve ter pelo menos 8 caracteres.',
+  invalid_password: 'A senha é muito curta - deve ter pelo menos 12 caracteres.',
   required_new_password: 'Nenhuma senha fornecida.',
   passwords_must_match: 'As senhas devem corresponder',
   password_change_success: 'Senha alterada com sucesso',

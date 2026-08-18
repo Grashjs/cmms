@@ -58,7 +58,20 @@ function isRefreshRequest(url: string): boolean {
   return url.replace(/\/+$/, '').endsWith('/auth/refresh');
 }
 
-async function doFetch<T>(url: string, options: Options, retried: boolean): Promise<T> {
+let onConflictError: (() => void) | null = null;
+
+export function setConflictErrorHandler(handler: () => void): () => void {
+  onConflictError = handler;
+  return () => {
+    onConflictError = null;
+  };
+}
+
+async function doFetch<T>(
+  url: string,
+  options: Options,
+  retried: boolean
+): Promise<T> {
   const response = await fetch(url, { headers: authHeader(false), ...options });
   if (!response.ok) {
     if (response.status === 401 && !retried && !isRefreshRequest(url)) {
@@ -66,6 +79,10 @@ async function doFetch<T>(url: string, options: Options, retried: boolean): Prom
       if (refreshed) {
         return doFetch<T>(url, options, true);
       }
+    }
+    if (response.status === 409) {
+      if (onConflictError) onConflictError();
+      throw new Error('conflict_error');
     }
     throw new Error(JSON.stringify(await response.json()));
   }
