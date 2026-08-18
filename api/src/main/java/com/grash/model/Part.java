@@ -68,6 +68,9 @@ public class Part extends CompanyAudit {
     @Schema(description = "The current quantity of the part in stock")
     private double quantity;
 
+    @Version
+    private Long version;
+
     @Schema(description = "The area or storage location where the part is kept")
     private String area;
 

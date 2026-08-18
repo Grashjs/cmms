@@ -10,6 +10,7 @@ import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -73,6 +74,14 @@ public class GlobalExceptionHandlerController {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     ResponseEntity<SuccessResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         return new ResponseEntity<>(new SuccessResponse(false, ex.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<SuccessResponse> handleOptimisticLocking(ObjectOptimisticLockingFailureException ex) {
+        return new ResponseEntity<>(
+                new SuccessResponse(false, "The resource was modified by another request. Please refresh and retry."),
+                HttpStatus.CONFLICT
+        );
     }
 
     @ExceptionHandler(Exception.class)
