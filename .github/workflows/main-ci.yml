@@ -107,7 +107,7 @@ jobs:
 
   push-backend-docker:
     needs: [detect-changes, test]
-    if: ${{ needs.detect-changes.outputs.backend == 'true' && (vars.SKIP_TESTS == 'true' || needs.test.result == 'success' || needs.test.result == 'skipped') }}
+    if: ${{ !failure() && !cancelled() && needs.detect-changes.outputs.backend == 'true' }}
     runs-on: ubuntu-latest
     concurrency:
       group: backend-docker-${{ github.ref }}
@@ -145,7 +145,7 @@ jobs:
 
   deploy-koyeb:
     needs: [detect-changes, test]
-    if: ${{ needs.detect-changes.outputs.backend == 'true' && (vars.SKIP_TESTS == 'true' || needs.test.result == 'success' || needs.test.result == 'skipped') }}
+    if: ${{ !failure() && !cancelled() && needs.detect-changes.outputs.backend == 'true' }}
     runs-on: ubuntu-latest
     concurrency:
       group: backend-koyeb-${{ github.ref }}
@@ -182,7 +182,7 @@ jobs:
 
   push-frontend-docker:
     needs: [detect-changes, test]
-    if: ${{ needs.detect-changes.outputs.frontend == 'true' && (vars.SKIP_TESTS == 'true' || needs.test.result == 'success' || needs.test.result == 'skipped') }}
+    if: ${{ !failure() && !cancelled() && needs.detect-changes.outputs.frontend == 'true' }}
     runs-on: ubuntu-latest
     concurrency:
       group: frontend-docker-${{ github.ref }}
@@ -222,7 +222,7 @@ jobs:
 
   deploy-netlify:
     needs: [detect-changes, test]
-    if: ${{ needs.detect-changes.outputs.frontend == 'true' && (vars.SKIP_TESTS == 'true' || needs.test.result == 'success' || needs.test.result == 'skipped') }}
+    if: ${{ !failure() && !cancelled() && needs.detect-changes.outputs.frontend == 'true' }}
     runs-on: ubuntu-latest
     concurrency:
       group: frontend-netlify-${{ github.ref }}
