@@ -172,7 +172,7 @@ jobs:
           service-regions: 'par'
           git-workdir: ./api
           git-builder: docker
-          skip-cache: true
+
       - name: Mark backend as deployed
         run: |
           git config user.name "github-actions[bot]"
