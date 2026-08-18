@@ -46,6 +46,10 @@ security:
     enabled: false
   rate-limit:
     enabled: false
+  password:
+    min-length: 12
+    max-length: 128
+    check-common-passwords: true
 
 frontend:
   url: http://localhost:3000
