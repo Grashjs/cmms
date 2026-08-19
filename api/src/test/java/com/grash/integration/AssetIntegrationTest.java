@@ -19,7 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -69,7 +69,7 @@ class AssetIntegrationTest extends AbstractIntegrationTest {
     @Autowired
     private AssetDowntimeService assetDowntimeService;
 
-    @MockBean
+    @MockitoBean
     private WebhookDispatchService webhookDispatchService;
 
     private Company company;

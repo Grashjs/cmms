@@ -22,7 +22,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -47,31 +47,31 @@ class AuthControllerTest extends AbstractControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private UserService userService;
 
-    @MockBean
+    @MockitoBean
     private PasswordEncoder passwordEncoder;
 
-    @MockBean
+    @MockitoBean
     private VerificationTokenService verificationTokenService;
 
-    @MockBean
+    @MockitoBean
     private UserMapper userMapper;
 
-    @MockBean
+    @MockitoBean
     private SuperAccountRelationRepository superAccountRelationRepository;
 
-    @MockBean
+    @MockitoBean
     private CompanyService companyService;
 
-    @MockBean
+    @MockitoBean
     private UserRepository userRepository;
 
-    @MockBean
+    @MockitoBean
     private LdapService ldapService;
 
-    @MockBean
+    @MockitoBean
     private RefreshTokenService refreshTokenService;
 
     private User clientUser;

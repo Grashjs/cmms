@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -44,19 +44,19 @@ class WorkOrderControllerTest extends AbstractControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private WorkOrderService workOrderService;
-    @MockBean
+    @MockitoBean
     private WorkOrderMapper workOrderMapper;
-    @MockBean
+    @MockitoBean
     private UserService userService;
-    @MockBean
+    @MockitoBean
     private AssetService assetService;
-    @MockBean
+    @MockitoBean
     private LocationService locationService;
-    @MockBean
+    @MockitoBean
     private PartService partService;
-    @MockBean
+    @MockitoBean
     private FileMapper fileMapper;
     private User clientUser;
     private User nonClientUser;
