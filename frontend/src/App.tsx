@@ -35,7 +35,10 @@ import { getDateLocale, loadLanguage, supportedLanguages } from './i18n/i18n';
 import MobileAppDownloadDialog from './components/MobileAppDownloadDialog';
 import { useMobileAppPrompt } from './hooks/useMobileAppPrompt';
 
-if (!IS_LOCALHOST && googleTrackingId) ReactGA.initialize(googleTrackingId);
+if (!IS_LOCALHOST && googleTrackingId)
+  ReactGA.initialize(googleTrackingId, {
+    gaOptions: { allowAdPersonalizationSignals: false }
+  });
 
 const DemoAlert = () => {
   const [show, setShow] = useState<boolean>(true);
