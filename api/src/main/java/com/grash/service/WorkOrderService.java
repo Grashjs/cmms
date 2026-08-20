@@ -34,8 +34,11 @@ import com.itextpdf.html2pdf.attach.ITagWorker;
 import com.itextpdf.html2pdf.attach.ITagWorkerFactory;
 import com.itextpdf.html2pdf.attach.ProcessorContext;
 import com.itextpdf.html2pdf.attach.impl.DefaultTagWorkerFactory;
+import com.itextpdf.io.image.ImageData;
+import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.layout.IPropertyContainer;
+import com.itextpdf.layout.element.Image;
 import com.itextpdf.styledxmlparser.node.IElementNode;
-import com.itextpdf.styledxmlparser.resolver.resource.DefaultResourceRetriever;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -71,9 +74,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -942,7 +942,7 @@ public class WorkOrderService {
         } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
     }
 
-    private @Nullable String getImageReportSignedUrl(com.grash.model.File file, StorageService storageService) {
+    private static @Nullable String getImageReportStoragePath(com.grash.model.File file) {
         if (file == null || file.getPath() == null) return null;
 
         String name = file.getName() != null ? file.getName().toLowerCase(Locale.ROOT) : "";
@@ -954,18 +954,7 @@ public class WorkOrderService {
         if (!isImage) {
             return null;
         }
-        String encodedPath = Arrays.stream(file.getPath().split("/"))
-                .map(segment -> URLEncoder.encode(segment, StandardCharsets.UTF_8).replace("+", "%20"))
-                .collect(Collectors.joining("/"));
-        return internalUrl + encodedPath;
-    }
-
-    private static String decodeUrlSegment(String segment) {
-        try {
-            return URLDecoder.decode(segment.replace("+", "%2B"), StandardCharsets.UTF_8);
-        } catch (Exception e) {
-            return segment;
-        }
+        return file.getPath();
     }
 
     private byte[] optimizeImageForPdf(byte[] rawBytes, String fileName) {
@@ -1078,7 +1067,7 @@ public class WorkOrderService {
                 .collect(Collectors.toMap(
                         Task::getId,
                         task -> task.getImages().stream()
-                                .map(image -> getImageReportSignedUrl(image, storageService))
+                                .map(WorkOrderService::getImageReportStoragePath)
                                 .filter(java.util.Objects::nonNull)
                                 .toArray(String[]::new)
                 ));
@@ -1102,12 +1091,12 @@ public class WorkOrderService {
                 .collect(Collectors.toMap(
                         Comment::getId,
                         comment -> comment.getFiles().stream()
-                                .map(file -> getImageReportSignedUrl(file, storageService))
+                                .map(WorkOrderService::getImageReportStoragePath)
                                 .filter(Objects::nonNull)
                                 .toArray(String[]::new)
                 ));
         String[] workOrderFilesUrls = config.isFiles() ? savedWorkOrder.getFiles().stream()
-                .map(file -> getImageReportSignedUrl(file, storageService))
+                .map(WorkOrderService::getImageReportStoragePath)
                 .filter(Objects::nonNull)
                 .toArray(String[]::new) : new String[0];
         String reportColor = resolveReportColor(
@@ -1116,7 +1105,7 @@ public class WorkOrderService {
             put("companyName", user.getCompany().getName());
             put("companyPhone", user.getCompany().getPhone());
             put("companyLogo", user.getCompany().getLogo() == null ? null :
-                    getImageReportSignedUrl(user.getCompany().getLogo(), storageService));
+                    getImageReportStoragePath(user.getCompany().getLogo()));
             put("currency",
                     user.getCompany().getCompanySettings().getGeneralPreferences().getCurrency().getCode());
             put("dateFormat", user.getCompany().getCompanySettings().getGeneralPreferences().getDateFormat());
@@ -1145,7 +1134,7 @@ public class WorkOrderService {
             put("workOrderFilesUrls", workOrderFilesUrls);
             put("backgroundColor", reportColor);
             put("workOrderImageUrl", savedWorkOrder.getImage() == null ? null :
-                    getImageReportSignedUrl(savedWorkOrder.getImage(), storageService));
+                    getImageReportStoragePath(savedWorkOrder.getImage()));
         }};
         thymeleafContext.setVariables(variables);
 
@@ -1158,6 +1147,9 @@ public class WorkOrderService {
 
                     @Override
                     public ITagWorker getTagWorker(IElementNode tag, ProcessorContext context) {
+                        if ("img".equals(tag.name()) && tag.getAttribute("data-storage-path") != null) {
+                            return new DirectImageTagWorker(tag, storageService);
+                        }
                         try {
                             return defaultFactory.getTagWorker(tag, context);
                         } catch (Exception e) {
@@ -1165,31 +1157,51 @@ public class WorkOrderService {
                             return null;
                         }
                     }
-                }).setResourceRetriever(new DefaultResourceRetriever() {
-                    @Override
-                    public java.io.InputStream getInputStreamByUrl(java.net.URL url) throws java.io.IOException {
-                        if ("internal.storage".equals(url.getHost())) {
-                            String rawPath = url.getPath();
-                            if (rawPath.startsWith("/")) rawPath = rawPath.substring(1);
-                            String filePath = Arrays.stream(rawPath.split("/"))
-                                    .map(WorkOrderService::decodeUrlSegment)
-                                    .collect(Collectors.joining("/"));
-                            byte[] bytes;
-                            try {
-                                bytes = storageService.download(filePath);
-                            } catch (Exception e) {
-                                log.error("Failed to download '{}' from storage for PDF report: {}", filePath,
-                                        e.getMessage());
-                                throw new java.io.IOException("Failed to download '" + filePath + "'", e);
-                            }
-                            return new ByteArrayInputStream(optimizeImageForPdf(bytes, filePath));
-                        }
-
-                        // Fallback for any standard external web images
-                        return super.getInputStreamByUrl(url);
-                    }
                 });
         HtmlConverter.convertToPdf(reportHtml, outputStream, converterProperties);
+    }
+
+    /**
+     * Builds the layout {@link Image} directly from storage bytes, bypassing pdfHTML's URL
+     * resolver entirely. This avoids the base64 round-trip of data URIs and ensures only one
+     * copy of the already-optimized bytes exists in memory.
+     */
+    private final class DirectImageTagWorker implements ITagWorker {
+        private final Image image;
+
+        private DirectImageTagWorker(IElementNode tag, StorageService storageService) {
+            String path = tag.getAttribute("data-storage-path");
+            Image img = null;
+            if (path != null && !path.isBlank()) {
+                try {
+                    byte[] optimized = optimizeImageForPdf(storageService.download(path), path);
+                    ImageData imageData = ImageDataFactory.create(optimized);
+                    img = new Image(imageData);
+                } catch (Exception e) {
+                    log.warn("Failed to embed image '{}' in PDF report: {}", path, e.getMessage());
+                }
+            }
+            this.image = img;
+        }
+
+        @Override
+        public void processEnd(IElementNode element, ProcessorContext context) {
+        }
+
+        @Override
+        public boolean processContent(String content, ProcessorContext context) {
+            return true;
+        }
+
+        @Override
+        public boolean processTagChild(ITagWorker childTagWorker, ProcessorContext context) {
+            return false;
+        }
+
+        @Override
+        public IPropertyContainer getElementResult() {
+            return image;
+        }
     }
 
     @Deprecated
