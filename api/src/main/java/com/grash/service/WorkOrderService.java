@@ -1145,7 +1145,9 @@ public class WorkOrderService {
 
                     @Override
                     public ITagWorker getTagWorker(IElementNode tag, ProcessorContext context) {
-                        log.info(tag.name(), tag.getAttributes(), tag);
+                        log.info("Processing tag: {}", tag.name());
+                        log.info("Tag attributes: {}", tag.getAttributes());
+                        log.info("Tag node: {}", tag);
                         if ("img".equals(tag.name()) && tag.getAttribute("data-storage-path") != null) {
                             return new DirectImageTagWorker(tag, storageService);
                         }
