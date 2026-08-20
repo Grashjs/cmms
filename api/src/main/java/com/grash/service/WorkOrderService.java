@@ -1063,7 +1063,7 @@ public class WorkOrderService {
         Optional<User> creator = savedWorkOrder.getCreatedBy() == null ? Optional.empty() :
                 userService.findById(savedWorkOrder.getCreatedBy());
         List<Task> tasks = taskService.findByWorkOrder(savedWorkOrder.getId());
-        Map<Long, String[]> tasksImagesUrls = tasks.stream()
+        Map<Long, String[]> tasksImagesPaths = tasks.stream()
                 .collect(Collectors.toMap(
                         Task::getId,
                         task -> task.getImages().stream()
@@ -1087,7 +1087,7 @@ public class WorkOrderService {
                 new CommentCriteria() {{
                     setWorkOrderId(savedWorkOrder.getId());
                 }}, user) : Collections.emptyList();
-        Map<Long, String[]> commentFilesUrls = comments.stream()
+        Map<Long, String[]> commentFilesPaths = comments.stream()
                 .collect(Collectors.toMap(
                         Comment::getId,
                         comment -> comment.getFiles().stream()
@@ -1095,7 +1095,7 @@ public class WorkOrderService {
                                 .filter(Objects::nonNull)
                                 .toArray(String[]::new)
                 ));
-        String[] workOrderFilesUrls = config.isFiles() ? savedWorkOrder.getFiles().stream()
+        String[] workOrderFilesPaths = config.isFiles() ? savedWorkOrder.getFiles().stream()
                 .map(WorkOrderService::getImageReportStoragePath)
                 .filter(Objects::nonNull)
                 .toArray(String[]::new) : new String[0];
@@ -1125,15 +1125,15 @@ public class WorkOrderService {
             put("workOrderHistories", workOrderHistories);
             put("partQuantities", partQuantities);
             put("environment", environment);
-            put("tasksImagesUrls", tasksImagesUrls);
+            put("tasksImagesPaths", tasksImagesPaths);
             put("messageSource", messageSource);
             put("locale", Helper.getLocale(user));
             put("reportConfig", config);
             put("comments", comments);
-            put("commentFilesUrls", commentFilesUrls);
-            put("workOrderFilesUrls", workOrderFilesUrls);
+            put("commentFilesPaths", commentFilesPaths);
+            put("workOrderFilesPaths", workOrderFilesPaths);
             put("backgroundColor", reportColor);
-            put("workOrderImageUrl", savedWorkOrder.getImage() == null ? null :
+            put("workOrderImagePath", savedWorkOrder.getImage() == null ? null :
                     getImageReportStoragePath(savedWorkOrder.getImage()));
         }};
         thymeleafContext.setVariables(variables);
