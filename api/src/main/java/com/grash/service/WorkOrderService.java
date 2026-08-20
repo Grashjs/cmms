@@ -128,7 +128,6 @@ public class WorkOrderService {
     private static final long PDF_IMAGE_MAX_PIXELS = 40L * 1024 * 1024;
     private static final byte[] EMPTY_PNG = Base64.getDecoder().decode(
             "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=");
-    private static final String internalUrl = "http://internal.storage/";
 
     @Transactional
     public WorkOrder create(WorkOrder workOrder, Company company) {
@@ -1141,7 +1140,6 @@ public class WorkOrderService {
         String reportHtml = thymeleafTemplateEngine.process("work-order-report.html", thymeleafContext);
 
         ConverterProperties converterProperties = new ConverterProperties()
-                .setBaseUri(internalUrl)
                 .setTagWorkerFactory(new ITagWorkerFactory() {
                     private final DefaultTagWorkerFactory defaultFactory = new DefaultTagWorkerFactory();
 
