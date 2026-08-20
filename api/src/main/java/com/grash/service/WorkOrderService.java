@@ -943,7 +943,9 @@ public class WorkOrderService {
             return null;
         }
 
-        return storageService.generateSignedUrl(file, 5);
+        byte[] bytes = storageService.download(file.getPath());
+        return "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(bytes);
+
     }
 
     public void generatePdfStream(Long id, User user, ReportConfig config, OutputStream outputStream) {

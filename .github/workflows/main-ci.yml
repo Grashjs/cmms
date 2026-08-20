@@ -164,7 +164,7 @@ jobs:
         with:
           app-name: soviet-jennette
           service-name: atlas-api
-          service-instance-type: small
+          service-instance-type: medium
           service-env: "PORT=8080"
           service-ports: "8080:http"
           service-routes: "/:8080"

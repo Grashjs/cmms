@@ -34,6 +34,8 @@ import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -3338,8 +3340,6 @@ class WorkOrderServiceTest {
             image.setPath("images/wo-image.png");
             wo.setImage(image);
             when(userService.findById(user.getId())).thenReturn(Optional.of(user));
-            when(storageService.exists("images/wo-image.png_report_thumb.jpg")).thenReturn(false);
-            when(storageService.download(image)).thenReturn(null);
             when(storageService.generateSignedUrl(image, 5)).thenReturn("https://signed.url/wo-image");
 
             byte[] result = workOrderService.generatePdfBytes(wo, user, config);
@@ -3367,8 +3367,6 @@ class WorkOrderServiceTest {
             logo.setPath("logos/logo.png");
             company.setLogo(logo);
             when(userService.findById(user.getId())).thenReturn(Optional.of(user));
-            when(storageService.exists("logos/logo.png_report_thumb.jpg")).thenReturn(false);
-            when(storageService.download(logo)).thenReturn(null);
             when(storageService.generateSignedUrl(logo, 5)).thenReturn("https://signed.url/logo");
 
             byte[] result = workOrderService.generatePdfBytes(wo, user, config);
@@ -3411,10 +3409,6 @@ class WorkOrderServiceTest {
 
             when(userService.findById(user.getId())).thenReturn(Optional.of(user));
             when(taskService.findByWorkOrder(1L)).thenReturn(List.of(task));
-            when(storageService.exists("images/task-img.png_report_thumb.jpg")).thenReturn(false);
-            when(storageService.download(taskImage)).thenReturn(null);
-            when(storageService.exists("images/task-img2.png_report_thumb.jpg")).thenReturn(false);
-            when(storageService.download(taskImage2)).thenReturn(null);
             when(storageService.generateSignedUrl(taskImage, 5)).thenReturn("https://signed.url/task-img");
             when(storageService.generateSignedUrl(taskImage2, 5)).thenReturn("https://signed.url/task-img2");
 
@@ -3636,6 +3630,188 @@ class WorkOrderServiceTest {
             assertNotNull(customers);
             assertTrue(customers.contains("Acme Corp"));
             assertTrue(customers.contains("Globex Inc"));
+        }
+    }
+
+    @Nested
+    class GetImageReportSignedUrl {
+
+        private Method method;
+
+        @BeforeEach
+        void init() throws Exception {
+            method = WorkOrderService.class.getDeclaredMethod(
+                    "getImageReportSignedUrl", com.grash.model.File.class, StorageService.class);
+            method.setAccessible(true);
+        }
+
+        private String invoke(com.grash.model.File file, StorageService svc) throws Exception {
+            return (String) method.invoke(workOrderService, file, svc);
+        }
+
+        @Test
+        void nullFile_returnsNull() throws Exception {
+            assertNull(invoke(null, storageService));
+        }
+
+        @Test
+        void nullPath_returnsNull() throws Exception {
+            com.grash.model.File f = new com.grash.model.File();
+            f.setName("photo.png");
+            f.setPath(null);
+            assertNull(invoke(f, storageService));
+        }
+
+        @Test
+        void nonImageExtension_returnsNull() throws Exception {
+            com.grash.model.File f = new com.grash.model.File();
+            f.setName("document.pdf");
+            f.setPath("files/document.pdf");
+            assertNull(invoke(f, storageService));
+        }
+
+        @Test
+        void cachedThumbnail_returnsBase64DataUri() throws Exception {
+            com.grash.model.File f = new com.grash.model.File();
+            f.setName("photo.jpg");
+            f.setPath("images/photo.jpg");
+            byte[] thumbBytes = new byte[]{1, 2, 3};
+            when(storageService.exists("images/photo.jpg_report_thumb.jpg")).thenReturn(true);
+            when(storageService.download("images/photo.jpg_report_thumb.jpg")).thenReturn(thumbBytes);
+
+            String result = invoke(f, storageService);
+
+            assertTrue(result.startsWith("data:image/jpeg;base64,"));
+            assertEquals(Base64.getEncoder().encodeToString(thumbBytes),
+                    result.substring("data:image/jpeg;base64,".length()));
+            verify(storageService).exists("images/photo.jpg_report_thumb.jpg");
+            verify(storageService).download("images/photo.jpg_report_thumb.jpg");
+            verify(storageService, never()).download(f);
+        }
+
+        @Test
+        void uncachedImage_generatesThumbnailFromOriginal() throws Exception {
+            com.grash.model.File f = new com.grash.model.File();
+            f.setName("photo.png");
+            f.setPath("images/photo.png");
+            java.awt.image.BufferedImage img = new java.awt.image.BufferedImage(10, 10, java.awt.image.BufferedImage.TYPE_INT_RGB);
+            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+            javax.imageio.ImageIO.write(img, "jpg", baos);
+            byte[] originalBytes = baos.toByteArray();
+            when(storageService.download(f)).thenReturn(originalBytes);
+            when(storageService.generateSignedUrl(f, 5)).thenReturn("https://fallback.url/photo");
+
+            String result = invoke(f, storageService);
+
+            assertNotNull(result);
+            assertTrue(result.startsWith("data:image/jpeg;base64,") || result.equals("https://fallback.url/photo"));
+        }
+
+        @Test
+        void emptyOriginal_returnsSignedUrl() throws Exception {
+            com.grash.model.File f = new com.grash.model.File();
+            f.setName("photo.jpg");
+            f.setPath("images/photo.jpg");
+            when(storageService.exists("images/photo.jpg_report_thumb.jpg")).thenReturn(false);
+            when(storageService.download(f)).thenReturn(null);
+            when(storageService.generateSignedUrl(f, 5)).thenReturn("https://signed.url/photo");
+
+            String result = invoke(f, storageService);
+
+            assertEquals("https://signed.url/photo", result);
+        }
+
+        @Test
+        void zeroLengthOriginal_returnsSignedUrl() throws Exception {
+            com.grash.model.File f = new com.grash.model.File();
+            f.setName("photo.jpg");
+            f.setPath("images/photo.jpg");
+            when(storageService.generateSignedUrl(f, 5)).thenReturn("https://signed.url/photo");
+
+            String result = invoke(f, storageService);
+
+            assertEquals("https://signed.url/photo", result);
+        }
+
+        @Test
+        void oversizedImage_returnsSignedUrl() throws Exception {
+            com.grash.model.File f = new com.grash.model.File();
+            f.setName("huge.jpg");
+            f.setPath("images/huge.jpg");
+            byte[] oversized = new byte[15 * 1024 * 1024 + 1];
+            when(storageService.download(f)).thenReturn(oversized);
+            when(storageService.generateSignedUrl(f, 5)).thenReturn("https://signed.url/huge");
+
+            String result = invoke(f, storageService);
+
+            assertEquals("https://signed.url/huge", result);
+            verify(storageService, never()).uploadAt(any(), anyString(), anyString());
+        }
+
+        @Test
+        void allSupportedExtensions_areAccepted() throws Exception {
+            String[] extensions = {"jpg", "jpeg", "png", "gif", "webp", "bmp", "tiff", "svg"};
+            for (String ext : extensions) {
+                com.grash.model.File f = new com.grash.model.File();
+                f.setName("image." + ext);
+                f.setPath("images/image." + ext);
+                when(storageService.exists("images/image." + ext + "_report_thumb.jpg")).thenReturn(true);
+                when(storageService.download("images/image." + ext + "_report_thumb.jpg"))
+                        .thenReturn(new byte[]{1, 2, 3});
+                String result = invoke(f, storageService);
+                assertNotNull(result, "Extension " + ext + " should be accepted");
+                assertTrue(result.startsWith("data:image/jpeg;base64,"));
+                reset(storageService);
+            }
+        }
+
+        @Test
+        void ioExceptionOnThumbnail_returnsSignedUrl() throws Exception {
+            com.grash.model.File f = new com.grash.model.File();
+            f.setName("photo.jpg");
+            f.setPath("images/photo.jpg");
+            byte[] corruptedBytes = new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0, 0x00, 0x10};
+            when(storageService.download(f)).thenReturn(corruptedBytes);
+            when(storageService.generateSignedUrl(f, 5)).thenReturn("https://signed.url/photo");
+
+            String result = invoke(f, storageService);
+
+            assertEquals("https://signed.url/photo", result);
+        }
+
+        @Test
+        void exceptionOnUpload_returnsSignedUrl() throws Exception {
+            com.grash.model.File f = new com.grash.model.File();
+            f.setName("photo.jpg");
+            f.setPath("images/photo.jpg");
+            java.awt.image.BufferedImage img = new java.awt.image.BufferedImage(10, 10, java.awt.image.BufferedImage.TYPE_INT_RGB);
+            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+            net.coobird.thumbnailator.Thumbnails.of(img).size(800, 800).outputFormat("jpg").outputQuality(0.6).toOutputStream(baos);
+            byte[] originalBytes = baos.toByteArray();
+            when(storageService.exists("images/photo.jpg_report_thumb.jpg")).thenReturn(false);
+            when(storageService.download(f)).thenReturn(originalBytes);
+            doThrow(new RuntimeException("upload failed"))
+                    .when(storageService).uploadAt(any(byte[].class), anyString(), anyString());
+            when(storageService.generateSignedUrl(f, 5)).thenReturn("https://signed.url/photo");
+
+            String result = invoke(f, storageService);
+
+            assertEquals("https://signed.url/photo", result);
+        }
+
+        @Test
+        void caseInsensitiveExtension() throws Exception {
+            com.grash.model.File f = new com.grash.model.File();
+            f.setName("Photo.PNG");
+            f.setPath("images/Photo.PNG");
+            when(storageService.exists("images/Photo.PNG_report_thumb.jpg")).thenReturn(true);
+            when(storageService.download("images/Photo.PNG_report_thumb.jpg"))
+                    .thenReturn(new byte[]{1, 2, 3});
+
+            String result = invoke(f, storageService);
+
+            assertNotNull(result);
+            assertTrue(result.startsWith("data:image/jpeg;base64,"));
         }
     }
 }
