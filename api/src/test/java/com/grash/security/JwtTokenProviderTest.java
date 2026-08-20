@@ -5,12 +5,7 @@ import com.grash.model.Role;
 import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.utils.Consts;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,7 +28,8 @@ import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class JwtTokenProviderTest {
@@ -256,12 +252,12 @@ class JwtTokenProviderTest {
 
         @Test
         void tokenSignedWithDifferentKey_throwsCustomException() {
-            SecretKey differentKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+            SecretKey differentKey = Jwts.SIG.HS256.key().build();
             String tamperedToken = Jwts.builder()
-                    .setSubject("hacker@test.com")
-                    .setIssuedAt(new Date())
-                    .setExpiration(new Date(System.currentTimeMillis() + 3600000))
-                    .signWith(differentKey, SignatureAlgorithm.HS256)
+                    .subject("hacker@test.com")
+                    .issuedAt(new Date())
+                    .expiration(new Date(System.currentTimeMillis() + 3600000))
+                    .signWith(differentKey)
                     .compact();
 
             CustomException ex = assertThrows(CustomException.class,
@@ -303,11 +299,11 @@ class JwtTokenProviderTest {
             String token = jwtTokenProvider.createToken(username, jwtRoles);
 
             SecretKey providerKey = (SecretKey) ReflectionTestUtils.getField(jwtTokenProvider, "key");
-            Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(providerKey)
+            Claims claims = Jwts.parser()
+                    .verifyWith(providerKey)
                     .build()
-                    .parseClaimsJws(token)
-                    .getBody();
+                    .parseSignedClaims(token)
+                    .getPayload();
             List<?> authClaim = (List<?>) claims.get("auth");
             assertNotNull(authClaim);
             assertEquals(2, authClaim.size(),
