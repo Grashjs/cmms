@@ -3450,8 +3450,8 @@ class WorkOrderServiceTest {
         void commentsWithFiles_generatesSignedUrls() {
             com.grash.model.File commentFile = new com.grash.model.File();
             commentFile.setId(400L);
-            commentFile.setName("attachment.pdf");
-            commentFile.setPath("files/attachment.pdf");
+            commentFile.setName("attachment.jpg");
+            commentFile.setPath("files/attachment.jpg");
 
             Comment comment = new Comment();
             comment.setId(10L);
@@ -3475,8 +3475,8 @@ class WorkOrderServiceTest {
         void workOrderWithFiles_generatesSignedUrls() {
             com.grash.model.File woFile = new com.grash.model.File();
             woFile.setId(500L);
-            woFile.setName("report.pdf");
-            woFile.setPath("files/report.pdf");
+            woFile.setName("report.jpg");
+            woFile.setPath("files/report.jpg");
             wo.setFiles(new ArrayList<>(List.of(woFile)));
 
             when(userService.findById(user.getId())).thenReturn(Optional.of(user));
