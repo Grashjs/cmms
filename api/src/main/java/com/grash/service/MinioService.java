@@ -123,14 +123,13 @@ public class MinioService implements StorageService {
         }
     }
 
-    public String upload(byte[] data, String fileName, String folder, String contentType) {
+    public void uploadAt(byte[] data, String filePath, String contentType) {
         checkIfConfigured();
 
         if (data == null || data.length == 0) {
             throw new CustomException("Uploaded file is empty.", HttpStatus.BAD_REQUEST);
         }
 
-        String filePath = Helper.generateUniqueFilePath(fileName, folder);
         try {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
             minioClient.putObject(
@@ -138,10 +137,9 @@ public class MinioService implements StorageService {
                             .bucket(minioBucket)
                             .object(filePath)
                             .stream(inputStream, data.length, -1)
-                            .contentType(contentType != null ? contentType : "application/octet-stream")
+                            .contentType(contentType)
                             .build()
             );
-            return filePath;
         } catch (MinioException | IOException | InvalidKeyException | NoSuchAlgorithmException e) {
             log.error("MinIO error during upload to {}", filePath, e);
             throw new CustomException("Failed to save the file to storage.", HttpStatus.INTERNAL_SERVER_ERROR);
