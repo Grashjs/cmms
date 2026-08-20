@@ -23,8 +23,6 @@ import org.springframework.security.ldap.authentication.LdapAuthenticationProvid
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import org.springframework.web.cors.CorsConfigurationSource;
-
 import java.util.Optional;
 
 @Configuration
@@ -40,7 +38,6 @@ public class WebSecurityConfig {
     private final RateLimitFilter rateLimitFilter;
     private final CustomUserDetailsService customUserDetailsService;
     private final Optional<LdapAuthenticationProvider> ldapAuthenticationProvider;
-    private final CorsConfigurationSource corsConfigurationSource;
     @Value("${enable-sso}")
     private boolean enableSso;
     @Value("${ldap.enabled:false}")
@@ -115,7 +112,8 @@ public class WebSecurityConfig {
                 .contentTypeOptions(Customizer.withDefaults())
         );
 
-        http.cors(cors -> cors.configurationSource(corsConfigurationSource));
+        http.cors(cors -> {
+        }); // Using lambda for cors configuration
 
         return http.build();
     }
