@@ -3264,6 +3264,8 @@ class WorkOrderServiceTest {
             when(workOrderHistoryService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
             when(commentService.findByCriteria(any(), any())).thenReturn(Collections.emptyList());
             when(brandingService.getMailBackgroundColor()).thenReturn("#5569ff");
+            when(thymeleafTemplateEngine.process(eq("work-order-report.html"), any()))
+                    .thenReturn("<html><body></body></html>");
         }
 
         @Test
