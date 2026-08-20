@@ -113,6 +113,34 @@ public class GCPService implements StorageService {
         }
     }
 
+    public String upload(byte[] data, String fileName, String folder, String contentType) {
+        checkIfConfigured();
+
+        if (data == null || data.length == 0) {
+            throw new CustomException("Uploaded file is empty.", HttpStatus.BAD_REQUEST);
+        }
+
+        String filePath = Helper.generateUniqueFilePath(fileName, folder);
+
+        try {
+            BlobInfo blobInfo = BlobInfo.newBuilder(BlobId.of(gcpBucketName, filePath))
+                    .setContentType(contentType)
+                    .build();
+            storage.create(blobInfo, data,
+                    Storage.BlobTargetOption.predefinedAcl(Storage.PredefinedAcl.PRIVATE));
+            return filePath;
+        } catch (StorageException e) {
+            log.error("GCS error during upload to {}", filePath, e);
+            throw new CustomException("Failed to save the file to storage.", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public boolean exists(String filePath) {
+        checkIfConfigured();
+        Blob blob = storage.get(BlobId.of(gcpBucketName, filePath));
+        return blob != null && blob.exists();
+    }
+
     public byte[] download(String filePath) {
         checkIfConfigured();
         Blob blob = storage.get(BlobId.of(gcpBucketName, filePath));

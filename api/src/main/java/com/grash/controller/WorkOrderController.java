@@ -17,6 +17,7 @@ import com.grash.utils.TenantAspectUtils;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -177,12 +178,25 @@ public class WorkOrderController {
 
     @PostMapping(path = "/report/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @Deprecated
     public ResponseEntity<SuccessResponse> getPDFWithConfig(@PathVariable("id") Long id,
                                                             @Valid @RequestBody ReportConfig config,
                                                             HttpServletRequest req) {
         User user = userService.whoami(req);
         String signedUrl = workOrderService.generateReport(id, user, config);
         return ResponseEntity.ok().body(new SuccessResponse(true, signedUrl));
+    }
+
+    @PostMapping(path = "/report/{id}/stream")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public void getPDFWithConfigStream(@PathVariable("id") Long id,
+                                       @Valid @RequestBody ReportConfig config,
+                                       HttpServletRequest req,
+                                       HttpServletResponse response) throws java.io.IOException {
+        User user = userService.whoami(req);
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=\"Work Order Report.pdf\"");
+        workOrderService.generatePdfStream(id, user, config, response.getOutputStream());
     }
 
     @PostMapping("/{id}/report/send")

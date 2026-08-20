@@ -38,4 +38,8 @@ public interface StorageService {
     }
 
     String upload(byte[] data, String fileName, String folder);
+
+    String upload(byte[] data, String fileName, String folder, String contentType);
+
+    boolean exists(String filePath);
 }

@@ -60,7 +60,12 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.JoinType;
 
+import net.coobird.thumbnailator.Thumbnails;
+
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -922,7 +927,69 @@ public class WorkOrderService {
         } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
     }
 
-    public byte[] generatePdfBytes(WorkOrder savedWorkOrder, User user, ReportConfig config) {
+    private String getImageReportSignedUrl(com.grash.model.File file, StorageService storageService) {
+        if (file == null || file.getPath() == null) return null;
+
+        String name = file.getName() != null ? file.getName().toLowerCase() : "";
+        boolean isImage = name.endsWith(".jpg") || name.endsWith(".jpeg") || name.endsWith(".png")
+                || name.endsWith(".gif") || name.endsWith(".webp");
+
+        if (!isImage) {
+            return storageService.generateSignedUrl(file, 5);
+        }
+
+        try {
+            String thumbPath = file.getPath() + "_report_thumb.jpg";
+
+            if (storageService.exists(thumbPath)) {
+                return storageService.generateSignedUrl(thumbPath, 5);
+            }
+
+            byte[] originalBytes = storageService.download(file);
+            if (originalBytes == null || originalBytes.length == 0) {
+                return storageService.generateSignedUrl(file, 5);
+            }
+
+            if (originalBytes.length > 15 * 1024 * 1024) {
+                log.warn("Image too large for thumbnailing ({} bytes), using original: {}",
+                        originalBytes.length, file.getPath());
+                return storageService.generateSignedUrl(file, 5);
+            }
+
+            ByteArrayOutputStream thumbOut = new ByteArrayOutputStream();
+            Thumbnails.of(new ByteArrayInputStream(originalBytes))
+                    .size(1200, 1200)
+                    .outputFormat("jpg")
+                    .outputQuality(0.75)
+                    .toOutputStream(thumbOut);
+
+            byte[] thumbBytes = thumbOut.toByteArray();
+            String thumbKey = storageService.upload(thumbBytes,
+                    "report_thumb.jpg", "thumbnails", "image/jpeg");
+
+            return storageService.generateSignedUrl(thumbKey, 5);
+        } catch (IOException e) {
+            log.warn("Failed to create thumbnail for {}, using original: {}",
+                    file.getPath(), e.getMessage());
+            return storageService.generateSignedUrl(file, 5);
+        } catch (Exception e) {
+            log.warn("Unexpected error creating thumbnail for {}, using original: {}",
+                    file.getPath(), e.getMessage());
+            return storageService.generateSignedUrl(file, 5);
+        }
+    }
+
+    public void generatePdfStream(Long id, User user, ReportConfig config, OutputStream outputStream) {
+        Optional<WorkOrder> optionalWorkOrder = findById(id);
+        if (optionalWorkOrder.isPresent()) {
+            WorkOrder savedWorkOrder = optionalWorkOrder.get();
+            if (savedWorkOrder.canBeViewedBy(user)) {
+                generatePdfStream(savedWorkOrder, user, config, outputStream);
+            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    public void generatePdfStream(WorkOrder savedWorkOrder, User user, ReportConfig config, OutputStream outputStream) {
         StorageService storageService = storageServiceFactory.getStorageService();
         Context thymeleafContext = new Context();
         thymeleafContext.setLocale(Helper.getLocale(user));
@@ -933,7 +1000,7 @@ public class WorkOrderService {
                 .collect(Collectors.toMap(
                         Task::getId,
                         task -> task.getImages().stream()
-                                .map(image -> storageService.generateSignedUrl(image, 5))
+                                .map(image -> getImageReportSignedUrl(image, storageService))
                                 .toArray(String[]::new)
                 ));
         Collection<PartQuantity> partQuantities = config.isCost() ?
@@ -956,7 +1023,7 @@ public class WorkOrderService {
                 .collect(Collectors.toMap(
                         Comment::getId,
                         comment -> comment.getFiles().stream()
-                                .map(file -> storageService.generateSignedUrl(file, 5))
+                                .map(file -> getImageReportSignedUrl(file, storageService))
                                 .toArray(String[]::new)
                 ));
         String[] workOrderFilesUrls = config.isFiles() ? savedWorkOrder.getFiles().stream()
@@ -966,7 +1033,7 @@ public class WorkOrderService {
             put("companyName", user.getCompany().getName());
             put("companyPhone", user.getCompany().getPhone());
             put("companyLogo", user.getCompany().getLogo() == null ? null :
-                    storageService.generateSignedUrl(user.getCompany().getLogo(), 5));
+                    getImageReportSignedUrl(user.getCompany().getLogo(), storageService));
             put("currency",
                     user.getCompany().getCompanySettings().getGeneralPreferences().getCurrency().getCode());
             put("dateFormat", user.getCompany().getCompanySettings().getGeneralPreferences().getDateFormat());
@@ -998,7 +1065,7 @@ public class WorkOrderService {
             put("commentFilesUrls", commentFilesUrls);
             put("workOrderFilesUrls", workOrderFilesUrls);
             put("workOrderImageUrl", savedWorkOrder.getImage() == null ? null :
-                    storageService.generateSignedUrl(savedWorkOrder.getImage(), 5));
+                    getImageReportSignedUrl(savedWorkOrder.getImage(), storageService));
         }};
         thymeleafContext.setVariables(variables);
 
@@ -1018,11 +1085,17 @@ public class WorkOrderService {
                         }
                     }
                 });
-        ByteArrayOutputStream target = new ByteArrayOutputStream();
-        HtmlConverter.convertToPdf(reportHtml, target, converterProperties);
-        return target.toByteArray();
+        HtmlConverter.convertToPdf(reportHtml, outputStream, converterProperties);
     }
 
+    @Deprecated
+    public byte[] generatePdfBytes(WorkOrder savedWorkOrder, User user, ReportConfig config) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        generatePdfStream(savedWorkOrder, user, config, baos);
+        return baos.toByteArray();
+    }
+
+    @Deprecated
     public String generateReport(Long id, User user, ReportConfig config) {
         Optional<WorkOrder> optionalWorkOrder = findById(id);
         if (optionalWorkOrder.isPresent()) {

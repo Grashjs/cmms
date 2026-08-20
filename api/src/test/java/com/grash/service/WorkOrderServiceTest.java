@@ -3256,6 +3256,8 @@ class WorkOrderServiceTest {
             wo.setCustomers(new ArrayList<>(List.of(buildCustomer(60L))));
             config = new ReportConfig();
             when(storageServiceFactory.getStorageService()).thenReturn(storageService);
+            when(storageService.exists(anyString())).thenReturn(false);
+            when(storageService.download(any(com.grash.model.File.class))).thenReturn(null);
             when(taskService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
             lenient().when(partQuantityService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
             lenient().when(laborService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
@@ -3336,6 +3338,8 @@ class WorkOrderServiceTest {
             image.setPath("images/wo-image.png");
             wo.setImage(image);
             when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            when(storageService.exists("images/wo-image.png_report_thumb.jpg")).thenReturn(false);
+            when(storageService.download(image)).thenReturn(null);
             when(storageService.generateSignedUrl(image, 5)).thenReturn("https://signed.url/wo-image");
 
             byte[] result = workOrderService.generatePdfBytes(wo, user, config);
@@ -3363,6 +3367,8 @@ class WorkOrderServiceTest {
             logo.setPath("logos/logo.png");
             company.setLogo(logo);
             when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            when(storageService.exists("logos/logo.png_report_thumb.jpg")).thenReturn(false);
+            when(storageService.download(logo)).thenReturn(null);
             when(storageService.generateSignedUrl(logo, 5)).thenReturn("https://signed.url/logo");
 
             byte[] result = workOrderService.generatePdfBytes(wo, user, config);
@@ -3405,6 +3411,10 @@ class WorkOrderServiceTest {
 
             when(userService.findById(user.getId())).thenReturn(Optional.of(user));
             when(taskService.findByWorkOrder(1L)).thenReturn(List.of(task));
+            when(storageService.exists("images/task-img.png_report_thumb.jpg")).thenReturn(false);
+            when(storageService.download(taskImage)).thenReturn(null);
+            when(storageService.exists("images/task-img2.png_report_thumb.jpg")).thenReturn(false);
+            when(storageService.download(taskImage2)).thenReturn(null);
             when(storageService.generateSignedUrl(taskImage, 5)).thenReturn("https://signed.url/task-img");
             when(storageService.generateSignedUrl(taskImage2, 5)).thenReturn("https://signed.url/task-img2");
 

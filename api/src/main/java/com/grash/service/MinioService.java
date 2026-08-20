@@ -123,6 +123,46 @@ public class MinioService implements StorageService {
         }
     }
 
+    public String upload(byte[] data, String fileName, String folder, String contentType) {
+        checkIfConfigured();
+
+        if (data == null || data.length == 0) {
+            throw new CustomException("Uploaded file is empty.", HttpStatus.BAD_REQUEST);
+        }
+
+        String filePath = Helper.generateUniqueFilePath(fileName, folder);
+        try {
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
+            minioClient.putObject(
+                    PutObjectArgs.builder()
+                            .bucket(minioBucket)
+                            .object(filePath)
+                            .stream(inputStream, data.length, -1)
+                            .contentType(contentType != null ? contentType : "application/octet-stream")
+                            .build()
+            );
+            return filePath;
+        } catch (MinioException | IOException | InvalidKeyException | NoSuchAlgorithmException e) {
+            log.error("MinIO error during upload to {}", filePath, e);
+            throw new CustomException("Failed to save the file to storage.", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public boolean exists(String filePath) {
+        checkIfConfigured();
+        try {
+            minioClient.statObject(
+                    StatObjectArgs.builder()
+                            .bucket(minioBucket)
+                            .object(filePath)
+                            .build()
+            );
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     @Cacheable(cacheNames = "signedUrls", key = "#file.path + ':' + #expirationMinutes")
     public String generateSignedUrl(File file, long expirationMinutes) {
         return generateSignedUrl(file.getPath(), expirationMinutes);
