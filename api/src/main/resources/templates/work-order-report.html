@@ -476,7 +476,7 @@
     <div class="report-header clearfix">
         <div class="header-brand">
             <span class="company-name" th:text="${companyName}"></span>
-            <img th:if="${companyLogo!=null}" th:src="@{${companyLogo}}" class="company-logo" alt="logo">
+            <img th:if="${companyLogo!=null}" th:src="${companyLogo}" class="company-logo" alt="logo">
             <span class="company-phone" th:text="${companyPhone}"></span>
         </div>
         <div class="header-wo">

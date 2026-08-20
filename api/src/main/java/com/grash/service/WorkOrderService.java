@@ -64,10 +64,16 @@ import jakarta.persistence.criteria.JoinType;
 
 import net.coobird.thumbnailator.Thumbnails;
 
+import javax.imageio.ImageIO;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -118,6 +124,10 @@ public class WorkOrderService {
     private PreventiveMaintenanceMapper preventiveMaintenanceMapper;
     private static final Set<String> IMAGE_EXTENSIONS = Set.of("jpg", "jpeg", "jpe", "png", "gif", "webp", "bmp",
             "tif", "tiff", "svg", "ico", "avif", "heic", "heif", "jfif");
+    private static final int PDF_IMAGE_MAX_DIMENSION_PX = 1600;
+    private static final long PDF_IMAGE_MAX_PIXELS = 40L * 1024 * 1024;
+    private static final byte[] EMPTY_PNG = Base64.getDecoder().decode(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=");
 
     @Transactional
     public WorkOrder create(WorkOrder workOrder, Company company) {
@@ -934,7 +944,7 @@ public class WorkOrderService {
     private @Nullable String getImageReportSignedUrl(com.grash.model.File file, StorageService storageService) {
         if (file == null || file.getPath() == null) return null;
 
-        String name = file.getName() != null ? file.getName().toLowerCase() : "";
+        String name = file.getName() != null ? file.getName().toLowerCase(Locale.ROOT) : "";
         String extension = name.substring(name.lastIndexOf('.') + 1)
                 .toLowerCase(Locale.ROOT);
 
@@ -943,9 +953,108 @@ public class WorkOrderService {
         if (!isImage) {
             return null;
         }
-        return "http://internal.storage/" + file.getPath();
-
+        String encodedPath = Arrays.stream(file.getPath().split("/"))
+                .map(segment -> URLEncoder.encode(segment, StandardCharsets.UTF_8).replace("+", "%20"))
+                .collect(Collectors.joining("/"));
+        return "http://internal.storage/" + encodedPath;
     }
+
+    private static String decodeUrlSegment(String segment) {
+        try {
+            return URLDecoder.decode(segment.replace("+", "%2B"), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            return segment;
+        }
+    }
+
+    private byte[] optimizeImageForPdf(byte[] rawBytes, String fileName) {
+        String name = fileName != null ? fileName.toLowerCase(Locale.ROOT) : "";
+        String extension = name.contains(".") ? name.substring(name.lastIndexOf('.') + 1) : "";
+        if (!IMAGE_EXTENSIONS.contains(extension) || extension.equals("svg")) return rawBytes;
+
+        if (extension.equals("png") && exceedsPngDimensions(rawBytes)) {
+            log.warn("Skipping oversized PNG '{}' ({} bytes) in PDF report to avoid memory exhaustion",
+                    fileName, rawBytes.length);
+            return EMPTY_PNG;
+        }
+
+        try {
+            BufferedImage source = ImageIO.read(new ByteArrayInputStream(rawBytes));
+            if (source == null) return rawBytes;
+            int width = source.getWidth();
+            int height = source.getHeight();
+            if (width <= 0 || height <= 0) return rawBytes;
+
+            boolean hasAlpha = source.getColorModel().hasAlpha();
+            if (Math.max(width, height) <= PDF_IMAGE_MAX_DIMENSION_PX && rawBytes.length <= 512 * 1024) {
+                return rawBytes;
+            }
+
+            BufferedImage scaled = Math.max(width, height) > PDF_IMAGE_MAX_DIMENSION_PX
+                    ? Thumbnails.of(source).size(PDF_IMAGE_MAX_DIMENSION_PX, PDF_IMAGE_MAX_DIMENSION_PX)
+                    .asBufferedImage()
+                    : source;
+
+            ByteArrayOutputStream optimized = new ByteArrayOutputStream();
+            if (hasAlpha) {
+                ImageIO.write(scaled, "png", optimized);
+            } else {
+                BufferedImage rgb = new BufferedImage(scaled.getWidth(), scaled.getHeight(),
+                        BufferedImage.TYPE_INT_RGB);
+                Graphics2D graphics = rgb.createGraphics();
+                graphics.drawImage(scaled, 0, 0, null);
+                graphics.dispose();
+                ImageIO.write(rgb, "jpg", optimized);
+            }
+            byte[] result = optimized.toByteArray();
+            if (result.length > 0 && result.length < rawBytes.length) {
+                log.debug("Optimized image '{}' for PDF report: {} -> {} bytes", fileName, rawBytes.length,
+                        result.length);
+                return result;
+            }
+            return rawBytes;
+        } catch (Exception e) {
+            log.warn("Failed to optimize image '{}' for PDF report: {}", fileName, e.getMessage());
+            return rawBytes;
+        }
+    }
+
+    private boolean exceedsPngDimensions(byte[] png) {
+        if (png.length < 24) return false;
+        boolean isPngSignature = (png[0] & 0xFF) == 0x89 && png[1] == 'P' && png[2] == 'N' && png[3] == 'G';
+        if (!isPngSignature) return false;
+        long width =
+                ((png[16] & 0xFFL) << 24) | ((png[17] & 0xFFL) << 16) | ((png[18] & 0xFFL) << 8) | (png[19] & 0xFFL);
+        long height =
+                ((png[20] & 0xFFL) << 24) | ((png[21] & 0xFFL) << 16) | ((png[22] & 0xFFL) << 8) | (png[23] & 0xFFL);
+        return width * height > PDF_IMAGE_MAX_PIXELS;
+    }
+
+    private String resolveReportColor(String candidateColor) {
+        String normalized = normalizeHexColor(candidateColor);
+        if (normalized == null) normalized = normalizeHexColor(brandingService.getMailBackgroundColor());
+        return normalized != null ? normalized : "#5569ff";
+    }
+
+    private @Nullable String normalizeHexColor(String color) {
+        if (color == null) return null;
+        String value = color.trim();
+        if (value.startsWith("#")) value = value.substring(1);
+        if (value.length() == 3 || value.length() == 4) {
+            StringBuilder expanded = new StringBuilder();
+            for (int i = 0; i < 3; i++) expanded.append(value.charAt(i)).append(value.charAt(i));
+            value = expanded.toString();
+        } else if (value.length() == 8) {
+            value = value.substring(0, 6);
+        }
+        if (value.length() != 6) return null;
+        for (int i = 0; i < 6; i++) {
+            char c = Character.toLowerCase(value.charAt(i));
+            if ((c < '0' || c > '9') && (c < 'a' || c > 'f')) return null;
+        }
+        return "#" + value.toLowerCase(Locale.ROOT);
+    }
+
 
     public void generatePdfStream(Long id, User user, ReportConfig config, OutputStream outputStream) {
         Optional<WorkOrder> optionalWorkOrder = findById(id);
@@ -997,9 +1106,11 @@ public class WorkOrderService {
                                 .toArray(String[]::new)
                 ));
         String[] workOrderFilesUrls = config.isFiles() ? savedWorkOrder.getFiles().stream()
-                .map(file -> storageService.generateSignedUrl(file, 5))
+                .map(file -> getImageReportSignedUrl(file, storageService))
                 .filter(Objects::nonNull)
                 .toArray(String[]::new) : new String[0];
+        String reportColor = resolveReportColor(
+                user.getCompany().getCompanySettings().getGeneralPreferences().getColor());
         Map<String, Object> variables = new HashMap<String, Object>() {{
             put("companyName", user.getCompany().getName());
             put("companyPhone", user.getCompany().getPhone());
@@ -1027,14 +1138,11 @@ public class WorkOrderService {
             put("tasksImagesUrls", tasksImagesUrls);
             put("messageSource", messageSource);
             put("locale", Helper.getLocale(user));
-            String companyColor = user.getCompany().getCompanySettings().getGeneralPreferences().getColor();
-            put("backgroundColor", companyColor != null && !companyColor.isBlank() ? companyColor :
-                    brandingService.getMailBackgroundColor()
-            );
             put("reportConfig", config);
             put("comments", comments);
             put("commentFilesUrls", commentFilesUrls);
             put("workOrderFilesUrls", workOrderFilesUrls);
+            put("backgroundColor", reportColor);
             put("workOrderImageUrl", savedWorkOrder.getImage() == null ? null :
                     getImageReportSignedUrl(savedWorkOrder.getImage(), storageService));
         }};
@@ -1059,9 +1167,20 @@ public class WorkOrderService {
                     @Override
                     public java.io.InputStream getInputStreamByUrl(java.net.URL url) throws java.io.IOException {
                         if ("internal.storage".equals(url.getHost())) {
-                            String filePath = url.getPath().substring(1);
-                            byte[] bytes = storageService.download(filePath);
-                            return new ByteArrayInputStream(bytes);
+                            String rawPath = url.getPath();
+                            if (rawPath.startsWith("/")) rawPath = rawPath.substring(1);
+                            String filePath = Arrays.stream(rawPath.split("/"))
+                                    .map(WorkOrderService::decodeUrlSegment)
+                                    .collect(Collectors.joining("/"));
+                            byte[] bytes;
+                            try {
+                                bytes = storageService.download(filePath);
+                            } catch (Exception e) {
+                                log.error("Failed to download '{}' from storage for PDF report: {}", filePath,
+                                        e.getMessage());
+                                throw new java.io.IOException("Failed to download '" + filePath + "'", e);
+                            }
+                            return new ByteArrayInputStream(optimizeImageForPdf(bytes, filePath));
                         }
 
                         // Fallback for any standard external web images
