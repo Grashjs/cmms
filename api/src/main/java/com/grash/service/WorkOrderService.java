@@ -982,7 +982,7 @@ public class WorkOrderService {
         Optional<WorkOrder> optionalWorkOrder = findById(id);
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
-            if (true || savedWorkOrder.canBeViewedBy(user)) {
+            if (savedWorkOrder.canBeViewedBy(user)) {
                 generatePdfStream(savedWorkOrder, user, config, outputStream);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
