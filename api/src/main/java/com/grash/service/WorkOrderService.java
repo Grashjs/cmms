@@ -115,6 +115,8 @@ public class WorkOrderService {
     private ScheduleService scheduleService;
     private PreventiveMaintenanceService preventiveMaintenanceService;
     private PreventiveMaintenanceMapper preventiveMaintenanceMapper;
+    private static final Set<String> IMAGE_EXTENSIONS = Set.of("jpg", "jpeg", "jpe", "png", "gif", "webp", "bmp",
+            "tif", "tiff", "svg", "ico", "avif", "heic", "heif", "jfif");
 
     @Transactional
     public WorkOrder create(WorkOrder workOrder, Company company) {
@@ -932,8 +934,10 @@ public class WorkOrderService {
         if (file == null || file.getPath() == null) return null;
 
         String name = file.getName() != null ? file.getName().toLowerCase() : "";
-        boolean isImage = name.endsWith(".jpg") || name.endsWith(".jpeg") || name.endsWith(".png")
-                || name.endsWith(".gif") || name.endsWith(".webp");
+        String extension = name.substring(name.lastIndexOf('.') + 1)
+                .toLowerCase(Locale.ROOT);
+
+        boolean isImage = IMAGE_EXTENSIONS.contains(extension);
 
         if (!isImage) {
             return null;
