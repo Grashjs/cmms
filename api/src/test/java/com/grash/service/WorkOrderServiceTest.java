@@ -3256,8 +3256,8 @@ class WorkOrderServiceTest {
             wo.setCustomers(new ArrayList<>(List.of(buildCustomer(60L))));
             config = new ReportConfig();
             when(storageServiceFactory.getStorageService()).thenReturn(storageService);
-            when(storageService.exists(anyString())).thenReturn(false);
-            when(storageService.download(any(com.grash.model.File.class))).thenReturn(null);
+            lenient().when(storageService.exists(anyString())).thenReturn(false);
+            lenient().when(storageService.download(any(com.grash.model.File.class))).thenReturn(null);
             when(taskService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
             lenient().when(partQuantityService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
             lenient().when(laborService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
