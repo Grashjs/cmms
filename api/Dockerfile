@@ -18,4 +18,4 @@ COPY --from=build /app/target/*.jar my-spring-boot-app.jar
 EXPOSE 8080
 
 # Specify the command to run on container startup
-CMD ["java", "--add-opens=java.base/java.lang=ALL-UNNAMED", "-jar", "/app/my-spring-boot-app.jar"]
+CMD ["sh", "-c", "java --add-opens=java.base/java.lang=ALL-UNNAMED $JAVA_OPTS -jar /app/my-spring-boot-app.jar"]
