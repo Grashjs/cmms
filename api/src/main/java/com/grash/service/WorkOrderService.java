@@ -943,44 +943,7 @@ public class WorkOrderService {
             return null;
         }
 
-        String thumbPath = file.getPath() + "_report_thumb.jpg";
-
-        try {
-            byte[] thumbBytes;
-
-            if (storageService.exists(thumbPath)) {
-                thumbBytes = storageService.download(thumbPath);
-            } else {
-                byte[] originalBytes = storageService.download(file);
-                if (originalBytes == null || originalBytes.length == 0) {
-                    return storageService.generateSignedUrl(file, 5);
-                }
-                if (originalBytes.length > 15 * 1024 * 1024) {
-                    log.warn("Image too large for thumbnailing ({} bytes), using original: {}",
-                            originalBytes.length, file.getPath());
-                    return storageService.generateSignedUrl(file, 5);
-                }
-
-                ByteArrayOutputStream thumbOut = new ByteArrayOutputStream();
-                Thumbnails.of(new ByteArrayInputStream(originalBytes))
-                        .size(800, 800)          // reports don't need 1200px; halves the payload
-                        .outputFormat("jpg")
-                        .outputQuality(0.6)
-                        .toOutputStream(thumbOut);
-                thumbBytes = thumbOut.toByteArray();
-
-                // upload to the SAME path we check above, so the cache actually hits next time
-                storageService.uploadAt(thumbBytes, thumbPath, "image/jpeg");
-            }
-
-            return "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(thumbBytes);
-        } catch (IOException e) {
-            log.warn("Failed to create thumbnail for {}, using original: {}", file.getPath(), e.getMessage());
-            return storageService.generateSignedUrl(file, 5);
-        } catch (Exception e) {
-            log.warn("Unexpected error creating thumbnail for {}, using original: {}", file.getPath(), e.getMessage());
-            return storageService.generateSignedUrl(file, 5);
-        }
+        return storageService.generateSignedUrl(file, 5);
     }
 
     public void generatePdfStream(Long id, User user, ReportConfig config, OutputStream outputStream) {
