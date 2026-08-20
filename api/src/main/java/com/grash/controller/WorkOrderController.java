@@ -194,9 +194,15 @@ public class WorkOrderController {
                                        HttpServletRequest req,
                                        HttpServletResponse response) throws java.io.IOException {
         User user = userService.whoami(req);
-        response.setContentType("application/pdf");
-        response.setHeader("Content-Disposition", "attachment; filename=\"Work Order Report.pdf\"");
-        workOrderService.generatePdfStream(id, user, config, response.getOutputStream());
+        try {
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition", "attachment; filename=\"Work Order Report.pdf\"");
+            workOrderService.generatePdfStream(id, user, config, response.getOutputStream());
+        } catch (Error | RuntimeException ex) {
+            response.reset();
+            response.setContentType("application/json");
+            throw ex;
+        }
     }
 
     @PostMapping("/{id}/report/send")

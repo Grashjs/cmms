@@ -35,6 +35,7 @@ import com.itextpdf.html2pdf.attach.ITagWorkerFactory;
 import com.itextpdf.html2pdf.attach.ProcessorContext;
 import com.itextpdf.html2pdf.attach.impl.DefaultTagWorkerFactory;
 import com.itextpdf.styledxmlparser.node.IElementNode;
+import com.itextpdf.styledxmlparser.resolver.resource.DefaultResourceRetriever;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -942,9 +943,7 @@ public class WorkOrderService {
         if (!isImage) {
             return null;
         }
-
-        byte[] bytes = storageService.download(file.getPath());
-        return "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(bytes);
+        return "http://internal.storage/" + file.getPath();
 
     }
 
@@ -1055,6 +1054,18 @@ public class WorkOrderService {
                             log.warn("Failed to create tag worker for <{}>: {}", tag.name(), e.getMessage());
                             return null;
                         }
+                    }
+                }).setResourceRetriever(new DefaultResourceRetriever() {
+                    @Override
+                    public java.io.InputStream getInputStreamByUrl(java.net.URL url) throws java.io.IOException {
+                        if ("internal.storage".equals(url.getHost())) {
+                            String filePath = url.getPath().substring(1);
+                            byte[] bytes = storageService.download(filePath);
+                            return new ByteArrayInputStream(bytes);
+                        }
+
+                        // Fallback for any standard external web images
+                        return super.getInputStreamByUrl(url);
                     }
                 });
         HtmlConverter.convertToPdf(reportHtml, outputStream, converterProperties);
