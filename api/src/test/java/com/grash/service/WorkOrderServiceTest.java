@@ -3257,13 +3257,13 @@ class WorkOrderServiceTest {
             config = new ReportConfig();
             when(storageServiceFactory.getStorageService()).thenReturn(storageService);
             when(taskService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
-            when(partQuantityService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
-            when(laborService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
-            when(relationService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
-            when(additionalCostService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
-            when(workOrderHistoryService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
-            when(commentService.findByCriteria(any(), any())).thenReturn(Collections.emptyList());
-            when(brandingService.getMailBackgroundColor()).thenReturn("#5569ff");
+            lenient().when(partQuantityService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
+            lenient().when(laborService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
+            lenient().when(relationService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
+            lenient().when(additionalCostService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
+            lenient().when(workOrderHistoryService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
+            lenient().when(commentService.findByCriteria(any(), any())).thenReturn(Collections.emptyList());
+            lenient().when(brandingService.getMailBackgroundColor()).thenReturn("#5569ff");
             when(thymeleafTemplateEngine.process(eq("work-order-report.html"), any()))
                     .thenReturn("<html><body></body></html>");
         }
@@ -3300,7 +3300,6 @@ class WorkOrderServiceTest {
         @Test
         void createdByNull_skipsCreatorLookup() {
             wo.setCreatedBy(null);
-            when(userService.findById(anyLong())).thenReturn(Optional.empty());
 
             byte[] result = workOrderService.generatePdfBytes(wo, user, config);
 
