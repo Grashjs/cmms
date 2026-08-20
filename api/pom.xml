@@ -17,7 +17,7 @@
         <java.version>17</java.version>
         <org.thymeleaf-version>3.1.5.RELEASE</org.thymeleaf-version>
         <lombok.version>1.18.30</lombok.version>
-        <liquibase.version>4.22.0</liquibase.version>
+        <liquibase.version>5.0.3</liquibase.version>
         <liquibase.propertyFile>src/main/resources/liquibase/liquibase-local.properties</liquibase.propertyFile>
         <testcontainers.version>1.19.3</testcontainers.version>
     </properties>
@@ -152,12 +152,12 @@
         <dependency>
             <groupId>com.itextpdf</groupId>
             <artifactId>kernel</artifactId>
-            <version>7.1.12</version>
+            <version>9.6.0</version>
         </dependency>
         <dependency>
             <groupId>com.itextpdf</groupId>
             <artifactId>html2pdf</artifactId>
-            <version>3.0.1</version>
+            <version>6.3.2</version>
         </dependency>
         <dependency>
             <groupId>io.github.jav</groupId>

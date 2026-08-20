@@ -2,7 +2,7 @@
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
-        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-5.0.xsd">
 
     <changeSet id="{year}_{month}_{day}_{name}[-s]_00000000001" author="Ibrahima">
         <createTable tableName="{name}[-s]">
