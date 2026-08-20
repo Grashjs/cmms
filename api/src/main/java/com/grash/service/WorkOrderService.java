@@ -35,6 +35,7 @@ import com.itextpdf.html2pdf.attach.ITagWorkerFactory;
 import com.itextpdf.html2pdf.attach.ProcessorContext;
 import com.itextpdf.html2pdf.attach.impl.DefaultTagWorkerFactory;
 import com.itextpdf.styledxmlparser.node.IElementNode;
+import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import jakarta.transaction.Transactional;
@@ -927,7 +928,7 @@ public class WorkOrderService {
         } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
     }
 
-    private String getImageReportSignedUrl(com.grash.model.File file, StorageService storageService) {
+    private @Nullable String getImageReportSignedUrl(com.grash.model.File file, StorageService storageService) {
         if (file == null || file.getPath() == null) return null;
 
         String name = file.getName() != null ? file.getName().toLowerCase() : "";
@@ -935,7 +936,7 @@ public class WorkOrderService {
                 || name.endsWith(".gif") || name.endsWith(".webp");
 
         if (!isImage) {
-            return storageService.generateSignedUrl(file, 5);
+            return null;
         }
 
         String thumbPath = file.getPath() + "_report_thumb.jpg";
@@ -1000,6 +1001,7 @@ public class WorkOrderService {
                         Task::getId,
                         task -> task.getImages().stream()
                                 .map(image -> getImageReportSignedUrl(image, storageService))
+                                .filter(java.util.Objects::nonNull)
                                 .toArray(String[]::new)
                 ));
         Collection<PartQuantity> partQuantities = config.isCost() ?
@@ -1023,10 +1025,12 @@ public class WorkOrderService {
                         Comment::getId,
                         comment -> comment.getFiles().stream()
                                 .map(file -> getImageReportSignedUrl(file, storageService))
+                                .filter(Objects::nonNull)
                                 .toArray(String[]::new)
                 ));
         String[] workOrderFilesUrls = config.isFiles() ? savedWorkOrder.getFiles().stream()
                 .map(file -> storageService.generateSignedUrl(file, 5))
+                .filter(Objects::nonNull)
                 .toArray(String[]::new) : new String[0];
         Map<String, Object> variables = new HashMap<String, Object>() {{
             put("companyName", user.getCompany().getName());
