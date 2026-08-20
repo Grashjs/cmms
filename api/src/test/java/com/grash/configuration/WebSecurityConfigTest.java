@@ -18,9 +18,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -69,16 +66,9 @@ class WebSecurityConfigTest {
                 licenseService,
                 rateLimitFilter,
                 customUserDetailsService,
-                Optional.empty(),
-                corsConfigurationSource());
+                Optional.empty());
         ReflectionTestUtils.setField(webSecurityConfig, "enableSso", false);
         ReflectionTestUtils.setField(webSecurityConfig, "ldapEnabled", false);
-    }
-
-    private CorsConfigurationSource corsConfigurationSource() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", new CorsConfiguration());
-        return source;
     }
 
     @Test
@@ -108,8 +98,7 @@ class WebSecurityConfigTest {
                 licenseService,
                 rateLimitFilter,
                 customUserDetailsService,
-                Optional.of(mock(LdapAuthenticationProvider.class)),
-                corsConfigurationSource());
+                Optional.of(mock(LdapAuthenticationProvider.class)));
         ReflectionTestUtils.setField(webSecurityConfig, "ldapEnabled", true);
 
         AuthenticationManager authenticationManager = webSecurityConfig.authenticationManager();
