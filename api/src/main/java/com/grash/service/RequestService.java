@@ -18,6 +18,7 @@ import com.grash.model.enums.webhook.WebhookEvent;
 
 import com.grash.repository.FieldConfigurationRepository;
 import com.grash.repository.RequestRepository;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -37,19 +38,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RequestService {
     private final RequestRepository requestRepository;
-    private final CompanyService companyService;
-    private final FileService fileService;
-    private final LocationService locationService;
-    private final UserService userService;
-    private final TeamService teamService;
-    private final AssetService assetService;
     private final WorkOrderService workOrderService;
     private final RequestMapper requestMapper;
     private final EntityManager em;
     private final CustomSequenceService customSequenceService;
     private final LicenseService licenseService;
-    private final RequestPortalService requestPortalService;
-    private final FieldConfigurationRepository fieldConfigurationRepository;
     private final WebhookDispatchService webhookDispatchService;
     private final CustomFieldValueService customFieldValueService;
 
@@ -66,6 +59,7 @@ public class RequestService {
             throw new CustomException("You need a license to add voice notes", HttpStatus.FORBIDDEN);
         Long nextSequence = customSequenceService.getNextRequestSequence(company);
         request.setCustomId("R" + String.format("%06d", nextSequence));
+        Sanitizer.sanitizeRequest(request);
 
         Request savedRequest = requestRepository.saveAndFlush(request);
         em.refresh(savedRequest);
@@ -85,6 +79,7 @@ public class RequestService {
         request.setCustomId("R" + String.format("%06d", nextSequence));
         request.setRequestPortal(requestPortal);
         request.setCompany(requestPortal.getCompany());
+        Sanitizer.sanitizeRequest(request);
         RequestPortalField assetField =
                 requestPortal.getFields().stream().filter(field -> field.getType().equals(PortalFieldType.ASSET) && field.getAsset() != null).findFirst().orElse(null);
         RequestPortalField locationField =
@@ -111,7 +106,9 @@ public class RequestService {
             if (!request.getCustomFields().isEmpty()) {
                 setRequestCustomFields(savedRequest, request.getCustomFields(), company);
             }
-            Request updatedRequest = requestRepository.saveAndFlush(requestMapper.updateRequest(savedRequest, request));
+            Request updatedRequest = requestMapper.updateRequest(savedRequest, request);
+            Sanitizer.sanitizeRequest(updatedRequest);
+            updatedRequest = requestRepository.saveAndFlush(updatedRequest);
             em.refresh(updatedRequest);
             return updatedRequest;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -182,7 +179,7 @@ public class RequestService {
                     Join<Request, WorkOrder> workOrderJoin = requestRoot.join(Request_.workOrder, JoinType.LEFT);
                     predicates.add(criteriaBuilder.or(workOrderJoin.get(WorkOrder_.priority).in(priorities),
                             requestRoot.get(
-                            Request_.priority).in(priorities)));
+                                    Request_.priority).in(priorities)));
                 }
             }
 
@@ -219,15 +216,6 @@ public class RequestService {
         return requestRepository.findAll(builder.build(), page).map(requestMapper::toShowDto);
     }
 
-    public boolean isRequestInCompany(Request request, long companyId, boolean optional) {
-        if (optional) {
-            Optional<Request> optionalRequest = request == null ? Optional.empty() : findById(request.getId());
-            return request == null || (optionalRequest.isPresent() && optionalRequest.get().getCompany().getId().equals(companyId));
-        } else {
-            Optional<Request> optionalRequest = findById(request.getId());
-            return optionalRequest.isPresent() && optionalRequest.get().getCompany().getId().equals(companyId);
-        }
-    }
 
     public Integer countPending(Long companyId) {
         return requestRepository.countPending(companyId);

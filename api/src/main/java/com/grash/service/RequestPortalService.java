@@ -12,6 +12,7 @@ import com.grash.model.User;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
 import com.grash.repository.RequestPortalRepository;
+import com.grash.utils.Sanitizer;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,7 +21,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.util.HtmlUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,7 +39,7 @@ public class RequestPortalService {
             throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         RequestPortal requestPortal =
                 requestPortalMapper.fromPostDto(requestPortalReq);
-        escapeUserEntry(requestPortal);
+        sanitizeUserEntry(requestPortal);
         requestPortal.setUuid(UUID.randomUUID().toString());
         requestPortal.getFields().forEach(field -> field.setRequestPortal(requestPortal));
 
@@ -65,14 +65,14 @@ public class RequestPortalService {
                         HttpStatus.NOT_FOUND));
         RequestPortal newRequestPortal = requestPortalMapper.updateRequestPortal(savedRequestPortal,
                 requestPortalPatchDTO);
-        escapeUserEntry(newRequestPortal);
+        sanitizeUserEntry(newRequestPortal);
         newRequestPortal.getFields().forEach(field -> field.setRequestPortal(savedRequestPortal));
         return requestPortalRepository.save(newRequestPortal);
     }
 
-    private void escapeUserEntry(RequestPortal requestPortal) {
-        requestPortal.setTitle(HtmlUtils.htmlEscape(requestPortal.getTitle()));
-        requestPortal.setWelcomeMessage(HtmlUtils.htmlEscape(requestPortal.getWelcomeMessage()));
+    private void sanitizeUserEntry(RequestPortal requestPortal) {
+        requestPortal.setTitle(Sanitizer.cleanText(requestPortal.getTitle()));
+        requestPortal.setWelcomeMessage(Sanitizer.cleanText(requestPortal.getWelcomeMessage()));
     }
 
     public Page<RequestPortal> findBySearchCriteria(SearchCriteria searchCriteria) {

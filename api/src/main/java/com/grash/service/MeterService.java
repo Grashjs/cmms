@@ -14,6 +14,7 @@ import com.grash.model.*;
 import com.grash.model.enums.CustomFieldEntityType;
 import com.grash.model.enums.NotificationType;
 import com.grash.repository.MeterRepository;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
@@ -58,6 +59,7 @@ public class MeterService {
                 setMeterCustomFields(meter, meterPostDTO.getCustomFields(), company);
             }
         }
+        Sanitizer.sanitizeMeter(meter);
         Meter savedMeter = meterRepository.saveAndFlush(meter);
         em.refresh(savedMeter);
         return savedMeter;
@@ -91,7 +93,9 @@ public class MeterService {
             if (meter.getCustomFields() != null && !meter.getCustomFields().isEmpty()) {
                 setMeterCustomFields(savedMeter, meter.getCustomFields(), company);
             }
-            Meter patchedMeter = meterRepository.saveAndFlush(meterMapper.updateMeter(savedMeter, meter));
+            Meter patchedMeter = meterMapper.updateMeter(savedMeter, meter);
+            Sanitizer.sanitizeMeter(patchedMeter);
+            patchedMeter = meterRepository.saveAndFlush(patchedMeter);
             em.refresh(patchedMeter);
             return patchedMeter;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -176,6 +180,7 @@ public class MeterService {
             optionalUser1.ifPresent(users::add);
         });
         meter.setUsers(users);
+        Sanitizer.sanitizeMeter(meter);
     }
 
     public Optional<Meter> findByIdAndCompany(Long id, Long companyId) {

@@ -55,17 +55,6 @@ public class AssetCategoryService {
         return assetCategoryRepository.findByCompanySettings_Id(id);
     }
 
-    public boolean isAssetCategoryInCompany(AssetCategory assetCategory, long companyId, boolean optional) {
-        if (optional) {
-            Optional<AssetCategory> optionalAssetCategory = assetCategory == null ? Optional.empty() :
-                    findById(assetCategory.getId());
-            return assetCategory == null || (optionalAssetCategory.isPresent() && optionalAssetCategory.get().getCompanySettings().getCompany().getId().equals(companyId));
-        } else {
-            Optional<AssetCategory> optionalAssetCategory = findById(assetCategory.getId());
-            return optionalAssetCategory.isPresent() && optionalAssetCategory.get().getCompanySettings().getCompany().getId().equals(companyId);
-        }
-    }
-
     public Optional<AssetCategory> findByNameIgnoreCaseAndCompanySettings(String category, Long companySettingsId) {
         return assetCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(category, companySettingsId);
     }

@@ -28,6 +28,7 @@ import com.grash.repository.WorkOrderRepository;
 import com.grash.utils.Helper;
 import com.grash.utils.MultipartFileImpl;
 import com.grash.utils.PdfReportUtils;
+import com.grash.utils.Sanitizer;
 import com.grash.utils.TenantAspectUtils;
 import com.itextpdf.html2pdf.HtmlConverter;
 import jakarta.validation.Valid;
@@ -123,6 +124,7 @@ public class WorkOrderService {
         }
         workOrder.setCustomId(getWorkOrderNumber(company));
         workOrder.setId(null);
+        Sanitizer.sanitizeWorkOrder(workOrder);
 
         WorkOrder savedWorkOrder = workOrderRepository.saveAndFlush(workOrder);
         em.refresh(savedWorkOrder);
@@ -200,6 +202,7 @@ public class WorkOrderService {
                     null;
 
             WorkOrder newWorkOrder = workOrderMapper.updateWorkOrder(savedWorkOrder, workOrder);
+            Sanitizer.sanitizeWorkOrder(newWorkOrder);
             if (!workOrder.getCustomFields().isEmpty()) {
                 setWOCustomFields(newWorkOrder, workOrder.getCustomFields(), user.getCompany());
             }
@@ -556,6 +559,7 @@ public class WorkOrderService {
             optionalCustomer.ifPresent(customers::add);
         });
         workOrder.setCustomers(customers);
+        Sanitizer.sanitizeWorkOrder(workOrder);
     }
 
     public Collection<WorkOrder> findByCreatedByAndCreatedAtBetween(Long id, Date date1, Date date2) {
@@ -836,7 +840,7 @@ public class WorkOrderService {
                     HttpStatus.BAD_REQUEST);
         mutableWO.setSignature(dto.getSignature());
         mutableWO.setStatus(dto.getStatus());
-        mutableWO.setFeedback(dto.getFeedback());
+        mutableWO.setFeedback(Sanitizer.cleanText(dto.getFeedback()));
 
         if (dto.getStatus() != Status.COMPLETE) {
             mutableWO.setCompletedOn(null);

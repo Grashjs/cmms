@@ -103,16 +103,6 @@ public class TeamService {
         }
     }
 
-    public boolean isTeamInCompany(Team team, long companyId, boolean optional) {
-        if (optional) {
-            Optional<Team> optionalTeam = team == null ? Optional.empty() : findById(team.getId());
-            return team == null || (optionalTeam.isPresent() && optionalTeam.get().getCompany().getId().equals(companyId));
-        } else {
-            Optional<Team> optionalTeam = findById(team.getId());
-            return optionalTeam.isPresent() && optionalTeam.get().getCompany().getId().equals(companyId);
-        }
-    }
-
     public Collection<Team> findByUser(Long id) {
         return teamRepository.findByUsers_Id(id);
     }

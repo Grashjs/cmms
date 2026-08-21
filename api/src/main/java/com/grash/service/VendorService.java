@@ -93,16 +93,6 @@ public class VendorService {
         return vendorRepository.findByCompany_Id(id);
     }
 
-    public boolean isVendorInCompany(Vendor vendor, long companyId, boolean optional) {
-        if (optional) {
-            Optional<Vendor> optionalVendor = vendor == null ? Optional.empty() : findById(vendor.getId());
-            return vendor == null || (optionalVendor.isPresent() && optionalVendor.get().getCompany().getId().equals(companyId));
-        } else {
-            Optional<Vendor> optionalVendor = findById(vendor.getId());
-            return optionalVendor.isPresent() && optionalVendor.get().getCompany().getId().equals(companyId);
-        }
-    }
-
     public Page<Vendor> findBySearchCriteria(SearchCriteria searchCriteria) {
         SpecificationBuilder<Vendor> builder = new SpecificationBuilder<>();
         searchCriteria.getFilterFields().forEach(builder::with);

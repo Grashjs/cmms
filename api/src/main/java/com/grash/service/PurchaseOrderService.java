@@ -68,17 +68,6 @@ public class PurchaseOrderService {
         return purchaseOrderRepository.save(purchaseOrder);
     }
 
-    public boolean isPurchaseOrderInCompany(PurchaseOrder purchaseOrder, long companyId, boolean optional) {
-        if (optional) {
-            Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrder == null ? Optional.empty() :
-                    findById(purchaseOrder.getId());
-            return purchaseOrder == null || (optionalPurchaseOrder.isPresent() && optionalPurchaseOrder.get().getCompany().getId().equals(companyId));
-        } else {
-            Optional<PurchaseOrder> optionalPurchaseOrder = findById(purchaseOrder.getId());
-            return optionalPurchaseOrder.isPresent() && optionalPurchaseOrder.get().getCompany().getId().equals(companyId);
-        }
-    }
-
     public Page<PurchaseOrderShowDTO> findBySearchCriteria(SearchCriteria searchCriteria) {
         SpecificationBuilder<PurchaseOrder> builder = new SpecificationBuilder<>();
         searchCriteria.getFilterFields().forEach(builder::with);

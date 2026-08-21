@@ -20,6 +20,7 @@ import com.grash.model.enums.RoleType;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.AssetRepository;
 import com.grash.utils.Helper;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -94,6 +95,7 @@ public class AssetService {
         if ((asset.getBarCode() == null || asset.getBarCode().isBlank()) && Boolean.TRUE.equals(user.getCompany().getCompanySettings().getGeneralPreferences().getAutoGenerateAssetBarcode())) {
             asset.setBarCode(UUID.randomUUID().toString());
         }
+        Sanitizer.sanitizeAsset(asset);
         Asset savedAsset = assetRepository.saveAndFlush(asset);
         em.refresh(savedAsset);
         Map<String, Object> webhookPayload = new HashMap<>();
@@ -132,7 +134,9 @@ public class AssetService {
             if (asset.getCustomFields() != null && !asset.getCustomFields().isEmpty()) {
                 setAssetCustomFields(savedAsset, asset.getCustomFields(), company);
             }
-            Asset patchedAsset = assetRepository.saveAndFlush(assetMapper.updateAsset(savedAsset, asset));
+            Asset patchedAsset = assetMapper.updateAsset(savedAsset, asset);
+            Sanitizer.sanitizeAsset(patchedAsset);
+            patchedAsset = assetRepository.saveAndFlush(patchedAsset);
             em.refresh(patchedAsset);
 
             if (previousStatus != patchedAsset.getStatus()) {
@@ -565,6 +569,7 @@ public class AssetService {
             optionalPart.ifPresent(parts::add);
         });
         asset.setParts(parts);
+        Sanitizer.sanitizeAsset(asset);
 
 //        assetRepository.save(asset);
     }

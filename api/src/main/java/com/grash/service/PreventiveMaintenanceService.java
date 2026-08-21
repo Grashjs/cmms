@@ -17,6 +17,7 @@ import com.grash.model.enums.*;
 
 import com.grash.repository.PreventiveMaintenanceRepository;
 import com.grash.utils.Helper;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Scheduler;
@@ -78,6 +79,7 @@ public class PreventiveMaintenanceService {
         if (!preventiveMaintenancePost.getCustomFields().isEmpty()) {
             setPMCustomFields(preventiveMaintenance, preventiveMaintenancePost.getCustomFields(), company);
         }
+        Sanitizer.sanitizePreventiveMaintenance(preventiveMaintenance);
         PreventiveMaintenance savedPM = preventiveMaintenanceRepository.saveAndFlush(preventiveMaintenance);
         em.refresh(savedPM);
         return savedPM;
@@ -98,6 +100,7 @@ public class PreventiveMaintenanceService {
             PreventiveMaintenance pmToSave =
                     preventiveMaintenanceMapper.updatePreventiveMaintenance(savedPreventiveMaintenance,
                             preventiveMaintenance);
+            Sanitizer.sanitizePreventiveMaintenance(pmToSave);
             pmToSave.getSchedule().setDisabled(false);
             PreventiveMaintenance updatedPM =
                     preventiveMaintenanceRepository.saveAndFlush(pmToSave);
@@ -202,18 +205,6 @@ public class PreventiveMaintenanceService {
             return baseSpec == null ? null : baseSpec.toPredicate(root, query, criteriaBuilder);
         };
         return preventiveMaintenanceRepository.findAll(fetchSpec, page);
-    }
-
-    public boolean isPreventiveMaintenanceInCompany(PreventiveMaintenance preventiveMaintenance, long companyId,
-                                                    boolean optional) {
-        if (optional) {
-            Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenance == null ?
-                    Optional.empty() : findById(preventiveMaintenance.getId());
-            return preventiveMaintenance == null || (optionalPreventiveMaintenance.isPresent() && optionalPreventiveMaintenance.get().getCompany().getId().equals(companyId));
-        } else {
-            Optional<PreventiveMaintenance> optionalPreventiveMaintenance = findById(preventiveMaintenance.getId());
-            return optionalPreventiveMaintenance.isPresent() && optionalPreventiveMaintenance.get().getCompany().getId().equals(companyId);
-        }
     }
 
     public List<CalendarEvent<PreventiveMaintenance>> getEvents(Date end, Long companyId) {
@@ -331,6 +322,7 @@ public class PreventiveMaintenanceService {
 
         preventiveMaintenance.setCustomId("PM" + String.format("%06d",
                 customSequenceService.getNextPreventiveMaintenanceSequence(company)));
+        Sanitizer.sanitizePreventiveMaintenance(preventiveMaintenance);
 
         PreventiveMaintenance savedPM = preventiveMaintenanceRepository.save(preventiveMaintenance);
         scheduleService.reScheduleWorkOrder(savedPM.getSchedule());
