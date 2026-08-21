@@ -57,6 +57,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/auth/signin").permitAll()
                         .requestMatchers("/auth/signin-ldap").permitAll()
                         .requestMatchers("/auth/signup").permitAll()
+                        .requestMatchers("/auth/refresh").permitAll()
                         .requestMatchers("/auth/sso/**").permitAll()
                         .requestMatchers("/auth/sendMail").permitAll()
                         .requestMatchers("/auth/resetpwd/**").permitAll()
