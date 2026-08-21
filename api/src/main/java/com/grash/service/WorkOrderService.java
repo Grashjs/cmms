@@ -126,6 +126,7 @@ public class WorkOrderService {
             "tif", "tiff", "svg", "ico", "avif", "heic", "heif", "jfif");
     private static final int PDF_IMAGE_MAX_DIMENSION_PX = 1600;
     private static final long PDF_IMAGE_MAX_PIXELS = 40L * 1024 * 1024;
+    private static final int PDF_IMAGE_MAX_UNOPTIMIZED_BYTES = 512 * 1024;
     private static final byte[] EMPTY_PNG = Base64.getDecoder().decode(
             "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=");
 
@@ -975,7 +976,8 @@ public class WorkOrderService {
             if (width <= 0 || height <= 0) return rawBytes;
 
             boolean hasAlpha = source.getColorModel().hasAlpha();
-            if (Math.max(width, height) <= PDF_IMAGE_MAX_DIMENSION_PX && rawBytes.length <= 512 * 1024) {
+            if (Math.max(width, height) <= PDF_IMAGE_MAX_DIMENSION_PX
+                    && rawBytes.length <= PDF_IMAGE_MAX_UNOPTIMIZED_BYTES) {
                 return rawBytes;
             }
 
@@ -1002,9 +1004,14 @@ public class WorkOrderService {
                 return result;
             }
             return rawBytes;
-        } catch (Exception e) {
-            log.warn("Failed to optimize image '{}' for PDF report: {}", fileName, e.getMessage());
-            return rawBytes;
+        } catch (Exception | OutOfMemoryError e) {
+            log.warn("Failed to optimize image '{}' ({} bytes) for PDF report", fileName, rawBytes.length, e);
+            if (rawBytes.length <= PDF_IMAGE_MAX_UNOPTIMIZED_BYTES) {
+                return rawBytes;
+            }
+            log.warn("Falling back to placeholder image for '{}' ({} bytes) to avoid memory exhaustion",
+                    fileName, rawBytes.length);
+            return EMPTY_PNG;
         }
     }
 
@@ -1145,10 +1152,6 @@ public class WorkOrderService {
 
                     @Override
                     public ITagWorker getTagWorker(IElementNode tag, ProcessorContext context) {
-                        log.info("Processing tag: {}", tag.name());
-                        log.info("Tag attributes: {}", tag.getAttributes().size());
-                        log.info("data-storage-path: {}", tag.getAttribute("data-storage-path"));
-                        log.info("Tag node: {}", tag);
                         if ("img".equals(tag.name()) && tag.getAttribute("data-storage-path") != null) {
                             return new DirectImageTagWorker(tag, storageService);
                         }
@@ -1179,8 +1182,8 @@ public class WorkOrderService {
                     byte[] optimized = optimizeImageForPdf(storageService.download(path), path);
                     ImageData imageData = ImageDataFactory.create(optimized);
                     img = new Image(imageData);
-                } catch (Exception e) {
-                    log.warn("Failed to embed image '{}' in PDF report: {}", path, e.getMessage());
+                } catch (Exception | OutOfMemoryError e) {
+                    log.warn("Failed to embed image '{}' in PDF report", path, e);
                 }
             }
             this.image = img;
