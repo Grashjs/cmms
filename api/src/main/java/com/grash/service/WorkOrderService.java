@@ -34,10 +34,13 @@ import com.itextpdf.html2pdf.attach.ITagWorker;
 import com.itextpdf.html2pdf.attach.ITagWorkerFactory;
 import com.itextpdf.html2pdf.attach.ProcessorContext;
 import com.itextpdf.html2pdf.attach.impl.DefaultTagWorkerFactory;
+import com.itextpdf.html2pdf.resolver.font.DefaultFontProvider;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.kernel.colors.WebColors;
 import com.itextpdf.layout.IPropertyContainer;
 import com.itextpdf.layout.element.Image;
+import com.itextpdf.layout.font.FontProvider;
 import com.itextpdf.styledxmlparser.node.IElementNode;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
@@ -73,6 +76,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.*;
 import java.util.function.Function;
@@ -129,6 +133,13 @@ public class WorkOrderService {
     private static final int PDF_IMAGE_MAX_UNOPTIMIZED_BYTES = 512 * 1024;
     private static final byte[] EMPTY_PNG = Base64.getDecoder().decode(
             "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=");
+    private static final String DEFAULT_REPORT_COLOR = "#5569ff";
+    private static final List<String> REPORT_FONT_RESOURCES = List.of(
+            "/fonts/Inter-Regular.ttf",
+            "/fonts/Inter-Medium.ttf",
+            "/fonts/Inter-SemiBold.ttf",
+            "/fonts/Inter-Bold.ttf");
+    private static final FontProvider REPORT_FONT_PROVIDER = createReportFontProvider();
 
     @Transactional
     public WorkOrder create(WorkOrder workOrder, Company company) {
@@ -1028,28 +1039,82 @@ public class WorkOrderService {
     }
 
     private String resolveReportColor(String candidateColor) {
-        String normalized = normalizeHexColor(candidateColor);
-        if (normalized == null) normalized = normalizeHexColor(brandingService.getMailBackgroundColor());
-        return normalized != null ? normalized : "#5569ff";
+        String normalized = resolveCssColor(candidateColor);
+        if (normalized == null) normalized = resolveCssColor(brandingService.getMailBackgroundColor());
+        return normalized != null ? normalized : DEFAULT_REPORT_COLOR;
     }
 
-    private @Nullable String normalizeHexColor(String color) {
-        if (color == null) return null;
-        String value = color.trim();
-        if (value.startsWith("#")) value = value.substring(1);
-        if (value.length() == 3 || value.length() == 4) {
-            StringBuilder expanded = new StringBuilder();
-            for (int i = 0; i < 3; i++) expanded.append(value.charAt(i)).append(value.charAt(i));
-            value = expanded.toString();
-        } else if (value.length() == 8) {
-            value = value.substring(0, 6);
+    private static FontProvider createReportFontProvider() {
+        DefaultFontProvider fontProvider = new DefaultFontProvider(true, false, false);
+        for (String fontResource : REPORT_FONT_RESOURCES) {
+            try (InputStream fontStream = WorkOrderService.class.getResourceAsStream(fontResource)) {
+                if (fontStream == null) {
+                    log.warn("Report font resource {} not found on classpath", fontResource);
+                    continue;
+                }
+                fontProvider.addFont(fontStream.readAllBytes());
+            } catch (IOException e) {
+                log.warn("Failed to register report font {}", fontResource, e);
+            }
         }
-        if (value.length() != 6) return null;
+        return fontProvider;
+    }
+
+    private @Nullable String resolveCssColor(String candidateColor) {
+        if (candidateColor == null || candidateColor.trim().isEmpty()) return null;
+        String value = candidateColor.trim().toLowerCase(Locale.ROOT);
+        try {
+            float[] rgb;
+            if (value.charAt(0) == '#') {
+                rgb = parseHexColor(value);
+            } else if (value.startsWith("rgb")) {
+                rgb = parseFunctionalRgbColor(value);
+            } else {
+                rgb = WebColors.getRGBAColor(value.replaceAll("[\\s_-]+", ""));
+            }
+            return rgb != null ? toHexColor(rgb) : null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private @Nullable float[] parseHexColor(String value) {
+        String hex = value.substring(1);
+        if (hex.length() == 3 || hex.length() == 4) {
+            StringBuilder expanded = new StringBuilder();
+            for (int i = 0; i < 3; i++) expanded.append(hex.charAt(i)).append(hex.charAt(i));
+            hex = expanded.toString();
+        } else if (hex.length() == 8) {
+            hex = hex.substring(0, 6);
+        }
+        if (hex.length() != 6) return null;
         for (int i = 0; i < 6; i++) {
-            char c = Character.toLowerCase(value.charAt(i));
+            char c = hex.charAt(i);
             if ((c < '0' || c > '9') && (c < 'a' || c > 'f')) return null;
         }
-        return "#" + value.toLowerCase(Locale.ROOT);
+        return WebColors.getRGBAColor('#' + hex);
+    }
+
+    private @Nullable float[] parseFunctionalRgbColor(String value) {
+        int open = value.indexOf('(');
+        int close = value.lastIndexOf(')');
+        if (open < 0 || close < open) return null;
+        List<String> components = new ArrayList<>();
+        for (String part : value.substring(open + 1, close).replace("%", "").split("[,\\s]+")) {
+            if (!part.isEmpty()) components.add(part);
+        }
+        if (components.size() != 3 && components.size() != 4) return null;
+        return new float[]{Float.parseFloat(components.get(0)), Float.parseFloat(components.get(1)),
+                Float.parseFloat(components.get(2))};
+    }
+
+    private String toHexColor(float[] rgb) {
+        return String.format(Locale.ROOT, "#%02x%02x%02x", clampChannel(rgb[0]), clampChannel(rgb[1]),
+                clampChannel(rgb[2]));
+    }
+
+    private int clampChannel(float component) {
+        return Math.max(0, Math.min(255, Math.round(component)));
     }
 
 
@@ -1148,6 +1213,7 @@ public class WorkOrderService {
         String reportHtml = thymeleafTemplateEngine.process("work-order-report.html", thymeleafContext);
 
         ConverterProperties converterProperties = new ConverterProperties()
+                .setFontProvider(REPORT_FONT_PROVIDER)
                 .setTagWorkerFactory(new ITagWorkerFactory() {
                     private final DefaultTagWorkerFactory defaultFactory = new DefaultTagWorkerFactory();
 

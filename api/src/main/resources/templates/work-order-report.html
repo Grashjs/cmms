@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style th:inline="css">
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -521,7 +520,7 @@
           <svg class="meta-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6.5"/><polyline points="5,8 7,10 11,6"/></svg>
           <span th:text="#{status}"></span>
         </span>
-                <span class="status-badge" th:style="'background:'+${backgroundColor}+'22; color:'+${backgroundColor}" th:text="#{${workOrder.status}}"></span>
+                <span class="status-badge" th:style="'background:'+${backgroundColor}+'; color:#ffffff'" th:text="#{${workOrder.status}}"></span>
             </td>
             <td th:if="${reportConfig.priority and workOrder.priority!=null}">
         <span class="meta-label">
