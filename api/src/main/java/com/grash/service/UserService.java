@@ -534,7 +534,7 @@ public class UserService {
                         (int) findByCompany(requester.getCompany().getId()).stream().filter(User::isEnabledInSubscriptionAndPaid).count();
                 if (usersCount <= requester.getCompany().getSubscription().getUsersCount()) {
                     userToPatch.setRole(optionalRole.get());
-                    return save(userToPatch);
+                    return invalidateSessions(userToPatch);
                 } else
                     throw new CustomException("Company subscription users count doesn't allow this operation",
                             HttpStatus.NOT_ACCEPTABLE);
