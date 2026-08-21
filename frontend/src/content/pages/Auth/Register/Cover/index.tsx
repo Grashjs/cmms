@@ -159,7 +159,6 @@ function RegisterCover() {
   const { logo } = useBrand();
   const icons = {
     Atlas: logo.dark,
-    FirebaseAuth: '/static/images/logo/firebase.svg',
     JWT: '/static/images/logo/jwt.svg',
     Amplify: '/static/images/logo/amplify.svg'
   };
