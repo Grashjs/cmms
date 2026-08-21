@@ -20,7 +20,6 @@ import {
 
 import type { View } from 'src/models/calendar';
 import { useDispatch, useSelector } from 'src/store';
-import { selectEvent } from 'src/slices/calendar';
 import WorkOrder, { Priority } from 'src/models/owns/workOrder';
 import { CalendarEvent, getWorkOrderEvents } from 'src/slices/workOrder';
 import Actions from './Actions';
@@ -254,10 +253,6 @@ function ApplicationsCalendar({
       calApi.next();
       setDate(calApi.getDate());
     }
-  };
-
-  const handleEventSelect = (arg: any): void => {
-    dispatch(selectEvent(arg.event.id));
   };
 
   return (
