@@ -133,7 +133,6 @@ public class WorkOrderService {
     private static final int PDF_IMAGE_MAX_UNOPTIMIZED_BYTES = 512 * 1024;
     private static final byte[] EMPTY_PNG = Base64.getDecoder().decode(
             "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=");
-    private static final String DEFAULT_REPORT_COLOR = "#5569ff";
     private static final List<String> REPORT_FONT_RESOURCES = List.of(
             "/fonts/Inter-Regular.ttf",
             "/fonts/Inter-Medium.ttf",
@@ -954,19 +953,18 @@ public class WorkOrderService {
     }
 
     private static @Nullable String getImageReportStoragePath(com.grash.model.File file) {
-//        if (file == null || file.getPath() == null) return null;
-//
-//        String name = file.getName() != null ? file.getName().toLowerCase(Locale.ROOT) : "";
-//        String extension = name.substring(name.lastIndexOf('.') + 1)
-//                .toLowerCase(Locale.ROOT);
-//
-//        boolean isImage = IMAGE_EXTENSIONS.contains(extension);
-//
-//        if (!isImage) {
-//            return null;
-//        }
-//        return file.getPath();
-        return null;
+        if (file == null || file.getPath() == null) return null;
+
+        String name = file.getName() != null ? file.getName().toLowerCase(Locale.ROOT) : "";
+        String extension = name.substring(name.lastIndexOf('.') + 1)
+                .toLowerCase(Locale.ROOT);
+
+        boolean isImage = IMAGE_EXTENSIONS.contains(extension);
+
+        if (!isImage) {
+            return null;
+        }
+        return file.getPath();
     }
 
     private byte[] optimizeImageForPdf(byte[] rawBytes, String fileName) {
@@ -1041,7 +1039,7 @@ public class WorkOrderService {
     private String resolveReportColor(String candidateColor) {
         String normalized = resolveCssColor(candidateColor);
         if (normalized == null) normalized = resolveCssColor(brandingService.getMailBackgroundColor());
-        return normalized != null ? normalized : DEFAULT_REPORT_COLOR;
+        return normalized;
     }
 
     private static FontProvider createReportFontProvider() {
@@ -1070,7 +1068,7 @@ public class WorkOrderService {
             } else if (value.startsWith("rgb")) {
                 rgb = parseFunctionalRgbColor(value);
             } else {
-                rgb = WebColors.getRGBAColor(value.replaceAll("[\\s_-]+", ""));
+                rgb = scaleToByteRange(WebColors.getRGBAColor(value.replaceAll("[\\s_-]+", "")));
             }
             return rgb != null ? toHexColor(rgb) : null;
         } catch (Exception e) {
@@ -1092,7 +1090,7 @@ public class WorkOrderService {
             char c = hex.charAt(i);
             if ((c < '0' || c > '9') && (c < 'a' || c > 'f')) return null;
         }
-        return WebColors.getRGBAColor('#' + hex);
+        return scaleToByteRange(WebColors.getRGBAColor('#' + hex));
     }
 
     private @Nullable float[] parseFunctionalRgbColor(String value) {
@@ -1100,12 +1098,28 @@ public class WorkOrderService {
         int close = value.lastIndexOf(')');
         if (open < 0 || close < open) return null;
         List<String> components = new ArrayList<>();
-        for (String part : value.substring(open + 1, close).replace("%", "").split("[,\\s]+")) {
+        for (String part : value.substring(open + 1, close).trim().split("[,\\s]+")) {
             if (!part.isEmpty()) components.add(part);
         }
         if (components.size() != 3 && components.size() != 4) return null;
-        return new float[]{Float.parseFloat(components.get(0)), Float.parseFloat(components.get(1)),
-                Float.parseFloat(components.get(2))};
+        float[] rgb = new float[3];
+        for (int i = 0; i < 3; i++) {
+            String component = components.get(i);
+            boolean isPercentage = component.endsWith("%");
+            if (isPercentage) component = component.substring(0, component.length() - 1);
+            float parsed;
+            try {
+                parsed = Float.parseFloat(component);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+            rgb[i] = isPercentage ? parsed * 2.55f : parsed;
+        }
+        return rgb;
+    }
+
+    private float[] scaleToByteRange(float[] rgba) {
+        return new float[]{rgba[0] * 255f, rgba[1] * 255f, rgba[2] * 255f};
     }
 
     private String toHexColor(float[] rgb) {
