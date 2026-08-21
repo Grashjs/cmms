@@ -43,7 +43,7 @@ spring:
       ddl-auto: validate
     properties:
       hibernate:
-        enable_lazy_load_no_trans: false
+        enable_lazy_load_no_trans: true
         default_batch_fetch_size: 64
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
