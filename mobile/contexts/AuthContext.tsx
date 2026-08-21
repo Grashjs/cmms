@@ -843,6 +843,8 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     }
 
     await api.deletes<{ success: boolean }>(`auth`);
+    setSession(null, null);
+    dispatch({ type: 'LOGOUT' });
   };
 
   const register = async (values): Promise<void> => {

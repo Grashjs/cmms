@@ -118,8 +118,7 @@ export default function UserProfile({
               confirmPassword: ''
             }}
             validationSchema={Yup.object().shape({
-              oldPassword: Yup.string()
-                .required(t('required_old_password')),
+              oldPassword: Yup.string().required(t('required_old_password')),
               newPassword: Yup.string()
                 .required(t('required_new_password'))
                 .min(12, t('invalid_password')),
@@ -232,7 +231,7 @@ export default function UserProfile({
       await deleteAccount();
       setOpenDeleteAccountDialog(false);
       showSnackBar(t('account_deleted'), 'success');
-      await logout();
+      logout();
       navigation.reset({
         index: 0,
         routes: [{ name: 'Root' }]
@@ -385,7 +384,9 @@ export default function UserProfile({
             {switches.map(({ title, value, accessor }, index) => (
               <Fragment key={accessor}>
                 <View style={styles.switchRow}>
-                  <Text variant="bodyMedium" style={{ flexShrink: 1 }}>{title}</Text>
+                  <Text variant="bodyMedium" style={{ flexShrink: 1 }}>
+                    {title}
+                  </Text>
                   <Switch
                     value={Boolean(
                       userSettings ? userSettings[accessor] : false
