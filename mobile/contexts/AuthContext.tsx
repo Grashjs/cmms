@@ -832,9 +832,17 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   };
 
   const logout = async (): Promise<void> => {
-    await api.post('auth/logout', {});
-    setSession(null, null);
-    dispatch({ type: 'LOGOUT' });
+    try {
+      await api.post('auth/logout', {});
+    } catch {
+      // Server-side logout is best-effort; the local session is the source
+      // of truth for the device.
+    } finally {
+      // Always clear the local session, even when the server is unreachable
+      // (offline / dead zone) — otherwise the user is stuck logged in.
+      setSession(null, null);
+      dispatch({ type: 'LOGOUT' });
+    }
   };
 
   const deleteAccount = async (): Promise<void> => {
