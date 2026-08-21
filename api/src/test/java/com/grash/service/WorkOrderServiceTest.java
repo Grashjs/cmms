@@ -22,6 +22,7 @@ import com.grash.model.enums.webhook.WOField;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.WorkOrderRepository;
 import com.grash.utils.Consts;
+import com.grash.utils.PdfReportUtils;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -3268,7 +3269,7 @@ class WorkOrderServiceTest {
             lenient().when(workOrderHistoryService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
             lenient().when(commentService.findByCriteria(any(), any())).thenReturn(Collections.emptyList());
             lenient().when(brandingService.getMailBackgroundColor()).thenReturn("#5569ff");
-            when(thymeleafTemplateEngine.process(eq("work-order-report.html"), any()))
+            lenient().when(thymeleafTemplateEngine.process(eq("work-order-report.html"), any()))
                     .thenReturn("<html><body></body></html>");
         }
 
@@ -3333,60 +3334,71 @@ class WorkOrderServiceTest {
         }
 
         @Test
-        void workOrderHasImage_generatesSignedUrl() {
+        void workOrderHasImage_setsStoragePathInContext() {
             com.grash.model.File image = new com.grash.model.File();
             image.setId(100L);
             image.setName("wo-image.png");
             image.setPath("images/wo-image.png");
             wo.setImage(image);
             when(userService.findById(user.getId())).thenReturn(Optional.of(user));
-            when(storageService.generateSignedUrl(image, 5)).thenReturn("https://signed.url/wo-image");
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
 
             byte[] result = workOrderService.generatePdfBytes(wo, user, config);
 
             assertNotNull(result);
             assertTrue(result.length > 0);
-            verify(storageService).generateSignedUrl(image, 5);
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            assertEquals("images/wo-image.png",
+                    captor.getValue().getVariable("workOrderImagePath"));
         }
 
         @Test
-        void workOrderHasNoImage_skipsImageSignedUrl() {
+        void workOrderHasNoImage_workOrderImagePathNull() {
             wo.setImage(null);
             when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
 
             workOrderService.generatePdfBytes(wo, user, config);
 
-            verify(storageService, never()).generateSignedUrl((com.grash.model.File) any(), anyLong());
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            assertNull(captor.getValue().getVariable("workOrderImagePath"));
         }
 
         @Test
-        void companyHasLogo_generatesSignedUrl() {
+        void companyHasLogo_setsStoragePathInContext() {
             com.grash.model.File logo = new com.grash.model.File();
             logo.setId(200L);
             logo.setName("logo.png");
             logo.setPath("logos/logo.png");
             company.setLogo(logo);
             when(userService.findById(user.getId())).thenReturn(Optional.of(user));
-            when(storageService.generateSignedUrl(logo, 5)).thenReturn("https://signed.url/logo");
-
-            byte[] result = workOrderService.generatePdfBytes(wo, user, config);
-
-            assertNotNull(result);
-            verify(storageService).generateSignedUrl(logo, 5);
-        }
-
-        @Test
-        void companyHasNoLogo_skipsLogoSignedUrl() {
-            company.setLogo(null);
-            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
 
             workOrderService.generatePdfBytes(wo, user, config);
 
-            verify(storageService, never()).generateSignedUrl((com.grash.model.File) any(), anyLong());
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            assertEquals("logos/logo.png",
+                    captor.getValue().getVariable("companyLogo"));
         }
 
         @Test
-        void tasksWithImages_generatesSignedUrls() {
+        void companyHasNoLogo_companyLogoNull() {
+            company.setLogo(null);
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
+
+            workOrderService.generatePdfBytes(wo, user, config);
+
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            assertNull(captor.getValue().getVariable("companyLogo"));
+        }
+
+        @Test
+        void tasksWithImages_setStoragePathsInContext() {
             com.grash.model.File taskImage = new com.grash.model.File();
             taskImage.setId(300L);
             taskImage.setName("task-img.png");
@@ -3409,19 +3421,22 @@ class WorkOrderServiceTest {
 
             when(userService.findById(user.getId())).thenReturn(Optional.of(user));
             when(taskService.findByWorkOrder(1L)).thenReturn(List.of(task));
-            when(storageService.generateSignedUrl(taskImage, 5)).thenReturn("https://signed.url/task-img");
-            when(storageService.generateSignedUrl(taskImage2, 5)).thenReturn("https://signed.url/task-img2");
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
 
             byte[] result = workOrderService.generatePdfBytes(wo, user, config);
 
             assertNotNull(result);
             assertTrue(result.length > 0);
-            verify(storageService).generateSignedUrl(taskImage, 5);
-            verify(storageService).generateSignedUrl(taskImage2, 5);
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            Map<Long, String[]> tasksImagesPaths =
+                    (Map<Long, String[]>) captor.getValue().getVariable("tasksImagesPaths");
+            assertArrayEquals(new String[]{"images/task-img.png", "images/task-img2.png"},
+                    tasksImagesPaths.get(10L));
         }
 
         @Test
-        void tasksWithNoImages_noTaskImageSignedUrls() {
+        void tasksWithNoImages_emptyTaskImagePaths() {
             TaskBase taskBase = new TaskBase();
             taskBase.setId(10L);
             taskBase.setLabel("Check");
@@ -3434,14 +3449,20 @@ class WorkOrderServiceTest {
 
             when(userService.findById(user.getId())).thenReturn(Optional.of(user));
             when(taskService.findByWorkOrder(1L)).thenReturn(List.of(task));
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
 
             workOrderService.generatePdfBytes(wo, user, config);
 
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            Map<Long, String[]> tasksImagesPaths =
+                    (Map<Long, String[]>) captor.getValue().getVariable("tasksImagesPaths");
+            assertEquals(0, tasksImagesPaths.get(10L).length);
             verify(storageService, never()).generateSignedUrl(any(com.grash.model.File.class), anyLong());
         }
 
         @Test
-        void commentsWithFiles_generatesSignedUrls() {
+        void commentsWithFiles_setStoragePathsInContext() {
             com.grash.model.File commentFile = new com.grash.model.File();
             commentFile.setId(400L);
             commentFile.setName("attachment.jpg");
@@ -3456,40 +3477,55 @@ class WorkOrderServiceTest {
 
             when(userService.findById(user.getId())).thenReturn(Optional.of(user));
             when(commentService.findByCriteria(any(), any())).thenReturn(List.of(comment));
-            when(storageService.generateSignedUrl(commentFile, 5)).thenReturn("https://signed.url/comment-file");
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
 
             byte[] result = workOrderService.generatePdfBytes(wo, user, config);
 
             assertNotNull(result);
             assertTrue(result.length > 0);
-            verify(storageService).generateSignedUrl(commentFile, 5);
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            Map<Long, String[]> commentFilesPaths =
+                    (Map<Long, String[]>) captor.getValue().getVariable("commentFilesPaths");
+            assertArrayEquals(new String[]{"files/attachment.jpg"}, commentFilesPaths.get(10L));
         }
 
         @Test
-        void workOrderWithFiles_generatesSignedUrls() {
+        void workOrderWithFiles_onlyImagesIncludedAsStoragePaths() {
             com.grash.model.File woFile = new com.grash.model.File();
             woFile.setId(500L);
             woFile.setName("report.jpg");
             woFile.setPath("files/report.jpg");
-            wo.setFiles(new ArrayList<>(List.of(woFile)));
+            com.grash.model.File pdfDocument = new com.grash.model.File();
+            pdfDocument.setId(501L);
+            pdfDocument.setName("manual.pdf");
+            pdfDocument.setPath("files/manual.pdf");
+            wo.setFiles(new ArrayList<>(List.of(woFile, pdfDocument)));
 
             when(userService.findById(user.getId())).thenReturn(Optional.of(user));
-            when(storageService.generateSignedUrl(woFile, 5)).thenReturn("https://signed.url/wo-file");
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
 
             byte[] result = workOrderService.generatePdfBytes(wo, user, config);
 
             assertNotNull(result);
             assertTrue(result.length > 0);
-            verify(storageService).generateSignedUrl(woFile, 5);
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            assertArrayEquals(new String[]{"files/report.jpg"},
+                    (String[]) captor.getValue().getVariable("workOrderFilesPaths"));
         }
 
         @Test
-        void workOrderWithNoFiles_noFileSignedUrls() {
+        void workOrderWithNoFiles_noFilePaths() {
             wo.setFiles(new ArrayList<>());
             when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
 
             workOrderService.generatePdfBytes(wo, user, config);
 
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            assertEquals(0, ((String[]) captor.getValue().getVariable("workOrderFilesPaths")).length);
             verify(storageService, never()).generateSignedUrl(any(com.grash.model.File.class), anyLong());
         }
 
@@ -3574,7 +3610,7 @@ class WorkOrderServiceTest {
             workOrderService.generatePdfBytes(wo, user, config);
 
             verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
-            assertEquals("#FF0000", captor.getValue().getVariable("backgroundColor"));
+            assertEquals("#ff0000", captor.getValue().getVariable("backgroundColor"));
         }
 
         @Test
@@ -3588,6 +3624,84 @@ class WorkOrderServiceTest {
 
             verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
             assertEquals("#5569ff", captor.getValue().getVariable("backgroundColor"));
+        }
+
+        @Test
+        void invalidCompanyColor_fallsBackToBrandingDefault() {
+            company.getCompanySettings().getGeneralPreferences().setColor("not-a-color");
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
+
+            workOrderService.generatePdfBytes(wo, user, config);
+
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            assertEquals("#5569ff", captor.getValue().getVariable("backgroundColor"));
+        }
+
+        @Test
+        void functionalRgbColor_resolvedToHex() {
+            company.getCompanySettings().getGeneralPreferences().setColor("rgb(16, 185, 129)");
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
+
+            workOrderService.generatePdfBytes(wo, user, config);
+
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            assertEquals("#10b981", captor.getValue().getVariable("backgroundColor"));
+        }
+
+        @Test
+        void rgbaColor_alphaIgnored() {
+            company.getCompanySettings().getGeneralPreferences().setColor("rgba(255, 69, 0, 0.4)");
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
+
+            workOrderService.generatePdfBytes(wo, user, config);
+
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            assertEquals("#ff4500", captor.getValue().getVariable("backgroundColor"));
+        }
+
+        @Test
+        void namedColorWithSpaces_resolvedToHex() {
+            company.getCompanySettings().getGeneralPreferences().setColor("Orange Red");
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
+
+            workOrderService.generatePdfBytes(wo, user, config);
+
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            assertEquals("#ff4500", captor.getValue().getVariable("backgroundColor"));
+        }
+
+        @Test
+        void eightDigitHexColor_alphaStripped() {
+            company.getCompanySettings().getGeneralPreferences().setColor("#5569FF22");
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
+
+            workOrderService.generatePdfBytes(wo, user, config);
+
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            assertEquals("#5569ff", captor.getValue().getVariable("backgroundColor"));
+        }
+
+        @Test
+        void shortHexColor_expandedToSixDigits() {
+            company.getCompanySettings().getGeneralPreferences().setColor("#F00");
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
+
+            workOrderService.generatePdfBytes(wo, user, config);
+
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            assertEquals("#ff0000", captor.getValue().getVariable("backgroundColor"));
         }
 
         @Test
@@ -3631,27 +3745,95 @@ class WorkOrderServiceTest {
             assertTrue(customers.contains("Acme Corp"));
             assertTrue(customers.contains("Globex Inc"));
         }
+
+        @Test
+        void storagePathImage_downloadsFromStorageAndEmbeds() throws IOException {
+            com.grash.model.File image = new com.grash.model.File();
+            image.setId(100L);
+            image.setName("wo image.png");
+            image.setPath("images/company 42/wo image.png");
+            wo.setImage(image);
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            java.awt.image.BufferedImage img = new java.awt.image.BufferedImage(
+                    10, 10, java.awt.image.BufferedImage.TYPE_INT_RGB);
+            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+            javax.imageio.ImageIO.write(img, "png", baos);
+            when(storageService.download("images/company 42/wo image.png")).thenReturn(baos.toByteArray());
+            when(thymeleafTemplateEngine.process(eq("work-order-report.html"), any()))
+                    .thenReturn("<html><body><img data-storage-path=\"images/company 42/wo image.png\"/>" +
+                            "</body></html>");
+
+            byte[] result = workOrderService.generatePdfBytes(wo, user, config);
+
+            assertNotNull(result);
+            assertTrue(result.length > 0);
+            verify(storageService).download("images/company 42/wo image.png");
+        }
+
+        @Test
+        void dataUriImage_fallsThroughToDefaultTagWorker() {
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            String tinyPng = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+            when(thymeleafTemplateEngine.process(eq("work-order-report.html"), any()))
+                    .thenReturn("<html><body><img src=\"data:image/png;base64," + tinyPng + "\"/></body></html>");
+
+            byte[] result = workOrderService.generatePdfBytes(wo, user, config);
+
+            assertNotNull(result);
+            assertTrue(result.length > 0);
+            verify(storageService, never()).download(anyString());
+        }
+
+        @Test
+        void oversizedPng_replacedWithPlaceholderWithoutOom() {
+            byte[] fakeHugePng = new byte[33];
+            fakeHugePng[0] = (byte) 0x89;
+            fakeHugePng[1] = 'P';
+            fakeHugePng[2] = 'N';
+            fakeHugePng[3] = 'G';
+            fakeHugePng[4] = '\r';
+            fakeHugePng[5] = '\n';
+            fakeHugePng[6] = 0x1A;
+            fakeHugePng[7] = '\n';
+            fakeHugePng[16] = 0x00;
+            fakeHugePng[17] = 0x00;
+            fakeHugePng[18] = 0x27;
+            fakeHugePng[19] = 0x10;
+            fakeHugePng[20] = 0x00;
+            fakeHugePng[21] = 0x00;
+            fakeHugePng[22] = 0x27;
+            fakeHugePng[23] = 0x10;
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            when(storageService.download("images/huge.png")).thenReturn(fakeHugePng);
+            when(thymeleafTemplateEngine.process(eq("work-order-report.html"), any()))
+                    .thenReturn("<html><body><img data-storage-path=\"images/huge.png\"/></body></html>");
+
+            byte[] result = workOrderService.generatePdfBytes(wo, user, config);
+
+            assertNotNull(result);
+            assertTrue(result.length > 0);
+        }
     }
 
     @Nested
-    class GetImageReportSignedUrl {
+    class GetImageReportStoragePath {
 
         private Method method;
 
         @BeforeEach
         void init() throws Exception {
-            method = WorkOrderService.class.getDeclaredMethod(
-                    "getImageReportSignedUrl", com.grash.model.File.class, StorageService.class);
+            method = PdfReportUtils.class.getDeclaredMethod(
+                    "getImageReportStoragePath", com.grash.model.File.class);
             method.setAccessible(true);
         }
 
-        private String invoke(com.grash.model.File file, StorageService svc) throws Exception {
-            return (String) method.invoke(workOrderService, file, svc);
+        private String invoke(com.grash.model.File file) throws Exception {
+            return (String) method.invoke(null, file);
         }
 
         @Test
         void nullFile_returnsNull() throws Exception {
-            assertNull(invoke(null, storageService));
+            assertNull(invoke(null));
         }
 
         @Test
@@ -3659,7 +3841,7 @@ class WorkOrderServiceTest {
             com.grash.model.File f = new com.grash.model.File();
             f.setName("photo.png");
             f.setPath(null);
-            assertNull(invoke(f, storageService));
+            assertNull(invoke(f));
         }
 
         @Test
@@ -3667,136 +3849,55 @@ class WorkOrderServiceTest {
             com.grash.model.File f = new com.grash.model.File();
             f.setName("document.pdf");
             f.setPath("files/document.pdf");
-            assertNull(invoke(f, storageService));
+            assertNull(invoke(f));
         }
 
         @Test
-        void cachedThumbnail_returnsBase64DataUri() throws Exception {
+        void imageFile_returnsRawStoragePath() throws Exception {
             com.grash.model.File f = new com.grash.model.File();
             f.setName("photo.jpg");
             f.setPath("images/photo.jpg");
-            byte[] thumbBytes = new byte[]{1, 2, 3};
-            when(storageService.exists("images/photo.jpg_report_thumb.jpg")).thenReturn(true);
-            when(storageService.download("images/photo.jpg_report_thumb.jpg")).thenReturn(thumbBytes);
 
-            String result = invoke(f, storageService);
+            String result = invoke(f);
 
-            assertTrue(result.startsWith("data:image/jpeg;base64,"));
-            assertEquals(Base64.getEncoder().encodeToString(thumbBytes),
-                    result.substring("data:image/jpeg;base64,".length()));
-            verify(storageService).exists("images/photo.jpg_report_thumb.jpg");
-            verify(storageService).download("images/photo.jpg_report_thumb.jpg");
-            verify(storageService, never()).download(f);
+            assertEquals("images/photo.jpg", result);
         }
 
         @Test
-        void uncachedImage_generatesThumbnailFromOriginal() throws Exception {
+        void pathWithSpacesAndParens_staysUnencoded() throws Exception {
             com.grash.model.File f = new com.grash.model.File();
-            f.setName("photo.png");
-            f.setPath("images/photo.png");
-            java.awt.image.BufferedImage img = new java.awt.image.BufferedImage(10, 10, java.awt.image.BufferedImage.TYPE_INT_RGB);
-            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-            javax.imageio.ImageIO.write(img, "jpg", baos);
-            byte[] originalBytes = baos.toByteArray();
-            when(storageService.download(f)).thenReturn(originalBytes);
-            when(storageService.generateSignedUrl(f, 5)).thenReturn("https://fallback.url/photo");
+            f.setName("logo (4).png");
+            f.setPath("company 42/logo (4).png");
 
-            String result = invoke(f, storageService);
+            String result = invoke(f);
 
-            assertNotNull(result);
-            assertTrue(result.startsWith("data:image/jpeg;base64,") || result.equals("https://fallback.url/photo"));
+            assertEquals("company 42/logo (4).png", result);
         }
 
         @Test
-        void emptyOriginal_returnsSignedUrl() throws Exception {
+        void pathWithPlusSign_staysUnencoded() throws Exception {
             com.grash.model.File f = new com.grash.model.File();
-            f.setName("photo.jpg");
-            f.setPath("images/photo.jpg");
-            when(storageService.exists("images/photo.jpg_report_thumb.jpg")).thenReturn(false);
-            when(storageService.download(f)).thenReturn(null);
-            when(storageService.generateSignedUrl(f, 5)).thenReturn("https://signed.url/photo");
+            f.setName("a+b.png");
+            f.setPath("images/a+b.png");
 
-            String result = invoke(f, storageService);
+            String result = invoke(f);
 
-            assertEquals("https://signed.url/photo", result);
-        }
-
-        @Test
-        void zeroLengthOriginal_returnsSignedUrl() throws Exception {
-            com.grash.model.File f = new com.grash.model.File();
-            f.setName("photo.jpg");
-            f.setPath("images/photo.jpg");
-            when(storageService.generateSignedUrl(f, 5)).thenReturn("https://signed.url/photo");
-
-            String result = invoke(f, storageService);
-
-            assertEquals("https://signed.url/photo", result);
-        }
-
-        @Test
-        void oversizedImage_returnsSignedUrl() throws Exception {
-            com.grash.model.File f = new com.grash.model.File();
-            f.setName("huge.jpg");
-            f.setPath("images/huge.jpg");
-            byte[] oversized = new byte[15 * 1024 * 1024 + 1];
-            when(storageService.download(f)).thenReturn(oversized);
-            when(storageService.generateSignedUrl(f, 5)).thenReturn("https://signed.url/huge");
-
-            String result = invoke(f, storageService);
-
-            assertEquals("https://signed.url/huge", result);
-            verify(storageService, never()).uploadAt(any(), anyString(), anyString());
+            assertEquals("images/a+b.png", result);
         }
 
         @Test
         void allSupportedExtensions_areAccepted() throws Exception {
-            String[] extensions = {"jpg", "jpeg", "png", "gif", "webp", "bmp", "tiff", "svg"};
+            String[] extensions = {"jpg", "jpeg", "jpe", "png", "gif", "webp", "bmp", "tif", "tiff", "svg",
+                    "ico", "avif", "heic", "heif", "jfif"};
             for (String ext : extensions) {
                 com.grash.model.File f = new com.grash.model.File();
                 f.setName("image." + ext);
                 f.setPath("images/image." + ext);
-                when(storageService.exists("images/image." + ext + "_report_thumb.jpg")).thenReturn(true);
-                when(storageService.download("images/image." + ext + "_report_thumb.jpg"))
-                        .thenReturn(new byte[]{1, 2, 3});
-                String result = invoke(f, storageService);
+                String result = invoke(f);
                 assertNotNull(result, "Extension " + ext + " should be accepted");
-                assertTrue(result.startsWith("data:image/jpeg;base64,"));
-                reset(storageService);
+                assertEquals("images/image." + ext, result,
+                        "Extension " + ext + " should produce the raw storage path");
             }
-        }
-
-        @Test
-        void ioExceptionOnThumbnail_returnsSignedUrl() throws Exception {
-            com.grash.model.File f = new com.grash.model.File();
-            f.setName("photo.jpg");
-            f.setPath("images/photo.jpg");
-            byte[] corruptedBytes = new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0, 0x00, 0x10};
-            when(storageService.download(f)).thenReturn(corruptedBytes);
-            when(storageService.generateSignedUrl(f, 5)).thenReturn("https://signed.url/photo");
-
-            String result = invoke(f, storageService);
-
-            assertEquals("https://signed.url/photo", result);
-        }
-
-        @Test
-        void exceptionOnUpload_returnsSignedUrl() throws Exception {
-            com.grash.model.File f = new com.grash.model.File();
-            f.setName("photo.jpg");
-            f.setPath("images/photo.jpg");
-            java.awt.image.BufferedImage img = new java.awt.image.BufferedImage(10, 10, java.awt.image.BufferedImage.TYPE_INT_RGB);
-            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-            net.coobird.thumbnailator.Thumbnails.of(img).size(800, 800).outputFormat("jpg").outputQuality(0.6).toOutputStream(baos);
-            byte[] originalBytes = baos.toByteArray();
-            when(storageService.exists("images/photo.jpg_report_thumb.jpg")).thenReturn(false);
-            when(storageService.download(f)).thenReturn(originalBytes);
-            doThrow(new RuntimeException("upload failed"))
-                    .when(storageService).uploadAt(any(byte[].class), anyString(), anyString());
-            when(storageService.generateSignedUrl(f, 5)).thenReturn("https://signed.url/photo");
-
-            String result = invoke(f, storageService);
-
-            assertEquals("https://signed.url/photo", result);
         }
 
         @Test
@@ -3804,14 +3905,111 @@ class WorkOrderServiceTest {
             com.grash.model.File f = new com.grash.model.File();
             f.setName("Photo.PNG");
             f.setPath("images/Photo.PNG");
-            when(storageService.exists("images/Photo.PNG_report_thumb.jpg")).thenReturn(true);
-            when(storageService.download("images/Photo.PNG_report_thumb.jpg"))
-                    .thenReturn(new byte[]{1, 2, 3});
 
-            String result = invoke(f, storageService);
+            String result = invoke(f);
 
-            assertNotNull(result);
-            assertTrue(result.startsWith("data:image/jpeg;base64,"));
+            assertEquals("images/Photo.PNG", result);
+        }
+    }
+
+    @Nested
+    class OptimizeImageForPdf {
+
+        private static final String EMPTY_PNG_BASE64 =
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+
+        private Method method;
+
+        @BeforeEach
+        void init() throws Exception {
+            method = PdfReportUtils.class.getDeclaredMethod(
+                    "optimizeImageForPdf", byte[].class, String.class);
+            method.setAccessible(true);
+        }
+
+        private byte[] invoke(byte[] bytes, String fileName) throws Exception {
+            return (byte[]) method.invoke(null, bytes, fileName);
+        }
+
+        private byte[] validPng() throws IOException {
+            java.awt.image.BufferedImage img = new java.awt.image.BufferedImage(
+                    10, 10, java.awt.image.BufferedImage.TYPE_INT_RGB);
+            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+            javax.imageio.ImageIO.write(img, "png", baos);
+            return baos.toByteArray();
+        }
+
+        /**
+         * A PNG cut off in the middle of its IDAT payload, so the zlib stream never
+         * terminates. The JDK PNG reader fails mid-decode with a wrapped exception
+         * ("Caught exception during read:").
+         */
+        private byte[] truncatedPng() throws IOException {
+            byte[] png = validPng();
+            // 8 signature + 25 IHDR + 8 IDAT header = 41; keep only a few zlib payload bytes
+            if (png.length <= 48) {
+                throw new IllegalStateException("Test PNG too small to truncate: " + png.length);
+            }
+            return java.util.Arrays.copyOf(png, 48);
+        }
+
+        @Test
+        void validSmallPng_returnsRawBytes() throws Exception {
+            byte[] png = validPng();
+
+            byte[] result = invoke(png, "photo.png");
+
+            assertArrayEquals(png, result);
+        }
+
+        @Test
+        void nonImageExtension_skipsOptimization() throws Exception {
+            byte[] bytes = {1, 2, 3, 4};
+
+            byte[] result = invoke(bytes, "document.txt");
+
+            assertArrayEquals(bytes, result);
+        }
+
+        @Test
+        void oversizedDimensionsPng_returnsPlaceholder() throws Exception {
+            byte[] fakeHugePng = new byte[33];
+            fakeHugePng[0] = (byte) 0x89;
+            fakeHugePng[1] = 'P';
+            fakeHugePng[2] = 'N';
+            fakeHugePng[3] = 'G';
+            fakeHugePng[16] = 0x00;
+            fakeHugePng[17] = 0x00;
+            fakeHugePng[18] = 0x27;
+            fakeHugePng[19] = 0x10;
+            fakeHugePng[20] = 0x00;
+            fakeHugePng[21] = 0x00;
+            fakeHugePng[22] = 0x27;
+            fakeHugePng[23] = 0x10;
+
+            byte[] result = invoke(fakeHugePng, "huge.png");
+
+            assertArrayEquals(Base64.getDecoder().decode(EMPTY_PNG_BASE64), result);
+        }
+
+        @Test
+        void corruptSmallPng_returnsRawBytesForItextToAttempt() throws Exception {
+            byte[] truncated = truncatedPng();
+
+            byte[] result = invoke(truncated, "corrupt.png");
+
+            assertArrayEquals(truncated, result);
+        }
+
+        @Test
+        void corruptLargePng_fallsBackToPlaceholderInsteadOfRawBytes() throws Exception {
+            byte[] truncated = truncatedPng();
+            byte[] largeCorruptPng = new byte[600_000];
+            System.arraycopy(truncated, 0, largeCorruptPng, 0, truncated.length);
+
+            byte[] result = invoke(largeCorruptPng, "screenshot.png");
+
+            assertArrayEquals(Base64.getDecoder().decode(EMPTY_PNG_BASE64), result);
         }
     }
 }
