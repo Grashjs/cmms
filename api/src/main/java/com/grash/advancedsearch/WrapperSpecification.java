@@ -4,6 +4,7 @@ import com.grash.model.enums.EnumName;
 import com.grash.model.enums.Priority;
 import com.grash.model.enums.Status;
 import com.grash.utils.Helper;
+import jakarta.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -27,13 +28,11 @@ public class WrapperSpecification<T> implements Specification<T> {
     }
 
     @Override
-    public Predicate toPredicate(@NotNull Root<T> root, @NotNull CriteriaQuery<?> query, @NotNull CriteriaBuilder cb) {
+    public Predicate toPredicate(@NotNull Root<T> root, @Nullable CriteriaQuery<?> query, @NotNull CriteriaBuilder cb) {
         try {
             SearchFieldPolicy.validate(root.getModel().getJavaType(), filterField.getField());
             SearchOperation operation = getOperationOrThrow();
             return buildPredicate(root, query, cb, operation);
-        } catch (InvalidSearchFieldException e) {
-            throw e;
         } catch (IllegalArgumentException e) {
             throw new InvalidSearchFieldException(filterField.getField());
         }
@@ -50,7 +49,7 @@ public class WrapperSpecification<T> implements Specification<T> {
         return operation;
     }
 
-    private Predicate buildPredicate(@NotNull Root<T> root, @NotNull CriteriaQuery<?> query,
+    private Predicate buildPredicate(@NotNull Root<T> root, @Nullable CriteriaQuery<?> query,
                                      @NotNull CriteriaBuilder cb, SearchOperation operation) {
         Predicate result = null;
         switch (operation) {
@@ -178,7 +177,6 @@ public class WrapperSpecification<T> implements Specification<T> {
                 case PRIORITY -> Priority.getPriorityFromString(value.toString());
                 case STATUS -> Status.getStatusFromString(value.toString());
                 case JS_DATE -> Helper.getDateFromJsString(value.toString());
-                default -> value;
             };
         }
         return value;
