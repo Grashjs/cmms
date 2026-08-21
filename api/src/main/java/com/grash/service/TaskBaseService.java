@@ -8,6 +8,7 @@ import com.grash.model.Company;
 import com.grash.model.TaskBase;
 import com.grash.model.TaskOption;
 import com.grash.repository.TaskBaseRepository;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,7 @@ public class TaskBaseService {
 
     @Transactional
     public TaskBase create(TaskBase TaskBase) {
+        Sanitizer.sanitizeTaskBase(TaskBase);
         TaskBase taskBase = taskBaseRepository.saveAndFlush(TaskBase);
         em.refresh(taskBase);
         return taskBase;
@@ -68,7 +70,9 @@ public class TaskBaseService {
     public TaskBase update(Long id, TaskBasePatchDTO taskBase) {
         if (taskBaseRepository.existsById(id)) {
             TaskBase savedTaskBase = taskBaseRepository.findById(id).get();
-            return taskBaseRepository.save(taskBaseMapper.updateTaskBase(savedTaskBase, taskBase));
+            TaskBase updatedTaskBase = taskBaseMapper.updateTaskBase(savedTaskBase, taskBase);
+            Sanitizer.sanitizeTaskBase(updatedTaskBase);
+            return taskBaseRepository.save(updatedTaskBase);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 

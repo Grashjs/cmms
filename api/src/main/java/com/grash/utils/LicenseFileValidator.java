@@ -27,7 +27,7 @@ import java.util.Base64;
  * License files are expected to be in the format produced by Keygen.sh with offline validation support.
  */
 @Slf4j
-public class LicenseFileValidator {
+public final class LicenseFileValidator {
 
     private static final String LICENSE_FILE_HEADER = "-----BEGIN LICENSE FILE-----";
     private static final String LICENSE_FILE_FOOTER = "-----END LICENSE FILE-----";

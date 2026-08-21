@@ -5,6 +5,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.TaskMapper;
 import com.grash.model.Task;
 import com.grash.repository.TaskRepository;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class TaskService {
 
     @Transactional
     public Task create(Task Task) {
+        Sanitizer.sanitizeTask(Task);
         Task savedTask = taskRepository.saveAndFlush(Task);
         em.refresh(savedTask);
         return savedTask;
@@ -36,7 +38,9 @@ public class TaskService {
     public Task update(Long id, TaskPatchDTO task) {
         if (taskRepository.existsById(id)) {
             Task savedTask = taskRepository.findById(id).get();
-            Task updatedTask = taskRepository.saveAndFlush(taskMapper.updateTask(savedTask, task));
+            Task updatedTask = taskMapper.updateTask(savedTask, task);
+            Sanitizer.sanitizeTask(updatedTask);
+            updatedTask = taskRepository.saveAndFlush(updatedTask);
             em.refresh(updatedTask);
             return updatedTask;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);

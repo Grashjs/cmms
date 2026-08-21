@@ -2,6 +2,7 @@ package com.grash.service;
 
 import com.grash.model.PartTransaction;
 import com.grash.repository.PartTransactionRepository;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +19,7 @@ public class PartTransactionService {
     private final PartTransactionRepository partTransactionRepository;
 
     public PartTransaction create(PartTransaction PartTransaction) {
+        Sanitizer.sanitizePartTransaction(PartTransaction);
         return partTransactionRepository.save(PartTransaction);
     }
 

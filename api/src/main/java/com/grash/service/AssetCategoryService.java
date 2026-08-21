@@ -7,6 +7,7 @@ import com.grash.model.AssetCategory;
 import com.grash.model.CompanySettings;
 import com.grash.model.User;
 import com.grash.repository.AssetCategoryRepository;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ public class AssetCategoryService {
     private final AssetCategoryMapper assetCategoryMapper;
 
     public AssetCategory create(AssetCategory assetCategory, User user) {
+        Sanitizer.sanitizeCategory(assetCategory);
         Optional<AssetCategory> categoryWithSameName =
                 assetCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(assetCategory.getName(),
                         user.getCompany().getCompanySettings().getId());
@@ -34,8 +36,10 @@ public class AssetCategoryService {
     public AssetCategory update(Long id, CategoryPatchDTO assetCategory) {
         if (assetCategoryRepository.existsById(id)) {
             AssetCategory savedAssetCategory = assetCategoryRepository.findById(id).get();
-            return assetCategoryRepository.save(assetCategoryMapper.updateAssetCategory(savedAssetCategory,
-                    assetCategory));
+            AssetCategory updatedAssetCategory = assetCategoryMapper.updateAssetCategory(savedAssetCategory,
+                    assetCategory);
+            Sanitizer.sanitizeCategory(updatedAssetCategory);
+            return assetCategoryRepository.save(updatedAssetCategory);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -60,7 +64,8 @@ public class AssetCategoryService {
     }
 
     public AssetCategory getOrCreate(String name, CompanySettings companySettings) {
-        return assetCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(name, companySettings.getId())
-                .orElseGet(() -> assetCategoryRepository.save(new AssetCategory(name, companySettings)));
+        String cleanName = Sanitizer.cleanText(name);
+        return assetCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(cleanName, companySettings.getId())
+                .orElseGet(() -> assetCategoryRepository.save(new AssetCategory(cleanName, companySettings)));
     }
 }

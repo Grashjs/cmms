@@ -22,6 +22,7 @@ import com.grash.repository.VerificationTokenRepository;
 import com.grash.security.CustomUserDetail;
 import com.grash.security.JwtTokenProvider;
 import com.grash.utils.Helper;
+import com.grash.utils.Sanitizer;
 import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletRequest;
@@ -401,7 +402,9 @@ public class UserService {
                 savedUser.setSessionInvalidatedAt(new Date());
                 refreshTokenService.revokeAllForUser(savedUser);
             }
-            User updatedUser = userRepository.saveAndFlush(userMapper.updateUser(savedUser, userReq));
+            User updatedUser = userMapper.updateUser(savedUser, userReq);
+            Sanitizer.sanitizeUser(updatedUser);
+            updatedUser = userRepository.saveAndFlush(updatedUser);
             em.refresh(updatedUser);
             cacheService.putUserInCache(updatedUser);
             return updatedUser;

@@ -4,7 +4,7 @@ import com.grash.aspect.TenantAspect;
 
 import java.util.function.Supplier;
 
-public class TenantAspectUtils {
+public final class TenantAspectUtils {
 
     /**
      * Executes a supplier function with company check disabled, ensuring it's re-enabled afterwards.

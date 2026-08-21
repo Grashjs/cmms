@@ -8,6 +8,7 @@ import com.grash.model.CustomField;
 import com.grash.model.CompanySettings;
 import com.grash.model.enums.CustomFieldType;
 import com.grash.repository.CustomFieldRepository;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,11 +27,13 @@ public class CustomFieldService {
     private final CustomFieldMapper customFieldMapper;
 
     public CustomField create(CustomField customField) {
+        Sanitizer.sanitizeCustomField(customField);
         return customFieldRepository.save(customField);
     }
 
     public CustomField create(CustomFieldPostDTO dto, CompanySettings companySettings) {
         CustomField field = customFieldMapper.toModel(dto);
+        Sanitizer.sanitizeCustomField(field);
         field.setCompanySettings(companySettings);
         field.setOrder(customFieldRepository.countByCompanySettings_IdAndEntityType(companySettings.getId(),
                 field.getEntityType()));
@@ -40,7 +43,9 @@ public class CustomFieldService {
     public CustomField update(Long id, CustomFieldPatchDTO customFieldPatchDTO) {
         if (customFieldRepository.existsById(id)) {
             CustomField savedField = customFieldRepository.findById(id).get();
-            return customFieldRepository.save(customFieldMapper.updateCustomField(savedField, customFieldPatchDTO));
+            CustomField updatedField = customFieldMapper.updateCustomField(savedField, customFieldPatchDTO);
+            Sanitizer.sanitizeCustomField(updatedField);
+            return customFieldRepository.save(updatedField);
         } else throw new CustomException("Custom field not found", HttpStatus.NOT_FOUND);
     }
 

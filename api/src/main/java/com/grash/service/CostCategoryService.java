@@ -6,6 +6,7 @@ import com.grash.mapper.CostCategoryMapper;
 import com.grash.model.CostCategory;
 import com.grash.model.User;
 import com.grash.repository.CostCategoryRepository;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ public class CostCategoryService {
     private final CostCategoryMapper costCategoryMapper;
 
     public CostCategory create(CostCategory costCategory, User user) {
+        Sanitizer.sanitizeCategory(costCategory);
         Optional<CostCategory> categoryWithSameName =
                 costCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(costCategory.getName(),
                         user.getCompany().getCompanySettings().getId());
@@ -33,7 +35,9 @@ public class CostCategoryService {
     public CostCategory update(Long id, CategoryPatchDTO costCategory) {
         if (costCategoryRepository.existsById(id)) {
             CostCategory savedCostCategory = costCategoryRepository.findById(id).get();
-            return costCategoryRepository.save(costCategoryMapper.updateCostCategory(savedCostCategory, costCategory));
+            CostCategory updatedCostCategory = costCategoryMapper.updateCostCategory(savedCostCategory, costCategory);
+            Sanitizer.sanitizeCategory(updatedCostCategory);
+            return costCategoryRepository.save(updatedCostCategory);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
 
     }

@@ -11,6 +11,7 @@ import com.grash.model.User;
 import com.grash.model.Team;
 import com.grash.model.enums.NotificationType;
 import com.grash.repository.TeamRepository;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -52,6 +53,7 @@ public class TeamService {
 
     @Transactional
     public Team create(Team team) {
+        Sanitizer.sanitizeTeam(team);
         Team savedTeam = teamRepository.saveAndFlush(team);
         em.refresh(savedTeam);
         return savedTeam;
@@ -61,7 +63,9 @@ public class TeamService {
     public Team update(Long id, TeamPatchDTO team) {
         if (teamRepository.existsById(id)) {
             Team savedTeam = teamRepository.findById(id).get();
-            Team updatedTeam = teamRepository.saveAndFlush(teamMapper.updateTeam(savedTeam, team));
+            Team updatedTeam = teamMapper.updateTeam(savedTeam, team);
+            Sanitizer.sanitizeTeam(updatedTeam);
+            updatedTeam = teamRepository.saveAndFlush(updatedTeam);
             em.refresh(updatedTeam);
             return updatedTeam;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);

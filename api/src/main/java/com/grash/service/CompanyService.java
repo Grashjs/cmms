@@ -5,6 +5,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.CompanyMapper;
 import com.grash.model.Company;
 import com.grash.repository.CompanyRepository;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ public class CompanyService {
 
     public Company create(Company company) {
 //        company.getCompanySettings().setRoleList(roleService.findDefaultRoles());
+        Sanitizer.sanitizeCompany(company);
         return companyRepository.save(company);
     }
 
@@ -48,7 +50,9 @@ public class CompanyService {
     public Company update(Long id, CompanyPatchDTO company) {
         if (companyRepository.existsById(id)) {
             Company savedCompany = companyRepository.findById(id).get();
-            Company updatedCompany = companyRepository.saveAndFlush(companyMapper.updateCompany(savedCompany, company));
+            Company updatedCompany = companyMapper.updateCompany(savedCompany, company);
+            Sanitizer.sanitizeCompany(updatedCompany);
+            updatedCompany = companyRepository.saveAndFlush(updatedCompany);
             em.refresh(updatedCompany);
             return updatedCompany;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);

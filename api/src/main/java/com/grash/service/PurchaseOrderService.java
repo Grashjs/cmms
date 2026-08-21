@@ -8,6 +8,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.PurchaseOrderMapper;
 import com.grash.model.PurchaseOrder;
 import com.grash.repository.PurchaseOrderRepository;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,6 +32,7 @@ public class PurchaseOrderService {
 
     @Transactional
     public PurchaseOrder create(PurchaseOrder purchaseOrder) {
+        Sanitizer.sanitizePurchaseOrder(purchaseOrder);
         PurchaseOrder savedPurchaseOrder = purchaseOrderRepository.saveAndFlush(purchaseOrder);
         em.refresh(savedPurchaseOrder);
         return savedPurchaseOrder;
@@ -40,9 +42,10 @@ public class PurchaseOrderService {
     public PurchaseOrder update(Long id, PurchaseOrderPatchDTO purchaseOrder) {
         if (purchaseOrderRepository.existsById(id)) {
             PurchaseOrder savedPurchaseOrder = purchaseOrderRepository.findById(id).get();
-            PurchaseOrder updatedPurchaseOrder =
-                    purchaseOrderRepository.saveAndFlush(purchaseOrderMapper.updatePurchaseOrder(savedPurchaseOrder,
-                            purchaseOrder));
+            PurchaseOrder updatedPurchaseOrder = purchaseOrderMapper.updatePurchaseOrder(savedPurchaseOrder,
+                    purchaseOrder);
+            Sanitizer.sanitizePurchaseOrder(updatedPurchaseOrder);
+            updatedPurchaseOrder = purchaseOrderRepository.saveAndFlush(updatedPurchaseOrder);
             em.refresh(updatedPurchaseOrder);
             return updatedPurchaseOrder;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);

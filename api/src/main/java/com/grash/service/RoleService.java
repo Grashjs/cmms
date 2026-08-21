@@ -11,6 +11,7 @@ import com.grash.model.enums.RoleCode;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.RoleRepository;
 import com.grash.utils.Helper;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.http.HttpStatus;
@@ -30,13 +31,16 @@ public class RoleService {
     public Role create(Role role) {
         if (role.getCode().equals(RoleCode.USER_CREATED) && !licenseService.hasEntitlement(LicenseEntitlement.CUSTOM_ROLES))
             throw new CustomException("You need a license to create custom roles", HttpStatus.FORBIDDEN);
+        Sanitizer.sanitizeRole(role);
         return roleRepository.save(role);
     }
 
     public Role update(Long id, RolePatchDTO role) {
         if (roleRepository.existsById(id)) {
             Role savedRole = roleRepository.findById(id).get();
-            return roleRepository.save(roleMapper.updateRole(savedRole, role));
+            Role updatedRole = roleMapper.updateRole(savedRole, role);
+            Sanitizer.sanitizeRole(updatedRole);
+            return roleRepository.save(updatedRole);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 

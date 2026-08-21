@@ -13,6 +13,7 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
 import com.grash.repository.ApiKeyRepository;
 import com.grash.utils.Helper;
+import com.grash.utils.Sanitizer;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +50,7 @@ public class ApiKeyService {
             throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         ApiKey apiKey =
                 apiKeyMapper.fromPostDto(apiKeyReq);
+        Sanitizer.sanitizeApiKey(apiKey);
         apiKey.setUser(user);
 
         SecureRandom secureRandom = new SecureRandom();
@@ -81,7 +83,9 @@ public class ApiKeyService {
         ApiKey savedApiKey =
                 apiKeyRepository.findById(id).orElseThrow(() -> new CustomException("Not found",
                         HttpStatus.NOT_FOUND));
-        return apiKeyRepository.save(apiKeyMapper.updateApiKey(savedApiKey, apiKeyPatchDTO));
+        ApiKey updatedApiKey = apiKeyMapper.updateApiKey(savedApiKey, apiKeyPatchDTO);
+        Sanitizer.sanitizeApiKey(updatedApiKey);
+        return apiKeyRepository.save(updatedApiKey);
     }
 
     public Page<ApiKey> findByCriteria(ApiKeyCriteria criteria, Pageable pageable, User user) {

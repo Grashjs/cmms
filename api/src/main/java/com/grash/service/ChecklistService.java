@@ -8,6 +8,7 @@ import com.grash.model.Company;
 import com.grash.model.TaskBase;
 import com.grash.dto.license.LicenseEntitlement;
 import com.grash.repository.CheckListRepository;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -43,6 +44,7 @@ public class ChecklistService {
                 .category(checklistReq.getCategory())
                 .description(checklistReq.getDescription())
                 .build();
+        Sanitizer.sanitizeChecklist(checklist);
         Checklist savedChecklist = checklistRepository.saveAndFlush(checklist);
         em.refresh(savedChecklist);
         return savedChecklist;
@@ -59,6 +61,7 @@ public class ChecklistService {
             List<TaskBase> taskBases = checklistReq.getTaskBases().stream()
                     .map(taskBaseDto -> taskBaseService.createFromTaskBaseDTO(taskBaseDto, company)).collect(Collectors.toList());
             savedChecklist.getTaskBases().addAll(taskBases);
+            Sanitizer.sanitizeChecklist(savedChecklist);
             Checklist updatedChecklist = checklistRepository.saveAndFlush(savedChecklist);
             em.refresh(updatedChecklist);
             return updatedChecklist;
