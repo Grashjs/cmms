@@ -155,6 +155,7 @@ class PasswordValidatorTest {
             assertFalse(loaded.isEmpty());
             assertTrue(loaded.contains("motherfucker"));
             assertTrue(loaded.contains("leavemealone"));
+            assertFalse(v.isValid("motherfucker", context));
         }
 
         @Test
