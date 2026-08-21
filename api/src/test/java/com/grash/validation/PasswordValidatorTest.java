@@ -86,22 +86,22 @@ class PasswordValidatorTest {
     class CommonPasswords {
         @Test
         void rejectsPasswordFromCommonList() {
-            assertFalse(validator.isValid("password", context));
+            assertFalse(validator.isValid("1qaz2wsx3edc", context));
         }
 
         @Test
-        void rejects123456() {
-            assertFalse(validator.isValid("123456", context));
+        void rejectsCommonNumericPattern() {
+            assertFalse(validator.isValid("123456654321", context));
         }
 
         @Test
         void rejectsCommonPasswordCaseInsensitive() {
-            assertFalse(validator.isValid("Password", context));
+            assertFalse(validator.isValid("QwertyQwerty", context));
         }
 
         @Test
-        void rejectsQwerty() {
-            assertFalse(validator.isValid("qwerty", context));
+        void rejectsCommonKeyboardPattern() {
+            assertFalse(validator.isValid("qwerasdfzxcv", context));
         }
 
         @Test
@@ -139,7 +139,7 @@ class PasswordValidatorTest {
 
         @Test
         void acceptsNoRepeatedChars() {
-            assertTrue(validator.isValid("abcdef123456", context));
+            assertTrue(validator.isValid("zyxwvu654321", context));
         }
     }
 
@@ -153,8 +153,8 @@ class PasswordValidatorTest {
             v.init();
             Set<String> loaded = v.loadCommonPasswords();
             assertFalse(loaded.isEmpty());
-            assertTrue(loaded.contains("password"));
-            assertTrue(loaded.contains("123456"));
+            assertTrue(loaded.contains("motherfucker"));
+            assertTrue(loaded.contains("leavemealone"));
         }
 
         @Test
@@ -163,7 +163,7 @@ class PasswordValidatorTest {
             props.setCheckCommonPasswords(false);
             PasswordValidator v = new PasswordValidator(props);
             v.init();
-            assertTrue(v.isValid("Ab1!23456789", context));
+            assertTrue(v.isValid("motherfucker", context));
         }
     }
 }
