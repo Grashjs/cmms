@@ -83,7 +83,7 @@ export default function FileUpload({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         allowsMultipleSelection: multiple,
         selectionLimit: multiple ? 10 : 1,
-        quality: 1
+        quality: 0.5
       });
 
       if (!result || result.canceled) {
