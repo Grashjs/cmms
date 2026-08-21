@@ -6,6 +6,7 @@ import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.xml.bind.ValidationException;
 
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandlerController {
@@ -73,7 +76,14 @@ public class GlobalExceptionHandlerController {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     ResponseEntity<SuccessResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
-        return new ResponseEntity<>(new SuccessResponse(false, ex.getMessage()), HttpStatus.BAD_REQUEST);
+        String message = ex.getBindingResult().getAllErrors().stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .filter(Objects::nonNull)
+                .collect(Collectors.joining(", "));
+        if (message.isEmpty()) {
+            message = "Validation failed";
+        }
+        return new ResponseEntity<>(new SuccessResponse(false, message), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ObjectOptimisticLockingFailureException.class)

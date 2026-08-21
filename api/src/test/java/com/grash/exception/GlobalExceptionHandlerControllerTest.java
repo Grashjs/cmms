@@ -11,6 +11,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
@@ -79,15 +82,44 @@ class GlobalExceptionHandlerControllerTest {
     }
 
     @Test
-    void handleMethodArgumentNotValidException_returnsBadRequest() {
+    void handleMethodArgumentNotValidException_returnsFieldErrorMessage() {
+        BindingResult bindingResult = new BeanPropertyBindingResult(new Object(), "userSignupRequest");
+        bindingResult.addError(new FieldError("userSignupRequest", "password",
+                "Password is too common. Please choose a more unique password"));
         MethodArgumentNotValidException ex = mock(MethodArgumentNotValidException.class);
-        when(ex.getMessage()).thenReturn("Validation failed");
+        when(ex.getBindingResult()).thenReturn(bindingResult);
 
         ResponseEntity<SuccessResponse> result = handler.handleMethodArgumentNotValidException(ex);
 
         assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());
         assertNotNull(result.getBody());
         assertFalse(result.getBody().isSuccess());
+        assertEquals("Password is too common. Please choose a more unique password", result.getBody().getMessage());
+    }
+
+    @Test
+    void handleMethodArgumentNotValidException_joinsMessagesAndSkipsNulls() {
+        BindingResult bindingResult = new BeanPropertyBindingResult(new Object(), "userSignupRequest");
+        bindingResult.addError(new FieldError("userSignupRequest", "password", null));
+        bindingResult.addError(new FieldError("userSignupRequest", "email", "Email must be valid"));
+        bindingResult.addError(new FieldError("userSignupRequest", "firstName", "First name is required"));
+        MethodArgumentNotValidException ex = mock(MethodArgumentNotValidException.class);
+        when(ex.getBindingResult()).thenReturn(bindingResult);
+
+        ResponseEntity<SuccessResponse> result = handler.handleMethodArgumentNotValidException(ex);
+
+        assertEquals("Email must be valid, First name is required", result.getBody().getMessage());
+    }
+
+    @Test
+    void handleMethodArgumentNotValidException_fallsBackWhenNoMessage() {
+        BindingResult bindingResult = new BeanPropertyBindingResult(new Object(), "userSignupRequest");
+        MethodArgumentNotValidException ex = mock(MethodArgumentNotValidException.class);
+        when(ex.getBindingResult()).thenReturn(bindingResult);
+
+        ResponseEntity<SuccessResponse> result = handler.handleMethodArgumentNotValidException(ex);
+
+        assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());
         assertEquals("Validation failed", result.getBody().getMessage());
     }
 
