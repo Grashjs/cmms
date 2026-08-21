@@ -1138,7 +1138,7 @@ public class WorkOrderService {
         thymeleafContext.setVariables(variables);
 
         String reportHtml = thymeleafTemplateEngine.process("work-order-report.html", thymeleafContext);
-
+        log.info("dsn", reportHtml);
         ConverterProperties converterProperties = new ConverterProperties()
                 .setTagWorkerFactory(new ITagWorkerFactory() {
                     private final DefaultTagWorkerFactory defaultFactory = new DefaultTagWorkerFactory();
