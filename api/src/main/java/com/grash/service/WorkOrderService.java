@@ -943,18 +943,19 @@ public class WorkOrderService {
     }
 
     private static @Nullable String getImageReportStoragePath(com.grash.model.File file) {
-        if (file == null || file.getPath() == null) return null;
-
-        String name = file.getName() != null ? file.getName().toLowerCase(Locale.ROOT) : "";
-        String extension = name.substring(name.lastIndexOf('.') + 1)
-                .toLowerCase(Locale.ROOT);
-
-        boolean isImage = IMAGE_EXTENSIONS.contains(extension);
-
-        if (!isImage) {
-            return null;
-        }
-        return file.getPath();
+//        if (file == null || file.getPath() == null) return null;
+//
+//        String name = file.getName() != null ? file.getName().toLowerCase(Locale.ROOT) : "";
+//        String extension = name.substring(name.lastIndexOf('.') + 1)
+//                .toLowerCase(Locale.ROOT);
+//
+//        boolean isImage = IMAGE_EXTENSIONS.contains(extension);
+//
+//        if (!isImage) {
+//            return null;
+//        }
+//        return file.getPath();
+        return null;
     }
 
     private byte[] optimizeImageForPdf(byte[] rawBytes, String fileName) {
