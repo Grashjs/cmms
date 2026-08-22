@@ -36,6 +36,8 @@ public class ApiKeyController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public Page<ApiKeyShowDTO> search(@Parameter(description = "API key search criteria") @RequestBody ApiKeyCriteria apiKeyCriteria,
                                       @Parameter(hidden = true) @CurrentUser User user, Pageable pageable) {
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS))
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         return apiKeyService.findByCriteria(apiKeyCriteria, pageable, user).map(apiKeyMapper::toShowDto);
     }
 
