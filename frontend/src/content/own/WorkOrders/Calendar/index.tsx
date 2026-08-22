@@ -257,16 +257,14 @@ function ApplicationsCalendar({
 
   return (
     <Grid item xs={12}>
-      <Box p={3}>
-        <Actions
-          date={date}
-          onNext={handleDateNext}
-          onPrevious={handleDatePrev}
-          onToday={handleDateToday}
-          changeView={changeView}
-          view={view}
-        />
-      </Box>
+      <Actions
+        date={date}
+        onNext={handleDateNext}
+        onPrevious={handleDatePrev}
+        onToday={handleDateToday}
+        changeView={changeView}
+        view={view}
+      />
       <Divider />
       <FullCalendarWrapper>
         {loadingGet && (

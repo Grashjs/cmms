@@ -398,7 +398,7 @@ function WorkloadView({ handleOpenDetails }: WorkloadViewProps) {
   return (
     <>
       <DragDropContext onDragEnd={handleDragEnd}>
-        <Box sx={{ p: 2 }}>
+        <Box>
           <Stack
             direction="row"
             alignItems="center"
