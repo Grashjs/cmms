@@ -150,7 +150,6 @@ public class UserService {
         user.setEmail(user.getEmail().toLowerCase());
         if (userRepository.existsByEmailIgnoreCase(user.getEmail())) {
             throw new CustomException("Email is already in use", HttpStatus.UNPROCESSABLE_ENTITY);
-
         }
         if (allowedOrganizationAdmins != null && userReq.getRole() == null && allowedOrganizationAdmins.length != 0 && Arrays.stream(allowedOrganizationAdmins).noneMatch(allowedOrganizationAdmin -> allowedOrganizationAdmin.equalsIgnoreCase(userReq.getEmail()))) {
             throw new CustomException("You are not allowed to create an account without being invited",
@@ -158,29 +157,7 @@ public class UserService {
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setUsername(Helper.generateStringId());
-        if (user.getRole() == null) {
-            //create company with default roles
-            if (!licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE) && companyService.existsAtLeastOneWithMinWorkOrders())
-                throw new CustomException("You need a license to create another company", HttpStatus.FORBIDDEN);
-            Subscription subscription =
-                    Subscription.builder().usersCount(300).monthly(cloudVersion)
-                            .startsOn(new Date())
-                            .endsOn(cloudVersion ? Helper.incrementDays(new Date(), 15) : null)
-                            .subscriptionPlan(subscriptionPlanService.findByCode("BUSINESS").get()).build();
-            subscriptionService.create(subscription);
-            Company company = new Company(userReq.getCompanyName(), userReq.getEmployeesCount(), subscription);
-            company.setDemo(Boolean.TRUE.equals(userReq.getDemo()));
-            company.getCompanySettings().getGeneralPreferences().setCurrency(currencyService.findByCode("$").get());
-            if (userReq.getLanguage() != null)
-                company.getCompanySettings().getGeneralPreferences().setLanguage(userReq.getLanguage());
-            if (userReq.getTimeZone() != null)
-                company.getCompanySettings().getGeneralPreferences().setTimeZone(userReq.getTimeZone());
-            companyService.create(company);
-            user.setOwnsCompany(true);
-            user.setCompany(company);
-            user.setRole(roleService.findDefaultRoleWithCode(RoleCode.ADMIN).get());
-            checkUsageBasedLimit(1);
-        } else {
+        if (user.getRole() != null) {
             Role role = roleService.findById(user.getRole().getId()).orElseThrow(() -> new CustomException("Role not " +
                     "found", HttpStatus.NOT_ACCEPTABLE));
             if (role.isPaid()) {
@@ -209,38 +186,56 @@ public class UserService {
             }
             return enableAndReturnToken(user, true, userReq);
         }
+        //create company with default roles
+        if (!licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE) && companyService.existsAtLeastOneWithMinWorkOrders())
+            throw new CustomException("You need a license to create another company", HttpStatus.FORBIDDEN);
+        Subscription subscription =
+                Subscription.builder().usersCount(300).monthly(cloudVersion)
+                        .startsOn(new Date())
+                        .endsOn(cloudVersion ? Helper.incrementDays(new Date(), 15) : null)
+                        .subscriptionPlan(subscriptionPlanService.findByCode("BUSINESS").get()).build();
+        subscriptionService.create(subscription);
+        Company company = new Company(userReq.getCompanyName(), userReq.getEmployeesCount(), subscription);
+        company.setDemo(Boolean.TRUE.equals(userReq.getDemo()));
+        company.getCompanySettings().getGeneralPreferences().setCurrency(currencyService.findByCode("$").get());
+        if (userReq.getLanguage() != null)
+            company.getCompanySettings().getGeneralPreferences().setLanguage(userReq.getLanguage());
+        if (userReq.getTimeZone() != null)
+            company.getCompanySettings().getGeneralPreferences().setTimeZone(userReq.getTimeZone());
+        companyService.create(company);
+        user.setOwnsCompany(true);
+        user.setCompany(company);
+        user.setRole(roleService.findDefaultRoleWithCode(RoleCode.ADMIN).get());
+        checkUsageBasedLimit(1);
         if (Helper.isLocalhost(PUBLIC_API_URL)) {
             return enableAndReturnToken(user, false, userReq);
-        } else {
-            if (userReq.getRole() == null) { //send mail
-                if (enableInvitationViaEmail) {
-                    throwIfEmailNotificationsNotEnabled();
-                    String token = UUID.randomUUID().toString();
-                    String link = PUBLIC_API_URL + "/auth/activate-account?token=" + token;
-                    Map<String, Object> variables = new HashMap<String, Object>() {{
-                        put("verifyTokenLink", link);
-                    }};
-                    user = userRepository.save(user);
-                    VerificationToken newUserToken = new VerificationToken(token, user, null);
-                    verificationTokenRepository.save(newUserToken);
-                    if (!Boolean.TRUE.equals(userReq.getSkipMailSending()))
-                        mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(new String[]{user.getEmail()},
-                                messageSource.getMessage("confirmation_email", null, Helper.getLocale(user)), variables,
-                                "signup.html", Helper.getLocale(user), null);
-                } else {
-                    return enableAndReturnToken(user, true, userReq);
-                }
-            }
-            if (Boolean.TRUE.equals(userReq.getDemo()))
-                return enableAndReturnToken(user, false, userReq);
-            userRepository.save(user);
-            cacheService.putUserInCache(user);
-            onCompanyAndUserCreation(user);
-            sendRegistrationMailToSuperAdmins(user, userReq);
-            return new SignupSuccessResponse<>(true, "Successful registration. Check your mailbox to activate your " +
-                    "account", null, null);
         }
+        if (userReq.getRole() == null) { //send mail
+            if (!enableInvitationViaEmail)
+                return enableAndReturnToken(user, true, userReq);
 
+            throwIfEmailNotificationsNotEnabled();
+            String token = UUID.randomUUID().toString();
+            String link = PUBLIC_API_URL + "/auth/activate-account?token=" + token;
+            Map<String, Object> variables = new HashMap<String, Object>() {{
+                put("verifyTokenLink", link);
+            }};
+            user = userRepository.save(user);
+            VerificationToken newUserToken = new VerificationToken(token, user, null);
+            verificationTokenRepository.save(newUserToken);
+            if (!Boolean.TRUE.equals(userReq.getSkipMailSending()))
+                mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(new String[]{user.getEmail()},
+                        messageSource.getMessage("confirmation_email", null, Helper.getLocale(user)), variables,
+                        "signup.html", Helper.getLocale(user), null);
+        }
+        if (Boolean.TRUE.equals(userReq.getDemo()))
+            return enableAndReturnToken(user, false, userReq);
+        userRepository.save(user);
+        cacheService.putUserInCache(user);
+        onCompanyAndUserCreation(user);
+        sendRegistrationMailToSuperAdmins(user, userReq);
+        return new SignupSuccessResponse<>(true, "Successful registration. Check your mailbox to activate your " +
+                "account", null, null);
     }
 
     public void delete(String username) {
