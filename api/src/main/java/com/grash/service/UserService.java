@@ -486,37 +486,37 @@ public class UserService {
     }
 
     public SuccessResponse inviteUsers(UserInvitationDTO invitation, User user) {
-        if (user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
-            int companyUsersCount =
-                    (int) findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.isEnabled() && user1.isEnabledInSubscriptionAndPaid()).count();
-            Optional<Role> optionalRole = roleService.findById(invitation.getRole().getId());
-            if (optionalRole.isPresent() && optionalRole.get().belongsToCompany(user.getCompany())) {
-                if (companyUsersCount + invitation.getEmails().size() <= user.getCompany().getSubscription().getUsersCount() || !optionalRole.get().isPaid()) {
-                    invitation.getEmails().forEach(email ->
-                            invite(email, optionalRole.get(), user, invitation.getDisableSendingEmail())
-                    );
+        if (!user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS))
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        int companyUsersCount =
+                (int) findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.isEnabled() && user1.isEnabledInSubscriptionAndPaid()).count();
+        Optional<Role> optionalRole = roleService.findById(invitation.getRole().getId());
+        if (optionalRole.isEmpty() || !optionalRole.get().belongsToCompany(user.getCompany()))
+            throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+        Role role = optionalRole.get();
+        if (role.isPaid() && companyUsersCount + invitation.getEmails().size() > user.getCompany().getSubscription().getUsersCount())
+            throw new CustomException("Your current subscription doesn't allow you to invite that many users"
+                    , HttpStatus.NOT_ACCEPTABLE);
+        invitation.getEmails().forEach(email ->
+                invite(email, role, user, invitation.getDisableSendingEmail())
+        );
+        fireFirstUsersInvitedEventIfFirst(invitation, user);
+        return new SuccessResponse(true, "Users have been invited");
+    }
 
-                    // Fire Intercom event for first user invitation
-                    if (!user.getCompany().isInvitedUsers() && !invitation.getEmails().isEmpty()) {
-                        user.getCompany().setInvitedUsers(true);
-                        companyService.update(user.getCompany());
-                        Map<String, Object> metadata = new HashMap<>();
-                        metadata.put("invited_count", invitation.getEmails().size());
-                        intercomService.createCompanyActivationEvent(
-                                "first-users-invited",
-                                user.getCompany().getId(),
-                                user.getEmail(),
-                                metadata
-                        );
-                    }
-
-                    return new SuccessResponse(true, "Users have been invited");
-                } else
-                    throw new CustomException("Your current subscription doesn't allow you to invite that many users"
-                            , HttpStatus.NOT_ACCEPTABLE);
-
-            } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+    private void fireFirstUsersInvitedEventIfFirst(UserInvitationDTO invitation, User user) {
+        // Fire Intercom event for first user invitation
+        if (user.getCompany().isInvitedUsers() || invitation.getEmails().isEmpty()) return;
+        user.getCompany().setInvitedUsers(true);
+        companyService.update(user.getCompany());
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("invited_count", invitation.getEmails().size());
+        intercomService.createCompanyActivationEvent(
+                "first-users-invited",
+                user.getCompany().getId(),
+                user.getEmail(),
+                metadata
+        );
     }
 
     public User patchUserRole(Long userId, Long roleId, User requester) {
