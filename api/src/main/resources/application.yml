@@ -221,3 +221,4 @@ springdoc:
   pre-loading-enabled: true
   swagger-ui:
     tags-sorter: alpha
+  pre-loading-locales: false
