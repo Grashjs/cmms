@@ -54,7 +54,7 @@ public class ClientIpResolver {
 
     public ClientIpResolver(
             @Value("${security.trusted-proxies.ips:}") String trustedProxyIps,
-            @Value("${security.trusted-proxies.single-ingress:false}") boolean singleIngress) {
+            @Value("${security.trusted-proxies.single-ingress:true}") boolean singleIngress) {
         this.trustedNetworks = parseTrustedNetworks(trustedProxyIps);
         this.singleIngress = singleIngress;
     }

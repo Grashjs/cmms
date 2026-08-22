@@ -18,10 +18,9 @@ public class UpdatePasswordRequest {
     @NotNull
     @Size(max = 128)
     private String oldPassword;
-    
+
     @Schema(description = "New password")
     @NotNull
-    @Size(max = 128)
     @ValidPassword
     private String newPassword;
 }

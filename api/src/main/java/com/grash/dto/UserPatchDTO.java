@@ -36,7 +36,6 @@ public class UserPatchDTO {
     private File image;
 
     @Schema(description = "New password for the user")
-    @Size(max = 128)
     @ValidPassword
     private String newPassword;
 }
