@@ -525,23 +525,18 @@ public class UserService {
         if (requester.getId().equals(userId)) {
             throw new CustomException("You can't change your own role", HttpStatus.NOT_ACCEPTABLE);
         }
-        if (optionalUserToPatch.isPresent() && optionalRole.isPresent() && optionalRole.get().belongsToCompany(requester.getCompany())) {
-            User userToPatch = optionalUserToPatch.get();
-            if (requester.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
-                int usersCount =
-                        (int) findByCompany(requester.getCompany().getId()).stream().filter(User::isEnabledInSubscriptionAndPaid).count();
-                if (usersCount <= requester.getCompany().getSubscription().getUsersCount()) {
-                    userToPatch.setRole(optionalRole.get());
-                    return invalidateSessions(userToPatch);
-                } else
-                    throw new CustomException("Company subscription users count doesn't allow this operation",
-                            HttpStatus.NOT_ACCEPTABLE);
-            } else {
-                throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
-            }
-        } else {
+        if (optionalUserToPatch.isEmpty() || optionalRole.isEmpty() || !optionalRole.get().belongsToCompany(requester.getCompany()))
             throw new CustomException("User or role not found", HttpStatus.NOT_FOUND);
-        }
+        if (!requester.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS))
+            throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
+        int usersCount =
+                (int) findByCompany(requester.getCompany().getId()).stream().filter(User::isEnabledInSubscriptionAndPaid).count();
+        if (usersCount > requester.getCompany().getSubscription().getUsersCount())
+            throw new CustomException("Company subscription users count doesn't allow this operation",
+                    HttpStatus.NOT_ACCEPTABLE);
+        User userToPatch = optionalUserToPatch.get();
+        userToPatch.setRole(optionalRole.get());
+        return invalidateSessions(userToPatch);
     }
 
     public User disableUser(Long id, User requester) {
