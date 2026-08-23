@@ -5,6 +5,7 @@ import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.utils.Consts;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -113,8 +114,10 @@ public class JwtTokenProvider {
                     .build()
                     .parseSignedClaims(token);
             return true;
+        } catch (ExpiredJwtException e) {
+            throw new CustomException("JWT token has expired", HttpStatus.UNAUTHORIZED);
         } catch (JwtException | IllegalArgumentException e) {
-            throw new CustomException("Expired or invalid JWT token", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CustomException("Invalid JWT token", HttpStatus.UNAUTHORIZED);
         }
     }
 

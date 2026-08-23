@@ -232,7 +232,8 @@ class JwtTokenProviderTest {
 
             CustomException ex = assertThrows(CustomException.class,
                     () -> jwtTokenProvider.validateToken(badToken));
-            assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, ex.getHttpStatus());
+            assertEquals(HttpStatus.UNAUTHORIZED, ex.getHttpStatus());
+            assertEquals("Invalid JWT token", ex.getMessage());
         }
 
         @Test
@@ -243,7 +244,8 @@ class JwtTokenProviderTest {
 
             CustomException ex = assertThrows(CustomException.class,
                     () -> jwtTokenProvider.validateToken(expiredToken));
-            assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, ex.getHttpStatus());
+            assertEquals(HttpStatus.UNAUTHORIZED, ex.getHttpStatus());
+            assertEquals("JWT token has expired", ex.getMessage());
         }
     }
 
@@ -262,7 +264,7 @@ class JwtTokenProviderTest {
 
             CustomException ex = assertThrows(CustomException.class,
                     () -> jwtTokenProvider.validateToken(tamperedToken));
-            assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, ex.getHttpStatus());
+            assertEquals(HttpStatus.UNAUTHORIZED, ex.getHttpStatus());
         }
     }
 
