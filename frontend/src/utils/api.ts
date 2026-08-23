@@ -84,7 +84,17 @@ async function doFetch<T>(
       if (onConflictError) onConflictError();
       throw new Error('conflict_error');
     }
-    throw new Error(JSON.stringify(await response.json()));
+    let body: any = null;
+    try {
+      body = await response.json();
+    } catch {
+      body = null;
+    }
+    const err = new Error(
+      JSON.stringify(body ?? { message: response.statusText || 'error' })
+    );
+    (err as any).status = response.status;
+    throw err;
   }
   if (options?.raw) return response as unknown as Promise<T>;
   return response.json() as Promise<T>;
@@ -151,6 +161,7 @@ export const getErrorMessage = (
 export const isNetworkError = (error: any): boolean => {
   if (!error) return false;
   if (error instanceof TypeError) return true;
+  if (error?.status === 502) return true;
   const message = String(error?.message ?? '').toLowerCase();
   return (
     message.includes('failed to fetch') ||
