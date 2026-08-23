@@ -90,9 +90,7 @@ async function doFetch<T>(
     } catch {
       body = null;
     }
-    const err = new Error(
-      JSON.stringify(body ?? { message: response.statusText || 'error' })
-    );
+    const err = new Error(JSON.stringify(body));
     (err as any).status = response.status;
     throw err;
   }
