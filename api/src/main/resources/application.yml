@@ -219,5 +219,7 @@ springdoc:
     version: openapi_3_1
   packages-to-scan: com.grash.controller
   pre-loading-enabled: true
+  cache:
+    disabled: false
   swagger-ui:
     tags-sorter: alpha
