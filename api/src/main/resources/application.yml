@@ -221,5 +221,6 @@ springdoc:
   pre-loading-enabled: true
   cache:
     disabled: false
+  disable-i18n: true
   swagger-ui:
     tags-sorter: alpha
