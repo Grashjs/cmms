@@ -11,7 +11,7 @@ public class SwaggerSecurityConfig {
     @Bean
     SecurityFilterChain swaggerSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/swagger-ui/**", "/v3/api-docs/**", "/api-docs.html")
+                .securityMatcher("/swagger-ui/**", "/v3/api-docs", "/api-docs.html")
                 .authorizeHttpRequests(auth -> auth
                         .anyRequest().permitAll()
                 )
