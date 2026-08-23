@@ -89,7 +89,7 @@ import java.util.LinkedHashMap;
                          ### Using Postman or Insomnia
                         
                          1. Download and install Postman or Insomnia
-                         2. Import the OpenAPI specification from: `https://api.atlas-cmms.com/v3/api-docs`
+                         2. Import the OpenAPI specification from: `https://api.atlas-cmms.com/v3/api-docs/atlas-cmms`
                          3. Set up environment variables:
                             - `baseUrl`: Your API base URL (e.g., `https://api.atlas-cmms.com`)
                             - `apiKey`: Your API key
