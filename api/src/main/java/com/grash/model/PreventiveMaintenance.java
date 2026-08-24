@@ -41,7 +41,7 @@ public class PreventiveMaintenance extends WorkOrderBase {
 
     @OneToMany(mappedBy = "preventiveMaintenance", cascade = CascadeType.ALL, orphanRemoval = true)
     @ArraySchema(schema = @Schema(implementation = IdDTO.class))
-    @Schema(description = "Custom fields")
+    @Schema(description = "Custom fields", accessMode = Schema.AccessMode.READ_ONLY)
     private List<CustomFieldValue> customFieldValues = new ArrayList<>();
 
     public boolean canBeEditedBy(User user) {

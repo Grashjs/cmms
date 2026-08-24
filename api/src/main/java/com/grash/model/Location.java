@@ -133,7 +133,7 @@ public class Location extends CompanyAudit {
 
     @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, orphanRemoval = true)
     @ArraySchema(schema = @Schema(implementation = IdDTO.class))
-    @Schema(description = "Custom fields")
+    @Schema(description = "Custom fields", accessMode = Schema.AccessMode.READ_ONLY)
     private List<CustomFieldValue> customFieldValues = new ArrayList<>();
 
     public Collection<User> getUsers() {
