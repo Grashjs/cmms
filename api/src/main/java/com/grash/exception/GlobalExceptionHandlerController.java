@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.xml.bind.ValidationException;
@@ -92,6 +93,11 @@ public class GlobalExceptionHandlerController {
                 new SuccessResponse(false, "The resource was modified by another request. Please refresh and retry."),
                 HttpStatus.CONFLICT
         );
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<SuccessResponse> handleNoResourceFound(NoResourceFoundException ex) {
+        return new ResponseEntity<>(new SuccessResponse(false, "Resource not found"), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(Exception.class)
