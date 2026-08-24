@@ -1,7 +1,9 @@
 package com.grash.model;
 
+import com.grash.dto.IdDTO;
 import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.PermissionEntity;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -49,6 +51,8 @@ public class Request extends WorkOrderBase {
     private String contact;
 
     @OneToMany(mappedBy = "request", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ArraySchema(schema = @Schema(implementation = IdDTO.class))
+    @Schema(description = "Custom fields")
     private List<CustomFieldValue> customFieldValues = new ArrayList<>();
 
     @PreRemove

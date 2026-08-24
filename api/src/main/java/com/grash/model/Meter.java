@@ -75,7 +75,8 @@ public class Meter extends CompanyAudit {
     private Asset asset;
 
     @OneToMany(mappedBy = "meter", cascade = CascadeType.ALL, orphanRemoval = true)
-    @ArraySchema(schema = @Schema(implementation = CustomFieldValue.class))
+    @ArraySchema(schema = @Schema(implementation = IdDTO.class))
+    @Schema(description = "Custom fields")
     private List<CustomFieldValue> customFieldValues = new ArrayList<>();
 
     public void setUpdateFrequency(int updateFrequency) {

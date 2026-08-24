@@ -217,6 +217,7 @@ intercom:
 springdoc:
   api-docs:
     version: openapi_3_1
+    enabled: true
   packages-to-scan: com.grash.controller
   pre-loading-enabled: true
   cache:
@@ -225,3 +226,8 @@ springdoc:
   enable-default-api-docs: false
   swagger-ui:
     tags-sorter: alpha
+    enabled: false
+logging:
+  level:
+    org.springdoc: DEBUG
+    io.swagger.v3: DEBUG

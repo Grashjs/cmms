@@ -132,7 +132,8 @@ public class Location extends CompanyAudit {
     private List<File> files = new ArrayList<>();
 
     @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, orphanRemoval = true)
-    @ArraySchema(schema = @Schema(implementation = CustomFieldValue.class))
+    @ArraySchema(schema = @Schema(implementation = IdDTO.class))
+    @Schema(description = "Custom fields")
     private List<CustomFieldValue> customFieldValues = new ArrayList<>();
 
     public Collection<User> getUsers() {

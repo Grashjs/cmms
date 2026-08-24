@@ -1,12 +1,14 @@
 package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.grash.dto.IdDTO;
 import com.grash.model.enums.FieldType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,15 +36,18 @@ public class FieldConfiguration {
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ToString.Exclude
+    @Schema(implementation = IdDTO.class, writeOnly = true)
     private WorkOrderRequestConfiguration workOrderRequestConfiguration;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ToString.Exclude
+    @Schema(implementation = IdDTO.class, writeOnly = true)
     private WorkOrderConfiguration workOrderConfiguration;
 
 
-    public static Collection<FieldConfiguration> createFieldConfigurations(List<String> fieldNames, WorkOrderRequestConfiguration workOrderRequestConfiguration, WorkOrderConfiguration workOrderConfiguration) {
+    public static Collection<FieldConfiguration> createFieldConfigurations(List<String> fieldNames,
+                                                                           WorkOrderRequestConfiguration workOrderRequestConfiguration, WorkOrderConfiguration workOrderConfiguration) {
         return fieldNames.stream().map(fieldName -> FieldConfiguration
                 .builder()
                 .fieldName(fieldName)

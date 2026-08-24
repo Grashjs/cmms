@@ -1,8 +1,10 @@
 package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.grash.dto.IdDTO;
 import com.grash.model.abstracts.BasicInfos;
 import com.grash.model.enums.PermissionEntity;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -75,6 +77,8 @@ public class Vendor extends BasicInfos {
     private List<Part> parts = new ArrayList<>();
 
     @OneToMany(mappedBy = "vendor", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ArraySchema(schema = @Schema(implementation = IdDTO.class))
+    @Schema(description = "Custom fields")
     private List<CustomFieldValue> customFieldValues = new ArrayList<>();
 
     public boolean canBeEditedBy(User user) {

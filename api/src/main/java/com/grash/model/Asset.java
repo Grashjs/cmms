@@ -203,7 +203,8 @@ public class Asset extends CompanyAudit {
     private String manufacturer;
 
     @OneToMany(mappedBy = "asset", cascade = CascadeType.ALL, orphanRemoval = true)
-    @ArraySchema(schema = @Schema(implementation = CustomFieldValue.class))
+    @ArraySchema(schema = @Schema(implementation = IdDTO.class))
+    @Schema(description = "Custom fields")
     private List<CustomFieldValue> customFieldValues = new ArrayList<>();
 
     public Collection<User> getUsers() {

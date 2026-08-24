@@ -177,7 +177,7 @@ public class Part extends CompanyAudit {
     private String unit;
 
     @OneToMany(mappedBy = "part", cascade = CascadeType.ALL, orphanRemoval = true)
-    @ArraySchema(schema = @Schema(implementation = CustomFieldValue.class))
+    @ArraySchema(schema = @Schema(implementation = IdDTO.class))
     private List<CustomFieldValue> customFieldValues = new ArrayList<>();
 
     @JsonIgnore

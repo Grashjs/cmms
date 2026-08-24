@@ -1,9 +1,11 @@
 package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.grash.dto.IdDTO;
 import com.grash.exception.CustomException;
 import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.WorkOrderMeterTriggerCondition;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -54,6 +56,8 @@ public class WorkOrderMeterTrigger extends WorkOrderBase {
     private Meter meter;
 
     @OneToMany(mappedBy = "workOrderMeterTrigger", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ArraySchema(schema = @Schema(implementation = IdDTO.class))
+    @Schema(description = "Custom fields")
     private List<CustomFieldValue> customFieldValues = new ArrayList<>();
 
 }
