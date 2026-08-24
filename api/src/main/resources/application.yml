@@ -227,7 +227,7 @@ springdoc:
   swagger-ui:
     tags-sorter: alpha
     enabled: false
-logging:
-  level:
-    org.springdoc: DEBUG
-    io.swagger.v3: DEBUG
+#logging:
+#  level:
+#    org.springdoc: DEBUG
+#    io.swagger.v3: DEBUG
