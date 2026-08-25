@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -34,9 +35,10 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 /**
- * Covers the category binding of asset custom fields. Filtering the form client-side is
- * not enough: without these checks the API would still accept a lift-only field on a
- * ventilation unit.
+ * Covers the category binding of asset custom fields. Filtering the form client-side is not
+ * enough: without these checks a lift-only field would end up stored on a ventilation unit.
+ * The binding drops such a value rather than refusing the request — see
+ * {@code docs/custom-field-categories.md} for why, and what that costs.
  */
 @ExtendWith(MockitoExtension.class)
 class CustomFieldValueServiceTest {
@@ -52,7 +54,7 @@ class CustomFieldValueServiceTest {
     private AssetCategory lift;
     private CustomField airflow;
     private CustomField stops;
-    private CustomField manufacturer;
+    private CustomField power;
     private Asset asset;
 
     private static AssetCategory category(Long id, String name) {
@@ -86,7 +88,7 @@ class CustomFieldValueServiceTest {
         airflow = field(100L, "Volumenstrom", ventilation);
         stops = field(200L, "Anzahl Haltestellen", lift);
         // Bound to both — the case that motivated many-to-many instead of a single category.
-        manufacturer = field(300L, "Leistung", ventilation, lift);
+        power = field(300L, "Leistung", ventilation, lift);
 
         asset = new Asset();
         asset.setId(5L);
@@ -116,11 +118,17 @@ class CustomFieldValueServiceTest {
         return dto;
     }
 
+    private List<String> storedLabels() {
+        return asset.getCustomFieldValues().stream()
+                .map(customFieldValue -> customFieldValue.getCustomField().getLabel())
+                .collect(Collectors.toList());
+    }
+
     @Nested
     class CategoryBinding {
 
         @Test
-        @DisplayName("accepts a field bound to the asset's own category")
+        @DisplayName("accepts a field bound to the category of the asset itself")
         void fieldOfMatchingCategory_isAccepted() {
             stubFields(airflow, stops);
 
@@ -133,23 +141,37 @@ class CustomFieldValueServiceTest {
         }
 
         @Test
-        @DisplayName("rejects a field bound to a different category")
-        void fieldOfOtherCategory_throws() {
+        @DisplayName("drops a field bound to a different category instead of failing the save")
+        void fieldOfOtherCategory_isDropped() {
             stubFields(airflow, stops);
 
-            CustomException ex = assertThrows(CustomException.class,
-                    () -> setCustomFields(Collections.singletonList(value(200L, "12")),
-                            ventilation.getId()));
+            setCustomFields(Collections.singletonList(value(200L, "12")), ventilation.getId());
 
-            assertEquals(HttpStatus.NOT_ACCEPTABLE, ex.getHttpStatus());
-            assertTrue(ex.getMessage().contains("Anzahl Haltestellen"));
             assertTrue(asset.getCustomFieldValues().isEmpty());
+        }
+
+        @Test
+        @DisplayName("a submission mixing applicable and inapplicable fields keeps the applicable ones")
+        void mixedSubmission_keepsApplicableFields() {
+            // The upstream mobile app has no category filter and submits every asset field it
+            // knows. Refusing the request made saving from that app impossible; the applicable
+            // values have to survive alongside the dropped ones. Same path on update: moving an
+            // asset to another category drops the values that no longer apply and keeps the
+            // rest, because setCustomFields clears and rewrites the whole collection.
+            stubFields(airflow, stops, power);
+
+            setCustomFields(Arrays.asList(
+                    value(100L, "3200"),
+                    value(200L, "12"),
+                    value(300L, "45")), ventilation.getId());
+
+            assertEquals(Arrays.asList("Volumenstrom", "Leistung"), storedLabels());
         }
 
         @Test
         @DisplayName("a field bound to several categories fits each of them")
         void fieldBoundToSeveralCategories_isAcceptedForEach() {
-            stubFields(manufacturer);
+            stubFields(power);
 
             setCustomFields(Collections.singletonList(value(300L, "45")), ventilation.getId());
             assertEquals(1, asset.getCustomFieldValues().size());
@@ -170,51 +192,41 @@ class CustomFieldValueServiceTest {
         }
 
         @Test
-        @DisplayName("an asset without a category only takes unbound fields")
-        void assetWithoutCategory_rejectsBoundFields() {
+        @DisplayName("an asset without a category only keeps unbound fields")
+        void assetWithoutCategory_dropsBoundFields() {
             CustomField global = field(400L, "Hersteller");
             stubFields(global, airflow);
 
-            setCustomFields(Collections.singletonList(value(400L, "Viessmann")), null);
-            assertEquals(1, asset.getCustomFieldValues().size());
+            setCustomFields(Arrays.asList(value(400L, "Viessmann"), value(100L, "3200")), null);
 
-            CustomException ex = assertThrows(CustomException.class,
-                    () -> setCustomFields(Collections.singletonList(value(100L, "3200")), null));
-            assertEquals(HttpStatus.NOT_ACCEPTABLE, ex.getHttpStatus());
+            assertEquals(Collections.singletonList("Hersteller"), storedLabels());
         }
 
         @Test
-        @DisplayName("the overload without a category behaves like an asset without one")
-        void legacyOverload_treatsEntityAsUncategorised() {
-            // Locations, meters and parts still call the short signature. Their fields never
-            // carry asset categories, so nothing changes for them — but if the asset path
-            // ever regressed to this overload, bound fields would be refused rather than
-            // silently accepted. Pinning that here makes such a regression loud.
+        @DisplayName("the overload without a category filters nothing")
+        void legacyOverload_doesNotFilterByCategory() {
+            // Locations, meters and parts call the short signature. Their fields never carry
+            // asset categories, so the distinction is invisible to them — but it matters for
+            // assets: "no category supplied" is not the same as "the asset has no category". If
+            // the asset path ever regressed to this overload, filtering on an unknown category
+            // would silently discard everything the user typed. Falling back to pre-feature
+            // behaviour — store it, let the form keep hiding it — loses no data.
             CustomField global = field(400L, "Hersteller");
             stubFields(global, airflow);
 
             customFieldValueService.setCustomFields(
                     asset,
                     asset.getCustomFieldValues(),
-                    Collections.singletonList(value(400L, "Viessmann")),
+                    Arrays.asList(value(400L, "Viessmann"), value(100L, "3200")),
                     company,
                     CustomFieldEntityType.ASSET,
                     cfv -> cfv.setAsset(asset));
-            assertEquals(1, asset.getCustomFieldValues().size());
 
-            CustomException ex = assertThrows(CustomException.class,
-                    () -> customFieldValueService.setCustomFields(
-                            asset,
-                            asset.getCustomFieldValues(),
-                            Collections.singletonList(value(100L, "3200")),
-                            company,
-                            CustomFieldEntityType.ASSET,
-                            cfv -> cfv.setAsset(asset)));
-            assertEquals(HttpStatus.NOT_ACCEPTABLE, ex.getHttpStatus());
+            assertEquals(Arrays.asList("Hersteller", "Volumenstrom"), storedLabels());
         }
 
         @Test
-        @DisplayName("an unknown field id is still a 404, not a category error")
+        @DisplayName("an unknown field id is still a 404")
         void unknownField_throwsNotFound() {
             stubFields(airflow);
 

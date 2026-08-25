@@ -6,7 +6,11 @@ Design documentation for individual subsystems lives in [`docs/`](docs/README.md
 [`docs/reporting.md`](docs/reporting.md) for the `rpt_*` reporting views, saved list views and
 filtered exports — read it before changing anything under `controller/analytics/`, the `rpt_*`
 views, or the CSV export; [`docs/terminology-de.md`](docs/terminology-de.md) for the partly
-finished German wording migration, before editing `de.ts`; [`docs/TECHNICAL_DEBT_REMEDIATION.md`](docs/TECHNICAL_DEBT_REMEDIATION.md) for the frontend dependency backlog — read it before any dependency upgrade, it records how deep each package sits and which one blocks React 18.
+finished German wording migration, before editing `de.ts`; [`docs/TECHNICAL_DEBT_REMEDIATION.md`](docs/TECHNICAL_DEBT_REMEDIATION.md) for the frontend dependency backlog — read it before any dependency upgrade, it records how deep each package sits and which one blocks React 18;
+[`docs/custom-field-categories.md`](docs/custom-field-categories.md) for custom fields bound to
+asset categories — read it before touching `CustomFieldValueService`, which deliberately
+*discards* a value for the wrong category instead of refusing the request, and before deciding
+anything about `mobile/`.
 
 ## What this is
 
@@ -26,7 +30,7 @@ database credentials, container UUIDs or customer names.**
 | `docker/nginx/` | Single-domain reverse proxy | 80 | `cmms4fm-nginx` |
 | — | PostgreSQL 16 | 5432 | upstream |
 | — | MinIO (attachments) | 9000 | upstream |
-| `mobile/` | React Native app | — | not deployed |
+| `mobile/` | React Native app (Expo 53 / RN 0.79) | — | not built here, **unmodified upstream** |
 
 The nginx service is the **only** publicly reachable one. It routes `/` → frontend,
 `/api/` → api, `/storage/` → minio. Single domain, so no CORS and one certificate.
@@ -57,9 +61,18 @@ directly. On a machine without Maven on `PATH`, use `api\mvnw.cmd` from PowerShe
 newer class files, so every Mockito-based test errors in `startMocking` before reaching any
 project code — `Java 25 (69) is not supported by the current version of Byte Buddy`.
 `-Dnet.bytebuddy.experimental=true` does not help. A local failure that looks like this is the
-environment, not the change; CI on JDK 17 is the authority. `mvn test-compile` is still worth
-running locally, and mock-free tests (e.g. `CsvColumnRegistriesTest`) do run — which is a good
-reason to write new tests without mocks where the collaborators allow it.
+environment, not the change; CI on JDK 17 is the authority. Mock-free tests
+(e.g. `CsvColumnRegistriesTest`) do run — a good reason to write new tests without mocks where
+the collaborators allow it.
+
+**On JDK 25 nothing runs at all, not even `mvn test-compile`.** Lombok's annotation processor
+fails while javac initialises: `Fatal error compiling: java.lang.ExceptionInInitializerError:
+com.sun.tools.javac.code.TypeTag :: UNKNOWN`, before a single project file is type-checked.
+Verified against unmodified `HEAD` in a separate worktree — an identical failure there means
+the environment, not the change. `release 17` in the compiler config does not help; it selects
+the language level, not the compiler. **There is no local verification on this machine without
+a second JDK installed** (Temurin 17 alongside 25, invoked via `JAVA_HOME` for the Maven call).
+Until then, treat CI as the only check and say so rather than implying a local build passed.
 
 ## Deployment
 

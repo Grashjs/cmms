@@ -23,6 +23,7 @@ one. Documentation nobody is routed to is documentation nobody reads.
 | [reporting.md](reporting.md) | Reporting and BI: the `rpt_*` views, saved list views, filtered exports, and the roadmap beyond them |
 | [terminology-de.md](terminology-de.md) | German wording: which terms were changed, and the 155 keys still to migrate |
 | [TECHNICAL_DEBT_REMEDIATION.md](TECHNICAL_DEBT_REMEDIATION.md) | Frontend-Altlasten: gemessener Rückstand pro Paket, was davon den React-Upgrade blockiert, und das Vorgehen in drei Stufen |
+| [custom-field-categories.md](custom-field-categories.md) | Merkmale an Anlagenklassen gebunden: der Vertrag, warum ein klassenfremder Wert verworfen statt abgelehnt wird, und was es kostet, die Android-App selbst zu übernehmen |
 
 ## What belongs in a file here
 
