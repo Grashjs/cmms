@@ -9,6 +9,8 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PWD}
     expose:
       - "5432"
+    ports:
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
