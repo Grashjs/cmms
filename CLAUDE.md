@@ -231,9 +231,12 @@ Two consequences: deleting the account brings it straight back with `pls_change_
 another user happens to sit in that company, deleting it does *not* bring it back and the
 instance is left with no super admin at all.
 
-A code-level fix — refusing to boot with a default password, or generating one and logging it
-once — has not been implemented. Tracked as A1.1 in
-[`docs/TECHNICAL_DEBT_REMEDIATION.md`](docs/TECHNICAL_DEBT_REMEDIATION.md).
+**The code-level fix is in.** `getSuperAdminSignupRequest` no longer hardcodes
+`pls_change_me`; it generates a random password and logs it once at WARN. Logging it is
+deliberate — without it a fresh instance has no way in at all — but it means the credential
+appears in the boot log of the very first start and nowhere else. A fresh database is
+therefore no longer reachable from the public source, and the instruction above still applies
+to whoever reads that log: sign in once, change it, disable the account, do not delete it.
 
 `dev-docs/SuperAdmin password update guide.md` describes signing in with the default password
 in order to change it. That path does not work while the account is disabled, which is intended.
@@ -295,6 +298,7 @@ fix silently overwritten:
 | Area | Files |
 |---|---|
 | Signup hardening | `UserService.signup` |
+| Default super admin password | `ApplicationInitializer.getSuperAdminSignupRequest` |
 | Premium unlock | `LicenseService`, `ApplicationInitializer`, `application.yml` |
 | Category-bound custom fields | `CustomField`, `CustomFieldService`, `CustomFieldValueService`, `CustomFieldRepository`, `AssetService.setAssetCustomFields` |
 | Work order → purchase order | `PurchaseOrder`, `PurchaseOrderService`, `PurchaseOrderController`, `PurchaseOrderRepository` |

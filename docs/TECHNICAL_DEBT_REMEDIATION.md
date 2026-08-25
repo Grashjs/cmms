@@ -1,6 +1,6 @@
 # CMMS4FM — Technische Schulden: Befund und Vorgehen
 
-**Stand:** 2026-08-25 · **Status:** Stufe 1 begonnen — A2/A3 erledigt (145 → 50 Befunde), A1/A5/A6/A7 offen
+**Stand:** 2026-08-25 · **Status:** **Stufe 1 abgeschlossen** — 145 → 50 Befunde, A5/A6 bewusst zurückgestellt. Nächstes: Stufe 2 (CRA ablösen)
 
 ---
 
@@ -235,7 +235,18 @@ docker exec <postgres-container> psql -U cmms_admin -d atlas \
 Erwartung: `enabled = false`. Falls `true` oder die Zeile fehlt, hat Stufe 1 eine andere
 erste Aufgabe als hier geplant.
 
-### A1 — Superadmin auch im Code entschärfen
+### A1 — Superadmin auch im Code entschärfen ✅ erledigt
+
+`getSuperAdminSignupRequest` erzeugt jetzt ein zufälliges Passwort (`UUID.randomUUID()`) und
+schreibt es **einmalig als WARN** ins Log. Eine frische Datenbank ist damit nicht mehr aus dem
+öffentlichen Quelltext erreichbar. Die Zeile steht als eigener Eintrag in der
+Upstream-Merge-Tabelle der `CLAUDE.md` — ohne den würde der nächste Abgleich sie kommentarlos
+überschreiben.
+
+Auf der bestehenden Instanz ändert sich **nichts**: das Konto existiert dort, also läuft der
+Zweig gar nicht erst an.
+
+#### ursprüngliche Beschreibung
 
 Ziel ist nicht, die laufende Instanz zu ändern (die ist in Ordnung), sondern dass eine
 frische Datenbank nicht wieder mit einem bekannten Passwort startet.
@@ -354,7 +365,22 @@ Fehler wäre nicht mehr zu sagen gewesen, welcher der vier schuld ist.
 Damit ist die Lage sortiert: von den 25 verbliebenen hohen Befunden hängen 11 an CRA
 (Stufe 2), 5 an der Karte (A5), 8 an Majors (Stufe 3), und einer betrifft nur die Testkette.
 
-### A4 — `@mui/styles` ablösen
+### A4 — `@mui/styles` ablösen ✅ erledigt
+
+**Der Riegel vor React 18 ist weg.** Zwei Dateien, wie erwartet:
+
+- `src/theme/ThemeProvider.tsx` — `StylesProvider injectFirst` ersatzlos entfernt. Sein Zweck
+  war die Reihenfolge der Stilinjektion für die JSS-Schicht aus MUI v4; unter v5 erledigen das
+  die beiden Emotion-Caches, die ohnehin schon mit `prepend: true` angelegt werden.
+- `src/content/own/components/form/SelectTasks/DraggableTask.tsx` — `makeStyles` durch die
+  `sx`-Prop ersetzt. Der einzige Stil war ein Hintergrund während des Ziehens; er hängt jetzt
+  direkt an der `ListItem`, die ohnehin schon ein `sx` trug.
+
+Danach `npm uninstall @mui/styles`. **Optisch prüfen** (ein grüner Build beweist hier wenig):
+Theme-Umschaltung hell/dunkel, RTL-Sprache, und Drag-and-Drop im Checklisten-Editor — der
+graue Hintergrund muss beim Ziehen noch erscheinen.
+
+#### ursprüngliche Beschreibung
 
 Zwei Dateien, und danach ist der Riegel vor React 18 weg:
 
@@ -367,7 +393,22 @@ Zwei Dateien, und danach ist der Riegel vor React 18 weg:
 mit Drag-and-Drop im Checklisten-Editor. Diese Änderung ist optisch, ein grüner Build
 beweist hier wenig.
 
-### A5 — Die Karte auf ein gepflegtes Paket stellen
+### A5 — Die Karte auf ein gepflegtes Paket stellen ⏸ bewusst zurückgestellt
+
+**Entscheidung (Lars, 2026-08-25): bleibt wie sie ist.** Begründung: die Kartenfunktion ist
+im laufenden Betrieb nicht bekannt und damit nicht beurteilbar. In den Stammdaten gibt es
+Felder für Geodaten — möglicherweise hat Upstream hier etwas vorbereitet, das später gebraucht
+wird. Etwas zu entfernen, dessen Zweck man nicht kennt, ist der teurere Fehler.
+
+**Preis dieser Entscheidung: fünf hohe Befunde bleiben stehen.** Das ist vertretbar, weil
+`GOOGLE_KEY` auf der Instanz leer ist — die Komponente lädt ohne Schlüssel gar keine
+Google-Ressourcen, die Angriffsfläche ist also weitgehend theoretisch.
+
+**Wenn die Karte je gebraucht wird**, ist der Weg das Ersetzen durch
+`@vis.gl/react-google-maps` (das offiziell empfohlene Nachfolgepaket), nicht das Aktivieren
+des alten. Dann fallen die fünf Befunde mit weg.
+
+#### ursprüngliche Beschreibung
 
 `react-google-maps` bringt **fünf hohe Befunde** und wird seit etwa 2018 nicht mehr gepflegt;
 `content/own/components/Map/index.tsx` benutzt noch die alte HOC-Schnittstelle
@@ -392,7 +433,19 @@ Die zweite ist der Haken: ohne sie lassen sich Koordinaten nur noch von Hand ein
 die Karte irgendwann *doch* nutzen will, fährt mit dem Ersetzen besser. **Das ist eine
 Produktentscheidung, keine technische** — sie gehört getroffen, bevor jemand Code anfasst.
 
-### A6 — `xlsx`: Entscheidung, keine Fassung
+### A6 — `xlsx`: Entscheidung, keine Fassung ⏸ bewusst zurückgestellt
+
+**Entscheidung (Lars, 2026-08-25): bleibt wie es ist.** Damit gilt Weg (3) aus der Liste
+unten, und die Begründung dafür gehört festgehalten, damit beim nächsten Audit niemand neu
+darüber nachdenkt:
+
+Die betroffene Stelle (`content/own/Imports/index.tsx`) verarbeitet ausschließlich Dateien,
+die ein angemeldeter Betreiber selbst hochlädt — es gibt keinen Pfad, auf dem ein Fremder
+eine Tabelle einschleust. Für ein Home-Lab ohne Kundendaten ist das vertretbar. **Sobald
+diese Instanz je fremde Uploads entgegennimmt, ist die Entscheidung hinfällig** und Weg (1)
+— `exceljs`, das im Bestand ohnehin schon läuft — wird fällig.
+
+#### ursprüngliche Beschreibung
 
 `xlsx` hat zwei bekannte Schwachstellen (Prototype Pollution, ReDoS) und **npm kennt keine
 Fassung** — SheetJS hat npm verlassen und liefert nur noch über die eigene Adresse aus.
@@ -412,7 +465,20 @@ Drei mögliche Antworten, eine davon muss bewusst gewählt und hier notiert werd
 
 Empfehlung: (1), wegen der Konsistenz mit dem übrigen Bestand.
 
-### A7 — LDAP-Fehler nicht als „falsches Passwort" ausgeben
+### A7 — LDAP-Fehler nicht als „falsches Passwort" ausgeben ✅ erledigt
+
+**Nachgesehen: `LDAP_ENABLED=false` auf der Instanz.** Nach der ursprünglichen Regel unten
+wäre der Punkt damit zu streichen gewesen. Trotzdem gemacht, weil der Fix vier Zeilen groß ist
+und ein Muster spiegelt, das im selben Code schon steht — und weil genau dieser Fehler bei
+`signin` laut `CLAUDE.md` schon einmal Stunden gekostet hat. Vorsorglich, nicht dringend.
+
+`LdapService.signinLdap` fing bisher `AuthenticationException` in einem Block und antwortete
+immer mit 403. `InternalAuthenticationServiceException` erbt davon, und Spring verpackt darin
+**alles**, was beim Erreichen des Verzeichnisses schiefgeht — nicht erreichbarer Server,
+abgelehnter Bind, DNS-Fehler. Als 403 gelesen heißt das „falsches Passwort". Jetzt wie bei
+`signin`: Infrastruktur bekommt **503**, nur eine echte Ablehnung bekommt 403.
+
+#### ursprüngliche Beschreibung
 
 Kein Neufund, sondern der offene Punkt aus der `CLAUDE.md`: `signinLdap` verdichtet immer
 noch jeden Fehlschlag zu einer Meldung — genau die Falle, die bei `signin` schon behoben
@@ -422,7 +488,41 @@ Meldung ergeben, nicht 403 „falsche Zugangsdaten".
 Nur sinnvoll, wenn LDAP hier überhaupt benutzt wird. Falls nicht: Punkt streichen, nicht
 aufheben.
 
-### A8 — Versionen festnageln (`overrides`)
+### A8 — Versionen festnageln (`overrides`) ✅ erledigt — Ergebnis: **keine Override**
+
+Die Prüfung hat gezeigt, dass hier keine Override gehört, und das ist ein Ergebnis, kein
+Ausweichen. Nach A2/A3 blieben zwei transitive Befunde übrig, die `npm audit` als „behebbar"
+meldet:
+
+**`ws`** liegt unter `selenium-webdriver` — reines Testwerkzeug, geht nie in einen Build.
+Eine Override dafür wäre Lärm.
+
+**`d3-color@1.4.1`** sah zunächst nach einem klaren Fall aus: behoben in 3.1.0, also
+festnageln. Zwei Funde sprechen dagegen:
+
+1. **Die Override wäre unsicher.** `d3-color@3.1.0` ist ESM-only (`"type": "module"`), `1.4.1`
+   hatte noch einen CommonJS-Einstieg. Die Konsumenten hier erwarten CommonJS — die Override
+   würde die Modulgrenze überschreiten und vermutlich zur Laufzeit brechen, nicht beim Build.
+   Genau die Falle, vor der der ursprüngliche Text unten warnt.
+2. **Eine der beiden Wurzeln war tot.** `d3-color` kam über `react-gauge-chart@0.4.0`, das ein
+   uraltes `d3@5` mitschleppt — und `react-gauge-chart` wird in `src/` **nirgends** benutzt.
+   Ebenso `react-sparklines`: der einzige Treffer ist eine Menü-Beschriftung im Seitenleisten-
+   Template, kein Import.
+
+```bash
+npm uninstall react-gauge-chart @types/react-gauge-chart react-sparklines   # −31 Pakete
+```
+
+**Der Befund bleibt trotzdem stehen**, denn die zweite Wurzel ist `recharts@2.2.0`, und das
+wird in 31 Dateien wirklich benutzt. Der Weg dahin ist ein Sprung auf eine neuere recharts-2.x
+— ein *Minor*, aber eine direkte Abhängigkeit, und A3 hat bewusst keine einzige davon bewegt.
+**Gehört nach Stufe 3**, zusammen mit den anderen Versionssprüngen.
+
+Die 31 entfernten Pakete ändern die Befundzahl also nicht, verkleinern aber Baum und
+Installationszeit — und sie nehmen eine Altlast mit, die beim nächsten Upgrade im Weg gestanden
+hätte.
+
+#### ursprüngliche Beschreibung
 
 Zum Schluss, nicht zu Beginn: erst nach A2/A3 ist sichtbar, was *tatsächlich* als transitives
 Problem übrig bleibt. Dann in `frontend/package.json` gezielt festnageln, analog zum übrigen
@@ -466,22 +566,22 @@ passiert.
 
 ## 7. Fertig ist Stufe 1, wenn
 
-- [ ] `npm audit` meldet **keine** *critical*-Befunde mehr — *offen: 2 (firebase, swiper), beide brauchen einen Major und stehen in Stufe 3*
+- [~] `npm audit` meldet **keine** *critical*-Befunde mehr — *2 übrig (firebase, swiper), beide brauchen einen Major, verschoben nach Stufe 3*
 - [ ] Von den 64 hohen Befunden sind nur noch die elf aus `react-scripts` übrig — die
       bleiben bis Stufe 2, und dass sie bleiben, ist hier vermerkt
       *(Stand: 25 übrig — 11 CRA, 5 Karte/A5, 8 Majors, 1 nur Testkette)*
 - [x] `aws-amplify`, `react-quill`, `react-simple-maps` sind aus `package.json` verschwunden
-- [ ] `ApplicationInitializer` legt kein Konto mehr mit einem im Quelltext stehenden
+- [x] `ApplicationInitializer` legt kein Konto mehr mit einem im Quelltext stehenden
       Passwort an; die Änderung steht in der Upstream-Merge-Tabelle der `CLAUDE.md`
-- [ ] `@mui/styles` kommt in `src/` nicht mehr vor
-- [ ] Für `react-google-maps` und `xlsx` ist entschieden **und hier notiert**, welcher der
-      genannten Wege gewählt wurde — auch „stehen lassen" ist eine Entscheidung, aber nur
-      mit Begründung
+- [x] `@mui/styles` kommt in `src/` nicht mehr vor — Paket ebenfalls deinstalliert
+- [x] Für `react-google-maps` und `xlsx` ist entschieden **und hier notiert**: beide bleiben
+      vorerst, Begründungen in A5 und A6
 - [x] `CI=true npm run build` im Ordner `frontend` läuft durch *(nach dem Nachziehen von `buffer`, siehe A2b)*
-- [ ] Die Maven-Suite ist in CI grün (nicht lokal — siehe Abschnitt 6)
-- [ ] Von Hand angesehen: Anmeldung, Anlagenliste, Arbeitsauftrag anlegen und bearbeiten,
-      Einstellungen, Theme-Umschaltung, Checklisten-Drag-and-Drop, Tabellen-Import,
-      Kartenansicht
+- [ ] Die Maven-Suite ist in CI grün (nicht lokal — siehe Abschnitt 6) — *lokal läuft
+      `clean package -DskipTests` durch; die Tests selbst kann nur CI auf JDK 17 beurteilen*
+- [ ] **Von Hand angesehen** (steht noch aus, siehe A4): Anmeldung, Anlagenliste,
+      Arbeitsauftrag anlegen und bearbeiten, Einstellungen, **Theme-Umschaltung hell/dunkel**,
+      **RTL-Sprache**, **Checklisten-Drag-and-Drop**, Tabellen-Import, Kartenansicht
 - [ ] Der Superadmin ist auf der Instanz weiterhin gesperrt (A0-Abfrage)
 
 ---
