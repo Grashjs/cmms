@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ThemeProvider } from '@mui/material';
 import { themeCreator } from './base';
-import { StylesProvider } from '@mui/styles';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
 import stylisRTLPlugin from 'stylis-plugin-rtl';
@@ -50,12 +49,10 @@ const ThemeProviderWrapper: React.FC = (props) => {
       <ThemeProvider theme={theme}>{props.children}</ThemeProvider>
     </ThemeContext.Provider>
   );
+  // Kein StylesProvider mehr: dessen injectFirst war für die JSS-Schicht aus MUI v4 da.
+  // Unter v5 regeln die beiden Emotion-Caches mit prepend: true dieselbe Reihenfolge.
   return (
-    <StylesProvider injectFirst>
-      <CacheProvider value={rtl ? cacheRtl : cacheLtr}>
-        {providers}
-      </CacheProvider>
-    </StylesProvider>
+    <CacheProvider value={rtl ? cacheRtl : cacheLtr}>{providers}</CacheProvider>
   );
 };
 

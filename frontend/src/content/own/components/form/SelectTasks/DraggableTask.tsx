@@ -13,7 +13,6 @@ import {
   Select,
   TextField
 } from '@mui/material';
-import { makeStyles } from '@mui/styles';
 import DragIndicatorTwoToneIcon from '@mui/icons-material/DragIndicatorTwoTone';
 import { Task, TaskOption, TaskType } from '../../../../../models/owns/tasks';
 import { useTranslation } from 'react-i18next';
@@ -25,12 +24,6 @@ import { randomInt } from '../../../../../utils/generators';
 import { AssetMiniDTO } from '../../../../../models/owns/asset';
 import { UserMiniDTO } from '../../../../../models/user';
 import { MeterMiniDTO } from 'src/models/owns/meter';
-
-const useStyles = makeStyles({
-  draggingListItem: {
-    background: 'rgb(235,235,235)'
-  }
-});
 
 export type DraggableListItemProps = {
   task: Task;
@@ -61,7 +54,6 @@ const DraggableListItem = ({
                              usersMini,
                              metersMini
                            }: DraggableListItemProps) => {
-  const classes = useStyles();
   const { t }: { t: any } = useTranslation();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -147,8 +139,10 @@ const DraggableListItem = ({
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          className={snapshot.isDragging ? classes.draggingListItem : ''}
-          sx={{ width: '100%' }}
+          sx={{
+            width: '100%',
+            ...(snapshot.isDragging && { background: 'rgb(235,235,235)' })
+          }}
         >
           {renderMenu()}
           <Box sx={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
