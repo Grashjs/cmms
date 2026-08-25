@@ -6,7 +6,7 @@ Design documentation for individual subsystems lives in [`docs/`](docs/README.md
 [`docs/reporting.md`](docs/reporting.md) for the `rpt_*` reporting views, saved list views and
 filtered exports — read it before changing anything under `controller/analytics/`, the `rpt_*`
 views, or the CSV export; [`docs/terminology-de.md`](docs/terminology-de.md) for the partly
-finished German wording migration, before editing `de.ts`.
+finished German wording migration, before editing `de.ts`; [`docs/TECHNICAL_DEBT_REMEDIATION.md`](docs/TECHNICAL_DEBT_REMEDIATION.md) for the frontend dependency backlog — read it before any dependency upgrade, it records how deep each package sits and which one blocks React 18.
 
 ## What this is
 
@@ -198,12 +198,32 @@ is pinned to `readinessState,db` in `application.yml` for exactly this reason.
 `pls_change_me` on first start. Both values are in the public upstream source, and
 `/auth/signin` is not covered by the nginx block — no exploit needed, just the login form.
 
-**Do not delete this account.** The initializer checks for its *existence* on every start
-and recreates it with the default password if absent. Disabling it (`enabled = false`)
-survives restarts and is the correct mitigation; `CustomUserDetail.isEnabled()` is checked
-during authentication, so a disabled account cannot log in. Replacing the password hash is
-a useful second lock. A proper fix — refusing to boot with a default password, or
-generating one — has not been implemented yet.
+**Status: mitigated in the database, not in code.** The account on the deployed instance is
+disabled (`enabled = false`), which is the correct mitigation — `CustomUserDetail.isEnabled()`
+is checked during authentication, so it cannot log in, and the account still exists so the
+initializer leaves it alone. Replacing the password hash is a useful second lock. But the fix
+lives in the data, not the source: **any environment that starts against a fresh or restored
+pre-mitigation database is vulnerable again from the first boot**, silently and with no log
+line saying so. Re-check after every restore, every new environment and every database reset:
+
+```sql
+SELECT id, email, enabled FROM users WHERE email = 'superadmin@test.com';
+-- expected: enabled = false. If it is true, or the row is missing, act.
+```
+
+**Do not delete this account.** The recreation guard is not "does this email exist" but
+`userService.findByCompany(<super-admin company>).isEmpty()` — the initializer recreates the
+account with the default password whenever the super-admin role's company has no users at all.
+Two consequences: deleting the account brings it straight back with `pls_change_me`, and if
+another user happens to sit in that company, deleting it does *not* bring it back and the
+instance is left with no super admin at all.
+
+A code-level fix — refusing to boot with a default password, or generating one and logging it
+once — has not been implemented. Tracked as A1.1 in
+[`docs/TECHNICAL_DEBT_REMEDIATION.md`](docs/TECHNICAL_DEBT_REMEDIATION.md).
+
+`dev-docs/SuperAdmin password update guide.md` describes signing in with the default password
+in order to change it. That path does not work while the account is disabled, which is intended.
 
 ### Self-hosting premium unlock
 

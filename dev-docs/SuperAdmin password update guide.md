@@ -1,5 +1,11 @@
 # 🔑 Super admin Password Update Guide
 
+> **Does not apply to this fork as deployed.** `superadmin@test.com` is disabled
+> (`enabled = false`), so the sign-in in step 1 fails by design and there is nothing to
+> change the password of. Leave it disabled and use a regular admin account. Background and
+> the reason the account must not be deleted: [`../CLAUDE.md`](../CLAUDE.md) →
+> "Known upstream issue: the default super admin".
+
 ## 1️⃣ Sign In
 
 Send a `POST` request to your authentication endpoint with the following credentials:

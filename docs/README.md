@@ -22,6 +22,7 @@ one. Documentation nobody is routed to is documentation nobody reads.
 |---|---|
 | [reporting.md](reporting.md) | Reporting and BI: the `rpt_*` views, saved list views, filtered exports, and the roadmap beyond them |
 | [terminology-de.md](terminology-de.md) | German wording: which terms were changed, and the 155 keys still to migrate |
+| [TECHNICAL_DEBT_REMEDIATION.md](TECHNICAL_DEBT_REMEDIATION.md) | Frontend-Altlasten: gemessener Rückstand pro Paket, was davon den React-Upgrade blockiert, und das Vorgehen in drei Stufen |
 
 ## What belongs in a file here
 
