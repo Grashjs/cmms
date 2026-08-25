@@ -1,6 +1,6 @@
 # CMMS4FM — Technische Schulden: Befund und Vorgehen
 
-**Stand:** 2026-08-25 · **Status:** gemessen, Stufe 1 offen
+**Stand:** 2026-08-25 · **Status:** Stufe 1 begonnen — A2/A3 erledigt (145 → 50 Befunde), A1/A5/A6/A7 offen
 
 ---
 
@@ -146,8 +146,12 @@ In `package.json` deklariert, in `src/` **null** Verwendungen:
 `npm audit` im Ordner `frontend`, Stand 2026-08-25:
 
 ```
-145 Befunde: 12 critical · 64 high · 50 moderate · 19 low
+Ausgangsmessung:  145 Befunde: 12 critical · 64 high · 50 moderate · 19 low
+nach A2 + A3:      50 Befunde:  2 critical · 25 high · 10 moderate · 13 low
 ```
+
+Die folgende Aufschlüsselung beschreibt die **Ausgangslage** — sie erklärt, warum A2 und A3
+so viel abgeräumt haben. Was danach übrig blieb, steht am Ende von Abschnitt 5.
 
 Die Gesamtzahl ist wenig aussagekräftig — entscheidend ist, **welches direkte Paket** die
 Befunde hereinzieht, denn danach richtet sich die Arbeit. Aufgelöst über die
@@ -258,33 +262,97 @@ Zugang. Warum `warn`: es soll auffallen.
 Passwort anmelden, danach sperren. Auf der bestehenden Instanz darf sich **nichts** ändern —
 das Konto existiert dort, der Zweig läuft also gar nicht erst an.
 
-### A2 — Tote Pakete entfernen
+### A2 — Tote Pakete entfernen ✅ erledigt
 
 ```bash
-cd frontend
 npm uninstall aws-amplify react-quill react-simple-maps @types/react-simple-maps
 ```
 
-Erwartung: **elf hohe Befunde verschwinden**, ohne dass eine Zeile Anwendungscode angefasst
-wird. Danach `npm audit` gegenprüfen und die Zahl notieren.
+**Ergebnis: 145 → 103 Befunde** — ein kritischer, zehn hohe und achtundzwanzig mittlere
+weniger, ohne dass eine Zeile Anwendungscode angefasst wurde. Der Rückgang bei den mittleren
+war nicht eingeplant; die Schätzung lautete „elf hohe" und traf, der Rest kam obendrauf.
 
 Die einzigen „Amplify"-Treffer im Code sind Logo-Bilder auf den Template-Seiten für Anmeldung
 und Registrierung (`content/pages/Auth/…`). Die zeigen ein `amplify.svg` an, importieren aber
-nichts aus dem Paket — der Verweis darf stehen bleiben.
+nichts aus dem Paket — der Verweis bleibt stehen.
 
-### A3 — `npm audit fix` ohne Breaking Changes
+### A2b — Phantom-Abhängigkeit `buffer` sichtbar geworden ✅ erledigt
+
+**A2 hat den Build zerlegt, und das war nützlich.** `src/utils/jwt.ts` macht in Zeile 2
+`import { Buffer } from 'buffer'` — und `buffer` stand **nie in `package.json`**. Es kam als
+Beifang über `aws-amplify` herein. Solange das tote Paket dalag, funktionierte der Import;
+mit dem Aufräumen war er weg:
+
+```
+Module not found: Error: Can't resolve 'buffer' in .../frontend/src/utils
+```
+
+Behoben durch Deklarieren, nicht durch Zurückrollen — der Code braucht das Paket wirklich,
+er hat es nur nie gesagt:
+
+```bash
+npm install buffer      # ^6.0.3
+```
+
+Anschließend ein Scan über alle Importe in `src/` gegen `package.json`, um zu sehen, ob noch
+weitere solcher Minen liegen. Es gibt drei, aber keine davon ist scharf:
+
+| Import | kommt über | Risiko |
+|---|---|---|
+| `@emotion/cache` | `@mui/material` | erst beim MUI-Major (Stufe 4) |
+| `@mui/types` | `@mui/material` | erst beim MUI-Major (Stufe 4) |
+| `react-router` | `react-router-dom` | erst beim Router-Major (Stufe 3) |
+
+Alle drei werden von Paketen geliefert, die deklariert sind und bleiben — sie brechen erst,
+wenn genau diese Pakete ihren Abhängigkeitsbaum ändern. **Vor Stufe 3 und Stufe 4 gehören sie
+deklariert**, sonst tritt derselbe Effekt mitten in einem Upgrade auf, wo er schwerer zu
+deuten ist.
+
+### A3 — `npm audit fix` ohne Breaking Changes ✅ erledigt
 
 ```bash
 npm audit fix          # ohne --force
 ```
 
-Erwartung: die rund 25 transitiven Pakete und **zehn der zwölf kritischen Befunde** sind
-danach weg. `--force` bewusst nicht: es zieht `react-scripts@0.0.0`, `aws-amplify@6`,
-`firebase@12`, `swiper@14` und `axios@1` auf einmal herein — bei React 17 zerlegt das mit
-hoher Wahrscheinlichkeit den Build, und man weiß hinterher nicht, welcher der fünf Sprünge
-schuld war.
+**Ergebnis: 103 → 50 Befunde.** Zusammen mit A2 also **145 → 50**:
 
-**Prüfen:** `CI=true npm run build` (siehe Abschnitt 6).
+| | vorher | nachher |
+|---|---:|---:|
+| critical | 12 | **2** |
+| high | 64 | **25** |
+| moderate | 50 | 10 |
+| low | 19 | 13 |
+
+Zehn der zwölf kritischen Befunde sind weg, wie vorhergesagt. **In `package.json` hat sich
+dabei keine einzige direkte Abhängigkeit verschoben** — der Eingriff blieb vollständig im
+Lockfile, bei den transitiven Paketen. Genau deshalb ohne `--force`: das hätte
+`react-scripts`, `firebase`, `swiper` und `axios` gleichzeitig gesprungen, und bei einem
+Fehler wäre nicht mehr zu sagen gewesen, welcher der vier schuld ist.
+
+`CI=true npm run build` läuft grün durch.
+
+> **Falle beim Prüfen des Builds.** `npm run build | tail` liefert den Exit-Code von `tail`,
+> nicht den des Builds — ein fehlgeschlagener Build meldet so eine 0. Genau das ist hier
+> einmal passiert und hätte den `buffer`-Fehler fast verdeckt. Entweder `set -o pipefail`
+> setzen und `${PIPESTATUS[0]}` auswerten, oder die Ausgabe wirklich lesen. Das ist dieselbe
+> Klasse Fehler wie `mvn compile` in Abschnitt 6.
+
+### Rest nach A2/A3 — wer die verbliebenen 50 hereinzieht
+
+| direktes Paket | critical | high | wo behandelt |
+|---|---:|---:|---|
+| `react-scripts` (CRA) | 0 | **11** | Stufe 2 — keine Fassung verfügbar |
+| `react-google-maps` | 0 | **5** | **A5, offen** |
+| `firebase` | 1 | 4 | Stufe 3 (Major 9 → 12) |
+| `swiper` | **1** | 0 | Stufe 3 (Major 8 → 14) |
+| `axios` | 0 | 1 | Stufe 3 (Major 0.27 → 1.x) |
+| `jsonwebtoken` | 0 | 1 | Stufe 3 (Major 8 → 9) |
+| `xlsx` | 0 | 1 | **A6, offen** — keine Fassung verfügbar |
+| `d3-color` | 0 | 1 | über recharts; `audit fix` greift nicht, braucht recharts-Sprung |
+| `ws` | 0 | 1 | unter `selenium-webdriver` — **nur Testwerkzeug, geht nie in den Build** |
+
+Damit ist die Lage sortiert: von den 25 verbliebenen hohen Befunden hängen 11 an CRA
+(Stufe 2), 5 an der Karte (A5), 8 an Majors (Stufe 3), und einer betrifft nur die Testkette.
 
 ### A4 — `@mui/styles` ablösen
 
@@ -309,10 +377,20 @@ Zwei Wege, und die Entscheidung gehört zuerst getroffen:
 
 - **Ersetzen** durch `@vis.gl/react-google-maps` (das offiziell empfohlene Nachfolgepaket) —
   eine Datei umschreiben, Kartenfunktion bleibt.
-- **Entfernen**, falls die Karte in diesem Home-Lab ohnehin nichts zeigt. Sie braucht einen
-  Google-Maps-API-Schlüssel (`googleMapsConfig`); ohne den ist sie ohnehin blind. **Vor der
-  Entscheidung nachsehen, ob der Schlüssel gesetzt ist** — ist er es nicht, ist Entfernen
-  die ehrlichere Antwort.
+- **Entfernen**, falls die Karte ohnehin nichts zeigt.
+
+**Nachgesehen: `GOOGLE_KEY` ist auf der Instanz leer.** Die Karte kann dort also gar nichts
+darstellen — `googleMapsConfig.apiKey` bleibt undefiniert. Damit spricht viel für Entfernen:
+fünf hohe Befunde für den Preis einer Komponente, die nichts anzeigt.
+
+Betroffen wären zwei Stellen, das ist der Umfang der Entscheidung:
+
+- `content/own/Locations/index.tsx` — Kartenansicht der Standorte
+- `content/own/components/form/SelectMapCoordinates.tsx` — Koordinatenauswahl im Formular
+
+Die zweite ist der Haken: ohne sie lassen sich Koordinaten nur noch von Hand eintragen. Wer
+die Karte irgendwann *doch* nutzen will, fährt mit dem Ersetzen besser. **Das ist eine
+Produktentscheidung, keine technische** — sie gehört getroffen, bevor jemand Code anfasst.
 
 ### A6 — `xlsx`: Entscheidung, keine Fassung
 
@@ -388,17 +466,18 @@ passiert.
 
 ## 7. Fertig ist Stufe 1, wenn
 
-- [ ] `npm audit` meldet **keine** *critical*-Befunde mehr
+- [ ] `npm audit` meldet **keine** *critical*-Befunde mehr — *offen: 2 (firebase, swiper), beide brauchen einen Major und stehen in Stufe 3*
 - [ ] Von den 64 hohen Befunden sind nur noch die elf aus `react-scripts` übrig — die
       bleiben bis Stufe 2, und dass sie bleiben, ist hier vermerkt
-- [ ] `aws-amplify`, `react-quill`, `react-simple-maps` sind aus `package.json` verschwunden
+      *(Stand: 25 übrig — 11 CRA, 5 Karte/A5, 8 Majors, 1 nur Testkette)*
+- [x] `aws-amplify`, `react-quill`, `react-simple-maps` sind aus `package.json` verschwunden
 - [ ] `ApplicationInitializer` legt kein Konto mehr mit einem im Quelltext stehenden
       Passwort an; die Änderung steht in der Upstream-Merge-Tabelle der `CLAUDE.md`
 - [ ] `@mui/styles` kommt in `src/` nicht mehr vor
 - [ ] Für `react-google-maps` und `xlsx` ist entschieden **und hier notiert**, welcher der
       genannten Wege gewählt wurde — auch „stehen lassen" ist eine Entscheidung, aber nur
       mit Begründung
-- [ ] `CI=true npm run build` im Ordner `frontend` läuft durch
+- [x] `CI=true npm run build` im Ordner `frontend` läuft durch *(nach dem Nachziehen von `buffer`, siehe A2b)*
 - [ ] Die Maven-Suite ist in CI grün (nicht lokal — siehe Abschnitt 6)
 - [ ] Von Hand angesehen: Anmeldung, Anlagenliste, Arbeitsauftrag anlegen und bearbeiten,
       Einstellungen, Theme-Umschaltung, Checklisten-Drag-and-Drop, Tabellen-Import,
