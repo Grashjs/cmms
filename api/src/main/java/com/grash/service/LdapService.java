@@ -20,6 +20,7 @@ import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.ldap.filter.AndFilter;
 import org.springframework.ldap.filter.EqualsFilter;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -277,6 +278,15 @@ public class LdapService {
             cacheService.putUserInCache(user);
             return jwtTokenProvider.createToken(user.getEmail(),
                     Collections.singletonList(user.getRole().getRoleType()));
+            // The same trap signin used to have. Spring wraps anything that fails while
+            // reaching the directory - an unreachable server, a refused bind, a DNS failure -
+            // in InternalAuthenticationServiceException, and that extends
+            // AuthenticationException. Answering 403 for it reads as "wrong password" and
+            // sends people to reset a credential that was never wrong. Infrastructure gets
+            // 503, only a genuine rejection gets 403.
+        } catch (InternalAuthenticationServiceException e) {
+            throw new CustomException("LDAP authentication is temporarily unavailable",
+                    HttpStatus.SERVICE_UNAVAILABLE);
         } catch (AuthenticationException e) {
             throw new CustomException("LDAP authentication failed: " + e.getMessage(), HttpStatus.FORBIDDEN);
         }

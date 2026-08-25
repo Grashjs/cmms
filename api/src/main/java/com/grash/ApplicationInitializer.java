@@ -162,12 +162,29 @@ public class ApplicationInitializer implements SmartInitializingSingleton {
     }
 
 
+    /**
+     * Upstream hardcodes "pls_change_me" here. That password is in the public upstream
+     * source, /auth/signin is not covered by the nginx block, and nothing in the code
+     * forces it to be changed - so every instance started against a fresh database was
+     * reachable by anyone who had read the repository.
+     * <p>
+     * The password is generated instead, and logged once at WARN. Logging it is
+     * deliberate: without it a fresh instance has no way in at all. It also means the
+     * credential lives only in the boot log of the very first start, not in the source.
+     * Sign in once, change it, then disable the account - and do not delete it, see
+     * CLAUDE.md, "Known upstream issue: the default super admin".
+     */
     @NotNull
     private static UserSignupRequest getSuperAdminSignupRequest(Role savedSuperAdminRole) {
+        String initialPassword = UUID.randomUUID().toString();
+        log.warn("Created the default super admin with a generated password: {} - sign in " +
+                "once, change it, then disable the account. It is shown only here, and only " +
+                "on the boot that created it.", initialPassword);
+
         UserSignupRequest signupRequest = new UserSignupRequest();
         signupRequest.setRole(savedSuperAdminRole);
         signupRequest.setEmail("superadmin@test.com");
-        signupRequest.setPassword("pls_change_me");
+        signupRequest.setPassword(initialPassword);
         signupRequest.setFirstName("Super");
         signupRequest.setLastName("Admin");
         signupRequest.setPhone("");
