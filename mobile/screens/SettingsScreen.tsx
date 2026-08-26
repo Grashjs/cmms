@@ -19,13 +19,11 @@ import { useContext, useEffect, useState } from 'react';
 import { RootStackScreenProps } from '../types';
 import Constants from 'expo-constants';
 import * as Updates from 'expo-updates';
-import { showMessage } from 'react-native-flash-message';
 import { CustomSnackBarContext } from '../contexts/CustomSnackBarContext';
-import tr from '../i18n/translations/tr';
 
 export default function SettingsScreen({
-                                         navigation
-                                       }: RootStackScreenProps<'Settings'>) {
+  navigation
+}: RootStackScreenProps<'Settings'>) {
   const theme = useTheme();
   const { user, switchAccount, logout } = useAuth();
   const [switchingAccount, setSwitchingAccount] = useState<boolean>(false);
@@ -50,7 +48,7 @@ export default function SettingsScreen({
         <Dialog visible={openLogout} onDismiss={() => setOpenLogout(false)}>
           <Dialog.Title>{t('confirmation')}</Dialog.Title>
           <Dialog.Content>
-            <Text variant='bodyMedium'>{t('confirm_logout')}</Text>
+            <Text variant="bodyMedium">{t('confirm_logout')}</Text>
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setOpenLogout(false)}>{t('cancel')}</Button>
@@ -66,8 +64,8 @@ export default function SettingsScreen({
         <Dialog visible={openDevInfo} onDismiss={() => setOpenDevInfo(false)}>
           <Dialog.Title>{t('Dev Info')}</Dialog.Title>
           <Dialog.Content>
-            <Text variant='titleMedium'>{t('Build ID')}</Text>
-            <Text variant='bodyMedium'>{Updates.updateId}</Text>
+            <Text variant="titleMedium">{t('Build ID')}</Text>
+            <Text variant="bodyMedium">{Updates.updateId}</Text>
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setOpenDevInfo(false)}>{t('cancel')}</Button>
@@ -94,17 +92,20 @@ export default function SettingsScreen({
           description={t('update_profile')}
           onPress={() => navigation.navigate('UserProfile')}
         />
-        {user.parentSuperAccount && <List.Item
-          style={{ paddingHorizontal: 20 }}
-          left={(props) => <IconButton icon={'swap-horizontal'} />}
-          title={t('switch_to_super_user')}
-          right={(props) => switchingAccount && <ActivityIndicator />}
-          onPress={() => {
-            setSwitchingAccount(true);
-            switchAccount(user.parentSuperAccount.superUserId)
-              .finally(() => setSwitchingAccount(false));
-          }}
-        />}
+        {user.parentSuperAccount && (
+          <List.Item
+            style={{ paddingHorizontal: 20 }}
+            left={(props) => <IconButton icon={'swap-horizontal'} />}
+            title={t('switch_to_super_user')}
+            right={(props) => switchingAccount && <ActivityIndicator />}
+            onPress={() => {
+              setSwitchingAccount(true);
+              switchAccount(user.parentSuperAccount.superUserId).finally(() =>
+                setSwitchingAccount(false)
+              );
+            }}
+          />
+        )}
         <List.Item
           style={{ paddingHorizontal: 20 }}
           left={(props) => (
@@ -119,7 +120,7 @@ export default function SettingsScreen({
             if (devMode) {
               setOpenDevInfo(true);
             } else {
-              setVersionPressCount(state => state + 1);
+              setVersionPressCount((state) => state + 1);
             }
           }}
           style={{ paddingHorizontal: 20 }}

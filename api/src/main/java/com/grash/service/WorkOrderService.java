@@ -28,14 +28,10 @@ import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.repository.WorkOrderRepository;
 import com.grash.utils.Helper;
 import com.grash.utils.MultipartFileImpl;
+import com.grash.utils.PdfReportUtils;
+import com.grash.utils.Sanitizer;
 import com.grash.utils.TenantAspectUtils;
 import com.itextpdf.html2pdf.HtmlConverter;
-import com.itextpdf.html2pdf.ConverterProperties;
-import com.itextpdf.html2pdf.attach.ITagWorker;
-import com.itextpdf.html2pdf.attach.ITagWorkerFactory;
-import com.itextpdf.html2pdf.attach.ProcessorContext;
-import com.itextpdf.html2pdf.attach.impl.DefaultTagWorkerFactory;
-import com.itextpdf.styledxmlparser.node.IElementNode;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import jakarta.transaction.Transactional;
@@ -50,22 +46,24 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.context.Context;
-import org.thymeleaf.spring5.SpringTemplateEngine;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.JoinType;
 
 import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.grash.utils.Consts.usageBasedLicenseLimits;
+import static com.grash.utils.Consts.usageBasedFreeLimits;
 
 @Service
 @RequiredArgsConstructor
@@ -127,6 +125,7 @@ public class WorkOrderService {
         }
         workOrder.setCustomId(getWorkOrderNumber(company));
         workOrder.setId(null);
+        Sanitizer.sanitizeWorkOrder(workOrder);
 
         WorkOrder savedWorkOrder = workOrderRepository.saveAndFlush(workOrder);
         em.refresh(savedWorkOrder);
@@ -183,7 +182,7 @@ public class WorkOrderService {
     }
 
     void checkUsageBasedLimit(Company company) {
-        Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS);
+        Integer threshold = usageBasedFreeLimits.get(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS);
         if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS)
                 && workOrderRepository.hasMoreActiveThan(company.getId(), threshold.longValue() - 1
         ))
@@ -204,6 +203,7 @@ public class WorkOrderService {
                     null;
 
             WorkOrder newWorkOrder = workOrderMapper.updateWorkOrder(savedWorkOrder, workOrder);
+            Sanitizer.sanitizeWorkOrder(newWorkOrder);
             if (!workOrder.getCustomFields().isEmpty()) {
                 setWOCustomFields(newWorkOrder, workOrder.getCustomFields(), user.getCompany());
             }
@@ -284,7 +284,7 @@ public class WorkOrderService {
     public WorkOrder checkAccessToWorkOrderId(Long workOrderId, User user) {
         WorkOrder workOrder = findById(workOrderId).orElseThrow(() -> new CustomException("Work Order not found",
                 HttpStatus.NOT_FOUND));
-        if (!workOrder.isAccessibleBy(user))
+        if (!workOrder.canBeViewedBy(user))
             throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         return workOrder;
     }
@@ -392,6 +392,29 @@ public class WorkOrderService {
         searchCriteria.getFilterFields().forEach(builder::with);
         return workOrderRepository.findAll(builder.build(),
                 PageRequest.of(pageNum, pageSize, SearchCriteriaUtils.stableSort(searchCriteria)));
+    }
+
+    public Page<WorkOrder> findBySearchCriteriaWithEntityGraph(SearchCriteria searchCriteria) {
+        SpecificationBuilder<WorkOrder> builder = new SpecificationBuilder<>();
+        searchCriteria.getFilterFields().forEach(builder::with);
+        Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(),
+                searchCriteria.getDirection(), searchCriteria.getSortField());
+        Specification<WorkOrder> baseSpec = builder.build();
+        Specification<WorkOrder> fetchSpec = (root, query, criteriaBuilder) -> {
+            if (query.getResultType() != Long.class && query.getResultType() != long.class) {
+                root.fetch(WorkOrder_.asset, JoinType.LEFT);
+                root.fetch(WorkOrder_.location, JoinType.LEFT);
+                root.fetch(WorkOrder_.category, JoinType.LEFT);
+                root.fetch(WorkOrder_.primaryUser, JoinType.LEFT);
+                root.fetch(WorkOrder_.team, JoinType.LEFT);
+                root.fetch(WorkOrder_.image, JoinType.LEFT);
+                root.fetch(WorkOrder_.completedBy, JoinType.LEFT);
+                root.fetch(WorkOrder_.parentPreventiveMaintenance, JoinType.LEFT);
+                root.fetch(WorkOrder_.parentRequest, JoinType.LEFT);
+            }
+            return baseSpec == null ? null : baseSpec.toPredicate(root, query, criteriaBuilder);
+        };
+        return workOrderRepository.findAll(fetchSpec, page);
     }
 
     public WorkOrder save(WorkOrder workOrder) {
@@ -563,6 +586,7 @@ public class WorkOrderService {
             optionalCustomer.ifPresent(customers::add);
         });
         workOrder.setCustomers(customers);
+        Sanitizer.sanitizeWorkOrder(workOrder);
     }
 
     public Collection<WorkOrder> findByCreatedByAndCreatedAtBetween(Long id, Date date1, Date date2) {
@@ -833,9 +857,17 @@ public class WorkOrderService {
         if (dto.getSignature() != null && !licenseService.hasEntitlement(LicenseEntitlement.SIGNATURE_CAPTURE))
             throw new CustomException("You need a license to add signature to work order",
                     HttpStatus.FORBIDDEN);
+        if (dto.getSignature() != null && !dto.getSignature().trim().isEmpty()
+                && !dto.getSignature().trim().startsWith("data:image/"))
+            throw new CustomException("Invalid signature format",
+                    HttpStatus.BAD_REQUEST);
+        if (dto.getStatus() == Status.COMPLETE && mutableWO.isRequiredSignature()
+                && (dto.getSignature() == null || dto.getSignature().trim().isEmpty()))
+            throw new CustomException("Signature is required to complete this work order",
+                    HttpStatus.BAD_REQUEST);
         mutableWO.setSignature(dto.getSignature());
         mutableWO.setStatus(dto.getStatus());
-        mutableWO.setFeedback(dto.getFeedback());
+        mutableWO.setFeedback(Sanitizer.cleanText(dto.getFeedback()));
 
         if (dto.getStatus() != Status.COMPLETE) {
             mutableWO.setCompletedOn(null);
@@ -917,18 +949,29 @@ public class WorkOrderService {
         } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
     }
 
-    public byte[] generatePdfBytes(WorkOrder savedWorkOrder, User user, ReportConfig config) {
+    public void generatePdfStream(Long id, User user, ReportConfig config, OutputStream outputStream) {
+        Optional<WorkOrder> optionalWorkOrder = findById(id);
+        if (optionalWorkOrder.isPresent()) {
+            WorkOrder savedWorkOrder = optionalWorkOrder.get();
+            if (savedWorkOrder.canBeViewedBy(user)) {
+                generatePdfStream(savedWorkOrder, user, config, outputStream);
+            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    public void generatePdfStream(WorkOrder savedWorkOrder, User user, ReportConfig config, OutputStream outputStream) {
         StorageService storageService = storageServiceFactory.getStorageService();
         Context thymeleafContext = new Context();
         thymeleafContext.setLocale(Helper.getLocale(user));
         Optional<User> creator = savedWorkOrder.getCreatedBy() == null ? Optional.empty() :
                 userService.findById(savedWorkOrder.getCreatedBy());
         List<Task> tasks = taskService.findByWorkOrder(savedWorkOrder.getId());
-        Map<Long, String[]> tasksImagesUrls = tasks.stream()
+        Map<Long, String[]> tasksImagesPaths = tasks.stream()
                 .collect(Collectors.toMap(
                         Task::getId,
                         task -> task.getImages().stream()
-                                .map(image -> storageService.generateSignedUrl(image, 5))
+                                .map(PdfReportUtils::getImageReportStoragePath)
+                                .filter(java.util.Objects::nonNull)
                                 .toArray(String[]::new)
                 ));
         Collection<PartQuantity> partQuantities = config.isCost() ?
@@ -947,21 +990,26 @@ public class WorkOrderService {
                 new CommentCriteria() {{
                     setWorkOrderId(savedWorkOrder.getId());
                 }}, user) : Collections.emptyList();
-        Map<Long, String[]> commentFilesUrls = comments.stream()
+        Map<Long, String[]> commentFilesPaths = comments.stream()
                 .collect(Collectors.toMap(
                         Comment::getId,
                         comment -> comment.getFiles().stream()
-                                .map(file -> storageService.generateSignedUrl(file, 5))
+                                .map(PdfReportUtils::getImageReportStoragePath)
+                                .filter(Objects::nonNull)
                                 .toArray(String[]::new)
                 ));
-        String[] workOrderFilesUrls = config.isFiles() ? savedWorkOrder.getFiles().stream()
-                .map(file -> storageService.generateSignedUrl(file, 5))
+        String[] workOrderFilesPaths = config.isFiles() ? savedWorkOrder.getFiles().stream()
+                .map(PdfReportUtils::getImageReportStoragePath)
+                .filter(Objects::nonNull)
                 .toArray(String[]::new) : new String[0];
+        String reportColor = PdfReportUtils.resolveReportColor(
+                user.getCompany().getCompanySettings().getGeneralPreferences().getColor(),
+                brandingService.getMailBackgroundColor());
         Map<String, Object> variables = new HashMap<String, Object>() {{
             put("companyName", user.getCompany().getName());
             put("companyPhone", user.getCompany().getPhone());
             put("companyLogo", user.getCompany().getLogo() == null ? null :
-                    storageService.generateSignedUrl(user.getCompany().getLogo(), 5));
+                    PdfReportUtils.getImageReportStoragePath(user.getCompany().getLogo()));
             put("currency",
                     user.getCompany().getCompanySettings().getGeneralPreferences().getCurrency().getCode());
             put("dateFormat", user.getCompany().getCompanySettings().getGeneralPreferences().getDateFormat());
@@ -981,49 +1029,38 @@ public class WorkOrderService {
             put("workOrderHistories", workOrderHistories);
             put("partQuantities", partQuantities);
             put("environment", environment);
-            put("tasksImagesUrls", tasksImagesUrls);
+            put("tasksImagesPaths", tasksImagesPaths);
             put("messageSource", messageSource);
             put("locale", Helper.getLocale(user));
-            String companyColor = user.getCompany().getCompanySettings().getGeneralPreferences().getColor();
-            put("backgroundColor", companyColor != null && !companyColor.isBlank() ? companyColor :
-                    brandingService.getMailBackgroundColor()
-            );
             put("reportConfig", config);
             put("comments", comments);
-            put("commentFilesUrls", commentFilesUrls);
-            put("workOrderFilesUrls", workOrderFilesUrls);
-            put("workOrderImageUrl", savedWorkOrder.getImage() == null ? null :
-                    storageService.generateSignedUrl(savedWorkOrder.getImage(), 5));
+            put("commentFilesPaths", commentFilesPaths);
+            put("workOrderFilesPaths", workOrderFilesPaths);
+            put("backgroundColor", reportColor);
+            put("workOrderImagePath", savedWorkOrder.getImage() == null ? null :
+                    PdfReportUtils.getImageReportStoragePath(savedWorkOrder.getImage()));
         }};
         thymeleafContext.setVariables(variables);
 
         String reportHtml = thymeleafTemplateEngine.process("work-order-report.html", thymeleafContext);
 
-        ConverterProperties converterProperties = new ConverterProperties()
-                .setTagWorkerFactory(new ITagWorkerFactory() {
-                    private final DefaultTagWorkerFactory defaultFactory = new DefaultTagWorkerFactory();
-
-                    @Override
-                    public ITagWorker getTagWorker(IElementNode tag, ProcessorContext context) {
-                        try {
-                            return defaultFactory.getTagWorker(tag, context);
-                        } catch (Exception e) {
-                            log.warn("Failed to create tag worker for <{}>: {}", tag.name(), e.getMessage());
-                            return null;
-                        }
-                    }
-                });
-        ByteArrayOutputStream target = new ByteArrayOutputStream();
-        HtmlConverter.convertToPdf(reportHtml, target, converterProperties);
-        return target.toByteArray();
+        HtmlConverter.convertToPdf(reportHtml, outputStream,
+                PdfReportUtils.createReportConverterProperties(storageService::download));
     }
 
+    @Deprecated
+    public byte[] generatePdfBytes(WorkOrder savedWorkOrder, User user, ReportConfig config) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        generatePdfStream(savedWorkOrder, user, config, baos);
+        return baos.toByteArray();
+    }
+
+    @Deprecated
     public String generateReport(Long id, User user, ReportConfig config) {
         Optional<WorkOrder> optionalWorkOrder = findById(id);
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
-            if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS) &&
-                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS) || user.getId().equals(savedWorkOrder.getCreatedBy()) || savedWorkOrder.isAssignedTo(user))) {
+            if (savedWorkOrder.canBeViewedBy(user)) {
                 byte[] bytes = generatePdfBytes(savedWorkOrder, user, config);
                 MultipartFile file = new MultipartFileImpl(bytes, "Work Order Report.pdf");
                 return storageServiceFactory.getStorageService().uploadAndSign(file,
@@ -1038,9 +1075,7 @@ public class WorkOrderService {
         Optional<WorkOrder> optionalWorkOrder = findById(id);
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
-            if (
-                    user.getId().equals(savedWorkOrder.getCreatedBy()) ||
-                            user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.WORK_ORDERS)) {
+            if (savedWorkOrder.canBeDeletedBy(user)) {
                 Map<String, Object> mailVariables = new HashMap<String, Object>() {{
                     put("workOrdersLink", frontendUrl + "/app/work-orders");
                     put("workOrderTitle", savedWorkOrder.getTitle());
@@ -1108,10 +1143,7 @@ public class WorkOrderService {
         }
         WorkOrder savedWorkOrder = optionalWorkOrder.get();
 
-        if (!user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS) ||
-                (!user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS) &&
-                        !user.getId().equals(savedWorkOrder.getCreatedBy()) &&
-                        !savedWorkOrder.isAssignedTo(user))) {
+        if (!savedWorkOrder.canBeViewedBy(user)) {
             throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         }
 

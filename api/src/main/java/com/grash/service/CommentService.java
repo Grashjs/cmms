@@ -11,6 +11,7 @@ import com.grash.model.enums.NotificationType;
 import com.grash.repository.CommentRepository;
 import com.grash.repository.UserRepository;
 import com.grash.utils.Helper;
+import com.grash.utils.Sanitizer;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.validation.Valid;
@@ -47,6 +48,7 @@ public class CommentService {
 
     public Comment create(@Valid CommentPostDTO commentReq, User user) {
         Comment comment = commentMapper.fromPostDto(commentReq);
+        comment.setContent(Sanitizer.cleanText(comment.getContent()));
         WorkOrder workOrder = workOrderService.checkAccessToWorkOrderId(commentReq.getWorkOrder().getId(), user);
 
         comment.setUser(user);
@@ -81,8 +83,10 @@ public class CommentService {
 
         WorkOrder workOrder = savedComment.getWorkOrder();
 
-        Comment updatedComment = commentRepository.saveAndFlush(commentMapper.updateComment(savedComment,
-                commentPatchDTO));
+        Comment updatedComment = commentMapper.updateComment(savedComment, commentPatchDTO);
+        updatedComment.setContent(Sanitizer.cleanText(updatedComment.getContent()));
+        updatedComment = commentRepository.saveAndFlush(updatedComment);
+
         em.refresh(updatedComment);
 
         Set<User> notifiedUsers = getNotifiedUsers(updatedComment, workOrder, user);

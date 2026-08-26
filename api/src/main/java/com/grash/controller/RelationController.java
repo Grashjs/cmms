@@ -47,7 +47,7 @@ public class RelationController {
         User user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
-            if (!optionalWorkOrder.get().isAccessibleBy(user)) {
+            if (!optionalWorkOrder.get().canBeViewedBy(user)) {
                 throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             }
             return relationService.findByWorkOrder(id).stream()

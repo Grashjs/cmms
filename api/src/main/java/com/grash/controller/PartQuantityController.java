@@ -47,7 +47,7 @@ public class PartQuantityController {
         User user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
-            if (!optionalWorkOrder.get().isAccessibleBy(user))
+            if (!optionalWorkOrder.get().canBeViewedBy(user))
                 throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             return partQuantityService.findByWorkOrder(id).stream().map(partQuantityMapper::toShowDto).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -63,6 +63,8 @@ public class PartQuantityController {
         }
         Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrderService.findById(id);
         if (optionalPurchaseOrder.isPresent()) {
+            if (!optionalPurchaseOrder.get().canBeViewedBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             return partQuantityService.findByPurchaseOrder(id).stream().map(partQuantityMapper::toShowDto).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -118,7 +120,7 @@ public class PartQuantityController {
 
         if (optionalPurchaseOrder.isPresent()) {
             PurchaseOrder savedPurchaseOrder = optionalPurchaseOrder.get();
-            if (!user.getRole().getEditOtherPermissions().contains(PermissionEntity.PURCHASE_ORDERS) && !user.getId().equals(savedPurchaseOrder.getCreatedBy())) {
+            if (!savedPurchaseOrder.canBeEditedBy(user)) {
                 throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             }
             Collection<PartQuantity> savedPartQuantities = partQuantityService.findByPurchaseOrder(id);
@@ -163,6 +165,12 @@ public class PartQuantityController {
         Optional<PartQuantity> optionalPartQuantity = partQuantityService.findById(id);
         if (optionalPartQuantity.isPresent()) {
             PartQuantity savedPartQuantity = optionalPartQuantity.get();
+            if (savedPartQuantity.getPurchaseOrder() != null && !savedPartQuantity.getPurchaseOrder().canBeViewedBy(user)) {
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            }
+            if (savedPartQuantity.getWorkOrder() != null && !savedPartQuantity.getWorkOrder().canBeViewedBy(user)) {
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            }
             return partQuantityMapper.toShowDto(savedPartQuantity);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -172,7 +180,12 @@ public class PartQuantityController {
     PartQuantityShowDTO create(@Parameter(description = "Part quantity to create") @Valid @RequestBody PartQuantity partQuantityReq,
                                HttpServletRequest req) {
         User user = userService.whoami(req);
-        //TODO check access
+        if (partQuantityReq.getPurchaseOrder() != null && !purchaseOrderService.findById(partQuantityReq.getPurchaseOrder().getId()).get().canBeEditedBy(user)) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        }
+        if (partQuantityReq.getWorkOrder() != null && !workOrderService.findById(partQuantityReq.getWorkOrder().getId()).get().canBeEditedBy(user)) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        }
         PartQuantity savedPartQuantity = partQuantityService.create(partQuantityReq);
         return partQuantityMapper.toShowDto(savedPartQuantity);
     }
@@ -194,6 +207,12 @@ public class PartQuantityController {
                         partQuantity.getQuantity() - savedPartQuantity.getQuantity(),
                         savedPartQuantity.getWorkOrder(), Helper.getLocale(user), false);
             }
+            if (savedPartQuantity.getPurchaseOrder() != null && !savedPartQuantity.getPurchaseOrder().canBeEditedBy(user)) {
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            }
+            if (savedPartQuantity.getWorkOrder() != null && !savedPartQuantity.getWorkOrder().canBeEditedBy(user)) {
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            }
             PartQuantity patchedPartQuantity = partQuantityService.update(id, partQuantity);
             return partQuantityMapper.toShowDto(patchedPartQuantity);
         } else throw new CustomException("PartQuantity not found", HttpStatus.NOT_FOUND);
@@ -208,9 +227,8 @@ public class PartQuantityController {
         if (optionalPartQuantity.isPresent()) {
             PartQuantity savedPartQuantity = optionalPartQuantity.get();
             boolean isWorkOrderPartQuantity = savedPartQuantity.getWorkOrder() != null;
-            if
-            (user.getId().equals(savedPartQuantity.getCreatedBy())
-                    || (isWorkOrderPartQuantity && savedPartQuantity.getWorkOrder().canBeEditedBy(user)) || user.getRole().getEditOtherPermissions().contains(PermissionEntity.PURCHASE_ORDERS)) {
+            if (isWorkOrderPartQuantity ? savedPartQuantity.getWorkOrder().canBeEditedBy(user) :
+                    savedPartQuantity.getPurchaseOrder().canBeEditedBy(user)) {
                 if (isWorkOrderPartQuantity) {
                     partService.consumePart(savedPartQuantity.getPart().getId(),
                             -savedPartQuantity.getQuantity(),

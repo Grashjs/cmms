@@ -20,6 +20,7 @@ import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.PartRepository;
 import com.grash.utils.AuditComparator;
 import com.grash.utils.Helper;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -37,7 +38,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.grash.utils.Consts.usageBasedLicenseLimits;
+import static com.grash.utils.Consts.usageBasedFreeLimits;
 
 @Service
 @RequiredArgsConstructor
@@ -74,6 +75,7 @@ public class PartService {
                 setPartCustomFields(part, partPostDTO.getCustomFields(), company);
             }
         }
+        Sanitizer.sanitizePart(part);
         Part savedPart = partRepository.saveAndFlush(part);
         em.refresh(savedPart);
         Map<String, Object> webhookPayload = new HashMap<>();
@@ -105,7 +107,9 @@ public class PartService {
             }
             double originalPartQuantity = savedPart.getQuantity();
             Collection<PartField> changedFields = detectPatchDTOChangedFields(savedPart, part);
-            Part patchedPart = partRepository.saveAndFlush(partMapper.updatePart(savedPart, part));
+            Part patchedPart = partMapper.updatePart(savedPart, part);
+            Sanitizer.sanitizePart(patchedPart);
+            patchedPart = partRepository.saveAndFlush(patchedPart);
             em.refresh(patchedPart);
 
             Map<String, Object> webhookPayload = new HashMap<>();
@@ -125,7 +129,7 @@ public class PartService {
     }
 
     private void checkUsageBasedLimit(Company company) {
-        Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_PARTS);
+        Integer threshold = usageBasedFreeLimits.get(LicenseEntitlement.UNLIMITED_PARTS);
         if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_PARTS)
                 && partRepository.hasMoreThan(company.getId(), threshold.longValue() - 1
         ))
@@ -255,16 +259,6 @@ public class PartService {
         return partRepository.saveAll(parts);
     }
 
-    public boolean isPartInCompany(Part part, long companyId, boolean optional) {
-        if (optional) {
-            Optional<Part> optionalPart = part == null ? Optional.empty() : findById(part.getId());
-            return part == null || (optionalPart.isPresent() && optionalPart.get().getCompany().getId().equals(companyId));
-        } else {
-            Optional<Part> optionalPart = findById(part.getId());
-            return optionalPart.isPresent() && optionalPart.get().getCompany().getId().equals(companyId);
-        }
-    }
-
     public Page<PartShowDTO> findBySearchCriteria(SearchCriteria searchCriteria) {
         SpecificationBuilder<Part> builder = new SpecificationBuilder<>();
         searchCriteria.getFilterFields().forEach(builder::with);
@@ -333,6 +327,7 @@ public class PartService {
             optionalVendor.ifPresent(vendors::add);
         });
         part.setVendors(vendors);
+        Sanitizer.sanitizePart(part);
     }
 
     public Optional<Part> findByIdAndCompany(Long id, Long companyId) {

@@ -72,7 +72,7 @@ const slice = createSlice({
 export const reducer = slice.reducer;
 
 export const getApiKeys =
-  ({}, pageable: Pageable): AppThunk =>
+  (criteria: ApiKeyCriteria, pageable: Pageable): AppThunk =>
   async (dispatch) => {
     try {
       dispatch(slice.actions.setLoadingGet({ loading: true }));
@@ -113,6 +113,15 @@ export const deleteApiKey =
     if (success) {
       dispatch(slice.actions.deleteApiKey({ id }));
     }
+  };
+
+export const rotateApiKey =
+  (id: number): AppThunk =>
+  async (dispatch) => {
+    const response = await api.post<ApiKey>(`${basePath}/${id}/rotate`, {});
+    dispatch(slice.actions.deleteApiKey({ id }));
+    dispatch(slice.actions.addApiKey({ apiKey: response }));
+    return response;
   };
 
 export const clearSingleApiKey = (): AppThunk => async (dispatch) => {

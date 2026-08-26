@@ -7,7 +7,7 @@ spring:
     properties:
       hibernate:
         enable_lazy_load_no_trans: true
-        hibernate.default_batch_fetch_size: 64
+        default_batch_fetch_size: 64
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
         id:
@@ -46,6 +46,10 @@ security:
     enabled: false
   rate-limit:
     enabled: false
+  password:
+    min-length: 12
+    max-length: 128
+    check-common-passwords: true
 
 frontend:
   url: http://localhost:3000
@@ -54,9 +58,6 @@ mail:
   recipients: test@example.com
   enable: false
   type: SMTP
-superAdmin:
-  role:
-    name: SuperAdministratorGrash@p;l
 management:
   health:
     mail:
@@ -115,5 +116,13 @@ intercom:
 springdoc:
   api-docs:
     version: openapi_3_1
+    enabled: true
+  packages-to-scan: com.grash.controller
+  pre-loading-enabled: true
+  cache:
+    disabled: false
+  disable-i18n: true
+  enable-default-api-docs: false
   swagger-ui:
     tags-sorter: alpha
+    enabled: false

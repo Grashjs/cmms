@@ -2,46 +2,104 @@ import { apiUrl } from '../config';
 
 type Options = RequestInit & { raw?: boolean; headers?: HeadersInit };
 
-/** Carries the HTTP status so callers can distinguish a rejection from an outage. */
-export class ApiError extends Error {
-  status: number;
+const REFRESH_URL = `${apiUrl}auth/refresh`;
 
-  constructor(message: string, status: number) {
-    super(message);
-    this.name = 'ApiError';
-    this.status = status;
+let refreshPromise: Promise<boolean> | null = null;
+
+function clearTokens(): void {
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
+}
+
+async function performRefresh(): Promise<boolean> {
+  const refreshToken = localStorage.getItem('refreshToken');
+  if (!refreshToken) {
+    return false;
+  }
+  try {
+    const response = await fetch(REFRESH_URL, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ refreshToken })
+    });
+    if (!response.ok) {
+      clearTokens();
+      return false;
+    }
+    const data = await response.json();
+    if (!data?.accessToken) {
+      clearTokens();
+      return false;
+    }
+    localStorage.setItem('accessToken', data.accessToken);
+    if (data.refreshToken) {
+      localStorage.setItem('refreshToken', data.refreshToken);
+    }
+    return true;
+  } catch {
+    clearTokens();
+    return false;
   }
 }
 
-/**
- * True when the request never got a verdict from the application: the server was not
- * reachable (fetch rejects without a status) or answered 5xx. A wrong password is a 4xx.
- */
-export const isServerUnavailable = (error: any): boolean =>
-  typeof error?.status !== 'number' || error.status >= 500;
-function api<T>(url: string, options: Options): Promise<T> {
-  return fetch(url, { headers: authHeader(false), ...options }).then(
-    async (response) => {
-      if (!response.ok) {
-        // The status used to be dropped here, so callers could not tell a rejection from an
-        // unreachable server. A non-JSON body — nginx's 502/503 page while the api boots —
-        // additionally made response.json() throw, replacing the error with a SyntaxError.
-        // The message keeps its old shape for JSON bodies so getErrorMessage() is unaffected.
-        let body: any = null;
-        try {
-          body = await response.json();
-        } catch {
-          body = null;
-        }
-        throw new ApiError(
-          body ? JSON.stringify(body) : `HTTP ${response.status}`,
-          response.status
-        );
+export function refreshAccessToken(): Promise<boolean> {
+  if (!refreshPromise) {
+    refreshPromise = performRefresh().finally(() => {
+      refreshPromise = null;
+    });
+  }
+  return refreshPromise;
+}
+
+function isRefreshRequest(url: string): boolean {
+  return url.replace(/\/+$/, '').endsWith('/auth/refresh');
+}
+
+let onConflictError: (() => void) | null = null;
+
+export function setConflictErrorHandler(handler: () => void): () => void {
+  onConflictError = handler;
+  return () => {
+    onConflictError = null;
+  };
+}
+
+async function doFetch<T>(
+  url: string,
+  options: Options,
+  retried: boolean
+): Promise<T> {
+  const response = await fetch(url, { headers: authHeader(false), ...options });
+  if (!response.ok) {
+    if (response.status === 401 && !retried && !isRefreshRequest(url)) {
+      const refreshed = await refreshAccessToken();
+      if (refreshed) {
+        return doFetch<T>(url, options, true);
       }
-      if (options?.raw) return response as unknown as Promise<T>;
-      return response.json() as Promise<T>;
     }
-  );
+    if (response.status === 409) {
+      if (onConflictError) onConflictError();
+      throw new Error('conflict_error');
+    }
+    let body: any = null;
+    try {
+      body = await response.json();
+    } catch {
+      body = null;
+    }
+    const err = new Error(JSON.stringify(body));
+    (err as any).status = response.status;
+    throw err;
+  }
+  if (options?.raw) return response as unknown as Promise<T>;
+  return response.json() as Promise<T>;
+}
+
+function api<T>(url: string, options: Options): Promise<T> {
+  return doFetch<T>(url, options, false);
 }
 
 function get<T>(url, options?: Options) {
@@ -96,6 +154,23 @@ export const getErrorMessage = (
   } catch {
     return error.message ?? defaultMessage;
   }
+};
+
+export const isNetworkError = (error: any): boolean => {
+  if (!error) return false;
+  if (error instanceof TypeError) return true;
+  // Upstream checks 502 only. Widened to every 5xx: while the api boots, nginx answers
+  // 503, and reporting that as a wrong password is the bug this whole helper exists for.
+  if (typeof error?.status === 'number' && error.status >= 500) return true;
+  const message = String(error?.message ?? '').toLowerCase();
+  return (
+    message.includes('failed to fetch') ||
+    message.includes('networkerror') ||
+    message.includes('network error') ||
+    message.includes('load failed') ||
+    message.includes('connection refused') ||
+    message.includes('err_connection_refused')
+  );
 };
 
 export default { get, patch, post, deletes };

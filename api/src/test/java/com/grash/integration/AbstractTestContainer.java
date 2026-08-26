@@ -1,6 +1,7 @@
 package com.grash.integration;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.parallel.ResourceLock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -12,6 +13,7 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 
 @SpringBootTest
+@ResourceLock("cmms-test-db")
 public abstract class AbstractTestContainer {
     private static volatile PostgreSQLContainer<?> postgresqlContainer;
 
@@ -40,7 +42,7 @@ public abstract class AbstractTestContainer {
     }
 
     @BeforeAll
-    protected static void startContainer() {
+    protected static synchronized void startContainer() {
         PostgreSQLContainer<?> container = getPostgresqlContainer();
         if (!container.isRunning()) {
             container.start();

@@ -33,7 +33,7 @@ function CompanyPlan(props: CompanyPlanProps) {
   const { company, user } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
-  const { t }: { t: any } = useTranslation();
+  const { t, i18n } = useTranslation();
   const dispatch = useDispatch();
   const getLanguage = i18n.language;
   const [loadingBilling, setLoadingBilling] = useState<boolean>(false);
@@ -131,7 +131,10 @@ function CompanyPlan(props: CompanyPlanProps) {
             {...(isCloudVersion
               ? { to: '/app/subscription/plans' }
               : {
-                  href: 'https://www.cmms.corefm.de/pricing?type=selfhosted',
+                  href: getLocalizedHomeUrl(
+                    'pricing?type=selfhosted',
+                    i18n.language
+                  ),
                   target: '_blank',
                   rel: 'noopener noreferrer'
                 })}

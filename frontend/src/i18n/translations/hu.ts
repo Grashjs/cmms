@@ -192,6 +192,8 @@ const locale = {
   no_account_yet: 'Még nincs fiókod?',
   signup_here: 'Regisztrálj itt',
   wrong_credentials: 'Hibás bejelentkezési adatok',
+  server_not_reachable:
+    'A háttérszerver nem elérhető. Megvárhatod, amíg elindul, és újra próbálkozhatsz.',
   lost_password: 'Elfelejtett jelszó?',
   //work-orders
   link_wo: 'Munkarendelés Összekapcsolása',
@@ -830,7 +832,7 @@ const locale = {
   po_emails: 'Beszerzési Rendelés E-mail',
   required_job_title: 'A beosztás mező kötelező',
   required_old_password: 'Add meg a jelenlegi jelszót.',
-  invalid_password: 'A jelszó túl rövid - legalább 8 karakternek kell lennie.',
+  invalid_password: 'A jelszó túl rövid - legalább 12 karakternek kell lennie.',
   required_new_password: 'Nincs jelszó megadva.',
   passwords_must_match: 'A jelszavaknak egyezniük kell',
   password_change_success: 'Jelszó sikeresen módosítva',
@@ -1699,9 +1701,19 @@ const locale = {
   api_key_code: 'API kulcs kód',
   copy_code: 'Kód másolása',
   last_used: 'Utoljára használva',
+  expiration: 'Lejárat',
+  expiration_optional: 'Lejárat (opcionális)',
   never: 'Soha',
   delete_api_key: 'API kulcs törlése',
   delete_api_key_confirm: 'Biztosan törölni szeretné ezt az API kulcsot?',
+  rotate: 'Rotáció',
+  rotate_api_key: 'API kulcs rotálása',
+  rotate_api_key_confirm:
+    'Ez visszavonja a jelenlegi kulcsot és újat generál. A régi kulcs azonnal működésképtelenné válik.',
+  api_key_rotated_success: 'API kulcs sikeresen rotálva',
+  active: 'Aktív',
+  expired: 'Lejárt',
+  revoked: 'Visszavonva',
   upgrade_api:
     'Frissítsen a csomagra az API, csatlakozók és webhookok eléréséhez',
   comments: 'Hozzászólások',

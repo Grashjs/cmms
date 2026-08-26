@@ -42,8 +42,7 @@ public class SubscriptionPlanController {
         User user = userService.whoami(req);
         Optional<SubscriptionPlan> optionalSubscriptionPlan = subscriptionPlanService.findById(id);
         if (optionalSubscriptionPlan.isPresent()) {
-            SubscriptionPlan savedSubscriptionPlan = optionalSubscriptionPlan.get();
-            return savedSubscriptionPlan;
+            return optionalSubscriptionPlan.get();
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 

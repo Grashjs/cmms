@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import jakarta.persistence.EntityManager;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +37,56 @@ public class SubscriptionService {
     private final Scheduler scheduler;
     private final ScheduleRepository scheduleRepository;
 
+    public void upgrade(Collection<Long> usersIds, User user) {
+        if (user.isOwnsCompany()) {
+            int enabledUsersCount =
+                    (int) userRepository.findByCompany_Id(user.getCompany().getId()).stream().filter(User::isEnabledInSubscriptionAndPaid).count();
+            Subscription subscription = user.getCompany().getSubscription();
+            int subscriptionUsersCount = subscription.getUsersCount();
+            if (enabledUsersCount + usersIds.size() <= subscriptionUsersCount) {
+                Collection<User> users = usersIds.stream().map(userId -> findUserInCompany(userId,
+                                user.getCompany().getId()))
+                        .collect(Collectors.toList());
+                if (users.stream().noneMatch(User::isEnabledInSubscription)) {
+                    users.forEach(user1 -> {
+                        user1.setEnabled(true);
+                        user1.setEnabledInSubscription(true);
+                    });
+                    userRepository.saveAll(users);
+                    subscription.setUpgradeNeeded(false);
+                    save(subscription);
+                } else throw new CustomException("There are some already enabled users", HttpStatus.NOT_ACCEPTABLE);
+            } else
+                throw new CustomException("The subscription users count doesn't permit this operation",
+                        HttpStatus.NOT_ACCEPTABLE);
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    public void downgrade(Collection<Long> usersIds, User user) {
+        if (user.isOwnsCompany()) {
+            int enabledUsersCount =
+                    (int) userRepository.findByCompany_Id(user.getCompany().getId()).stream().filter(User::isEnabledInSubscriptionAndPaid).count();
+            Subscription subscription = user.getCompany().getSubscription();
+            int subscriptionUsersCount = user.getCompany().getSubscription().getUsersCount();
+            if (enabledUsersCount - usersIds.size() <= subscriptionUsersCount) {
+                Collection<User> users = usersIds.stream().map(userId -> findUserInCompany(userId,
+                                user.getCompany().getId()))
+                        .filter(user1 -> !user1.isOwnsCompany()).collect(Collectors.toList());
+                if (users.stream().allMatch(User::isEnabledInSubscription)) {
+                    users.forEach(user1 -> {
+                        user1.setEnabled(false);
+                        user1.setEnabledInSubscription(false);
+                    });
+                    userRepository.saveAll(users);
+                    subscription.setDowngradeNeeded(false);
+                    save(subscription);
+                } else throw new CustomException("There are some already disabled users", HttpStatus.NOT_ACCEPTABLE);
+            } else
+                throw new CustomException("The subscription users count doesn't permit this operation",
+                        HttpStatus.NOT_ACCEPTABLE);
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
     public Subscription create(Subscription subscription) {
         Subscription savedSubscription = subscriptionRepository.saveAndFlush(subscription);
         em.refresh(savedSubscription);
@@ -43,26 +94,12 @@ public class SubscriptionService {
         return savedSubscription;
     }
 
-    public Subscription update(Long id, SubscriptionPatchDTO subscriptionPatchDTO) {
-        if (subscriptionRepository.existsById(id)) {
-            Subscription savedSubscription = subscriptionRepository.findById(id).get();
-            Subscription updatedSubscription =
-                    subscriptionRepository.saveAndFlush(subscriptionMapper.updateSubscription(savedSubscription,
-                            subscriptionPatchDTO));
-            em.refresh(updatedSubscription);
-            scheduleEnd(updatedSubscription);
-            return updatedSubscription;
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
-    }
 
     public void save(Subscription subscription) {
         subscriptionRepository.save(subscription);
         scheduleEnd(subscription);
     }
 
-    public Collection<Subscription> getAll() {
-        return subscriptionRepository.findAll();
-    }
 
     public void delete(Long id) {
         try {
@@ -80,10 +117,11 @@ public class SubscriptionService {
     public void scheduleEnd(Subscription subscription) {
         boolean shouldSchedule =
                 !subscription.getSubscriptionPlan().getCode().equals("FREE") && subscription.getEndsOn() != null && subscription.getPaddleSubscriptionId() == null;
+        JobKey jobKey = new JobKey("subscription-end-job-" + subscription.getId(), "subscription-group");
         if (shouldSchedule) {
             try {
                 JobDetail jobDetail = JobBuilder.newJob(SubscriptionEndJob.class)
-                        .withIdentity("subscription-end-job-" + subscription.getId(), "subscription-group")
+                        .withIdentity(jobKey)
                         .usingJobData("subscriptionId", subscription.getId())
                         .build();
 
@@ -99,7 +137,20 @@ public class SubscriptionService {
             } catch (SchedulerException e) {
                 log.error("Error scheduling subscription end job for subscription " + subscription.getId(), e);
             }
+        } else {
+            try {
+                if (scheduler.checkExists(jobKey)) {
+                    scheduler.deleteJob(jobKey);
+                }
+            } catch (SchedulerException e) {
+                log.error("Error removing subscription end job for subscription " + subscription.getId(), e);
+            }
         }
+    }
+
+    private User findUserInCompany(Long userId, Long companyId) {
+        return userRepository.findByIdAndCompany_Id(userId, companyId)
+                .orElseThrow(() -> new CustomException("User not found in company", HttpStatus.NOT_FOUND));
     }
 
     public Optional<Subscription> findByPaddleSubscriptionId(String id) {
@@ -129,8 +180,5 @@ public class SubscriptionService {
         subscriptionRepository.save(subscription);
     }
 
-    public List<Subscription> findPaidAndEnding() {
-        return subscriptionRepository.findPaidAndEnding();
-    }
 }
 

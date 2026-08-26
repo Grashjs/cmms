@@ -291,6 +291,8 @@ const frJSON = {
   no_account_yet: "Vous n'avez pas encore de compte?",
   signup_here: 'Inscrivez-vous ici',
   wrong_credentials: "Informations d'identification erronées fournies",
+  server_not_reachable:
+    "Le serveur principal est inaccessible. Vous pouvez attendre qu'il démarre puis réessayer.",
   lost_password: 'Mot de passe oublié ?',
   register: "S'inscrire",
   //work-orders
@@ -1147,7 +1149,7 @@ const frJSON = {
   required_job_title: 'Le champ Intitulé du poste est obligatoire',
   required_old_password: 'Veuillez fournir le mot de passe actuel.',
   invalid_password:
-    'Le mot de passe est trop court - doit comporter au moins 8 caractères.',
+    'Le mot de passe est trop court - doit comporter au moins 12 caractères.',
   required_new_password: 'Aucun mot de passe fourni.',
   passwords_must_match: 'les mots de passe doivent correspondre',
   password_change_success: 'Le mot de passe a été changé avec succès',
@@ -1947,9 +1949,19 @@ const frJSON = {
   api_key_code: 'Code de la clé API',
   copy_code: 'Copier le code',
   last_used: 'Dernière utilisation',
+  expiration: 'Expiration',
+  expiration_optional: 'Expiration (optionnel)',
   never: 'Jamais',
   delete_api_key: 'Supprimer la clé API',
   delete_api_key_confirm: 'Êtes-vous sûr de vouloir supprimer cette clé API ?',
+  rotate: 'faire une rotation',
+  rotate_api_key: 'faire une rotation de la clé API',
+  rotate_api_key_confirm:
+    "Cela révoquera la clé actuelle et en générera une nouvelle. L'ancienne clé cessera de fonctionner immédiatement.",
+  api_key_rotated_success: 'Clé API générée avec succès',
+  active: 'Actif',
+  expired: 'Expiré',
+  revoked: 'Révoqué',
   upgrade_api:
     "Passez à une version supérieure pour accéder à l'API, aux connecteurs et aux webhooks",
   // Webhooks
@@ -2144,10 +2156,12 @@ const frJSON = {
   custom_message_optional: 'Message personnalisé (optionnel)',
   send_work_order_as_pdf: "Envoyer l'ordre de travail en PDF",
   report_sent_success: 'Rapport envoyé avec succès',
-  trigger_work_order: 'Déclencher l\'ordre de travail',
+  trigger_work_order: "Déclencher l'ordre de travail",
   edit_reading: 'Modifier la lecture',
-  are_you_sure_delete_reading: 'Êtes-vous sûr de vouloir supprimer cette lecture ?',
-  no_custom_fields_found: 'Aucun champ personnalisé trouvé'
+  are_you_sure_delete_reading:
+    'Êtes-vous sûr de vouloir supprimer cette lecture ?',
+  no_custom_fields_found: 'Aucun champ personnalisé trouvé',
+  conflict_retry: "La ressource a été modifiée par une autre requête. Veuillez réessayer dans 5 secondes."
 };
 
 export default frJSON;

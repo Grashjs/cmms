@@ -5,12 +5,7 @@ import com.grash.model.Role;
 import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.utils.Consts;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,7 +28,8 @@ import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class JwtTokenProviderTest {
@@ -62,6 +58,18 @@ class JwtTokenProviderTest {
         assertNotNull(token);
         String extractedUsername = jwtTokenProvider.getUsername(token);
         assertEquals(username, extractedUsername);
+    }
+
+    @Test
+    void computeAccessTokenExpiration_returnsExpirationAfterValidity() {
+        ReflectionTestUtils.setField(jwtTokenProvider, "validityInMilliseconds", 1800000L);
+
+        Date before = new Date(System.currentTimeMillis());
+        Date expiration = jwtTokenProvider.computeAccessTokenExpiration();
+        Date after = new Date(System.currentTimeMillis());
+
+        assertTrue(expiration.getTime() >= before.getTime() + 1800000L);
+        assertTrue(expiration.getTime() <= after.getTime() + 1800000L);
     }
 
     @Nested
@@ -104,6 +112,36 @@ class JwtTokenProviderTest {
                     () -> jwtTokenProvider.getAuthentication(token));
             assertEquals(HttpStatus.UNAUTHORIZED, ex.getHttpStatus());
             assertEquals("User account is disabled", ex.getMessage());
+        }
+
+        @Test
+        void tokenIssuedBeforeSessionInvalidation_isRejected() {
+            String username = "revoked@test.com";
+            String token = jwtTokenProvider.createToken(username, List.of(RoleType.ROLE_CLIENT));
+            User user = createUserWithRole(username, true);
+            user.setSessionInvalidatedAt(new Date(System.currentTimeMillis() + 1000));
+            CustomUserDetail userDetail = CustomUserDetail.builder().user(user).build();
+            when(customUserDetailsService.loadUserByUsername(username)).thenReturn(userDetail);
+
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> jwtTokenProvider.getAuthentication(token));
+            assertEquals(HttpStatus.UNAUTHORIZED, ex.getHttpStatus());
+            assertEquals("Session has been revoked. Please sign in again", ex.getMessage());
+        }
+
+        @Test
+        void tokenIssuedAfterSessionInvalidation_isAccepted() {
+            String username = "revalid@test.com";
+            User user = createUserWithRole(username, true);
+            user.setSessionInvalidatedAt(new Date(System.currentTimeMillis() - 5000));
+            String token = jwtTokenProvider.createToken(username, List.of(RoleType.ROLE_CLIENT));
+            CustomUserDetail userDetail = CustomUserDetail.builder().user(user).build();
+            when(customUserDetailsService.loadUserByUsername(username)).thenReturn(userDetail);
+
+            Authentication auth = jwtTokenProvider.getAuthentication(token);
+
+            assertNotNull(auth);
+            assertTrue(auth.isAuthenticated());
         }
     }
 
@@ -194,7 +232,8 @@ class JwtTokenProviderTest {
 
             CustomException ex = assertThrows(CustomException.class,
                     () -> jwtTokenProvider.validateToken(badToken));
-            assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, ex.getHttpStatus());
+            assertEquals(HttpStatus.UNAUTHORIZED, ex.getHttpStatus());
+            assertEquals("Invalid JWT token", ex.getMessage());
         }
 
         @Test
@@ -205,7 +244,8 @@ class JwtTokenProviderTest {
 
             CustomException ex = assertThrows(CustomException.class,
                     () -> jwtTokenProvider.validateToken(expiredToken));
-            assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, ex.getHttpStatus());
+            assertEquals(HttpStatus.UNAUTHORIZED, ex.getHttpStatus());
+            assertEquals("JWT token has expired", ex.getMessage());
         }
     }
 
@@ -214,17 +254,17 @@ class JwtTokenProviderTest {
 
         @Test
         void tokenSignedWithDifferentKey_throwsCustomException() {
-            SecretKey differentKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+            SecretKey differentKey = Jwts.SIG.HS256.key().build();
             String tamperedToken = Jwts.builder()
-                    .setSubject("hacker@test.com")
-                    .setIssuedAt(new Date())
-                    .setExpiration(new Date(System.currentTimeMillis() + 3600000))
-                    .signWith(differentKey, SignatureAlgorithm.HS256)
+                    .subject("hacker@test.com")
+                    .issuedAt(new Date())
+                    .expiration(new Date(System.currentTimeMillis() + 3600000))
+                    .signWith(differentKey)
                     .compact();
 
             CustomException ex = assertThrows(CustomException.class,
                     () -> jwtTokenProvider.validateToken(tamperedToken));
-            assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, ex.getHttpStatus());
+            assertEquals(HttpStatus.UNAUTHORIZED, ex.getHttpStatus());
         }
     }
 
@@ -261,11 +301,11 @@ class JwtTokenProviderTest {
             String token = jwtTokenProvider.createToken(username, jwtRoles);
 
             SecretKey providerKey = (SecretKey) ReflectionTestUtils.getField(jwtTokenProvider, "key");
-            Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(providerKey)
+            Claims claims = Jwts.parser()
+                    .verifyWith(providerKey)
                     .build()
-                    .parseClaimsJws(token)
-                    .getBody();
+                    .parseSignedClaims(token)
+                    .getPayload();
             List<?> authClaim = (List<?>) claims.get("auth");
             assertNotNull(authClaim);
             assertEquals(2, authClaim.size(),

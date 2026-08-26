@@ -1,5 +1,6 @@
 package com.grash.service;
 
+import com.grash.dto.AuthTokens;
 import com.grash.dto.LdapLoginRequest;
 import com.grash.exception.CustomException;
 import com.grash.model.Company;
@@ -7,7 +8,6 @@ import com.grash.model.Role;
 import com.grash.model.User;
 import com.grash.model.enums.RoleCode;
 import com.grash.repository.UserRepository;
-import com.grash.security.JwtTokenProvider;
 import com.grash.utils.Helper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -37,10 +37,10 @@ public class LdapService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtTokenProvider jwtTokenProvider;
     private final RoleService roleService;
     private final CompanyService companyService;
     private final CacheService cacheService;
+    private final RefreshTokenService refreshTokenService;
 
     @Autowired(required = false)
     private LdapAuthenticationProvider ldapAuthenticationProvider;
@@ -218,7 +218,7 @@ public class LdapService {
     }
 
 
-    public String signinLdap(LdapLoginRequest ldapRequest) {
+    public AuthTokens signinLdap(LdapLoginRequest ldapRequest) {
         try {
             if (ldapAuthenticationProvider == null) {
                 throw new CustomException("LDAP authentication is not enabled", HttpStatus.FORBIDDEN);
@@ -276,8 +276,7 @@ public class LdapService {
 
             user = userRepository.save(user);
             cacheService.putUserInCache(user);
-            return jwtTokenProvider.createToken(user.getEmail(),
-                    Collections.singletonList(user.getRole().getRoleType()));
+            return refreshTokenService.createTokenPair(user);
             // The same trap signin used to have. Spring wraps anything that fails while
             // reaching the directory - an unreachable server, a refused bind, a DNS failure -
             // in InternalAuthenticationServiceException, and that extends

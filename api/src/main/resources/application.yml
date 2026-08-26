@@ -44,7 +44,7 @@ spring:
     properties:
       hibernate:
         enable_lazy_load_no_trans: true
-        hibernate.default_batch_fetch_size: 64
+        default_batch_fetch_size: 64
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
         id:
@@ -79,11 +79,20 @@ security:
   jwt:
     token:
       secret-key: ${JWT_SECRET_KEY}
-      expire-length: 1209600000 # 1000*60*60*24*14
+      expire-length: ${JWT_EXPIRE_LENGTH:1800000} # 1000*60*30 = 30 minutes
+    refresh:
+      expire-length: ${JWT_REFRESH_EXPIRE_LENGTH:604800000} # 1000*60*60*24*7 = 7 days
   invitation-via-email: ${INVITATION_VIA_EMAIL:false}
+  password:
+    min-length: ${PASSWORD_MIN_LENGTH:12}
+    max-length: ${PASSWORD_MAX_LENGTH:128}
+    check-common-passwords: ${PASSWORD_CHECK_COMMON:true}
   recaptcha-secret-key: ${RECAPTCHA_SECRET_KEY:}
   cors:
     enabled: ${ENABLE_CORS:true}
+  trusted-proxies:
+    single-ingress: ${SINGLE_INGRESS:true}
+    ips: ${TRUSTED_PROXY_IPS:}
   rate-limit:
     enabled: ${RATE_LIMIT_ENABLED:true}
     authenticated:
@@ -91,12 +100,22 @@ security:
       short-term-period-minutes: ${RATE_LIMIT_AUTHENTICATED_SHORT_PERIOD:1}
       long-term-requests: ${RATE_LIMIT_AUTHENTICATED_LONG:1000}
       long-term-period-hours: ${RATE_LIMIT_AUTHENTICATED_LONG_PERIOD:1}
+    unauthenticated:
+      short-term-requests: ${RATE_LIMIT_UNAUTHENTICATED_SHORT:20}
+      short-term-period-minutes: ${RATE_LIMIT_UNAUTHENTICATED_SHORT_PERIOD:1}
+      long-term-requests: ${RATE_LIMIT_UNAUTHENTICATED_LONG:80}
+      long-term-period-hours: ${RATE_LIMIT_UNAUTHENTICATED_LONG_PERIOD:1}
     file-upload:
       authenticated:
         short-term-requests: ${RATE_LIMIT_FILE_UPLOAD_AUTH_SHORT:20}
         short-term-period-minutes: ${RATE_LIMIT_FILE_UPLOAD_AUTH_SHORT_PERIOD:1}
         long-term-requests: ${RATE_LIMIT_FILE_UPLOAD_AUTH_LONG:200}
         long-term-period-hours: ${RATE_LIMIT_FILE_UPLOAD_AUTH_LONG_PERIOD:1}
+      bypass:
+        short-term-requests: ${RATE_LIMIT_FILE_UPLOAD_BYPASS_SHORT:2}
+        short-term-period-minutes: ${RATE_LIMIT_FILE_UPLOAD_BYPASS_SHORT_PERIOD:1}
+        long-term-requests: ${RATE_LIMIT_FILE_UPLOAD_BYPASS_LONG:4}
+        long-term-period-hours: ${RATE_LIMIT_FILE_UPLOAD_BYPASS_LONG_PERIOD:24}
 frontend:
   url: ${PUBLIC_FRONT_URL}
   home-url: ${PUBLIC_HOME_URL:}
@@ -104,9 +123,6 @@ mail:
   recipients: ${MAIL_RECIPIENTS}
   enable: ${ENABLE_EMAIL_NOTIFICATIONS:false}
   type: ${MAIL_TYPE:SMTP}
-superAdmin:
-  role:
-    name: SuperAdministratorGrash@p;l
 management:
   health:
     mail:
@@ -148,6 +164,8 @@ oauth2:
   success-redirect-url: ${PUBLIC_FRONT_URL}/oauth2/success
   failure-redirect-url: ${PUBLIC_FRONT_URL}/oauth2/failure
   provider: ${OAUTH2_PROVIDER:}
+  client-id: ${OAUTH2_CLIENT_ID:}
+  client-secret: ${OAUTH2_CLIENT_SECRET:}
 license-key: ${LICENSE_KEY:}
 license-fingerprint-required: ${LICENSE_FINGERPRINT_REQUIRED:true}
 license-file-path: ${LICENSE_FILE_PATH:}
@@ -218,5 +236,17 @@ intercom:
 springdoc:
   api-docs:
     version: openapi_3_1
+    enabled: true
+  packages-to-scan: com.grash.controller
+  pre-loading-enabled: true
+  cache:
+    disabled: false
+  disable-i18n: true
+  enable-default-api-docs: false
   swagger-ui:
     tags-sorter: alpha
+    enabled: false
+#logging:
+#  level:
+#    org.springdoc: DEBUG
+#    io.swagger.v3: DEBUG

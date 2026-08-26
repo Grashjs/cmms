@@ -48,20 +48,18 @@ public class MeterCategoryController {
     @PreAuthorize("permitAll()")
     public MeterCategory getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
-        if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
-            Optional<MeterCategory> optionalMeterCategory = meterCategoryService.findById(id);
-            if (optionalMeterCategory.isPresent()) {
-                MeterCategory savedMeterCategory = optionalMeterCategory.get();
-                return savedMeterCategory;
-            } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
-        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
-
+        Optional<MeterCategory> optionalMeterCategory = meterCategoryService.findById(id);
+        if (optionalMeterCategory.isPresent()) {
+            if (!optionalMeterCategory.get().canBeViewedBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return meterCategoryService.findById(id).get();
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    MeterCategory create(@Parameter(description = "Meter category to create") @Valid @RequestBody MeterCategory meterCategoryReq,
-                         HttpServletRequest req) {
+    public MeterCategory create(@Parameter(description = "Meter category to create") @Valid @RequestBody MeterCategory meterCategoryReq,
+                                HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
             return meterCategoryService.create(meterCategoryReq, user);
@@ -75,14 +73,13 @@ public class MeterCategoryController {
                                HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<MeterCategory> optionalMeterCategory = meterCategoryService.findById(id);
-        if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
-
-            if (optionalMeterCategory.isPresent()) {
-                MeterCategory savedMeterCategory = optionalMeterCategory.get();
-                return meterCategoryService.update(id, meterCategory);
-            } else throw new CustomException("MeterCategory not found", HttpStatus.NOT_FOUND);
-        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
-
+        if (optionalMeterCategory.isPresent()) {
+            if (!optionalMeterCategory.get().canBeEditedBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return meterCategoryService.update(id, meterCategory);
+        } else {
+            throw new CustomException("Category not found", HttpStatus.NOT_FOUND);
+        }
     }
 
     @DeleteMapping("/{id}")
@@ -92,8 +89,7 @@ public class MeterCategoryController {
 
         Optional<MeterCategory> optionalMeterCategory = meterCategoryService.findById(id);
         if (optionalMeterCategory.isPresent()) {
-            MeterCategory savedMeterCategory = optionalMeterCategory.get();
-            if (user.getId().equals(savedMeterCategory.getCreatedBy()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.CATEGORIES)) {
+            if (optionalMeterCategory.get().canBeDeletedBy(user)) {
                 meterCategoryService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

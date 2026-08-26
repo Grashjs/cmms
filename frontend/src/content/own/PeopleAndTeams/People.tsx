@@ -254,7 +254,7 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
           <Form
             fields={getFields()}
             validation={Yup.object().shape({
-              password: Yup.string().min(8, t('invalid_password')).nullable()
+              password: Yup.string().min(12, t('invalid_password')).nullable()
             })}
             submitText={t('save')}
             values={{

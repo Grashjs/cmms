@@ -99,8 +99,7 @@ public class UserController {
 
         if (optionalUser.isPresent()) {
             User savedUser = optionalUser.get();
-            if (requester.getId().equals(savedUser.getId()) ||
-                    requester.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
+            if (savedUser.canBeEditedBy(requester)) {
                 return userMapper.toResponseDto(userService.update(id, userReq));
             } else {
                 throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
@@ -117,7 +116,7 @@ public class UserController {
         Optional<User> optionalUser = userService.findByIdAndCompany(id, user.getCompany().getId());
         if (optionalUser.isPresent()) {
             User savedUser = optionalUser.get();
-            if (user.getCompany().getId().equals(savedUser.getCompany().getId())) {
+            if (savedUser.canBeViewedBy(user)) {
                 return userMapper.toResponseDtoWithShift(savedUser);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);

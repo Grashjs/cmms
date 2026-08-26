@@ -11,6 +11,7 @@ import com.grash.model.enums.CustomFieldEntityType;
 import com.grash.model.enums.CustomFieldType;
 import com.grash.repository.AssetCategoryRepository;
 import com.grash.repository.CustomFieldRepository;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,11 +32,13 @@ public class CustomFieldService {
     private final AssetCategoryRepository assetCategoryRepository;
 
     public CustomField create(CustomField customField) {
+        Sanitizer.sanitizeCustomField(customField);
         return customFieldRepository.save(customField);
     }
 
     public CustomField create(CustomFieldPostDTO dto, CompanySettings companySettings) {
         CustomField field = customFieldMapper.toModel(dto);
+        Sanitizer.sanitizeCustomField(field);
         field.setCompanySettings(companySettings);
         field.setOrder(customFieldRepository.countByCompanySettings_IdAndEntityType(companySettings.getId(),
                 field.getEntityType()));
@@ -53,6 +56,7 @@ public class CustomFieldService {
                 patched.setAssetCategories(
                         resolveAssetCategories(customFieldPatchDTO.getAssetCategoryIds(), patched));
             }
+            Sanitizer.sanitizeCustomField(patched);
             return customFieldRepository.save(patched);
         } else throw new CustomException("Custom field not found", HttpStatus.NOT_FOUND);
     }

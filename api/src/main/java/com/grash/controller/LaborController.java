@@ -43,7 +43,7 @@ public class LaborController {
         Optional<Labor> optionalLabor = laborService.findById(id);
         if (optionalLabor.isPresent()) {
             Labor savedLabor = optionalLabor.get();
-            if (savedLabor.getWorkOrder().isAccessibleBy(user)) {
+            if (savedLabor.getWorkOrder().canBeViewedBy(user)) {
                 return savedLabor;
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -56,7 +56,7 @@ public class LaborController {
         User user = userService.whoami(req);
         Optional<WorkOrder> optionalWorkOrder = workOrderService.findById(id);
         if (optionalWorkOrder.isPresent()) {
-            if (!optionalWorkOrder.get().isAccessibleBy(user))
+            if (!optionalWorkOrder.get().canBeViewedBy(user))
                 throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             return laborService.findByWorkOrder(id);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);

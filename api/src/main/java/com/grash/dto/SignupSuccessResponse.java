@@ -12,10 +12,14 @@ import lombok.NoArgsConstructor;
 public class SignupSuccessResponse<T> {
     @Schema(description = "Whether the signup was successful")
     private boolean success;
-    
+
     @Schema(description = "Response message")
     private String message;
-    
+
     @Schema(description = "User data")
     private T user;
+
+    @Schema(description = "Opaque refresh token issued during automatic login")
+    private String refreshToken;
+
 }

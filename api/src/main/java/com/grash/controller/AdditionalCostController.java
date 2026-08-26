@@ -113,7 +113,7 @@ public class AdditionalCostController {
 
     private void checkAccessToWorkOrder(WorkOrder workOrder, User user, boolean view) {
         Long workOrderCompanyId = workOrder.getCompany().getId();
-        if (!(view ? workOrder.isAccessibleBy(user) : workOrder.canBeEditedBy(user)) || (!workOrderCompanyId.equals(user.getCompany().getId()) && user.getSuperAccountRelations().stream()
+        if (!(view ? workOrder.canBeViewedBy(user) : workOrder.canBeEditedBy(user)) || (!workOrderCompanyId.equals(user.getCompany().getId()) && user.getSuperAccountRelations().stream()
                 .noneMatch(superAccountRelation -> superAccountRelation.getChildUser().getCompany()
                         .getId().equals(workOrderCompanyId)))) {
             throw new CustomException("Access denied", HttpStatus.FORBIDDEN);

@@ -11,17 +11,6 @@ const getRuntimeValue = (
   return envValue || runtimeValue || defaultValue;
 };
 
-export const firebaseConfig = {
-  apiKey: getRuntimeValue('API_KEY'),
-  authDomain: getRuntimeValue('AUTH_DOMAIN'),
-  databaseURL: getRuntimeValue('DATABASE_URL'),
-  projectId: getRuntimeValue('PROJECT_ID'),
-  storageBucket: getRuntimeValue('STORAGE_BUCKET'),
-  messagingSenderId: getRuntimeValue('MESSAGING_SENDER_ID'),
-  appId: getRuntimeValue('ID'),
-  measurementId: getRuntimeValue('MEASUREMENT_ID')
-};
-
 export const googleMapsConfig = {
   apiKey: getRuntimeValue('GOOGLE_KEY')
 };

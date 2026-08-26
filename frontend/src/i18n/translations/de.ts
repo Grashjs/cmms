@@ -190,7 +190,7 @@ const deJSON = {
   no_account_yet: 'Noch kein Konto?',
   signup_here: 'Hier registrieren',
   wrong_credentials: 'Falsche Anmeldedaten angegeben',
-  server_unavailable:
+  server_not_reachable:
     'Der Server ist gerade nicht erreichbar. Das liegt nicht am Passwort — bitte in einem Moment erneut versuchen.',
   lost_password: 'Passwort vergessen?',
   //work-orders
@@ -1083,7 +1083,7 @@ const deJSON = {
   required_job_title: 'Das Feld für die Berufsbezeichnung ist erforderlich',
   required_old_password: 'Bitte geben Sie das aktuelle Passwort ein.',
   invalid_password:
-    'Passwort ist zu kurz - sollte mindestens 8 Zeichen lang sein.',
+    'Passwort ist zu kurz - sollte mindestens 12 Zeichen lang sein.',
   required_new_password: 'Kein Passwort angegeben.',
   passwords_must_match: 'Passwörter müssen übereinstimmen',
   password_change_success: 'Passwort erfolgreich geändert',
@@ -1887,10 +1887,20 @@ const deJSON = {
   api_key_code: 'API-Schlüsselcode',
   copy_code: 'Code kopieren',
   last_used: 'Zuletzt verwendet',
+  expiration: 'Ablaufdatum',
+  expiration_optional: 'Ablaufdatum (optional)',
   never: 'Nie',
   delete_api_key: 'API-Schlüssel löschen',
   delete_api_key_confirm:
     'Sind Sie sicher, dass Sie diesen API-Schlüssel löschen möchten?',
+  rotate: 'Drehen',
+  rotate_api_key: 'API-Schlüssel drehen',
+  rotate_api_key_confirm:
+    'Dadurch wird der aktuelle Schlüssel widerrufen und ein neuer generiert. Der alte Schlüssel hört sofort auf zu funktionieren.',
+  api_key_rotated_success: 'API-Schlüssel erfolgreich gedreht',
+  active: 'Aktiv',
+  expired: 'Abgelaufen',
+  revoked: 'Widerrufen',
   upgrade_api:
     'Upgrade durchführen, um Zugriff auf API, Konnektoren und Webhooks zu erhalten',
   // Webhooks

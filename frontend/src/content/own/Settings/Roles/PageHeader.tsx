@@ -34,7 +34,7 @@ interface PageHeaderProps {
 
 function PageHeader({ rolesNumber, formatValues }: PageHeaderProps) {
   const { t }: { t: any } = useTranslation();
-  const { hasFeature } = useAuth();
+  const { hasFeature, user } = useAuth();
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   const { showSnackBar } = useContext(CustomSnackBarContext);
@@ -125,7 +125,9 @@ function PageHeader({ rolesNumber, formatValues }: PageHeaderProps) {
               Object.values(PermissionEntity).flatMap((entity) =>
                 permissionRoots.map((root) => [
                   `${root}_${entity}`,
-                  defaultPermissions[root].includes(entity)
+                  user?.role?.code === 'ADMIN'
+                    ? defaultPermissions[root].includes(entity)
+                    : (user?.role?.[root]?.includes(entity) ?? false)
                 ])
               )
             ),

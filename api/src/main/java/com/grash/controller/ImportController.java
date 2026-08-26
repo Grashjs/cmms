@@ -40,8 +40,6 @@ public class ImportController {
 
     private final UserService userService;
     private final AsyncImportService asyncImportService;
-    private final IntercomService intercomService;
-    private final CompanyService companyService;
 
     @PostMapping("/work-orders")
     @PreAuthorize("hasRole('ROLE_CLIENT')")

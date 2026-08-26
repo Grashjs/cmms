@@ -189,6 +189,8 @@ const locale = {
   no_account_yet: 'Heeft u nog geen account?',
   signup_here: 'Registreer hier',
   wrong_credentials: 'Onjuiste inloggegevens opgegeven',
+  server_not_reachable:
+    'De backend-server is niet bereikbaar. U kunt wachten tot deze is gestart en het opnieuw proberen.',
   lost_password: 'Wachtwoord vergeten?',
   //work-orders
   link_wo: 'Werkorders koppelen',
@@ -1025,7 +1027,7 @@ const locale = {
   po_emails: 'E-mails voor inkooporders',
   required_job_title: 'Het veld Functietitel is verplicht',
   required_old_password: 'Geef het huidige wachtwoord op.',
-  invalid_password: 'Wachtwoord is te kort - moet minimaal 8 tekens bevatten.',
+  invalid_password: 'Wachtwoord is te kort - moet minimaal 12 tekens bevatten.',
   required_new_password: 'Geen wachtwoord opgegeven.',
   passwords_must_match: 'Wachtwoorden moeten overeenkomen',
   password_change_success: 'Wachtwoord succesvol gewijzigd',
@@ -1842,10 +1844,20 @@ const locale = {
   api_key_code: 'API-sleutelcode',
   copy_code: 'Code kopiëren',
   last_used: 'Laatst gebruikt',
+  expiration: 'Vervaldatum',
+  expiration_optional: 'Vervaldatum (optioneel)',
   never: 'Nooit',
   delete_api_key: 'API-sleutel verwijderen',
   delete_api_key_confirm:
     'Weet je zeker dat je deze API-sleutel wilt verwijderen?',
+  rotate: 'Draaien',
+  rotate_api_key: 'API-sleutel draaien',
+  rotate_api_key_confirm:
+    'Dit zal de huidige sleutel intrekken en een nieuwe genereren. De oude sleutel stopt onmiddellijk met werken.',
+  api_key_rotated_success: 'API-sleutel succesvol gedraaid',
+  active: 'Actief',
+  expired: 'Verlopen',
+  revoked: 'Ingetrokken',
   upgrade_api: 'Upgrade om toegang te krijgen tot API, connectors en webhooks',
   comments: 'Opmerkingen',
   add_comment_placeholder: 'Voeg een opmerking toe...',

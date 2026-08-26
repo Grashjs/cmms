@@ -7,6 +7,7 @@ import com.grash.model.CompanySettings;
 import com.grash.model.PartCategory;
 import com.grash.model.User;
 import com.grash.repository.PartCategoryRepository;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ public class PartCategoryService {
     private final PartCategoryMapper partCategoryMapper;
 
     public PartCategory create(PartCategory partCategory, User user) {
+        Sanitizer.sanitizeCategory(partCategory);
         Optional<PartCategory> categoryWithSameName = partCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(
                 partCategory.getName(), user.getCompany().getCompanySettings().getId());
         if (categoryWithSameName.isPresent()) {
@@ -33,7 +35,9 @@ public class PartCategoryService {
     public PartCategory update(Long id, CategoryPatchDTO partCategory) {
         if (partCategoryRepository.existsById(id)) {
             PartCategory savedPartCategory = partCategoryRepository.findById(id).get();
-            return partCategoryRepository.save(partCategoryMapper.updatePartCategory(savedPartCategory, partCategory));
+            PartCategory updatedPartCategory = partCategoryMapper.updatePartCategory(savedPartCategory, partCategory);
+            Sanitizer.sanitizeCategory(updatedPartCategory);
+            return partCategoryRepository.save(updatedPartCategory);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -58,7 +62,8 @@ public class PartCategoryService {
     }
 
     public PartCategory getOrCreate(String name, CompanySettings companySettings) {
-        return partCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(name, companySettings.getId())
-                .orElseGet(() -> partCategoryRepository.save(new PartCategory(name, companySettings)));
+        String cleanName = Sanitizer.cleanText(name);
+        return partCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(cleanName, companySettings.getId())
+                .orElseGet(() -> partCategoryRepository.save(new PartCategory(cleanName, companySettings)));
     }
 }

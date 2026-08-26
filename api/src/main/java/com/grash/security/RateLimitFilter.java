@@ -1,5 +1,6 @@
 package com.grash.security;
 
+import com.grash.exception.CustomException;
 import com.grash.service.RateLimiterService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -7,6 +8,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -25,11 +28,12 @@ import java.io.IOException;
 public class RateLimitFilter extends OncePerRequestFilter {
 
     private final RateLimiterService rateLimiterService;
+    private final ClientIpResolver clientIpResolver;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NotNull HttpServletRequest request,
+                                    @NotNull HttpServletResponse response,
+                                    @NotNull FilterChain filterChain) throws ServletException, IOException {
         // Skip rate limiting if disabled
         if (!rateLimiterService.isRateLimitEnabled()) {
             filterChain.doFilter(request, response);
@@ -39,24 +43,33 @@ public class RateLimitFilter extends OncePerRequestFilter {
         // Get the current authentication
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        // Only apply rate limiting to authenticated users
-        if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof CustomUserDetail) {
-            CustomUserDetail userDetail = (CustomUserDetail) authentication.getPrincipal();
+        if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof CustomUserDetail userDetail) {
             Long userId = userDetail.getUser().getId();
             String userIdKey = "user:" + userId;
 
             // Check rate limit
             if (!rateLimiterService.resolveAuthenticatedUserBucket(userIdKey).tryConsume(1)) {
                 log.warn("Rate limit exceeded for user ID: {}", userId);
-                response.setStatus(429); // HTTP 429 Too Many Requests
-                response.setContentType("application/json");
-                response.setCharacterEncoding("UTF-8");
-                response.getWriter().write("{\"error\":\"Rate limit exceeded\",\"message\":\"Too many requests. Please try again later.\"}");
+                setResponseTooManyRequests(response);
+                return;
+            }
+        } else {
+            String clientIp = clientIpResolver.resolve(request);
+            if (!rateLimiterService.resolveUnAuthenticatedUserBucket(clientIp).tryConsume(1)) {
+                setResponseTooManyRequests(response);
                 return;
             }
         }
 
         // Continue the filter chain
         filterChain.doFilter(request, response);
+    }
+
+    private static void setResponseTooManyRequests(@NotNull HttpServletResponse response) throws IOException {
+        response.setStatus(429); // HTTP 429 Too Many Requests
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write("{\"error\":\"Rate limit exceeded\",\"message\":\"Too many requests. " +
+                "Please try again later.\"}");
     }
 }

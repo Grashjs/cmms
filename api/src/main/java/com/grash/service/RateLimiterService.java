@@ -1,6 +1,7 @@
 package com.grash.service;
 
 import io.github.bucket4j.Bandwidth;
+import io.github.bucket4j.BlockingBucket;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Refill;
 import lombok.Getter;
@@ -18,7 +19,9 @@ public class RateLimiterService {
     private final ConcurrentMap<String, Bucket> fileUploadCache = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, Bucket> publicMiniCache = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, Bucket> authenticatedUserCache = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, Bucket> unAuthenticatedUserCache = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, Bucket> fileUploadAuthenticatedCache = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, Bucket> fileUploadBypassCache = new ConcurrentHashMap<>();
 
     /**
      * -- GETTER --
@@ -40,6 +43,18 @@ public class RateLimiterService {
     @Value("${security.rate-limit.authenticated.long-term-period-hours:1}")
     private int authenticatedLongTermPeriodHours;
 
+    @Value("${security.rate-limit.unauthenticated.short-term-requests:20}")
+    private int unauthenticatedShortTermRequests;
+
+    @Value("${security.rate-limit.unauthenticated.short-term-period-minutes:1}")
+    private int unauthenticatedShortTermPeriodMinutes;
+
+    @Value("${security.rate-limit.unauthenticated.long-term-requests:80}")
+    private int unauthenticatedLongTermRequests;
+
+    @Value("${security.rate-limit.unauthenticated.long-term-period-hours:1}")
+    private int unauthenticatedLongTermPeriodHours;
+
     @Value("${security.rate-limit.file-upload.authenticated.short-term-requests:20}")
     private int fileUploadAuthShortTermRequests;
 
@@ -52,6 +67,19 @@ public class RateLimiterService {
     @Value("${security.rate-limit.file-upload.authenticated.long-term-period-hours:1}")
     private int fileUploadAuthLongTermPeriodHours;
 
+    @Value("${security.rate-limit.file-upload.bypass.short-term-requests:2}")
+    private int fileUploadBypassShortTermRequests;
+
+    @Value("${security.rate-limit.file-upload.bypass.short-term-period-minutes:1}")
+    private int fileUploadBypassShortTermPeriodMinutes;
+
+    @Value("${security.rate-limit.file-upload.bypass.long-term-requests:4}")
+    private int fileUploadBypassLongTermRequests;
+
+    @Value("${security.rate-limit.file-upload.bypass.long-term-period-hours:24}")
+    private int fileUploadBypassLongTermPeriodHours;
+
+
     public Bucket resolveDemoBucket(String key) {
         return demoCache.computeIfAbsent(key, this::newDemoBucket);
     }
@@ -62,6 +90,15 @@ public class RateLimiterService {
 
     public Bucket resolveFileUploadAuthenticatedBucket(String key) {
         return fileUploadAuthenticatedCache.computeIfAbsent(key, this::newFileUploadAuthenticatedBucket);
+    }
+
+    public Bucket resolveFileUploadBypassBucket(String key) {
+        return fileUploadBypassCache.computeIfAbsent(key, this::newFileUploadBypassBucket);
+    }
+
+    public boolean tryConsumeFileUpload(String key, boolean bypass) {
+        Bucket bucket = bypass ? resolveFileUploadBypassBucket(key) : resolveFileUploadAuthenticatedBucket(key);
+        return bucket.tryConsume(1);
     }
 
     public Bucket resolvePublicMiniBucket(String key) {
@@ -111,6 +148,24 @@ public class RateLimiterService {
                 .build();
     }
 
+    private Bucket newFileUploadBypassBucket(String key) {
+        Bandwidth shortTerm = Bandwidth.classic(
+                fileUploadBypassShortTermRequests,
+                Refill.greedy(fileUploadBypassShortTermRequests,
+                        Duration.ofMinutes(fileUploadBypassShortTermPeriodMinutes))
+        );
+
+        Bandwidth longTerm = Bandwidth.classic(
+                fileUploadBypassLongTermRequests,
+                Refill.greedy(fileUploadBypassLongTermRequests, Duration.ofHours(fileUploadBypassLongTermPeriodHours))
+        );
+
+        return Bucket.builder()
+                .addLimit(shortTerm)
+                .addLimit(longTerm)
+                .build();
+    }
+
     private Bucket newPublicMiniBucket(String key) {
         // 3 requests per minute
         Bandwidth thirtyPerMinute = Bandwidth.classic(10, Refill.greedy(10, Duration.ofMinutes(1)));
@@ -142,6 +197,28 @@ public class RateLimiterService {
         Bandwidth longTerm = Bandwidth.classic(
                 authenticatedLongTermRequests,
                 Refill.greedy(authenticatedLongTermRequests, Duration.ofHours(authenticatedLongTermPeriodHours))
+        );
+
+        return Bucket.builder()
+                .addLimit(shortTerm)
+                .addLimit(longTerm)
+                .build();
+    }
+
+    public Bucket resolveUnAuthenticatedUserBucket(String clientIp) {
+        return unAuthenticatedUserCache.computeIfAbsent(clientIp, this::newUnAuthenticatedUserBucket);
+    }
+
+    private Bucket newUnAuthenticatedUserBucket(String key) {
+        Bandwidth shortTerm = Bandwidth.classic(
+                unauthenticatedShortTermRequests,
+                Refill.greedy(unauthenticatedShortTermRequests,
+                        Duration.ofMinutes(unauthenticatedShortTermPeriodMinutes))
+        );
+
+        Bandwidth longTerm = Bandwidth.classic(
+                unauthenticatedLongTermRequests,
+                Refill.greedy(unauthenticatedLongTermRequests, Duration.ofHours(unauthenticatedLongTermPeriodHours))
         );
 
         return Bucket.builder()

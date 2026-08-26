@@ -1,5 +1,5 @@
 import * as FileSystem from 'expo-file-system';
-import { Linking, Platform, Alert, PermissionsAndroid } from 'react-native';
+import { Linking } from 'react-native';
 
 export const downloadFile = async (
   uri: string,

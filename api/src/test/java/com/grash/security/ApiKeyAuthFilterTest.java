@@ -1,6 +1,6 @@
 package com.grash.security;
 
-import com.grash.exception.CustomException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grash.model.ApiKey;
 import com.grash.model.Company;
 import com.grash.model.Role;
@@ -13,8 +13,10 @@ import com.grash.repository.ApiKeyRepository;
 import com.grash.service.LicenseService;
 import com.grash.utils.Helper;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,7 +24,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
-import java.security.NoSuchAlgorithmException;
+import java.io.ByteArrayOutputStream;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -48,8 +51,34 @@ class ApiKeyAuthFilterTest {
     @Mock
     private FilterChain filterChain;
 
+    @Mock
+    private ObjectMapper objectMapper;
+
     @InjectMocks
     private ApiKeyAuthFilter filter;
+
+    private ByteArrayOutputStream responseOutputStream;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        responseOutputStream = new ByteArrayOutputStream();
+        ServletOutputStream servletOutputStream = new ServletOutputStream() {
+            @Override
+            public boolean isReady() {
+                return true;
+            }
+
+            @Override
+            public void setWriteListener(jakarta.servlet.WriteListener listener) {
+            }
+
+            @Override
+            public void write(int b) {
+                responseOutputStream.write(b);
+            }
+        };
+        lenient().when(response.getOutputStream()).thenReturn(servletOutputStream);
+    }
 
     private User createUserWithAccess() {
         Role role = new Role();
@@ -67,6 +96,7 @@ class ApiKeyAuthFilterTest {
         user.setId(1L);
         user.setEmail("api@test.com");
         user.setRole(role);
+        user.setEnabled(true);
         user.setCompany(company);
         return user;
     }
@@ -87,6 +117,7 @@ class ApiKeyAuthFilterTest {
         filter.doFilterInternal(request, response, filterChain);
 
         verify(filterChain).doFilter(request, response);
+        verify(response, never()).setStatus(anyInt());
     }
 
     @Test
@@ -98,6 +129,7 @@ class ApiKeyAuthFilterTest {
         filter.doFilterInternal(request, response, filterChain);
 
         verify(filterChain).doFilter(request, response);
+        verify(response, never()).setStatus(anyInt());
     }
 
     @Test
@@ -113,6 +145,7 @@ class ApiKeyAuthFilterTest {
 
         verify(apiKeyRepository).updateLastUsed(eq(1L), any());
         verify(filterChain).doFilter(request, response);
+        verify(response, never()).setStatus(anyInt());
     }
 
     @Test
@@ -132,7 +165,7 @@ class ApiKeyAuthFilterTest {
     }
 
     @Test
-    void validApiKeyWithoutEntitlement_throwsCustomException() throws Exception {
+    void validApiKeyWithoutEntitlement_returns403_andStopsChain() throws Exception {
         String rawKey = "no-entitlement-key";
         User user = createUserWithAccess();
         ApiKey apiKey = createApiKey(user);
@@ -140,14 +173,14 @@ class ApiKeyAuthFilterTest {
         when(apiKeyRepository.findByCode(Helper.hashKey(rawKey))).thenReturn(Optional.of(apiKey));
         when(licenseService.hasEntitlement(any())).thenReturn(false);
 
-        CustomException ex = assertThrows(CustomException.class,
-                () -> filter.doFilterInternal(request, response, filterChain));
-        assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
-        assertEquals("Access denied", ex.getMessage());
+        filter.doFilterInternal(request, response, filterChain);
+
+        verify(response).setStatus(HttpStatus.FORBIDDEN.value());
+        verify(filterChain, never()).doFilter(request, response);
     }
 
     @Test
-    void validApiKeyWithoutPlanFeature_throwsCustomException() throws Exception {
+    void validApiKeyWithoutPlanFeature_returns403_andStopsChain() throws Exception {
         String rawKey = "no-feature-key";
         User user = createUserWithAccess();
         user.getCompany().getSubscription().getSubscriptionPlan().setFeatures(new HashSet<>());
@@ -156,8 +189,92 @@ class ApiKeyAuthFilterTest {
         when(apiKeyRepository.findByCode(Helper.hashKey(rawKey))).thenReturn(Optional.of(apiKey));
         when(licenseService.hasEntitlement(any())).thenReturn(true);
 
-        CustomException ex = assertThrows(CustomException.class,
-                () -> filter.doFilterInternal(request, response, filterChain));
-        assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
+        filter.doFilterInternal(request, response, filterChain);
+
+        verify(response).setStatus(HttpStatus.FORBIDDEN.value());
+        verify(filterChain, never()).doFilter(request, response);
+    }
+
+    @Test
+    void disabledUser_returns401_andStopsChain() throws Exception {
+        String rawKey = "disabled-user-key";
+        User user = createUserWithAccess();
+        user.setEnabled(false);
+        ApiKey apiKey = createApiKey(user);
+        when(request.getHeader("x-api-key")).thenReturn(rawKey);
+        when(apiKeyRepository.findByCode(Helper.hashKey(rawKey))).thenReturn(Optional.of(apiKey));
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        verify(response).setStatus(HttpStatus.UNAUTHORIZED.value());
+        verify(filterChain, never()).doFilter(request, response);
+    }
+
+    @Test
+    void revokedApiKey_returns401_andStopsChain() throws Exception {
+        String rawKey = "revoked-key";
+        User user = createUserWithAccess();
+        ApiKey apiKey = createApiKey(user);
+        apiKey.setRevokedAt(new Date());
+        when(request.getHeader("x-api-key")).thenReturn(rawKey);
+        when(apiKeyRepository.findByCode(Helper.hashKey(rawKey))).thenReturn(Optional.of(apiKey));
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        verify(response).setStatus(HttpStatus.UNAUTHORIZED.value());
+        verify(filterChain, never()).doFilter(request, response);
+    }
+
+    @Test
+    void expiredApiKey_returns401_andStopsChain() throws Exception {
+        String rawKey = "expired-key";
+        User user = createUserWithAccess();
+        ApiKey apiKey = createApiKey(user);
+        apiKey.setExpiresAt(new Date(System.currentTimeMillis() - 100000));
+        when(request.getHeader("x-api-key")).thenReturn(rawKey);
+        when(apiKeyRepository.findByCode(Helper.hashKey(rawKey))).thenReturn(Optional.of(apiKey));
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        verify(response).setStatus(HttpStatus.UNAUTHORIZED.value());
+        verify(filterChain, never()).doFilter(request, response);
+    }
+
+    @Test
+    void futureExpirationApiKey_authenticatesSuccessfully() throws Exception {
+        String rawKey = "future-key";
+        User user = createUserWithAccess();
+        ApiKey apiKey = createApiKey(user);
+        apiKey.setExpiresAt(new Date(System.currentTimeMillis() + 100000));
+        when(request.getHeader("x-api-key")).thenReturn(rawKey);
+        when(apiKeyRepository.findByCode(Helper.hashKey(rawKey))).thenReturn(Optional.of(apiKey));
+        when(licenseService.hasEntitlement(any())).thenReturn(true);
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        assertNotNull(org.springframework.security.core.context.SecurityContextHolder
+                .getContext().getAuthentication());
+        verify(filterChain).doFilter(request, response);
+        verify(response, never()).setStatus(anyInt());
+        org.springframework.security.core.context.SecurityContextHolder.clearContext();
+    }
+
+    @Test
+    void nullExpirationApiKey_authenticatesSuccessfully() throws Exception {
+        String rawKey = "no-expiry-key";
+        User user = createUserWithAccess();
+        ApiKey apiKey = createApiKey(user);
+        apiKey.setExpiresAt(null);
+        when(request.getHeader("x-api-key")).thenReturn(rawKey);
+        when(apiKeyRepository.findByCode(Helper.hashKey(rawKey))).thenReturn(Optional.of(apiKey));
+        when(licenseService.hasEntitlement(any())).thenReturn(true);
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        assertNotNull(org.springframework.security.core.context.SecurityContextHolder
+                .getContext().getAuthentication());
+        verify(filterChain).doFilter(request, response);
+        verify(response, never()).setStatus(anyInt());
+        org.springframework.security.core.context.SecurityContextHolder.clearContext();
     }
 }

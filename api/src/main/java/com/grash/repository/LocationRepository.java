@@ -4,6 +4,7 @@ import com.grash.model.Location;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -18,6 +19,9 @@ public interface LocationRepository extends JpaRepository<Location, Long>, JpaSp
 
     List<Location> findByCompany_Id(Long id, Pageable pageable);
 
+    @EntityGraph(attributePaths = {
+            "parentLocation", "image"
+    })
     Page<Location> findByParentLocation_Id(Long id, Pageable pageable);
 
     @Query("SELECT l FROM Location l " +
@@ -40,5 +44,8 @@ public interface LocationRepository extends JpaRepository<Location, Long>, JpaSp
             "FROM Location l WHERE l.company.id = :companyId")
     boolean hasMoreThan(@Param("companyId") Long companyId, @Param("threshold") Long threshold);
 
+    @EntityGraph(attributePaths = {
+            "parentLocation", "image"
+    })
     Page<Location> findByCompany_IdAndParentLocationIsNull(Long id, Pageable pageable);
 }

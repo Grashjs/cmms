@@ -1077,7 +1077,7 @@ const deJSON = {
   required_job_title: 'Das Feld für die Berufsbezeichnung ist erforderlich ',
   required_old_password: 'Bitte geben Sie das aktuelle Passwort ein. ',
   invalid_password:
-    'Passwort ist zu kurz - sollte mindestens 8 Zeichen lang sein. ',
+    'Passwort ist zu kurz - sollte mindestens 12 Zeichen lang sein. ',
   required_new_password: 'Kein Passwort angegeben. ',
   passwords_must_match: 'Passwörter müssen übereinstimmen ',
   password_change_success: 'Passwort erfolgreich geändert ',
@@ -1577,6 +1577,7 @@ const deJSON = {
   reset: 'Zurücksetzen',
   operation_success: 'Der Vorgang war erfolgreich',
   edit_reading: 'Zählerstand bearbeiten',
-  are_you_sure_delete_reading: 'Sind Sie sicher, dass Sie diesen Zählerstand löschen möchten?'
+  are_you_sure_delete_reading: 'Sind Sie sicher, dass Sie diesen Zählerstand löschen möchten?',
+  conflict_retry: 'Die Ressource wurde von einer anderen Anfrage geändert. Bitte versuchen Sie es in 5 Sekunden erneut.'
 };
 export default deJSON;

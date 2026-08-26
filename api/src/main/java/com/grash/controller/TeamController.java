@@ -67,12 +67,11 @@ public class TeamController {
     @PreAuthorize("permitAll()")
     public TeamShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
-        if (!user.getRole().getViewPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
-            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-        }
         Optional<Team> optionalTeam = teamService.findById(id);
         if (optionalTeam.isPresent()) {
             Team savedTeam = optionalTeam.get();
+            if (!savedTeam.canBeViewedBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             return teamMapper.toShowDto(savedTeam);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -99,7 +98,7 @@ public class TeamController {
         Optional<Team> optionalTeam = teamService.findById(id);
         if (optionalTeam.isPresent()) {
             Team savedTeam = optionalTeam.get();
-            if (!user.getId().equals(savedTeam.getCreatedBy()) && !user.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
+            if (!savedTeam.canBeEditedBy(user)) {
                 throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             }
             em.detach(savedTeam);
@@ -111,15 +110,15 @@ public class TeamController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 
         Optional<Team> optionalTeam = teamService.findById(id);
         if (optionalTeam.isPresent()) {
             Team savedTeam = optionalTeam.get();
-            if (user.getId().equals(savedTeam.getCreatedBy()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
+            if (savedTeam.canBeDeletedBy(user)) {
                 teamService.delete(id);
-                return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+                return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Team not found", HttpStatus.NOT_FOUND);

@@ -49,7 +49,7 @@ public class Consts {
                     .build()
     );
 
-    public static final Map<LicenseEntitlement, Integer> usageBasedLicenseLimits =
+    public static final Map<LicenseEntitlement, Integer> usageBasedFreeLimits =
             new HashMap<>() {
                 {
                     put(LicenseEntitlement.UNLIMITED_CHECKLISTS, 10);

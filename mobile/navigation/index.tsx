@@ -151,7 +151,7 @@ function RootNavigator() {
       <Stack.Screen
         name="Root"
         component={BottomTabNavigator}
-        options={{ header: () => null }}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="WODetails"

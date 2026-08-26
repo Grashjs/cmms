@@ -87,7 +87,10 @@ export default function EditPartScreen({
               label: customer.name,
               value: customer.id.toString()
             };
-          })
+          }),
+          category: part?.category
+            ? { label: part.category.name, value: part.category.id }
+            : null
         }}
         onChange={({ field, e }) => {}}
         onSubmit={async (values) => {

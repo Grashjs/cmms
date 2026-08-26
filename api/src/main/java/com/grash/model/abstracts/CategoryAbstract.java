@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.exception.CustomException;
 import com.grash.model.CompanySettings;
 import com.grash.model.User;
+import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
 import com.grash.security.CustomUserDetail;
 import lombok.Data;
@@ -74,6 +75,21 @@ public abstract class CategoryAbstract extends Audit {
 //                    .getSuperAccountRelations().stream().anyMatch(sar->sar.getChildUser().getCompany().getId()
 //                    .equals(this.company.getId())))
 
+    }
+
+    public boolean canBeEditedBy(User user) {
+        return user.getRole().getEditOtherPermissions().contains(PermissionEntity.CATEGORIES)
+                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId()));
+    }
+
+    public boolean canBeDeletedBy(User user) {
+        return user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.CATEGORIES)
+                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId()));
+    }
+
+    public boolean canBeViewedBy(User user) {
+        return (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES) &&
+                (user.getRole().getViewOtherPermissions().contains(PermissionEntity.CATEGORIES) || (getCreatedBy() != null && getCreatedBy().equals(user.getId()))));
     }
 
 }

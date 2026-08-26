@@ -5,6 +5,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.FloorPlanMapper;
 import com.grash.model.FloorPlan;
 import com.grash.repository.FloorPlanRepository;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ public class FloorPlanService {
 
     @Transactional
     public FloorPlan create(FloorPlan floorPlan) {
+        Sanitizer.sanitizeFloorPlan(floorPlan);
         FloorPlan savedFloorPlan = floorPlanRepository.saveAndFlush(floorPlan);
         em.refresh(savedFloorPlan);
         return savedFloorPlan;
@@ -35,8 +37,9 @@ public class FloorPlanService {
     public FloorPlan update(Long id, FloorPlanPatchDTO floorPlan) {
         if (floorPlanRepository.existsById(id)) {
             FloorPlan savedFloorPlan = floorPlanRepository.findById(id).get();
-            FloorPlan updatedFloorPlan =
-                    floorPlanRepository.saveAndFlush(floorPlanMapper.updateFloorPlan(savedFloorPlan, floorPlan));
+            FloorPlan updatedFloorPlan = floorPlanMapper.updateFloorPlan(savedFloorPlan, floorPlan);
+            Sanitizer.sanitizeFloorPlan(updatedFloorPlan);
+            updatedFloorPlan = floorPlanRepository.saveAndFlush(updatedFloorPlan);
             em.refresh(updatedFloorPlan);
             return updatedFloorPlan;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);

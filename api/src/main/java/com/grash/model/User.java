@@ -132,6 +132,11 @@ public class User extends Audit {
     @Schema(description = "Paddle user ID")
     private String paddleUserId;
 
+    @JsonIgnore
+    @Schema(description = "Timestamp of the last session revocation (logout, password change, disable). " +
+            "JWTs issued before this timestamp are rejected.", accessMode = Schema.AccessMode.READ_ONLY)
+    private Date sessionInvalidatedAt;
+
 
     public int hashCode() {
         return Math.toIntExact(id);
@@ -152,6 +157,21 @@ public class User extends Audit {
 
     public void setEmail(String email) {
         this.email = email == null ? null : email.trim().toLowerCase();
+    }
+
+    public boolean canBeEditedBy(User user) {
+        return user.getCompany().getId().equals(this.getCompany().getId()) && (user.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)
+                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId())) || user.getId().equals(this.getId()));
+    }
+
+    public boolean canBeDeletedBy(User user) {
+        return user.getCompany().getId().equals(this.getCompany().getId()) && (user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)
+                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId())));
+    }
+
+    public boolean canBeViewedBy(User user) {
+        return (user.getCompany().getId().equals(this.getCompany().getId())) && (user.getRole().getViewPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS) &&
+                (user.getRole().getViewOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS) || (getCreatedBy() != null && getCreatedBy().equals(user.getId())) || user.getId().equals(this.getId())));
     }
 }
 

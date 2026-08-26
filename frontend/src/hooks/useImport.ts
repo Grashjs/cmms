@@ -3,6 +3,7 @@ import { Stomp } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { apiUrl } from 'src/config';
 import api from 'src/utils/api';
+import useAuth from './useAuth';
 
 interface UseImportReturn {
   importEntity: (entity: EntityType, payload: any[]) => Promise<ImportResponse>;
@@ -31,7 +32,7 @@ export interface ImportResponse {
 export const useImport = (): UseImportReturn => {
   const [loadingImport, setLoadingImport] = useState<boolean>(false);
   const [stompClient, setStompClient] = useState(null);
-
+  const { user } = useAuth();
   // Initialize WebSocket connection
   useEffect(() => {
     const socket = new SockJS(`${apiUrl}ws`);
@@ -61,7 +62,7 @@ export const useImport = (): UseImportReturn => {
 
         // Subscribe to WebSocket topic before making request
         const subscription = stompClient.subscribe(
-          `/imports/${uuid}`,
+          `/user/${user.email}/imports/${uuid}`,
           function (message) {
             try {
               const response = JSON.parse(message.body);

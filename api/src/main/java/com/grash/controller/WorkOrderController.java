@@ -17,6 +17,7 @@ import com.grash.utils.TenantAspectUtils;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,7 +54,7 @@ public class WorkOrderController {
                                                          HttpServletRequest req) {
         User user = userService.whoami(req);
         return ResponseEntity.ok(TenantAspectUtils.executeWithDisabledCompanyCheck(() ->
-                workOrderService.findBySearchCriteria(workOrderService.getSearchCriteria(user,
+                workOrderService.findBySearchCriteriaWithEntityGraph(workOrderService.getSearchCriteria(user,
                         searchCriteria)).map(workOrderMapper::toShowDto)
         ));
     }
@@ -88,6 +89,8 @@ public class WorkOrderController {
         User user = userService.whoami(req);
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent()) {
+            if (!optionalAsset.get().canBeViewedBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             return workOrderService.findByAsset(id).stream().map(workOrderMapper::toShowDto).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -99,6 +102,8 @@ public class WorkOrderController {
         User user = userService.whoami(req);
         Optional<Location> optionalLocation = locationService.findById(id);
         if (optionalLocation.isPresent()) {
+            if (!optionalLocation.get().canBeViewedBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             return workOrderService.findByLocation(id).stream().map(workOrderMapper::toShowDto).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -126,6 +131,8 @@ public class WorkOrderController {
         User user = userService.whoami(req);
         Optional<Part> optionalPart = partService.findById(id);
         if (optionalPart.isPresent()) {
+            if (!optionalPart.get().canBeViewedBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             return workOrderService.getWorkOrdersByPart(id).stream().map(workOrderMapper::toShowDto).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
@@ -171,12 +178,31 @@ public class WorkOrderController {
 
     @PostMapping(path = "/report/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @Deprecated
     public ResponseEntity<SuccessResponse> getPDFWithConfig(@PathVariable("id") Long id,
                                                             @Valid @RequestBody ReportConfig config,
                                                             HttpServletRequest req) {
         User user = userService.whoami(req);
         String signedUrl = workOrderService.generateReport(id, user, config);
         return ResponseEntity.ok().body(new SuccessResponse(true, signedUrl));
+    }
+
+    @PostMapping(path = "/report/{id}/stream")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public void getPDFWithConfigStream(@PathVariable("id") Long id,
+                                       @Valid @RequestBody ReportConfig config,
+                                       HttpServletRequest req,
+                                       HttpServletResponse response) throws java.io.IOException {
+        User user = userService.whoami(req);
+        try {
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition", "attachment; filename=\"Work Order Report.pdf\"");
+            workOrderService.generatePdfStream(id, user, config, response.getOutputStream());
+        } catch (Error | RuntimeException ex) {
+            response.reset();
+            response.setContentType("application/json");
+            throw ex;
+        }
     }
 
     @PostMapping("/{id}/report/send")

@@ -6,5 +6,5 @@ import lombok.Data;
 @Data
 @Schema(description = "Criteria for filtering and searching API keys")
 public class ApiKeyCriteria {
-
+    private Boolean active;
 }

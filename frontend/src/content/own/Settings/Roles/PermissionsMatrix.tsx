@@ -15,6 +15,7 @@ import {
   PermissionRoot,
   Role
 } from '../../../../models/owns/role';
+import useAuth from '../../../../hooks/useAuth';
 
 const permissionRoots: PermissionRoot[] = [
   'viewPermissions',
@@ -36,6 +37,7 @@ function PermissionsMatrix({
   role
 }: PermissionsMatrixProps) {
   const { t }: { t: any } = useTranslation();
+  const { user } = useAuth();
 
   const entityLabel = (entity: PermissionEntity): string => {
     const labels: Record<string, string> = {
@@ -67,6 +69,13 @@ function PermissionsMatrix({
       return values[`${root}_${entity}`] ?? false;
     }
     return role?.[root]?.includes(entity) ?? false;
+  };
+
+  const currentUserHasPermission = (
+    root: PermissionRoot,
+    entity: PermissionEntity
+  ): boolean => {
+    return user?.role?.[root]?.includes(entity) ?? false;
   };
 
   return (
@@ -108,6 +117,11 @@ function PermissionsMatrix({
                       name={isEditable ? `${root}_${entity}` : undefined}
                       onChange={isEditable ? handleChange : undefined}
                       checked={isChecked(root, entity)}
+                      disabled={
+                        isEditable &&
+                        !currentUserHasPermission(root, entity) &&
+                        !isChecked(root, entity)
+                      }
                     />
                   </TableCell>
                 ))}

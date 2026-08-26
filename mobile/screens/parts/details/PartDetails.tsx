@@ -45,6 +45,10 @@ export default function PartDetails({ part }: { part: Part }) {
       value: part.description
     },
     {
+      label: t('category'),
+      value: part.category?.name
+    },
+    {
       label: t('additional_information'),
       value: part.additionalInfos
     },

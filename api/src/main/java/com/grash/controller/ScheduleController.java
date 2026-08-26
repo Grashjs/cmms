@@ -47,7 +47,7 @@ public class ScheduleController {
         Optional<Schedule> optionalSchedule = scheduleService.findById(id);
         if (optionalSchedule.isPresent()) {
             Schedule savedSchedule = optionalSchedule.get();
-            if (!savedSchedule.getPreventiveMaintenance().getCompany().getId().equals(user.getCompany().getId()))
+            if (!savedSchedule.getPreventiveMaintenance().canBeViewedBy(user))
                 throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             return savedSchedule;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -73,7 +73,7 @@ public class ScheduleController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity delete(@PathVariable("id") Long id, HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
 
         Optional<Schedule> optionalSchedule = scheduleService.findById(id);
@@ -82,7 +82,7 @@ public class ScheduleController {
             if (!savedSchedule.getPreventiveMaintenance().canBeEditedBy(user))
                 throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             scheduleService.delete(id);
-            return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+            return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                     HttpStatus.OK);
         } else throw new CustomException("Schedule not found", HttpStatus.NOT_FOUND);
     }

@@ -47,7 +47,7 @@ function Filters({ filterFields, onFilterChange, onSave }: OwnProps) {
     },
     { accessor: 'createdBy', fieldName: 'createdBy', type: 'array' },
 
-    { accessor: 'teams', fieldName: 'team', type: 'array' },
+    { accessor: 'teams', fieldName: 'teams', type: 'array' },
     { accessor: 'primaryUsers', fieldName: 'primaryUser', type: 'array' },
     {
       accessor: 'assignedTo',
@@ -57,13 +57,13 @@ function Filters({ filterFields, onFilterChange, onSave }: OwnProps) {
     },
     {
       accessor: 'customers',
-      fieldName: 'customer',
+      fieldName: 'customers',
       operator: 'inm',
       type: 'array'
     },
     {
       accessor: 'vendors',
-      fieldName: 'vendor',
+      fieldName: 'vendors',
       operator: 'inm',
       type: 'array'
     },
@@ -174,17 +174,19 @@ function Filters({ filterFields, onFilterChange, onSave }: OwnProps) {
   const getValuesFromFilterFields = (): {
     [key: string]:
       | { label: string; value: string }
+      | { label: string; value: number }
       | { label: string; value: number }[]
       | boolean
       | [Date | null, Date | null];
   } => {
     return {
-      categories: getLabelAndValue(
-        filterFields,
-        categories['asset-categories'],
-        'category',
-        'name'
-      ),
+      categories:
+        getLabelAndValue(
+          filterFields,
+          categories['asset-categories'],
+          'category',
+          'name'
+        )?.[0] ?? null,
       locations: getLabelAndValue(
         filterFields,
         locationsMini,
@@ -204,7 +206,7 @@ function Filters({ filterFields, onFilterChange, onSave }: OwnProps) {
         null,
         (user: UserMiniDTO) => `${user.firstName} ${user.lastName}`
       ),
-      teams: getLabelAndValue(filterFields, teamsMini, 'team', 'name'),
+      teams: getLabelAndValue(filterFields, teamsMini, 'teams', 'name'),
       primaryUsers: getLabelAndValue(
         filterFields,
         usersMini,
@@ -222,10 +224,10 @@ function Filters({ filterFields, onFilterChange, onSave }: OwnProps) {
       customers: getLabelAndValue(
         filterFields,
         customersMini,
-        'customer',
+        'customers',
         'name'
       ),
-      vendors: getLabelAndValue(filterFields, customersMini, 'vendor', 'name'),
+      vendors: getLabelAndValue(filterFields, customersMini, 'vendors', 'name'),
       archived: filterFields.find(
         (filterField) => filterField.field === 'archived'
       ).value,
@@ -255,10 +257,16 @@ function Filters({ filterFields, onFilterChange, onSave }: OwnProps) {
           onChange={({ field, e }) => {}}
           onSubmit={async (values) => {
             let newFilters = [...filterFields];
+            const valuesToProcess = {
+              ...values,
+              categories: values.categories
+                ? [values.categories]
+                : values.categories
+            };
             filtersConfig.forEach((filterConfig) => {
               newFilters = filterSingleField(
                 newFilters,
-                values,
+                valuesToProcess,
                 filterConfig.accessor,
                 filterConfig.fieldName,
                 filterConfig.type,

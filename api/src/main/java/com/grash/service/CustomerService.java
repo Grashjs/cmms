@@ -12,6 +12,7 @@ import com.grash.model.Customer;
 import com.grash.model.Company;
 import com.grash.model.enums.CustomFieldEntityType;
 import com.grash.repository.CustomerRepository;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -41,6 +42,7 @@ public class CustomerService {
                 setCustomerCustomFields(customer, customerPostDTO.getCustomFields(), company);
             }
         }
+        Sanitizer.sanitizeCustomer(customer);
         return customerRepository.save(customer);
     }
 
@@ -62,7 +64,9 @@ public class CustomerService {
             if (customer.getCustomFields() != null && !customer.getCustomFields().isEmpty()) {
                 setCustomerCustomFields(savedCustomer, customer.getCustomFields(), company);
             }
-            return customerRepository.save(customerMapper.updateCustomer(savedCustomer, customer));
+            Customer updatedCustomer = customerMapper.updateCustomer(savedCustomer, customer);
+            Sanitizer.sanitizeCustomer(updatedCustomer);
+            return customerRepository.save(updatedCustomer);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 

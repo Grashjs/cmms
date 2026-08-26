@@ -7,8 +7,10 @@ import io.minio.*;
 import io.minio.errors.*;
 import io.minio.http.Method;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,6 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MinioService implements StorageService {
     @Value("${storage.minio.endpoint}")
     private String minioEndpoint;
@@ -72,8 +75,12 @@ public class MinioService implements StorageService {
 
     public String upload(MultipartFile file, String folder) {
         checkIfConfigured();
-        Helper helper = new Helper();
-        String filePath = folder + "/" + helper.generateString() + " " + file.getOriginalFilename();
+
+        if (file == null || file.isEmpty()) {
+            throw new CustomException("Uploaded file is empty.", HttpStatus.BAD_REQUEST);
+        }
+
+        String filePath = Helper.generateUniqueFilePath(file.getOriginalFilename(), folder);
         try {
             minioClient.putObject(
                     PutObjectArgs.builder()
@@ -86,13 +93,19 @@ public class MinioService implements StorageService {
 
             return filePath;
         } catch (MinioException | IOException | InvalidKeyException | NoSuchAlgorithmException e) {
-            throw new CustomException(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+            log.error("MinIO error during upload to {}", filePath, e);
+            throw new CustomException("Failed to save the file to storage.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     public String upload(byte[] data, String fileName, String folder) {
         checkIfConfigured();
-        String filePath = folder + "/" + fileName;
+
+        if (data == null || data.length == 0) {
+            throw new CustomException("Uploaded file is empty.", HttpStatus.BAD_REQUEST);
+        }
+
+        String filePath = Helper.generateUniqueFilePath(fileName, folder);
         try {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
             minioClient.putObject(
@@ -105,10 +118,50 @@ public class MinioService implements StorageService {
             );
             return filePath;
         } catch (MinioException | IOException | InvalidKeyException | NoSuchAlgorithmException e) {
-            throw new CustomException(e.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+            log.error("MinIO error during upload to {}", filePath, e);
+            throw new CustomException("Failed to save the file to storage.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    public void uploadAt(byte[] data, String filePath, String contentType) {
+        checkIfConfigured();
+
+        if (data == null || data.length == 0) {
+            throw new CustomException("Uploaded file is empty.", HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
+            minioClient.putObject(
+                    PutObjectArgs.builder()
+                            .bucket(minioBucket)
+                            .object(filePath)
+                            .stream(inputStream, data.length, -1)
+                            .contentType(contentType)
+                            .build()
+            );
+        } catch (MinioException | IOException | InvalidKeyException | NoSuchAlgorithmException e) {
+            log.error("MinIO error during upload to {}", filePath, e);
+            throw new CustomException("Failed to save the file to storage.", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public boolean exists(String filePath) {
+        checkIfConfigured();
+        try {
+            minioClient.statObject(
+                    StatObjectArgs.builder()
+                            .bucket(minioBucket)
+                            .object(filePath)
+                            .build()
+            );
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Cacheable(cacheNames = "signedUrls", key = "#file.path + ':' + #expirationMinutes")
     public String generateSignedUrl(File file, long expirationMinutes) {
         return generateSignedUrl(file.getPath(), expirationMinutes);
     }

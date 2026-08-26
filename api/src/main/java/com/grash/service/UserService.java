@@ -2,7 +2,7 @@ package com.grash.service;
 
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
-import com.grash.dto.LdapLoginRequest;
+import com.grash.dto.AuthTokens;
 import com.grash.dto.SignupSuccessResponse;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.UserInvitationDTO;
@@ -22,12 +22,12 @@ import com.grash.repository.VerificationTokenRepository;
 import com.grash.security.CustomUserDetail;
 import com.grash.security.JwtTokenProvider;
 import com.grash.utils.Helper;
+import com.grash.utils.Sanitizer;
 import jakarta.mail.MessagingException;
 import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.MessageSource;
@@ -43,18 +43,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
-import org.springframework.ldap.core.AttributesMapper;
-import org.springframework.ldap.core.LdapTemplate;
-import org.springframework.ldap.filter.AndFilter;
-import org.springframework.ldap.filter.EqualsFilter;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.*;
-import javax.naming.directory.SearchControls;
 
-import static com.grash.utils.Consts.usageBasedLicenseLimits;
+import static com.grash.utils.Consts.usageBasedFreeLimits;
 
 
 @Service
@@ -78,11 +72,12 @@ public class UserService {
     private final SubscriptionService subscriptionService;
     private final UserMapper userMapper;
     private final BrandingService brandingService;
-    private final DemoDataService demoDataService;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final LicenseService licenseService;
     private final CacheService cacheService;
     private final IntercomService intercomService;
+    private final RefreshTokenService refreshTokenService;
+    private final ApiKeyService apiKeyService;
 
     @Value("${api.host}")
     private String PUBLIC_API_URL;
@@ -99,7 +94,7 @@ public class UserService {
     @Value("${allowed-organization-admins}")
     private String[] allowedOrganizationAdmins;
 
-    public String signin(String email, String password, String type) {
+    public AuthTokens signin(String email, String password, String type) {
         try {
             cacheService.evictUserFromCache(email);
             Authentication authentication =
@@ -111,7 +106,7 @@ public class UserService {
             User user = optionalUser.get();
             user.setLastLogin(new Date());
             userRepository.save(user);
-            return jwtTokenProvider.createToken(email, Collections.singletonList(user.getRole().getRoleType()));
+            return refreshTokenService.createTokenPair(user);
             // Must be caught before AuthenticationException, which it extends. Spring wraps
             // anything that goes wrong while *loading* the user — database unreachable, an
             // empty connection pool during startup — in this exception. Reporting it as
@@ -140,21 +135,22 @@ public class UserService {
         if (sendEmailToSuperAdmins)
             sendRegistrationMailToSuperAdmins(user, userSignupRequest);
         onCompanyAndUserCreation(user);
-        return new SignupSuccessResponse<>(true, jwtTokenProvider.createToken(user.getEmail(),
-                Collections.singletonList(user.getRole().getRoleType())), user);
+        String accessToken = jwtTokenProvider.createToken(user.getEmail(),
+                Collections.singletonList(user.getRole().getRoleType()));
+        String refreshToken = refreshTokenService.createRefreshToken(user);
+        return new SignupSuccessResponse<>(true, accessToken, user, refreshToken);
     }
 
     public void checkUsageBasedLimit(int newUsersCount) {
         LicensingState licensingState = licenseService.getLicensingState();
-        if (licensingState.isHasLicense()) {
-            if (userRepository.hasMorePaidUsersThan(licensingState.getUsersCount() - newUsersCount))
-                throw new RuntimeException("Cannot create more users than the license allows: " + licensingState.getUsersCount() + ". Refer to https://github.com/Grashjs/cmms/blob/main/dev-docs/Disable%20users.md");
-        }
-        Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_USERS);
+        Integer freeTierThreshold = usageBasedFreeLimits.get(LicenseEntitlement.UNLIMITED_USERS);
+        int limit = (licensingState.isHasLicense() ?
+                licensingState.getUsersCount() : freeTierThreshold);
         if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)
-                && userRepository.hasMorePaidUsersThan(threshold - newUsersCount
-        ))
-            throw new RuntimeException("Cannot create more users than the free license allows: " + threshold + ". " +
+                && userRepository.hasMorePaidUsersThan(limit - newUsersCount)
+        )
+            throw new RuntimeException("Cannot create more users than the " + (licensingState.isHasLicense() ?
+                    "paid" : "free") + " license allows: " + limit + ". " +
                     "Refer to" +
                     " https://github.com/Grashjs/cmms/blob/main/dev-docs/Disable%20users.md");
     }
@@ -164,7 +160,6 @@ public class UserService {
         user.setEmail(user.getEmail().toLowerCase());
         if (userRepository.existsByEmailIgnoreCase(user.getEmail())) {
             throw new CustomException("Email is already in use", HttpStatus.UNPROCESSABLE_ENTITY);
-
         }
         if (allowedOrganizationAdmins != null && userReq.getRole() == null && allowedOrganizationAdmins.length != 0 && Arrays.stream(allowedOrganizationAdmins).noneMatch(allowedOrganizationAdmin -> allowedOrganizationAdmin.equalsIgnoreCase(userReq.getEmail()))) {
             throw new CustomException("You are not allowed to create an account without being invited",
@@ -172,29 +167,7 @@ public class UserService {
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setUsername(Helper.generateStringId());
-        if (user.getRole() == null) {
-            //create company with default roles
-            if (!licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE) && companyService.existsAtLeastOneWithMinWorkOrders())
-                throw new CustomException("You need a license to create another company", HttpStatus.FORBIDDEN);
-            Subscription subscription =
-                    Subscription.builder().usersCount(300).monthly(cloudVersion)
-                            .startsOn(new Date())
-                            .endsOn(cloudVersion ? Helper.incrementDays(new Date(), 15) : null)
-                            .subscriptionPlan(subscriptionPlanService.findByCode("BUSINESS").get()).build();
-            subscriptionService.create(subscription);
-            Company company = new Company(userReq.getCompanyName(), userReq.getEmployeesCount(), subscription);
-            company.setDemo(Boolean.TRUE.equals(userReq.getDemo()));
-            company.getCompanySettings().getGeneralPreferences().setCurrency(currencyService.findByCode("$").get());
-            if (userReq.getLanguage() != null)
-                company.getCompanySettings().getGeneralPreferences().setLanguage(userReq.getLanguage());
-            if (userReq.getTimeZone() != null)
-                company.getCompanySettings().getGeneralPreferences().setTimeZone(userReq.getTimeZone());
-            companyService.create(company);
-            user.setOwnsCompany(true);
-            user.setCompany(company);
-            user.setRole(roleService.findDefaultRoleWithCode(RoleCode.ADMIN).get());
-            checkUsageBasedLimit(1);
-        } else {
+        if (user.getRole() != null) {
             Role role = roleService.findById(user.getRole().getId()).orElseThrow(() -> new CustomException("Role not " +
                     "found", HttpStatus.NOT_ACCEPTABLE));
             if (role.isPaid()) {
@@ -231,38 +204,56 @@ public class UserService {
             }
             return enableAndReturnToken(user, true, userReq);
         }
+        //create company with default roles
+        if (!licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE) && companyService.existsAtLeastOneWithMinWorkOrders())
+            throw new CustomException("You need a license to create another company", HttpStatus.FORBIDDEN);
+        Subscription subscription =
+                Subscription.builder().usersCount(300).monthly(cloudVersion)
+                        .startsOn(new Date())
+                        .endsOn(cloudVersion ? Helper.incrementDays(new Date(), 15) : null)
+                        .subscriptionPlan(subscriptionPlanService.findByCode("BUSINESS").get()).build();
+        subscriptionService.create(subscription);
+        Company company = new Company(userReq.getCompanyName(), userReq.getEmployeesCount(), subscription);
+        company.setDemo(Boolean.TRUE.equals(userReq.getDemo()));
+        company.getCompanySettings().getGeneralPreferences().setCurrency(currencyService.findByCode("$").get());
+        if (userReq.getLanguage() != null)
+            company.getCompanySettings().getGeneralPreferences().setLanguage(userReq.getLanguage());
+        if (userReq.getTimeZone() != null)
+            company.getCompanySettings().getGeneralPreferences().setTimeZone(userReq.getTimeZone());
+        companyService.create(company);
+        user.setOwnsCompany(true);
+        user.setCompany(company);
+        user.setRole(roleService.findDefaultRoleWithCode(RoleCode.ADMIN).get());
+        checkUsageBasedLimit(1);
         if (Helper.isLocalhost(PUBLIC_API_URL)) {
             return enableAndReturnToken(user, false, userReq);
-        } else {
-            if (userReq.getRole() == null) { //send mail
-                if (enableInvitationViaEmail) {
-                    throwIfEmailNotificationsNotEnabled();
-                    String token = UUID.randomUUID().toString();
-                    String link = PUBLIC_API_URL + "/auth/activate-account?token=" + token;
-                    Map<String, Object> variables = new HashMap<String, Object>() {{
-                        put("verifyTokenLink", link);
-                    }};
-                    user = userRepository.save(user);
-                    VerificationToken newUserToken = new VerificationToken(token, user, null);
-                    verificationTokenRepository.save(newUserToken);
-                    if (!Boolean.TRUE.equals(userReq.getSkipMailSending()))
-                        mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(new String[]{user.getEmail()},
-                                messageSource.getMessage("confirmation_email", null, Helper.getLocale(user)), variables,
-                                "signup.html", Helper.getLocale(user), null);
-                } else {
-                    return enableAndReturnToken(user, true, userReq);
-                }
-            }
-            if (Boolean.TRUE.equals(userReq.getDemo()))
-                return enableAndReturnToken(user, false, userReq);
-            userRepository.save(user);
-            cacheService.putUserInCache(user);
-            onCompanyAndUserCreation(user);
-            sendRegistrationMailToSuperAdmins(user, userReq);
-            return new SignupSuccessResponse<>(true, "Successful registration. Check your mailbox to activate your " +
-                    "account", null);
         }
+        if (userReq.getRole() == null) { //send mail
+            if (!enableInvitationViaEmail)
+                return enableAndReturnToken(user, true, userReq);
 
+            throwIfEmailNotificationsNotEnabled();
+            String token = UUID.randomUUID().toString();
+            String link = PUBLIC_API_URL + "/auth/activate-account?token=" + token;
+            Map<String, Object> variables = new HashMap<String, Object>() {{
+                put("verifyTokenLink", link);
+            }};
+            user = userRepository.save(user);
+            VerificationToken newUserToken = new VerificationToken(token, user, null);
+            verificationTokenRepository.save(newUserToken);
+            if (!Boolean.TRUE.equals(userReq.getSkipMailSending()))
+                mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(new String[]{user.getEmail()},
+                        messageSource.getMessage("confirmation_email", null, Helper.getLocale(user)), variables,
+                        "signup.html", Helper.getLocale(user), null);
+        }
+        if (Boolean.TRUE.equals(userReq.getDemo()))
+            return enableAndReturnToken(user, false, userReq);
+        userRepository.save(user);
+        cacheService.putUserInCache(user);
+        onCompanyAndUserCreation(user);
+        sendRegistrationMailToSuperAdmins(user, userReq);
+        return new SignupSuccessResponse<>(true, "Successful registration. Check your mailbox to activate your " +
+                "account", null, null);
     }
 
     public void delete(String username) {
@@ -317,11 +308,6 @@ public class UserService {
         return userOptional;
     }
 
-    public String refresh(User user) {
-        return jwtTokenProvider.createToken(user.getEmail(),
-                Arrays.asList(user.getRole().getRoleType()));
-    }
-
     public List<User> getAll() {
         return userRepository.findAll();
     }
@@ -356,22 +342,27 @@ public class UserService {
 
     public SuccessResponse resetPasswordRequest(String email) {
         throwIfEmailNotificationsNotEnabled();
-        email = email.toLowerCase();
-        User user = findByEmail(email).get();
-        Helper helper = new Helper();
-        String password = helper.generateString().replace("-", "").substring(0, 8).toUpperCase();
+        try {
+            email = email.toLowerCase();
+            User user = findByEmail(email).get();
+            Helper helper = new Helper();
+            String password = helper.generateString().replace("-", "").substring(0, 8).toUpperCase();
 
-        String token = UUID.randomUUID().toString();
-        Map<String, Object> variables = new HashMap<String, Object>() {{
-            put("resetConfirmLink", PUBLIC_API_URL + "/auth/reset-pwd-confirm?token=" + token);
-            put("password", password);
-        }};
-        VerificationToken newUserToken = new VerificationToken(token, user, password);
-        verificationTokenRepository.save(newUserToken);
-        mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(new String[]{email},
-                messageSource.getMessage("password_reset"
-                        , new String[]{brandingService.getBrandConfig().getName()}, Helper.getLocale(user)), variables,
-                "reset-password.html", Helper.getLocale(user), null);
+            String token = UUID.randomUUID().toString();
+            Map<String, Object> variables = new HashMap<String, Object>() {{
+                put("resetConfirmLink", PUBLIC_API_URL + "/auth/reset-pwd-confirm?token=" + token);
+                put("password", password);
+            }};
+            VerificationToken newUserToken = new VerificationToken(token, user, password);
+            verificationTokenRepository.save(newUserToken);
+            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(new String[]{email},
+                    messageSource.getMessage("password_reset"
+                            , new String[]{brandingService.getBrandConfig().getName()}, Helper.getLocale(user)),
+                    variables,
+                    "reset-password.html", Helper.getLocale(user), null);
+        } catch (Exception ignored) {
+            //this is done to prevent the user from knowing if email exists or not
+        }
         return new SuccessResponse(true, "Password changed successfully");
     }
 
@@ -417,14 +408,16 @@ public class UserService {
         if (userRepository.existsById(id)) {
             User savedUser = userRepository.findById(id).get();
             if (userReq.getNewPassword() != null) {
-                if (userReq.getNewPassword().length() < 8)
-                    throw new CustomException("Password must be at least 8 characters", HttpStatus.NOT_ACCEPTABLE);
                 if (enableInvitationViaEmail)
                     throw new CustomException("Please tell the user to reset his password", HttpStatus.NOT_FOUND);
 
                 savedUser.setPassword(passwordEncoder.encode(userReq.getNewPassword()));
+                savedUser.setSessionInvalidatedAt(new Date());
+                refreshTokenService.revokeAllForUser(savedUser);
             }
-            User updatedUser = userRepository.saveAndFlush(userMapper.updateUser(savedUser, userReq));
+            User updatedUser = userMapper.updateUser(savedUser, userReq);
+            Sanitizer.sanitizeUser(updatedUser);
+            updatedUser = userRepository.saveAndFlush(updatedUser);
             em.refresh(updatedUser);
             cacheService.putUserInCache(updatedUser);
             return updatedUser;
@@ -433,6 +426,14 @@ public class UserService {
 
     public User save(User user) {
         return userRepository.save(user);
+    }
+
+    public User invalidateSessions(User user) {
+        user.setSessionInvalidatedAt(new Date());
+        User saved = userRepository.save(user);
+        cacheService.evictUserFromCache(user.getEmail());
+        refreshTokenService.revokeAllForUser(saved);
+        return saved;
     }
 
     public Collection<User> saveAll(Collection<User> users) {
@@ -503,60 +504,57 @@ public class UserService {
     }
 
     public SuccessResponse inviteUsers(UserInvitationDTO invitation, User user) {
-        if (user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
-            int companyUsersCount =
-                    (int) findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.isEnabled() && user1.isEnabledInSubscriptionAndPaid()).count();
-            Optional<Role> optionalRole = roleService.findById(invitation.getRole().getId());
-            if (optionalRole.isPresent() && optionalRole.get().belongsToCompany(user.getCompany())) {
-                if (companyUsersCount + invitation.getEmails().size() <= user.getCompany().getSubscription().getUsersCount() || !optionalRole.get().isPaid()) {
-                    invitation.getEmails().forEach(email ->
-                            invite(email, optionalRole.get(), user, invitation.getDisableSendingEmail())
-                    );
+        if (!user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS))
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        int companyUsersCount =
+                (int) findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.isEnabled() && user1.isEnabledInSubscriptionAndPaid()).count();
+        Optional<Role> optionalRole = roleService.findById(invitation.getRole().getId());
+        if (optionalRole.isEmpty() || !optionalRole.get().belongsToCompany(user.getCompany()))
+            throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+        Role role = optionalRole.get();
+        if (role.isPaid() && companyUsersCount + invitation.getEmails().size() > user.getCompany().getSubscription().getUsersCount())
+            throw new CustomException("Your current subscription doesn't allow you to invite that many users"
+                    , HttpStatus.NOT_ACCEPTABLE);
+        invitation.getEmails().forEach(email ->
+                invite(email, role, user, invitation.getDisableSendingEmail())
+        );
+        fireFirstUsersInvitedEventIfFirst(invitation, user);
+        return new SuccessResponse(true, "Users have been invited");
+    }
 
-                    // Fire Intercom event for first user invitation
-                    if (!user.getCompany().isInvitedUsers() && !invitation.getEmails().isEmpty()) {
-                        user.getCompany().setInvitedUsers(true);
-                        companyService.update(user.getCompany());
-                        Map<String, Object> metadata = new HashMap<>();
-                        metadata.put("invited_count", invitation.getEmails().size());
-                        intercomService.createCompanyActivationEvent(
-                                "first-users-invited",
-                                user.getCompany().getId(),
-                                user.getEmail(),
-                                metadata
-                        );
-                    }
-
-                    return new SuccessResponse(true, "Users have been invited");
-                } else
-                    throw new CustomException("Your current subscription doesn't allow you to invite that many users"
-                            , HttpStatus.NOT_ACCEPTABLE);
-
-            } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+    private void fireFirstUsersInvitedEventIfFirst(UserInvitationDTO invitation, User user) {
+        // Fire Intercom event for first user invitation
+        if (user.getCompany().isInvitedUsers() || invitation.getEmails().isEmpty()) return;
+        user.getCompany().setInvitedUsers(true);
+        companyService.update(user.getCompany());
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("invited_count", invitation.getEmails().size());
+        intercomService.createCompanyActivationEvent(
+                "first-users-invited",
+                user.getCompany().getId(),
+                user.getEmail(),
+                metadata
+        );
     }
 
     public User patchUserRole(Long userId, Long roleId, User requester) {
         Optional<User> optionalUserToPatch = findByIdAndCompany(userId, requester.getCompany().getId());
         Optional<Role> optionalRole = roleService.findById(roleId);
-
-        if (optionalUserToPatch.isPresent() && optionalRole.isPresent() && optionalRole.get().belongsToCompany(requester.getCompany())) {
-            User userToPatch = optionalUserToPatch.get();
-            if (requester.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
-                int usersCount =
-                        (int) findByCompany(requester.getCompany().getId()).stream().filter(User::isEnabledInSubscriptionAndPaid).count();
-                if (usersCount <= requester.getCompany().getSubscription().getUsersCount()) {
-                    userToPatch.setRole(optionalRole.get());
-                    return save(userToPatch);
-                } else
-                    throw new CustomException("Company subscription users count doesn't allow this operation",
-                            HttpStatus.NOT_ACCEPTABLE);
-            } else {
-                throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
-            }
-        } else {
-            throw new CustomException("User or role not found", HttpStatus.NOT_FOUND);
+        if (requester.getId().equals(userId)) {
+            throw new CustomException("You can't change your own role", HttpStatus.NOT_ACCEPTABLE);
         }
+        if (optionalUserToPatch.isEmpty() || optionalRole.isEmpty() || !optionalRole.get().belongsToCompany(requester.getCompany()))
+            throw new CustomException("User or role not found", HttpStatus.NOT_FOUND);
+        if (!requester.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS))
+            throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
+        int usersCount =
+                (int) findByCompany(requester.getCompany().getId()).stream().filter(User::isEnabledInSubscriptionAndPaid).count();
+        if (usersCount > requester.getCompany().getSubscription().getUsersCount())
+            throw new CustomException("Company subscription users count doesn't allow this operation",
+                    HttpStatus.NOT_ACCEPTABLE);
+        User userToPatch = optionalUserToPatch.get();
+        userToPatch.setRole(optionalRole.get());
+        return invalidateSessions(userToPatch);
     }
 
     public User disableUser(Long id, User requester) {
@@ -567,7 +565,8 @@ public class UserService {
             if (requester.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
                 userToDisable.setEnabled(false);
                 userToDisable.setEnabledInSubscription(false);
-                return save(userToDisable);
+                apiKeyService.revokeAllByUser(userToDisable);
+                return invalidateSessions(userToDisable);
             } else {
                 throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
             }
@@ -581,11 +580,12 @@ public class UserService {
 
         if (optionalUserToSoftDelete.isPresent()) {
             User userToSoftDelete = optionalUserToSoftDelete.get();
-            if (requester.getId().equals(id) || requester.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+            if (requester.getId().equals(id) || requester.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
                 userToSoftDelete.setEnabled(false);
                 userToSoftDelete.setEnabledInSubscription(false);
                 userToSoftDelete.setEmail(userToSoftDelete.getEmail().concat("_".concat(id.toString())));
-                return save(userToSoftDelete);
+                apiKeyService.revokeAllByUser(userToSoftDelete);
+                return invalidateSessions(userToSoftDelete);
             } else {
                 throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
             }

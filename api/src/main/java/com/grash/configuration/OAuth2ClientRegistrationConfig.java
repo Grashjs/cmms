@@ -27,19 +27,17 @@ public class OAuth2ClientRegistrationConfig {
         Oauth2Provider provider = Oauth2Provider.valueOf(properties.getProvider().toUpperCase());
 
         ClientRegistration registration;
-        String clientId = System.getenv("OAUTH2_CLIENT_ID");
-        String clientSecret = System.getenv("OAUTH2_CLIENT_SECRET");
         registration = switch (provider) {
             case GOOGLE -> CommonOAuth2Provider.GOOGLE
                     .getBuilder("google")
-                    .clientId(clientId)
-                    .clientSecret(clientSecret)
+                    .clientId(properties.getClientId())
+                    .clientSecret(properties.getClientSecret())
                     .redirectUri(PUBLIC_API_URL + "/oauth2/callback/{registrationId}")
                     .scope("email", "profile")
                     .build();
             case MICROSOFT -> ClientRegistration.withRegistrationId("microsoft")
-                    .clientId(clientId)
-                    .clientSecret(clientSecret)
+                    .clientId(properties.getClientId())
+                    .clientSecret(properties.getClientSecret())
                     .redirectUri(PUBLIC_API_URL + "/oauth2/callback/{registrationId}")
                     .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                     .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)

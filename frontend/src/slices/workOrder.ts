@@ -367,13 +367,24 @@ export interface WorkOrderSendReportDTO {
 
 export const getPDFReport =
   (id: number, config?: ReportConfig): AppThunk =>
-  async (dispatch): Promise<string> => {
-    const response = await api.post<{ success: boolean; message: string }>(
-      `${basePath}/report/${id}`,
-      config
+  async (dispatch): Promise<void> => {
+    const response = await api.post<Response>(
+      `${basePath}/report/${id}/stream`,
+      config,
+      { raw: true }
     );
-    const { message } = response;
-    return message;
+    const blob = await response.blob();
+    const disposition = response.headers.get('Content-Disposition') ?? '';
+    const match = disposition.match(/filename="?([^";\n]+)"?/);
+    const filename = match ? match[1] : 'Work order report.pdf';
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
   };
 
 export const sendWorkOrderReport =

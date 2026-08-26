@@ -1,7 +1,6 @@
 package com.grash.dto;
 
 import com.grash.dto.cutomField.CustomFieldValueShowDTO;
-import com.grash.model.MeterCategory;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;

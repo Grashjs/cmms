@@ -150,11 +150,11 @@ public class AsyncExportService {
             MultipartFile file = new MultipartFileImpl(bytes, "Work Orders.csv");
             String filePath = storageServiceFactory.getStorageService().uploadAndSign(file,
                     user.getCompany().getId() + "/exports/" + uuid + "/work-orders");
-            messagingTemplate.convertAndSend("/exports/" + uuid, filePath);
+            messagingTemplate.convertAndSendToUser(user.getEmail(), "/exports/" + uuid, filePath);
             log.info("Export completed for work-orders, uuid: {}", uuid);
         } catch (Exception e) {
             log.error("Export failed for work-orders, uuid: {}", uuid, e);
-            messagingTemplate.convertAndSend("/exports/" + uuid, "error: " + e.getMessage());
+            messagingTemplate.convertAndSendToUser(user.getEmail(), "/exports/" + uuid, "error: " + e.getMessage());
         }
     }
 
@@ -185,11 +185,11 @@ public class AsyncExportService {
             MultipartFile file = new MultipartFileImpl(bytes, "Assets.csv");
             String filePath = storageServiceFactory.getStorageService().uploadAndSign(file,
                     user.getCompany().getId() + "/exports/" + uuid + "/assets");
-            messagingTemplate.convertAndSend("/exports/" + uuid, filePath);
+            messagingTemplate.convertAndSendToUser(user.getEmail(), "/exports/" + uuid, filePath);
             log.info("Export completed for assets, uuid: {}", uuid);
         } catch (Exception e) {
             log.error("Export failed for assets, uuid: {}", uuid, e);
-            messagingTemplate.convertAndSend("/exports/" + uuid, "error: " + e.getMessage());
+            messagingTemplate.convertAndSendToUser(user.getEmail(), "/exports/" + uuid, "error: " + e.getMessage());
         }
     }
 
@@ -220,11 +220,11 @@ public class AsyncExportService {
             MultipartFile file = new MultipartFileImpl(bytes, "Locations.csv");
             String filePath = storageServiceFactory.getStorageService().uploadAndSign(file,
                     user.getCompany().getId() + "/exports/" + uuid + "/locations");
-            messagingTemplate.convertAndSend("/exports/" + uuid, filePath);
+            messagingTemplate.convertAndSendToUser(user.getEmail(), "/exports/" + uuid, filePath);
             log.info("Export completed for locations, uuid: {}", uuid);
         } catch (Exception e) {
             log.error("Export failed for locations, uuid: {}", uuid, e);
-            messagingTemplate.convertAndSend("/exports/" + uuid, "error: " + e.getMessage());
+            messagingTemplate.convertAndSendToUser(user.getEmail(), "/exports/" + uuid, "error: " + e.getMessage());
         }
     }
 
@@ -255,11 +255,11 @@ public class AsyncExportService {
             MultipartFile file = new MultipartFileImpl(bytes, "Parts.csv");
             String filePath = storageServiceFactory.getStorageService().uploadAndSign(file,
                     user.getCompany().getId() + "/exports/" + uuid + "/parts");
-            messagingTemplate.convertAndSend("/exports/" + uuid, filePath);
+            messagingTemplate.convertAndSendToUser(user.getEmail(), "/exports/" + uuid, filePath);
             log.info("Export completed for parts, uuid: {}", uuid);
         } catch (Exception e) {
             log.error("Export failed for parts, uuid: {}", uuid, e);
-            messagingTemplate.convertAndSend("/exports/" + uuid, "error: " + e.getMessage());
+            messagingTemplate.convertAndSendToUser(user.getEmail(), "/exports/" + uuid, "error: " + e.getMessage());
         }
     }
 
@@ -290,11 +290,11 @@ public class AsyncExportService {
             MultipartFile file = new MultipartFileImpl(bytes, "Meters.csv");
             String filePath = storageServiceFactory.getStorageService().uploadAndSign(file,
                     user.getCompany().getId() + "/exports/" + uuid + "/meters");
-            messagingTemplate.convertAndSend("/exports/" + uuid, filePath);
+            messagingTemplate.convertAndSendToUser(user.getEmail(), "/exports/" + uuid, filePath);
             log.info("Export completed for meters, uuid: {}", uuid);
         } catch (Exception e) {
             log.error("Export failed for meters, uuid: {}", uuid, e);
-            messagingTemplate.convertAndSend("/exports/" + uuid, "error: " + e.getMessage());
+            messagingTemplate.convertAndSendToUser(user.getEmail(), "/exports/" + uuid, "error: " + e.getMessage());
         }
     }
 
@@ -326,11 +326,11 @@ public class AsyncExportService {
             MultipartFile file = new MultipartFileImpl(bytes, "Preventive Maintenances.csv");
             String filePath = storageServiceFactory.getStorageService().uploadAndSign(file,
                     user.getCompany().getId() + "/exports/" + uuid + "/preventive-maintenances");
-            messagingTemplate.convertAndSend("/exports/" + uuid, filePath);
+            messagingTemplate.convertAndSendToUser(user.getEmail(), "/exports/" + uuid, filePath);
             log.info("Export completed for preventive-maintenances, uuid: {}", uuid);
         } catch (Exception e) {
             log.error("Export failed for preventive-maintenances, uuid: {}", uuid, e);
-            messagingTemplate.convertAndSend("/exports/" + uuid, "error: " + e.getMessage());
+            messagingTemplate.convertAndSendToUser(user.getEmail(), "/exports/" + uuid, "error: " + e.getMessage());
         }
     }
 
@@ -361,11 +361,11 @@ public class AsyncExportService {
             MultipartFile file = new MultipartFileImpl(bytes, "Part Transactions.csv");
             String filePath = storageServiceFactory.getStorageService().uploadAndSign(file,
                     user.getCompany().getId() + "/exports/" + uuid + "/part-transactions");
-            messagingTemplate.convertAndSend("/exports/" + uuid, filePath);
+            messagingTemplate.convertAndSendToUser(user.getEmail(), "/exports/" + uuid, filePath);
             log.info("Export completed for part-transactions, uuid: {}", uuid);
         } catch (Exception e) {
             log.error("Export failed for part-transactions, uuid: {}", uuid, e);
-            messagingTemplate.convertAndSend("/exports/" + uuid, "error: " + e.getMessage());
+            messagingTemplate.convertAndSendToUser(user.getEmail(), "/exports/" + uuid, "error: " + e.getMessage());
         }
     }
 
@@ -397,11 +397,11 @@ public class AsyncExportService {
             MultipartFile file = new MultipartFileImpl(bytes, "Costs and Times.csv");
             String filePath = storageServiceFactory.getStorageService().uploadAndSign(file,
                     user.getCompany().getId() + "/exports/" + uuid + "/costs-times");
-            messagingTemplate.convertAndSend("/exports/" + uuid, filePath);
+            messagingTemplate.convertAndSendToUser(user.getEmail(), "/exports/" + uuid, filePath);
             log.info("Export completed for costs-times, uuid: {}", uuid);
         } catch (Exception e) {
             log.error("Export failed for costs-times, uuid: {}", uuid, e);
-            messagingTemplate.convertAndSend("/exports/" + uuid, "error: " + e.getMessage());
+            messagingTemplate.convertAndSendToUser(user.getEmail(), "/exports/" + uuid, "error: " + e.getMessage());
         }
     }
 }

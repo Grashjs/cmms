@@ -1019,7 +1019,7 @@ const locale = {
   po_emails: '発注書メール',
   required_job_title: '役職フィールドは必須です',
   required_old_password: '現在のパスワードを入力してください。',
-  invalid_password: 'パスワードが短すぎます - 最低8文字必要です。',
+  invalid_password: 'パスワードが短すぎます - 最低12文字必要です。',
   required_new_password: 'パスワードが入力されていません。',
   passwords_must_match: 'パスワードが一致しません',
   password_change_success: 'パスワードが正常に変更されました',
@@ -1507,6 +1507,7 @@ const locale = {
   reset: 'リセット',
   operation_success: '操作が成功しました',
   edit_reading: '読み取りを編集',
-  are_you_sure_delete_reading: 'この読み取りを削除してもよろしいですか？'
+  are_you_sure_delete_reading: 'この読み取りを削除してもよろしいですか？',
+  conflict_retry: 'リソースが別のリクエストによって変更されました。5秒後に再試行してください。'
 };
 export default locale;

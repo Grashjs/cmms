@@ -1,33 +1,29 @@
 package com.grash.security;
 
 import com.grash.exception.CustomException;
+import com.grash.model.User;
 import com.grash.model.enums.RoleType;
 import com.grash.utils.Consts;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import jakarta.annotation.PostConstruct;
-
 import javax.crypto.SecretKey;
-
-import jakarta.servlet.http.HttpServletRequest;
-
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
@@ -38,7 +34,7 @@ public class JwtTokenProvider {
     private String secretKey;
 
     @Value("${security.jwt.token.expire-length:3600000}")
-    private long validityInMilliseconds = 3600000; // 1h
+    private long validityInMilliseconds;
 
     private SecretKey key;
 
@@ -52,34 +48,47 @@ public class JwtTokenProvider {
 
     public String createToken(String username, List<RoleType> roles) {
 
-        Claims claims = Jwts.claims().setSubject(username);
-        claims.put("auth",
-                roles.stream().map(s -> new SimpleGrantedAuthority(s.getAuthority())).filter(Objects::nonNull).collect(Collectors.toList()));
-
         Date now = new Date();
         Date validity = new Date(now.getTime() + validityInMilliseconds);
 
-        return Jwts.builder()//
-                .setClaims(claims)//
-                .setIssuedAt(now)//
-                .setExpiration(validity)//
-                .signWith(key, SignatureAlgorithm.HS256)
+        return Jwts.builder()
+                .subject(username)
+                .issuedAt(now)
+                .expiration(validity)
+                .claim("auth",
+                        roles.stream().map(s -> new SimpleGrantedAuthority(s.getAuthority())).collect(Collectors.toList()))
+                .signWith(key)
                 .compact();
     }
 
     public Authentication getAuthentication(String token) {
-        UserDetails userDetails = customUserDetailsService.loadUserByUsername(getUsername(token));
+        Claims claims = Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token).getPayload();
+        CustomUserDetail userDetails = customUserDetailsService.loadUserByUsername(claims.getSubject());
         if (!userDetails.isEnabled()) {
             throw new CustomException("User account is disabled", HttpStatus.UNAUTHORIZED);
+        }
+        User user = userDetails.getUser();
+        Date sessionInvalidatedAt = user.getSessionInvalidatedAt();
+        Date issuedAt = claims.getIssuedAt();
+        if (sessionInvalidatedAt != null && issuedAt != null && issuedAt.before(sessionInvalidatedAt)) {
+            throw new CustomException("Session has been revoked. Please sign in again",
+                    HttpStatus.UNAUTHORIZED);
         }
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
     public String getUsername(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
+        return Jwts.parser()
+                .verifyWith(key)
                 .build()
-                .parseClaimsJws(token).getBody().getSubject();
+                .parseSignedClaims(token).getPayload().getSubject();
+    }
+
+    public Date computeAccessTokenExpiration() {
+        return new Date(System.currentTimeMillis() + validityInMilliseconds);
     }
 
     public String resolveToken(HttpServletRequest req) {
@@ -100,13 +109,15 @@ public class JwtTokenProvider {
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(key)
+            Jwts.parser()
+                    .verifyWith(key)
                     .build()
-                    .parseClaimsJws(token);
+                    .parseSignedClaims(token);
             return true;
+        } catch (ExpiredJwtException e) {
+            throw new CustomException("JWT token has expired", HttpStatus.UNAUTHORIZED);
         } catch (JwtException | IllegalArgumentException e) {
-            throw new CustomException("Expired or invalid JWT token", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new CustomException("Invalid JWT token", HttpStatus.UNAUTHORIZED);
         }
     }
 

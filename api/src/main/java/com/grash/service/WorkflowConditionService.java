@@ -5,6 +5,7 @@ import com.grash.exception.CustomException;
 import com.grash.mapper.WorkflowConditionMapper;
 import com.grash.model.WorkflowCondition;
 import com.grash.repository.WorkflowConditionRepository;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -19,13 +20,18 @@ public class WorkflowConditionService {
     private final WorkflowConditionMapper workflowConditionMapper;
 
     public WorkflowCondition create(WorkflowCondition WorkflowCondition) {
+        Sanitizer.sanitizeWorkflowCondition(WorkflowCondition);
         return workflowConditionRepository.save(WorkflowCondition);
     }
 
     public WorkflowCondition update(Long id, WorkflowConditionPatchDTO workflowConditionsPatchDTO) {
         if (workflowConditionRepository.existsById(id)) {
             WorkflowCondition savedWorkflowCondition = workflowConditionRepository.findById(id).get();
-            return workflowConditionRepository.save(workflowConditionMapper.updateWorkflowCondition(savedWorkflowCondition, workflowConditionsPatchDTO));
+            WorkflowCondition updatedWorkflowCondition =
+                    workflowConditionMapper.updateWorkflowCondition(savedWorkflowCondition,
+                            workflowConditionsPatchDTO);
+            Sanitizer.sanitizeWorkflowCondition(updatedWorkflowCondition);
+            return workflowConditionRepository.save(updatedWorkflowCondition);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 

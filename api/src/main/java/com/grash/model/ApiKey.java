@@ -26,4 +26,8 @@ public class ApiKey extends CompanyAudit {
     private User user;
     @Schema(description = "Last usage date", accessMode = Schema.AccessMode.READ_ONLY)
     private Date lastUsed;
+    @Schema(description = "Expiration date of the API key", accessMode = Schema.AccessMode.READ_ONLY)
+    private Date expiresAt;
+    @Schema(description = "Revocation date of the API key", accessMode = Schema.AccessMode.READ_ONLY)
+    private Date revokedAt;
 }

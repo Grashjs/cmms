@@ -6,6 +6,7 @@ import com.grash.mapper.TimeCategoryMapper;
 import com.grash.model.TimeCategory;
 import com.grash.model.User;
 import com.grash.repository.TimeCategoryRepository;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ public class TimeCategoryService {
     private final TimeCategoryMapper timeCategoryMapper;
 
     public TimeCategory create(TimeCategory timeCategory, User user) {
+        Sanitizer.sanitizeCategory(timeCategory);
         Optional<TimeCategory> categoryWithSameName =
                 timeCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(timeCategory.getName(),
                         user.getCompany().getCompanySettings().getId());
@@ -33,7 +35,9 @@ public class TimeCategoryService {
     public TimeCategory update(Long id, CategoryPatchDTO timeCategory) {
         if (timeCategoryRepository.existsById(id)) {
             TimeCategory savedTimeCategory = timeCategoryRepository.findById(id).get();
-            return timeCategoryRepository.save(timeCategoryMapper.updateTimeCategory(savedTimeCategory, timeCategory));
+            TimeCategory updatedTimeCategory = timeCategoryMapper.updateTimeCategory(savedTimeCategory, timeCategory);
+            Sanitizer.sanitizeCategory(updatedTimeCategory);
+            return timeCategoryRepository.save(updatedTimeCategory);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -52,16 +56,5 @@ public class TimeCategoryService {
     public Collection<TimeCategory> findByCompanySettings(Long id) {
         return timeCategoryRepository.findByCompanySettings_Id(id);
 
-    }
-
-    public boolean isTimeCategoryInCompany(TimeCategory timeCategory, long companyId, boolean optional) {
-        if (optional) {
-            Optional<TimeCategory> optionalTimeCategory = timeCategory == null ? Optional.empty() :
-                    findById(timeCategory.getId());
-            return timeCategory == null || (optionalTimeCategory.isPresent() && optionalTimeCategory.get().getCompanySettings().getCompany().getId().equals(companyId));
-        } else {
-            Optional<TimeCategory> optionalTimeCategory = findById(timeCategory.getId());
-            return optionalTimeCategory.isPresent() && optionalTimeCategory.get().getCompanySettings().getCompany().getId().equals(companyId);
-        }
     }
 }

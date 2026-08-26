@@ -1013,7 +1013,7 @@ const locale = {
   po_emails: 'Megrendelés email-ek',
   required_job_title: 'A beosztás mezõ kitöltése kötelezõ',
   required_old_password: 'Kérem adja meg a jelenlegi jelszót.',
-  invalid_password: 'A jelszó túl rövid - legalább 8 karakter legyen.',
+  invalid_password: 'A jelszó túl rövid - legalább 12 karakter legyen.',
   required_new_password: 'Nem adott meg jelszót.',
   passwords_must_match: 'A jelszavaknak meg kell egyezniük',
   password_change_success: 'A jelszó sikeresen megváltozott',
@@ -1502,6 +1502,7 @@ const locale = {
   reset: 'Visszaállítás',
   operation_success: 'A művelet sikeres volt',
   edit_reading: 'Mérés szerkesztése',
-  are_you_sure_delete_reading: 'Biztosan törölni szeretné ezt a mérést?'
+  are_you_sure_delete_reading: 'Biztosan törölni szeretné ezt a mérést?',
+  conflict_retry: 'Az erőforrást egy másik kérés módosította. Kérjük, próbálja újra 5 másodperc múlva.'
 };
 export default locale;

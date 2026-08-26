@@ -2,9 +2,11 @@ import { Button, Card, Stack, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import useAuth from '../../../hooks/useAuth';
 import { Link as RouterLink } from 'react-router-dom';
+import { isCloudVersion } from '../../../config';
+import { getLocalizedHomeUrl } from '../../../utils/urlPaths';
 
 export default function FeatureErrorMessage({ message }: { message: string }) {
-  const { t }: { t: any } = useTranslation();
+  const { t, i18n }: { t: any; i18n: any } = useTranslation();
   const { user } = useAuth();
   return (
     <Card
@@ -21,8 +23,17 @@ export default function FeatureErrorMessage({ message }: { message: string }) {
         <Typography variant="h4">{t(message)}</Typography>
         {user.ownsCompany && (
           <Button
-            component={RouterLink}
-            to={'/app/subscription/plans'}
+            component={isCloudVersion ? RouterLink : 'a'}
+            {...(isCloudVersion
+              ? { to: '/app/subscription/plans' }
+              : {
+                  href: getLocalizedHomeUrl(
+                    'pricing?type=selfhosted',
+                    i18n.language
+                  ),
+                  target: '_blank',
+                  rel: 'noopener noreferrer'
+                })}
             variant="contained"
             size="large"
           >

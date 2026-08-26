@@ -8,12 +8,10 @@ import com.grash.dto.license.LicenseEntitlement;
 import com.grash.dto.workOrder.WorkOrderPostDTO;
 import com.grash.dto.workOrder.WorkOrderSendReportDTO;
 import com.grash.exception.CustomException;
-import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.*;
 import com.grash.model.enums.*;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.*;
-import com.grash.security.CustomUserDetail;
 import com.grash.service.TeamService;
 import com.grash.service.WebhookDispatchService;
 import com.grash.service.WorkOrderService;
@@ -23,26 +21,21 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static com.grash.utils.Consts.usageBasedLicenseLimits;
+import static com.grash.utils.Consts.usageBasedFreeLimits;
 import static com.grash.utils.Helper.setCurrentUser;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.never;
 
 @Transactional
 class WorkOrderIntegrationTest extends AbstractIntegrationTest {
@@ -94,7 +87,7 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
     @Autowired
     private PreventiveMaintenanceRepository preventiveMaintenanceRepository;
 
-    @MockBean
+    @MockitoBean
     private WebhookDispatchService webhookDispatchService;
 
     private Company company;
@@ -212,7 +205,7 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
 
         @Test
         void create_throwsForbiddenWhenUsageLimitExceeded() {
-            for (int i = 0; i < usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS); i++) {
+            for (int i = 0; i < usageBasedFreeLimits.get(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS); i++) {
                 WorkOrder wo = new WorkOrder();
                 wo.setTitle("Active WO " + i);
                 wo.setStatus(Status.OPEN);

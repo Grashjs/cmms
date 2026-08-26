@@ -27,13 +27,14 @@ import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContex
 import { SubscriptionPlan } from '../../../../models/owns/subscriptionPlan';
 import { useNavigate } from 'react-router-dom';
 import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
-import api from '../../../../utils/api';
+import api, { authHeader } from '../../../../utils/api';
 import { useBrand } from '../../../../hooks/useBrand';
 import { fireGa4Event } from '../../../../utils/overall';
 import { initializePaddle, Paddle } from '@paddle/paddle-js';
 import {
   apiUrl,
   homeUrl,
+  isCloudVersion,
   PADDLE_SECRET_TOKEN,
   paddleEnvironment
 } from '../../../../config';
@@ -45,7 +46,6 @@ function SubscriptionPlans() {
   const brandConfig = useBrand();
   const subscription = company.subscription;
   const theme = useTheme();
-  const [item, setItem] = useState(null);
   const [usersCount, setUsersCount] = useState<number>(
     company.subscription.usersCount > 150 ? 10 : company.subscription.usersCount
   );
@@ -56,7 +56,6 @@ function SubscriptionPlans() {
   const { subscriptionPlans } = useSelector((state) => state.subscriptionPlans);
   const { setTitle } = useContext(TitleContext);
   const { showSnackBar } = useContext(CustomSnackBarContext);
-  const { getFormattedCurrency } = useContext(CompanySettingsContext);
   const [submitting, setSubmitting] = useState(false);
   const checkoutComplete = useRef<boolean>(false);
   const dispatch = useDispatch();
@@ -120,7 +119,7 @@ function SubscriptionPlans() {
       const response = await fetch(`${apiUrl}paddle/create-checkout-session`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          ...authHeader(false)
         },
         body: JSON.stringify({
           planId: path,

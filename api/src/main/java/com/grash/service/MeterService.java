@@ -13,9 +13,8 @@ import com.grash.mapper.MeterMapper;
 import com.grash.model.*;
 import com.grash.model.enums.CustomFieldEntityType;
 import com.grash.model.enums.NotificationType;
-import com.grash.model.enums.PermissionEntity;
 import com.grash.repository.MeterRepository;
-import com.grash.service.CustomFieldValueService;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
@@ -30,7 +29,7 @@ import jakarta.persistence.EntityManager;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.grash.utils.Consts.usageBasedLicenseLimits;
+import static com.grash.utils.Consts.usageBasedFreeLimits;
 
 @Service
 @RequiredArgsConstructor
@@ -60,13 +59,14 @@ public class MeterService {
                 setMeterCustomFields(meter, meterPostDTO.getCustomFields(), company);
             }
         }
+        Sanitizer.sanitizeMeter(meter);
         Meter savedMeter = meterRepository.saveAndFlush(meter);
         em.refresh(savedMeter);
         return savedMeter;
     }
 
     private void checkUsageBasedLimit(Company company) {
-        Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_METERS);
+        Integer threshold = usageBasedFreeLimits.get(LicenseEntitlement.UNLIMITED_METERS);
         if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_METERS)
                 && meterRepository.hasMoreThan(company.getId(), threshold.longValue() - 1
         ))
@@ -93,7 +93,9 @@ public class MeterService {
             if (meter.getCustomFields() != null && !meter.getCustomFields().isEmpty()) {
                 setMeterCustomFields(savedMeter, meter.getCustomFields(), company);
             }
-            Meter patchedMeter = meterRepository.saveAndFlush(meterMapper.updateMeter(savedMeter, meter));
+            Meter patchedMeter = meterMapper.updateMeter(savedMeter, meter);
+            Sanitizer.sanitizeMeter(patchedMeter);
+            patchedMeter = meterRepository.saveAndFlush(patchedMeter);
             em.refresh(patchedMeter);
             return patchedMeter;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -168,7 +170,8 @@ public class MeterService {
                 companyId).stream().findFirst();
         optionalAsset.ifPresent(meter::setAsset);
         if (dto.getMeterCategory() != null && !dto.getMeterCategory().isBlank()) {
-            MeterCategory category = meterCategoryService.getOrCreate(dto.getMeterCategory(), company.getCompanySettings());
+            MeterCategory category = meterCategoryService.getOrCreate(dto.getMeterCategory(),
+                    company.getCompanySettings());
             meter.setMeterCategory(category);
         }
         List<User> users = new ArrayList<>();
@@ -177,6 +180,7 @@ public class MeterService {
             optionalUser1.ifPresent(users::add);
         });
         meter.setUsers(users);
+        Sanitizer.sanitizeMeter(meter);
     }
 
     public Optional<Meter> findByIdAndCompany(Long id, Long companyId) {
@@ -191,9 +195,5 @@ public class MeterService {
         return meterRepository.findByIdInAndCompany_Id(ids, companyId);
     }
 
-    public boolean isAccessibleBy(User user, Meter meter) {
-        return (user.getRole().getViewPermissions().contains(PermissionEntity.METERS) &&
-                (user.getRole().getViewOtherPermissions().contains(PermissionEntity.METERS) || (meter.getCreatedBy() != null && meter.getCreatedBy().equals(user.getId())) || meter.isAssignedTo(user)));
-    }
 }
 

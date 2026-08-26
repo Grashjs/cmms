@@ -1,8 +1,10 @@
 package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.grash.dto.IdDTO;
 import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.PermissionEntity;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -38,6 +40,8 @@ public class PreventiveMaintenance extends WorkOrderBase {
     private Schedule schedule = new Schedule(this);
 
     @OneToMany(mappedBy = "preventiveMaintenance", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ArraySchema(schema = @Schema(implementation = IdDTO.class))
+    @Schema(description = "Custom fields", accessMode = Schema.AccessMode.READ_ONLY)
     private List<CustomFieldValue> customFieldValues = new ArrayList<>();
 
     public boolean canBeEditedBy(User user) {
@@ -45,7 +49,12 @@ public class PreventiveMaintenance extends WorkOrderBase {
                 || user.getId().equals(this.getCreatedBy());
     }
 
-    public boolean isAccessibleBy(User user) {
+    public boolean canBeDeletedBy(User user) {
+        return user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PREVENTIVE_MAINTENANCES)
+                || user.getId().equals(this.getCreatedBy());
+    }
+
+    public boolean canBeViewedBy(User user) {
         return (user.getRole().getViewPermissions().contains(PermissionEntity.PREVENTIVE_MAINTENANCES) &&
                 (user.getRole().getViewOtherPermissions().contains(PermissionEntity.PREVENTIVE_MAINTENANCES) || (getCreatedBy() != null && getCreatedBy().equals(user.getId())) || isAssignedTo(user)));
     }

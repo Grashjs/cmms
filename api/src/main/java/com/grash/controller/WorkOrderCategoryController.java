@@ -3,14 +3,15 @@ package com.grash.controller;
 import com.grash.dto.CategoryPatchDTO;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
-import com.grash.model.User;
 import com.grash.model.WorkOrderCategory;
+import com.grash.model.User;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleType;
-import com.grash.service.UserService;
 import com.grash.service.WorkOrderCategoryService;
+import com.grash.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,39 +49,37 @@ public class WorkOrderCategoryController {
     public WorkOrderCategory getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<WorkOrderCategory> optionalWorkOrderCategory = workOrderCategoryService.findById(id);
-        if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
-            if (optionalWorkOrderCategory.isPresent()) {
-                WorkOrderCategory savedWorkOrderCategory = optionalWorkOrderCategory.get();
-                return savedWorkOrderCategory;
-            } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
-        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
-
+        if (optionalWorkOrderCategory.isPresent()) {
+            if (!optionalWorkOrderCategory.get().canBeViewedBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return workOrderCategoryService.findById(id).get();
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    WorkOrderCategory create(@Parameter(description = "Work order category to create") @Valid @RequestBody WorkOrderCategory workOrderCategory,
-                             HttpServletRequest req) {
+    public WorkOrderCategory create(@Parameter(description = "WorkOrder category to create") @Valid @RequestBody WorkOrderCategory workOrderCategoryReq,
+                                    HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
-            return workOrderCategoryService.create(workOrderCategory, user);
+            return workOrderCategoryService.create(workOrderCategoryReq, user);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public WorkOrderCategory patch(@Parameter(description = "Work order category fields to update") @Valid @RequestBody CategoryPatchDTO categoryPatchDTO, @PathVariable("id") Long id,
+    public WorkOrderCategory patch(@Parameter(description = "WorkOrder category fields to update") @Valid @RequestBody CategoryPatchDTO workOrderCategory,
+                                   @PathVariable("id") Long id,
                                    HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<WorkOrderCategory> optionalWorkOrderCategory = workOrderCategoryService.findById(id);
-        if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
-
-            if (optionalWorkOrderCategory.isPresent()) {
-                WorkOrderCategory savedWorkOrderCategory = optionalWorkOrderCategory.get();
-                return workOrderCategoryService.update(id, categoryPatchDTO);
-            } else throw new CustomException("WorkOrderCategory not found", HttpStatus.NOT_FOUND);
-        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
-
+        if (optionalWorkOrderCategory.isPresent()) {
+            if (!optionalWorkOrderCategory.get().canBeEditedBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return workOrderCategoryService.update(id, workOrderCategory);
+        } else {
+            throw new CustomException("Category not found", HttpStatus.NOT_FOUND);
+        }
     }
 
     @DeleteMapping("/{id}")
@@ -90,8 +89,7 @@ public class WorkOrderCategoryController {
 
         Optional<WorkOrderCategory> optionalWorkOrderCategory = workOrderCategoryService.findById(id);
         if (optionalWorkOrderCategory.isPresent()) {
-            WorkOrderCategory savedWorkOrderCategory = optionalWorkOrderCategory.get();
-            if (user.getId().equals(savedWorkOrderCategory.getCreatedBy()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.CATEGORIES)) {
+            if (optionalWorkOrderCategory.get().canBeDeletedBy(user)) {
                 workOrderCategoryService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

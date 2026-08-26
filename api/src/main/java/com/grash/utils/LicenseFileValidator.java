@@ -7,6 +7,7 @@ import org.bouncycastle.crypto.DataLengthException;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.crypto.engines.AESEngine;
 import org.bouncycastle.crypto.modes.GCMBlockCipher;
+import org.bouncycastle.crypto.modes.GCMModeCipher;
 import org.bouncycastle.crypto.params.AEADParameters;
 import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
 import org.bouncycastle.crypto.params.KeyParameter;
@@ -26,7 +27,7 @@ import java.util.Base64;
  * License files are expected to be in the format produced by Keygen.sh with offline validation support.
  */
 @Slf4j
-public class LicenseFileValidator {
+public final class LicenseFileValidator {
 
     private static final String LICENSE_FILE_HEADER = "-----BEGIN LICENSE FILE-----";
     private static final String LICENSE_FILE_FOOTER = "-----END LICENSE FILE-----";
@@ -155,7 +156,7 @@ public class LicenseFileValidator {
 
             // Set up AES-256-GCM
             AEADParameters cipherParams = new AEADParameters(new KeyParameter(key), 128, iv, null);
-            GCMBlockCipher cipher = new GCMBlockCipher(new AESEngine());
+            GCMModeCipher cipher = GCMBlockCipher.newInstance(new AESEngine());
 
             cipher.init(false, cipherParams);
 
@@ -173,7 +174,8 @@ public class LicenseFileValidator {
 
             return new String(output);
 
-        } catch (IllegalArgumentException | IllegalStateException | DataLengthException | InvalidCipherTextException e) {
+        } catch (IllegalArgumentException | IllegalStateException | DataLengthException |
+                 InvalidCipherTextException e) {
             log.error("Failed to decrypt license file: {}", e.getMessage());
             return null;
         }

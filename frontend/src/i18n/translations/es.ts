@@ -189,6 +189,8 @@ const esJSON = {
   no_account_yet: '¿Todavía no tiene una cuenta?',
   signup_here: 'Regístrese aquí',
   wrong_credentials: 'Los datos proporcionados son incorrectos',
+  server_not_reachable:
+    'El servidor backend no está disponible. Puede esperar a que se inicie e intentarlo de nuevo.',
   lost_password: '¿Olvido su contraseña?',
   link_wo: 'Vincular Órdenes de Trabajo',
   link_wo_description: 'Crear relaciones entre Órdenes de Trabajo',
@@ -1037,7 +1039,7 @@ const esJSON = {
   required_job_title: 'El campo título del puesto es obligatorio',
   required_old_password: 'Por favor proporcione la contraseña actual.',
   invalid_password:
-    'La contraseña es demasiado corta. Debe tener un mínimo de 8 caracteres.',
+    'La contraseña es demasiado corta. Debe tener un mínimo de 12 caracteres.',
   required_new_password: 'No se proporcionó contraseña.',
   passwords_must_match: 'Las contraseñas deben coincidir',
   password_change_success: 'Contraseña modificada exitosamente',
@@ -1864,9 +1866,19 @@ const esJSON = {
   api_key_code: 'Código de la clave API',
   copy_code: 'Copiar código',
   last_used: 'Último uso',
+  expiration: 'Vencimiento',
+  expiration_optional: 'Vencimiento (opcional)',
   never: 'Nunca',
   delete_api_key: 'Eliminar clave API',
   delete_api_key_confirm: '¿Está seguro de que desea eliminar esta clave API?',
+  rotate: 'Rotar',
+  rotate_api_key: 'Rotar clave API',
+  rotate_api_key_confirm:
+    'Esto revocará la clave actual y generará una nueva. La clave anterior dejará de funcionar inmediatamente.',
+  api_key_rotated_success: 'Clave API rotada con éxito',
+  active: 'Activo',
+  expired: 'Expirado',
+  revoked: 'Revocado',
   upgrade_api: 'Actualice para obtener acceso a la API, conectores y webhooks',
   // Webhooks
   webhook_endpoints: 'Endpoints de Webhook',

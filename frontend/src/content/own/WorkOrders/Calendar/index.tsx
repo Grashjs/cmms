@@ -20,7 +20,6 @@ import {
 
 import type { View } from 'src/models/calendar';
 import { useDispatch, useSelector } from 'src/store';
-import { selectEvent } from 'src/slices/calendar';
 import WorkOrder, { Priority } from 'src/models/owns/workOrder';
 import { CalendarEvent, getWorkOrderEvents } from 'src/slices/workOrder';
 import Actions from './Actions';
@@ -256,22 +255,16 @@ function ApplicationsCalendar({
     }
   };
 
-  const handleEventSelect = (arg: any): void => {
-    dispatch(selectEvent(arg.event.id));
-  };
-
   return (
     <Grid item xs={12}>
-      <Box p={3}>
-        <Actions
-          date={date}
-          onNext={handleDateNext}
-          onPrevious={handleDatePrev}
-          onToday={handleDateToday}
-          changeView={changeView}
-          view={view}
-        />
-      </Box>
+      <Actions
+        date={date}
+        onNext={handleDateNext}
+        onPrevious={handleDatePrev}
+        onToday={handleDateToday}
+        changeView={changeView}
+        view={view}
+      />
       <Divider />
       <FullCalendarWrapper>
         {loadingGet && (
@@ -280,7 +273,7 @@ function ApplicationsCalendar({
           </Stack>
         )}
         <FullCalendar
-          allDayMaintainDuration
+          allDaySlot={false}
           initialDate={date}
           initialView={view}
           locale={calendarLocale}

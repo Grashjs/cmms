@@ -15,6 +15,7 @@ import useAuth from 'src/hooks/useAuth';
 import UpgradeTwoToneIcon from '@mui/icons-material/UpgradeTwoTone';
 import QuestionMarkTwoToneIcon from '@mui/icons-material/QuestionMarkTwoTone';
 import { homeUrl, isCloudVersion } from '../../../../config';
+import { getLocalizedHomeUrl } from '../../../../utils/urlPaths';
 import { useContext } from 'react';
 import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
 
@@ -34,7 +35,7 @@ const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
 }));
 
 function SidebarFooter() {
-  const { t }: { t: any } = useTranslation();
+  const { t, i18n }: { t: any; i18n: any } = useTranslation();
   const theme = useTheme();
   const { logout, user } = useAuth();
   const { requestSubscriptionChange } = useContext(CompanySettingsContext);
@@ -75,7 +76,10 @@ function SidebarFooter() {
             {...(isCloudVersion
               ? { to: '/app/subscription/plans' }
               : {
-                  href: 'https://www.cmms.corefm.de/pricing?type=selfhosted',
+                  href: getLocalizedHomeUrl(
+                    'pricing?type=selfhosted',
+                    i18n.language
+                  ),
                   target: '_blank',
                   rel: 'noopener noreferrer'
                 })}

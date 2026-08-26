@@ -1010,7 +1010,7 @@ const locale = {
   po_emails: 'E-mails voor inkooporders',
   required_job_title: 'Het veld functietitel is verplicht',
   required_old_password: 'Geef het huidige wachtwoord op.',
-  invalid_password: 'Wachtwoord is te kort - minimaal 8 tekens.',
+  invalid_password: 'Wachtwoord is te kort - minimaal 12 tekens.',
   required_new_password: 'Geen wachtwoord opgegeven.',
   passwords_must_match: 'Wachtwoorden moeten overeenkomen',
   password_change_success: 'Wachtwoord succesvol gewijzigd',
@@ -1503,6 +1503,7 @@ const locale = {
   reset: 'Resetten',
   operation_success: 'De bewerking is gelukt',
   edit_reading: 'Meetwaarde bewerken',
-  are_you_sure_delete_reading: 'Weet u zeker dat u deze meetwaarde wilt verwijderen?'
+  are_you_sure_delete_reading: 'Weet u zeker dat u deze meetwaarde wilt verwijderen?',
+  conflict_retry: 'De bron is gewijzigd door een ander verzoek. Probeer het over 5 seconden opnieuw.'
 };
 export default locale;

@@ -8,8 +8,10 @@ import com.grash.mapper.RoleMapper;
 import com.grash.model.Company;
 import com.grash.model.Role;
 import com.grash.model.enums.RoleCode;
+import com.grash.model.enums.RoleType;
 import com.grash.repository.RoleRepository;
 import com.grash.utils.Helper;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.http.HttpStatus;
@@ -29,13 +31,16 @@ public class RoleService {
     public Role create(Role role) {
         if (role.getCode().equals(RoleCode.USER_CREATED) && !licenseService.hasEntitlement(LicenseEntitlement.CUSTOM_ROLES))
             throw new CustomException("You need a license to create custom roles", HttpStatus.FORBIDDEN);
+        Sanitizer.sanitizeRole(role);
         return roleRepository.save(role);
     }
 
     public Role update(Long id, RolePatchDTO role) {
         if (roleRepository.existsById(id)) {
             Role savedRole = roleRepository.findById(id).get();
-            return roleRepository.save(roleMapper.updateRole(savedRole, role));
+            Role updatedRole = roleMapper.updateRole(savedRole, role);
+            Sanitizer.sanitizeRole(updatedRole);
+            return roleRepository.save(updatedRole);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -51,8 +56,8 @@ public class RoleService {
         return roleRepository.findById(id);
     }
 
-    public Optional<Role> findByName(String name) {
-        return roleRepository.findByName(name);
+    public List<Role> findByCodeAndRoleType(RoleCode code, RoleType roleType) {
+        return roleRepository.findByCodeAndRoleType(code, roleType);
     }
 
     public List<Role> findByCompany(Long id) {
@@ -75,12 +80,12 @@ public class RoleService {
 
     public void updateDefaultRoles() {
         List<Role> rolesToUpdate = new ArrayList<>();
-        List<Role> rolesToAdd = new ArrayList<>();
 
         // Iterate through each tenant type's roles to find roles that need updates or additions
         List<Role> upToDateRoles = Helper.getDefaultRoles();
         List<Role> existingDefaultRoles = findDefaultRoles();
-        rolesToAdd.addAll(upToDateRoles.stream().filter(upToDateRole -> existingDefaultRoles.stream().noneMatch(existingDefaultRole -> existingDefaultRole.getCode().equals(upToDateRole.getCode()))).collect(Collectors.toList()));
+        List<Role> rolesToAdd =
+                new ArrayList<>(upToDateRoles.stream().filter(upToDateRole -> existingDefaultRoles.stream().noneMatch(existingDefaultRole -> existingDefaultRole.getCode().equals(upToDateRole.getCode()))).toList());
 
         // Update roles by comparing privileges and 'paid' status between default and up-to-date roles
         for (Role existingDefaultRole : existingDefaultRoles) {

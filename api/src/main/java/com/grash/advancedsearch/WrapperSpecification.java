@@ -4,6 +4,8 @@ import com.grash.model.enums.EnumName;
 import com.grash.model.enums.Priority;
 import com.grash.model.enums.Status;
 import com.grash.utils.Helper;
+import jakarta.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.domain.Specification;
 
 import jakarta.persistence.criteria.*;
@@ -13,7 +15,6 @@ import jakarta.persistence.metamodel.ManagedType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class WrapperSpecification<T> implements Specification<T> {
@@ -27,10 +28,31 @@ public class WrapperSpecification<T> implements Specification<T> {
     }
 
     @Override
-    public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+    public Predicate toPredicate(@NotNull Root<T> root, @Nullable CriteriaQuery<?> query, @NotNull CriteriaBuilder cb) {
+        try {
+            SearchFieldPolicy.validate(root.getModel().getJavaType(), filterField.getField());
+            SearchOperation operation = getOperationOrThrow();
+            return buildPredicate(root, query, cb, operation);
+        } catch (IllegalArgumentException e) {
+            throw new InvalidSearchFieldException(filterField.getField());
+        }
+    }
 
+    private SearchOperation getOperationOrThrow() {
+        if (filterField.getOperation() == null) {
+            throw new InvalidSearchFieldException(filterField.getField());
+        }
+        SearchOperation operation = SearchOperation.getSimpleOperation(filterField.getOperation());
+        if (operation == null) {
+            throw new InvalidSearchFieldException(filterField.getField());
+        }
+        return operation;
+    }
+
+    private Predicate buildPredicate(@NotNull Root<T> root, @Nullable CriteriaQuery<?> query,
+                                     @NotNull CriteriaBuilder cb, SearchOperation operation) {
         Predicate result = null;
-        switch (Objects.requireNonNull(SearchOperation.getSimpleOperation(filterField.getOperation()))) {
+        switch (operation) {
             case CONTAINS:
                 result = buildLikePredicate(root, cb, "%" + filterField.getValue().toString().toLowerCase() + "%");
                 break;
@@ -115,7 +137,7 @@ public class WrapperSpecification<T> implements Specification<T> {
                 result = inClause;
                 break;
             }
-            case IN_MANY_TO_MANY:
+            case IN_MANY_TO_MANY: {
                 // Known limitation, left as is on purpose: the join yields one row per matching
                 // association, so an entity linked to several of the selected values shows up
                 // several times and inflates totalElements. `query.distinct(true)` looks like
@@ -124,18 +146,20 @@ public class WrapperSpecification<T> implements Specification<T> {
                 // and Postgres rejects SELECT DISTINCT with an ORDER BY expression that is not
                 // in the select list. The safe fix is an IN-subquery on the root id instead of
                 // a join; that rewrites shared search behaviour and wants its own change.
-                Join<Object, Object> join = root.join(filterField.getField(), filterField.getJoinType());
+                JoinType joinType = filterField.getJoinType() != null ? filterField.getJoinType() : JoinType.LEFT;
+                Join<Object, Object> join = root.join(filterField.getField(), joinType);
                 CriteriaBuilder.In<Object> inClause1 = cb.in(join.get("id"));
                 filterField.getValues().forEach(value -> inClause1.value(getRealValue(filterField.getEnumName(),
                         value)));
                 result = inClause1;
                 break;
+            }
         }
         return wrapAlternatives(result, root, query, cb);
     }
 
     private Predicate wrapAlternatives(Predicate result, Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
-        if (filterField.getAlternatives() == null || filterField.getAlternatives().size() == 0) {
+        if (filterField.getAlternatives() == null || filterField.getAlternatives().isEmpty()) {
             return result;
         } else {
             List<SpecificationBuilder<T>> specificationBuilders =
@@ -143,7 +167,7 @@ public class WrapperSpecification<T> implements Specification<T> {
                         SpecificationBuilder<T> builder = new SpecificationBuilder<>();
                         builder.with(alternative);
                         return builder;
-                    }).collect(Collectors.toList());
+                    }).toList();
             List<Predicate> predicates =
                     specificationBuilders.stream().map(specificationBuilder -> specificationBuilder.build().toPredicate(root, query, cb)).collect(Collectors.toList());
             predicates.add(result);
@@ -157,16 +181,11 @@ public class WrapperSpecification<T> implements Specification<T> {
             return value;
         }
         if (value instanceof String) {
-            switch (enumName) {
-                case PRIORITY:
-                    return Priority.getPriorityFromString(value.toString());
-                case STATUS:
-                    return Status.getStatusFromString(value.toString());
-                case JS_DATE:
-                    return Helper.getDateFromJsString(value.toString());
-                default:
-                    return value;
-            }
+            return switch (enumName) {
+                case PRIORITY -> Priority.getPriorityFromString(value.toString());
+                case STATUS -> Status.getStatusFromString(value.toString());
+                case JS_DATE -> Helper.getDateFromJsString(value.toString());
+            };
         }
         return value;
     }

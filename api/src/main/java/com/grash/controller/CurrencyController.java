@@ -46,8 +46,7 @@ public class CurrencyController {
         User user = userService.whoami(req);
         Optional<Currency> optionalCurrency = currencyService.findById(id);
         if (optionalCurrency.isPresent()) {
-            Currency savedCurrency = optionalCurrency.get();
-            return savedCurrency;
+            return optionalCurrency.get();
         } else throw new CustomException(CURRENCY_NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 
