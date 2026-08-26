@@ -1,4 +1,8 @@
-FROM node:21.6.1 AS build
+# Node 22, not 21: vite 8 declares engines.node "^20.19.0 || >=22.12.0", which Node 21
+# satisfies neither. npm only warns about that, so the mismatch does not surface at
+# install time - it surfaces when the bundler runs, in CI, after a green local build on
+# whatever newer Node the developer happens to have. When bumping vite, check this line.
+FROM node:22.12.0 AS build
 
 WORKDIR /usr/src/app
 COPY package*.json ./
