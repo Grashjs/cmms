@@ -124,7 +124,13 @@ refusing to install. So the mismatch is invisible until CI, and it looks like th
 broke rather than the toolchain. When bumping Vite, read `engines` and check the `FROM` line.
 
 `.github/workflows/tests.yml` runs the Maven suite separately so a test failure does not
-block an image build, and a build failure is distinguishable from a test failure.
+block an image build, and a build failure is distinguishable from a test failure. It also runs
+on `pull_request`, which is the reason to route anything risky — an upstream sync above all —
+through a branch and a PR: CI on JDK 17 is the authority for the backend, and it has already
+caught a bad merge resolution that a local build called green.
+
+**A deploy takes about 50 seconds** since the move to Vite; it used to be around five minutes.
+If one suddenly takes minutes again, that is a signal worth following rather than waiting out.
 
 ### Coolify behaviour worth knowing
 
@@ -311,14 +317,6 @@ upstream FREE behaviour again. When syncing upstream, re-check `LicenseService`,
 
 ## Open items
 
-- **The Coolify deploy webhook has been failing, so nothing has auto-deployed.** All three
-  images build and reach GHCR; the `Trigger Coolify` job then fails on its single `curl -fsS`.
-  The instance is up and the endpoint is fine — `GET /api/v1/deploy` without credentials
-  answers 401 where an invented path answers 404 — which points at `COOLIFY_API_TOKEN` being
-  unset, wrong or expired rather than at a stale URL. Note the workflow omits the
-  `Authorization` header entirely when the secret is empty, which produces exactly this 401.
-  Until it is fixed, deploying means clicking Deploy in Coolify by hand; `:latest` already
-  carries the newest build.
 - Make the nginx signup block toggleable via an environment variable (`envsubst` templates
   are supported by the nginx image) instead of editing the config.
 - **The api healthcheck has never once been green.** It probes
