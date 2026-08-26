@@ -42,6 +42,13 @@ interface UseTableStateProps {
   persistPageIndex?: boolean;
   setCriteria?: React.Dispatch<React.SetStateAction<SearchCriteria>>;
   fieldMapping?: Record<string, string>;
+  /**
+   * Columns that start hidden, as `{ id: false }`. A list can offer a wide
+   * choice of columns without every one of them landing on screen. Stored
+   * layouts win for the columns they mention, so a column added later keeps
+   * this default instead of appearing unannounced in everybody's table.
+   */
+  initialColumnVisibility?: VisibilityState;
 }
 
 const useTableState = ({
@@ -51,7 +58,8 @@ const useTableState = ({
   pageSizeOptions = [10, 25, 50, 100],
   persistPageIndex = false,
   setCriteria = () => null,
-  fieldMapping = {}
+  fieldMapping = {},
+  initialColumnVisibility = {}
 }: UseTableStateProps): TableStateReturn => {
   const stateItem = `${prefix}TableState`;
   const hasRestoredRef = useRef(false);
@@ -63,7 +71,7 @@ const useTableState = ({
   const [columnOrder, setColumnOrderState] = useState<ColumnOrderState>([]);
   const [columnSizing, setColumnSizingState] = useState<ColumnSizingState>({});
   const [columnVisibility, setColumnVisibilityState] =
-    useState<VisibilityState>({});
+    useState<VisibilityState>(initialColumnVisibility);
   const [pinnedColumns, setPinnedColumnsState] = useState<string[]>([]);
 
   // Restore state from localStorage on mount
@@ -98,7 +106,13 @@ const useTableState = ({
         state.columnVisibility &&
         Object.keys(state.columnVisibility).length > 0
       ) {
-        setColumnVisibilityState(state.columnVisibility);
+        // Merged, not replaced: a stored layout predates any column added
+        // later and says nothing about it, so replacing would drop that
+        // column's default and show it to everyone who ever saved a layout.
+        setColumnVisibilityState({
+          ...initialColumnVisibility,
+          ...state.columnVisibility
+        });
       }
       if (state.pinnedColumns && Array.isArray(state.pinnedColumns)) {
         setPinnedColumnsState(state.pinnedColumns);
@@ -169,7 +183,13 @@ const useTableState = ({
     if (layout.sorting) setSortingState(layout.sorting);
     if (layout.columnOrder) setColumnOrderState(layout.columnOrder);
     if (layout.columnSizing) setColumnSizingState(layout.columnSizing);
-    if (layout.columnVisibility) setColumnVisibilityState(layout.columnVisibility);
+    // Same merge as the localStorage restore above: a saved view written
+    // before a column existed must not decide that column's visibility.
+    if (layout.columnVisibility)
+      setColumnVisibilityState({
+        ...initialColumnVisibility,
+        ...layout.columnVisibility
+      });
     if (layout.pinnedColumns) setPinnedColumnsState(layout.pinnedColumns);
     setPaginationState((prev) => ({
       pageIndex: 0,

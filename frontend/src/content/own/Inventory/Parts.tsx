@@ -95,7 +95,22 @@ const fieldMapping: Record<string, string> = {
   category: 'category.name',
   description: 'description',
   createdAt: 'createdAt',
-  openWorkOrders: 'openWorkOrders'
+  openWorkOrders: 'openWorkOrders',
+  minQuantity: 'minQuantity',
+  unit: 'unit',
+  nonStock: 'nonStock',
+  additionalInfos: 'additionalInfos'
+};
+
+// Offered in the column menu, off until someone asks for them.
+const INITIALLY_HIDDEN_COLUMNS = {
+  minQuantity: false,
+  unit: false,
+  nonStock: false,
+  additionalInfos: false,
+  vendors: false,
+  customers: false,
+  teams: false
 };
 
 const PAGE_SIZE = 12;
@@ -139,7 +154,8 @@ const Parts = ({ setAction }: PropsType) => {
       pageIndex: criteria.pageNum
     },
     setCriteria,
-    fieldMapping
+    fieldMapping,
+    initialColumnVisibility: INITIALLY_HIDDEN_COLUMNS
   });
   const [openDelete, setOpenDelete] = useState<boolean>(false);
   const [openAddModal, setOpenAddModal] = useState<boolean>(false);
@@ -386,7 +402,63 @@ const Parts = ({ setAction }: PropsType) => {
       header: () => t('created_at'),
       cell: (info) => getFormattedDate(info.getValue()),
       size: 150
-    })
+    }),
+    // Part fields the form maintains but the list never showed. Hidden by
+    // default; parts have no CSV column registry.
+    columnHelper.accessor('minQuantity', {
+      id: 'minQuantity',
+      header: () => t('minimum_quantity'),
+      cell: (info) => info.getValue() ?? '',
+      size: 140
+    }),
+    columnHelper.accessor('unit', {
+      id: 'unit',
+      header: () => t('unit'),
+      cell: (info) => info.getValue() || '',
+      size: 110
+    }),
+    columnHelper.accessor('nonStock', {
+      id: 'nonStock',
+      header: () => t('non_stock'),
+      cell: (info) => (info.getValue() ? t('yes') : t('no')),
+      size: 130
+    }),
+    columnHelper.accessor('additionalInfos', {
+      id: 'additionalInfos',
+      header: () => t('additional_information'),
+      cell: (info) => info.getValue() || '',
+      size: 200
+    }),
+    columnHelper.accessor(
+      (row) => (row.vendors ?? []).map((vendor) => vendor.companyName).join(', '),
+      {
+        id: 'vendors',
+        header: () => t('vendors'),
+        cell: (info) => info.getValue() || '',
+        enableSorting: false,
+        size: 170
+      }
+    ),
+    columnHelper.accessor(
+      (row) => (row.customers ?? []).map((customer) => customer.name).join(', '),
+      {
+        id: 'customers',
+        header: () => t('customers'),
+        cell: (info) => info.getValue() || '',
+        enableSorting: false,
+        size: 170
+      }
+    ),
+    columnHelper.accessor(
+      (row) => (row.teams ?? []).map((team) => team.name).join(', '),
+      {
+        id: 'teams',
+        header: () => t('teams'),
+        cell: (info) => info.getValue() || '',
+        enableSorting: false,
+        size: 170
+      }
+    )
     // columnHelper.accessor('openWorkOrders', {
     //   id: 'openWorkOrders',
     //   header: () => t('open_wo'),

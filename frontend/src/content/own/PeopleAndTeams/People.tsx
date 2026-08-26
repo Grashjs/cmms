@@ -63,7 +63,15 @@ const fieldMapping: Record<string, string> = {
   jobTitle: 'jobTitle',
   role: 'role.name',
   rate: 'rate',
-  lastLogin: 'lastLogin'
+  lastLogin: 'lastLogin',
+  enabled: 'enabled',
+  createdAt: 'createdAt'
+};
+
+// Offered in the column menu, off until someone asks for them.
+const INITIALLY_HIDDEN_COLUMNS = {
+  enabled: false,
+  createdAt: false
 };
 
 interface PropsType {
@@ -116,7 +124,8 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
       pageIndex: criteria.pageNum
     },
     setCriteria,
-    fieldMapping
+    fieldMapping,
+    initialColumnVisibility: INITIALLY_HIDDEN_COLUMNS
   });
 
   const dispatch = useDispatch();
@@ -405,6 +414,19 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
     columnHelper.accessor('lastLogin', {
       id: 'lastLogin',
       header: () => t('last_login'),
+      cell: (info) => getFormattedDate(info.getValue()),
+      size: 150
+    }),
+    // Both come with the user list already. Hidden by default.
+    columnHelper.accessor('enabled', {
+      id: 'enabled',
+      header: () => t('enabled'),
+      cell: (info) => (info.getValue() ? t('yes') : t('no')),
+      size: 120
+    }),
+    columnHelper.accessor('createdAt', {
+      id: 'createdAt',
+      header: () => t('created_at'),
       cell: (info) => getFormattedDate(info.getValue()),
       size: 150
     }),

@@ -121,7 +121,9 @@ function Assets() {
     childrenPages
   } = useSelector((state) => state.assets);
   const { exportEntity, loadingExport } = useExport();
-  const { getFormattedDate } = useContext(CompanySettingsContext);
+  const { getFormattedDate, getFormattedCurrency } = useContext(
+    CompanySettingsContext
+  );
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const { locations, locationsHierarchy } = useSelector(
     (state) => state.locations
@@ -400,7 +402,29 @@ function Assets() {
     teams: 'teams.name',
     vendors: 'vendors.name',
     parentAsset: 'parentAsset.name',
-    createdAt: 'createdAt'
+    createdAt: 'createdAt',
+    serialNumber: 'serialNumber',
+    manufacturer: 'manufacturer',
+    power: 'power',
+    acquisitionCost: 'acquisitionCost',
+    inServiceDate: 'inServiceDate',
+    warrantyExpirationDate: 'warrantyExpirationDate',
+    additionalInfos: 'additionalInfos',
+    archived: 'archived'
+  };
+
+  // Offered in the column menu, off until someone asks for them.
+  const initialColumnVisibility = {
+    serialNumber: false,
+    manufacturer: false,
+    power: false,
+    acquisitionCost: false,
+    inServiceDate: false,
+    warrantyExpirationDate: false,
+    additionalInfos: false,
+    archived: false,
+    customers: false,
+    parts: false
   };
 
   const onResetFilters = () => {
@@ -613,7 +637,83 @@ function Assets() {
       header: () => t('created_at'),
       cell: (info) => getFormattedDate(info.getValue()),
       size: 140
-    })
+    }),
+    // Asset fields that were only visible on the detail page. The ids match the
+    // keys of the backend's asset CSV registry, so showing one of these keeps
+    // the filtered export working; an unknown id fails it with 406. Hidden by
+    // default, see INITIALLY_HIDDEN_COLUMNS.
+    columnHelper.accessor('serialNumber', {
+      id: 'serialNumber',
+      header: () => t('serial_number'),
+      cell: (info) => info.getValue() || '',
+      size: 150
+    }),
+    columnHelper.accessor('manufacturer', {
+      id: 'manufacturer',
+      header: () => t('manufacturer'),
+      cell: (info) => info.getValue() || '',
+      size: 150
+    }),
+    columnHelper.accessor('power', {
+      id: 'power',
+      header: () => t('power'),
+      cell: (info) => info.getValue() || '',
+      size: 120
+    }),
+    columnHelper.accessor('acquisitionCost', {
+      id: 'acquisitionCost',
+      header: () => t('acquisition_cost'),
+      cell: (info) =>
+        info.getValue() ? getFormattedCurrency(info.getValue()) : '',
+      size: 150
+    }),
+    columnHelper.accessor('inServiceDate', {
+      id: 'inServiceDate',
+      header: () => t('placed_in_service'),
+      cell: (info) => getFormattedDate(info.getValue()),
+      size: 150
+    }),
+    columnHelper.accessor('warrantyExpirationDate', {
+      id: 'warrantyExpirationDate',
+      header: () => t('warranty_expiration'),
+      cell: (info) => getFormattedDate(info.getValue()),
+      size: 150
+    }),
+    columnHelper.accessor('additionalInfos', {
+      id: 'additionalInfos',
+      header: () => t('additional_information'),
+      cell: (info) => info.getValue() || '',
+      size: 200
+    }),
+    columnHelper.accessor('archived', {
+      id: 'archived',
+      header: () => t('archived'),
+      cell: (info) => (info.getValue() ? t('yes') : t('no')),
+      size: 110
+    }),
+    columnHelper.accessor(
+      (row) => (row.customers ?? []).map((customer) => customer.name).join(', '),
+      {
+        id: 'customers',
+        header: () => t('customers'),
+        cell: (info) => info.getValue() || '',
+        enableSorting: false,
+        size: 170
+      }
+    ),
+    columnHelper.accessor(
+      (row) => (row.parts ?? []).map((part) => part.name).join(', '),
+      {
+        id: 'parts',
+        header: () => t('parts'),
+        // Names, not a count: the same id writes the part names into the CSV
+        // (registry key "parts"), and a column that reads "3" on screen but
+        // lists names in the export is the kind of mismatch nobody checks.
+        cell: (info) => info.getValue() || '',
+        enableSorting: false,
+        size: 200
+      }
+    )
   ];
   const defaultFields: Array<IField> = [
     {
@@ -987,6 +1087,7 @@ function Assets() {
     prefix: 'assets',
     setCriteria,
     fieldMapping,
+    initialColumnVisibility,
     initialPagination: { pageIndex: 0, pageSize: criteria.pageSize }
   });
 

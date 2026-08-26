@@ -59,6 +59,8 @@ export interface AssetDTO extends Audit {
   power: string;
   manufacturer: string;
   customId: string;
+  // Sent by AssetShowDTO all along; the model just never declared it.
+  archived: boolean;
   customFieldValues: CustomFieldValue[];
 }
 export interface AssetRow extends AssetDTO {

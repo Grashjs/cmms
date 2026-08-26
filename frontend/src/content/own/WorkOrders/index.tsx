@@ -128,7 +128,28 @@ const fieldMapping: Record<string, string> = {
   completedOn: 'completedOn',
   updatedAt: 'updatedAt',
   createdAt: 'createdAt',
-  dueDate: 'dueDate'
+  dueDate: 'dueDate',
+  team: 'team.name',
+  primaryUser: 'primaryUser.firstName',
+  estimatedDuration: 'estimatedDuration',
+  estimatedStartDate: 'estimatedStartDate',
+  requiredSignature: 'requiredSignature',
+  archived: 'archived',
+  feedback: 'feedback'
+};
+
+// Offered in the column menu, off until someone asks for them. Sorting is left
+// out for the collection-valued ones — there is no single field to sort on.
+const INITIALLY_HIDDEN_COLUMNS = {
+  team: false,
+  primaryUser: false,
+  customers: false,
+  estimatedDuration: false,
+  estimatedStartDate: false,
+  requiredSignature: false,
+  completedBy: false,
+  archived: false,
+  feedback: false
 };
 const normalizeFields = (fields: FilterField[]) =>
   [...fields]
@@ -303,7 +324,8 @@ function WorkOrders() {
       pageIndex: initialCriteria.pageNum
     },
     setCriteria,
-    fieldMapping
+    fieldMapping,
+    initialColumnVisibility: INITIALLY_HIDDEN_COLUMNS
   });
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const openMenu = Boolean(anchorEl);
@@ -680,6 +702,82 @@ function WorkOrders() {
       header: () => t('created_at'),
       cell: (info) => getFormattedDate(info.getValue()),
       size: 140
+    }),
+    // Fields the work order carries but the list never offered. Every id below
+    // is a key in the backend's CSV column registry, which is what keeps the
+    // "export what I see" path working — an id it does not know is rejected
+    // with 406 and the whole export fails. They start hidden; see
+    // INITIALLY_HIDDEN_COLUMNS.
+    columnHelper.accessor((row) => row.team?.name, {
+      id: 'team',
+      header: () => t('team'),
+      cell: (info) => info.getValue() || '',
+      size: 150
+    }),
+    columnHelper.accessor(
+      (row) =>
+        row.primaryUser
+          ? `${row.primaryUser.firstName} ${row.primaryUser.lastName}`
+          : '',
+      {
+        id: 'primaryUser',
+        header: () => t('primary_worker'),
+        cell: (info) => info.getValue() || '',
+        size: 160
+      }
+    ),
+    columnHelper.accessor(
+      (row) => (row.customers ?? []).map((customer) => customer.name).join(', '),
+      {
+        id: 'customers',
+        header: () => t('customers'),
+        cell: (info) => info.getValue() || '',
+        enableSorting: false,
+        size: 170
+      }
+    ),
+    columnHelper.accessor('estimatedDuration', {
+      id: 'estimatedDuration',
+      header: () => t('estimated_duration'),
+      cell: (info) => info.getValue() || '',
+      size: 150
+    }),
+    columnHelper.accessor('estimatedStartDate', {
+      id: 'estimatedStartDate',
+      header: () => t('estimated_start_date'),
+      cell: (info) => getFormattedDate(info.getValue()),
+      size: 150
+    }),
+    columnHelper.accessor('requiredSignature', {
+      id: 'requiredSignature',
+      header: () => t('required_signature'),
+      cell: (info) => (info.getValue() ? t('yes') : t('no')),
+      size: 130
+    }),
+    columnHelper.accessor(
+      (row) =>
+        row.completedBy
+          ? `${row.completedBy.firstName} ${row.completedBy.lastName}`
+          : '',
+      {
+        id: 'completedBy',
+        header: () => t('completed_by'),
+        cell: (info) => info.getValue() || '',
+        enableSorting: false,
+        size: 160
+      }
+    ),
+    columnHelper.accessor('archived', {
+      id: 'archived',
+      header: () => t('archived'),
+      cell: (info) => (info.getValue() ? t('yes') : t('no')),
+      size: 110
+    }),
+    columnHelper.accessor('feedback', {
+      id: 'feedback',
+      header: () => t('feedback'),
+      cell: (info) => info.getValue() || '',
+      size: 200
     })
   ];
 

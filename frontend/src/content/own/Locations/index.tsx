@@ -182,7 +182,17 @@ function Locations() {
     customId: 'customId',
     name: 'name',
     address: 'address',
-    createdAt: 'createdAt'
+    createdAt: 'createdAt',
+    parentLocation: 'parentLocation.name'
+  };
+
+  // Offered in the column menu, off until someone asks for them.
+  const initialColumnVisibility = {
+    parentLocation: false,
+    workers: false,
+    teams: false,
+    vendors: false,
+    customers: false
   };
 
   // Table state for column state persistence
@@ -190,6 +200,7 @@ function Locations() {
     prefix: 'locations',
     setCriteria,
     fieldMapping,
+    initialColumnVisibility,
     initialPagination: { pageIndex: 0, pageSize: criteria.pageSize }
   });
 
@@ -513,6 +524,58 @@ function Locations() {
       cell: (info) => getFormattedDate(info.getValue()),
       size: 140
     }),
+    // Fields the location form maintains but the list never showed. Hidden by
+    // default; locations have no CSV column registry, so nothing here can
+    // affect an export.
+    columnHelper.accessor((row) => row.parentLocation?.name, {
+      id: 'parentLocation',
+      header: () => t('parent_location'),
+      cell: (info) => info.getValue() || '',
+      size: 170
+    }),
+    columnHelper.accessor(
+      (row) =>
+        (row.workers ?? [])
+          .map((worker) => `${worker.firstName} ${worker.lastName}`)
+          .join(', '),
+      {
+        id: 'workers',
+        header: () => t('workers'),
+        cell: (info) => info.getValue() || '',
+        enableSorting: false,
+        size: 200
+      }
+    ),
+    columnHelper.accessor(
+      (row) => (row.teams ?? []).map((team) => team.name).join(', '),
+      {
+        id: 'teams',
+        header: () => t('teams'),
+        cell: (info) => info.getValue() || '',
+        enableSorting: false,
+        size: 170
+      }
+    ),
+    columnHelper.accessor(
+      (row) => (row.vendors ?? []).map((vendor) => vendor.companyName).join(', '),
+      {
+        id: 'vendors',
+        header: () => t('vendors'),
+        cell: (info) => info.getValue() || '',
+        enableSorting: false,
+        size: 170
+      }
+    ),
+    columnHelper.accessor(
+      (row) => (row.customers ?? []).map((customer) => customer.name).join(', '),
+      {
+        id: 'customers',
+        header: () => t('customers'),
+        cell: (info) => info.getValue() || '',
+        enableSorting: false,
+        size: 170
+      }
+    ),
     columnHelper.display({
       id: 'actions',
       header: () => t('actions'),

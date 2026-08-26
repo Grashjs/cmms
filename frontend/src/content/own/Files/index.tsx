@@ -75,8 +75,12 @@ function Files() {
     id: 'id',
     name: 'name',
     createdBy: 'createdBy',
-    createdAt: 'createdAt'
+    createdAt: 'createdAt',
+    type: 'type'
   };
+
+  // Offered in the column menu, off until someone asks for it.
+  const initialColumnVisibility = { type: false };
 
   // Use the table state hook for TanStack Table
   const {
@@ -100,7 +104,8 @@ function Files() {
       pageIndex: criteria.pageNum
     },
     setCriteria,
-    fieldMapping
+    fieldMapping,
+    initialColumnVisibility
   });
 
   // The debounced handler below is memoized once, so it must not close over `criteria`.
@@ -243,6 +248,13 @@ function Files() {
       header: () => t('uploaded_on'),
       cell: (info) => getFormattedDate(info.getValue()),
       size: 150
+    }),
+    // Comes with the file list already. Hidden by default.
+    columnHelper.accessor('type', {
+      id: 'type',
+      header: () => t('type'),
+      cell: (info) => info.getValue() || '',
+      size: 120
     }),
     columnHelper.display({
       id: 'actions',

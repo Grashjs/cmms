@@ -143,7 +143,29 @@ function Requests() {
     description: 'description',
     priority: 'priority',
     createdAt: 'createdAt',
-    dueDate: 'dueDate'
+    dueDate: 'dueDate',
+    category: 'category.name',
+    team: 'team.name',
+    primaryUser: 'primaryUser.firstName',
+    estimatedDuration: 'estimatedDuration',
+    estimatedStartDate: 'estimatedStartDate',
+    requiredSignature: 'requiredSignature',
+    cancelled: 'cancelled',
+    contact: 'contact'
+  };
+
+  // Offered in the column menu, off until someone asks for them.
+  const initialColumnVisibility = {
+    category: false,
+    team: false,
+    primaryUser: false,
+    assignedTo: false,
+    customers: false,
+    estimatedDuration: false,
+    estimatedStartDate: false,
+    requiredSignature: false,
+    cancelled: false,
+    contact: false
   };
 
   // Use the table state hook for TanStack Table
@@ -168,7 +190,8 @@ function Requests() {
       pageIndex: criteria.pageNum
     },
     setCriteria,
-    fieldMapping
+    fieldMapping,
+    initialColumnVisibility
   });
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const navigate = useNavigate();
@@ -337,6 +360,85 @@ function Requests() {
       header: () => t('created_at'),
       cell: (info) => getFormattedDate(info.getValue()),
       size: 150
+    }),
+    // Fields a request carries from the form but never showed in the list.
+    // Hidden by default; requests have no CSV column registry.
+    columnHelper.accessor((row) => row.category?.name, {
+      id: 'category',
+      header: () => t('category'),
+      cell: (info) => info.getValue() || '',
+      size: 150
+    }),
+    columnHelper.accessor((row) => row.team?.name, {
+      id: 'team',
+      header: () => t('team'),
+      cell: (info) => info.getValue() || '',
+      size: 150
+    }),
+    columnHelper.accessor(
+      (row) =>
+        row.primaryUser
+          ? `${row.primaryUser.firstName} ${row.primaryUser.lastName}`
+          : '',
+      {
+        id: 'primaryUser',
+        header: () => t('primary_worker'),
+        cell: (info) => info.getValue() || '',
+        size: 160
+      }
+    ),
+    columnHelper.accessor(
+      (row) =>
+        (row.assignedTo ?? [])
+          .map((user) => `${user.firstName} ${user.lastName}`)
+          .join(', '),
+      {
+        id: 'assignedTo',
+        header: () => t('assigned_to'),
+        cell: (info) => info.getValue() || '',
+        enableSorting: false,
+        size: 190
+      }
+    ),
+    columnHelper.accessor(
+      (row) => (row.customers ?? []).map((customer) => customer.name).join(', '),
+      {
+        id: 'customers',
+        header: () => t('customers'),
+        cell: (info) => info.getValue() || '',
+        enableSorting: false,
+        size: 170
+      }
+    ),
+    columnHelper.accessor('estimatedDuration', {
+      id: 'estimatedDuration',
+      header: () => t('estimated_duration'),
+      cell: (info) => info.getValue() || '',
+      size: 150
+    }),
+    columnHelper.accessor('estimatedStartDate', {
+      id: 'estimatedStartDate',
+      header: () => t('estimated_start_date'),
+      cell: (info) => getFormattedDate(info.getValue()),
+      size: 150
+    }),
+    columnHelper.accessor('requiredSignature', {
+      id: 'requiredSignature',
+      header: () => t('required_signature'),
+      cell: (info) => (info.getValue() ? t('yes') : t('no')),
+      size: 130
+    }),
+    columnHelper.accessor('cancelled', {
+      id: 'cancelled',
+      header: () => t('cancelled'),
+      cell: (info) => (info.getValue() ? t('yes') : t('no')),
+      size: 110
+    }),
+    columnHelper.accessor('contact', {
+      id: 'contact',
+      header: () => t('contact'),
+      cell: (info) => info.getValue() || '',
+      size: 160
     })
   ];
   const defaultFields: Array<IField> = [...getWOBaseFields(t, customFields)];

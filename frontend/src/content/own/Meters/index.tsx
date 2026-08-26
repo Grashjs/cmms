@@ -92,7 +92,16 @@ const fieldMapping: Record<string, string> = {
   location: 'location.name',
   customId: 'customId',
   createdAt: 'createdAt',
-  createdBy: 'createdBy'
+  createdBy: 'createdBy',
+  meterCategory: 'meterCategory.name',
+  updateFrequency: 'updateFrequency'
+};
+
+// Offered in the column menu, off until someone asks for them.
+const INITIALLY_HIDDEN_COLUMNS = {
+  meterCategory: false,
+  updateFrequency: false,
+  users: false
 };
 
 function Meters() {
@@ -154,7 +163,8 @@ function Meters() {
       pageIndex: criteria.pageNum
     },
     setCriteria,
-    fieldMapping
+    fieldMapping,
+    initialColumnVisibility: INITIALLY_HIDDEN_COLUMNS
   });
   const { exportEntity, loadingExport } = useExport();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -365,7 +375,34 @@ function Meters() {
       header: () => t('created_at'),
       cell: (info) => getFormattedDate(info.getValue()),
       size: 150
-    })
+    }),
+    // Meter fields the form maintains but the list never showed. Hidden by
+    // default; meters have no CSV column registry.
+    columnHelper.accessor((row) => row.meterCategory?.name, {
+      id: 'meterCategory',
+      header: () => t('category'),
+      cell: (info) => info.getValue() || '',
+      size: 150
+    }),
+    columnHelper.accessor('updateFrequency', {
+      id: 'updateFrequency',
+      header: () => t('update_frequency'),
+      cell: (info) => info.getValue() ?? '',
+      size: 150
+    }),
+    columnHelper.accessor(
+      (row) =>
+        (row.users ?? [])
+          .map((user) => `${user.firstName} ${user.lastName}`)
+          .join(', '),
+      {
+        id: 'users',
+        header: () => t('workers'),
+        cell: (info) => info.getValue() || '',
+        enableSorting: false,
+        size: 190
+      }
+    )
   ];
   const fields: Array<IField> = [
     {

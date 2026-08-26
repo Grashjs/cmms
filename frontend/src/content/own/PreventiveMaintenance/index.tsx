@@ -175,7 +175,22 @@ function PMs() {
     assignedTo: 'assignedTo',
     location: 'location.name',
     category: 'category.name',
-    asset: 'asset.name'
+    asset: 'asset.name',
+    team: 'team.name',
+    dueDate: 'dueDate',
+    estimatedDuration: 'estimatedDuration',
+    estimatedStartDate: 'estimatedStartDate',
+    requiredSignature: 'requiredSignature'
+  };
+
+  // Offered in the column menu, off until someone asks for them.
+  const initialColumnVisibility = {
+    team: false,
+    customers: false,
+    dueDate: false,
+    estimatedDuration: false,
+    estimatedStartDate: false,
+    requiredSignature: false
   };
 
   // Use the table state hook for TanStack Table
@@ -200,7 +215,8 @@ function PMs() {
       pageIndex: criteria.pageNum
     },
     setCriteria,
-    fieldMapping
+    fieldMapping,
+    initialColumnVisibility
   });
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const { exportEntity, loadingExport } = useExport();
@@ -464,6 +480,48 @@ function PMs() {
       header: () => t('asset_name'),
       cell: (info) => info.getValue() || '',
       size: 150
+    }),
+    // Fields the trigger carries from the work order form but never showed in
+    // the list. Hidden by default; PMs have no CSV column registry.
+    columnHelper.accessor((row) => row.team?.name, {
+      id: 'team',
+      header: () => t('team'),
+      cell: (info) => info.getValue() || '',
+      size: 150
+    }),
+    columnHelper.accessor(
+      (row) => (row.customers ?? []).map((customer) => customer.name).join(', '),
+      {
+        id: 'customers',
+        header: () => t('customers'),
+        cell: (info) => info.getValue() || '',
+        enableSorting: false,
+        size: 170
+      }
+    ),
+    columnHelper.accessor('dueDate', {
+      id: 'dueDate',
+      header: () => t('due_date'),
+      cell: (info) => getFormattedDate(info.getValue()),
+      size: 150
+    }),
+    columnHelper.accessor('estimatedDuration', {
+      id: 'estimatedDuration',
+      header: () => t('estimated_duration'),
+      cell: (info) => info.getValue() || '',
+      size: 150
+    }),
+    columnHelper.accessor('estimatedStartDate', {
+      id: 'estimatedStartDate',
+      header: () => t('estimated_start_date'),
+      cell: (info) => getFormattedDate(info.getValue()),
+      size: 150
+    }),
+    columnHelper.accessor('requiredSignature', {
+      id: 'requiredSignature',
+      header: () => t('required_signature'),
+      cell: (info) => (info.getValue() ? t('yes') : t('no')),
+      size: 130
     })
   ];
 
