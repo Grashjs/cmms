@@ -106,6 +106,22 @@ public class EmailService2 implements MailService {
     }
 
 
+    /**
+     * Overridden so that it carries {@code @Async}. Almost every caller uses this five-argument
+     * form, which {@link MailService} declares as a {@code default} method — and a default method
+     * has no annotation for the proxy to find, so the call ran on the caller's thread and then
+     * reached the annotated six-argument method through {@code this}, past the proxy again. The
+     * mail was therefore always sent synchronously: a request that assigned someone to a work
+     * order sat in the SMTP handshake, and with JavaMail's default of no timeout it never came
+     * back.
+     */
+    @Override
+    @Async
+    public void sendMessageUsingThymeleafTemplate(
+            String[] to, String subject, Map<String, Object> templateModel, String template, Locale locale) {
+        sendMessageUsingThymeleafTemplate(to, subject, templateModel, template, locale, null);
+    }
+
     @Override
     @Async
     public void sendMessageUsingThymeleafTemplate(

@@ -70,6 +70,13 @@ spring:
       auth: true
       starttls.enable: true
       ssl.trust: ${SMTP_HOST:smtp.gmail.com}
+      # JavaMail waits forever by default. The default host here is Gmail with an empty
+      # user, so on an instance without working SMTP a send parks the thread for good
+      # instead of failing — and if that happens on a request thread, the request never
+      # answers. Ten seconds is generous for a mail server that works.
+      connectiontimeout: ${SMTP_CONNECTION_TIMEOUT:10000}
+      timeout: ${SMTP_TIMEOUT:10000}
+      writetimeout: ${SMTP_WRITE_TIMEOUT:10000}
   cache:
     type: caffeine
 server:

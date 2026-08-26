@@ -282,6 +282,17 @@ public class SendgridService implements MailService {
     }
 
     /**
+     * The five-argument form is a default method on MailService and therefore carries no
+     * annotation the proxy could act on — see the same override in EmailService2. Without this
+     * it sends on the caller's thread.
+     */
+    @Async
+    public void sendMessageUsingThymeleafTemplate(
+            String[] to, String subject, Map<String, Object> templateModel, String template, Locale locale) {
+        sendMessageUsingThymeleafTemplate(to, subject, templateModel, template, locale, null);
+    }
+
+    /**
      * Send email using Thymeleaf template
      */
     @Async
