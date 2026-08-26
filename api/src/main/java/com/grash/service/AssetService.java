@@ -316,6 +316,15 @@ public class AssetService {
         return assets.map(asset -> assetMapper.toShowDto(asset, parentIdsWithChildren));
     }
 
+    /**
+     * Narrows incoming criteria to what the user is allowed to see, and rejects the request if
+     * they may not see assets at all.
+     * <p>
+     * This used to live inline in {@code AssetController.search}. It moved here when the
+     * filtered export appeared, because an access rule that exists in two places is one that
+     * will be changed in one place — and the export is exactly the path where being too
+     * permissive is least visible.
+     */
     public SearchCriteria getSearchCriteria(User user, SearchCriteria searchCriteria) {
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS)) {
@@ -484,28 +493,6 @@ public class AssetService {
                 delete(id);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Asset not found", HttpStatus.NOT_FOUND);
-    }
-
-    /**
-     * Narrows incoming criteria to what the user is allowed to see, and rejects the request if
-     * they may not see assets at all.
-     * <p>
-     * This used to live inline in {@code AssetController.search}. It moved here when the
-     * filtered export appeared, because an access rule that exists in two places is one that
-     * will be changed in one place — and the export is exactly the path where being too
-     * permissive is least visible.
-     */
-    public SearchCriteria getSearchCriteria(User user, SearchCriteria searchCriteria) {
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            if (user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS)) {
-                searchCriteria.filterCompany(user);
-                boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.ASSETS);
-                if (!canViewOthers) {
-                    searchCriteria.filterCreatedBy(user);
-                }
-            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
-        }
-        return searchCriteria;
     }
 
     /**
