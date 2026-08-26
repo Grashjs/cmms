@@ -1,6 +1,6 @@
 # CMMS4FM — Technische Schulden: Befund und Vorgehen
 
-**Stand:** 2026-08-26 · **Status:** Stufen 1 und 2 abgeschlossen (145 → 26 Befunde), Stufe 3 begonnen: TypeScript 5.9 und Typprüfung zurück. Alles ab Stufe 2 liegt auf `chore/vite-migration` und wartet auf einen echten Image-Build
+**Stand:** 2026-08-26 · **Status:** Stufen 1 und 2 abgeschlossen, Stufe 3 teilweise (TypeScript 5.9, Typprüfung zurück), **Upstream abgeglichen** — 145 → 18 Befunde, Rückstand 264 → 0. Alles auf `main`. Der Rest von Stufe 3 ist bewusst zurückgestellt, siehe 5d
 
 ---
 
@@ -207,12 +207,18 @@ Quelltext und Projektnotizen abgeleitet, nicht gemessen**. Befehl in A0.
 Vier Stufen, jede für sich abschließbar. Es gibt keinen Zwang, die nächste anzufangen, nur
 weil die vorige fertig ist.
 
-| Stufe | Inhalt | Aufwand (grob) | räumt auf | Empfehlung |
-|---|---|---|---|---|
-| **1 — Aufräumen** | tote Pakete raus, `npm audit fix`, Superadmin im Code, `@mui/styles`, Karte, `xlsx`-Entscheidung | 1–2 Tage | ~10 critical, ~40 high | **jetzt** |
-| **2 — CRA ablösen (Vite)** | Build-Werkzeug wechseln, React bleibt vorerst 17 | 3–5 Tage | 11 high, sonst unerreichbar | **danach** |
-| **3 — React 17 → 18/19** | nach Stufe 1 entriegelt; dazu TypeScript, firebase, swiper, die Ein-Major-Pakete | 1–2 Wochen | 2 critical, Rest high | wenn Ruhe ist |
-| **4 — MUI 5 → 9** | vier Majors über 262 Dateien | mehrere Wochen | nichts sicherheitsrelevantes | **nicht** ohne konkreten Anlass |
+| Stufe | Inhalt | Stand |
+|---|---|---|
+| **1 — Aufräumen** | tote Pakete raus, `npm audit fix`, Superadmin im Code, `@mui/styles` | ✅ erledigt (145 → 50) |
+| **2 — CRA ablösen (Vite)** | Build-Werkzeug wechseln, React bleibt 17 | ✅ erledigt (50 → 26) |
+| **3a — TypeScript 5.9** | Typprüfung wieder im Build, 34 verdeckte Fehler behoben | ✅ erledigt |
+| **3b — Upstream abgleichen** | *stand nie in diesem Plan* — der wirksamste Schritt von allen | ✅ erledigt (26 → 18) |
+| **3c — React 17 → 18/19, MUI-Major** | Sprünge, bei denen Upstream nicht mitgeht | ⏸ **bewusst zurückgestellt, siehe 5d** |
+
+**Der laufende Betrieb dieses Plans ist damit vorbei.** Was bleibt, ist kein Projekt mehr,
+sondern eine Gewohnheit: **monatlich abgleichen**. Das hält das Backend aktuell, ohne dass
+jemand Abhängigkeiten von Hand hochzieht, und es hält die Konfliktmenge klein genug, dass der
+„Sync fork"-Knopf meistens reicht. Das Verfahren steht in der [`CLAUDE.md`](../CLAUDE.md).
 
 Die Reihenfolge ist nicht beliebig. Stufe 1 macht die Abhängigkeitsliste erst überschaubar
 — danach ist sichtbar, was wirklich übrig bleibt. Stufe 2 vor Stufe 3, weil ein
@@ -733,9 +739,116 @@ auf den erwarteten `Failed to fetch` ohne Backend.
 
 ### Was damit noch offen ist in Stufe 3
 
-React 17 → 18/19, dazu `firebase` (9 → 12, ein critical), `swiper` (8 → 14, ein critical),
-`axios`, `jsonwebtoken`, `recharts` (löst `d3-color`). Die drei Phantom-Abhängigkeiten aus A2b
-(`@emotion/cache`, `@mui/types`, `react-router`) gehören **vor** diesen Schritt deklariert.
+*(Diese Liste hat der Upstream-Abgleich weitgehend überholt — `firebase`, `axios` und
+`jsonwebtoken` sind nicht mehr im Projekt. Aktueller Reststand in Abschnitt 5d.)*
+
+React 17 → 18/19, dazu `swiper` (8 → 14, der verbliebene critical), `recharts` (löst
+`d3-color`). Die drei Phantom-Abhängigkeiten aus A2b (`@emotion/cache`, `@mui/types`,
+`react-router`) gehören **vor** einen solchen Schritt deklariert.
+
+---
+
+## 5d. Der Upstream-Abgleich — und was er am Plan ändert ✅
+
+**Der wichtigste Schritt dieses Vorhabens stand nicht in diesem Plan.** Er kam heraus, als die
+Frage gestellt wurde, was denn nach Stufe 3 überhaupt der nächste sinnvolle Schritt sei, und
+statt der Antwort erst einmal gemessen wurde: Das Upstream-Projekt war **umbenannt**
+(`Grashjs/atlas-cmms` → `Grashjs/cmms`, die alte Adresse ist tot), lebt sehr wohl, und der
+Fork lag nach drei Wochen **264 Commits** zurück.
+
+Am 2026-08-26 abgeglichen. Ergebnis:
+
+| | vor Stufe 1 | nach Stufe 2 | **nach dem Abgleich** |
+|---|---:|---:|---:|
+| critical | 12 | 2 | **1** |
+| high | 64 | 14 | **7** |
+| gesamt | 145 | 26 | **18** |
+
+**Und davon kam nichts aus einem Upgrade.** Upstream hatte `firebase`, `axios` und
+`jsonwebtoken` längst aus dem Frontend geworfen. Ein Merge hat abgeräumt, wofür dieser Plan
+drei riskante Major-Sprünge vorgesehen hatte.
+
+### Warum das den Rest des Plans umschreibt
+
+Upstream modernisiert das **Backend** hart und das **Frontend** gar nicht:
+
+| | dieser Fork | Upstream |
+|---|---|---|
+| Liquibase / Thymeleaf / JWT / GCS | 4.22 / 5 / 0.11 / 2.0.1 | **5 / 6 / 0.13 / 2.64** |
+| React | 17.0.2 | **17.0.2** |
+| MUI | 5.8.2 | **5.8.2** |
+| TypeScript | 5.9.3 | 4.7.3 |
+| Build | Vite | react-scripts |
+
+Die Backend-Altlast, die dieser Plan als „ungenutzt, kein Handlungsdruck" zurückgestellt hatte
+(`google-cloud-storage` von 2021), war bei Upstream längst erledigt. Sie kam mit dem Abgleich
+mit. **Das ist das Muster: Backend-Aktualität ist beim Abgleichen geschenkt, nicht bei der
+Handarbeit.**
+
+Beim Frontend gilt das Gegenteil, und daraus folgt die Korrektur an **Stufe 3**:
+
+> **React 18/19 und der MUI-Major bleiben zurückgestellt — jetzt aus einem besseren Grund als
+> vorher.** Der ursprüngliche war Aufwand. Der eigentliche ist, dass Upstream auf React 17 und
+> MUI 5 bleibt und trotzdem 45 Commits in 60 Tagen im `frontend/` macht. Wer dort vorauseilt,
+> verwandelt den einen billigen Teil jedes künftigen Abgleichs in den teuren. Für eine Instanz,
+> deren Zweck das Erkennen relevanter Funktionen ist, sind **Upstreams Funktionen mehr wert als
+> React 19**.
+
+Die Vite- und TypeScript-Migration ist damit nicht falsch gewesen — sie hat elf sonst
+unerreichbare Befunde abgeräumt und die Typprüfung zurückgeholt, und ihre Kollisionsfläche hat
+sich beim ersten Abgleich als klein erwiesen. Aber sie ist die **Grenze** dessen, was hier an
+Frontend-Divergenz sinnvoll ist, nicht der Anfang.
+
+### Was der Abgleich gekostet hat
+
+394 Dateien automatisch, **25 von Hand**. Ein echter Fehler ist bis in die CI durchgerutscht
+(doppelt eingefügte `getSearchCriteria`; ein zweiter, die Argumentzahl in Upstreams neuer
+`AssetServiceTest`, wurde dort gefangen). Grob ein Arbeitsnachmittag, überwiegend Diagnose.
+
+Das Verfahren für künftige Abgleiche — Rhythmus, „Sync fork"-Knopf, Branch mit PR, **niemals
+squashen** — steht in der [`CLAUDE.md`](../CLAUDE.md) unter „Upstream", weil es dort jeden
+betrifft und nicht nur dieses Vorhaben.
+
+### Zwei Diagnose-Irrwege, die hier stehen, damit sie sich nicht wiederholen
+
+**Ein doppelter Methodenkopf sah aus wie ein kaputtes Lombok.** Dreißig Fehler, alle in einer
+ganz anderen Datei, alle auf Lombok-erzeugte Getter zeigend — und die Projektnotizen warnen
+ohnehin vor der lokalen JDK-25-Umgebung. Es war nicht die Umgebung: der unveränderte Stand
+kompilierte in einem `git worktree` daneben sauber. Sichtbar wurde die Ursache erst **ohne**
+die `-Dlombok.version`-Überschreibung, die zwar nötig ist, aber die Reihenfolge der Meldungen
+verschiebt.
+
+**Achtzehn rote Template-Tests waren die Spracheinstellung des Rechners.** Sie scheiterten alle
+an derselben ersten Prüfzeile, was zwingend nach einer gemeinsamen Ursache im Code aussah. Ein
+Gegenlauf gegen reinen Upstream zeigte dieselben achtzehn — woraus geschlossen wurde, man habe
+einen kaputten Zustand geerbt. **Falsch:** Der Gegenlauf lief auf demselben deutschen Rechner.
+Java fällt bei `Locale.ENGLISH` ohne `mailMessages_en.properties` auf die **Standardsprache der
+JVM** zurück, bevor es das Basis-Bündel nimmt. In CI (englisch) sind sie grün. Aufgeklärt hat
+es erst das Ausgeben des gerenderten HTML — was drei Hypothesen früher hätte passieren sollen.
+
+**Die Lehre für beide:** Wenn mehrere Indizien in dieselbe Richtung zeigen, ist das noch kein
+Beweis, solange sie alle aus derselben Umgebung stammen. Einmal das tatsächliche Ergebnis
+ansehen schlägt drei Hypothesen.
+
+---
+
+## 5e. Reststand — was von 145 Befunden übrig ist
+
+**18 Befunde: 1 critical, 7 high, 6 moderate, 4 low.** Wer sie hereinzieht:
+
+| Paket | critical | high | Entscheidung |
+|---|---:|---:|---|
+| `react-scripts` | 0 | 0 | **weg** — mit dem Vite-Wechsel verschwunden |
+| `aws-amplify`, `firebase`, `axios`, `jsonwebtoken` | — | — | **weg** — tot bzw. von Upstream entfernt |
+| `react-google-maps` | 0 | 5 | **A5: bleibt.** Zweck unbekannt, Geodatenfelder in den Stammdaten deuten auf Vorbereitetes. `GOOGLE_KEY` ist leer, die Komponente lädt also nichts — Angriffsfläche weitgehend theoretisch |
+| `swiper` | 1 | 0 | Major 8 → 14, eine echte Nutzung (Registrierungsseite). Der letzte critical |
+| `xlsx` | 0 | 1 | **A6: bleibt.** Keine Fassung verfügbar, verarbeitet nur Dateien, die ein angemeldeter Betreiber selbst hochlädt. **Hinfällig, sobald die Instanz fremde Uploads annimmt** |
+| `d3-color` (über `recharts`) | 0 | 1 | Override wäre unsicher (ESM/CJS), braucht einen recharts-Sprung |
+| `ws` (unter `selenium-webdriver`) | 0 | 1 | Testwerkzeug, geht nie in einen Build |
+
+**Von 145 auf 18, und die verbliebenen sind sortiert:** zwei bewusste Entscheidungen mit
+notierter Begründung, zwei Major-Sprünge ohne Dringlichkeit, einer, der nie ausgeliefert wird.
+Nichts davon ist eine offene Baustelle, alles davon ist eine getroffene Entscheidung.
 
 ---
 

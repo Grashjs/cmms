@@ -15,11 +15,26 @@ anything about `mobile/`.
 ## What this is
 
 A fork of **Atlas CMMS** (upstream: `Grashjs/cmms`, renamed from `atlas-cmms`), a maintenance management
-system, adapted for self-hosting in an FM-IT consulting context. Licensed **AGPL-3.0**:
-serving a modified version over a network obliges us to offer the corresponding source,
-including our changes. That is accepted and intentional — improvements are meant to go
-back out publicly. **This repository is public. Never commit hostnames, IP addresses,
-database credentials, container UUIDs or customer names.**
+system, adapted for self-hosting in an FM-IT consulting context.
+
+**This is a private learning instance, not a product and not a customer deployment.** It
+exists to work out which FM functions, features and processes the market actually needs, by
+using them rather than by speculating about them. That purpose decides most trade-offs here:
+being current enough that new capability works matters, production hardening does not.
+
+Licensed **AGPL-3.0**: serving a modified version over a network obliges us to offer the
+corresponding source, including our changes. This repository being public satisfies that, and
+it has to stay public for as long as the instance is reachable. **This repository is public.
+Never commit hostnames, IP addresses, database credentials, container UUIDs or customer names.**
+
+**Contributing changes back upstream is deliberately not the plan.** Several changes here would
+be good candidates — the Vite migration, the type-check wiring, a locale-independent fix for
+the template tests — and an earlier version of this file said improvements were meant to go
+back out. They are not. The owner is a product manager, not a developer, and upstreaming means
+taking on review cycles and a maintainer relationship for a side project. The cost of that is
+carrying the divergence instead, which is what the Upstream section below is for. Do not
+propose upstream PRs as a next step; keep improvements local and keep the divergence table
+accurate, which is the cheaper half of the same bargain.
 
 ## Stack
 
@@ -330,32 +345,63 @@ backups). It describes the upstream deployment model, not ours — treat compose
 there as illustrative.
 
 **The upstream repository was renamed** from `Grashjs/atlas-cmms` to `Grashjs/cmms`; the old
-path 404s. The remote is now configured as `upstream`, so `git fetch upstream` works.
+path 404s. The remote is configured as `upstream`, so `git fetch upstream` works.
 
-**Upstream is alive and fast — measured 2026-08-26, fork point 2026-08-02:** 264 commits
-ahead, against 55 of ours. That is roughly eleven a day, so the gap is not a backlog that
-sits still. What matters is where they land:
+### Keeping in step with upstream
 
-| | commits |
-|---|---:|
-| touching `api/` | 186 |
-| touching `frontend/` | 45 |
-| touching a file this fork has diverged in | ~10 |
+**Upstream is alive and fast: roughly eleven commits a day.** In the three weeks between the
+fork (2026-08-02) and the first sync (2026-08-26) it produced 264 of them. This is drift, not
+a backlog that sits still, so the interval is the whole game — the work per sync grows faster
+than the time between them, because changes start landing on top of each other.
 
-The divergence list below is therefore cheaper to walk than its length suggests — the bulk of
-upstream's work is backend, where this fork barely differs.
+**Sync monthly, or before starting anything larger.** The routine, cheapest first:
 
-**Upstream modernises the backend and not the frontend.** They are on Liquibase 5, Thymeleaf 6,
-JWT 0.13, google-cloud-storage 2.64 while this fork sits on 4.22 / 5 / 0.11 / 2.0.1 — so a sync
-delivers dependency currency that would otherwise be hand-work. Their frontend, meanwhile, is
-still React 17.0.2, MUI 5.8.2, TypeScript 4.7.3, react-scripts and `@mui/styles`: unchanged
-since the fork point. **Anyone considering React 18/19 or a MUI major here should weigh that
-first** — upstream has 45 frontend commits in the same window, and moving ahead of them turns
-the one cheap area of the merge into the expensive one.
+1. **Try GitHub's "Sync fork" button** on the repository page. It only handles the trivial
+   case and refuses when there are conflicts — but when it works there is nothing else to do.
+   The more often you sync, the more often it is enough.
+2. **Otherwise do it locally**, on a branch, with a pull request:
+   ```bash
+   git fetch upstream
+   git checkout -b chore/upstream-sync main
+   git merge upstream/main        # resolve, then push and open a PR against main
+   ```
+   The branch-and-PR detour is not ceremony: CI on JDK 17 is what catches a bad resolution,
+   and it caught one on the first sync.
+3. **Merge the PR with "Create a merge commit".** Never squash and never rebase a sync — that
+   discards the merge base, and the next `git merge upstream/main` will present all of
+   upstream's commits again, conflicts and all, against code you already have.
 
-They have also *removed* `firebase`, `axios` and `jsonwebtoken` from the frontend, which
-between them account for one of the two remaining critical findings and six high ones. Syncing
-clears those without a single risky major upgrade.
+**What the first sync actually cost, as a calibration point:** 264 commits, of which 394 files
+merged cleanly and 25 needed a decision. One real mistake got through to CI (see
+`AssetServiceTest` in the table below). Roughly a working afternoon, most of it diagnosis
+rather than merging.
+
+**The recurring shape is "both, not either".** Upstream adds something next to a place this
+fork already changed, and the answer is usually to keep both rather than pick a winner — their
+refresh-token return value *and* our 503 handling, their sanitisation *and* our category
+binding. Reflexively taking one side is how a fix gets silently dropped.
+
+**Where upstream had already solved our problem, take theirs.** It happened three times on the
+first sync, and each time adopting their version shrank the divergence permanently. The one
+exception worth stating: the frontend `CMD`. Upstream inlines `runtime-env-cra && nginx`, which
+is exactly what crash-loops behind Coolify — `docker-entrypoint.sh` has to stay.
+
+**Upstream modernises the backend and not the frontend.** That asymmetry decides what is worth
+doing here. Backend dependency currency arrives for free by syncing: the first sync brought
+Liquibase 5, Thymeleaf 6, JWT 0.13 and google-cloud-storage 2.64, and dropped `firebase`,
+`axios` and `jsonwebtoken` from the frontend, which cleared one critical and six high findings
+without a single risky upgrade. Their frontend, meanwhile, has not moved: still React 17.0.2,
+MUI 5.8.2, TypeScript 4.7.3 and `react-scripts`.
+
+**So think twice before moving further ahead of them there.** This fork is already off CRA and
+on TypeScript 5.9, and that divergence is small and paid for. React 18/19 or a MUI major would
+be neither: upstream is active in `frontend/`, and every future sync would land on code written
+against React 17 and MUI 5. For an instance whose purpose is finding out which features matter,
+having upstream's features is worth more than having React 19.
+
+**Keeping own changes cheap.** A file only this fork has can never conflict. Where a change can
+live in a new file rather than inside an upstream one, that is worth a little awkwardness — it
+is the difference between paying for it once and paying at every sync.
 
 When syncing upstream changes, re-check the files we have diverged in. This list is what a
 merge has to walk, so keep it accurate — a wrong entry wastes time, a missing one gets a
@@ -366,7 +412,8 @@ fix silently overwritten:
 | Signup hardening | `UserService.signup` |
 | Default super admin password | `ApplicationInitializer.getSuperAdminSignupRequest` |
 | Premium unlock | `LicenseService`, `ApplicationInitializer`, `application.yml` |
-| Category-bound custom fields | `CustomField`, `CustomFieldService`, `CustomFieldValueService`, `CustomFieldRepository`, `AssetService.setAssetCustomFields` |
+| Category-bound custom fields | `CustomField`, `CustomFieldService`, `CustomFieldValueService`, `CustomFieldRepository`, `AssetService.setAssetCustomFields`. **Also `AssetServiceTest`**: `AssetService` calls the *seven*-argument `setCustomFields` because it passes the category id, while upstream's tests stub the six-argument overload. Mockito's strict stubs then reject the call and the surrounding verifies fail with it. When upstream touches that test, re-add the seventh `any()` — the test is right about their code and wrong about ours |
+| Error handling in auth | `UserService.signin` and `LdapService.signinLdap` each keep a `catch (InternalAuthenticationServiceException)` returning 503 **in front of** the `AuthenticationException` catch. Upstream returns a refresh-token pair from the same method, so a sync usually conflicts here — the answer is both, their return plus our catch |
 | Work order → purchase order | `PurchaseOrder`, `PurchaseOrderService`, `PurchaseOrderController`, `PurchaseOrderRepository` |
 | Light sidebar | `layouts/ExtendedSidebarLayout/Sidebar/**`, `theme/schemes/*.ts` |
 | Sidebar order and labels | `Sidebar/SidebarMenu/items.ts` (order, no two-child dropdowns, `activePath`), `SidebarMenu/index.tsx`, `i18n/translations/de.ts` |
