@@ -1,6 +1,6 @@
 # CMMS4FM — Technische Schulden: Befund und Vorgehen
 
-**Stand:** 2026-08-25 · **Status:** **Stufe 1 abgeschlossen** — 145 → 50 Befunde, A5/A6 bewusst zurückgestellt. Nächstes: Stufe 2 (CRA ablösen)
+**Stand:** 2026-08-25 · **Status:** **Stufen 1 und 2 abgeschlossen** — 145 → 26 Befunde. Stufe 2 liegt auf `chore/vite-migration` und wartet auf einen echten Image-Build
 
 ---
 
@@ -536,6 +536,107 @@ Bestand:
 
 Eine Override auf Verdacht ist eine Falle: sie friert eine Version ein, die danach niemand
 mehr prüft. Nach dem Setzen mit `npm ls <paket>` gegenprüfen, dass sie greift.
+
+---
+
+## 5b. Stufe 2 — CRA ablösen ✅ erledigt (Branch `chore/vite-migration`)
+
+**Ergebnis: 50 → 26 Befunde.** `react-scripts` und `react-app-rewired` raus, `vite` +
+`@vitejs/plugin-react` rein — **1014 Pakete** weniger im Baum, und die elf hohen Befunde, an
+die vorher niemand herankam, sind weg.
+
+| | vor Stufe 1 | nach Stufe 1 | nach Stufe 2 |
+|---|---:|---:|---:|
+| critical | 12 | 2 | **2** |
+| high | 64 | 25 | **14** |
+| gesamt | 145 | 50 | **26** |
+
+Nebenbei: der Build dauert **1m 3s** statt rund drei Minuten.
+
+### Was der Wechsel tatsächlich berührt hat
+
+Weniger als befürchtet, weil vier Dinge glücklich lagen: keine `.js`-Dateien mit JSX, keine
+SVG-Komponentenimporte, `process.env` nur in zwei Dateien, und ESLint hängt an
+airbnb-typescript statt an `eslint-config-react-app`.
+
+| Datei | Änderung |
+|---|---|
+| `vite.config.ts` | neu |
+| `index.html` | aus `public/` an die Wurzel, `%PUBLIC_URL%` → `/`, Modul-Skript eingehängt |
+| `src/config.ts` | `process.env[REACT_APP_*]` → `import.meta.env[VITE_*]` |
+| `src/serviceWorker.ts` | `process.env.NODE_ENV` → `import.meta.env.PROD`, `PUBLIC_URL` → `'/'` |
+| `package.json` | Skripte, `eject` entfällt |
+| `src/vite-env.d.ts` | neu, ersetzt `react-app-env.d.ts` |
+| `config-overrides.js` | gelöscht — sein `codeInspectorPlugin` steht jetzt in `vite.config.ts` |
+| `Dockerfile` | nur ein Kommentar; `outDir: 'build'` hält den Container-Teil unverändert |
+
+Drei Entscheidungen in der Konfiguration, die nicht offensichtlich sind:
+
+- **Der `src/`-Alias ist eine Regex**, kein String. Ein String-Alias `src` würde in Vite auch
+  Paketnamen greifen, die zufällig mit diesen drei Buchstaben beginnen.
+- **`global: 'globalThis'`** — `sockjs-client` und ein paar andere Pakete aus der Zeit vor den
+  Bundlern erwarten das Node-Global.
+- **`outDir: 'build'`** statt Vites `dist`. Damit bleibt `COPY --from=build /usr/src/app/build`
+  im Dockerfile korrekt und der Container-Teil wird gar nicht angefasst.
+
+### Der Teil, der Sorge machte: die Laufzeitkonfiguration
+
+`runtime-env-cra` trägt CRA im Namen, hängt aber nicht daran: es liest die Schlüsselliste aus
+`.env` und schreibt `window.__RUNTIME_CONFIG__` in eine JS-Datei im ausgelieferten Verzeichnis.
+Das ist bundler-unabhängig und **läuft unverändert weiter**.
+
+Wichtig ist die Reihenfolge im `index.html`: `runtime-env.js` (klassisch, `defer`) steht **vor**
+dem Modul-Skript der App. Beide sind deferred, deferred Skripte laufen in Dokumentreihenfolge —
+die Konfiguration steht also, bevor die App sie liest. Im gebauten `index.html` nachgeprüft:
+Zeile 44 vor Zeile 45. Wer daran etwas umstellt, bricht die Anwendung auf eine Art, die lokal
+nicht auffällt.
+
+Dass `build/runtime-env.js` **fehlt**, ist richtig — die Datei entsteht erst beim Containerstart.
+
+### Wie es geprüft wurde
+
+Ein grüner Build beweist bei einem Bundler-Wechsel wenig; der typische Fehlschlag ist ein
+weißer Bildschirm durch CJS/ESM-Interop in alten Paketen. Deshalb beide Pfade headless im
+Browser gerendert (`chrome --headless --dump-dom`):
+
+- **Produktionsbundle** (`vite preview`): `#root` gefüllt, MUI-Markup, Emotion-Klassenpräfix
+  `bloom-ui-ltr-` — der Cache aus dem umgebauten `ThemeProvider` greift also.
+- **Dev-Server**: vollständige Login-Seite, HMR verbunden, und die `data-insp-path`-Attribute
+  belegen, dass das `codeInspectorPlugin` unter Vite weiterarbeitet.
+- **Konsole beide Male sauber** bis auf `TypeError: Failed to fetch` — es lief kein Backend.
+  Keine Interop-Fehler, kein `require is not defined`.
+
+**Was damit nicht geprüft ist:** der Containerpfad. `runtime-env.js` entsteht erst im
+nginx-Image, das lässt sich lokal nicht nachstellen. Deshalb liegt Stufe 2 auf einem Branch
+und nicht auf `main`, das direkt ausrollt.
+
+### Der Preis: der Build prüft keine Typen mehr
+
+CRA hat `tsc` mitlaufen lassen und unter `CI=true` bei einem Typfehler abgebrochen. **Vite
+prüft keine Typen** — esbuild wirft sie weg und sieht sie nie an. `npm run build` sagt ab jetzt
+„bündelt", nicht „ist typkorrekt", und `CI=true` ändert daran nichts mehr.
+
+Zurückholen lässt sich das nicht mit einem Handgriff: `tsc --noEmit` läuft hier überhaupt
+nicht, weil TypeScript 4.7.3 die i18next-Typdefinitionen nicht einmal *parsen* kann und mit ~88
+Fehlern in `node_modules` abbricht, bevor `src/` an der Reihe ist. `vite-plugin-checker` liefe
+in dieselbe Wand, es ruft denselben Compiler. **Der echte Weg ist der TypeScript-Sprung in
+Stufe 3.** Bis dahin erreichen Typfehler die Laufzeit — das steht auch in der `CLAUDE.md`, weil
+es dort jeden betrifft, nicht nur dieses Vorhaben.
+
+Das ist ein echter Rückschritt, und er war der Preis dafür, elf sonst unerreichbare Befunde
+loszuwerden. Die Abwägung gehört benannt, nicht versteckt.
+
+### Rest nach Stufe 2
+
+| direktes Paket | critical | high | wo behandelt |
+|---|---:|---:|---|
+| `react-google-maps` | 0 | 5 | A5 — bewusst stehen gelassen |
+| `firebase` | 1 | 4 | Stufe 3 (Major 9 → 12) |
+| `swiper` | 1 | 0 | Stufe 3 (Major 8 → 14) |
+| `axios`, `jsonwebtoken` | 0 | 2 | Stufe 3 |
+| `xlsx` | 0 | 1 | A6 — bewusst stehen gelassen |
+| `d3-color` (über recharts) | 0 | 1 | Stufe 3 |
+| `ws` (Testkette) | 0 | 1 | geht nie in den Build |
 
 ---
 

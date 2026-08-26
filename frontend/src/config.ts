@@ -2,7 +2,11 @@ const getRuntimeValue = (
   key: string,
   defaultValue = ''
 ): string | undefined => {
-  const envValue = process.env[`REACT_APP_${key}`];
+  // Local development override. In the container this stays undefined and the value
+  // comes from window.__RUNTIME_CONFIG__, which runtime-env-cra writes at start-up -
+  // that path is unchanged by the move off Create React App, only the prefix is
+  // (REACT_APP_ was CRA's, VITE_ is Vite's).
+  const envValue = import.meta.env[`VITE_${key}`];
   const runtimeValue = window.__RUNTIME_CONFIG__?.[key]?.trim();
   return envValue || runtimeValue || defaultValue;
 };

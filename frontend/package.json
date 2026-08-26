@@ -89,7 +89,6 @@
     "react-i18next": "11.17.0",
     "react-redux": "8.0.2",
     "react-router-dom": "6.3.0",
-    "react-scripts": "5.0.1",
     "react-signature-canvas": "^1.1.0-alpha.2",
     "react-simple-image-viewer": "^1.2.2",
     "react-spreadsheet": "^0.7.7",
@@ -117,9 +116,9 @@
     "yup": "0.32.11"
   },
   "scripts": {
-    "start": "cross-env NODE_ENV=development runtime-env-cra --config-name=./public/runtime-env.js && react-app-rewired start --max_old_space_size=6096",
-    "build": "react-app-rewired build",
-    "eject": "react-scripts eject",
+    "start": "cross-env NODE_ENV=development runtime-env-cra --config-name=./public/runtime-env.js && vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "lint": "eslint .",
     "lint:fix": "eslint --fix",
     "format": "prettier --write \"./**/*.{ts,tsx,js,jsx,json}\" --config ./.prettierrc",
@@ -149,6 +148,7 @@
     "@types/react-google-recaptcha": "^2.1.9",
     "@typescript-eslint/eslint-plugin": "5.27.0",
     "@typescript-eslint/parser": "5.27.0",
+    "@vitejs/plugin-react": "^6.1.0",
     "babel-plugin-module-resolver": "^5.0.2",
     "code-inspector-plugin": "^1.4.2",
     "eslint": "8.17.0",
@@ -162,10 +162,10 @@
     "husky": "^8.0.1",
     "lint-staged": "^13.0.3",
     "prettier": "2.6.2",
-    "react-app-rewired": "^2.2.1",
     "react-router-sitemap": "^1.2.0",
     "source-map-explorer": "^2.5.3",
-    "type-fest": "^5.8.0"
+    "type-fest": "^5.8.0",
+    "vite": "^8.2.2"
   },
   "husky": {
     "hooks": {

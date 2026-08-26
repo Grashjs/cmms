@@ -26,7 +26,7 @@ database credentials, container UUIDs or customer names.**
 | Part | Tech | Port | Image |
 |---|---|---|---|
 | `api/` | Spring Boot 3.2.3, Java 17, Liquibase, Quartz, Envers | 8080 | `cmms4fm-api` |
-| `frontend/` | React (CRA + react-app-rewired), served by nginx | 3000 | `cmms4fm-frontend` |
+| `frontend/` | React 17 + Vite, served by nginx | 3000 | `cmms4fm-frontend` |
 | `docker/nginx/` | Single-domain reverse proxy | 80 | `cmms4fm-nginx` |
 | — | PostgreSQL 16 | 5432 | upstream |
 | — | MinIO (attachments) | 9000 | upstream |
@@ -45,13 +45,28 @@ cd api && mvn -B test -DargLine="--add-opens java.base/java.lang=ALL-UNNAMED"
 cd api && mvn clean package -DskipTests
 
 # Frontend
-cd frontend && npm install --legacy-peer-deps && npm run build
+cd frontend && npm install --legacy-peer-deps && npm run build   # vite build, ~1 min
 cd frontend && npm run lint
+cd frontend && npm start                                       # vite dev server on 3000
 ```
 
 **`mvn compile` is not a check.** Without `clean` the compiler plugin's incremental pass can
 leave an edited file untranslated and still exit 0 — a type error that fails CI looks green
 locally. The image build runs `mvn clean package -DskipTests`; use that, or nothing.
+
+**The frontend build no longer type-checks, and nothing else does either.** Create React App
+ran `tsc` alongside webpack and, under `CI=true`, failed the build on a type error. Vite does
+not type-check at all — it strips types with esbuild and never looks at them. So `npm run
+build` passing says the code *bundles*, not that it is type-correct, and `CI=true` no longer
+changes anything.
+
+Putting the check back is not a one-liner: `tsc --noEmit` cannot run here at all. TypeScript
+4.7.3 fails to *parse* the i18next type definitions and dies with ~88 errors inside
+`node_modules` before it reaches `src/`, so an empty error list for `src/` means the check
+never ran, not that it passed. `vite-plugin-checker` would hit the same wall, because it
+shells out to the same compiler. The real fix is the TypeScript upgrade in stage 3
+([`docs/TECHNICAL_DEBT_REMEDIATION.md`](docs/TECHNICAL_DEBT_REMEDIATION.md)); until then,
+type errors reach runtime and review is the only net.
 
 Java 17 is the target. Only a **Windows** Maven wrapper is checked in (`api/mvnw.cmd`) —
 there is no `api/mvnw`, so `./mvnw` fails on Linux and in containers. CI calls `mvn`
@@ -77,7 +92,7 @@ Until then, treat CI as the only check and say so rather than implying a local b
 ## Deployment
 
 **Images are built in CI and pulled by Coolify. Never build on the deployment server** —
-the CRA webpack build alone needs 2–4 GB and will freeze a shared host.
+the frontend build is the memory-hungry step and will freeze a shared host.
 
 ```
 push to main → .github/workflows/deploy.yml
@@ -108,6 +123,11 @@ Each of these cost a failed deployment. They are not documented upstream.
   on `${VAR:- }` producing a single space to keep optional keys truthy for
   `runtime-env-cra`; that space does not survive Coolify. `frontend/docker-entrypoint.sh`
   fills blanks before generating `runtime-env.js`. Do not remove it.
+  Despite the name, `runtime-env-cra` survived the move off Create React App untouched: it
+  only reads the key list from `.env` and writes `window.__RUNTIME_CONFIG__` into a JS file
+  in the served directory, which has nothing to do with the bundler. `index.html` loads it
+  with `defer` *before* the app's module script, and both being deferred means they run in
+  document order — so the config is in place before the app reads it. Keep that order.
 - **No host port publishing.** Coolify's proxy routes to the container; a `ports:` entry
   bypasses TLS and collides with other stacks on the host.
 - **Domains are per service.** Set the domain on `nginx` only. Setting it on `frontend`
@@ -312,6 +332,7 @@ fix silently overwritten:
 | Saved views | `SavedView*` (new files), `frontend` work-order and asset list pages, `hooks/useTableState.ts`, `hooks/useExport.ts` |
 | File search and filters | `content/own/Files/index.tsx`, `content/own/Files/Filters/**` |
 | File→asset/work-order links | `File` (`workOrders` join table), `FileShowDTO`, `FileMapper` |
+| Build tooling (frontend) | **Upstream is still Create React App; this fork is not.** `frontend/vite.config.ts` (new), `frontend/index.html` (moved out of `public/`), `frontend/package.json` scripts, `src/config.ts` + `src/serviceWorker.ts` (`import.meta.env` instead of `process.env`), `src/vite-env.d.ts`. Deleted here: `config-overrides.js`, `src/react-app-env.d.ts`. An upstream change touching the build, `public/index.html` or `REACT_APP_*` needs translating, not merging |
 | Container plumbing | frontend `Dockerfile` + `docker-entrypoint.sh`, `docker/nginx/**`, `docker-compose.yml` |
 
 `ApiKeyAuthFilter` is **not** in that list. It reads the license and plan gates that
