@@ -106,12 +106,14 @@ function Workflows() {
   const [saving, setSaving] = useState<boolean>(false);
   const [currentTitle, setCurrentTitle] = useState<string>('');
   const [currentWorkflowId, setCurrentWorkflowId] = useState<number>();
-  // @ts-ignore
+  // Die Quell-Arrays in models/owns/workflow.ts sind `as const`, also readonly.
+  // Hier wird nur gelesen (Index und .map), deshalb ist readonly der ehrliche Typ.
+  // Das frühere @ts-ignore stand eine Zeile zu hoch und hat nichts unterdrückt.
   const mainConfig: Record<
     WFMainCondition,
     {
-      conditions: WorkflowConditionType[];
-      actions: WorkflowActionType[];
+      conditions: readonly WorkflowConditionType[];
+      actions: readonly WorkflowActionType[];
     }
   > = {
     WORK_ORDER_CREATED: {

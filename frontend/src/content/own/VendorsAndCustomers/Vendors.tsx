@@ -588,8 +588,7 @@ const Vendors = ({ openModal, handleCloseModal }: PropsType) => {
               validation={Yup.object().shape(shape)}
               submitText={t('save')}
               values={
-                { ...currentVendor, ...getCustomFieldsValues(currentVendor) } ||
-                {}
+                { ...currentVendor, ...getCustomFieldsValues(currentVendor) }
               }
               onChange={({ field, e }) => {}}
               onSubmit={async (values) => {

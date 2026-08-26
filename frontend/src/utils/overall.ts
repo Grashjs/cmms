@@ -5,14 +5,14 @@ import { CellBase, Matrix } from 'react-spreadsheet';
 import {
   FilterField,
   SearchCriteria,
-  SearchOperator
+  SearchOperator,
+  QueryPath
 } from '../models/owns/page';
 import React from 'react';
 import { sameDay } from './dates';
 import { apiUrl, googleTrackingId, IS_LOCALHOST } from '../config';
 import ReactGA from 'react-ga4';
 import { UaEventOptions } from 'react-ga4/types/ga4';
-import type { Paths } from 'type-fest';
 
 export const canAddReading = (meter: Meter): boolean => {
   if (!meter) {
@@ -140,13 +140,12 @@ export const onSearchQueryChange = <T>(
   event,
   criteria: SearchCriteria,
   setCriteria: React.Dispatch<React.SetStateAction<SearchCriteria>>,
-  fieldsToSearch: Paths<T>[]
+  fieldsToSearch: QueryPath<T>[]
 ) => {
   const query = event.target.value;
   let newFilterFields: FilterField[] = [...criteria.filterFields];
 
   newFilterFields = newFilterFields.filter(
-    // @ts-ignore
     (filterField) => !fieldsToSearch.includes(filterField.field)
   );
   const firstField = fieldsToSearch.shift();

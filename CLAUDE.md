@@ -26,7 +26,7 @@ database credentials, container UUIDs or customer names.**
 | Part | Tech | Port | Image |
 |---|---|---|---|
 | `api/` | Spring Boot 3.2.3, Java 17, Liquibase, Quartz, Envers | 8080 | `cmms4fm-api` |
-| `frontend/` | React (CRA + react-app-rewired), served by nginx | 3000 | `cmms4fm-frontend` |
+| `frontend/` | React 17 + Vite, served by nginx | 3000 | `cmms4fm-frontend` |
 | `docker/nginx/` | Single-domain reverse proxy | 80 | `cmms4fm-nginx` |
 | — | PostgreSQL 16 | 5432 | upstream |
 | — | MinIO (attachments) | 9000 | upstream |
@@ -45,39 +45,32 @@ cd api && mvn -B test -DargLine="--add-opens java.base/java.lang=ALL-UNNAMED"
 cd api && mvn clean package -DskipTests
 
 # Frontend
-cd frontend && npm install --legacy-peer-deps && npm run build
+cd frontend && npm install --legacy-peer-deps && npm run build   # vite build, ~1 min
 cd frontend && npm run lint
+cd frontend && npm start                                       # vite dev server on 3000
 ```
 
 **`mvn compile` is not a check.** Without `clean` the compiler plugin's incremental pass can
 leave an edited file untranslated and still exit 0 — a type error that fails CI looks green
 locally. The image build runs `mvn clean package -DskipTests`; use that, or nothing.
 
-Java 17 is the target. Only a **Windows** Maven wrapper is checked in (`api/mvnw.cmd`) —
-there is no `api/mvnw`, so `./mvnw` fails on Linux and in containers. CI calls `mvn`
-directly. On a machine without Maven on `PATH`, use `api\mvnw.cmd` from PowerShell.
+**The frontend build type-checks again, and `mvn compile`'s lesson applies here too.**
+`npm run build` is `tsc --noEmit && vite build`: Vite itself never looks at types — esbuild
+strips them — so the compiler runs in front of it and a type error stops the build before the
+bundler starts. `npm run typecheck` runs the same check alone.
 
-**The test suite cannot run on a JDK above 22.** Byte Buddy 1.14.12 refuses to instrument
-newer class files, so every Mockito-based test errors in `startMocking` before reaching any
-project code — `Java 25 (69) is not supported by the current version of Byte Buddy`.
-`-Dnet.bytebuddy.experimental=true` does not help. A local failure that looks like this is the
-environment, not the change; CI on JDK 17 is the authority. Mock-free tests
-(e.g. `CsvColumnRegistriesTest`) do run — a good reason to write new tests without mocks where
-the collaborators allow it.
-
-**On JDK 25 nothing runs at all, not even `mvn test-compile`.** Lombok's annotation processor
-fails while javac initialises: `Fatal error compiling: java.lang.ExceptionInInitializerError:
-com.sun.tools.javac.code.TypeTag :: UNKNOWN`, before a single project file is type-checked.
-Verified against unmodified `HEAD` in a separate worktree — an identical failure there means
-the environment, not the change. `release 17` in the compiler config does not help; it selects
-the language level, not the compiler. **There is no local verification on this machine without
-a second JDK installed** (Temurin 17 alongside 25, invoked via `JAVA_HOME` for the Maven call).
-Until then, treat CI as the only check and say so rather than implying a local build passed.
+This was broken for a long time and worth knowing about, because the failure mode was silent.
+TypeScript 4.7.3 could not *parse* the i18next type definitions and died with 88 syntax errors
+inside `node_modules` before reaching `src/` — so an empty error list for `src/` meant the
+check had not run, not that it passed. TypeScript 5.9.3 reads them fine. Turning the check
+back on surfaced 34 real errors that had accumulated behind it; they are fixed, and the wiring
+was verified by planting a type error and confirming the build fails with exit 2 without Vite
+running.
 
 ## Deployment
 
 **Images are built in CI and pulled by Coolify. Never build on the deployment server** —
-the CRA webpack build alone needs 2–4 GB and will freeze a shared host.
+the frontend build is the memory-hungry step and will freeze a shared host.
 
 ```
 push to main → .github/workflows/deploy.yml
@@ -108,6 +101,11 @@ Each of these cost a failed deployment. They are not documented upstream.
   on `${VAR:- }` producing a single space to keep optional keys truthy for
   `runtime-env-cra`; that space does not survive Coolify. `frontend/docker-entrypoint.sh`
   fills blanks before generating `runtime-env.js`. Do not remove it.
+  Despite the name, `runtime-env-cra` survived the move off Create React App untouched: it
+  only reads the key list from `.env` and writes `window.__RUNTIME_CONFIG__` into a JS file
+  in the served directory, which has nothing to do with the bundler. `index.html` loads it
+  with `defer` *before* the app's module script, and both being deferred means they run in
+  document order — so the config is in place before the app reads it. Keep that order.
 - **No host port publishing.** Coolify's proxy routes to the container; a `ports:` entry
   bypasses TLS and collides with other stacks on the host.
 - **Domains are per service.** Set the domain on `nginx` only. Setting it on `frontend`
@@ -312,6 +310,7 @@ fix silently overwritten:
 | Saved views | `SavedView*` (new files), `frontend` work-order and asset list pages, `hooks/useTableState.ts`, `hooks/useExport.ts` |
 | File search and filters | `content/own/Files/index.tsx`, `content/own/Files/Filters/**` |
 | File→asset/work-order links | `File` (`workOrders` join table), `FileShowDTO`, `FileMapper` |
+| Build tooling (frontend) | **Upstream is still Create React App; this fork is not.** `frontend/vite.config.ts` (new), `frontend/index.html` (moved out of `public/`), `frontend/package.json` scripts, `src/config.ts` + `src/serviceWorker.ts` (`import.meta.env` instead of `process.env`), `src/vite-env.d.ts`. Deleted here: `config-overrides.js`, `src/react-app-env.d.ts`. An upstream change touching the build, `public/index.html` or `REACT_APP_*` needs translating, not merging |
 | Container plumbing | frontend `Dockerfile` + `docker-entrypoint.sh`, `docker/nginx/**`, `docker-compose.yml` |
 
 `ApiKeyAuthFilter` is **not** in that list. It reads the license and plan gates that
