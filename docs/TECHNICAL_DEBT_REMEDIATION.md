@@ -1,6 +1,6 @@
 # CMMS4FM — Technische Schulden: Befund und Vorgehen
 
-**Stand:** 2026-08-25 · **Status:** **Stufen 1 und 2 abgeschlossen** — 145 → 26 Befunde. Stufe 2 liegt auf `chore/vite-migration` und wartet auf einen echten Image-Build
+**Stand:** 2026-08-26 · **Status:** Stufen 1 und 2 abgeschlossen (145 → 26 Befunde), Stufe 3 begonnen: TypeScript 5.9 und Typprüfung zurück. Alles ab Stufe 2 liegt auf `chore/vite-migration` und wartet auf einen echten Image-Build
 
 ---
 
@@ -143,7 +143,15 @@ In `package.json` deklariert, in `src/` **null** Verwendungen:
 
 ## 3. Der Schwachstellenbefund
 
-`npm audit` im Ordner `frontend`, Stand 2026-08-25:
+`npm audit` im Ordner `frontend`, Stand 2026-08-25.
+
+> **Die Zahlen sind eine Momentaufnahme, kein Sollwert.** `npm audit` misst gegen NPMs
+> Advisory-Datenbank, und die wächst täglich. Eine Nachmessung am Folgetag ergab bereits
+> 52 statt 50 Befunde — zwei zusätzliche *moderate*, während critical, high und low exakt
+> gleich blieben. Wer eine Abweichung findet, hat also nicht zwingend eine Regression
+> gefunden. Aussagekräftig ist die **Zuordnung zu direkten Paketen** in den Tabellen
+> unten, nicht die Gesamtzahl.
+
 
 ```
 Ausgangsmessung:  145 Befunde: 12 critical · 64 high · 50 moderate · 19 low
@@ -637,6 +645,97 @@ loszuwerden. Die Abwägung gehört benannt, nicht versteckt.
 | `xlsx` | 0 | 1 | A6 — bewusst stehen gelassen |
 | `d3-color` (über recharts) | 0 | 1 | Stufe 3 |
 | `ws` (Testkette) | 0 | 1 | geht nie in den Build |
+
+---
+
+## 5c. Stufe 3, erster Teil — TypeScript und die zurückgeholte Typprüfung ✅
+
+**Reihenfolge gegenüber dem Plan umgekehrt, mit Absicht.** Stufe 3 sollte React 17 → 18/19
+bringen und TypeScript nebenbei. Tatsächlich muss TypeScript **zuerst** kommen: React 18
+liefert geänderte `@types/react` mit (`React.FC` schließt `children` nicht mehr ein), das
+erzeugt quer durch die Codebasis Typfehler — und ohne funktionierende Typprüfung liefen die
+unbemerkt durch. Der TypeScript-Sprung ist zugleich die Reparatur der Lücke, die Stufe 2
+gerissen hat, und gehört deshalb auf denselben Branch.
+
+### Die Annahme stimmte
+
+`tsc` mit 4.7.3 warf 88 Fehler, **alle in `node_modules/i18next/typescript/t.d.ts`** und alle
+vom Typ TS1xxx, also **Syntax**fehler: `TS1139: Type parameter declaration expected` in
+Zeile 298 — das sind `const`-Typparameter, ein Feature aus TypeScript 5.0. Der Compiler konnte
+die Datei nicht einmal lesen und brach ab, bevor `src/` an der Reihe war.
+
+Mit **TypeScript 5.9.3**: null Fehler in `node_modules`.
+
+### Was dahinter zum Vorschein kam
+
+**34 echte Typfehler in `src/`** — keine Regression, sondern Bestand, der jahrelang unsichtbar
+war, weil die Prüfung nie lief. In vier Gruppen:
+
+| Anzahl | Code | Befund |
+|---:|---|---|
+| 20 | TS4104 | `Workflows/index.tsx`: `as const`-Arrays gegen `WorkflowConditionType[]` |
+| 8 | TS2820 | `"customFieldValues.value"` nicht in `Paths<T>` |
+| 3+1 | TS2322/TS2769 | dieselbe Wurzel in `utils/overall.ts` |
+| 2 | TS2872 | „This kind of expression is always truthy" |
+
+**Die zwei TS2872 sind der interessanteste Fund** — ein neuer Check aus TypeScript 5. In
+`Teams.tsx` und `Vendors.tsx` stand jeweils `{ ...x } || {}`. Ein Objektliteral ist immer wahr,
+das `|| {}` also toter Code. In `Teams.tsx` besonders sinnlos: die Zeile darüber ruft
+`currentTeam.users.map()` auf, würde bei `null` also längst geworfen haben. Eine
+Schutzvorrichtung, die nie geschützt hat. Kein Fehlverhalten, aber weg damit.
+
+**Die 20 TS4104** hingen an einem `// @ts-ignore`, das **eine Zeile zu hoch stand** und darum
+nichts unterdrückte. Die Quell-Arrays sind `as const`, die Deklaration verlangte mutable Arrays.
+Verwendet werden sie nur lesend (Index und `.map`), also ist `readonly` der ehrliche Typ.
+
+**Die übrigen 12 hatten eine gemeinsame Wurzel.** `Paths<T>` aus `type-fest` kann keine
+Traversierung in eine Collection ausdrücken — `"customFieldValues.value"` wird abgelehnt,
+während der `SpecificationBuilder` im Backend genau diesen Pfad akzeptiert. Der Typ war zu
+streng, nicht der Code falsch. Statt an acht Stellen zu unterdrücken, steht jetzt ein
+benannter Typ in `models/owns/page.ts`:
+
+```ts
+export type QueryPath<T> = Extract<Paths<T>, string> | (string & {});
+```
+
+`string & {}` hält die Vorschläge aus `Paths<T>` in der Editor-Vervollständigung sichtbar und
+lässt die tieferen Pfade trotzdem zu. Ein Vorschlag, keine Garantie — einen Tippfehler im
+Feldnamen fängt das Backend. Nebenbei wurde damit auch ein zweites `@ts-ignore` in
+`overall.ts` überflüssig, das dieselbe Wurzel verdeckte.
+
+**Ergebnis: 0 Typfehler.**
+
+### Die Prüfung ist fest verdrahtet — und das ist nachgewiesen
+
+```json
+"build": "tsc --noEmit && vite build",
+"typecheck": "tsc --noEmit"
+```
+
+Ein Skript zu schreiben ist nicht dasselbe wie eine wirksame Prüfung, deshalb die Gegenprobe:
+ein absichtlicher Typfehler eingebaut, `npm run build` bricht mit **Exit-Code 2** ab, und
+`vite` läuft gar nicht erst an. Danach zurückgesetzt, wieder null Fehler.
+
+Damit ist der Rückschritt aus Stufe 2 geschlossen: `npm run build` heißt wieder
+„typkorrekt **und** bündelt". Die entsprechende Warnung in der `CLAUDE.md` ist damit überholt
+und wurde ersetzt.
+
+### Nachgeprüft
+
+Produktionsbundle erneut headless gerendert: `#root` gefüllt, MUI-Markup, Konsole sauber bis
+auf den erwarteten `Failed to fetch` ohne Backend.
+
+> **Notiz zur Messmethode**, weil sie mich einmal in die Irre geführt hat: Der erste
+> Auslese-Ausdruck für den `#root`-Inhalt griff bei verschachtelten `</div>` das falsche Ende
+> und meldete „leer", obwohl die App vollständig gerendert hatte. Wer so prüft, sollte auf ein
+> Merkmal *innerhalb* von `#root` testen (etwa `MuiBox-root`), nicht auf die Länge eines per
+> Regex geschnittenen Bereichs.
+
+### Was damit noch offen ist in Stufe 3
+
+React 17 → 18/19, dazu `firebase` (9 → 12, ein critical), `swiper` (8 → 14, ein critical),
+`axios`, `jsonwebtoken`, `recharts` (löst `d3-color`). Die drei Phantom-Abhängigkeiten aus A2b
+(`@emotion/cache`, `@mui/types`, `react-router`) gehören **vor** diesen Schritt deklariert.
 
 ---
 

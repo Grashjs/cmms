@@ -433,7 +433,7 @@ const Teams = ({ openModal, handleCloseModal }: PropsType) => {
                       value: user.id
                     };
                   })
-                } || {}
+                }
               }
               onChange={({ field, e }) => {}}
               onSubmit={async (values) => {

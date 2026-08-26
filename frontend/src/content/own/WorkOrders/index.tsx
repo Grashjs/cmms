@@ -78,7 +78,11 @@ import {
 import { getSingleLocation } from '../../../slices/location';
 import { getSingleAsset } from '../../../slices/asset';
 import { dayDiff } from '../../../utils/dates';
-import { FilterField, SearchCriteria } from '../../../models/owns/page';
+import {
+  FilterField,
+  QueryPath,
+  SearchCriteria
+} from '../../../models/owns/page';
 import { loadFilterFields, saveFilterFields } from '../../../utils/filter';
 import WorkOrderCalendar from './Calendar';
 import WorkloadView from './WorkloadView';
@@ -108,7 +112,6 @@ import {
 import { getCustomFields } from '../../../slices/customField';
 import { CustomFieldEntityType } from '../../../models/owns/customField';
 import { randomInt } from '../../../utils/generators';
-import type { Paths } from 'type-fest';
 
 const fieldMapping: Record<string, string> = {
   customId: 'customId',
@@ -151,7 +154,7 @@ const DEFAULT_FILTER_FIELDS: FilterField[] = [
   }
 ];
 
-const QUERY_SEARCH_FIELDS = new Set<Paths<WorkOrder>>([
+const QUERY_SEARCH_FIELDS = new Set<QueryPath<WorkOrder>>([
   'title',
   'description',
   'feedback',

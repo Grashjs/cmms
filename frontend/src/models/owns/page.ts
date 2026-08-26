@@ -1,3 +1,5 @@
+import type { Paths } from 'type-fest';
+
 export interface Page<T> {
   content: T[];
   totalElements: number;
@@ -29,6 +31,22 @@ export type SearchOperator =
   | 'in'
   | 'inm';
 type EnumName = 'STATUS' | 'PRIORITY' | 'JS_DATE';
+/**
+ * Ein Feldpfad in einer Backend-Suchanfrage.
+ *
+ * `Paths<T>` aus type-fest schlaegt die Felder des Modells vor, kann aber die
+ * Traversierung in eine Collection nicht ausdruecken: `"customFieldValues.value"`
+ * wird abgelehnt, waehrend der SpecificationBuilder im Backend genau diesen Pfad
+ * akzeptiert. Ausserdem liefert `Paths<T>` fuer Array-Indizes `number`, was nicht zu
+ * `FilterField.field: string` passt.
+ *
+ * `string & {}` haelt die Vorschlaege aus `Paths<T>` in der Editor-Vervollstaendigung
+ * sichtbar und laesst die tieferen Pfade trotzdem zu. Das ist ein Vorschlag, keine
+ * Garantie - einen Tippfehler im Feldnamen faengt das Backend, nicht der Compiler.
+ */
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type QueryPath<T> = Extract<Paths<T>, string> | (string & {});
+
 export interface FilterField {
   field: string;
   joinType?: JoinType;

@@ -54,40 +54,18 @@ cd frontend && npm start                                       # vite dev server
 leave an edited file untranslated and still exit 0 — a type error that fails CI looks green
 locally. The image build runs `mvn clean package -DskipTests`; use that, or nothing.
 
-**The frontend build no longer type-checks, and nothing else does either.** Create React App
-ran `tsc` alongside webpack and, under `CI=true`, failed the build on a type error. Vite does
-not type-check at all — it strips types with esbuild and never looks at them. So `npm run
-build` passing says the code *bundles*, not that it is type-correct, and `CI=true` no longer
-changes anything.
+**The frontend build type-checks again, and `mvn compile`'s lesson applies here too.**
+`npm run build` is `tsc --noEmit && vite build`: Vite itself never looks at types — esbuild
+strips them — so the compiler runs in front of it and a type error stops the build before the
+bundler starts. `npm run typecheck` runs the same check alone.
 
-Putting the check back is not a one-liner: `tsc --noEmit` cannot run here at all. TypeScript
-4.7.3 fails to *parse* the i18next type definitions and dies with ~88 errors inside
-`node_modules` before it reaches `src/`, so an empty error list for `src/` means the check
-never ran, not that it passed. `vite-plugin-checker` would hit the same wall, because it
-shells out to the same compiler. The real fix is the TypeScript upgrade in stage 3
-([`docs/TECHNICAL_DEBT_REMEDIATION.md`](docs/TECHNICAL_DEBT_REMEDIATION.md)); until then,
-type errors reach runtime and review is the only net.
-
-Java 17 is the target. Only a **Windows** Maven wrapper is checked in (`api/mvnw.cmd`) —
-there is no `api/mvnw`, so `./mvnw` fails on Linux and in containers. CI calls `mvn`
-directly. On a machine without Maven on `PATH`, use `api\mvnw.cmd` from PowerShell.
-
-**The test suite cannot run on a JDK above 22.** Byte Buddy 1.14.12 refuses to instrument
-newer class files, so every Mockito-based test errors in `startMocking` before reaching any
-project code — `Java 25 (69) is not supported by the current version of Byte Buddy`.
-`-Dnet.bytebuddy.experimental=true` does not help. A local failure that looks like this is the
-environment, not the change; CI on JDK 17 is the authority. Mock-free tests
-(e.g. `CsvColumnRegistriesTest`) do run — a good reason to write new tests without mocks where
-the collaborators allow it.
-
-**On JDK 25 nothing runs at all, not even `mvn test-compile`.** Lombok's annotation processor
-fails while javac initialises: `Fatal error compiling: java.lang.ExceptionInInitializerError:
-com.sun.tools.javac.code.TypeTag :: UNKNOWN`, before a single project file is type-checked.
-Verified against unmodified `HEAD` in a separate worktree — an identical failure there means
-the environment, not the change. `release 17` in the compiler config does not help; it selects
-the language level, not the compiler. **There is no local verification on this machine without
-a second JDK installed** (Temurin 17 alongside 25, invoked via `JAVA_HOME` for the Maven call).
-Until then, treat CI as the only check and say so rather than implying a local build passed.
+This was broken for a long time and worth knowing about, because the failure mode was silent.
+TypeScript 4.7.3 could not *parse* the i18next type definitions and died with 88 syntax errors
+inside `node_modules` before reaching `src/` — so an empty error list for `src/` meant the
+check had not run, not that it passed. TypeScript 5.9.3 reads them fine. Turning the check
+back on surfaced 34 real errors that had accumulated behind it; they are fixed, and the wiring
+was verified by planting a type error and confirming the build fails with exit 2 without Vite
+running.
 
 ## Deployment
 
