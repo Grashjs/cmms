@@ -233,4 +233,16 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_08_04_00000000002_saved_view.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_08_11_00000000001_add_asset_indexes.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2026_08_11_00000000002_add_location_indexes.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2026_08_14_00000000001_add_user_session_invalidated_at.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2026_08_14_00000000002_add_refresh_token.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2026_08_17_00000000001_add_api_key_lifecycle.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2026_08_18_00000000001_add_optimistic_locking_version.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

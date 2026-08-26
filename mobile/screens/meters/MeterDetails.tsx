@@ -1,4 +1,10 @@
-import { Alert, Image, Pressable, ScrollView, View as RNView } from 'react-native';
+import {
+  Alert,
+  Image,
+  Pressable,
+  ScrollView,
+  View as RNView
+} from 'react-native';
 import LoadingDialog from '../../components/LoadingDialog';
 import * as React from 'react';
 import { useContext, useEffect, useState } from 'react';
@@ -76,6 +82,10 @@ export default function MeterDetails({
     {
       label: t('reading_frequency'),
       value: t('every_frequency_days', { frequency: meter?.updateFrequency })
+    },
+    {
+      label: t('category'),
+      value: meter?.meterCategory?.name
     },
     ...getCustomFieldValuesForDetails(
       meter?.customFieldValues,

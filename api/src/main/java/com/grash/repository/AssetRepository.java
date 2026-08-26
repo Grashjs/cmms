@@ -4,6 +4,7 @@ import com.grash.model.Asset;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -20,13 +21,20 @@ public interface AssetRepository extends JpaRepository<Asset, Long>, JpaSpecific
 
     List<Asset> findByCompany_Id(Long id, Sort sort);
 
+    @EntityGraph(attributePaths = {
+            "parentAsset", "location", "category", "primaryUser", "image", "deprecation"
+    })
     Page<Asset> findByCompany_IdAndParentAssetIsNull(Long id, Pageable pageable);
 
-    List<Asset> findByParentAsset_Id(Long id, Sort sort);
-
+    @EntityGraph(attributePaths = {
+            "parentAsset", "location", "category", "primaryUser", "image", "deprecation"
+    })
     Page<Asset> findByParentAsset_Id(Long id, Pageable pageable);
 
     Integer countByParentAsset_Id(Long id);
+
+    @Query("SELECT DISTINCT a.parentAsset.id FROM Asset a WHERE a.parentAsset.id IN :ids")
+    List<Long> findParentIdsWithChildren(@Param("ids") Collection<Long> ids);
 
     List<Asset> findByLocation_Id(Long id);
 
@@ -58,7 +66,10 @@ public interface AssetRepository extends JpaRepository<Asset, Long>, JpaSpecific
             "FROM Asset a WHERE a.company.id = :companyId")
     boolean hasMoreThan(@Param("companyId") Long companyId, @Param("threshold") Long threshold);
 
-    @Query(value = "SELECT COALESCE(SUM(a.acquisition_cost), 0) FROM asset a WHERE a.company_id = :companyId AND a.created_at < :end AND a.acquisition_cost IS NOT NULL", nativeQuery = true)
+    @Query(value = "SELECT COALESCE(SUM(a.acquisition_cost), 0) FROM asset a WHERE a.company_id = :companyId AND a" +
+            ".created_at < :end AND a.acquisition_cost IS NOT NULL", nativeQuery = true)
     double getTotalAcquisitionCost(@Param("companyId") Long companyId, @Param("end") Date end);
+
+    List<Asset> findByLocation_IdAndCompany_Id(Long locationId, Long companyId);
 }
 

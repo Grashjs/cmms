@@ -188,6 +188,8 @@ const locale = {
   no_account_yet: 'Još nemate nalog?',
   signup_here: 'Prijavite se ovdje',
   wrong_credentials: 'Uneseni su pogrešni podaci za prijavu',
+  server_not_reachable:
+    'Backend server nije dostupan. Možete sačekati da se pokrene i pokušati ponovo.',
   lost_password: 'Zaboravljena lozinka?',
   link_wo: 'Poveži radne naloge',
   link_wo_description: 'Kreirajte veze između radnih naloga',
@@ -1005,7 +1007,7 @@ const locale = {
   required_job_title: 'Polje naziva radnog mjesta je obavezno',
   required_old_password: 'Molimo unesite trenutnu lozinku.',
   invalid_password:
-    'Lozinka je prekratka - trebala bi imati najmanje 8 znakova.',
+    'Lozinka je prekratka - trebala bi imati najmanje 12 znakova.',
   required_new_password: 'Nije unesena lozinka.',
   passwords_must_match: 'Lozinke se moraju podudarati',
   password_change_success: 'Lozinka uspješno promijenjena',
@@ -1829,10 +1831,20 @@ const locale = {
   api_key_code: 'Kod API ključa',
   copy_code: 'Kopiraj kod',
   last_used: 'Zadnje korištenje',
+  expiration: 'Istek',
+  expiration_optional: 'Istek (opcionalno)',
   never: 'Nikada',
   delete_api_key: 'Obriši API ključ',
   delete_api_key_confirm:
     'Da li ste sigurni da želite obrisati ovaj API ključ?',
+  rotate: 'Rotiraj',
+  rotate_api_key: 'Rotiraj API ključ',
+  rotate_api_key_confirm:
+    'Ovo će poništiti trenutni ključ i generisati novi. Stari ključ će odmah prestati raditi.',
+  api_key_rotated_success: 'API ključ uspješno rotiran',
+  active: 'Aktivan',
+  expired: 'Istekao',
+  revoked: 'Poništen',
   upgrade_api: 'Nadogradite za pristup API-ju, konektorima i webhookovima',
   comments: 'Komentari',
   add_comment_placeholder: 'Dodaj komentar...',

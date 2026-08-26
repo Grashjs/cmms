@@ -44,6 +44,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private final MailServiceFactory mailServiceFactory;
     private final CompanyService companyService;
     private final RoleService roleService;
+    private final RefreshTokenService refreshTokenService;
 
     @Value("${mail.recipients:#{null}}")
     private String[] recipients;
@@ -69,9 +70,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) {
         try {
-            Optional<String> redirectUri = Optional.ofNullable(request.getParameter("redirect_uri"));
-
-            String targetUrl = redirectUri.orElse(oAuth2Properties.getSuccessRedirectUrl());
+            String targetUrl = oAuth2Properties.getSuccessRedirectUrl();
 
             // Extract user details and generate token
             OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authentication;
@@ -85,7 +84,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             Optional<User> userOptional = userRepository.findByEmailIgnoreCase(email);
             User user;
 
-            if (!userOptional.isPresent()) {
+            if (userOptional.isEmpty()) {
                 user = createUserFromOAuth(email, attributes, authToken.getAuthorizedClientRegistrationId());
             } else {
                 user = userOptional.get();
@@ -98,11 +97,13 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                 }
             }
 
-            // Generate JWT token
+            // Generate JWT access token and a refresh token
             String token = jwtTokenProvider.createToken(user.getEmail(),
                     Collections.singletonList(user.getRole().getRoleType()));
+            String refreshToken = refreshTokenService.createRefreshToken(user);
             return UriComponentsBuilder.fromUriString(targetUrl)
                     .queryParam("token", token)
+                    .queryParam("refreshToken", refreshToken)
                     .build().toUriString();
         } catch (Exception e) {
             return UriComponentsBuilder.fromUriString(oAuth2Properties.getFailureRedirectUrl())

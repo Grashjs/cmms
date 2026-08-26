@@ -38,4 +38,16 @@ public interface StorageService {
     }
 
     String upload(byte[] data, String fileName, String folder);
+
+    /**
+     * Uploads a file to a specific, caller-controlled path (no key generation).
+     * Overwrites any existing object at that path.
+     *
+     * @param data        The file content.
+     * @param filePath    The exact path/key to upload to.
+     * @param contentType The content type of the file.
+     */
+    void uploadAt(byte[] data, String filePath, String contentType);
+
+    boolean exists(String filePath);
 }

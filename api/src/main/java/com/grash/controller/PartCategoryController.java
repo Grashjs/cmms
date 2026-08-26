@@ -48,18 +48,18 @@ public class PartCategoryController {
     @PreAuthorize("permitAll()")
     public PartCategory getById(@PathVariable("id") Long id, HttpServletRequest req) {
         User user = userService.whoami(req);
-        if (user.getRole().getViewPermissions().contains(PermissionEntity.CATEGORIES)) {
-            Optional<PartCategory> optionalPartCategory = partCategoryService.findById(id);
-            if (optionalPartCategory.isPresent()) {
-                return partCategoryService.findById(id).get();
-            } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
-        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+        Optional<PartCategory> optionalPartCategory = partCategoryService.findById(id);
+        if (optionalPartCategory.isPresent()) {
+            if (!optionalPartCategory.get().canBeViewedBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return partCategoryService.findById(id).get();
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    PartCategory create(@Parameter(description = "Part category to create") @Valid @RequestBody PartCategory partCategoryReq,
-                        HttpServletRequest req) {
+    public PartCategory create(@Parameter(description = "Part category to create") @Valid @RequestBody PartCategory partCategoryReq,
+                               HttpServletRequest req) {
         User user = userService.whoami(req);
         if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
             return partCategoryService.create(partCategoryReq, user);
@@ -73,13 +73,13 @@ public class PartCategoryController {
                               HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<PartCategory> optionalPartCategory = partCategoryService.findById(id);
-        if (user.getRole().getCreatePermissions().contains(PermissionEntity.CATEGORIES)) {
-            if (optionalPartCategory.isPresent()) {
-                return partCategoryService.update(id, partCategory);
-            } else {
-                throw new CustomException("Category not found", HttpStatus.NOT_FOUND);
-            }
-        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+        if (optionalPartCategory.isPresent()) {
+            if (!optionalPartCategory.get().canBeEditedBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return partCategoryService.update(id, partCategory);
+        } else {
+            throw new CustomException("Category not found", HttpStatus.NOT_FOUND);
+        }
     }
 
     @DeleteMapping("/{id}")
@@ -89,7 +89,7 @@ public class PartCategoryController {
 
         Optional<PartCategory> optionalPartCategory = partCategoryService.findById(id);
         if (optionalPartCategory.isPresent()) {
-            if (user.getId().equals(optionalPartCategory.get().getCreatedBy()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.CATEGORIES)) {
+            if (optionalPartCategory.get().canBeDeletedBy(user)) {
                 partCategoryService.delete(id);
                 return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);

@@ -57,7 +57,7 @@ public class PaddleService {
                 : "https://api.paddle.com";
     }
 
-    public CheckoutResponse createCheckoutSession(CheckoutRequest request) {
+    public CheckoutResponse createCheckoutSession(CheckoutRequest request, @Nullable String email) {
         if (request.getUserId() == null && request.getEmail() == null)
             throw new CustomException("Email and ID cannot be null", HttpStatus.BAD_REQUEST);
         boolean selfHosted = request.getUserId() == null;
@@ -84,15 +84,14 @@ public class PaddleService {
         transactionRequest.setItems(Collections.singletonList(item));
 
         // Set customer email
-        String email = (request.getUserId() == null ? request.getEmail() :
-                userService.findById(request.getUserId()).get().getEmail()).trim().toLowerCase();
-        transactionRequest.setCustomerEmail(email);
+        String resolvedEmail = email != null ? email : request.getEmail();
+        transactionRequest.setCustomerEmail(resolvedEmail.trim().toLowerCase());
 
         // Set custom data (metadata)
         Map<String, String> customData = new HashMap<>();
         customData.put("planId", request.getPlanId());
         if (request.getUserId() != null) customData.put("userId", request.getUserId().toString());
-        customData.put("email", email);
+        customData.put("email", resolvedEmail);
         transactionRequest.setCustomData(customData);
 
         // Set checkout settings

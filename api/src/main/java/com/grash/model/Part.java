@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.dto.IdDTO;
 import com.grash.exception.CustomException;
 import com.grash.model.abstracts.CompanyAudit;
+import com.grash.model.enums.PermissionEntity;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -66,6 +67,9 @@ public class Part extends CompanyAudit {
 
     @Schema(description = "The current quantity of the part in stock")
     private double quantity;
+
+    @Version
+    private Long version;
 
     @Schema(description = "The area or storage location where the part is kept")
     private String area;
@@ -173,7 +177,7 @@ public class Part extends CompanyAudit {
     private String unit;
 
     @OneToMany(mappedBy = "part", cascade = CascadeType.ALL, orphanRemoval = true)
-    @ArraySchema(schema = @Schema(implementation = CustomFieldValue.class))
+    @ArraySchema(schema = @Schema(implementation = IdDTO.class))
     private List<CustomFieldValue> customFieldValues = new ArrayList<>();
 
     @JsonIgnore
@@ -214,6 +218,24 @@ public class Part extends CompanyAudit {
         this.minQuantity = minQuantity;
     }
 
+    public boolean isAssignedTo(User user) {
+        return getUsers().stream().anyMatch(u -> u.getId().equals(user.getId()));
+    }
+
+    public boolean canBeEditedBy(User user) {
+        return user.getRole().getEditOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)
+                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId())) || isAssignedTo(user);
+    }
+
+    public boolean canBeDeletedBy(User user) {
+        return user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)
+                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId()));
+    }
+
+    public boolean canBeViewedBy(User user) {
+        return (user.getRole().getViewPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) &&
+                (user.getRole().getViewOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) || (getCreatedBy() != null && getCreatedBy().equals(user.getId())) || isAssignedTo(user)));
+    }
 }
 
 

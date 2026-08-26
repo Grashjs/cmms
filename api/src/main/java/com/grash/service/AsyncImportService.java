@@ -27,17 +27,17 @@ public class AsyncImportService {
         try {
             if (!user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS)
                     || !user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
-                messagingTemplate.convertAndSend("/imports/" + uuid, "error: Access Denied");
+                messagingTemplate.convertAndSendToUser(user.getEmail(), "/imports/" + uuid, "error: Access Denied");
                 return;
             }
 
             ImportResponse response = importService.importWorkOrders(toImport, user.getCompany());
-            messagingTemplate.convertAndSend("/imports/" + uuid, response);
+            messagingTemplate.convertAndSendToUser(user.getEmail(), "/imports/" + uuid, response);
             log.info("Import completed for work-orders, uuid: {}, created: {}, updated: {}", uuid,
                     response.getCreated(), response.getUpdated());
         } catch (Exception e) {
             log.error("Import failed for work-orders, uuid: {}", uuid, e);
-            messagingTemplate.convertAndSend("/imports/" + uuid, "error: " + e.getMessage());
+            messagingTemplate.convertAndSendToUser(user.getEmail(), "/imports/" + uuid, "error: " + e.getMessage());
         }
     }
 
@@ -46,7 +46,7 @@ public class AsyncImportService {
         try {
             if (!user.getRole().getCreatePermissions().contains(PermissionEntity.ASSETS)
                     || !user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
-                messagingTemplate.convertAndSend("/imports/" + uuid, "error: Access Denied");
+                messagingTemplate.convertAndSendToUser(user.getEmail(), "/imports/" + uuid, "error: Access Denied");
                 return;
             }
 
@@ -66,12 +66,12 @@ public class AsyncImportService {
                 );
             }
 
-            messagingTemplate.convertAndSend("/imports/" + uuid, response);
+            messagingTemplate.convertAndSendToUser(user.getEmail(), "/imports/" + uuid, response);
             log.info("Import completed for assets, uuid: {}, created: {}, updated: {}", uuid, response.getCreated(),
                     response.getUpdated());
         } catch (Exception e) {
             log.error("Import failed for assets, uuid: {}", uuid, e);
-            messagingTemplate.convertAndSend("/imports/" + uuid, "error: " + e.getMessage());
+            messagingTemplate.convertAndSendToUser(user.getEmail(), "/imports/" + uuid, "error: " + e.getMessage());
         }
     }
 
@@ -80,17 +80,17 @@ public class AsyncImportService {
         try {
             if (!user.getRole().getCreatePermissions().contains(PermissionEntity.LOCATIONS)
                     || !user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
-                messagingTemplate.convertAndSend("/imports/" + uuid, "error: Access Denied");
+                messagingTemplate.convertAndSendToUser(user.getEmail(), "/imports/" + uuid, "error: Access Denied");
                 return;
             }
 
             ImportResponse response = importService.importLocations(toImport, user.getCompany());
-            messagingTemplate.convertAndSend("/imports/" + uuid, response);
+            messagingTemplate.convertAndSendToUser(user.getEmail(), "/imports/" + uuid, response);
             log.info("Import completed for locations, uuid: {}, created: {}, updated: {}", uuid,
                     response.getCreated(), response.getUpdated());
         } catch (Exception e) {
             log.error("Import failed for locations, uuid: {}", uuid, e);
-            messagingTemplate.convertAndSend("/imports/" + uuid, "error: " + e.getMessage());
+            messagingTemplate.convertAndSendToUser(user.getEmail(), "/imports/" + uuid, "error: " + e.getMessage());
         }
     }
 
@@ -99,17 +99,17 @@ public class AsyncImportService {
         try {
             if (!user.getRole().getCreatePermissions().contains(PermissionEntity.METERS)
                     || !user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
-                messagingTemplate.convertAndSend("/imports/" + uuid, "error: Access Denied");
+                messagingTemplate.convertAndSendToUser(user.getEmail(), "/imports/" + uuid, "error: Access Denied");
                 return;
             }
 
             ImportResponse response = importService.importMeters(toImport, user.getCompany());
-            messagingTemplate.convertAndSend("/imports/" + uuid, response);
+            messagingTemplate.convertAndSendToUser(user.getEmail(), "/imports/" + uuid, response);
             log.info("Import completed for meters, uuid: {}, created: {}, updated: {}", uuid, response.getCreated(),
                     response.getUpdated());
         } catch (Exception e) {
             log.error("Import failed for meters, uuid: {}", uuid, e);
-            messagingTemplate.convertAndSend("/imports/" + uuid, "error: " + e.getMessage());
+            messagingTemplate.convertAndSendToUser(user.getEmail(), "/imports/" + uuid, "error: " + e.getMessage());
         }
     }
 
@@ -118,17 +118,17 @@ public class AsyncImportService {
         try {
             if (!user.getRole().getCreatePermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)
                     || !user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
-                messagingTemplate.convertAndSend("/imports/" + uuid, "error: Access Denied");
+                messagingTemplate.convertAndSendToUser(user.getEmail(), "/imports/" + uuid, "error: Access Denied");
                 return;
             }
 
             ImportResponse response = importService.importParts(toImport, user.getCompany());
-            messagingTemplate.convertAndSend("/imports/" + uuid, response);
+            messagingTemplate.convertAndSendToUser(user.getEmail(), "/imports/" + uuid, response);
             log.info("Import completed for parts, uuid: {}, created: {}, updated: {}", uuid, response.getCreated(),
                     response.getUpdated());
         } catch (Exception e) {
             log.error("Import failed for parts, uuid: {}", uuid, e);
-            messagingTemplate.convertAndSend("/imports/" + uuid, "error: " + e.getMessage());
+            messagingTemplate.convertAndSendToUser(user.getEmail(), "/imports/" + uuid, "error: " + e.getMessage());
         }
     }
 
@@ -137,17 +137,17 @@ public class AsyncImportService {
         try {
             if (!user.getRole().getCreatePermissions().contains(PermissionEntity.PREVENTIVE_MAINTENANCES)
                     || !user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
-                messagingTemplate.convertAndSend("/imports/" + uuid, "error: Access Denied");
+                messagingTemplate.convertAndSendToUser(user.getEmail(), "/imports/" + uuid, "error: Access Denied");
                 return;
             }
 
             ImportResponse response = importService.importPreventiveMaintenances(toImport, user.getCompany());
-            messagingTemplate.convertAndSend("/imports/" + uuid, response);
+            messagingTemplate.convertAndSendToUser(user.getEmail(), "/imports/" + uuid, response);
             log.info("Import completed for preventive-maintenances, uuid: {}, created: {}, updated: {}", uuid,
                     response.getCreated(), response.getUpdated());
         } catch (Exception e) {
             log.error("Import failed for preventive-maintenances, uuid: {}", uuid, e);
-            messagingTemplate.convertAndSend("/imports/" + uuid, "error: " + e.getMessage());
+            messagingTemplate.convertAndSendToUser(user.getEmail(), "/imports/" + uuid, "error: " + e.getMessage());
         }
     }
 }

@@ -36,6 +36,8 @@ public class ApiKeyController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public Page<ApiKeyShowDTO> search(@Parameter(description = "API key search criteria") @RequestBody ApiKeyCriteria apiKeyCriteria,
                                       @Parameter(hidden = true) @CurrentUser User user, Pageable pageable) {
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS))
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         return apiKeyService.findByCriteria(apiKeyCriteria, pageable, user).map(apiKeyMapper::toShowDto);
     }
 
@@ -59,6 +61,18 @@ public class ApiKeyController {
                 HttpStatus.NOT_FOUND)));
     }
 
+
+    @PostMapping("/{id}/rotate")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public ApiKeyShowDTO rotate(@PathVariable Long id,
+                                @Parameter(hidden = true) @CurrentUser User user) {
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS))
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        Pair<ApiKey, String> rotated = apiKeyService.rotateKey(id, user);
+        ApiKeyShowDTO result = apiKeyMapper.toShowDto(rotated.getFirst());
+        result.setCode(rotated.getSecond());
+        return result;
+    }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")

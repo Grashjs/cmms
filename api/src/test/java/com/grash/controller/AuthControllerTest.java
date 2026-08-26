@@ -1,5 +1,6 @@
 package com.grash.controller;
 
+import com.grash.configuration.PasswordPolicyProperties;
 import com.grash.dto.*;
 import com.grash.exception.CustomException;
 import com.grash.mapper.UserMapper;
@@ -7,9 +8,9 @@ import com.grash.model.*;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.SuperAccountRelationRepository;
 import com.grash.repository.UserRepository;
-import com.grash.security.JwtTokenProvider;
 import com.grash.service.CompanyService;
 import com.grash.service.LdapService;
+import com.grash.service.RefreshTokenService;
 import com.grash.service.UserService;
 import com.grash.service.VerificationTokenService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,15 +18,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.Optional;
 
 import static com.grash.utils.Helper.setCurrentUser;
@@ -37,41 +41,43 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(AuthController.class)
 @AutoConfigureMockMvc(addFilters = false)
+@EnableConfigurationProperties(PasswordPolicyProperties.class)
 class AuthControllerTest extends AbstractControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private UserService userService;
 
-    @MockBean
+    @MockitoBean
     private PasswordEncoder passwordEncoder;
 
-    @MockBean
+    @MockitoBean
     private VerificationTokenService verificationTokenService;
 
-    @MockBean
+    @MockitoBean
     private UserMapper userMapper;
 
-    @MockBean
+    @MockitoBean
     private SuperAccountRelationRepository superAccountRelationRepository;
 
-    @MockBean
-    private JwtTokenProvider jwtTokenProvider;
-
-    @MockBean
+    @MockitoBean
     private CompanyService companyService;
 
-    @MockBean
+    @MockitoBean
     private UserRepository userRepository;
 
-    @MockBean
+    @MockitoBean
     private LdapService ldapService;
+
+    @MockitoBean
+    private RefreshTokenService refreshTokenService;
 
     private User clientUser;
     private User superAdminUser;
     private UserResponseDTO userResponseDto;
+    private final Date accessTokenExpiresAt = new Date(1784300000000L);
 
     @BeforeEach
     void setUp() {
@@ -152,7 +158,7 @@ class AuthControllerTest extends AbstractControllerTest {
 
             mockMvc.perform(post("/auth/signup")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content("{\"email\":\"existing@test.com\",\"password\":\"pass123\"," +
+                            .content("{\"email\":\"existing@test.com\",\"password\":\"pass123pass12\"," +
                                     "\"firstName\":\"John\",\"lastName\":\"Doe\",\"phone\":\"12345678\"}"))
                     .andExpect(status().isUnprocessableEntity());
         }
@@ -176,7 +182,7 @@ class AuthControllerTest extends AbstractControllerTest {
 
             mockMvc.perform(post("/auth/updatepwd")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content("{\"oldPassword\":\"wrong1\",\"newPassword\":\"newpass123\"}"))
+                            .content("{\"oldPassword\":\"wrong1\",\"newPassword\":\"newpass123456\"}"))
                     .andExpect(status().isNotAcceptable())
                     .andExpect(jsonPath("$.success").value(false))
                     .andExpect(jsonPath("$.message").value("Bad credentials"));
@@ -188,18 +194,23 @@ class AuthControllerTest extends AbstractControllerTest {
 
         @Test
         void signin_returnsAuthResponse() throws Exception {
-            when(userService.signin(eq("john@test.com"), eq("pass123"), eq("CLIENT"))).thenReturn("jwt-token");
+            when(userService.signin(eq("john@test.com"), eq("pass123"), eq("CLIENT")))
+                    .thenReturn(new AuthTokens("jwt-token", "refresh-token", accessTokenExpiresAt));
 
             mockMvc.perform(post("/auth/signin")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"email\":\"john@test.com\",\"password\":\"pass123\",\"type\":\"CLIENT\"}"))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.accessToken").value("jwt-token"));
+                    .andExpect(jsonPath("$.accessToken").value("jwt-token"))
+                    .andExpect(jsonPath("$.refreshToken").value("refresh-token"))
+                    .andExpect(jsonPath("$.tokenType").value("Bearer"))
+                    .andExpect(jsonPath("$.expiresAt").isNotEmpty());
         }
 
         @Test
         void signin_lowercasesEmail() throws Exception {
-            when(userService.signin(eq("john@test.com"), eq("pass123"), eq("CLIENT"))).thenReturn("jwt-token");
+            when(userService.signin(eq("john@test.com"), eq("pass123"), eq("CLIENT")))
+                    .thenReturn(new AuthTokens("jwt-token", "refresh-token", accessTokenExpiresAt));
 
             mockMvc.perform(post("/auth/signin")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -211,25 +222,28 @@ class AuthControllerTest extends AbstractControllerTest {
         @Test
         void signinLdap_returnsAuthResponse() throws Exception {
             LdapLoginRequest ldapRequest = new LdapLoginRequest("ldapuser", "ldappass");
-            when(ldapService.signinLdap(any(LdapLoginRequest.class))).thenReturn("ldap-jwt-token");
+            when(ldapService.signinLdap(any(LdapLoginRequest.class)))
+                    .thenReturn(new AuthTokens("ldap-jwt-token", "ldap-refresh-token", accessTokenExpiresAt));
 
             mockMvc.perform(post("/auth/signin-ldap")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"username\":\"ldapuser\",\"password\":\"ldappass\"}"))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.accessToken").value("ldap-jwt-token"));
+                    .andExpect(jsonPath("$.accessToken").value("ldap-jwt-token"))
+                    .andExpect(jsonPath("$.refreshToken").value("ldap-refresh-token"));
         }
 
         @SuppressWarnings("unchecked")
         @Test
         void signup_returnsSignupSuccessResponse() throws Exception {
-            SignupSuccessResponse<User> serviceResponse = new SignupSuccessResponse<>(true, "Success", clientUser);
+            SignupSuccessResponse<User> serviceResponse = new SignupSuccessResponse<>(true, "Success", clientUser,
+                    null);
             when(userService.signup(any(UserSignupRequest.class))).thenReturn(serviceResponse);
             when(userMapper.toResponseDto(clientUser)).thenReturn(userResponseDto);
 
             mockMvc.perform(post("/auth/signup")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content("{\"email\":\"new@test.com\",\"password\":\"pass123\",\"firstName\":\"John\"," +
+                            .content("{\"email\":\"new@test.com\",\"password\":\"pass123pass12\",\"firstName\":\"John\"," +
                                     "\"lastName\":\"Doe\",\"phone\":\"12345678\"}"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.success").value(true))
@@ -312,13 +326,29 @@ class AuthControllerTest extends AbstractControllerTest {
         }
 
         @Test
-        void refresh_returnsAuthResponse() throws Exception {
-            setCurrentUser(clientUser);
-            when(userService.refresh(any())).thenReturn("refreshed-token");
+        void refresh_returnsNewTokenPair() throws Exception {
+            when(refreshTokenService.rotate("old-refresh-token"))
+                    .thenReturn(new AuthTokens("refreshed-access-token", "new-refresh-token", accessTokenExpiresAt));
 
-            mockMvc.perform(get("/auth/refresh"))
+            mockMvc.perform(post("/auth/refresh")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"refreshToken\":\"old-refresh-token\"}"))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.accessToken").value("refreshed-token"));
+                    .andExpect(jsonPath("$.accessToken").value("refreshed-access-token"))
+                    .andExpect(jsonPath("$.refreshToken").value("new-refresh-token"))
+                    .andExpect(jsonPath("$.tokenType").value("Bearer"))
+                    .andExpect(jsonPath("$.expiresAt").isNotEmpty());
+        }
+
+        @Test
+        void refresh_invalidToken_returns401() throws Exception {
+            when(refreshTokenService.rotate("invalid-refresh-token"))
+                    .thenThrow(new CustomException("Invalid refresh token", HttpStatus.UNAUTHORIZED));
+
+            mockMvc.perform(post("/auth/refresh")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"refreshToken\":\"invalid-refresh-token\"}"))
+                    .andExpect(status().isUnauthorized());
         }
 
         @Test
@@ -333,19 +363,39 @@ class AuthControllerTest extends AbstractControllerTest {
         }
 
         @Test
-        void updatePassword_success_returnsOk() throws Exception {
+        void updatePassword_success_returnsNewTokens() throws Exception {
             setCurrentUser(clientUser);
             when(userService.whoami(any())).thenReturn(clientUser);
             when(passwordEncoder.matches("oldPass", "encoded-password")).thenReturn(true);
-            when(passwordEncoder.encode("newPass")).thenReturn("new-encoded");
-            when(userService.save(any())).thenReturn(clientUser);
+            when(passwordEncoder.encode("newPassPass12")).thenReturn("new-encoded");
+            when(userService.invalidateSessions(any())).thenReturn(clientUser);
+            when(refreshTokenService.createTokenPair(clientUser))
+                    .thenReturn(new AuthTokens("new-access", "new-refresh", accessTokenExpiresAt));
 
             mockMvc.perform(post("/auth/updatepwd")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content("{\"oldPassword\":\"oldPass\",\"newPassword\":\"newPass\"}"))
+                            .content("{\"oldPassword\":\"oldPass\",\"newPassword\":\"newPassPass12\"}"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.accessToken").value("new-access"))
+                    .andExpect(jsonPath("$.refreshToken").value("new-refresh"))
+                    .andExpect(jsonPath("$.tokenType").value("Bearer"));
+
+            verify(userService).invalidateSessions(clientUser);
+            verify(refreshTokenService).createTokenPair(clientUser);
+        }
+
+        @Test
+        void logout_revokesSessionsAndReturnsSuccess() throws Exception {
+            setCurrentUser(clientUser);
+            when(userService.whoami(any())).thenReturn(clientUser);
+            when(userService.invalidateSessions(clientUser)).thenReturn(clientUser);
+
+            mockMvc.perform(post("/auth/logout"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.success").value(true))
-                    .andExpect(jsonPath("$.message").value("Password changed successfully"));
+                    .andExpect(jsonPath("$.message").value("Logged out successfully"));
+
+            verify(userService).invalidateSessions(clientUser);
         }
 
         @Test
@@ -361,11 +411,13 @@ class AuthControllerTest extends AbstractControllerTest {
             clientUser.setSuperAccountRelations(Collections.singletonList(relation));
             when(superAccountRelationRepository.findBySuperUser_IdAndChildUser_Id(1L, 2L)).thenReturn(relation);
             when(userService.findById(2L)).thenReturn(Optional.of(superAdminUser));
-            when(jwtTokenProvider.createToken(eq("admin@test.com"), anyList())).thenReturn("switched-token");
+            when(refreshTokenService.createTokenPair(superAdminUser))
+                    .thenReturn(new AuthTokens("switched-token", "switched-refresh", accessTokenExpiresAt));
 
             mockMvc.perform(get("/auth/switch-account?id=2"))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.accessToken").value("switched-token"));
+                    .andExpect(jsonPath("$.accessToken").value("switched-token"))
+                    .andExpect(jsonPath("$.refreshToken").value("switched-refresh"));
         }
 
         @Test
@@ -382,11 +434,13 @@ class AuthControllerTest extends AbstractControllerTest {
             clientUser.setParentSuperAccount(relation);
             when(superAccountRelationRepository.findBySuperUser_IdAndChildUser_Id(2L, 1L)).thenReturn(relation);
             when(userService.findById(2L)).thenReturn(Optional.of(superAdminUser));
-            when(jwtTokenProvider.createToken(eq("admin@test.com"), anyList())).thenReturn("switched-token");
+            when(refreshTokenService.createTokenPair(superAdminUser))
+                    .thenReturn(new AuthTokens("switched-token", "switched-refresh", accessTokenExpiresAt));
 
             mockMvc.perform(get("/auth/switch-account?id=2"))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.accessToken").value("switched-token"));
+                    .andExpect(jsonPath("$.accessToken").value("switched-token"))
+                    .andExpect(jsonPath("$.refreshToken").value("switched-refresh"));
         }
 
         @Test

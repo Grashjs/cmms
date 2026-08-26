@@ -55,7 +55,7 @@ export default function RegisterScreen({
       lastName: Yup.string().max(255).required(t('required_lastName')),
       companyName: Yup.string().max(255).required(t('required_company')),
       phone: Yup.string().matches(phoneRegExp, t('invalid_phone')),
-      password: Yup.string().min(8).max(255).required(t('required_password'))
+      password: Yup.string().min(12).max(128).required(t('required_password'))
     };
     // if (role) {
     //   const keysToDelete = ['companyName', 'employeesCount'];

@@ -177,6 +177,8 @@ const locale = {
   no_account_yet: 'ليس لديك حساب حتى الآن؟',
   signup_here: 'سجل هنا',
   wrong_credentials: 'تم تقديم بيانات اعتماد خاطئة',
+  server_not_reachable:
+    'خادم الواجهة الخلفية غير قابل للوصول. يمكنك الانتظار حتى يعمل ثم المحاولة مرة أخرى.',
   lost_password: 'فقدت كلمة المرور ؟',
   link_wo: 'ربط أوامر العمل',
   link_wo_description: 'إنشاء علاقات بين أوامر العمل',
@@ -962,7 +964,7 @@ const locale = {
   required_job_title: 'حقل عنوان الوظيفة مطلوب',
   required_old_password: 'يرجى تقديم كلمة المرور الحالية.',
   invalid_password:
-    'كلمة المرور قصيرة جدًا - يجب أن تتكون من 8 أحرف على الأقل.',
+    'كلمة المرور قصيرة جدًا - يجب أن تتكون من 12 أحرف على الأقل.',
   required_new_password: 'لم يتم توفير كلمة المرور.',
   passwords_must_match: 'يجب أن تتطابق كلمات المرور',
   password_change_success: 'تم تغيير كلمة المرور بنجاح',
@@ -1729,9 +1731,19 @@ const locale = {
   api_key_code: 'رمز مفتاح API',
   copy_code: 'نسخ الرمز',
   last_used: 'آخر استخدام',
+  expiration: 'انتهاء الصلاحية',
+  expiration_optional: 'انتهاء الصلاحية (اختياري)',
   never: 'أبدًا',
   delete_api_key: 'حذف مفتاح API',
   delete_api_key_confirm: 'هل أنت متأكد أنك تريد حذف مفتاح API هذا؟',
+  rotate: 'تدوير',
+  rotate_api_key: 'تدوير مفتاح API',
+  rotate_api_key_confirm:
+    'سيتم إلغاء المفتاح الحالي وإنشاء مفتاح جديد. سيتوقف المفتاح القديم عن العمل فوراً.',
+  api_key_rotated_success: 'تم تدوير مفتاح API بنجاح',
+  active: 'نشط',
+  expired: 'منتهي الصلاحية',
+  revoked: 'ملغى',
   upgrade_api: 'قم بالترقية للحصول على الوصول إلى API والموصلات وWebhooks',
   // Webhooks
   webhook_endpoints: 'نقاط نهاية Webhook',

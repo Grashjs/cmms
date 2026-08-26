@@ -15,13 +15,12 @@ import com.grash.model.enums.CustomFieldEntityType;
 import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.LocationRepository;
-import com.grash.service.CustomFieldValueService;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +30,7 @@ import jakarta.persistence.EntityManager;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.grash.utils.Consts.usageBasedLicenseLimits;
+import static com.grash.utils.Consts.usageBasedFreeLimits;
 
 @Service
 @RequiredArgsConstructor
@@ -62,6 +61,7 @@ public class LocationService {
             }
         }
         location.setCustomId(getLocationNumber(company));
+        Sanitizer.sanitizeLocation(location);
 
         Location savedLocation = locationRepository.saveAndFlush(location);
         em.refresh(savedLocation);
@@ -80,15 +80,16 @@ public class LocationService {
             if (location.getCustomFields() != null && !location.getCustomFields().isEmpty()) {
                 setLocationCustomFields(savedLocation, location.getCustomFields(), company);
             }
-            Location patchedLocation = locationRepository.saveAndFlush(locationMapper.updateLocation(savedLocation,
-                    location));
+            Location patchedLocation = locationMapper.updateLocation(savedLocation, location);
+            Sanitizer.sanitizeLocation(patchedLocation);
+            patchedLocation = locationRepository.saveAndFlush(patchedLocation);
             em.refresh(patchedLocation);
             return patchedLocation;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     private void checkUsageBasedLimit(Company company) {
-        Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_LOCATIONS);
+        Integer threshold = usageBasedFreeLimits.get(LicenseEntitlement.UNLIMITED_LOCATIONS);
         if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_LOCATIONS)
                 && locationRepository.hasMoreThan(company.getId(), threshold.longValue() - 1
         ))
@@ -167,16 +168,6 @@ public class LocationService {
         return locationRepository.saveAll(locations);
     }
 
-    public boolean isLocationInCompany(Location location, long companyId, boolean optional) {
-        if (optional) {
-            Optional<Location> optionalLocation = location == null ? Optional.empty() : findById(location.getId());
-            return location == null || (optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId));
-        } else {
-            Optional<Location> optionalLocation = findById(location.getId());
-            return optionalLocation.isPresent() && optionalLocation.get().getCompany().getId().equals(companyId);
-        }
-    }
-
     public List<Location> findByNameIgnoreCaseAndCompany(String locationName, Long companyId) {
         return locationRepository.findByNameIgnoreCaseAndCompany_Id(locationName, companyId);
     }
@@ -224,6 +215,7 @@ public class LocationService {
             optionalVendor.ifPresent(vendors::add);
         });
         location.setVendors(vendors);
+        Sanitizer.sanitizeLocation(location);
 //        locationRepository.save(location);
     }
 

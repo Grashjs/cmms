@@ -176,6 +176,8 @@ const locale = {
   no_account_yet: 'まだアカウントをお持ちではありませんか？',
   signup_here: 'こちらからサインアップ',
   wrong_credentials: '提供された認証情報が間違っています',
+  server_not_reachable:
+    'バックエンドサーバーに接続できません。起動するまで待ってから、もう一度お試しください。',
   lost_password: 'パスワードを忘れましたか？',
   link_wo: '作業指示書をリンク',
   link_wo_description: '作業指示書間の関係を作成します',
@@ -988,7 +990,7 @@ const locale = {
   po_emails: '購入リクエストメール',
   required_job_title: '役職フィールドは必須です',
   required_old_password: '現在のパスワードを入力してください。',
-  invalid_password: 'パスワードが短すぎます - 最低8文字必要です。',
+  invalid_password: 'パスワードが短すぎます - 最低12文字必要です。',
   required_new_password: 'パスワードが入力されていません。',
   passwords_must_match: 'パスワードが一致しません',
   password_change_success: 'パスワードが正常に変更されました',
@@ -1747,9 +1749,19 @@ const locale = {
   api_key_code: 'APIキーコード',
   copy_code: 'コードをコピー',
   last_used: '最終使用',
+  expiration: '有効期限',
+  expiration_optional: '有効期限（任意）',
   never: 'なし',
   delete_api_key: 'APIキーを削除',
   delete_api_key_confirm: 'このAPIキーを削除してもよろしいですか？',
+  rotate: 'ローテート',
+  rotate_api_key: 'APIキーをローテート',
+  rotate_api_key_confirm:
+    '現在のキーを失効し、新しいキーを生成します。古いキーはすぐに機能しなくなります。',
+  api_key_rotated_success: 'APIキーが正常にローテートされました',
+  active: 'アクティブ',
+  expired: '期限切れ',
+  revoked: '失効済み',
   upgrade_api:
     'API、コネクタ、Webhookへのアクセスを得るにはアップグレードしてください',
   // Webhooks

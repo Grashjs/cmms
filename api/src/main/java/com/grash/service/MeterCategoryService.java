@@ -7,6 +7,7 @@ import com.grash.model.CompanySettings;
 import com.grash.model.MeterCategory;
 import com.grash.model.User;
 import com.grash.repository.MeterCategoryRepository;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class MeterCategoryService {
     private final LicenseService licenseService;
 
     public MeterCategory create(MeterCategory meterCategory, User user) {
+        Sanitizer.sanitizeCategory(meterCategory);
         Optional<MeterCategory> categoryWithSameName =
                 meterCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(meterCategory.getName(),
                         user.getCompany().getCompanySettings().getId());
@@ -36,8 +38,10 @@ public class MeterCategoryService {
     public MeterCategory update(Long id, CategoryPatchDTO meterCategory) {
         if (meterCategoryRepository.existsById(id)) {
             MeterCategory savedMeterCategory = meterCategoryRepository.findById(id).get();
-            return meterCategoryRepository.save(meterCategoryMapper.updateMeterCategory(savedMeterCategory,
-                    meterCategory));
+            MeterCategory updatedMeterCategory = meterCategoryMapper.updateMeterCategory(savedMeterCategory,
+                    meterCategory);
+            Sanitizer.sanitizeCategory(updatedMeterCategory);
+            return meterCategoryRepository.save(updatedMeterCategory);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -62,7 +66,8 @@ public class MeterCategoryService {
     }
 
     public MeterCategory getOrCreate(String name, CompanySettings companySettings) {
-        return meterCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(name, companySettings.getId())
-                .orElseGet(() -> meterCategoryRepository.save(new MeterCategory(name, companySettings)));
+        String cleanName = Sanitizer.cleanText(name);
+        return meterCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(cleanName, companySettings.getId())
+                .orElseGet(() -> meterCategoryRepository.save(new MeterCategory(cleanName, companySettings)));
     }
 }

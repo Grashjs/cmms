@@ -14,6 +14,7 @@ import com.grash.model.enums.CustomFieldEntityType;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.VendorRepository;
 import com.grash.service.CustomFieldValueService;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -47,6 +48,7 @@ public class VendorService {
                 setVendorCustomFields(vendor, vendorPostDTO.getCustomFields(), company);
             }
         }
+        Sanitizer.sanitizeVendor(vendor);
         Vendor savedVendor = vendorRepository.save(vendor);
         Map<String, Object> webhookPayload = new HashMap<>();
         webhookPayload.put("vendorId", savedVendor.getId());
@@ -73,7 +75,9 @@ public class VendorService {
             if (vendor.getCustomFields() != null && !vendor.getCustomFields().isEmpty()) {
                 setVendorCustomFields(savedVendor, vendor.getCustomFields(), company);
             }
-            return vendorRepository.save(vendorMapper.updateVendor(savedVendor, vendor));
+            Vendor updatedVendor = vendorMapper.updateVendor(savedVendor, vendor);
+            Sanitizer.sanitizeVendor(updatedVendor);
+            return vendorRepository.save(updatedVendor);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -91,16 +95,6 @@ public class VendorService {
 
     public Collection<Vendor> findByCompany(Long id) {
         return vendorRepository.findByCompany_Id(id);
-    }
-
-    public boolean isVendorInCompany(Vendor vendor, long companyId, boolean optional) {
-        if (optional) {
-            Optional<Vendor> optionalVendor = vendor == null ? Optional.empty() : findById(vendor.getId());
-            return vendor == null || (optionalVendor.isPresent() && optionalVendor.get().getCompany().getId().equals(companyId));
-        } else {
-            Optional<Vendor> optionalVendor = findById(vendor.getId());
-            return optionalVendor.isPresent() && optionalVendor.get().getCompany().getId().equals(companyId);
-        }
     }
 
     public Page<Vendor> findBySearchCriteria(SearchCriteria searchCriteria) {

@@ -31,7 +31,7 @@ class WorkOrderReportTemplateTest extends AbstractTemplateTest {
 
         assertTrue(html.contains("Grash Test Co."));
         assertTrue(html.contains("+1-555-0100"));
-        assertTrue(html.contains("https://s3.example.com/logo.png"));
+        assertTrue(html.contains("data-storage-path=\"logos/logo.png\""));
         assertTrue(html.contains("Work Order"));
         assertTrue(html.contains("WO-0001"));
 
@@ -69,7 +69,7 @@ class WorkOrderReportTemplateTest extends AbstractTemplateTest {
         assertTrue(html.contains("Inspect motor"));
         assertTrue(html.contains("Complete"));
         assertTrue(html.contains("Checked for wear"));
-        assertTrue(html.contains("https://s3.example.com/task1.png"));
+        assertTrue(html.contains("data-storage-path=\"images/task1.png\""));
 
         assertTrue(html.contains(panelTitle("Labors")));
         assertTrue(html.contains("0 days 2 hours 0 minutes"));
@@ -96,15 +96,15 @@ class WorkOrderReportTemplateTest extends AbstractTemplateTest {
         assertTrue(html.contains("@Jane Smith"));
         assertFalse(html.contains("user:3"));
         assertTrue(html.contains("Please confirm the replacement parts."));
-        assertTrue(html.contains("https://s3.example.com/comment1.png"));
+        assertTrue(html.contains("data-storage-path=\"images/comment1.png\""));
 
         assertTrue(html.contains(panelTitle("Files")));
-        assertTrue(html.contains("https://s3.example.com/wo-file1.png"));
+        assertTrue(html.contains("data-storage-path=\"files/wo-file1.png\""));
 
         assertTrue(html.contains(panelTitle("Signature")));
         assertTrue(html.contains("https://s3.example.com/signature.png"));
 
-        assertTrue(html.contains("https://s3.example.com/wo-image.png"));
+        assertTrue(html.contains("data-storage-path=\"images/wo-image.png\""));
         assertTrue(html.contains("This Work Order was created with"));
         assertTrue(html.contains("https://api.example.com/images/logo.png"));
     }
@@ -161,7 +161,7 @@ class WorkOrderReportTemplateTest extends AbstractTemplateTest {
         variables.put("relations", Collections.emptyList());
         variables.put("workOrderHistories", Collections.emptyList());
         variables.put("comments", Collections.emptyList());
-        variables.put("workOrderFilesUrls", new String[0]);
+        variables.put("workOrderFilesPaths", new String[0]);
 
         String html = render(variables, Locale.ENGLISH);
 
@@ -258,7 +258,7 @@ class WorkOrderReportTemplateTest extends AbstractTemplateTest {
         Map<String, Object> vars = new HashMap<>();
         vars.put("companyName", "Grash Test Co.");
         vars.put("companyPhone", "+1-555-0100");
-        vars.put("companyLogo", "https://s3.example.com/logo.png");
+        vars.put("companyLogo", "logos/logo.png");
         vars.put("currency", "USD");
         vars.put("dateFormat", DateFormat.MMDDYY);
         vars.put("timeZone", "UTC");
@@ -273,17 +273,17 @@ class WorkOrderReportTemplateTest extends AbstractTemplateTest {
         vars.put("workOrderHistories", createHistories());
         vars.put("partQuantities", createPartQuantities());
         vars.put("environment", environment());
-        vars.put("tasksImagesUrls", Collections.singletonMap(1L,
-                new String[]{"https://s3.example.com/task1.png"}));
+        vars.put("tasksImagesPaths", Collections.singletonMap(1L,
+                new String[]{"images/task1.png"}));
         vars.put("messageSource", messageSource());
         vars.put("locale", Locale.ENGLISH);
         vars.put("backgroundColor", "#2563EB");
         vars.put("reportConfig", config);
         vars.put("comments", createComments());
-        vars.put("commentFilesUrls", Collections.singletonMap(1L,
-                new String[]{"https://s3.example.com/comment1.png"}));
-        vars.put("workOrderFilesUrls", new String[]{"https://s3.example.com/wo-file1.png"});
-        vars.put("workOrderImageUrl", "https://s3.example.com/wo-image.png");
+        vars.put("commentFilesPaths", Collections.singletonMap(1L,
+                new String[]{"images/comment1.png"}));
+        vars.put("workOrderFilesPaths", new String[]{"files/wo-file1.png"});
+        vars.put("workOrderImagePath", "images/wo-image.png");
         return vars;
     }
 

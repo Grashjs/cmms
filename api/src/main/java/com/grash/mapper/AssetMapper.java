@@ -17,6 +17,7 @@ import org.mapstruct.*;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Set;
 
 @Mapper(componentModel = "spring", uses = {CustomerMapper.class, VendorMapper.class, UserMapper.class,
         TeamMapper.class, FileMapper.class, PartMapper.class, FileMapper.class, CustomFieldValueMapper.class})
@@ -29,6 +30,9 @@ public interface AssetMapper {
     @Mapping(target = "image", source = "image", qualifiedByName = "toThumbnailDto")
     AssetShowDTO toShowDto(Asset model, @Context AssetService assetService);
 
+    @Mapping(target = "image", source = "image", qualifiedByName = "toThumbnailDto")
+    AssetShowDTO toShowDto(Asset model, @Context Set<Long> parentIdsWithChildren);
+
     @Mapping(target = "parentId", source = "parentAsset.id")
     @Mapping(target = "locationId", source = "location.id")
     AssetMiniDTO toMiniDto(Asset model);
@@ -36,9 +40,16 @@ public interface AssetMapper {
     Asset fromPostDto(AssetPostDTO dto);
 
     @AfterMapping
-    default AssetShowDTO toShowDto(Asset model, @MappingTarget AssetShowDTO target,
-                                   @Context AssetService assetService) {
+    default AssetShowDTO populateHasChildren(Asset model, @MappingTarget AssetShowDTO target,
+                                             @Context AssetService assetService) {
         target.setHasChildren(assetService.hasChildren(model.getId()));
+        return target;
+    }
+
+    @AfterMapping
+    default AssetShowDTO populateHasChildren(Asset model, @MappingTarget AssetShowDTO target,
+                                             @Context Set<Long> parentIdsWithChildren) {
+        target.setHasChildren(parentIdsWithChildren.contains(model.getId()));
         return target;
     }
 }

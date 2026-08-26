@@ -14,13 +14,19 @@ import java.util.Date;
 public class ApiKeyShowDTO extends AuditShowDTO {
     @Schema(description = "API key label")
     private String label;
-    
+
     @Schema(description = "API key code")
     private String code;
-    
+
     @Schema(description = "User who owns the API key")
     private UserMiniDTO user;
-    
+
     @Schema(description = "Last used timestamp")
     private Date lastUsed;
+
+    @Schema(description = "Expiration date of the API key")
+    private Date expiresAt;
+
+    @Schema(description = "Revocation date of the API key")
+    private Date revokedAt;
 }

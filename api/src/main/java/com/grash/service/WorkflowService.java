@@ -8,6 +8,7 @@ import com.grash.model.enums.ApprovalStatus;
 import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.repository.WorkflowRepository;
 import com.grash.utils.AuditComparator;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -28,13 +29,16 @@ public class WorkflowService {
     private final PurchaseOrderService purchaseOrderService;
 
     public Workflow create(Workflow Workflow) {
+        Sanitizer.sanitizeWorkflow(Workflow);
         return workflowRepository.save(Workflow);
     }
 
     public Workflow update(Long id, WorkflowPatchDTO workflowsPatchDTO) {
         if (workflowRepository.existsById(id)) {
             Workflow savedWorkflow = workflowRepository.findById(id).get();
-            return workflowRepository.save(workflowMapper.updateWorkflow(savedWorkflow, workflowsPatchDTO));
+            Workflow updatedWorkflow = workflowMapper.updateWorkflow(savedWorkflow, workflowsPatchDTO);
+            Sanitizer.sanitizeWorkflow(updatedWorkflow);
+            return workflowRepository.save(updatedWorkflow);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 

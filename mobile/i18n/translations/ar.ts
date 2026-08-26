@@ -961,7 +961,7 @@ const locale = {
   required_job_title: 'حقل عنوان الوظيفة مطلوب',
   required_old_password: 'يرجى تقديم كلمة المرور الحالية.',
   invalid_password:
-    'كلمة المرور قصيرة جدًا - يجب أن تتكون من 8 أحرف على الأقل.',
+    'كلمة المرور قصيرة جدًا - يجب أن تتكون من 12 أحرف على الأقل.',
   required_new_password: 'لم يتم توفير كلمة المرور.',
   passwords_must_match: 'يجب أن تتطابق كلمات المرور',
   password_change_success: 'تم تغيير كلمة المرور بنجاح',
@@ -1439,6 +1439,7 @@ const locale = {
   reset: 'إعادة تعيين',
   operation_success: 'تمت العملية بنجاح',
   edit_reading: 'تحرير القراءة',
-  are_you_sure_delete_reading: 'هل أنت متأكد من حذف هذه القراءة؟'
+  are_you_sure_delete_reading: 'هل أنت متأكد من حذف هذه القراءة؟',
+  conflict_retry: 'تم تعديل المورد بواسطة طلب آخر. يرجى المحاولة مرة أخرى بعد 5 ثوانٍ.'
 };
 export default locale;

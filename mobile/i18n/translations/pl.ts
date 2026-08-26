@@ -1017,7 +1017,7 @@ const plJSON = {
   required_job_title: 'Pole „Tytuł stanowiska” jest wymagane',
   required_old_password: 'Proszę podać aktualne hasło.',
   invalid_password:
-    'Hasło jest za krótkie - powinno mieć co najmniej 8 znaków.',
+    'Hasło jest za krótkie - powinno mieć co najmniej 12 znaków.',
   required_new_password: 'Nie podano hasła.',
   passwords_must_match: 'Hasła muszą być takie same',
   password_change_success: 'Hasło zostało pomyślnie zmienione',
@@ -1509,6 +1509,7 @@ const plJSON = {
   reset: 'Reset',
   operation_success: 'Operacja zakończyła się sukcesem',
   edit_reading: 'Edytuj odczyt',
-  are_you_sure_delete_reading: 'Czy na pewno chcesz usunąć ten odczyt?'
+  are_you_sure_delete_reading: 'Czy na pewno chcesz usunąć ten odczyt?',
+  conflict_retry: 'Zasób został zmodyfikowany przez inne żądanie. Spróbuj ponownie za 5 sekund.'
 };
 export default plJSON;

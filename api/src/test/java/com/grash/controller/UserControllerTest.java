@@ -2,6 +2,7 @@ package com.grash.controller;
 
 import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
+import com.grash.configuration.PasswordPolicyProperties;
 import com.grash.dto.*;
 import com.grash.exception.CustomException;
 import com.grash.mapper.UserMapper;
@@ -14,9 +15,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
@@ -37,18 +39,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(UserController.class)
 @AutoConfigureMockMvc(addFilters = false)
+@EnableConfigurationProperties(PasswordPolicyProperties.class)
 class UserControllerTest extends AbstractControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private UserService userService;
 
-    @MockBean
+    @MockitoBean
     private UserMapper userMapper;
 
-    @MockBean
+    @MockitoBean
     private UserInvitationService userInvitationService;
 
     private User clientUser;
@@ -70,6 +73,7 @@ class UserControllerTest extends AbstractControllerTest {
                 .roleType(RoleType.ROLE_CLIENT)
                 .name("Client Role")
                 .viewPermissions(new HashSet<>(Collections.singletonList(PermissionEntity.PEOPLE_AND_TEAMS)))
+                .viewOtherPermissions(new HashSet<>(Collections.singletonList(PermissionEntity.PEOPLE_AND_TEAMS)))
                 .editOtherPermissions(new HashSet<>(Collections.singletonList(PermissionEntity.PEOPLE_AND_TEAMS)))
                 .build();
         clientRole.getViewPermissions().add(PermissionEntity.SETTINGS);

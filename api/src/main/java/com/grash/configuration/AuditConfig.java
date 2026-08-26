@@ -3,6 +3,7 @@ package com.grash.configuration;
 import com.grash.model.User;
 import com.grash.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
@@ -28,7 +29,7 @@ public class AuditConfig {
     class SpringSecurityAuditAwareImpl implements AuditorAware<Long> {
 
         @Override
-        public Optional<Long> getCurrentAuditor() {
+        public @NotNull Optional<Long> getCurrentAuditor() {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication == null || !authentication.isAuthenticated()
                     || authentication instanceof AnonymousAuthenticationToken) {

@@ -4,19 +4,98 @@ import { Platform } from 'react-native';
 
 type Options = RequestInit & { raw?: boolean; headers?: HeadersInit };
 
-async function api<T>(url: string, options: Options): Promise<T> {
-  return fetch(url, { headers: await authHeader(false), ...options }).then(
-    async (response) => {
-      if (!response.ok) {
-        if (response.status === 403) {
-          //TODO
-          // AsyncStorage.clear();
-        }
-        throw new Error(JSON.stringify(await response.json()));
-      }
-      return response.json() as Promise<T>;
+let refreshPromise: Promise<boolean> | null = null;
+
+async function clearTokens(): Promise<void> {
+  await AsyncStorage.removeItem('accessToken');
+  await AsyncStorage.removeItem('refreshToken');
+}
+
+async function performRefresh(): Promise<boolean> {
+  const refreshToken = await AsyncStorage.getItem('refreshToken');
+  if (!refreshToken) {
+    return false;
+  }
+  try {
+    const currentApiUrl = await getApiUrl();
+    const response = await fetch(currentApiUrl + 'auth/refresh', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ refreshToken })
+    });
+    if (!response.ok) {
+      await clearTokens();
+      return false;
     }
-  );
+    const data = await response.json();
+    if (!data?.accessToken) {
+      await clearTokens();
+      return false;
+    }
+    await AsyncStorage.setItem('accessToken', data.accessToken);
+    if (data.refreshToken) {
+      await AsyncStorage.setItem('refreshToken', data.refreshToken);
+    }
+    return true;
+  } catch {
+    await clearTokens();
+    return false;
+  }
+}
+
+export function refreshAccessToken(): Promise<boolean> {
+  if (!refreshPromise) {
+    refreshPromise = performRefresh().finally(() => {
+      refreshPromise = null;
+    });
+  }
+  return refreshPromise;
+}
+
+function isRefreshRequest(url: string): boolean {
+  return url.replace(/\/+$/, '').endsWith('/auth/refresh');
+}
+
+let onConflictError: (() => void) | null = null;
+
+export function setConflictErrorHandler(handler: () => void): () => void {
+  onConflictError = handler;
+  return () => {
+    onConflictError = null;
+  };
+}
+
+async function doFetch<T>(
+  url: string,
+  options: Options,
+  retried: boolean
+): Promise<T> {
+  const response = await fetch(url, {
+    headers: await authHeader(false),
+    ...options
+  });
+  if (!response.ok) {
+      if (response.status === 401 && !retried && !isRefreshRequest(url)) {
+        const refreshed = await refreshAccessToken();
+        if (refreshed) {
+          return doFetch<T>(url, options, true);
+        }
+      }
+      if (response.status === 409) {
+        if (onConflictError) onConflictError();
+        throw new Error('conflict_error');
+      }
+    throw new Error(JSON.stringify(await response.json()));
+  }
+  if (options?.raw) return response as unknown as Promise<T>;
+  return response.json() as Promise<T>;
+}
+
+async function api<T>(url: string, options: Options): Promise<T> {
+  return doFetch<T>(url, options, false);
 }
 
 async function get<T>(url: string, options?: Options) {

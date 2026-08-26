@@ -43,7 +43,7 @@ export default function SingleTask({
   const { t }: { t: any } = useTranslation();
   const [savingNotes, setSavingNotes] = useState<boolean>(false);
   const { user, hasCreatePermission, hasFeature } = useAuth();
-  const [inputValue, setInputValue] = useState<string>('');
+  const [inputValue, setInputValue] = useState<string>(task.value?.toString() || '');
   const changeHandler = (newValue: string) => {
     if (!preview) {
       let formattedValue = newValue;
@@ -62,6 +62,11 @@ export default function SingleTask({
     () => debounce(changeHandler, 1000),
     []
   );
+  
+  useEffect(() => {
+  setInputValue(task.value?.toString() || '');
+}, [task.value]);
+  
   const onDropdownValueChange = (value) => {
     !preview &&
       !(task.taskBase.user && task.taskBase.user.id !== user.id) &&

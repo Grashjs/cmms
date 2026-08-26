@@ -16,12 +16,13 @@ import com.grash.factory.MailServiceFactory;
 import com.grash.mapper.PreventiveMaintenanceMapper;
 import com.grash.mapper.WorkOrderMapper;
 import com.grash.model.*;
-import com.grash.model.abstracts.WorkOrderBase;
+import com.grash.model.Currency;
 import com.grash.model.enums.*;
 import com.grash.model.enums.webhook.WOField;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.WorkOrderRepository;
 import com.grash.utils.Consts;
+import com.grash.utils.PdfReportUtils;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -30,20 +31,21 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.MessageSource;
-import org.springframework.core.env.Environment;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.util.Pair;
-import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import com.grash.dto.ReportConfig;
 import com.grash.dto.workOrder.WorkOrderSendReportDTO;
+import com.grash.factory.StorageServiceFactory;
+import com.grash.service.StorageService;
+import com.grash.service.BrandingService;
+import com.grash.service.WorkOrderHistoryService;
 import org.springframework.data.jpa.domain.Specification;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -116,6 +118,18 @@ class WorkOrderServiceTest {
     private LocationService locationService;
     @Mock
     private WorkOrderCategoryService workOrderCategoryService;
+    @Mock
+    private StorageServiceFactory storageServiceFactory;
+    @Mock
+    private StorageService storageService;
+    @Mock
+    private org.thymeleaf.spring6.SpringTemplateEngine thymeleafTemplateEngine;
+    @Mock
+    private BrandingService brandingService;
+    @Mock
+    private WorkOrderHistoryService workOrderHistoryService;
+    @Mock
+    private org.springframework.core.env.Environment environment;
 
     private Company company;
     private User user;
@@ -142,6 +156,11 @@ class WorkOrderServiceTest {
         ReflectionTestUtils.setField(workOrderService, "customerService", customerService);
         ReflectionTestUtils.setField(workOrderService, "locationService", locationService);
         ReflectionTestUtils.setField(workOrderService, "workOrderCategoryService", workOrderCategoryService);
+        ReflectionTestUtils.setField(workOrderService, "storageServiceFactory", storageServiceFactory);
+        ReflectionTestUtils.setField(workOrderService, "thymeleafTemplateEngine", thymeleafTemplateEngine);
+        ReflectionTestUtils.setField(workOrderService, "brandingService", brandingService);
+        ReflectionTestUtils.setField(workOrderService, "workOrderHistoryService", workOrderHistoryService);
+        ReflectionTestUtils.setField(workOrderService, "environment", environment);
 
         subscriptionPlan = SubscriptionPlan.builder()
                 .id(1L)
@@ -155,6 +174,11 @@ class WorkOrderServiceTest {
         companySettings = new CompanySettings();
         companySettings.setId(1L);
         generalPreferences = new GeneralPreferences(companySettings);
+        Currency currency = new Currency();
+        currency.setId(1L);
+        currency.setCode("$");
+        currency.setName("USD");
+        generalPreferences.setCurrency(currency);
         companySettings.setGeneralPreferences(generalPreferences);
         company = new Company("TestCo", 10, subscription);
         company.setId(1L);
@@ -1034,7 +1058,7 @@ class WorkOrderServiceTest {
         void underLimit_noException() {
             when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS)).thenReturn(false);
             when(workOrderRepository.hasMoreActiveThan(eq(1L),
-                    eq((long) (Consts.usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS) - 1)))).thenReturn(false);
+                    eq((long) (Consts.usageBasedFreeLimits.get(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS) - 1)))).thenReturn(false);
             assertDoesNotThrow(() -> workOrderService.checkUsageBasedLimit(company));
         }
 
@@ -1042,7 +1066,7 @@ class WorkOrderServiceTest {
         void atLimit_throwsForbidden() {
             when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS)).thenReturn(false);
             when(workOrderRepository.hasMoreActiveThan(eq(1L),
-                    eq((long) (Consts.usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS) - 1)))).thenReturn(true);
+                    eq((long) (Consts.usageBasedFreeLimits.get(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS) - 1)))).thenReturn(true);
             CustomException ex = assertThrows(CustomException.class,
                     () -> workOrderService.checkUsageBasedLimit(company));
             assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
@@ -1096,14 +1120,14 @@ class WorkOrderServiceTest {
         @Test
         void signatureWithLicenseAndPlanFeature_proceeds() {
             stubBasic();
-            dto.setSignature("base64sig");
+            dto.setSignature("data:image/png;base64,c2ln");
             assertDoesNotThrow(() -> workOrderService.changeStatus(dto, 1L, user, "ios"));
         }
 
         @Test
         void signatureWithEntitlementButPlanLacksFeature_throwsForbidden() {
             stubBasic();
-            dto.setSignature("base64sig");
+            dto.setSignature("data:image/png;base64,c2ln");
             SubscriptionPlan planWithoutSignature = SubscriptionPlan.builder()
                     .id(2L)
                     .name("Basic")
@@ -1117,6 +1141,84 @@ class WorkOrderServiceTest {
             CustomException ex = assertThrows(CustomException.class,
                     () -> workOrderService.changeStatus(dto, 1L, user, "ios"));
             assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
+        }
+
+        @Test
+        void invalidSignatureFormat_throwsBadRequest() {
+            stubBasic();
+            dto.setStatus(Status.COMPLETE);
+            dto.setSignature("signed=true");
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> workOrderService.changeStatus(dto, 1L, user, "ios"));
+            assertEquals(HttpStatus.BAD_REQUEST, ex.getHttpStatus());
+        }
+
+        @Test
+        void completeWithRequiredSignatureAndNoSignature_throwsBadRequest() {
+            wo.setStatus(Status.IN_PROGRESS);
+            wo.setRequiredSignature(true);
+            dto.setStatus(Status.COMPLETE);
+            stubBasic();
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> workOrderService.changeStatus(dto, 1L, user, "ios"));
+            assertEquals(HttpStatus.BAD_REQUEST, ex.getHttpStatus());
+        }
+
+        @Test
+        void completeWithRequiredSignatureAndBlankSignature_throwsBadRequest() {
+            wo.setStatus(Status.IN_PROGRESS);
+            wo.setRequiredSignature(true);
+            dto.setStatus(Status.COMPLETE);
+            dto.setSignature("   ");
+            stubBasic();
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> workOrderService.changeStatus(dto, 1L, user, "ios"));
+            assertEquals(HttpStatus.BAD_REQUEST, ex.getHttpStatus());
+        }
+
+        @Test
+        void completeWithRequiredSignatureAndValidSignature_proceeds() {
+            wo.setStatus(Status.IN_PROGRESS);
+            wo.setRequiredSignature(true);
+            dto.setStatus(Status.COMPLETE);
+            dto.setSignature("data:image/png;base64,c2ln");
+            stubBasic();
+            when(workOrderRepository.saveAndFlush(any())).thenAnswer(inv -> {
+                WorkOrder saved = inv.getArgument(0);
+                saved.setId(1L);
+                return saved;
+            });
+            doNothing().when(assetService).stopDownTime(anyLong(), any());
+            when(workOrderRepository.findByAsset_Id(10L)).thenReturn(Collections.emptyList());
+
+            assertDoesNotThrow(() -> workOrderService.changeStatus(dto, 1L, user, "ios"));
+        }
+
+        @Test
+        void completeWithoutRequiredSignatureAndNoSignature_proceeds() {
+            wo.setStatus(Status.IN_PROGRESS);
+            wo.setRequiredSignature(false);
+            dto.setStatus(Status.COMPLETE);
+            stubBasic();
+            when(workOrderRepository.saveAndFlush(any())).thenAnswer(inv -> {
+                WorkOrder saved = inv.getArgument(0);
+                saved.setId(1L);
+                return saved;
+            });
+            doNothing().when(assetService).stopDownTime(anyLong(), any());
+            when(workOrderRepository.findByAsset_Id(10L)).thenReturn(Collections.emptyList());
+
+            assertDoesNotThrow(() -> workOrderService.changeStatus(dto, 1L, user, "ios"));
+        }
+
+        @Test
+        void nonCompleteStatusWithRequiredSignatureAndNoSignature_proceeds() {
+            wo.setStatus(Status.OPEN);
+            wo.setRequiredSignature(true);
+            dto.setStatus(Status.IN_PROGRESS);
+            stubBasic();
+
+            assertDoesNotThrow(() -> workOrderService.changeStatus(dto, 1L, user, "ios"));
         }
 
         @Test
@@ -3140,6 +3242,774 @@ class WorkOrderServiceTest {
             CustomException ex = assertThrows(CustomException.class,
                     () -> workOrderService.importWorkOrder(workOrder, dto, company));
             assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
+        }
+    }
+
+    @Nested
+    class GeneratePdfBytes {
+
+        private WorkOrder wo;
+        private ReportConfig config;
+
+        @BeforeEach
+        void init() {
+            wo = buildWorkOrder(1L);
+            wo.setPrimaryUser(buildUser(50L));
+            wo.setAssignedTo(new ArrayList<>(List.of(buildUser(20L))));
+            wo.setCustomers(new ArrayList<>(List.of(buildCustomer(60L))));
+            config = new ReportConfig();
+            when(storageServiceFactory.getStorageService()).thenReturn(storageService);
+            lenient().when(storageService.exists(anyString())).thenReturn(false);
+            lenient().when(storageService.download(any(com.grash.model.File.class))).thenReturn(null);
+            when(taskService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
+            lenient().when(partQuantityService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
+            lenient().when(laborService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
+            lenient().when(relationService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
+            lenient().when(additionalCostService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
+            lenient().when(workOrderHistoryService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
+            lenient().when(commentService.findByCriteria(any(), any())).thenReturn(Collections.emptyList());
+            lenient().when(brandingService.getMailBackgroundColor()).thenReturn("#5569ff");
+            lenient().when(thymeleafTemplateEngine.process(eq("work-order-report.html"), any()))
+                    .thenReturn("<html><body></body></html>");
+        }
+
+        @Test
+        void returnsNonNullPdfBytes() {
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+
+            byte[] result = workOrderService.generatePdfBytes(wo, user, config);
+
+            assertNotNull(result);
+            assertTrue(result.length > 0);
+        }
+
+        @Test
+        void allConfigDisabled_skipsCostAndCommentQueries() {
+            config.setCost(false);
+            config.setComments(false);
+            config.setWorkOrderHistory(false);
+            config.setRelations(false);
+            config.setFiles(false);
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+
+            workOrderService.generatePdfBytes(wo, user, config);
+
+            verify(partQuantityService, never()).findByWorkOrder(anyLong());
+            verify(laborService, never()).findByWorkOrder(anyLong());
+            verify(relationService, never()).findByWorkOrder(anyLong());
+            verify(additionalCostService, never()).findByWorkOrder(anyLong());
+            verify(workOrderHistoryService, never()).findByWorkOrder(anyLong());
+            verify(commentService, never()).findByCriteria(any(), any());
+        }
+
+        @Test
+        void createdByNull_skipsCreatorLookup() {
+            wo.setCreatedBy(null);
+
+            byte[] result = workOrderService.generatePdfBytes(wo, user, config);
+
+            assertNotNull(result);
+            assertTrue(result.length > 0);
+        }
+
+        @Test
+        void createdByNotNull_queriesCreator() {
+            wo.setCreatedBy(user.getId());
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+
+            workOrderService.generatePdfBytes(wo, user, config);
+
+            verify(userService).findById(user.getId());
+        }
+
+        @Test
+        void primaryUserNull_doesNotThrow() {
+            wo.setPrimaryUser(null);
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+
+            byte[] result = workOrderService.generatePdfBytes(wo, user, config);
+
+            assertNotNull(result);
+            assertTrue(result.length > 0);
+        }
+
+        @Test
+        void workOrderHasImage_setsStoragePathInContext() {
+            com.grash.model.File image = new com.grash.model.File();
+            image.setId(100L);
+            image.setName("wo-image.png");
+            image.setPath("images/wo-image.png");
+            wo.setImage(image);
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
+
+            byte[] result = workOrderService.generatePdfBytes(wo, user, config);
+
+            assertNotNull(result);
+            assertTrue(result.length > 0);
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            assertEquals("images/wo-image.png",
+                    captor.getValue().getVariable("workOrderImagePath"));
+        }
+
+        @Test
+        void workOrderHasNoImage_workOrderImagePathNull() {
+            wo.setImage(null);
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
+
+            workOrderService.generatePdfBytes(wo, user, config);
+
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            assertNull(captor.getValue().getVariable("workOrderImagePath"));
+        }
+
+        @Test
+        void companyHasLogo_setsStoragePathInContext() {
+            com.grash.model.File logo = new com.grash.model.File();
+            logo.setId(200L);
+            logo.setName("logo.png");
+            logo.setPath("logos/logo.png");
+            company.setLogo(logo);
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
+
+            workOrderService.generatePdfBytes(wo, user, config);
+
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            assertEquals("logos/logo.png",
+                    captor.getValue().getVariable("companyLogo"));
+        }
+
+        @Test
+        void companyHasNoLogo_companyLogoNull() {
+            company.setLogo(null);
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
+
+            workOrderService.generatePdfBytes(wo, user, config);
+
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            assertNull(captor.getValue().getVariable("companyLogo"));
+        }
+
+        @Test
+        void tasksWithImages_setStoragePathsInContext() {
+            com.grash.model.File taskImage = new com.grash.model.File();
+            taskImage.setId(300L);
+            taskImage.setName("task-img.png");
+            taskImage.setPath("images/task-img.png");
+            com.grash.model.File taskImage2 = new com.grash.model.File();
+            taskImage2.setId(301L);
+            taskImage2.setName("task-img2.png");
+            taskImage2.setPath("images/task-img2.png");
+
+            TaskBase taskBase = new TaskBase();
+            taskBase.setId(10L);
+            taskBase.setLabel("Inspection");
+            taskBase.setCompany(company);
+            Task task = new Task();
+            task.setId(10L);
+            task.setTaskBase(taskBase);
+            task.setImages(new ArrayList<>(List.of(taskImage, taskImage2)));
+            task.setWorkOrder(wo);
+            task.setNotes("notes");
+
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            when(taskService.findByWorkOrder(1L)).thenReturn(List.of(task));
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
+
+            byte[] result = workOrderService.generatePdfBytes(wo, user, config);
+
+            assertNotNull(result);
+            assertTrue(result.length > 0);
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            Map<Long, String[]> tasksImagesPaths =
+                    (Map<Long, String[]>) captor.getValue().getVariable("tasksImagesPaths");
+            assertArrayEquals(new String[]{"images/task-img.png", "images/task-img2.png"},
+                    tasksImagesPaths.get(10L));
+        }
+
+        @Test
+        void tasksWithNoImages_emptyTaskImagePaths() {
+            TaskBase taskBase = new TaskBase();
+            taskBase.setId(10L);
+            taskBase.setLabel("Check");
+            taskBase.setCompany(company);
+            Task task = new Task();
+            task.setId(10L);
+            task.setTaskBase(taskBase);
+            task.setImages(new ArrayList<>());
+            task.setWorkOrder(wo);
+
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            when(taskService.findByWorkOrder(1L)).thenReturn(List.of(task));
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
+
+            workOrderService.generatePdfBytes(wo, user, config);
+
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            Map<Long, String[]> tasksImagesPaths =
+                    (Map<Long, String[]>) captor.getValue().getVariable("tasksImagesPaths");
+            assertEquals(0, tasksImagesPaths.get(10L).length);
+            verify(storageService, never()).generateSignedUrl(any(com.grash.model.File.class), anyLong());
+        }
+
+        @Test
+        void commentsWithFiles_setStoragePathsInContext() {
+            com.grash.model.File commentFile = new com.grash.model.File();
+            commentFile.setId(400L);
+            commentFile.setName("attachment.jpg");
+            commentFile.setPath("files/attachment.jpg");
+
+            Comment comment = new Comment();
+            comment.setId(10L);
+            comment.setContent("Nice work");
+            comment.setWorkOrder(wo);
+            comment.setUser(user);
+            comment.setFiles(new ArrayList<>(List.of(commentFile)));
+
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            when(commentService.findByCriteria(any(), any())).thenReturn(List.of(comment));
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
+
+            byte[] result = workOrderService.generatePdfBytes(wo, user, config);
+
+            assertNotNull(result);
+            assertTrue(result.length > 0);
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            Map<Long, String[]> commentFilesPaths =
+                    (Map<Long, String[]>) captor.getValue().getVariable("commentFilesPaths");
+            assertArrayEquals(new String[]{"files/attachment.jpg"}, commentFilesPaths.get(10L));
+        }
+
+        @Test
+        void workOrderWithFiles_onlyImagesIncludedAsStoragePaths() {
+            com.grash.model.File woFile = new com.grash.model.File();
+            woFile.setId(500L);
+            woFile.setName("report.jpg");
+            woFile.setPath("files/report.jpg");
+            com.grash.model.File pdfDocument = new com.grash.model.File();
+            pdfDocument.setId(501L);
+            pdfDocument.setName("manual.pdf");
+            pdfDocument.setPath("files/manual.pdf");
+            wo.setFiles(new ArrayList<>(List.of(woFile, pdfDocument)));
+
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
+
+            byte[] result = workOrderService.generatePdfBytes(wo, user, config);
+
+            assertNotNull(result);
+            assertTrue(result.length > 0);
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            assertArrayEquals(new String[]{"files/report.jpg"},
+                    (String[]) captor.getValue().getVariable("workOrderFilesPaths"));
+        }
+
+        @Test
+        void workOrderWithNoFiles_noFilePaths() {
+            wo.setFiles(new ArrayList<>());
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
+
+            workOrderService.generatePdfBytes(wo, user, config);
+
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            assertEquals(0, ((String[]) captor.getValue().getVariable("workOrderFilesPaths")).length);
+            verify(storageService, never()).generateSignedUrl(any(com.grash.model.File.class), anyLong());
+        }
+
+        @Test
+        void processTemplateCalledWithCorrectTemplateName() {
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+
+            workOrderService.generatePdfBytes(wo, user, config);
+
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), any());
+        }
+
+        @Test
+        void templateContextContainsExpectedVariables() {
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
+
+            workOrderService.generatePdfBytes(wo, user, config);
+
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            org.thymeleaf.context.Context ctx = captor.getValue();
+            assertEquals(company.getName(), ctx.getVariable("companyName"));
+            assertEquals(company.getPhone(), ctx.getVariable("companyPhone"));
+            assertEquals(wo, ctx.getVariable("workOrder"));
+            assertEquals(config, ctx.getVariable("reportConfig"));
+            assertNotNull(ctx.getVariable("locale"));
+            assertNotNull(ctx.getVariable("tasks"));
+            assertNotNull(ctx.getVariable("environment"));
+            assertNotNull(ctx.getVariable("messageSource"));
+        }
+
+        @Test
+        void costDataIncluded_whenCostEnabled() {
+            config.setCost(true);
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+
+            workOrderService.generatePdfBytes(wo, user, config);
+
+            verify(partQuantityService).findByWorkOrder(1L);
+            verify(laborService).findByWorkOrder(1L);
+            verify(additionalCostService).findByWorkOrder(1L);
+        }
+
+        @Test
+        void relationsIncluded_whenRelationsEnabled() {
+            config.setRelations(true);
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+
+            workOrderService.generatePdfBytes(wo, user, config);
+
+            verify(relationService).findByWorkOrder(1L);
+        }
+
+        @Test
+        void workOrderHistoryIncluded_whenHistoryEnabled() {
+            config.setWorkOrderHistory(true);
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+
+            workOrderService.generatePdfBytes(wo, user, config);
+
+            verify(workOrderHistoryService).findByWorkOrder(1L);
+        }
+
+        @Test
+        void commentsIncluded_whenCommentsEnabled() {
+            config.setComments(true);
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+
+            workOrderService.generatePdfBytes(wo, user, config);
+
+            verify(commentService).findByCriteria(any(), any());
+        }
+
+        @Test
+        void companyColorAppliedAsBackgroundColor() {
+            company.getCompanySettings().getGeneralPreferences().setColor("#FF0000");
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
+
+            workOrderService.generatePdfBytes(wo, user, config);
+
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            assertEquals("#ff0000", captor.getValue().getVariable("backgroundColor"));
+        }
+
+        @Test
+        void defaultBackgroundColorUsedWhenCompanyColorBlank() {
+            company.getCompanySettings().getGeneralPreferences().setColor("");
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
+
+            workOrderService.generatePdfBytes(wo, user, config);
+
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            assertEquals("#5569ff", captor.getValue().getVariable("backgroundColor"));
+        }
+
+        @Test
+        void invalidCompanyColor_fallsBackToBrandingDefault() {
+            company.getCompanySettings().getGeneralPreferences().setColor("not-a-color");
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
+
+            workOrderService.generatePdfBytes(wo, user, config);
+
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            assertEquals("#5569ff", captor.getValue().getVariable("backgroundColor"));
+        }
+
+        @Test
+        void functionalRgbColor_resolvedToHex() {
+            company.getCompanySettings().getGeneralPreferences().setColor("rgb(16, 185, 129)");
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
+
+            workOrderService.generatePdfBytes(wo, user, config);
+
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            assertEquals("#10b981", captor.getValue().getVariable("backgroundColor"));
+        }
+
+        @Test
+        void rgbaColor_alphaIgnored() {
+            company.getCompanySettings().getGeneralPreferences().setColor("rgba(255, 69, 0, 0.4)");
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
+
+            workOrderService.generatePdfBytes(wo, user, config);
+
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            assertEquals("#ff4500", captor.getValue().getVariable("backgroundColor"));
+        }
+
+        @Test
+        void namedColorWithSpaces_resolvedToHex() {
+            company.getCompanySettings().getGeneralPreferences().setColor("Orange Red");
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
+
+            workOrderService.generatePdfBytes(wo, user, config);
+
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            assertEquals("#ff4500", captor.getValue().getVariable("backgroundColor"));
+        }
+
+        @Test
+        void eightDigitHexColor_alphaStripped() {
+            company.getCompanySettings().getGeneralPreferences().setColor("#5569FF22");
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
+
+            workOrderService.generatePdfBytes(wo, user, config);
+
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            assertEquals("#5569ff", captor.getValue().getVariable("backgroundColor"));
+        }
+
+        @Test
+        void shortHexColor_expandedToSixDigits() {
+            company.getCompanySettings().getGeneralPreferences().setColor("#F00");
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
+
+            workOrderService.generatePdfBytes(wo, user, config);
+
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            assertEquals("#ff0000", captor.getValue().getVariable("backgroundColor"));
+        }
+
+        @Test
+        void assignedToEnumeratedCorrectly() {
+            User assignee1 = buildUser(20L);
+            assignee1.setFirstName("Alice");
+            assignee1.setLastName("Smith");
+            User assignee2 = buildUser(21L);
+            assignee2.setFirstName("Bob");
+            assignee2.setLastName("Jones");
+            wo.setAssignedTo(new ArrayList<>(List.of(assignee1, assignee2)));
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
+
+            workOrderService.generatePdfBytes(wo, user, config);
+
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            String assignedTo = (String) captor.getValue().getVariable("assignedTo");
+            assertNotNull(assignedTo);
+            assertTrue(assignedTo.contains("Alice Smith"));
+            assertTrue(assignedTo.contains("Bob Jones"));
+        }
+
+        @Test
+        void customersEnumeratedCorrectly() {
+            Customer c1 = buildCustomer(60L);
+            c1.setName("Acme Corp");
+            Customer c2 = buildCustomer(61L);
+            c2.setName("Globex Inc");
+            wo.setCustomers(new ArrayList<>(List.of(c1, c2)));
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            ArgumentCaptor<org.thymeleaf.context.Context> captor =
+                    ArgumentCaptor.forClass(org.thymeleaf.context.Context.class);
+
+            workOrderService.generatePdfBytes(wo, user, config);
+
+            verify(thymeleafTemplateEngine).process(eq("work-order-report.html"), captor.capture());
+            String customers = (String) captor.getValue().getVariable("customers");
+            assertNotNull(customers);
+            assertTrue(customers.contains("Acme Corp"));
+            assertTrue(customers.contains("Globex Inc"));
+        }
+
+        @Test
+        void storagePathImage_downloadsFromStorageAndEmbeds() throws IOException {
+            com.grash.model.File image = new com.grash.model.File();
+            image.setId(100L);
+            image.setName("wo image.png");
+            image.setPath("images/company 42/wo image.png");
+            wo.setImage(image);
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            java.awt.image.BufferedImage img = new java.awt.image.BufferedImage(
+                    10, 10, java.awt.image.BufferedImage.TYPE_INT_RGB);
+            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+            javax.imageio.ImageIO.write(img, "png", baos);
+            when(storageService.download("images/company 42/wo image.png")).thenReturn(baos.toByteArray());
+            when(thymeleafTemplateEngine.process(eq("work-order-report.html"), any()))
+                    .thenReturn("<html><body><img data-storage-path=\"images/company 42/wo image.png\"/>" +
+                            "</body></html>");
+
+            byte[] result = workOrderService.generatePdfBytes(wo, user, config);
+
+            assertNotNull(result);
+            assertTrue(result.length > 0);
+            verify(storageService).download("images/company 42/wo image.png");
+        }
+
+        @Test
+        void dataUriImage_fallsThroughToDefaultTagWorker() {
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            String tinyPng = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+            when(thymeleafTemplateEngine.process(eq("work-order-report.html"), any()))
+                    .thenReturn("<html><body><img src=\"data:image/png;base64," + tinyPng + "\"/></body></html>");
+
+            byte[] result = workOrderService.generatePdfBytes(wo, user, config);
+
+            assertNotNull(result);
+            assertTrue(result.length > 0);
+            verify(storageService, never()).download(anyString());
+        }
+
+        @Test
+        void oversizedPng_replacedWithPlaceholderWithoutOom() {
+            byte[] fakeHugePng = new byte[33];
+            fakeHugePng[0] = (byte) 0x89;
+            fakeHugePng[1] = 'P';
+            fakeHugePng[2] = 'N';
+            fakeHugePng[3] = 'G';
+            fakeHugePng[4] = '\r';
+            fakeHugePng[5] = '\n';
+            fakeHugePng[6] = 0x1A;
+            fakeHugePng[7] = '\n';
+            fakeHugePng[16] = 0x00;
+            fakeHugePng[17] = 0x00;
+            fakeHugePng[18] = 0x27;
+            fakeHugePng[19] = 0x10;
+            fakeHugePng[20] = 0x00;
+            fakeHugePng[21] = 0x00;
+            fakeHugePng[22] = 0x27;
+            fakeHugePng[23] = 0x10;
+            when(userService.findById(user.getId())).thenReturn(Optional.of(user));
+            when(storageService.download("images/huge.png")).thenReturn(fakeHugePng);
+            when(thymeleafTemplateEngine.process(eq("work-order-report.html"), any()))
+                    .thenReturn("<html><body><img data-storage-path=\"images/huge.png\"/></body></html>");
+
+            byte[] result = workOrderService.generatePdfBytes(wo, user, config);
+
+            assertNotNull(result);
+            assertTrue(result.length > 0);
+        }
+    }
+
+    @Nested
+    class GetImageReportStoragePath {
+
+        private Method method;
+
+        @BeforeEach
+        void init() throws Exception {
+            method = PdfReportUtils.class.getDeclaredMethod(
+                    "getImageReportStoragePath", com.grash.model.File.class);
+            method.setAccessible(true);
+        }
+
+        private String invoke(com.grash.model.File file) throws Exception {
+            return (String) method.invoke(null, file);
+        }
+
+        @Test
+        void nullFile_returnsNull() throws Exception {
+            assertNull(invoke(null));
+        }
+
+        @Test
+        void nullPath_returnsNull() throws Exception {
+            com.grash.model.File f = new com.grash.model.File();
+            f.setName("photo.png");
+            f.setPath(null);
+            assertNull(invoke(f));
+        }
+
+        @Test
+        void nonImageExtension_returnsNull() throws Exception {
+            com.grash.model.File f = new com.grash.model.File();
+            f.setName("document.pdf");
+            f.setPath("files/document.pdf");
+            assertNull(invoke(f));
+        }
+
+        @Test
+        void imageFile_returnsRawStoragePath() throws Exception {
+            com.grash.model.File f = new com.grash.model.File();
+            f.setName("photo.jpg");
+            f.setPath("images/photo.jpg");
+
+            String result = invoke(f);
+
+            assertEquals("images/photo.jpg", result);
+        }
+
+        @Test
+        void pathWithSpacesAndParens_staysUnencoded() throws Exception {
+            com.grash.model.File f = new com.grash.model.File();
+            f.setName("logo (4).png");
+            f.setPath("company 42/logo (4).png");
+
+            String result = invoke(f);
+
+            assertEquals("company 42/logo (4).png", result);
+        }
+
+        @Test
+        void pathWithPlusSign_staysUnencoded() throws Exception {
+            com.grash.model.File f = new com.grash.model.File();
+            f.setName("a+b.png");
+            f.setPath("images/a+b.png");
+
+            String result = invoke(f);
+
+            assertEquals("images/a+b.png", result);
+        }
+
+        @Test
+        void allSupportedExtensions_areAccepted() throws Exception {
+            String[] extensions = {"jpg", "jpeg", "jpe", "png", "gif", "webp", "bmp", "tif", "tiff", "svg",
+                    "ico", "avif", "heic", "heif", "jfif"};
+            for (String ext : extensions) {
+                com.grash.model.File f = new com.grash.model.File();
+                f.setName("image." + ext);
+                f.setPath("images/image." + ext);
+                String result = invoke(f);
+                assertNotNull(result, "Extension " + ext + " should be accepted");
+                assertEquals("images/image." + ext, result,
+                        "Extension " + ext + " should produce the raw storage path");
+            }
+        }
+
+        @Test
+        void caseInsensitiveExtension() throws Exception {
+            com.grash.model.File f = new com.grash.model.File();
+            f.setName("Photo.PNG");
+            f.setPath("images/Photo.PNG");
+
+            String result = invoke(f);
+
+            assertEquals("images/Photo.PNG", result);
+        }
+    }
+
+    @Nested
+    class OptimizeImageForPdf {
+
+        private static final String EMPTY_PNG_BASE64 =
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+
+        private Method method;
+
+        @BeforeEach
+        void init() throws Exception {
+            method = PdfReportUtils.class.getDeclaredMethod(
+                    "optimizeImageForPdf", byte[].class, String.class);
+            method.setAccessible(true);
+        }
+
+        private byte[] invoke(byte[] bytes, String fileName) throws Exception {
+            return (byte[]) method.invoke(null, bytes, fileName);
+        }
+
+        private byte[] validPng() throws IOException {
+            java.awt.image.BufferedImage img = new java.awt.image.BufferedImage(
+                    10, 10, java.awt.image.BufferedImage.TYPE_INT_RGB);
+            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+            javax.imageio.ImageIO.write(img, "png", baos);
+            return baos.toByteArray();
+        }
+
+        /**
+         * A PNG cut off in the middle of its IDAT payload, so the zlib stream never
+         * terminates. The JDK PNG reader fails mid-decode with a wrapped exception
+         * ("Caught exception during read:").
+         */
+        private byte[] truncatedPng() throws IOException {
+            byte[] png = validPng();
+            // 8 signature + 25 IHDR + 8 IDAT header = 41; keep only a few zlib payload bytes
+            if (png.length <= 48) {
+                throw new IllegalStateException("Test PNG too small to truncate: " + png.length);
+            }
+            return java.util.Arrays.copyOf(png, 48);
+        }
+
+        @Test
+        void validSmallPng_returnsRawBytes() throws Exception {
+            byte[] png = validPng();
+
+            byte[] result = invoke(png, "photo.png");
+
+            assertArrayEquals(png, result);
+        }
+
+        @Test
+        void nonImageExtension_skipsOptimization() throws Exception {
+            byte[] bytes = {1, 2, 3, 4};
+
+            byte[] result = invoke(bytes, "document.txt");
+
+            assertArrayEquals(bytes, result);
+        }
+
+        @Test
+        void oversizedDimensionsPng_returnsPlaceholder() throws Exception {
+            byte[] fakeHugePng = new byte[33];
+            fakeHugePng[0] = (byte) 0x89;
+            fakeHugePng[1] = 'P';
+            fakeHugePng[2] = 'N';
+            fakeHugePng[3] = 'G';
+            fakeHugePng[16] = 0x00;
+            fakeHugePng[17] = 0x00;
+            fakeHugePng[18] = 0x27;
+            fakeHugePng[19] = 0x10;
+            fakeHugePng[20] = 0x00;
+            fakeHugePng[21] = 0x00;
+            fakeHugePng[22] = 0x27;
+            fakeHugePng[23] = 0x10;
+
+            byte[] result = invoke(fakeHugePng, "huge.png");
+
+            assertArrayEquals(Base64.getDecoder().decode(EMPTY_PNG_BASE64), result);
+        }
+
+        @Test
+        void corruptSmallPng_returnsRawBytesForItextToAttempt() throws Exception {
+            byte[] truncated = truncatedPng();
+
+            byte[] result = invoke(truncated, "corrupt.png");
+
+            assertArrayEquals(truncated, result);
+        }
+
+        @Test
+        void corruptLargePng_fallsBackToPlaceholderInsteadOfRawBytes() throws Exception {
+            byte[] truncated = truncatedPng();
+            byte[] largeCorruptPng = new byte[600_000];
+            System.arraycopy(truncated, 0, largeCorruptPng, 0, truncated.length);
+
+            byte[] result = invoke(largeCorruptPng, "screenshot.png");
+
+            assertArrayEquals(Base64.getDecoder().decode(EMPTY_PNG_BASE64), result);
         }
     }
 }

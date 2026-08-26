@@ -49,8 +49,8 @@ public class WorkOrderHistoryService {
 
     public Collection<WorkOrderHistory> findByWorkOrder(Long id) {
         if (!licenseService.hasEntitlement(LicenseEntitlement.WORK_ORDER_HISTORY)) return new ArrayList<>();
+        WorkOrder workOrder = workOrderRepository.findById(id).orElseThrow();
         return workOrderAudRepository.findByIdAndRevtype(id, 1).stream().map(workOrderAud -> {
-            WorkOrder workOrder = workOrderRepository.findById(id).get();
             User user = workOrderAud.getWorkOrderAudId().getRev().getUser();
             WorkOrderHistory workOrderHistory = WorkOrderHistory.builder()
                     .workOrder(workOrder)

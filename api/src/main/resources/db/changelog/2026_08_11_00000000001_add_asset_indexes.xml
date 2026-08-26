@@ -1,0 +1,18 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet id="2026_08_11_00000000001_add_asset_indexes" author="ibrahima">
+        <createIndex tableName="asset" indexName="idx_asset_parent_asset_id">
+            <column name="parent_asset_id"/>
+        </createIndex>
+        <createIndex tableName="asset" indexName="idx_asset_location_id">
+            <column name="location_id"/>
+        </createIndex>
+        <rollback>
+            <dropIndex tableName="asset" indexName="idx_asset_parent_asset_id"/>
+            <dropIndex tableName="asset" indexName="idx_asset_location_id"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

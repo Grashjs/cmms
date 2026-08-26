@@ -8,18 +8,20 @@ import com.grash.model.Company;
 import com.grash.model.TaskBase;
 import com.grash.dto.license.LicenseEntitlement;
 import com.grash.repository.CheckListRepository;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.grash.utils.Consts.usageBasedLicenseLimits;
+import static com.grash.utils.Consts.usageBasedFreeLimits;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +44,7 @@ public class ChecklistService {
                 .category(checklistReq.getCategory())
                 .description(checklistReq.getDescription())
                 .build();
+        Sanitizer.sanitizeChecklist(checklist);
         Checklist savedChecklist = checklistRepository.saveAndFlush(checklist);
         em.refresh(savedChecklist);
         return savedChecklist;
@@ -58,6 +61,7 @@ public class ChecklistService {
             List<TaskBase> taskBases = checklistReq.getTaskBases().stream()
                     .map(taskBaseDto -> taskBaseService.createFromTaskBaseDTO(taskBaseDto, company)).collect(Collectors.toList());
             savedChecklist.getTaskBases().addAll(taskBases);
+            Sanitizer.sanitizeChecklist(savedChecklist);
             Checklist updatedChecklist = checklistRepository.saveAndFlush(savedChecklist);
             em.refresh(updatedChecklist);
             return updatedChecklist;
@@ -67,7 +71,7 @@ public class ChecklistService {
     private void checkUsageBasedLimit(Company company) {
         if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_CHECKLISTS)
                 && checklistRepository.hasMoreThan(company.getId(),
-                usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_CHECKLISTS).longValue()))
+                usageBasedFreeLimits.get(LicenseEntitlement.UNLIMITED_CHECKLISTS).longValue()))
             throw new CustomException("You need a license to add a checklist", HttpStatus.FORBIDDEN);
     }
 

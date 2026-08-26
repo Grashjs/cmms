@@ -7,6 +7,7 @@ import { UserInvitationMiniDTO } from '../models/owns/user';
 import api from '../utils/api';
 import { revertAll } from 'src/utils/redux';
 import { UiConfiguration } from '../models/owns/uiConfiguration';
+import { isEmailVerificationEnabled } from '../config';
 
 const basePath = 'users';
 interface UserState {
@@ -264,7 +265,8 @@ export const inviteUsers =
       roleId,
       roleName: role?.name ?? ''
     }));
-    dispatch(slice.actions.addLastWeekInvitations({ invitations }));
+    if (isEmailVerificationEnabled)
+      dispatch(slice.actions.addLastWeekInvitations({ invitations }));
   };
 
 export const clearSingleUser = (): AppThunk => async (dispatch) => {

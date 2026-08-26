@@ -55,11 +55,10 @@ public class PreventiveMaintenanceNotificationJob extends QuartzJobBean {
         Locale locale = Helper.getLocale(preventiveMaintenance.getCompany());
         String title = messageSource.getMessage("coming_wo", null, locale);
 
-        // Logic copied from original TimerTask
         Collection<User> admins = userService.findWorkersByCompany(preventiveMaintenance.getCompany().getId())
                 .stream()
                 .filter(ownUser -> ownUser.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS))
-                .collect(Collectors.toList());
+                .toList();
 
         List<User> usersToMail = new ArrayList<>(Stream.concat(
                         preventiveMaintenance.getUsers().stream(),

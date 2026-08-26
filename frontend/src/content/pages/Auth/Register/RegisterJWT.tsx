@@ -30,6 +30,7 @@ import { useUtmTracker } from '@nik0di3m/utm-tracker-hook';
 import { inviteUsers } from '../../../../slices/user';
 import { useDispatch } from '../../../../store';
 import { homeUrl } from '../../../../config';
+import { isNetworkError } from '../../../../utils/api';
 import { getLocalizedHomeUrl } from '../../../../utils/urlPaths';
 
 function RegisterJWT({
@@ -75,7 +76,7 @@ function RegisterJWT({
       lastName: Yup.string().max(255).required(t('required_lastName')),
       companyName: Yup.string().max(255).required(t('required_company')),
       phone: Yup.string().matches(phoneRegExp, t('invalid_phone')),
-      password: Yup.string().min(8).max(255).required(t('required_password'))
+      password: Yup.string().min(12).max(128).required(t('required_password'))
     };
     if (role) {
       const keysToDelete = ['companyName'];
@@ -115,6 +116,11 @@ function RegisterJWT({
             }
           })
           .catch((err) => {
+            if (isNetworkError(err)) {
+              showSnackBar(t('server_not_reachable'), 'error');
+              console.error(err);
+              return;
+            }
             let errorMessage = 'An unknown error occurred';
 
             // Check if the error message contains a JSON string

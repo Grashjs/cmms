@@ -1,5 +1,6 @@
 package com.grash.service;
 
+import com.grash.dto.AuthTokens;
 import com.grash.dto.SignupSuccessResponse;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.UserInvitationDTO;
@@ -88,8 +89,6 @@ class UserServiceTest {
     @Mock
     private BrandingService brandingService;
     @Mock
-    private DemoDataService demoDataService;
-    @Mock
     private ApplicationEventPublisher applicationEventPublisher;
     @Mock
     private LicenseService licenseService;
@@ -99,6 +98,10 @@ class UserServiceTest {
     private MailService mailService;
     @Mock
     private IntercomService intercomService;
+    @Mock
+    private RefreshTokenService refreshTokenService;
+    @Mock
+    private ApiKeyService apiKeyService;
 
     private Company company;
     private User user;
@@ -180,14 +183,16 @@ class UserServiceTest {
             when(authentication.getAuthorities())
                     .thenAnswer(inv -> List.of(new SimpleGrantedAuthority("ROLE_CLIENT")));
             when(userRepository.findByEmailIgnoreCase("john@test.com")).thenReturn(Optional.of(user));
-            when(jwtTokenProvider.createToken(eq("john@test.com"), anyList()))
-                    .thenReturn("jwt-token");
+            when(refreshTokenService.createTokenPair(user))
+                    .thenReturn(new AuthTokens("jwt-token", "refresh-token", new Date()));
 
-            String token = userService.signin("john@test.com", "password", "CLIENT");
+            AuthTokens tokens = userService.signin("john@test.com", "password", "CLIENT");
 
-            assertEquals("jwt-token", token);
+            assertEquals("jwt-token", tokens.getAccessToken());
+            assertEquals("refresh-token", tokens.getRefreshToken());
             verify(cacheService).evictUserFromCache("john@test.com");
             verify(userRepository).save(user);
+            verify(refreshTokenService).createTokenPair(user);
             assertNotNull(user.getLastLogin());
         }
 
@@ -948,6 +953,58 @@ class UserServiceTest {
             assertDoesNotThrow(() -> userService.checkUsageBasedLimit(100));
             verify(userRepository, never()).hasMorePaidUsersThan(anyInt());
         }
+
+        @Test
+        void exactlyAtLicenseLimit_noException() {
+            when(licenseService.getLicensingState()).thenReturn(
+                    LicensingState.builder().hasLicense(true).usersCount(10).build());
+            when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)).thenReturn(false);
+            when(userRepository.hasMorePaidUsersThan(8)).thenReturn(false);
+
+            assertDoesNotThrow(() -> userService.checkUsageBasedLimit(2));
+        }
+
+        @Test
+        void exactlyAtFreeThreshold_noException() {
+            when(licenseService.getLicensingState()).thenReturn(
+                    LicensingState.builder().hasLicense(false).usersCount(0).build());
+            when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)).thenReturn(false);
+            when(userRepository.hasMorePaidUsersThan(4)).thenReturn(false);
+
+            assertDoesNotThrow(() -> userService.checkUsageBasedLimit(1));
+        }
+
+        @Test
+        void noLicense_overFreeThreshold_throws() {
+            when(licenseService.getLicensingState()).thenReturn(
+                    LicensingState.builder().hasLicense(false).usersCount(0).build());
+            when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)).thenReturn(false);
+            when(userRepository.hasMorePaidUsersThan(anyInt())).thenReturn(true);
+
+            assertThrows(RuntimeException.class, () -> userService.checkUsageBasedLimit(1));
+        }
+
+        @Test
+        void licensedSystemAlreadyOverLimit_throws() {
+            when(licenseService.getLicensingState()).thenReturn(
+                    LicensingState.builder().hasLicense(true).usersCount(5).build());
+            when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)).thenReturn(false);
+            when(userRepository.hasMorePaidUsersThan(5)).thenReturn(true);
+
+            assertThrows(RuntimeException.class, () -> userService.checkUsageBasedLimit(0));
+        }
+
+        @Test
+        void exceptionMessage_mentionsFreeThreshold() {
+            when(licenseService.getLicensingState()).thenReturn(LicensingState.builder().hasLicense(false).usersCount(0).build());
+            when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)).thenReturn(false);
+            when(userRepository.hasMorePaidUsersThan(anyInt())).thenReturn(true);
+
+            RuntimeException ex = assertThrows(RuntimeException.class,
+                    () -> userService.checkUsageBasedLimit(1));
+
+            assertTrue(ex.getMessage().contains("5"));
+        }
     }
 
     @Nested
@@ -1176,18 +1233,8 @@ class UserServiceTest {
 
             verify(passwordEncoder).encode("newpassword123");
             assertEquals("encoded-new", user.getPassword());
-        }
-
-        @Test
-        void rejectsShortPassword() {
-            UserPatchDTO patch = new UserPatchDTO();
-            patch.setNewPassword("1234567");
-            when(userRepository.existsById(1L)).thenReturn(true);
-            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-
-            CustomException ex = assertThrows(CustomException.class,
-                    () -> userService.update(1L, patch));
-            assertEquals(HttpStatus.NOT_ACCEPTABLE, ex.getHttpStatus());
+            assertNotNull(user.getSessionInvalidatedAt());
+            verify(refreshTokenService).revokeAllForUser(user);
         }
 
         @Test
@@ -1210,20 +1257,6 @@ class UserServiceTest {
             CustomException ex = assertThrows(CustomException.class,
                     () -> userService.update(1L, patch));
             assertEquals(HttpStatus.NOT_FOUND, ex.getHttpStatus());
-        }
-    }
-
-    @Nested
-    class Refresh {
-
-        @Test
-        void returnsNewToken() {
-            when(jwtTokenProvider.createToken("john@test.com",
-                    List.of(user.getRole().getRoleType()))).thenReturn("refreshed-token");
-
-            String token = userService.refresh(user);
-
-            assertEquals("refreshed-token", token);
         }
     }
 
@@ -1887,7 +1920,10 @@ class UserServiceTest {
 
             assertFalse(result.isEnabled());
             assertFalse(result.isEnabledInSubscription());
+            assertNotNull(result.getSessionInvalidatedAt());
             verify(userRepository).save(targetUser);
+            verify(cacheService).evictUserFromCache("target@test.com");
+            verify(refreshTokenService).revokeAllForUser(targetUser);
         }
     }
 
@@ -1905,7 +1941,7 @@ class UserServiceTest {
                     .id(1L)
                     .name("Administrator")
                     .code(RoleCode.ADMIN)
-                    .viewPermissions(new HashSet<>(Set.of(PermissionEntity.SETTINGS)))
+                    .editOtherPermissions(new HashSet<>(Set.of(PermissionEntity.PEOPLE_AND_TEAMS)))
                     .build();
             user.setRole(adminRole);
         }
@@ -1922,7 +1958,7 @@ class UserServiceTest {
         @Test
         void noPermission_throws406() {
             Role restrictedRole = Role.builder()
-                    .id(3L).name("Restricted").viewPermissions(new HashSet<>()).build();
+                    .id(3L).name("Restricted").editOtherPermissions(new HashSet<>()).build();
             user.setRole(restrictedRole);
 
             when(userRepository.findByIdAndCompany_Id(2L, 1L)).thenReturn(Optional.of(targetUser));
@@ -1943,7 +1979,10 @@ class UserServiceTest {
             assertFalse(result.isEnabled());
             assertFalse(result.isEnabledInSubscription());
             assertTrue(result.getEmail().contains("_2"));
+            assertNotNull(result.getSessionInvalidatedAt());
             verify(userRepository).save(targetUser);
+            verify(cacheService).evictUserFromCache(result.getEmail());
+            verify(refreshTokenService).revokeAllForUser(targetUser);
         }
 
         @Test
@@ -1956,7 +1995,28 @@ class UserServiceTest {
             assertFalse(result.isEnabled());
             assertFalse(result.isEnabledInSubscription());
             assertTrue(result.getEmail().contains("_2"));
+            assertNotNull(result.getSessionInvalidatedAt());
             verify(userRepository).save(targetUser);
+            verify(cacheService).evictUserFromCache(result.getEmail());
+            verify(refreshTokenService).revokeAllForUser(targetUser);
+        }
+    }
+
+    @Nested
+    class InvalidateSessions {
+
+        @Test
+        void setsInvalidationTimestamp_savesEvictsCacheAndRevokesRefreshTokens() {
+            User targetUser = buildUser(2L, "target@test.com");
+            assertNull(targetUser.getSessionInvalidatedAt());
+            when(userRepository.save(targetUser)).thenReturn(targetUser);
+
+            User result = userService.invalidateSessions(targetUser);
+
+            assertNotNull(result.getSessionInvalidatedAt());
+            verify(userRepository).save(targetUser);
+            verify(cacheService).evictUserFromCache("target@test.com");
+            verify(refreshTokenService).revokeAllForUser(targetUser);
         }
     }
 }

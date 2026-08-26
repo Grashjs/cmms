@@ -111,7 +111,7 @@ public class WorkOrderMeterTriggerController {
 
     private void checkAccessToMeter(Meter meter, User user, boolean view) {
         boolean hasAccess = view
-                ? meter.isAccessibleBy(user)
+                ? meter.canBeViewedBy(user)
                 : meter.canBeEditedBy(user);
 
         if (!hasAccess) {

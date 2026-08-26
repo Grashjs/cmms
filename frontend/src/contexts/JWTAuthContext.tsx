@@ -1,6 +1,6 @@
 import { createContext, FC, ReactNode, useEffect, useReducer } from 'react';
 import { OwnUser, UserResponseDTO } from 'src/models/user';
-import api, { authHeader } from 'src/utils/api';
+import api, { authHeader, refreshAccessToken } from 'src/utils/api';
 import { verify } from 'src/utils/jwt';
 import PropTypes from 'prop-types';
 import {
@@ -47,6 +47,13 @@ interface AuthState {
   companySettings: CompanySettings | null;
 }
 
+interface AuthResponse {
+  accessToken: string;
+  refreshToken: string;
+  tokenType: string;
+  expiresAt: string; // ISO date string
+}
+
 export type FieldConfigurationsType = 'workOrder' | 'request';
 
 interface AuthContextValue extends AuthState {
@@ -56,7 +63,7 @@ interface AuthContextValue extends AuthState {
     password: string,
     ldapEnabled?: boolean
   ) => Promise<void>;
-  loginInternal: (accessToken: string) => void;
+  loginInternal: (accessToken: string, refreshToken: string) => void;
   logout: () => void;
   register: (
     values: any,
@@ -245,12 +252,20 @@ const initialAuthState: AuthState = {
   companySettings: null
 };
 
-const setSession = (accessToken: string | null): void => {
+const setSession = (
+  accessToken: string | null,
+  refreshToken: string | null
+): void => {
   if (accessToken) {
     localStorage.setItem('accessToken', accessToken);
   } else {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('companyId');
+  }
+  if (refreshToken) {
+    localStorage.setItem('refreshToken', refreshToken);
+  } else {
+    localStorage.removeItem('refreshToken');
   }
 };
 
@@ -517,6 +532,10 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   const updateUserInfos = async () => {
     const user = await getUserInfos();
     setCompanyId(user.companyId);
+    const clarity = (window as any).clarity;
+    if (typeof clarity === 'function') {
+      clarity('identify', user.email);
+    }
     return user;
   };
   const setupUser = async (companySettings: CompanySettings) => {
@@ -527,9 +546,22 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   const getInfos = async (): Promise<void> => {
     try {
       const accessToken = window.localStorage.getItem('accessToken');
+      const refreshToken = window.localStorage.getItem('refreshToken');
 
+      let authenticated = false;
       if (accessToken && (await verify(accessToken))) {
-        setSession(accessToken);
+        authenticated = true;
+      } else if (refreshToken) {
+        const refreshed = await refreshAccessToken();
+        if (refreshed) {
+          authenticated = true;
+        }
+      }
+
+      if (authenticated) {
+        const newAccessToken = window.localStorage.getItem('accessToken');
+        const newRefreshToken = window.localStorage.getItem('refreshToken');
+        setSession(newAccessToken, newRefreshToken);
         const user = await updateUserInfos();
         const company = await api.get<Company>(`companies/${user.companyId}`);
         await setupUser(company.companySettings);
@@ -571,7 +603,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     password: string,
     ldap?: boolean
   ): Promise<void> => {
-    const response = await api.post<{ accessToken: string }>(
+    const response = await api.post<AuthResponse>(
       `auth/signin${ldap ? '-ldap' : ''}`,
       ldap
         ? {
@@ -585,12 +617,12 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
           },
       { headers: authHeader(true) }
     );
-    const { accessToken } = response;
-    return loginInternal(accessToken);
+    const { accessToken, refreshToken } = response;
+    return loginInternal(accessToken, refreshToken);
   };
-  const loginInternal = async (accessToken: string) => {
+  const loginInternal = async (accessToken: string, refreshToken: string) => {
     globalDispatch(revertAll());
-    setSession(accessToken);
+    setSession(accessToken, refreshToken);
     try {
       loginZendesk(accessToken);
     } catch (err) {
@@ -610,17 +642,16 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     });
   };
   const switchAccount = async (id: number): Promise<void> => {
-    const response = await api.get<{ accessToken: string }>(
+    const response = await api.get<AuthResponse>(
       `auth/switch-account?id=${id}`
     );
-    const { accessToken } = response;
+    const { accessToken, refreshToken } = response;
     Object.keys(localStorage)
       .filter((key) => key.endsWith('_filters'))
       .forEach((key) => localStorage.removeItem(key));
-    return loginInternal(accessToken);
+    return loginInternal(accessToken, refreshToken);
   };
   const logout = async (): Promise<void> => {
-    setSession(null);
     try {
       logoutZendesk();
     } catch (err) {
@@ -631,12 +662,8 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     } catch (err) {
       console.error(err);
     }
-    //TODO this is not working
-    // caches.keys().then((names) => {
-    //   names.forEach((name) => {
-    //     caches.delete(name);
-    //   });
-    // });
+    await api.post('auth/logout', {});
+    setSession(null, null);
     dispatch({ type: 'LOGOUT' });
   };
 
@@ -659,7 +686,11 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       // @ts-ignore
       window.lintrk('track', { conversion_id: 24670282 });
     }
-    const response = await api.post<{ message: string; success: boolean }>(
+    const response = await api.post<{
+      message: string;
+      success: boolean;
+      refreshToken: string;
+    }>(
       'auth/signup',
       {
         ...values,
@@ -671,11 +702,11 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       },
       { headers: authHeader(true) }
     );
-    const { message, success } = response;
+    const { message, success, refreshToken } = response;
     if (message.startsWith('Successful') || invitationMode) {
       return;
     } else {
-      await loginInternal(message);
+      await loginInternal(message, refreshToken);
       return response;
     }
   };
@@ -750,12 +781,13 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     oldPassword: string;
     newPassword: string;
   }): Promise<boolean> => {
-    const response = await api.post<{ success: boolean }>(
-      `auth/updatepwd`,
-      values
-    );
-    const { success } = response;
-    return success;
+    const response = await api.post<{
+      accessToken: string;
+      refreshToken: string;
+    }>(`auth/updatepwd`, values);
+    const { accessToken, refreshToken } = response;
+    setSession(accessToken, refreshToken);
+    return true;
   };
   const resetPassword = async (email: string): Promise<boolean> => {
     const response = await api.get<{ success: boolean }>(

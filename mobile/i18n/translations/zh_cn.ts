@@ -913,7 +913,7 @@ const locale = {
   po_emails: '采购订单电子邮件',
   required_job_title: '职位字段为必填项',
   required_old_password: '请输入当前密码。',
-  invalid_password: '密码太短 - 最少应为8个字符。',
+  invalid_password: '密码太短 - 最少应为12个字符。',
   required_new_password: '未提供密码。',
   passwords_must_match: '密码必须匹配',
   password_change_success: '密码修改成功',
@@ -1380,6 +1380,7 @@ const locale = {
   reset: '重置',
   operation_success: '操作成功',
   edit_reading: '编辑读数',
-  are_you_sure_delete_reading: '您确定要删除此读数吗？'
+  are_you_sure_delete_reading: '您确定要删除此读数吗？',
+  conflict_retry: '资源已被另一个请求修改。请在5秒后重试。'
 };
 export default locale;

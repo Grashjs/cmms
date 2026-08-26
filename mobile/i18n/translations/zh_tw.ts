@@ -932,7 +932,7 @@ const locale = {
   po_emails: '採購單電子郵件',
   required_job_title: '職稱欄位為必填',
   required_old_password: '請提供目前密碼。',
-  invalid_password: '密碼太短 - 最少需8個字元。',
+  invalid_password: '密碼太短 - 最少需12個字元。',
   required_new_password: '未提供密碼。',
   passwords_must_match: '密碼必須相符',
   password_change_success: '密碼變更成功',
@@ -1400,6 +1400,7 @@ const locale = {
   reset: '重置',
   operation_success: '操作成功',
   edit_reading: '編輯讀數',
-  are_you_sure_delete_reading: '您確定要刪除此讀數嗎？'
+  are_you_sure_delete_reading: '您確定要刪除此讀數嗎？',
+  conflict_retry: '資源已被另一個請求修改。請在5秒後重試。'
 };
 export default locale;

@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style th:inline="css">
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -450,7 +449,7 @@
 <!--@thymesVar id="companyLogo" type="java.lang.String"-->
 <!--/*@thymesVar id="relations" type="java.util.List<com.grash.model.Relation>"*/-->
 <!--/*@thymesVar id="tasks" type="java.util.List<com.grash.model.Task>"*/-->
-<!--/*@thymesVar id="tasksImagesUrls" type="java.util.Map<java.lang.Long, java.lang.String[]>"*/-->
+<!--/*@thymesVar id="tasksImagesPaths" type="java.util.Map<java.lang.Long, java.lang.String[]>"*/-->
 <!--/*@thymesVar id="assignedTo" type="java.lang.String"*/-->
 <!--/*@thymesVar id="customers" type="java.lang.String"*/-->
 <!--/*@thymesVar id="companyPhone" type="java.lang.String"*/-->
@@ -466,9 +465,9 @@
 <!--/*@thymesVar id="timeZone" type="java.lang.String"*/-->
 <!--/*@thymesVar id="reportConfig" type="com.grash.dto.ReportConfig"*/-->
 <!--/*@thymesVar id="comments" type="java.util.List<com.grash.model.Comment>"*/-->
-<!--/*@thymesVar id="commentFilesUrls" type="java.util.Map<java.lang.Long, java.lang.String[]>"*/-->
-<!--/*@thymesVar id="workOrderFilesUrls" type="java.lang.String[]"*/-->
-<!--/*@thymesVar id="workOrderImageUrl" type="java.lang.String"*/-->
+<!--/*@thymesVar id="commentFilesPaths" type="java.util.Map<java.lang.Long, java.lang.String[]>"*/-->
+<!--/*@thymesVar id="workOrderFilesPaths" type="java.lang.String[]"*/-->
+<!--/*@thymesVar id="workOrderImagePath" type="java.lang.String"*/-->
 
 <div class="report-wrap">
 
@@ -476,7 +475,7 @@
     <div class="report-header clearfix">
         <div class="header-brand">
             <span class="company-name" th:text="${companyName}"></span>
-            <img th:if="${companyLogo!=null}" th:src="@{${companyLogo}}" class="company-logo" alt="logo">
+            <img th:if="${companyLogo!=null}" th:attr="data-storage-path=${companyLogo}" class="company-logo" alt="logo">
             <span class="company-phone" th:text="${companyPhone}"></span>
         </div>
         <div class="header-wo">
@@ -543,8 +542,8 @@
         <div class="panel-body">
             <div class="wo-title" th:text="${workOrder.title}"></div>
             <div class="wo-description" th:if="${reportConfig.workOrderInformation}" th:text="${workOrder.description}"></div>
-            <div th:if="${workOrderImageUrl != null}" style="margin-top:12px;">
-                <img th:src="${workOrderImageUrl}" style="max-width:100%;max-height:300px;border-radius:6px;border:1px solid #E4E8EE;" />
+            <div th:if="${workOrderImagePath != null}" style="margin-top:12px;">
+                <img th:attr="data-storage-path=${workOrderImagePath}" style="max-width:100%;max-height:300px;border-radius:6px;border:1px solid #E4E8EE;" />
             </div>
         </div>
     </div>
@@ -629,9 +628,9 @@
                     <div class="task-label" th:text="${task.getTaskBase().getLabel()}"></div>
                     <div class="task-value" th:text="${task.getTranslatedValue(locale, messageSource)}"></div>
                     <div class="task-notes" th:text="${task.getNotes()}"></div>
-                    <div class="task-images" th:if="${tasksImagesUrls.get(task.getId()) != null}">
-                        <th:block th:each="imageUrl : ${tasksImagesUrls.get(task.getId())}">
-                            <img th:if="${imageUrl != null}" th:src="${imageUrl}" />
+                    <div class="task-images" th:if="${tasksImagesPaths.get(task.getId()) != null}">
+                        <th:block th:each="imageUrl : ${tasksImagesPaths.get(task.getId())}">
+                            <img th:if="${imageUrl != null}" th:attr="data-storage-path=${imageUrl}" />
                         </th:block>
                     </div>
                 </div>
@@ -781,9 +780,9 @@
                     <span class="comment-author" th:text="${comment.getUser().getFullName()}"></span>
                     <span class="comment-date" th:text="${T(com.grash.utils.Helper).getFormattedDate(comment.updatedAt == null ? comment.createdAt : comment.updatedAt, dateFormat, timeZone)}"></span>
                     <div class="comment-body" th:text="${comment.getFormattedContent()}"></div>
-                    <div class="comment-images" th:if="${commentFilesUrls.get(comment.getId()) != null}">
-                        <th:block th:each="fileUrl : ${commentFilesUrls.get(comment.getId())}">
-                            <img th:if="${fileUrl != null}" th:src="${fileUrl}" />
+                    <div class="comment-images" th:if="${commentFilesPaths.get(comment.getId()) != null}">
+                        <th:block th:each="fileUrl : ${commentFilesPaths.get(comment.getId())}">
+                            <img th:if="${fileUrl != null}" th:attr="data-storage-path=${fileUrl}" />
                         </th:block>
                     </div>
                 </div>
@@ -792,7 +791,7 @@
     </div>
 
     <!-- ── Files ── -->
-    <div class="panel" th:if="${reportConfig.files and workOrderFilesUrls.length > 0}">
+    <div class="panel" th:if="${reportConfig.files and workOrderFilesPaths.length > 0}">
         <div class="panel-header">
             <span class="panel-accent" th:style="'background:'+${backgroundColor}"></span>
             <svg class="panel-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="1.5" width="12" height="13" rx="1.5"/><polyline points="5,8.5 7,10.5 11,6.5"/></svg>
@@ -800,8 +799,8 @@
         </div>
         <div class="panel-body">
             <div class="files-wrap">
-                <th:block th:each="fileUrl : ${workOrderFilesUrls}">
-                    <img th:if="${fileUrl != null}" th:src="${fileUrl}" />
+                <th:block th:each="fileUrl : ${workOrderFilesPaths}">
+                    <img th:if="${fileUrl != null}" th:attr="data-storage-path=${fileUrl}" />
                 </th:block>
             </div>
         </div>

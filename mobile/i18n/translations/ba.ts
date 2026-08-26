@@ -1021,7 +1021,7 @@ const locale = {
   po_emails: 'E-mailovi narudžbenica',
   required_job_title: 'Polje za radno mjesto je obavezno',
   required_old_password: 'Molimo unesite trenutnu lozinku.',
-  invalid_password: 'Lozinka je prekratka - mora imati najmanje 8 znakova.',
+  invalid_password: 'Lozinka je prekratka - mora imati najmanje 12 znakova.',
   required_new_password: 'Lozinka nije unesena.',
   passwords_must_match: 'Lozinke se moraju podudarati',
   password_change_success: 'Lozinka je uspješno promijenjena',
@@ -1500,6 +1500,7 @@ const locale = {
   reset: 'Reset',
   operation_success: 'Operacija je uspjela',
   edit_reading: 'Uredi očitanje',
-  are_you_sure_delete_reading: 'Jeste li sigurni da želite obrisati ovo očitanje?'
+  are_you_sure_delete_reading: 'Jeste li sigurni da želite obrisati ovo očitanje?',
+  conflict_retry: 'Resurs je izmijenjen drugim zahtjevom. Molimo pokušajte ponovo za 5 sekundi.'
 };
 export default locale;

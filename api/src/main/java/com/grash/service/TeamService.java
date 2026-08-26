@@ -11,6 +11,7 @@ import com.grash.model.User;
 import com.grash.model.Team;
 import com.grash.model.enums.NotificationType;
 import com.grash.repository.TeamRepository;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -52,6 +53,7 @@ public class TeamService {
 
     @Transactional
     public Team create(Team team) {
+        Sanitizer.sanitizeTeam(team);
         Team savedTeam = teamRepository.saveAndFlush(team);
         em.refresh(savedTeam);
         return savedTeam;
@@ -61,7 +63,9 @@ public class TeamService {
     public Team update(Long id, TeamPatchDTO team) {
         if (teamRepository.existsById(id)) {
             Team savedTeam = teamRepository.findById(id).get();
-            Team updatedTeam = teamRepository.saveAndFlush(teamMapper.updateTeam(savedTeam, team));
+            Team updatedTeam = teamMapper.updateTeam(savedTeam, team);
+            Sanitizer.sanitizeTeam(updatedTeam);
+            updatedTeam = teamRepository.saveAndFlush(updatedTeam);
             em.refresh(updatedTeam);
             return updatedTeam;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -100,16 +104,6 @@ public class TeamService {
                     user -> oldTeam.getUsers().stream().noneMatch(user1 -> user1.getId().equals(user.getId()))).collect(Collectors.toList());
             notificationService.createMultiple(newUsers.stream().map(newUser ->
                     new Notification(message, newUser, NotificationType.TEAM, newTeam.getId())).collect(Collectors.toList()), true, title);
-        }
-    }
-
-    public boolean isTeamInCompany(Team team, long companyId, boolean optional) {
-        if (optional) {
-            Optional<Team> optionalTeam = team == null ? Optional.empty() : findById(team.getId());
-            return team == null || (optionalTeam.isPresent() && optionalTeam.get().getCompany().getId().equals(companyId));
-        } else {
-            Optional<Team> optionalTeam = findById(team.getId());
-            return optionalTeam.isPresent() && optionalTeam.get().getCompany().getId().equals(companyId);
         }
     }
 

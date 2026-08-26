@@ -30,7 +30,7 @@ export default function InAppCamera({ visible, onCapture, onClose }: Props) {
   const handleCapture = async () => {
     if (!cameraRef.current) return;
     try {
-      const photo = await cameraRef.current.takePictureAsync({ quality: 1 });
+      const photo = await cameraRef.current.takePictureAsync({ quality: 0.5 });
       if (photo?.uri) {
         onCapture(photo.uri);
       }

@@ -10,6 +10,7 @@ import com.grash.model.PurchaseOrder;
 import com.grash.model.WorkOrder;
 import com.grash.repository.PurchaseOrderRepository;
 import com.grash.repository.WorkOrderRepository;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -34,6 +35,7 @@ public class PurchaseOrderService {
 
     @Transactional
     public PurchaseOrder create(PurchaseOrder purchaseOrder) {
+        Sanitizer.sanitizePurchaseOrder(purchaseOrder);
         PurchaseOrder savedPurchaseOrder = purchaseOrderRepository.saveAndFlush(purchaseOrder);
         em.refresh(savedPurchaseOrder);
         return savedPurchaseOrder;
@@ -43,9 +45,10 @@ public class PurchaseOrderService {
     public PurchaseOrder update(Long id, PurchaseOrderPatchDTO purchaseOrder) {
         if (purchaseOrderRepository.existsById(id)) {
             PurchaseOrder savedPurchaseOrder = purchaseOrderRepository.findById(id).get();
-            PurchaseOrder updatedPurchaseOrder =
-                    purchaseOrderRepository.saveAndFlush(purchaseOrderMapper.updatePurchaseOrder(savedPurchaseOrder,
-                            purchaseOrder));
+            PurchaseOrder updatedPurchaseOrder = purchaseOrderMapper.updatePurchaseOrder(savedPurchaseOrder,
+                    purchaseOrder);
+            Sanitizer.sanitizePurchaseOrder(updatedPurchaseOrder);
+            updatedPurchaseOrder = purchaseOrderRepository.saveAndFlush(updatedPurchaseOrder);
             em.refresh(updatedPurchaseOrder);
             return updatedPurchaseOrder;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -89,17 +92,6 @@ public class PurchaseOrderService {
 
     public PurchaseOrder save(PurchaseOrder purchaseOrder) {
         return purchaseOrderRepository.save(purchaseOrder);
-    }
-
-    public boolean isPurchaseOrderInCompany(PurchaseOrder purchaseOrder, long companyId, boolean optional) {
-        if (optional) {
-            Optional<PurchaseOrder> optionalPurchaseOrder = purchaseOrder == null ? Optional.empty() :
-                    findById(purchaseOrder.getId());
-            return purchaseOrder == null || (optionalPurchaseOrder.isPresent() && optionalPurchaseOrder.get().getCompany().getId().equals(companyId));
-        } else {
-            Optional<PurchaseOrder> optionalPurchaseOrder = findById(purchaseOrder.getId());
-            return optionalPurchaseOrder.isPresent() && optionalPurchaseOrder.get().getCompany().getId().equals(companyId);
-        }
     }
 
     public Page<PurchaseOrderShowDTO> findBySearchCriteria(SearchCriteria searchCriteria) {

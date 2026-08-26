@@ -88,7 +88,10 @@ export default function EditMeterScreen({
           asset: {
             label: meter?.asset.name,
             value: meter?.asset.id
-          }
+          },
+          meterCategory: meter?.meterCategory
+            ? { label: meter.meterCategory.name, value: meter.meterCategory.id }
+            : null
         }}
         onChange={({ field, e }) => {}}
         onSubmit={async (values) => {

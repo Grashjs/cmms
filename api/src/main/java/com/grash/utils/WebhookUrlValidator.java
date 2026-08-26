@@ -5,7 +5,7 @@ import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.Set;
 
-public class WebhookUrlValidator {
+public final class WebhookUrlValidator {
 
     private static final Set<String> ALLOWED_SCHEMES = Set.of("http", "https");
 

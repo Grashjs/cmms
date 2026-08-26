@@ -12,7 +12,6 @@ import { useTranslation } from 'react-i18next';
 import React, { useContext, useEffect, useState } from 'react';
 import { getWorkOrderUrl } from '../../../utils/urlPaths';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
-import axios from '../../../utils/axios';
 import api from '../../../utils/api';
 import { useNavigate } from 'react-router-dom';
 import { WorkOrderMini } from '../../../models/owns/workOrder';

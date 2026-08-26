@@ -419,4 +419,32 @@ class WrapperSpecificationTest {
             verify(fromPath).get("name");
         }
     }
+
+    @Nested
+    class FieldValidation {
+
+        @Test
+        void sensitiveField_shouldThrowInvalidSearchField() {
+            assertThrows(InvalidSearchFieldException.class,
+                    () -> buildSpec(createFilterField("password", "eq", "test")));
+        }
+
+        @Test
+        void nestedSensitiveField_shouldThrowInvalidSearchField() {
+            assertThrows(InvalidSearchFieldException.class,
+                    () -> buildSpec(createFilterField("owner.password", "eq", "test")));
+        }
+
+        @Test
+        void invalidOperation_shouldThrowInvalidSearchField() {
+            assertThrows(InvalidSearchFieldException.class,
+                    () -> buildSpec(createFilterField("name", "unknown", "test")));
+        }
+
+        @Test
+        void nullOperation_shouldThrowInvalidSearchField() {
+            assertThrows(InvalidSearchFieldException.class,
+                    () -> buildSpec(createFilterField("name", null, "test")));
+        }
+    }
 }

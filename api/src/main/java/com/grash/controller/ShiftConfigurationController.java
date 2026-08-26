@@ -55,7 +55,7 @@ public class ShiftConfigurationController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ShiftConfigurationShowDTO patchForUser(@PathVariable Long userId,
                                                   @Valid @RequestBody ShiftConfigurationPatchDTO dto,
-                                                  @CurrentUser User currentUser,
+                                                  @Parameter(hidden = true) @CurrentUser User currentUser,
                                                   HttpServletRequest req) {
         User user = userService.findById(userId).orElseThrow(() -> new CustomException("User not found",
                 HttpStatus.NOT_FOUND));

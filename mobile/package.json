@@ -1,6 +1,6 @@
 {
   "name": "atlas-cmms",
-  "version": "1.0.44",
+  "version": "1.0.47",
   "scripts": {
     "start": "expo start --dev-client",
     "android": "expo run:android",
@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.3",
+    "@microsoft/react-native-clarity": "^4.7.0",
     "@react-native-async-storage/async-storage": "2.1.2",
     "@react-native-community/datetimepicker": "8.4.1",
     "@react-native-community/netinfo": "11.4.1",

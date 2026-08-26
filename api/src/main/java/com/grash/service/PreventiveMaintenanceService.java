@@ -17,6 +17,7 @@ import com.grash.model.enums.*;
 
 import com.grash.repository.PreventiveMaintenanceRepository;
 import com.grash.utils.Helper;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Scheduler;
@@ -27,18 +28,20 @@ import org.quartz.spi.OperableTrigger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.JoinType;
 
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.grash.utils.Consts.usageBasedLicenseLimits;
+import static com.grash.utils.Consts.usageBasedFreeLimits;
 
 @Service
 @RequiredArgsConstructor
@@ -76,6 +79,7 @@ public class PreventiveMaintenanceService {
         if (!preventiveMaintenancePost.getCustomFields().isEmpty()) {
             setPMCustomFields(preventiveMaintenance, preventiveMaintenancePost.getCustomFields(), company);
         }
+        Sanitizer.sanitizePreventiveMaintenance(preventiveMaintenance);
         PreventiveMaintenance savedPM = preventiveMaintenanceRepository.saveAndFlush(preventiveMaintenance);
         em.refresh(savedPM);
         return savedPM;
@@ -96,6 +100,7 @@ public class PreventiveMaintenanceService {
             PreventiveMaintenance pmToSave =
                     preventiveMaintenanceMapper.updatePreventiveMaintenance(savedPreventiveMaintenance,
                             preventiveMaintenance);
+            Sanitizer.sanitizePreventiveMaintenance(pmToSave);
             pmToSave.getSchedule().setDisabled(false);
             PreventiveMaintenance updatedPM =
                     preventiveMaintenanceRepository.saveAndFlush(pmToSave);
@@ -164,7 +169,7 @@ public class PreventiveMaintenanceService {
     }
 
     private void checkUsageBasedLimit(Company company) {
-        Integer threshold = usageBasedLicenseLimits.get(LicenseEntitlement.UNLIMITED_PM_SCHEDULES);
+        Integer threshold = usageBasedFreeLimits.get(LicenseEntitlement.UNLIMITED_PM_SCHEDULES);
         if (!licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_PM_SCHEDULES)
                 && preventiveMaintenanceRepository.hasMoreThan(company.getId(), threshold.longValue() - 1
         ))
@@ -181,16 +186,25 @@ public class PreventiveMaintenanceService {
         return preventiveMaintenanceRepository.findAll(builder.build(), page).map(preventiveMaintenanceMapper::toShowDto);
     }
 
-    public boolean isPreventiveMaintenanceInCompany(PreventiveMaintenance preventiveMaintenance, long companyId,
-                                                    boolean optional) {
-        if (optional) {
-            Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenance == null ?
-                    Optional.empty() : findById(preventiveMaintenance.getId());
-            return preventiveMaintenance == null || (optionalPreventiveMaintenance.isPresent() && optionalPreventiveMaintenance.get().getCompany().getId().equals(companyId));
-        } else {
-            Optional<PreventiveMaintenance> optionalPreventiveMaintenance = findById(preventiveMaintenance.getId());
-            return optionalPreventiveMaintenance.isPresent() && optionalPreventiveMaintenance.get().getCompany().getId().equals(companyId);
-        }
+    public Page<PreventiveMaintenance> findBySearchCriteriaWithEntityGraph(SearchCriteria searchCriteria) {
+        SpecificationBuilder<PreventiveMaintenance> builder = new SpecificationBuilder<>();
+        searchCriteria.getFilterFields().forEach(builder::with);
+        Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(),
+                searchCriteria.getDirection(), searchCriteria.getSortField());
+        Specification<PreventiveMaintenance> baseSpec = builder.build();
+        Specification<PreventiveMaintenance> fetchSpec = (root, query, criteriaBuilder) -> {
+            if (query.getResultType() != Long.class && query.getResultType() != long.class) {
+                root.fetch(PreventiveMaintenance_.asset, JoinType.LEFT);
+                root.fetch(PreventiveMaintenance_.location, JoinType.LEFT);
+                root.fetch(PreventiveMaintenance_.category, JoinType.LEFT);
+                root.fetch(PreventiveMaintenance_.primaryUser, JoinType.LEFT);
+                root.fetch(PreventiveMaintenance_.team, JoinType.LEFT);
+                root.fetch(PreventiveMaintenance_.image, JoinType.LEFT);
+                root.fetch(PreventiveMaintenance_.schedule, JoinType.LEFT);
+            }
+            return baseSpec == null ? null : baseSpec.toPredicate(root, query, criteriaBuilder);
+        };
+        return preventiveMaintenanceRepository.findAll(fetchSpec, page);
     }
 
     public List<CalendarEvent<PreventiveMaintenance>> getEvents(Date end, Long companyId) {
@@ -308,6 +322,7 @@ public class PreventiveMaintenanceService {
 
         preventiveMaintenance.setCustomId("PM" + String.format("%06d",
                 customSequenceService.getNextPreventiveMaintenanceSequence(company)));
+        Sanitizer.sanitizePreventiveMaintenance(preventiveMaintenance);
 
         PreventiveMaintenance savedPM = preventiveMaintenanceRepository.save(preventiveMaintenance);
         scheduleService.reScheduleWorkOrder(savedPM.getSchedule());

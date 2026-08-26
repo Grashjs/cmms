@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.grash.validation.ValidPassword;
 import jakarta.validation.constraints.NotNull;
 
 @Data
@@ -21,6 +22,7 @@ public class UserSignupRequest {
     @NotNull
     private String email;
     @NotNull
+    @ValidPassword
     private String password;
 
     @Schema(implementation = IdDTO.class)

@@ -8,11 +8,10 @@ import {
   useState
 } from 'react';
 import { OwnUser, UserResponseDTO } from '../models/user';
-import api, { authHeader } from '../utils/api';
+import api, { authHeader, refreshAccessToken } from '../utils/api';
 import { verify } from '../utils/jwt';
 import { Alert, AppState, Linking, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import PropTypes from 'prop-types';
 import {
   getCompanySettings,
   getUserInfos,
@@ -49,6 +48,11 @@ import { UiConfiguration } from '../models/uiConfiguration';
 import Constants from 'expo-constants';
 import moment from 'moment-timezone';
 import { getCustomFields } from '../slices/customField';
+import {
+  initialize as initClarity,
+  setCustomUserId,
+  LogLevel
+} from '@microsoft/react-native-clarity';
 
 interface AuthState {
   isInitialized: boolean;
@@ -61,6 +65,13 @@ interface AuthState {
 }
 
 export type FieldConfigurationsType = 'workOrder' | 'request';
+
+interface AuthResponse {
+  accessToken: string;
+  refreshToken: string;
+  tokenType: string;
+  expiresAt: string;
+}
 
 interface AuthContextValue extends AuthState {
   method: 'JWT';
@@ -260,12 +271,20 @@ const initialAuthState: AuthState = {
   reviewEligible: false
 };
 
-const setSession = (accessToken: string | null): void => {
+const setSession = (
+  accessToken: string | null,
+  refreshToken: string | null
+): void => {
   if (accessToken) {
     AsyncStorage.setItem('accessToken', accessToken);
   } else {
     AsyncStorage.removeItem('accessToken');
     AsyncStorage.removeItem('companyId');
+  }
+  if (refreshToken) {
+    AsyncStorage.setItem('refreshToken', refreshToken);
+  } else {
+    AsyncStorage.removeItem('refreshToken');
   }
 };
 
@@ -470,7 +489,10 @@ const handlers: Record<
     }
     return stateClone;
   },
-  REVIEW_ELIGIBLE: (state: AuthState, action: ReviewEligibleAction): AuthState => {
+  REVIEW_ELIGIBLE: (
+    state: AuthState,
+    action: ReviewEligibleAction
+  ): AuthState => {
     return {
       ...state,
       reviewEligible: action.payload
@@ -564,7 +586,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
             { token: await AsyncStorage.getItem('accessToken') },
             function (frame) {
               const subscription = client.subscribe(
-                `/notifications/${state.user.id}`,
+                `/user/${state.user.email}/notifications`,
                 function (message) {
                   const notification: Notification = JSON.parse(message.body);
                   globalDispatch(newReceivedNotification(notification));
@@ -676,19 +698,33 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     if (token)
       api.post<{ success: boolean }>(`notifications/push-token`, { token });
   };
-  const setupUser = async (companySettings: CompanySettings) => {
+  const setupUser = async (
+    user: UserResponseDTO,
+    companySettings: CompanySettings
+  ) => {
     switchLanguage({
       lng: companySettings.generalPreferences.language.toLowerCase()
     });
     checkPushNotificationState();
     globalDispatch(getCustomFields());
-
+    getApiUrl().then((apiUrl) => {
+      if (apiUrl.toLowerCase().includes('api.atlas-cmms.com')) {
+        const clarityId = Constants.expoConfig.extra.CLARITY_ID;
+        if (clarityId) {
+          initClarity(clarityId, {
+            // logLevel: LogLevel.Verbose
+          });
+          setCustomUserId(user.email);
+        }
+      }
+    });
     try {
       await api.post('reviews/session', {});
-      const { eligible } = await api.get<{ eligible: boolean }>(
-        'reviews/eligibility'
-      );
-      dispatch({ type: 'REVIEW_ELIGIBLE', payload: eligible });
+      api
+        .get<{ eligible: boolean }>('reviews/eligibility')
+        .then(({ eligible }) =>
+          dispatch({ type: 'REVIEW_ELIGIBLE', payload: eligible })
+        );
     } catch (e) {
       console.error('Review eligibility check failed', e);
     }
@@ -698,12 +734,25 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
 
     try {
       const accessToken = await AsyncStorage.getItem('accessToken');
+      const refreshToken = await AsyncStorage.getItem('refreshToken');
 
+      let authenticated = false;
       if (accessToken && (await verify(accessToken))) {
-        setSession(accessToken);
+        authenticated = true;
+      } else if (refreshToken) {
+        const refreshed = await refreshAccessToken();
+        if (refreshed) {
+          authenticated = true;
+        }
+      }
+
+      if (authenticated) {
+        const newAccessToken = await AsyncStorage.getItem('accessToken');
+        const newRefreshToken = await AsyncStorage.getItem('refreshToken');
+        setSession(newAccessToken, newRefreshToken);
         const user = await updateUserInfos();
         const company = await api.get<Company>(`companies/${user.companyId}`);
-        await setupUser(company.companySettings);
+        await setupUser(user, company.companySettings);
         dispatch({
           type: 'INITIALIZE',
           payload: {
@@ -738,18 +787,18 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     }
   };
   const switchAccount = async (id: number): Promise<void> => {
-    const response = await api.get<{ accessToken: string }>(
+    const response = await api.get<AuthResponse>(
       `auth/switch-account?id=${id}`
     );
-    const { accessToken } = response;
-    return loginInternal(accessToken);
+    const { accessToken, refreshToken } = response;
+    return loginInternal(accessToken, refreshToken);
   };
-  const loginInternal = async (accessToken: string) => {
+  const loginInternal = async (accessToken: string, refreshToken: string) => {
     globalDispatch(revertAll());
-    setSession(accessToken);
+    setSession(accessToken, refreshToken);
     const user = await updateUserInfos();
     const company = await api.get<Company>(`companies/${user.companyId}`);
-    await setupUser(company.companySettings);
+    await setupUser(user, company.companySettings);
     dispatch({
       type: 'LOGIN',
       payload: {
@@ -764,7 +813,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     password: string,
     ldap?: boolean
   ): Promise<void> => {
-    const response = await api.post<{ accessToken: string }>(
+    const response = await api.post<AuthResponse>(
       `auth/signin${ldap ? '-ldap' : ''}`,
       ldap
         ? {
@@ -778,13 +827,22 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
           },
       { headers: await authHeader(true) }
     );
-    const { accessToken } = response;
-    return loginInternal(accessToken);
+    const { accessToken, refreshToken } = response;
+    return loginInternal(accessToken, refreshToken);
   };
 
   const logout = async (): Promise<void> => {
-    setSession(null);
-    dispatch({ type: 'LOGOUT' });
+    try {
+      await api.post('auth/logout', {});
+    } catch {
+      // Server-side logout is best-effort; the local session is the source
+      // of truth for the device.
+    } finally {
+      // Always clear the local session, even when the server is unreachable
+      // (offline / dead zone) — otherwise the user is stuck logged in.
+      setSession(null, null);
+      dispatch({ type: 'LOGOUT' });
+    }
   };
 
   const deleteAccount = async (): Promise<void> => {
@@ -793,10 +851,16 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     }
 
     await api.deletes<{ success: boolean }>(`auth`);
+    setSession(null, null);
+    dispatch({ type: 'LOGOUT' });
   };
 
   const register = async (values): Promise<void> => {
-    const response = await api.post<{ message: string; success: boolean }>(
+    const response = await api.post<{
+      message: string;
+      success: boolean;
+      refreshToken: string;
+    }>(
       'auth/signup',
       {
         ...values,
@@ -805,14 +869,14 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       },
       { headers: await authHeader(true) }
     );
-    const { message, success } = response;
+    const { message, success, refreshToken } = response;
     if (message.startsWith('Successful')) {
       return;
     } else {
-      setSession(message);
+      setSession(message, refreshToken);
       const user = await updateUserInfos();
       const company = await api.get<Company>(`companies/${user.companyId}`);
-      await setupUser(company.companySettings);
+      await setupUser(user, company.companySettings);
       await analytics().logEvent('sign_up', {
         email: values.email,
         firstName: values.firstName,
@@ -901,12 +965,13 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     oldPassword: string;
     newPassword: string;
   }): Promise<boolean> => {
-    const response = await api.post<{ success: boolean }>(
-      `auth/updatepwd`,
-      values
-    );
-    const { success } = response;
-    return success;
+    const response = await api.post<{
+      accessToken: string;
+      refreshToken: string;
+    }>(`auth/updatepwd`, values);
+    const { accessToken, refreshToken } = response;
+    setSession(accessToken, refreshToken);
+    return true;
   };
   const resetPassword = async (email: string): Promise<boolean> => {
     const response = await api.get<{ success: boolean }>(

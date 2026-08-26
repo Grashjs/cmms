@@ -15,9 +15,6 @@ const Loader = (Component) => (props) =>
 const LoginCover = Loader(
   lazy(() => import('../content/pages/Auth/Login/Cover'))
 );
-const LoginBasic = Loader(
-  lazy(() => import('../content/pages/Auth/Login/Basic'))
-);
 
 const RegisterCover = Loader(
   lazy(() => import('../content/pages/Auth/Register/Cover'))

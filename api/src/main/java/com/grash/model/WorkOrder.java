@@ -6,6 +6,7 @@ import com.grash.model.abstracts.WorkOrderBase;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.Status;
 import com.grash.utils.Helper;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -86,6 +87,8 @@ public class WorkOrder extends WorkOrderBase {
 
     @NotAudited
     @OneToMany(mappedBy = "workOrder", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ArraySchema(schema = @Schema(implementation = IdDTO.class))
+    @Schema(description = "Custom fields", accessMode = Schema.AccessMode.READ_ONLY)
     private List<CustomFieldValue> customFieldValues = new ArrayList<>();
 
     @JsonIgnore
@@ -116,6 +119,11 @@ public class WorkOrder extends WorkOrderBase {
                 || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId())) || isAssignedTo(user);
     }
 
+    public boolean canBeDeletedBy(User user) {
+        return user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.WORK_ORDERS)
+                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId()));
+    }
+
     //in days
     @JsonIgnore
     public static long getAverageAge(Collection<WorkOrder> completeWorkOrders) {
@@ -128,7 +136,7 @@ public class WorkOrder extends WorkOrderBase {
                 completionTimes.stream().mapToLong(value -> value).sum() / completionTimes.size();
     }
 
-    public boolean isAccessibleBy(User user) {
+    public boolean canBeViewedBy(User user) {
         return (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS) &&
                 (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS) || (getCreatedBy() != null && getCreatedBy().equals(user.getId())) || isAssignedTo(user)))
                 || getParentRequest() != null && user.getId().equals(getParentRequest().getCreatedBy())

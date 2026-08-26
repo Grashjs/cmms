@@ -21,7 +21,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
-import org.thymeleaf.spring5.SpringTemplateEngine;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -35,8 +35,6 @@ import java.util.Map;
 public class EmailService2 implements MailService {
 
     private final JavaMailSender emailSender;
-
-    private final SimpleMailMessage template;
     private final MailProperties mailProperties;
     private final BrandingService brandingService;
     @Value("${spring.mail.username:#{null}}")

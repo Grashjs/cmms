@@ -75,7 +75,8 @@ public class Meter extends CompanyAudit {
     private Asset asset;
 
     @OneToMany(mappedBy = "meter", cascade = CascadeType.ALL, orphanRemoval = true)
-    @ArraySchema(schema = @Schema(implementation = CustomFieldValue.class))
+    @ArraySchema(schema = @Schema(implementation = IdDTO.class))
+    @Schema(description = "Custom fields", accessMode = Schema.AccessMode.READ_ONLY)
     private List<CustomFieldValue> customFieldValues = new ArrayList<>();
 
     public void setUpdateFrequency(int updateFrequency) {
@@ -93,7 +94,12 @@ public class Meter extends CompanyAudit {
                 || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId())) || isAssignedTo(user);
     }
 
-    public boolean isAccessibleBy(User user) {
+    public boolean canBeDeletedBy(User user) {
+        return user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.METERS)
+                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId()));
+    }
+
+    public boolean canBeViewedBy(User user) {
         return (user.getRole().getViewPermissions().contains(PermissionEntity.METERS) &&
                 (user.getRole().getViewOtherPermissions().contains(PermissionEntity.METERS) || (getCreatedBy() != null && getCreatedBy().equals(user.getId())) || isAssignedTo(user)));
     }

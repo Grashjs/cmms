@@ -76,8 +76,7 @@ public class PartController {
         Optional<Part> optionalPart = partService.findById(id);
         if (optionalPart.isPresent()) {
             Part savedPart = optionalPart.get();
-            if (user.getRole().getViewPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) &&
-                    (user.getRole().getViewOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) || user.getId().equals(savedPart.getCreatedBy()))) {
+            if (savedPart.canBeViewedBy(user)) {
                 return partMapper.toShowDto(savedPart);
             } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
@@ -110,8 +109,7 @@ public class PartController {
         User user = userService.whoami(req);
         Optional<Part> optionalPart = partService.findById(id);
         if (optionalPart.isPresent()) {
-            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) ||
-                    user.getId().equals(optionalPart.get().getCreatedBy())) {
+            if (optionalPart.get().canBeEditedBy(user)) {
                 partService.restockPart(id, partRestockDTO.getQuantity(), partRestockDTO.getDescription());
                 return new ResponseEntity<>(new SuccessResponse(true, "Restocked successfully"), HttpStatus.OK);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
@@ -130,7 +128,7 @@ public class PartController {
         if (optionalPart.isPresent()) {
             Part savedPart = optionalPart.get();
             em.detach(savedPart);
-            if (user.getRole().getEditOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS) || user.getId().equals(savedPart.getCreatedBy())) {
+            if (savedPart.canBeEditedBy(user)) {
                 if (part.getBarcode() != null) {
                     Optional<Part> optionalPartWithSameBarCode =
                             partService.findByBarcodeAndCompany(part.getBarcode(), user.getCompany().getId());
@@ -158,16 +156,16 @@ public class PartController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity delete(@Parameter(description = "Part ID") @PathVariable("id") Long id,
-                                 HttpServletRequest req) {
+    public ResponseEntity<SuccessResponse> delete(@Parameter(description = "Part ID") @PathVariable("id") Long id,
+                                                  HttpServletRequest req) {
         User user = userService.whoami(req);
 
         Optional<Part> optionalPart = partService.findById(id);
         if (optionalPart.isPresent()) {
             Part savedPart = optionalPart.get();
-            if (user.getId().equals(savedPart.getCreatedBy()) || user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
+            if (savedPart.canBeDeletedBy(user)) {
                 partService.delete(savedPart);
-                return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
+                return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
                         HttpStatus.OK);
             } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         } else throw new CustomException("Part not found", HttpStatus.NOT_FOUND);

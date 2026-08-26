@@ -1,6 +1,9 @@
 package com.grash.model;
 
+import com.grash.dto.IdDTO;
 import com.grash.model.abstracts.WorkOrderBase;
+import com.grash.model.enums.PermissionEntity;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -48,6 +51,8 @@ public class Request extends WorkOrderBase {
     private String contact;
 
     @OneToMany(mappedBy = "request", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ArraySchema(schema = @Schema(implementation = IdDTO.class))
+    @Schema(description = "Custom fields", accessMode = Schema.AccessMode.READ_ONLY)
     private List<CustomFieldValue> customFieldValues = new ArrayList<>();
 
     @PreRemove
@@ -56,5 +61,19 @@ public class Request extends WorkOrderBase {
             workOrder.setParentRequest(null);
     }
 
+    public boolean canBeEditedBy(User user) {
+        return user.getRole().getEditOtherPermissions().contains(PermissionEntity.REQUESTS)
+                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId())) || isAssignedTo(user);
+    }
+
+    public boolean canBeDeletedBy(User user) {
+        return user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.REQUESTS)
+                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId()));
+    }
+
+    public boolean canBeViewedBy(User user) {
+        return (user.getRole().getViewPermissions().contains(PermissionEntity.REQUESTS) &&
+                (user.getRole().getViewOtherPermissions().contains(PermissionEntity.REQUESTS) || (getCreatedBy() != null && getCreatedBy().equals(user.getId())) || isAssignedTo(user)));
+    }
 }
 

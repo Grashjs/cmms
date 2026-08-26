@@ -3,6 +3,7 @@ package com.grash.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.CompanyAudit;
+import com.grash.model.enums.PermissionEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -57,6 +58,21 @@ public class Team extends CompanyAudit {
                     @Index(name = "idx_team_location_location_id", columnList = "id_location")
             })
     private List<Location> locations = new ArrayList<>();
+
+    public boolean canBeEditedBy(User user) {
+        return user.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)
+                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId()));
+    }
+
+    public boolean canBeDeletedBy(User user) {
+        return user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)
+                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId()));
+    }
+
+    public boolean canBeViewedBy(User user) {
+        return (user.getRole().getViewPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS) &&
+                (user.getRole().getViewOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS) || (getCreatedBy() != null && getCreatedBy().equals(user.getId()))));
+    }
 }
 
 

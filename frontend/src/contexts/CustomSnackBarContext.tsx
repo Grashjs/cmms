@@ -1,6 +1,8 @@
-import { createContext, FC } from 'react';
+import { createContext, FC, useEffect } from 'react';
 import { Zoom } from '@mui/material';
 import { useSnackbar } from 'notistack';
+import { useTranslation } from 'react-i18next';
+import { setConflictErrorHandler } from '../utils/api';
 
 type CustomSnackBarContext = {
   showSnackBar: (message: string, type: 'error' | 'success') => void;
@@ -13,6 +15,7 @@ export const CustomSnackBarContext = createContext<CustomSnackBarContext>(
 
 export const CustomSnackBarProvider: FC = ({ children }) => {
   const { enqueueSnackbar } = useSnackbar();
+  const { t } = useTranslation();
   const showSnackBar = (message: string, type: 'error' | 'success') => {
     enqueueSnackbar(message, {
       variant: type,
@@ -23,6 +26,13 @@ export const CustomSnackBarProvider: FC = ({ children }) => {
       TransitionComponent: Zoom
     });
   };
+
+  useEffect(() => {
+    return setConflictErrorHandler(() => {
+      showSnackBar(t('conflict_error'), 'error');
+    });
+  }, [t]);
+
   return (
     <CustomSnackBarContext.Provider value={{ showSnackBar }}>
       {children}

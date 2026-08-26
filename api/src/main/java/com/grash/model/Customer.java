@@ -1,12 +1,16 @@
 package com.grash.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.grash.dto.IdDTO;
 import com.grash.model.abstracts.BasicInfos;
+import com.grash.model.enums.PermissionEntity;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,7 +85,23 @@ public class Customer extends BasicInfos {
     private List<Asset> assets = new ArrayList<>();
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ArraySchema(schema = @Schema(implementation = IdDTO.class))
+    @Schema(description = "Custom fields", accessMode = Schema.AccessMode.READ_ONLY)
     private List<CustomFieldValue> customFieldValues = new ArrayList<>();
 
+    public boolean canBeEditedBy(User user) {
+        return user.getRole().getEditOtherPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)
+                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId()));
+    }
+
+    public boolean canBeDeletedBy(User user) {
+        return user.getRole().getDeleteOtherPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)
+                || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId()));
+    }
+
+    public boolean canBeViewedBy(User user) {
+        return (user.getRole().getViewPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS) &&
+                (user.getRole().getViewOtherPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS) || (getCreatedBy() != null && getCreatedBy().equals(user.getId()))));
+    }
 }
 

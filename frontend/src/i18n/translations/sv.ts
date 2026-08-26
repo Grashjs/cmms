@@ -182,6 +182,8 @@ const locale = {
   no_account_yet: 'Har du inget konto än?',
   signup_here: 'Registrera dig här',
   wrong_credentials: 'Felaktiga inloggningsuppgifter angivna',
+  server_not_reachable:
+    'Backend-servern är inte nåbar. Du kan vänta på att den startar och försöka igen.',
   lost_password: 'Glömt lösenord?',
   link_wo: 'Länka arbetsordrar',
   link_wo_description: 'Skapa relationer mellan arbetsordrar',
@@ -1009,7 +1011,7 @@ const locale = {
   po_emails: 'E-postmeddelanden för inköpsorder',
   required_job_title: 'Fältet för jobbtitel är obligatoriskt',
   required_old_password: 'Vänligen ange det nuvarande lösenordet.',
-  invalid_password: 'Lösenordet är för kort – bör vara minst 8 tecken långt.',
+  invalid_password: 'Lösenordet är för kort – bör vara minst 12 tecken långt.',
   required_new_password: 'Inget lösenord tillhandahålls.',
   passwords_must_match: 'Lösenorden måste matcha',
   password_change_success: 'Lösenordet har ändrats',
@@ -1812,10 +1814,20 @@ const locale = {
   api_key_code: 'API-nyckelkod',
   copy_code: 'Kopiera kod',
   last_used: 'Senast använd',
+  expiration: 'Utgångsdatum',
+  expiration_optional: 'Utgångsdatum (valfritt)',
   never: 'Aldrig',
   delete_api_key: 'Ta bort API-nyckel',
   delete_api_key_confirm:
     'Är du säker på att du vill ta bort denna API-nyckel?',
+  rotate: 'Rotera',
+  rotate_api_key: 'Rotera API-nyckel',
+  rotate_api_key_confirm:
+    'Detta kommer att återkalla den aktuella nyckeln och generera en ny. Den gamla nyckeln slutar fungera omedelbart.',
+  api_key_rotated_success: 'API-nyckel roterad framgångsrikt',
+  active: 'Aktiv',
+  expired: 'Utgången',
+  revoked: 'Återkallad',
   upgrade_api:
     'Uppgradera för att få åtkomst till API, kopplingar och webhooks',
   comments: 'Kommentarer',

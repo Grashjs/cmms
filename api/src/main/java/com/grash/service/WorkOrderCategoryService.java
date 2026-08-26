@@ -7,6 +7,7 @@ import com.grash.model.CompanySettings;
 import com.grash.model.User;
 import com.grash.model.WorkOrderCategory;
 import com.grash.repository.WorkOrderCategoryRepository;
+import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class WorkOrderCategoryService {
     private final WorkOrderCategoryMapper workOrderCategoryMapper;
 
     public WorkOrderCategory create(WorkOrderCategory workOrderCategory, User user) {
+        Sanitizer.sanitizeCategory(workOrderCategory);
         Optional<WorkOrderCategory> categoryWithSameName =
                 workOrderCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(workOrderCategory.getName(),
                         user.getCompany().getCompanySettings().getId());
@@ -35,7 +37,10 @@ public class WorkOrderCategoryService {
     public WorkOrderCategory update(Long id, CategoryPatchDTO workOrderCategory) {
         if (workOrderCategoryRepository.existsById(id)) {
             WorkOrderCategory saveWorkOrderCategory = workOrderCategoryRepository.findById(id).get();
-            return workOrderCategoryRepository.save(workOrderCategoryMapper.updateWorkOrderCategory(saveWorkOrderCategory, workOrderCategory));
+            WorkOrderCategory updatedWorkOrderCategory =
+                    workOrderCategoryMapper.updateWorkOrderCategory(saveWorkOrderCategory, workOrderCategory);
+            Sanitizer.sanitizeCategory(updatedWorkOrderCategory);
+            return workOrderCategoryRepository.save(updatedWorkOrderCategory);
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -60,7 +65,8 @@ public class WorkOrderCategoryService {
     }
 
     public WorkOrderCategory getOrCreate(String name, CompanySettings companySettings) {
-        return workOrderCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(name, companySettings.getId())
-                .orElseGet(() -> workOrderCategoryRepository.save(new WorkOrderCategory(name, companySettings)));
+        String cleanName = Sanitizer.cleanText(name);
+        return workOrderCategoryRepository.findByNameIgnoreCaseAndCompanySettings_Id(cleanName, companySettings.getId())
+                .orElseGet(() -> workOrderCategoryRepository.save(new WorkOrderCategory(cleanName, companySettings)));
     }
 }

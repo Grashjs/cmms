@@ -1054,7 +1054,7 @@ const ruJSON = {
   // --- Password & Security ---
   required_job_title: 'Поле должности обязательно',
   required_old_password: 'Введите текущий пароль',
-  invalid_password: 'Пароль слишком короткий — минимум 8 символов',
+  invalid_password: 'Пароль слишком короткий — минимум 12 символов',
   required_new_password: 'Пароль не указан',
   passwords_must_match: 'Пароли должны совпадать',
   password_change_success: 'Пароль успешно изменён',
@@ -1552,6 +1552,7 @@ const ruJSON = {
   confirm_delete_additional_time: 'Вы уверены, что хотите удалить это время?',
   reset: 'Сбросить',
   edit_reading: 'Редактировать показание',
-  are_you_sure_delete_reading: 'Вы уверены, что хотите удалить это показание?'
+  are_you_sure_delete_reading: 'Вы уверены, что хотите удалить это показание?',
+  conflict_retry: 'Ресурс был изменён другим запросом. Пожалуйста, повторите попытку через 5 секунд.'
 };
 export default ruJSON;

@@ -7,10 +7,11 @@ export default function OauthSuccess() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { loginInternal } = useAuth();
   const token = searchParams.get('token');
+  const refreshToken = searchParams.get('refreshToken');
   useEffect(() => {
     if (token) {
-      loginInternal(token);
+      loginInternal(token, refreshToken);
     }
-  }, [token]);
+  }, [token, refreshToken]);
   return <SuspenseLoader />;
 }

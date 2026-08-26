@@ -1,3 +1,4 @@
+/*
 package com.grash.controller;
 
 import com.grash.dto.DeprecationPatchDTO;
@@ -7,6 +8,7 @@ import com.grash.model.Deprecation;
 import com.grash.model.User;
 import com.grash.service.DeprecationService;
 import com.grash.service.UserService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -25,6 +27,7 @@ import java.util.Optional;
 @RequestMapping("/deprecations")
 @Tag(name = "Depreciation", description = "Operations on asset depreciation")
 @RequiredArgsConstructor
+@Hidden
 public class DeprecationController {
 
     private final DeprecationService deprecationService;
@@ -43,7 +46,8 @@ public class DeprecationController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    Deprecation create(@Parameter(description = "Depreciation to create") @Valid @RequestBody Deprecation deprecationReq,
+    Deprecation create(@Parameter(description = "Depreciation to create") @Valid @RequestBody Deprecation
+    deprecationReq,
                        HttpServletRequest req) {
         User user = userService.whoami(req);
         return deprecationService.create(deprecationReq);
@@ -51,7 +55,8 @@ public class DeprecationController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Deprecation patch(@Parameter(description = "Depreciation fields to update") @Valid @RequestBody DeprecationPatchDTO deprecation, @PathVariable("id") Long id,
+    public Deprecation patch(@Parameter(description = "Depreciation fields to update") @Valid @RequestBody
+    DeprecationPatchDTO deprecation, @PathVariable("id") Long id,
                              HttpServletRequest req) {
         User user = userService.whoami(req);
         Optional<Deprecation> optionalDeprecation = deprecationService.findById(id);
@@ -80,3 +85,4 @@ public class DeprecationController {
 }
 
 
+*/

@@ -179,7 +179,7 @@ const locale = {
   no_account_yet: 'Don’t have an account, yet?',
   signup_here: 'Sign up here',
   wrong_credentials: 'Wrong credentials provided',
-  server_unavailable:
+  server_not_reachable:
     'The server is not reachable right now. This is not your password — please try again in a moment.',
   lost_password: 'Lost password ?',
   link_wo: 'Link Work Orders',
@@ -996,7 +996,7 @@ const locale = {
   po_emails: 'Purchase Request Emails',
   required_job_title: 'The Job title field is required',
   required_old_password: 'Please provide the current password.',
-  invalid_password: 'Password is too short - should be 8 chars minimum.',
+  invalid_password: 'Password is too short - should be 12 chars minimum.',
   required_new_password: 'No password provided.',
   passwords_must_match: 'Passwords must match',
   password_change_success: 'Password changed successfully',
@@ -1756,9 +1756,19 @@ const locale = {
   api_key_code: 'API Key Code',
   copy_code: 'Copy Code',
   last_used: 'Last Used',
+  expiration: 'Expiration',
+  expiration_optional: 'Expiration (optional)',
   never: 'Never',
   delete_api_key: 'Delete API Key',
   delete_api_key_confirm: 'Are you sure you want to delete this API Key?',
+  rotate: 'Rotate',
+  rotate_api_key: 'Rotate API Key',
+  rotate_api_key_confirm:
+    'This will revoke the current key and generate a new one. The old key will stop working immediately.',
+  api_key_rotated_success: 'API Key rotated successfully',
+  active: 'Active',
+  expired: 'Expired',
+  revoked: 'Revoked',
   upgrade_api: 'Upgrade to get access to the API, connectors, and webhooks',
   // Webhooks
   webhook_endpoints: 'Webhook Endpoints',
@@ -1948,7 +1958,8 @@ const locale = {
   saved_view_save_failed: 'Could not save the view',
   saved_view_delete_failed: 'Could not delete the view',
   export_filtered: 'Export filtered list',
-  export_filtered_columns: 'Export visible columns only'
+  export_filtered_columns: 'Export visible columns only',
+  conflict_retry: 'The resource was modified by another request. Please retry in 5 seconds.'
 };
 
 export default locale;

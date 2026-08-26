@@ -37,7 +37,8 @@ public class NotificationService {
     @Async
     public void create(Notification notification) {
         Notification savedNotification = notificationRepository.save(notification);
-        messagingTemplate.convertAndSend("/notifications/" + notification.getUser().getId(), savedNotification);
+        messagingTemplate.convertAndSendToUser(notification.getUser().getEmail(),
+                "/notifications", savedNotification);
     }
 
     @Async
@@ -45,7 +46,8 @@ public class NotificationService {
         if (notifications.isEmpty()) return;
         List<Notification> savedNotifications = notificationRepository.saveAll(notifications);
         savedNotifications.forEach(notification ->
-                messagingTemplate.convertAndSend("/notifications/" + notification.getUser().getId(), notification));
+                messagingTemplate.convertAndSendToUser(notification.getUser().getEmail(),
+                        "/notifications", notification));
         if (mobile && !notifications.isEmpty())
             try {
                 sendPushNotifications(notifications.stream().map(Notification::getUser).collect(Collectors.toList()),

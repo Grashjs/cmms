@@ -50,8 +50,7 @@ export default function ReportConfigModal({
   const handleGenerate = () => {
     setGenerating(true);
     dispatch(getPDFReport(workOrderId, config))
-      .then((url: string) => {
-        window.open(url);
+      .then(() => {
         onClose();
       })
       .finally(() => setGenerating(false));

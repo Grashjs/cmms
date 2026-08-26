@@ -1052,7 +1052,7 @@ const ptBRJSON = {
   po_emails: 'E-mails de Ordem de Compra',
   required_job_title: 'O campo de cargo é obrigatório',
   required_old_password: 'Por favor, forneça a senha atual.',
-  invalid_password: 'A senha é muito curta - deve ter pelo menos 8 caracteres.',
+  invalid_password: 'A senha é muito curta - deve ter pelo menos 12 caracteres.',
   required_new_password: 'Nenhuma senha fornecida.',
   passwords_must_match: 'As senhas devem coincidir',
   password_change_success: 'Senha alterada com sucesso',
@@ -1546,6 +1546,7 @@ const ptBRJSON = {
   reset: 'Redefinir',
   operation_success: 'A operação foi bem-sucedida',
   edit_reading: 'Editar leitura',
-  are_you_sure_delete_reading: 'Tem certeza de que deseja excluir esta leitura?'
+  are_you_sure_delete_reading: 'Tem certeza de que deseja excluir esta leitura?',
+  conflict_retry: 'O recurso foi modificado por outra solicitação. Por favor, tente novamente em 5 segundos.'
 };
 export default ptBRJSON;

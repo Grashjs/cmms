@@ -64,10 +64,17 @@ public class RoleController {
     Role create(@Parameter(description = "Role data to create") @Valid @RequestBody Role roleReq,
                 HttpServletRequest req) {
         User user = userService.whoami(req);
-        roleReq.setPaid(true);
-        roleReq.setCode(RoleCode.USER_CREATED);
         if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.ROLE)) {
+            assertCanGrant(roleReq.getCreatePermissions(), user.getRole().getCreatePermissions());
+            assertCanGrant(roleReq.getViewPermissions(), user.getRole().getViewPermissions());
+            assertCanGrant(roleReq.getViewOtherPermissions(), user.getRole().getViewOtherPermissions());
+            assertCanGrant(roleReq.getEditOtherPermissions(), user.getRole().getEditOtherPermissions());
+            assertCanGrant(roleReq.getDeleteOtherPermissions(), user.getRole().getDeleteOtherPermissions());
+            roleReq.setPaid(true);
+            roleReq.setCode(RoleCode.USER_CREATED);
+            roleReq.setRoleType(RoleType.ROLE_CLIENT);
+            roleReq.setCompanySettings(user.getCompany().getCompanySettings());
             return roleService.create(roleReq);
         } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
@@ -85,6 +92,11 @@ public class RoleController {
             if (!savedRole.belongsOnlyToCompany(user.getCompany())) {
                 throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
             }
+            assertCanGrant(role.getCreatePermissions(), user.getRole().getCreatePermissions());
+            assertCanGrant(role.getViewPermissions(), user.getRole().getViewPermissions());
+            assertCanGrant(role.getViewOtherPermissions(), user.getRole().getViewOtherPermissions());
+            assertCanGrant(role.getEditOtherPermissions(), user.getRole().getEditOtherPermissions());
+            assertCanGrant(role.getDeleteOtherPermissions(), user.getRole().getDeleteOtherPermissions());
             return roleService.update(id, role);
         } else throw new CustomException("Role not found", HttpStatus.NOT_FOUND);
     }
@@ -106,6 +118,12 @@ public class RoleController {
             return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
                     HttpStatus.OK);
         } else throw new CustomException("Role not found", HttpStatus.NOT_FOUND);
+    }
+
+    private void assertCanGrant(Collection<PermissionEntity> requested, Collection<PermissionEntity> owned) {
+        if (requested != null && owned != null && !owned.containsAll(requested)) {
+            throw new CustomException("Cannot grant permissions you don't have", HttpStatus.FORBIDDEN);
+        }
     }
 
 }

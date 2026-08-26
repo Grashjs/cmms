@@ -29,13 +29,6 @@ public class VerificationTokenService {
         return verificationTokenRepository.findVerificationTokenEntityByToken(token);
     }
 
-    public void deleteVerificationTokenEntity(User user) {
-        ArrayList<VerificationToken> verificationToken =
-                verificationTokenRepository.findAllVerificationTokenEntityByUser(user);
-        verificationTokenRepository.deleteAll(verificationToken);
-    }
-
-
     private VerificationToken verifyToken(String token) throws Exception {
         VerificationToken verificationToken = getVerificationTokenEntity(token);
 
@@ -67,6 +60,9 @@ public class VerificationTokenService {
         VerificationToken verificationToken = verifyToken(token);
         User user = verificationToken.getUser();
         user.setPassword(passwordEncoder.encode(verificationToken.getPayload()));
-        return userRepository.save(user);
+        User savedUser = userService.invalidateSessions(user);
+        verificationTokenRepository.deleteAll(
+                verificationTokenRepository.findAllVerificationTokenEntityByUser(user));
+        return savedUser;
     }
 }

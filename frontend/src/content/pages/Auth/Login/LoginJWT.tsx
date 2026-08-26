@@ -18,8 +18,8 @@ import useAuth from 'src/hooks/useAuth';
 import useRefMounted from 'src/hooks/useRefMounted';
 import { useTranslation } from 'react-i18next';
 import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
-import { isServerUnavailable } from '../../../../utils/api';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import { isNetworkError } from '../../../../utils/api';
 import {
   apiUrl,
   isSSOEnabled,
@@ -58,15 +58,8 @@ const LoginJWT: FC = () => {
         setSubmitting(true);
         return login(values.email, values.password, ldapEnabled)
           .catch((err) => {
-            // Every failure used to be reported as a wrong password, including the minutes
-            // after a deploy when the api is still booting and nothing about the credentials
-            // is known yet.
             showSnackBar(
-              t(
-                isServerUnavailable(err)
-                  ? 'server_unavailable'
-                  : 'wrong_credentials'
-              ),
+              isNetworkError(err) ? t('server_not_reachable') : t('wrong_credentials'),
               'error'
             );
             setStatus({ success: false });
