@@ -463,7 +463,6 @@ function Assets() {
           return (
             <Box
               sx={{
-                py: 1,
                 fontWeight: 'bold'
               }}
             >
@@ -494,7 +493,6 @@ function Assets() {
         return (
           <Box
             sx={{
-              py: 1,
               fontWeight: 'bold',
               ml: view === 'hierarchy' ? (info.row.depth || 0) * 24 : 0
             }}

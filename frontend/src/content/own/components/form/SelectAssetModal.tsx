@@ -191,7 +191,6 @@ const SelectAssetModal: React.FC<SelectAssetModalProps> = ({
       cell: (info) => (
         <Box
           sx={{
-            py: 1,
             fontWeight: 'bold',
             ml: (info.row.depth || 0) * 24
           }}

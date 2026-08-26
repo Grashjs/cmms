@@ -461,7 +461,6 @@ function Locations() {
           return (
             <Box
               sx={{
-                py: 1,
                 fontWeight: 'bold'
               }}
             >
@@ -492,7 +491,6 @@ function Locations() {
         return (
           <Box
             sx={{
-              py: 1,
               fontWeight: 'bold',
               ml: (info.row.depth || 0) * 24
             }}

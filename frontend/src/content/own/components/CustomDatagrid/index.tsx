@@ -54,6 +54,9 @@ function CustomDataGrid(props: CustomDatagridProps) {
     <div ref={tableRef} style={{ height: tableHeight, width: '100%' }}>
       {/*@ts-ignore*/}
       <DataGrid
+        // Matches the compact rows of the TanStack grid the main lists use.
+        // Placed before the spread so a page can still ask for another density.
+        density="compact"
         sx={{
           ' .MuiDataGrid-columnHeader': {
             fontWeight: 'bold',

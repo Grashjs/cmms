@@ -23,6 +23,9 @@ export default function SearchInput({ onChange }: OwnProps) {
       }}
       placeholder={t('search')}
       variant="outlined"
+      // 56px is the default outlined height, and this input sits above fifteen
+      // list pages — small takes it to 40 everywhere at once.
+      size="small"
       onChange={onChange}
     />
   );

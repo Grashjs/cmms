@@ -511,6 +511,10 @@ function CustomDatagrid2<TData extends RowData>({
       >
         <Table
           stickyHeader
+          // Cell padding drops from 16px to 6px, which is most of the vertical
+          // bulk of a list page. Checkbox cells are unaffected: they use MUI's
+          // padding="checkbox" variant, so the pinning offset below still holds.
+          size="small"
           style={{ width: table.getTotalSize() }}
           sx={{
             tableLayout: 'fixed',
@@ -520,9 +524,10 @@ function CustomDatagrid2<TData extends RowData>({
               position: 'sticky',
               top: 0,
               zIndex: 2,
+              // Bold and uppercase come from the MuiTableCell head override,
+              // which every scheme in theme/schemes carries — repeating them
+              // here only creates a second place to keep in step.
               '& .MuiTableCell-head': {
-                fontWeight: 'bold',
-                textTransform: 'uppercase',
                 borderBottom: `1px solid ${theme.palette.divider}`,
                 backgroundColor: '#E8EAEE',
                 position: 'sticky',
@@ -946,7 +951,7 @@ function CustomDatagrid2<TData extends RowData>({
           sx={{
             borderTop: `1px solid ${theme.palette.divider}`,
             '& .MuiTablePagination-toolbar': {
-              minHeight: '52px'
+              minHeight: '40px'
             }
           }}
         />
