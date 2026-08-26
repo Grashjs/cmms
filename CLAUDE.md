@@ -14,7 +14,7 @@ anything about `mobile/`.
 
 ## What this is
 
-A fork of **Atlas CMMS** (upstream: `Grashjs/atlas-cmms`), a maintenance management
+A fork of **Atlas CMMS** (upstream: `Grashjs/cmms`, renamed from `atlas-cmms`), a maintenance management
 system, adapted for self-hosting in an FM-IT consulting context. Licensed **AGPL-3.0**:
 serving a modified version over a network obliges us to offer the corresponding source,
 including our changes. That is accepted and intentional — improvements are meant to go
@@ -310,6 +310,34 @@ upstream FREE behaviour again. When syncing upstream, re-check `LicenseService`,
 `dev-docs/` holds upstream documentation (TLS, LDAP, disabling users, running SQL,
 backups). It describes the upstream deployment model, not ours — treat compose snippets
 there as illustrative.
+
+**The upstream repository was renamed** from `Grashjs/atlas-cmms` to `Grashjs/cmms`; the old
+path 404s. The remote is now configured as `upstream`, so `git fetch upstream` works.
+
+**Upstream is alive and fast — measured 2026-08-26, fork point 2026-08-02:** 264 commits
+ahead, against 55 of ours. That is roughly eleven a day, so the gap is not a backlog that
+sits still. What matters is where they land:
+
+| | commits |
+|---|---:|
+| touching `api/` | 186 |
+| touching `frontend/` | 45 |
+| touching a file this fork has diverged in | ~10 |
+
+The divergence list below is therefore cheaper to walk than its length suggests — the bulk of
+upstream's work is backend, where this fork barely differs.
+
+**Upstream modernises the backend and not the frontend.** They are on Liquibase 5, Thymeleaf 6,
+JWT 0.13, google-cloud-storage 2.64 while this fork sits on 4.22 / 5 / 0.11 / 2.0.1 — so a sync
+delivers dependency currency that would otherwise be hand-work. Their frontend, meanwhile, is
+still React 17.0.2, MUI 5.8.2, TypeScript 4.7.3, react-scripts and `@mui/styles`: unchanged
+since the fork point. **Anyone considering React 18/19 or a MUI major here should weigh that
+first** — upstream has 45 frontend commits in the same window, and moving ahead of them turns
+the one cheap area of the merge into the expensive one.
+
+They have also *removed* `firebase`, `axios` and `jsonwebtoken` from the frontend, which
+between them account for one of the two remaining critical findings and six high ones. Syncing
+clears those without a single risky major upgrade.
 
 When syncing upstream changes, re-check the files we have diverged in. This list is what a
 merge has to walk, so keep it accurate — a wrong entry wastes time, a missing one gets a
