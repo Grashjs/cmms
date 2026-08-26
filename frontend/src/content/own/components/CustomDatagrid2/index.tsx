@@ -734,6 +734,23 @@ function CustomDatagrid2<TData extends RowData>({
                       '&:last-child td, &:last-child th': { border: 0 },
                       backgroundColor,
                       color: textColor,
+                      // Icons take their colour from the palette prop they were
+                      // given, so they ignore the white text of a nested row and
+                      // blend into its background. Let them inherit it instead —
+                      // except the destructive ones, which stay red and only
+                      // lighten enough to read on the dark row.
+                      // The button has to inherit too, not just the icon inside
+                      // it: an IconButton sets action.active on itself, so an
+                      // icon inheriting from it would only pick up that grey.
+                      ...(isNested && {
+                        '& .MuiIconButton-root': { color: 'inherit' },
+                        '& .MuiSvgIcon-root:not(.MuiSvgIcon-colorError)': {
+                          color: 'inherit'
+                        },
+                        '& .MuiSvgIcon-colorError': {
+                          color: theme.palette.error.light
+                        }
+                      }),
                       '&:hover': {
                         backgroundColor: isNested
                           ? theme.palette.primary.main
