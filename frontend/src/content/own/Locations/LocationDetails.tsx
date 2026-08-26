@@ -27,7 +27,8 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 import Form from '../components/form';
 import * as Yup from 'yup';
-import { IField } from '../type';
+import { getCustomFieldValuesForDetails, IField } from '../type';
+import BasicField from '../components/BasicField';
 import { useDispatch, useSelector } from '../../../store';
 import { getAssetsByLocation } from '../../../slices/asset';
 import { useNavigate } from 'react-router-dom';
@@ -55,7 +56,10 @@ export default function LocationDetails(props: LocationDetailsProps) {
   const dispatch = useDispatch();
   const { getFormattedDate, uploadFiles } = useContext(CompanySettingsContext);
   const [openAddFloorPlan, setOpenAddFloorPlan] = useState<boolean>(false);
-  const [currentTab, setCurrentTab] = useState<string>('assets');
+  // The details tab opens first: the five other tabs list what hangs off the
+  // location, and until now its own data was only visible by opening the edit
+  // dialog — which is a strange place to have to look something up.
+  const [currentTab, setCurrentTab] = useState<string>('details');
   const { assetsByLocation } = useSelector((state) => state.assets);
   const { workOrdersByLocation } = useSelector((state) => state.workOrders);
   const { floorPlansByLocation } = useSelector((state) => state.floorPlans);
@@ -71,7 +75,26 @@ export default function LocationDetails(props: LocationDetailsProps) {
   const floorPlans = floorPlansByLocation[location.id] ?? [];
   const theme = useTheme();
   const navigate = useNavigate();
+  // The location's own data, in the same shape the part, meter, request and
+  // maintenance detail views use. BasicField drops a field with no value, so
+  // an empty location shows a short list rather than a wall of blanks.
+  const detailFields: {
+    label: string;
+    value: string | number;
+    isLink?: boolean;
+  }[] = [
+    { label: t('id'), value: location?.customId },
+    { label: t('address'), value: location?.address },
+    { label: t('latitude'), value: location?.latitude },
+    { label: t('longitude'), value: location?.longitude },
+    { label: t('created_at'), value: getFormattedDate(location?.createdAt) },
+    ...getCustomFieldValuesForDetails(
+      location?.customFieldValues,
+      getFormattedDate
+    )
+  ];
   const tabs = [
+    { value: 'details', label: t('details') },
     { value: 'assets', label: t('assets') },
     { value: 'files', label: t('files') },
     { value: 'workOrders', label: t('work_orders') },
@@ -240,6 +263,21 @@ export default function LocationDetails(props: LocationDetailsProps) {
         </Tabs>
       </Grid>
       <Grid item xs={12}>
+        {currentTab === 'details' && (
+          <Grid container spacing={2}>
+            {detailFields.map((field) => (
+              <BasicField key={field.label} {...field} />
+            ))}
+            {location?.parentLocation && (
+              <BasicField
+                label={t('parent_location')}
+                value={location.parentLocation.name}
+                id={location.parentLocation.id}
+                type="location"
+              />
+            )}
+          </Grid>
+        )}
         {currentTab === 'assets' && (
           <Box>
             {hasCreatePermission(PermissionEntity.ASSETS) && (
