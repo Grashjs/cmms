@@ -3,7 +3,10 @@ import CustomFieldsManager from '../../../components/CustomFields/CustomFieldsMa
 import { CustomFieldEntityType } from '../../../../../models/owns/customField';
 
 function ContractorsCustomFields() {
-  return <CustomFieldsManager entityType={CustomFieldEntityType.VENDOR} />;
+  // This page sits behind the "customers" tile, and the customer form reads
+  // CUSTOMER fields — see VendorsAndCustomers/Customers.tsx. Upstream has the
+  // two pages the other way round, so fields created here showed up on vendors.
+  return <CustomFieldsManager entityType={CustomFieldEntityType.CUSTOMER} />;
 }
 
 export default ContractorsCustomFields;

@@ -3,7 +3,9 @@ import CustomFieldsManager from '../../../components/CustomFields/CustomFieldsMa
 import { CustomFieldEntityType } from '../../../../../models/owns/customField';
 
 function VendorsCustomFields() {
-  return <CustomFieldsManager entityType={CustomFieldEntityType.CUSTOMER} />;
+  // The other half of the swap fixed in Contractors/CustomFields.tsx: the
+  // vendor form reads VENDOR fields, so this page has to manage those.
+  return <CustomFieldsManager entityType={CustomFieldEntityType.VENDOR} />;
 }
 
 export default VendorsCustomFields;
