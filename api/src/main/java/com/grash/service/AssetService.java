@@ -142,11 +142,14 @@ public class AssetService {
             if (asset.getCustomFields() != null && !asset.getCustomFields().isEmpty()) {
                 setAssetCustomFields(savedAsset, asset.getCustomFields(), company, asset.getCategory());
             }
-            Asset patchedAsset = assetMapper.updateAsset(savedAsset, asset);
-            // The mapper has just put detached, version-less Part instances into the
-            // collection; swap them for managed rows before anything reaches the flush.
+            // Resolved *before* the mapper runs, not after. The mapper puts the detached,
+            // version-less Part instances from the request into the managed collection, and
+            // this lookup is a query — Hibernate may auto-flush before running one, which is
+            // exactly the flush that blows up. Ordering it first means the collection never
+            // holds a detached part while anything else can touch the session.
             List<Part> requestedParts = partService.resolveRequestedParts(asset.getParts(),
                     company.getId());
+            Asset patchedAsset = assetMapper.updateAsset(savedAsset, asset);
             if (requestedParts != null) {
                 patchedAsset.getParts().clear();
                 patchedAsset.getParts().addAll(requestedParts);

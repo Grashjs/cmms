@@ -36,7 +36,8 @@ public class MultiPartsService {
     public MultiParts create(MultiParts multiParts, Company company) {
         // Both entry points take parts as bare ids; see PartService.resolveRequestedParts for
         // why handing those to Hibernate as-is fails.
-        setParts(multiParts, multiParts.getParts(), company.getId());
+        setParts(multiParts, partService.resolveRequestedParts(multiParts.getParts(),
+                company.getId()));
         MultiParts savedMultiParts = multiPartsRepository.saveAndFlush(multiParts);
         em.refresh(savedMultiParts);
         return savedMultiParts;
@@ -46,18 +47,21 @@ public class MultiPartsService {
     public MultiParts update(Long id, MultiPartsPatchDTO multiPartsPatchDTO) {
         if (multiPartsRepository.existsById(id)) {
             MultiParts savedMultiParts = multiPartsRepository.findById(id).get();
+            // Resolved before the mapper for the same reason as in AssetService.update: the
+            // lookup is a query, and a managed collection holding detached parts must not be
+            // in that state when Hibernate decides to auto-flush.
+            List<Part> requestedParts = partService.resolveRequestedParts(
+                    multiPartsPatchDTO.getParts(), savedMultiParts.getCompany().getId());
             MultiParts patchedMultiParts = multiPartsMapper.updateMultiParts(savedMultiParts,
                     multiPartsPatchDTO);
-            setParts(patchedMultiParts, multiPartsPatchDTO.getParts(),
-                    patchedMultiParts.getCompany().getId());
+            setParts(patchedMultiParts, requestedParts);
             MultiParts updatedMultiParts = multiPartsRepository.saveAndFlush(patchedMultiParts);
             em.refresh(updatedMultiParts);
             return updatedMultiParts;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
-    private void setParts(MultiParts multiParts, Collection<Part> requested, Long companyId) {
-        List<Part> parts = partService.resolveRequestedParts(requested, companyId);
+    private void setParts(MultiParts multiParts, List<Part> parts) {
         if (parts != null) {
             multiParts.getParts().clear();
             multiParts.getParts().addAll(parts);
