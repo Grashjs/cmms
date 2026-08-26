@@ -8,6 +8,7 @@ export default interface Category extends Audit {
 export interface CategoryMiniDTO {
   id: number;
   name: string;
+  description?: string;
 }
 export const categories: Category[] = [
   {

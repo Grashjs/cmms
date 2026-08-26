@@ -16,4 +16,9 @@ public class CategoryMiniDTO {
     
     @Schema(description = "Name")
     private String name;
+
+    // A category name is often only a code (a DIN 276 class, say), so the
+    // description carries the readable part and detail views need it.
+    @Schema(description = "Description")
+    private String description;
 }

@@ -58,6 +58,10 @@ interface InviteUserOptionType extends OptionType {
   __email__?: string;
 }
 
+interface CategoryOptionType extends OptionType {
+  description?: string;
+}
+
 interface CreateCategoryOptionType extends OptionType {
   __createCategoryOption__?: boolean;
   __categoryName__?: string;
@@ -89,7 +93,9 @@ export const CustomSelect = ({
   const { locationsMini, locationsHierarchy } = useSelector(
     (state) => state.locations
   );
-  const { categories } = useSelector((state) => state.categories);
+  const { categories, loading: categoriesLoading } = useSelector(
+    (state) => state.categories
+  );
   const { usersMini } = useSelector((state) => state.users);
   const { assetsMini } = useSelector((state) => state.assets);
   const { teamsMini } = useSelector((state) => state.teams);
@@ -163,6 +169,20 @@ export const CustomSelect = ({
       setCreatingCategory(false);
     }
   };
+
+  // Load the categories before the list is opened, so that an already selected
+  // category can be shown with its description right away. The list is cached
+  // per base path in the store, so this costs one request per session.
+  useEffect(() => {
+    if (
+      field.type2 === 'category' &&
+      field.category &&
+      !categories[field.category] &&
+      !categoriesLoading[field.category]
+    ) {
+      dispatch(getCategories(field.category));
+    }
+  }, [field.type2, field.category]);
 
   // Handle returned entity from inline creation
   useEffect(() => {
@@ -761,14 +781,22 @@ export const CustomSelect = ({
       onOpen = fetchRoles;
       break;
     case 'category':
-      const categoryOptions =
+      const categoryOptions: CategoryOptionType[] =
         categories[field.category]?.map((category) => {
           return {
             label: category.name,
-            value: category.id
+            value: category.id,
+            description: category.description
           };
         }) ?? [];
       onOpen = () => fetchCategories(field.category);
+      // A category name is often only a code (a DIN 276 class, say) and the
+      // description carries the readable part. The form value only ever holds
+      // label and value, so for an existing value the description has to be
+      // looked up in the loaded list.
+      const getCategoryDescription = (option: CategoryOptionType) =>
+        option.description ??
+        categoryOptions.find((c) => c.value == option.value)?.description;
 
       return (
         <>
@@ -824,7 +852,11 @@ export const CustomSelect = ({
               const filtered = options.filter((option) => {
                 const inputValue = params.inputValue.toLowerCase();
                 const optionLabel = option.label.toLowerCase();
-                return optionLabel.includes(inputValue);
+                const description = (option as CategoryOptionType).description;
+                return (
+                  optionLabel.includes(inputValue) ||
+                  (description?.toLowerCase().includes(inputValue) ?? false)
+                );
               });
 
               const { inputValue } = params;
@@ -845,9 +877,15 @@ export const CustomSelect = ({
               return filtered;
             }}
             //@ts-ignore
-            getOptionLabel={(option) =>
-              typeof option === 'string' ? option : option.label
-            }
+            getOptionLabel={(option) => {
+              if (typeof option === 'string') return option;
+              if ((option as CreateCategoryOptionType).__createCategoryOption__)
+                return option.label;
+              const description = getCategoryDescription(option);
+              return description
+                ? `${option.label} – ${description}`
+                : option.label;
+            }}
             isOptionEqualToValue={(option, value) =>
               //@ts-ignore
               option.value == value?.value
@@ -860,6 +898,9 @@ export const CustomSelect = ({
                 .__createCategoryOption__;
               //@ts-ignore
               const { key, ...restProps } = props;
+              const description = isCreateOption
+                ? undefined
+                : getCategoryDescription(option);
 
               return (
                 <Box
@@ -876,12 +917,21 @@ export const CustomSelect = ({
                       <AddCircleTwoToneIcon fontSize="small" />
                     </ListItemIcon>
                   )}
-                  <Typography
-                    variant="body2"
-                    sx={{ color: isCreateOption ? 'primary.main' : 'inherit' }}
-                  >
-                    {(option as OptionType).label}
-                  </Typography>
+                  <Box>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: isCreateOption ? 'primary.main' : 'inherit'
+                      }}
+                    >
+                      {(option as OptionType).label}
+                    </Typography>
+                    {description && (
+                      <Typography variant="caption" color="text.secondary">
+                        {description}
+                      </Typography>
+                    )}
+                  </Box>
                 </Box>
               );
             }}

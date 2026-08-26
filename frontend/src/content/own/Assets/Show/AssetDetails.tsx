@@ -85,7 +85,16 @@ const AssetDetails = ({ asset, loading, onCopy }: PropsType) => {
   const informationFields = [
     { label: t('name'), value: asset?.name },
     { label: t('description'), value: asset?.description },
-    { label: t('category'), value: asset?.category?.name },
+    {
+      label: t('category'),
+      // The name is often only a code (a DIN 276 class, say); there is room
+      // here for the description that spells it out.
+      value: asset?.category
+        ? [asset.category.name, asset.category.description]
+            .filter(Boolean)
+            .join(' – ')
+        : null
+    },
     { label: t('model'), value: asset?.model },
     { label: t('serial_number'), value: asset?.serialNumber },
     { label: t('power'), value: asset?.power },
