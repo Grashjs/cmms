@@ -332,7 +332,7 @@ class AssetServiceTest {
             assetService.create(dto, user);
 
             verify(customFieldValueService).setCustomFields(eq(mapped), any(), any(), eq(company),
-                    eq(CustomFieldEntityType.ASSET), any());
+                    eq(CustomFieldEntityType.ASSET), any(), any());
         }
 
         @Test
@@ -365,12 +365,12 @@ class AssetServiceTest {
                 assertSame(mapped, cfv.getAsset());
                 return null;
             }).when(customFieldValueService).setCustomFields(eq(mapped), any(), any(), eq(company),
-                    eq(CustomFieldEntityType.ASSET), any());
+                    eq(CustomFieldEntityType.ASSET), any(), any());
 
             assetService.create(dto, user);
 
             verify(customFieldValueService).setCustomFields(eq(mapped), any(), any(), eq(company),
-                    eq(CustomFieldEntityType.ASSET), any());
+                    eq(CustomFieldEntityType.ASSET), any(), any());
         }
     }
 
@@ -533,7 +533,7 @@ class AssetServiceTest {
             assetService.update(1L, dto, company);
 
             verify(customFieldValueService).setCustomFields(eq(saved), eq(saved.getCustomFieldValues()),
-                    eq(dto.getCustomFields()), eq(company), eq(CustomFieldEntityType.ASSET), any());
+                    eq(dto.getCustomFields()), eq(company), eq(CustomFieldEntityType.ASSET), any(), any());
         }
     }
 
