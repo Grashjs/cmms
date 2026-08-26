@@ -54,6 +54,24 @@ cd frontend && npm start                                       # vite dev server
 leave an edited file untranslated and still exit 0 — a type error that fails CI looks green
 locally. The image build runs `mvn clean package -DskipTests`; use that, or nothing.
 
+**The template tests fail locally on a machine whose system locale is not English, and that
+is the machine's fault, not the code's.** `AbstractTemplateTest` renders with
+`Locale.ENGLISH`, but there is no `mailMessages_en.properties` — only the base bundle. Java's
+`ResourceBundle` fills that gap by falling back to the *JVM default locale* before it falls
+back to the base bundle, so on a German workstation every one of the eighteen tests in
+`MainLayoutConsumerTemplatesTest`, `MainLayoutTemplateTest` and `WorkOrderReportTemplateTest`
+renders German text and fails its first `assertTrue(html.contains(...))`. CI runs in English
+and is green. They all fail identically and at the first assertion, which makes them look like
+one broken shared fragment — they are not. Run them with `-Duser.language=en -Duser.country=US`
+to see them pass, or ignore exactly those eighteen. Making them locale-independent would mean
+`setFallbackToSystemLocale(false)` on the message source, which is upstream's file and a good
+candidate to contribute back.
+
+**Local Maven tests are usable again.** The old note that the suite cannot run above JDK 22
+(Byte Buddy refusing newer class files) no longer holds — after the 2026-08-26 upstream sync
+the full suite runs on JDK 25. Only the five `*IntegrationTest` classes still error, and only
+because Testcontainers needs a running Docker.
+
 **The frontend build type-checks again, and `mvn compile`'s lesson applies here too.**
 `npm run build` is `tsc --noEmit && vite build`: Vite itself never looks at types — esbuild
 strips them — so the compiler runs in front of it and a type error stops the build before the
