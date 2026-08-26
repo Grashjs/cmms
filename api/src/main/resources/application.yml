@@ -50,10 +50,6 @@ spring:
         id:
           new_generator_mappings: false
     defer-datasource-initialization: false
-    properties.mail.smtp:
-      auth: true
-      starttls.enable: true
-      ssl.trust: ${SMTP_HOST:smtp.gmail.com}
   sql:
     init:
       mode: always
