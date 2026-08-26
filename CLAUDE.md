@@ -80,8 +80,15 @@ push to main → .github/workflows/deploy.yml
 ```
 
 `docker-compose.yml` resolves `${IMAGE_TAG:-latest}`. To roll back, set `IMAGE_TAG` to a
-`sha-<commit>` value in Coolify and redeploy. Required repo secrets: `COOLIFY_WEBHOOK_URL`,
-`COOLIFY_API_TOKEN`.
+`sha-<commit>` value in Coolify and redeploy — note the tag carries the **full** commit sha,
+not the short one. Required repo secrets: `COOLIFY_WEBHOOK_URL`, `COOLIFY_API_TOKEN`.
+
+**The builder image's Node version is coupled to Vite and nothing enforces it.** `vite@8`
+declares `engines.node "^20.19.0 || >=22.12.0"`; the frontend Dockerfile was on `node:21.6.1`,
+which satisfies neither, and the image build failed while every local build stayed green —
+developers here run a much newer Node, and npm only *warns* on an engines mismatch instead of
+refusing to install. So the mismatch is invisible until CI, and it looks like the application
+broke rather than the toolchain. When bumping Vite, read `engines` and check the `FROM` line.
 
 `.github/workflows/tests.yml` runs the Maven suite separately so a test failure does not
 block an image build, and a build failure is distinguishable from a test failure.
@@ -271,6 +278,14 @@ upstream FREE behaviour again. When syncing upstream, re-check `LicenseService`,
 
 ## Open items
 
+- **The Coolify deploy webhook has been failing, so nothing has auto-deployed.** All three
+  images build and reach GHCR; the `Trigger Coolify` job then fails on its single `curl -fsS`.
+  The instance is up and the endpoint is fine — `GET /api/v1/deploy` without credentials
+  answers 401 where an invented path answers 404 — which points at `COOLIFY_API_TOKEN` being
+  unset, wrong or expired rather than at a stale URL. Note the workflow omits the
+  `Authorization` header entirely when the secret is empty, which produces exactly this 401.
+  Until it is fixed, deploying means clicking Deploy in Coolify by hand; `:latest` already
+  carries the newest build.
 - Make the nginx signup block toggleable via an environment variable (`envsubst` templates
   are supported by the nginx image) instead of editing the config.
 - **The api healthcheck has never once been green.** It probes
