@@ -271,10 +271,17 @@ upstream FREE behaviour again. When syncing upstream, re-check `LicenseService`,
 
 ## Open items
 
-- `signinLdap` still funnels every failure into one message, the way `signin` used to.
 - Make the nginx signup block toggleable via an environment variable (`envsubst` templates
   are supported by the nginx image) instead of editing the config.
-- Eliminate the default super admin password in code.
+- **The api healthcheck has never once been green.** It probes
+  `/actuator/health/readiness`, but `WebSecurityConfig` does not permit that path, so
+  Spring Security answers 403 and the probe fails from the first second of every container's
+  life (`FailingStreak` in the thousands). Nothing depends on the check, so it gates nothing —
+  which is exactly why it went unnoticed. The fix is one line in the permit list:
+  `.requestMatchers("/actuator/health/readiness", "/actuator/health/liveness").permitAll()`.
+  Worth doing: a signal that is permanently red trains everyone to ignore it, and on this
+  codebase misleading health and error signals have already cost hours (see "Wrong
+  credentials" above).
 - **`POST /work-orders/search` returns the whole company** for a user who has no work-order
   view permission at all. `WorkOrderService.getSearchCriteria` only ever narrows: it adds the
   company filter, then adds the own-records filter *inside* an `if (viewPermissions contains
