@@ -143,6 +143,14 @@ public class AssetService {
                 setAssetCustomFields(savedAsset, asset.getCustomFields(), company, asset.getCategory());
             }
             Asset patchedAsset = assetMapper.updateAsset(savedAsset, asset);
+            // The mapper has just put detached, version-less Part instances into the
+            // collection; swap them for managed rows before anything reaches the flush.
+            List<Part> requestedParts = partService.resolveRequestedParts(asset.getParts(),
+                    company.getId());
+            if (requestedParts != null) {
+                patchedAsset.getParts().clear();
+                patchedAsset.getParts().addAll(requestedParts);
+            }
             Sanitizer.sanitizeAsset(patchedAsset);
             patchedAsset = assetRepository.saveAndFlush(patchedAsset);
             em.refresh(patchedAsset);

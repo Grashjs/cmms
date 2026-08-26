@@ -338,6 +338,34 @@ public class PartService {
         return partRepository.findByIdInAndCompany_Id(ids, companyId);
     }
 
+    /**
+     * Turns the bare {@code {"id": n}} references a client sends for a part collection into the
+     * managed rows of its own company.
+     * <p>
+     * Jackson builds a detached {@link Part} out of each of those, with every other field null.
+     * Since Part gained a {@code @Version} column, Hibernate refuses a detached instance whose
+     * version is null and the whole request dies with
+     * {@code Detached entity with generated id '1' has an uninitialized version value 'null'} —
+     * a 500 before anything is written. Part is the only versioned entity, which is why assigning
+     * parts fails while assigning teams or vendors does not.
+     * <p>
+     * Resolving through the repository also confines the collection to the caller's own company:
+     * the ids come straight off the wire, and nothing else checks them.
+     *
+     * @return the managed parts, or null if the caller sent no collection at all — which for a
+     * PATCH means "leave this alone" rather than "empty it".
+     */
+    public List<Part> resolveRequestedParts(Collection<Part> requested, Long companyId) {
+        if (requested == null) {
+            return null;
+        }
+        List<Long> ids = requested.stream()
+                .map(Part::getId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        return ids.isEmpty() ? new ArrayList<>() : findByIdsAndCompany(ids, companyId);
+    }
+
     public Optional<Part> findByNameIgnoreCaseAndCompany(String name, Long companyId) {
         return partRepository.findByNameIgnoreCaseAndCompany_Id(name, companyId);
     }

@@ -481,6 +481,55 @@ class AssetServiceTest {
                     any(), any(), any());
         }
 
+        /**
+         * A client sends parts as bare ids. Jackson turns each into a detached Part whose
+         * {@code @Version} is null, and Hibernate rejects those outright — assigning a part to an
+         * asset answered 500. The detached instances must not survive the mapper.
+         */
+        @Test
+        void requestedParts_areReplacedByTheirManagedRows() {
+            Asset saved = buildAsset(1L);
+            Part fromTheWire = new Part();
+            fromTheWire.setId(7L);
+            Part managed = new Part();
+            managed.setId(7L);
+            managed.setName("Filter");
+            AssetPatchDTO dto = buildPatchDTO();
+            dto.setParts(List.of(fromTheWire));
+            stubUpdatePipeline();
+            when(assetRepository.findById(1L)).thenReturn(Optional.of(saved));
+            // What MapStruct generates: the wire instances land in the managed collection.
+            when(assetMapper.updateAsset(any(Asset.class), any(AssetPatchDTO.class))).thenAnswer(inv -> {
+                Asset target = inv.getArgument(0);
+                AssetPatchDTO patch = inv.getArgument(1);
+                target.getParts().clear();
+                target.getParts().addAll(patch.getParts());
+                return target;
+            });
+            when(partService.resolveRequestedParts(anyCollection(), eq(1L))).thenReturn(List.of(managed));
+
+            Asset result = assetService.update(1L, dto, company);
+
+            assertEquals(1, result.getParts().size());
+            assertSame(managed, result.getParts().get(0));
+        }
+
+        @Test
+        void withoutRequestedParts_theExistingOnesAreLeftAlone() {
+            Asset saved = buildAsset(1L);
+            Part existing = new Part();
+            existing.setId(7L);
+            saved.getParts().add(existing);
+            stubUpdatePipeline();
+            when(assetRepository.findById(1L)).thenReturn(Optional.of(saved));
+            when(assetMapper.updateAsset(any(Asset.class), any(AssetPatchDTO.class))).thenAnswer(inv -> inv.getArgument(0));
+            when(partService.resolveRequestedParts(isNull(), eq(1L))).thenReturn(null);
+
+            Asset result = assetService.update(1L, buildPatchDTO(), company);
+
+            assertEquals(1, result.getParts().size());
+        }
+
         @Test
         void assetNotFound_throwsNotFound() {
             when(assetRepository.existsById(1L)).thenReturn(false);
