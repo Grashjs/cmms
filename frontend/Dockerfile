@@ -9,7 +9,9 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-RUN npm config set fetch-retry-maxtimeout 6000000 \n    && npm config set fetch-retry-mintimeout 1000000 \n    && npm ci --legacy-peer-deps
+RUN npm config set fetch-retry-maxtimeout 6000000 \
+    && npm config set fetch-retry-mintimeout 1000000 \
+    && npm ci --legacy-peer-deps
 COPY . .
 
 # The heap ceiling is a leftover from the CRA/webpack build, which needed 2-4 GB. Vite
