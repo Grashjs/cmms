@@ -1,0 +1,10 @@
+<!--/*@thymesVar id="ownsCompany" type="java.lang.Boolean"*/-->
+<!--/*@thymesVar id="companyName" type="java.lang.String"*/-->
+<!--/*@thymesVar id="deleteConfirmLink" type="java.lang.String"*/-->
+<div th:replace="fragments/main-layout :: emailTemplate(
+    #{deleteAccountHeader(${brandConfig.getShortName()})},
+    #{deleteAccountHeader(${brandConfig.getShortName()})},
+    ${ownsCompany} ? #{deleteAccountCompanyMessage(${companyName})} : #{deleteAccountMessage},
+    #{confirm_delete},
+    ${deleteConfirmLink}
+    )"></div>

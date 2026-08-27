@@ -748,6 +748,7 @@ const locale = {
   personal_details: '个人详细信息',
   personal_details_description: '管理与您的个人详细信息相关的信息',
   change_password: '更改密码',
+  delete_account_email_confirmation: '请检查您的电子邮件以确认删除账户',
   notification_settings: '通知设置',
   notification_settings_description: '管理与您的通知相关的详细信息',
   recent_activity: '最近活动',

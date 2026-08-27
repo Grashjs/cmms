@@ -998,6 +998,7 @@ const trJSON = {
   personal_details_description:
     'Kişisel bilgilerinizle ilgili bilgileri yönetin',
   change_password: 'Şifre değiştir',
+  delete_account_email_confirmation: 'Hesap silmeyi onaylamak için e-postalarınızı kontrol edin',
   notification_settings: 'Bildirim Ayarları',
   notification_settings_description:
     'Bildirimlerinizle ilgili ayrıntıları yönetin',

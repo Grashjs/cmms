@@ -975,6 +975,7 @@ const locale = {
   personal_details: 'البيانات الشخصية',
   personal_details_description: 'إدارة المعلومات المتعلقة بتفاصيلك الشخصية',
   change_password: 'تغيير كلمة المرور',
+  delete_account_email_confirmation: 'يرجى التحقق من بريدك الإلكتروني لتأكيد حذف الحساب',
   notification_settings: 'إعدادات الإشعارات',
   notification_settings_description: 'إدارة التفاصيل المتعلقة بإشعاراتك',
   recent_activity: 'النشاط الأخير',

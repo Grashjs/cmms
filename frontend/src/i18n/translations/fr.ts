@@ -1576,6 +1576,7 @@ const frJSON = {
   recent_work_orders: 'Ordres de travail récents',
   no_recent_work_orders: 'Aucun ordre de travail',
   delete_account: 'Supprimer le compte',
+  delete_account_email_confirmation: 'Veuillez vérifier vos e-mails pour confirmer la suppression du compte',
   csv_separator: 'Séparateur CSV',
   open_source_cmms: 'GMAO Open Source',
   'main.title':

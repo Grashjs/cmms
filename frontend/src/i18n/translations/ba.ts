@@ -1019,6 +1019,7 @@ const locale = {
   personal_details_description:
     'Upravljajte informacijama vezanim za vaše lične podatke',
   change_password: 'Promijeni lozinku',
+  delete_account_email_confirmation: 'Provjerite svoju e-poštu da potvrdite brisanje računa',
   notification_settings: 'Postavke obavijesti',
   notification_settings_description:
     'Upravljajte detaljima vezanim za vaše obavijesti',

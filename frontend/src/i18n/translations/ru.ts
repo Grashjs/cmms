@@ -1061,6 +1061,7 @@ const ruJSON = {
   personal_details_description:
     'Управляйте информацией, связанной с вашими личными данными',
   change_password: 'Изменить пароль',
+  delete_account_email_confirmation: 'Проверьте свою электронную почту, чтобы подтвердить удаление аккаунта',
   notification_settings: 'Настройки уведомлений',
   notification_settings_description: 'Управляйте параметрами уведомлений',
   recent_activity: 'Последняя активность',

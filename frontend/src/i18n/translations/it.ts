@@ -1043,6 +1043,7 @@ const locale = {
   personal_details_description:
     'Gestisci le informazioni relative ai tuoi dati personali',
   change_password: 'Cambiare la password',
+  delete_account_email_confirmation: "Controlla le tue email per confermare l'eliminazione dell'account",
   notification_settings: 'Impostazioni delle notifiche',
   notification_settings_description:
     'Gestisci i dettagli relativi alle tue notifiche',

@@ -1085,6 +1085,7 @@ const deJSON = {
   personal_details_description:
     'Verwalten Sie Informationen zu Ihren persönlichen Details',
   change_password: 'Passwort ändern',
+  delete_account_email_confirmation: 'Bitte überprüfen Sie Ihre E-Mails, um die Kontolöschung zu bestätigen',
   notification_settings: 'Benachrichtigungseinstellungen',
   notification_settings_description:
     'Verwalten Sie Details zu Ihren Benachrichtigungen',

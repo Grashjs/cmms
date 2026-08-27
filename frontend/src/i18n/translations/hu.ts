@@ -844,6 +844,7 @@ const locale = {
   personal_details_description:
     'Kezeld a személyes adataidhoz kapcsolódó információkat',
   change_password: 'Jelszó módosítása',
+  delete_account_email_confirmation: 'Kérjük, ellenőrizze e-mailjeit a fiók törlésének megerősítéséhez',
   notification_settings: 'Értesítési beállítások',
   notification_settings_description:
     'Kezeld az értesítéseidhez kapcsolódó részleteket',

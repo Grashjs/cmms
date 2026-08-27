@@ -12,6 +12,10 @@ const Loader = (Component) => (props) =>
 
 // Account
 
+const AccountDeleted = Loader(
+  lazy(() => import('../content/pages/Account/Deleted'))
+);
+
 const LoginCover = Loader(
   lazy(() => import('../content/pages/Auth/Login/Cover'))
 );
@@ -31,6 +35,10 @@ const OauthSuccess = Loader(
 );
 
 const accountRoutes = [
+  {
+    path: 'deleted',
+    element: <AccountDeleted />
+  },
   {
     path: 'login',
     element: (

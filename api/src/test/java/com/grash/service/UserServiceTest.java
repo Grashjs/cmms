@@ -1367,6 +1367,98 @@ class UserServiceTest {
     }
 
     @Nested
+    class DeleteAccountRequest {
+
+        @BeforeEach
+        void setUp() {
+            ReflectionTestUtils.setField(userService, "enableMails", true);
+            lenient().when(mailServiceFactory.getMailService()).thenReturn(mailService);
+            BrandConfig bc = new BrandConfig();
+            bc.setName("TestBrand");
+            lenient().when(brandingService.getBrandConfig()).thenReturn(bc);
+            lenient().when(messageSource.getMessage(anyString(), any(), any()))
+                    .thenReturn("Account Deletion Subject");
+        }
+
+        @SuppressWarnings("unchecked")
+        @Test
+        void ownsCompany_sendsEmailWithCompanyFlag() {
+            user.setOwnsCompany(true);
+            company.setName("Acme Corp");
+
+            SuccessResponse response = userService.deleteAccountRequest(user);
+
+            assertTrue(response.isSuccess());
+            verify(verificationTokenRepository).save(any(VerificationToken.class));
+
+            ArgumentCaptor<Map<String, Object>> variablesCaptor = ArgumentCaptor.forClass(Map.class);
+            ArgumentCaptor<String> templateCaptor = ArgumentCaptor.forClass(String.class);
+            verify(mailService).sendMessageUsingThymeleafTemplate(
+                    eq(new String[]{"john@test.com"}), anyString(), variablesCaptor.capture(),
+                    templateCaptor.capture(), any(), any());
+
+            assertEquals("delete-account.html", templateCaptor.getValue());
+            assertEquals(true, variablesCaptor.getValue().get("ownsCompany"));
+            assertEquals("Acme Corp", variablesCaptor.getValue().get("companyName"));
+            assertTrue(((String) variablesCaptor.getValue().get("deleteConfirmLink"))
+                    .contains("/auth/delete-account-confirm?token="));
+        }
+
+        @SuppressWarnings("unchecked")
+        @Test
+        void notOwnsCompany_sendsEmailWithoutCompanyFlag() {
+            user.setOwnsCompany(false);
+
+            userService.deleteAccountRequest(user);
+
+            ArgumentCaptor<Map<String, Object>> variablesCaptor = ArgumentCaptor.forClass(Map.class);
+            verify(mailService).sendMessageUsingThymeleafTemplate(
+                    eq(new String[]{"john@test.com"}), anyString(), variablesCaptor.capture(),
+                    eq("delete-account.html"), any(), any());
+
+            assertEquals(false, variablesCaptor.getValue().get("ownsCompany"));
+        }
+
+        @Test
+        void mailsDisabled_throws() {
+            ReflectionTestUtils.setField(userService, "enableMails", false);
+
+            assertThrows(CustomException.class, () -> userService.deleteAccountRequest(user));
+            verifyNoInteractions(mailService);
+        }
+    }
+
+    @Nested
+    class DeleteAccount {
+
+        @Test
+        void ownsCompany_deletesCompany() {
+            user.setOwnsCompany(true);
+            company.setId(1L);
+
+            userService.deleteAccount(user);
+
+            verify(companyService).delete(1L);
+            verify(userRepository, never()).delete(user);
+            verify(cacheService).evictUserFromCache(user.getEmail());
+            verify(refreshTokenService).revokeAllForUser(user);
+        }
+
+        @Test
+        void notOwnsCompany_deletesUser() {
+            user.setOwnsCompany(false);
+
+            userService.deleteAccount(user);
+
+            verify(userRepository).delete(user);
+            verify(companyService, never()).delete(anyLong());
+            verify(apiKeyService).revokeAllByUser(user);
+            verify(cacheService).evictUserFromCache(user.getEmail());
+            verify(refreshTokenService).revokeAllForUser(user);
+        }
+    }
+
+    @Nested
     class SendRegistrationMailToSuperAdmins {
 
         @BeforeEach

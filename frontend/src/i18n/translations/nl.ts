@@ -1039,6 +1039,7 @@ const locale = {
   personal_details_description:
     'Beheer informatie met betrekking tot uw persoonlijke gegevens',
   change_password: 'Wachtwoord wijzigen',
+  delete_account_email_confirmation: 'Controleer uw e-mails om de verwijdering van het account te bevestigen',
   delete_account: 'Account verwijderen',
   delete_account_confirmation:
     'Weet u zeker dat u uw account wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.',

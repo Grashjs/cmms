@@ -1454,6 +1454,7 @@ const locale = {
   subscription_will_cancel_on: 'Subscription will cancel on {{date}}',
   open_api_docs: 'Open API docs',
   delete_account: 'Delete account',
+  delete_account_email_confirmation: 'Please check your emails to confirm the account deletion',
   csv_separator: 'CSV separator',
   Advantages: 'Advantages',
   open_source_cmms: 'Open-Source CMMS',

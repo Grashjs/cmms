@@ -7,9 +7,7 @@ import com.grash.factory.MailServiceFactory;
 import com.grash.model.User;
 import com.grash.model.SuperAccountRelation;
 import com.grash.repository.SuperAccountRelationRepository;
-import com.grash.repository.UserRepository;
 import com.grash.security.CurrentUser;
-import com.grash.service.CompanyService;
 import com.grash.service.LdapService;
 import com.grash.service.RefreshTokenService;
 import com.grash.service.UserService;
@@ -42,8 +40,6 @@ public class AuthController {
     private final VerificationTokenService verificationTokenService;
     private final UserMapper userMapper;
     private final SuperAccountRelationRepository superAccountRelationRepository;
-    private final CompanyService companyService;
-    private final UserRepository userRepository;
     private final LdapService ldapService;
     private final RefreshTokenService refreshTokenService;
     @Value("${frontend.url}")
@@ -215,13 +211,24 @@ public class AuthController {
         throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
-    @DeleteMapping("")
     @PreAuthorize("permitAll()")
-    public SuccessResponse deleteAccount(@Parameter(hidden = true) @CurrentUser User user) {
-        if (user.isOwnsCompany())
-            companyService.delete(user.getCompany().getId());
-        else userRepository.delete(user);
-        return new SuccessResponse(true, "Account deleted successfully");
+    @PostMapping(value = "/delete-account-request", produces = "application/json")
+    public SuccessResponse deleteAccountRequest(@Parameter(hidden = true) @CurrentUser User user) {
+        return userService.deleteAccountRequest(user);
+    }
+
+    @GetMapping("/delete-account-confirm")
+    public void deleteAccountConfirm(
+            @Parameter(description = "Account deletion token") @RequestParam String token,
+            HttpServletResponse httpServletResponse
+    ) {
+        try {
+            verificationTokenService.confirmDeleteAccount(token);
+            httpServletResponse.setHeader("Location", frontendUrl + "/account/deleted");
+        } catch (Exception ex) {
+            httpServletResponse.setHeader("Location", frontendUrl + "/account/register");
+        }
+        httpServletResponse.setStatus(302);
     }
 
 }

@@ -1047,6 +1047,7 @@ const plJSON = {
   personal_details_description:
     'Zarządzaj informacjami dotyczącymi twoich danych osobowych',
   change_password: 'Zmień hasło',
+  delete_account_email_confirmation: 'Sprawdź swoją pocztę e-mail, aby potwierdzić usunięcie konta',
   notification_settings: 'Ustawienia powiadomień',
   notification_settings_description:
     'Zarządzaj szczegółami dotyczącymi powiadomień',

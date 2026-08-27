@@ -1051,6 +1051,7 @@ const esJSON = {
   personal_details_description:
     'Gestionar información relacionada con sus datos personales',
   change_password: 'Cambiar contraseña',
+  delete_account_email_confirmation: 'Por favor revise sus correos electrónicos para confirmar la eliminación de la cuenta',
   notification_settings: 'Configuración de notificaciones',
   notification_settings_description:
     'Gestiona los detalles relacionados con sus notificaciones.',

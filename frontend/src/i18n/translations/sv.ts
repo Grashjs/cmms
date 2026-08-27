@@ -1023,6 +1023,7 @@ const locale = {
   personal_details_description:
     'Hantera information relaterad till dina personuppgifter',
   change_password: 'Ändra lösenord',
+  delete_account_email_confirmation: 'Kontrollera dina e-postmeddelanden för att bekräfta borttagningen av kontot',
   notification_settings: 'Aviseringsinställningar',
   notification_settings_description:
     'Hantera information relaterade till dina aviseringar',

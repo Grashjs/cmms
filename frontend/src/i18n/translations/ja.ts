@@ -1001,6 +1001,7 @@ const locale = {
   personal_details: '個人情報',
   personal_details_description: '個人情報に関する情報を管理します',
   change_password: 'パスワードを変更',
+  delete_account_email_confirmation: 'メールを確認してアカウント削除を確定してください',
   notification_settings: '通知設定',
   notification_settings_description: '通知に関する詳細を管理します',
   recent_activity: '最近のアクティビティ',
