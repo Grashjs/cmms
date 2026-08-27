@@ -850,9 +850,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       return;
     }
 
-    await api.deletes<{ success: boolean }>(`auth`);
-    setSession(null, null);
-    dispatch({ type: 'LOGOUT' });
+    await api.post<{ success: boolean }>('auth/delete-account-request', {});
   };
 
   const register = async (values): Promise<void> => {

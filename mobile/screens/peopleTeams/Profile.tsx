@@ -39,8 +39,7 @@ export default function UserProfile({
     userSettings,
     updatePassword,
     patchUser,
-    deleteAccount,
-    logout
+    deleteAccount
   } = useAuth();
   const theme = useAppTheme();
   const { t } = useTranslation();
@@ -230,12 +229,7 @@ export default function UserProfile({
     try {
       await deleteAccount();
       setOpenDeleteAccountDialog(false);
-      showSnackBar(t('account_deleted'), 'success');
-      logout();
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Root' }]
-      });
+      showSnackBar(t('delete_account_email_confirmation'), 'info');
     } catch (err) {
       showSnackBar(t('account_delete_error'), 'error');
     } finally {

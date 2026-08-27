@@ -1,4 +1,4 @@
-const trJSON = {
+﻿const trJSON = {
   DUPLICATE_OF: 'Kopyası',
   DUPLICATED_BY: 'Tarafından çoğaltıldı',
   RELATED_TO: 'İle ilgili',
@@ -248,7 +248,8 @@ const trJSON = {
   wo_create_success: 'İş Emri başarıyla oluşturuldu',
   wo_create_failure: 'İş Emri oluşturulamadı',
   discard_changes: 'Değişiklikleri at',
-  discard_changes_question: 'Kaydedilmemiş değişiklikler atılsın mı?\nŞimdi ayrılırsanız, kaydedilmemiş değişiklikleri kaybedersiniz',
+  discard_changes_question:
+    'Kaydedilmemiş değişiklikler atılsın mı?\nŞimdi ayrılırsanız, kaydedilmemiş değişiklikleri kaybedersiniz',
   changes_saved_success: 'Değişiklikler kaydedildi',
   wo_update_failure: 'İş Emri düzenlenemedi',
   wo_delete_success: 'İş Emri başarıyla silindi',
@@ -1008,6 +1009,8 @@ const trJSON = {
   delete_account: 'Hesabı sil',
   delete_account_confirmation:
     'Hesabınızı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.',
+  delete_account_email_confirmation:
+    'Hesap silmeyi onaylamak için e-postalarınızı kontrol edin',
   account_deleted: 'Hesap başarıyla silindi',
   account_delete_error: 'Hesap silinirken hata oluştu',
   confirm_delete_account: 'Hesabı sil',
@@ -1559,22 +1562,26 @@ const trJSON = {
   add_comment_placeholder: 'Yorum ekleyin...',
   create_category: 'Create Category',
   delete_row_confirm_message: 'Bu satırı silmek istediğinizden emin misiniz?',
-  review_prompt_title: 'Atlas CMMS\'i beğeniyor musunuz?',
+  review_prompt_title: "Atlas CMMS'i beğeniyor musunuz?",
   feedback_title: 'Gelişmemize yardımcı olun',
   feedback_description1:
-    'Bunu duyduğumuza üzüldük. Geri bildiriminiz Atlas\'ı daha iyi hale getirmemize yardımcı oluyor.',
-  feedback_placeholder: 'Bize neyin yanlış gittiğini veya nasıl iyileştirebileceğimizi anlatın…',
+    "Bunu duyduğumuza üzüldük. Geri bildiriminiz Atlas'ı daha iyi hale getirmemize yardımcı oluyor.",
+  feedback_placeholder:
+    'Bize neyin yanlış gittiğini veya nasıl iyileştirebileceğimizi anlatın…',
   send: 'Gönder',
   edit_additional_cost: 'Maliyeti Düzenle',
   delete_additional_cost: 'Maliyeti Sil',
-  confirm_delete_additional_cost: 'Bu maliyeti silmek istediğinizden emin misiniz?',
+  confirm_delete_additional_cost:
+    'Bu maliyeti silmek istediğinizden emin misiniz?',
   edit_additional_time: 'Süreyi Düzenle',
   delete_additional_time: 'Süreyi Sil',
-  confirm_delete_additional_time: 'Bu süreyi silmek istediğinizden emin misiniz?',
+  confirm_delete_additional_time:
+    'Bu süreyi silmek istediğinizden emin misiniz?',
   reset: 'Sıfırla',
   operation_success: 'İşlem başarılı oldu',
   edit_reading: 'Okumayı Düzenle',
   are_you_sure_delete_reading: 'Bu okumayı silmek istediğinizden emin misiniz?',
-  conflict_retry: 'Kaynak başka bir istek tarafından değiştirildi. Lütfen 5 saniye sonra tekrar deneyin.'
+  conflict_retry:
+    'Kaynak başka bir istek tarafından değiştirildi. Lütfen 5 saniye sonra tekrar deneyin.'
 };
 export default trJSON;
