@@ -50,8 +50,8 @@ import moment from 'moment-timezone';
 import { getCustomFields } from '../slices/customField';
 import {
   initialize as initClarity,
-  setCustomUserId,
-  LogLevel
+  setCustomUserId
+  // LogLevel
 } from '@microsoft/react-native-clarity';
 
 interface AuthState {
