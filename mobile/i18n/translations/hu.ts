@@ -1031,6 +1031,7 @@ const locale = {
   account_deleted: 'A fiók sikeresen törölve',
   account_delete_error: 'Hiba történt a fiók törlése során',
   confirm_delete_account: 'Fiók törlése',
+  delete_account_email_confirmation: 'Kérjük, ellenőrizze e-mailjeit a fiók törlésének megerősítéséhez',
   notification_settings: 'Értesítési beállítások',
   notification_settings_description:
     'Kezelje az értesítéseivel kapcsolatos beállításokat',

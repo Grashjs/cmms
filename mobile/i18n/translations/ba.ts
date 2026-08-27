@@ -1038,6 +1038,7 @@ const locale = {
   account_deleted: 'Račun je uspješno obrisan',
   account_delete_error: 'Greška pri brisanju računa',
   confirm_delete_account: 'Potvrdi brisanje računa',
+  delete_account_email_confirmation: 'Provjerite svoju e-poštu da potvrdite brisanje računa',
   notification_settings: 'Postavke obavještenja',
   notification_settings_description:
     'Upravljajte detaljima svojih obavještenja',

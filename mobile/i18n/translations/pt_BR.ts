@@ -1070,6 +1070,7 @@ const ptBRJSON = {
   account_deleted: 'Conta excluída com sucesso',
   account_delete_error: 'Erro ao excluir a conta',
   confirm_delete_account: 'Excluir conta',
+  delete_account_email_confirmation: 'Verifique seus e-mails para confirmar a exclusão da conta',
   notification_settings: 'Configurações de Notificações',
   notification_settings_description:
     'Gerencie detalhes relacionados às suas notificações',

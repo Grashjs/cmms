@@ -1036,6 +1036,7 @@ const locale = {
   account_deleted: 'アカウントが正常に削除されました',
   account_delete_error: 'アカウントの削除中にエラーが発生しました',
   confirm_delete_account: 'アカウントを削除',
+  delete_account_email_confirmation: 'メールを確認してアカウント削除を確定してください',
   notification_settings: '通知設定',
   notification_settings_description: '通知に関する詳細を管理します',
   recent_activity: '最近のアクティビティ',

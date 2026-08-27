@@ -1028,6 +1028,7 @@ const locale = {
   account_deleted: 'Account succesvol verwijderd',
   account_delete_error: 'Fout bij het verwijderen van account',
   confirm_delete_account: 'Account verwijderen',
+  delete_account_email_confirmation: 'Controleer uw e-mails om de verwijdering van het account te bevestigen',
   notification_settings: 'Meldingsinstellingen',
   notification_settings_description:
     'Beheer details met betrekking tot uw meldingen',

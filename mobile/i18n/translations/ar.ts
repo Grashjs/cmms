@@ -978,6 +978,7 @@ const locale = {
   account_deleted: 'تم حذف الحساب بنجاح',
   account_delete_error: 'حدث خطأ أثناء حذف الحساب',
   confirm_delete_account: 'حذف الحساب',
+  delete_account_email_confirmation: 'يرجى التحقق من بريدك الإلكتروني لتأكيد حذف الحساب',
   notification_settings: 'إعدادات الإشعارات',
   notification_settings_description: 'إدارة التفاصيل المتعلقة بإشعاراتك',
   recent_activity: 'النشاط الأخير',

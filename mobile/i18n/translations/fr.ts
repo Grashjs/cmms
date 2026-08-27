@@ -1166,6 +1166,7 @@ const frJSON = {
   account_deleted: 'Compte supprimé avec succès',
   account_delete_error: 'Erreur lors de la suppression du compte',
   confirm_delete_account: 'Supprimer le compte',
+  delete_account_email_confirmation: 'Veuillez vérifier vos e-mails pour confirmer la suppression du compte',
   notification_settings: 'Paramètres de notifications',
   notification_settings_description:
     'Gérer les détails liés à vos notifications',

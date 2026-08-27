@@ -1095,6 +1095,7 @@ const deJSON = {
   account_deleted: 'Konto erfolgreich gelöscht',
   account_delete_error: 'Fehler beim Löschen des Kontos',
   confirm_delete_account: 'Konto löschen',
+  delete_account_email_confirmation: 'Bitte überprüfen Sie Ihre E-Mails, um die Kontolöschung zu bestätigen',
   notification_settings: 'Benachrichtigungseinstellungen ',
   notification_settings_description:
     'Verwalten Sie Details zu Ihren Benachrichtigungen ',

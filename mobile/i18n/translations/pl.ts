@@ -1035,6 +1035,7 @@ const plJSON = {
   account_deleted: 'Konto zostało pomyślnie usunięte',
   account_delete_error: 'Błąd podczas usuwania konta',
   confirm_delete_account: 'Usuń konto',
+  delete_account_email_confirmation: 'Sprawdź swoją pocztę e-mail, aby potwierdzić usunięcie konta',
   notification_settings: 'Ustawienia powiadomień',
   notification_settings_description:
     'Zarządzaj szczegółami związanymi z powiadomieniami',

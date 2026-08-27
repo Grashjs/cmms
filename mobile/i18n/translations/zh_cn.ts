@@ -929,6 +929,7 @@ const locale = {
   account_deleted: '账户删除成功',
   account_delete_error: '删除账户时出错',
   confirm_delete_account: '删除账户',
+  delete_account_email_confirmation: '请检查您的电子邮件以确认删除账户',
   notification_settings: '通知设置',
   notification_settings_description: '管理与您的通知相关的详细信息',
   recent_activity: '最近活动',

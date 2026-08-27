@@ -1050,6 +1050,7 @@ const locale = {
   account_deleted: 'Cuenta eliminada con éxito',
   account_delete_error: 'Error al eliminar la cuenta',
   confirm_delete_account: 'Eliminar cuenta',
+  delete_account_email_confirmation: 'Por favor revise sus correos electrónicos para confirmar la eliminación de la cuenta',
   notification_settings: 'Configuración de notificaciones',
   notification_settings_description:
     'Administrar detalles relacionados con tus notificaciones',
