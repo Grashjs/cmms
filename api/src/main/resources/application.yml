@@ -116,6 +116,18 @@ security:
         short-term-period-minutes: ${RATE_LIMIT_FILE_UPLOAD_BYPASS_SHORT_PERIOD:1}
         long-term-requests: ${RATE_LIMIT_FILE_UPLOAD_BYPASS_LONG:4}
         long-term-period-hours: ${RATE_LIMIT_FILE_UPLOAD_BYPASS_LONG_PERIOD:24}
+    brute-force:
+      enabled: ${BRUTE_FORCE_RATE_LIMIT_ENABLED:true}
+      login:
+        max-attempts: ${BRUTE_FORCE_LOGIN_MAX_ATTEMPTS:5}
+        period-minutes: ${BRUTE_FORCE_LOGIN_PERIOD_MINUTES:15}
+        long-term-max-attempts: ${BRUTE_FORCE_LOGIN_LONG_TERM_ATTEMPTS:20}
+        long-term-period-hours: ${BRUTE_FORCE_LOGIN_LONG_TERM_PERIOD_HOURS:24}
+      reset-password:
+        max-attempts: ${BRUTE_FORCE_RESET_MAX_ATTEMPTS:3}
+        period-minutes: ${BRUTE_FORCE_RESET_PERIOD_MINUTES:10}
+        long-term-max-attempts: ${BRUTE_FORCE_RESET_LONG_TERM_ATTEMPTS:10}
+        long-term-period-hours: ${BRUTE_FORCE_RESET_LONG_TERM_PERIOD_HOURS:24}
 frontend:
   url: ${PUBLIC_FRONT_URL}
   home-url: ${PUBLIC_HOME_URL:}

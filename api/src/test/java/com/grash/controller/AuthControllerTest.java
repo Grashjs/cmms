@@ -73,6 +73,10 @@ class AuthControllerTest extends AbstractControllerTest {
 
     @BeforeEach
     void setUp() {
+        when(rateLimiterService.isBruteForceEnabled()).thenReturn(true);
+        when(rateLimiterService.tryConsumeLoginAttempt(anyString())).thenReturn(true);
+        when(rateLimiterService.tryConsumeResetPasswordAttempt(anyString())).thenReturn(true);
+
         Role clientRole = Role.builder()
                 .id(1L)
                 .roleType(RoleType.ROLE_CLIENT)
@@ -235,7 +239,8 @@ class AuthControllerTest extends AbstractControllerTest {
 
             mockMvc.perform(post("/auth/signup")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content("{\"email\":\"new@test.com\",\"password\":\"pass123pass12\",\"firstName\":\"John\"," +
+                            .content("{\"email\":\"new@test.com\",\"password\":\"pass123pass12\"," +
+                                    "\"firstName\":\"John\"," +
                                     "\"lastName\":\"Doe\",\"phone\":\"12345678\"}"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.success").value(true))

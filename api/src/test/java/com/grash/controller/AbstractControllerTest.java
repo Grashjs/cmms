@@ -18,7 +18,7 @@ public class AbstractControllerTest {
     @MockitoBean
     private LicenseService licenseService;
     @MockitoBean
-    private RateLimiterService rateLimiterService;
+    protected RateLimiterService rateLimiterService;
     @MockitoBean
     private ClientIpResolver clientIpResolver;
 }
