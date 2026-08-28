@@ -1055,6 +1055,11 @@ const locale = {
   monthly_adverb: '月額',
   yearly_adverb: '年額',
   features: '機能',
+  subscription_change_summary: 'サブスクリプション変更の概要',
+  change_from_to: '{{current}} → {{next}}',
+  billing_period: '請求期間',
+  prorata_notice:
+    '現在の請求期間の残りに対して、日割り計算された金額が請求されます。',
   checkout: 'チェックアウト',
   checkout_description: '以下のフィールドに入力してください',
   per_month: '月額',

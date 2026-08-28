@@ -78,7 +78,8 @@ function SubscriptionPlans() {
               id: randomInt(),
               usersCount,
               monthly: period === 'monthly',
-              subscriptionPlan: selectedPlanObject
+              subscriptionPlan: selectedPlanObject,
+              activated: true
             }).then(onSubcriptionPatchSuccess);
           }
         }
@@ -128,7 +129,8 @@ function SubscriptionPlans() {
             id: randomInt(),
             usersCount,
             monthly: period === 'monthly',
-            subscriptionPlan: selectedPlanObject
+            subscriptionPlan: selectedPlanObject,
+            activated: true
           }).then(onSubcriptionPatchSuccess);
         } else {
           showSnackBar(t("The Subscription couldn't be changed"), 'error');
@@ -160,38 +162,6 @@ function SubscriptionPlans() {
       setSubmitting(false);
     }
   };
-  const onUpgradeRequest = async () => {
-    setSubmitting(true);
-    const cost = getCost();
-    fireGa4Event({
-      category: 'Pricing',
-      action: 'Upgrade_Request',
-      label: 'Upgrade_Request',
-      value: period == 'monthly' ? cost : cost * 10
-    });
-
-    const payload = {
-      code: selectedPlanObject.code,
-      monthly: period === 'monthly',
-      usersCount
-    };
-    try {
-      const { success } = await api.post<{ success: boolean }>(
-        'subscriptions/request-upgrade',
-        payload
-      );
-      if (success) {
-        showSnackBar(t('upgrade_request_success'), 'success');
-        navigate('/app/work-orders');
-        return;
-      }
-    } catch (err) {
-      showSnackBar(t('failure'), 'error');
-      return;
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   const periods = [
     { name: t('monthly'), value: 'monthly' },
@@ -203,6 +173,11 @@ function SubscriptionPlans() {
       subscriptionPlans.find((plan) => plan.code == selectedPlan)
     );
   }, [selectedPlan, subscriptionPlans]);
+
+  const isChangingSubscription = company.subscription.activated;
+  const currentPeriodLabel = subscription.monthly
+    ? t('monthly')
+    : t('annually');
 
   const getCost = () => {
     const selectedPlanData = subscriptionPlans.find(
@@ -218,9 +193,6 @@ function SubscriptionPlans() {
   const onSubcriptionPatchSuccess = () => {
     showSnackBar(t('subscription_change_success'), 'success');
     navigate('/app/work-orders');
-  };
-  const onSubcriptionPatchFailure = () => {
-    showSnackBar(t("The Subscription couldn't be changed"), 'error');
   };
 
   useEffect(() => {
@@ -431,6 +403,79 @@ function SubscriptionPlans() {
                   </Typography>
                   <PlanFeatures features={selectedPlanObject?.features ?? []} />
                 </Box>
+                {isChangingSubscription && (
+                  <Box
+                    sx={{
+                      border: 1,
+                      borderColor: theme.colors.primary.main,
+                      backgroundColor: theme.colors.primary.lighter,
+                      borderRadius: 2,
+                      p: 2,
+                      my: 2
+                    }}
+                  >
+                    <Typography
+                      variant="h4"
+                      fontWeight="bold"
+                      gutterBottom
+                      sx={{ color: theme.colors.primary.dark }}
+                    >
+                      {t('subscription_change_summary')}
+                    </Typography>
+
+                    <Stack
+                      direction="row"
+                      justifyContent="space-between"
+                      my={1}
+                    >
+                      <Typography variant="body1">{t('plan')}</Typography>
+                      <Typography variant="body1" fontWeight="bold">
+                        {t('change_from_to', {
+                          current: subscription.subscriptionPlan.name,
+                          next: selectedPlanObject?.name
+                        })}
+                      </Typography>
+                    </Stack>
+
+                    <Stack
+                      direction="row"
+                      justifyContent="space-between"
+                      my={1}
+                    >
+                      <Typography variant="body1">{t('users')}</Typography>
+                      <Typography variant="body1" fontWeight="bold">
+                        {t('change_from_to', {
+                          current: subscription.usersCount,
+                          next: usersCount
+                        })}
+                      </Typography>
+                    </Stack>
+
+                    <Stack
+                      direction="row"
+                      justifyContent="space-between"
+                      my={1}
+                    >
+                      <Typography variant="body1">
+                        {t('billing_period')}
+                      </Typography>
+                      <Typography variant="body1" fontWeight="bold">
+                        {t('change_from_to', {
+                          current: currentPeriodLabel,
+                          next:
+                            period === 'monthly' ? t('monthly') : t('annually')
+                        })}
+                      </Typography>
+                    </Stack>
+
+                    <Typography
+                      variant="subtitle2"
+                      sx={{ mt: 2, fontStyle: 'italic' }}
+                    >
+                      {t('prorata_notice')}
+                    </Typography>
+                  </Box>
+                )}
                 <Box
                   sx={{
                     display: 'flex',

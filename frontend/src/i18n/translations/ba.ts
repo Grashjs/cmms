@@ -1075,6 +1075,11 @@ const locale = {
   monthly_adverb: 'mjesečno',
   yearly_adverb: 'godišnje',
   features: 'Karakteristike',
+  subscription_change_summary: 'Sažetak promjene pretplate',
+  change_from_to: '{{current}} → {{next}}',
+  billing_period: 'Period naplate',
+  prorata_notice:
+    'Za ostatak vašeg trenutnog perioda naplate bit će naplaćen srazmjerni iznos.',
   checkout: 'Završi kupovinu',
   checkout_description: 'Popunite polja ispod',
   per_month: 'mjesečno',

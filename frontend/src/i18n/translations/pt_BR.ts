@@ -1125,6 +1125,11 @@ const ptBRJSON = {
   monthly_adverb: 'mensalmente',
   yearly_adverb: 'anualmente',
   features: 'Recursos',
+  subscription_change_summary: 'Resumo da alteração da assinatura',
+  change_from_to: '{{current}} → {{next}}',
+  billing_period: 'Período de cobrança',
+  prorata_notice:
+    'Você será cobrado por um valor proporcional pelo restante do seu período de cobrança atual.',
   checkout: 'Finalizar Compra',
   checkout_description: 'Preencha os campos abaixo',
   per_month: 'por mês',

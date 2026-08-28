@@ -1216,6 +1216,11 @@ const frJSON = {
   monthly_adverb: 'mensuellement',
   yearly_adverb: 'annuellement',
   features: 'Fonctionnalités',
+  subscription_change_summary: 'Résumé du changement d’abonnement',
+  change_from_to: '{{current}} → {{next}}',
+  billing_period: 'Période de facturation',
+  prorata_notice:
+    'Vous serez facturé au prorata pour le reste de votre période de facturation actuelle.',
   checkout: 'Checkout',
   checkout_description: 'Remplissez les champs ci-dessous',
   per_month: 'par mois',

@@ -1101,6 +1101,11 @@ const locale = {
   monthly_adverb: 'maandelijks',
   yearly_adverb: 'jaarlijks',
   features: 'Functies',
+  subscription_change_summary: 'Samenvatting van abonnementswijziging',
+  change_from_to: '{{current}} → {{next}}',
+  billing_period: 'Facturatieperiode',
+  prorata_notice:
+    'Voor de rest van uw huidige factureringsperiode wordt een evenredig bedrag in rekening gebracht.',
   checkout: 'Afrekenen',
   checkout_description: 'Vul de onderstaande velden in',
   per_month: 'per maand',

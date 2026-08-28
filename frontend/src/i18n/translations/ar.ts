@@ -1030,6 +1030,11 @@ const locale = {
   monthly_adverb: 'شهريا',
   yearly_adverb: 'سنوي',
   features: 'سمات',
+  subscription_change_summary: 'ملخص تغيير الاشتراك',
+  change_from_to: '{{current}} → {{next}}',
+  billing_period: 'فترة الفوترة',
+  prorata_notice:
+    'سيتم فرض مبلغ تناسبي عليك عن باقي فترة الفوترة الحالية.',
   checkout: 'الدفع',
   checkout_description: 'إملأ الحقول أدناه',
   per_month: 'كل شهر',

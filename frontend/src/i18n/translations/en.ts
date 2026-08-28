@@ -1053,6 +1053,11 @@ const locale = {
   monthly_adverb: 'monthly',
   yearly_adverb: 'yearly',
   features: 'Features',
+  subscription_change_summary: 'Subscription Change Summary',
+  change_from_to: '{{current}} → {{next}}',
+  billing_period: 'Billing period',
+  prorata_notice:
+    'You will be charged a prorated amount for the remainder of your current billing period.',
   checkout: 'Checkout',
   checkout_description: 'Fill in the fields below',
   per_month: 'per month',

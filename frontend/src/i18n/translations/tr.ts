@@ -1054,6 +1054,11 @@ const trJSON = {
   monthly_adverb: 'aylık',
   yearly_adverb: 'yıllık',
   features: 'Özellikler',
+  subscription_change_summary: 'Abonelik Değişiklik Özeti',
+  change_from_to: '{{current}} → {{next}}',
+  billing_period: 'Faturalandırma dönemi',
+  prorata_notice:
+    'Mevcut fatura döneminin kalanı için orantılı bir tutar tahsil edilecektir.',
   checkout: 'Çıkış yap',
   checkout_description: 'Aşağıdaki alanları doldurun',
   per_month: 'her ay',
