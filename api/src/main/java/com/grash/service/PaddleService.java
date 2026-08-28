@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.dto.license.SelfHostedPlan;
 import com.grash.dto.checkout.CheckoutRequest;
 import com.grash.dto.checkout.CheckoutResponse;
+import com.grash.dto.paddle.subscription.UpdateSubscriptionRequest;
 import com.grash.exception.CustomException;
 import com.grash.model.User;
 import com.grash.model.Subscription;
@@ -48,6 +49,8 @@ public class PaddleService {
     private final RestTemplate restTemplate = new RestTemplate();
     @Value("${cloud-version}")
     private boolean cloudVersion;
+
+    private final CacheService cacheService;
 
     @PostConstruct
     public void init() {
@@ -194,6 +197,8 @@ public class PaddleService {
         savedSubscription.setEndsOn(endsOn);
         //avoid setting scheduledDate fields
         savedSubscription.setUsersCount(usersCount);
+        
+        companyUsers.forEach(user -> cacheService.evictUserFromCache(user.getEmail()));
     }
 
     public String createCustomerPortalSession(String customerId, @Nullable String subscriptionId) {
@@ -373,6 +378,87 @@ public class PaddleService {
         } else {
             throw new CustomException("Failed to retrieve customer email", HttpStatus.NOT_FOUND);
         }
+    }
+
+    public void updateSubscription(Subscription savedSubscription, UpdateSubscriptionRequest request) {
+        SubscriptionPlan newPlan =
+                subscriptionPlanService.findByCode(request.getPlanId().split("-")[0].toUpperCase())
+                        .orElseThrow(() -> new CustomException("Plan not found", HttpStatus.BAD_REQUEST));
+
+        boolean monthly = request.getPlanId().toLowerCase().contains("monthly");
+        String priceId = monthly ? newPlan.getMonthlyPaddlePriceId() : newPlan.getYearlyPaddlePriceId();
+        int newQuantity = request.getQuantity();
+
+        if (newPlan.getId().equals(savedSubscription.getSubscriptionPlan().getId()) &&
+                newQuantity == savedSubscription.getUsersCount()) {
+            throw new CustomException("There is no change in the plan or users count", HttpStatus.NOT_ACCEPTABLE);
+        }
+
+        String prorationMode = inferProrationBillingMode(savedSubscription, newPlan, newQuantity, monthly);
+
+        SubscriptionItemUpdate item = new SubscriptionItemUpdate();
+        item.setPriceId(priceId);
+        item.setQuantity(newQuantity);
+
+        updateSubscriptionItems(savedSubscription.getPaddleSubscriptionId(),
+                Collections.singletonList(item), prorationMode);
+    }
+
+    private String inferProrationBillingMode(Subscription savedSubscription, SubscriptionPlan newPlan,
+                                             int newQuantity, boolean monthly) {
+        int currentQuantity = savedSubscription.getUsersCount();
+        SubscriptionPlan currentPlan = savedSubscription.getSubscriptionPlan();
+        double currentCost = currentQuantity * (savedSubscription.isMonthly() ? currentPlan.getMonthlyCostPerUser() :
+                currentPlan.getYearlyCostPerUser());
+        double newCost = newQuantity * (monthly ? newPlan.getMonthlyCostPerUser() : newPlan.getYearlyCostPerUser());
+        double toCharge = newCost - currentCost;
+        if (toCharge > 0.01) return "prorated_immediately";
+        else return "prorated_next_billing_period";
+    }
+
+    private void updateSubscriptionItems(String paddleSubscriptionId, List<SubscriptionItemUpdate> items,
+                                         String prorationBillingMode) {
+        HttpHeaders headers = getHttpHeaders();
+
+        UpdateSubscriptionItemsRequest body = new UpdateSubscriptionItemsRequest();
+        body.setItems(items);
+        body.setProrationBillingMode(prorationBillingMode);
+
+        HttpEntity<UpdateSubscriptionItemsRequest> entity = new HttpEntity<>(body, headers);
+
+        try {
+            ResponseEntity<Object> response = restTemplate.exchange(
+                    paddleApiUrl + "/subscriptions/" + paddleSubscriptionId,
+                    HttpMethod.PATCH,
+                    entity,
+                    Object.class
+            );
+
+            if (!response.getStatusCode().is2xxSuccessful()) {
+                throw new CustomException("Failed to update Paddle subscription", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new CustomException("Error updating Paddle subscription: " + e.getMessage(),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Data
+    private static class UpdateSubscriptionItemsRequest {
+        private List<SubscriptionItemUpdate> items;
+
+        @JsonProperty("proration_billing_mode")
+        private String prorationBillingMode;
+    }
+
+    @Data
+    public static class SubscriptionItemUpdate {
+        @JsonProperty("price_id")
+        private String priceId;
+
+        private Integer quantity;
     }
 
     // Portal Session Response DTOs

@@ -28,12 +28,11 @@ import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContex
 import { SubscriptionPlan } from '../../../../models/owns/subscriptionPlan';
 import { useNavigate } from 'react-router-dom';
 import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
-import api, { authHeader } from '../../../../utils/api';
+import api from '../../../../utils/api';
 import { useBrand } from '../../../../hooks/useBrand';
 import { fireGa4Event } from '../../../../utils/overall';
 import { initializePaddle, Paddle } from '@paddle/paddle-js';
 import {
-  apiUrl,
   homeUrl,
   isCloudVersion,
   PADDLE_SECRET_TOKEN,
@@ -109,37 +108,54 @@ function SubscriptionPlans() {
     }
     fireGa4Event('checkout_started');
     setSubmitting(true);
-    // if (selectedPlan === 'BUSINESS' || selectedPlanObject.code === 'BUSINESS') {
-    //   onUpgradeRequest();
-    //   return;
-    // }
+
+    const alreadySubscribed = company.subscription.activated;
+
     let path = selectedPlanObject.code.toLowerCase();
     path = `${path}-${period === 'monthly' ? 'monthly' : 'yearly'}`;
-    try {
-      // Create Checkout Session on backend
-      const response = await fetch(`${apiUrl}paddle/create-checkout-session`, {
-        method: 'POST',
-        headers: {
-          ...authHeader(false)
-        },
-        body: JSON.stringify({
-          planId: path,
-          userId: user.id,
-          quantity: usersCount
-        })
-      });
 
-      const data = await response.json();
-      if (data.sessionId) {
-        paddle.current.Checkout.open({
-          transactionId: data.sessionId,
-          customer: {
-            email: user.email.trim().toLowerCase()
+    try {
+      if (alreadySubscribed) {
+        const { success } = await api.patch<{ success: boolean }>(
+          'subscription',
+          {
+            planId: path,
+            quantity: usersCount
           }
-        });
+        );
+        if (success) {
+          patchSubscription({
+            id: randomInt(),
+            usersCount,
+            monthly: period === 'monthly',
+            subscriptionPlan: selectedPlanObject
+          }).then(onSubcriptionPatchSuccess);
+        } else {
+          showSnackBar(t("The Subscription couldn't be changed"), 'error');
+        }
+      } else {
+        // New checkout session
+        const data = await api.post<{ sessionId: string }>(
+          'paddle/create-checkout-session',
+          {
+            planId: path,
+            userId: user.id,
+            quantity: usersCount
+          }
+        );
+
+        if (data.sessionId) {
+          paddle.current.Checkout.open({
+            transactionId: data.sessionId,
+            customer: {
+              email: user.email.trim().toLowerCase()
+            }
+          });
+        }
       }
     } catch (error) {
-      console.error('Failed to create checkout session:', error);
+      console.error('Failed to update subscription:', error);
+      showSnackBar(t("The Subscription couldn't be changed"), 'error');
     } finally {
       setSubmitting(false);
     }

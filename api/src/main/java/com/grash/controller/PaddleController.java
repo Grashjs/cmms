@@ -3,6 +3,7 @@ package com.grash.controller;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.checkout.CheckoutRequest;
 import com.grash.dto.checkout.CheckoutResponse;
+import com.grash.dto.paddle.subscription.UpdateSubscriptionRequest;
 import com.grash.exception.CustomException;
 import com.grash.model.User;
 import com.grash.model.Subscription;
@@ -100,11 +101,39 @@ public class PaddleController {
         if (request.getUserId() != null) {
             User currentUser = userService.whoami(req);
             if (!currentUser.getId().equals(request.getUserId())) {
-                throw new CustomException("You can only create a checkout session for your own account", HttpStatus.FORBIDDEN);
+                throw new CustomException("You can only create a checkout session for your own account",
+                        HttpStatus.FORBIDDEN);
             }
             email = currentUser.getEmail();
         }
         return paddleService.createCheckoutSession(request, email);
+    }
+
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @PatchMapping("/subscription")
+    public SuccessResponse updateSubscription(@Parameter(description = "Plan/quantity change request")
+                                              @Valid @RequestBody UpdateSubscriptionRequest request,
+                                              HttpServletRequest req) {
+        checkIfCloudVersion();
+        User user = userService.whoami(req);
+        if (!user.isOwnsCompany())
+            throw new CustomException("Only company owner can update subscription", HttpStatus.FORBIDDEN);
+
+        Optional<Subscription> optionalSubscription =
+                subscriptionService.findById(user.getCompany().getSubscription().getId());
+        if (optionalSubscription.isEmpty()) {
+            throw new CustomException("Subscription not found", HttpStatus.NOT_FOUND);
+        }
+        Subscription savedSubscription = optionalSubscription.get();
+        if (!savedSubscription.isActivated()) {
+            throw new CustomException("Subscription is not activated", HttpStatus.NOT_ACCEPTABLE);
+        }
+        if (savedSubscription.getPaddleSubscriptionId() == null) {
+            throw new CustomException("No Paddle subscription linked", HttpStatus.NOT_ACCEPTABLE);
+        }
+        paddleService.updateSubscription(savedSubscription, request);
+        return new SuccessResponse(true, "Subscription updated");
+
     }
 }
 
