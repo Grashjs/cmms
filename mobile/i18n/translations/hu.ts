@@ -188,6 +188,8 @@ const locale = {
   no_account_yet: 'Még nincs fiókja?',
   signup_here: 'Regisztráljon itt',
   wrong_credentials: 'Helytelen hitelesítő adatok',
+  server_not_reachable:
+    'A háttérszerver nem elérhető. Megvárhatod, amíg elindul, és újra próbálkozhatsz.',
   lost_password: 'Elfelejtett jelszó?',
   link_wo: 'Munkamegrendelések összekapcsolása',
   link_wo_description: 'Kapcsolatok létrehozása munkamegrendelések között',

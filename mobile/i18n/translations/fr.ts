@@ -292,6 +292,8 @@ const frJSON = {
   no_account_yet: "Vous n'avez pas encore de compte?",
   signup_here: 'Inscrivez-vous ici',
   wrong_credentials: "Informations d'identification erronées fournies",
+  server_not_reachable:
+    "Le serveur principal est inaccessible. Vous pouvez attendre qu'il démarre puis réessayer.",
   lost_password: 'Mot de passe oublié ?',
   register: "S'inscrire",
   //work-orders

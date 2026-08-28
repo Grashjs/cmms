@@ -182,6 +182,8 @@ const locale = {
   no_account_yet: 'Har du inget konto än?',
   signup_here: 'Registrera dig här',
   wrong_credentials: 'Felaktiga inloggningsuppgifter angivna',
+  server_not_reachable:
+    'Backend-servern är inte nåbar. Du kan vänta på att den startar och försöka igen.',
   lost_password: 'Glömt lösenord?',
   link_wo: 'Länka arbetsordrar',
   link_wo_description: 'Skapa relationer mellan arbetsordrar',

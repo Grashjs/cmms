@@ -163,6 +163,8 @@ const locale = {
   no_account_yet: '還沒有帳號嗎？',
   signup_here: '在此註冊',
   wrong_credentials: '提供的憑證錯誤',
+  server_not_reachable:
+    '後端伺服器無法連線。您可以等待它啟動後再試一次。',
   lost_password: '忘記密碼？',
   //work-orders
   link_wo: '連結工單',

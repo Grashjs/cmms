@@ -192,6 +192,8 @@ const locale = {
   no_account_yet: 'Još nemate račun?',
   signup_here: 'Registrujte se ovdje',
   wrong_credentials: 'Uneseni su pogrešni podaci za prijavu',
+  server_not_reachable:
+    'Backend server nije dostupan. Možete sačekati da se pokrene i pokušati ponovo.',
   lost_password: 'Zaboravili ste lozinku?',
   //work-orders
   link_wo: 'Povežite radne naloge',

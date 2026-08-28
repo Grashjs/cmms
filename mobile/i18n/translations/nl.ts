@@ -187,6 +187,8 @@ const locale = {
   no_account_yet: 'Heeft u nog geen account?',
   signup_here: 'Registreer hier',
   wrong_credentials: 'Onjuiste inloggegevens opgegeven',
+  server_not_reachable:
+    'De backend-server is niet bereikbaar. U kunt wachten tot deze is gestart en het opnieuw proberen.',
   lost_password: 'Wachtwoord vergeten?',
   link_wo: 'Werkorders koppelen',
   link_wo_description: 'Maak relaties tussen werkorders',

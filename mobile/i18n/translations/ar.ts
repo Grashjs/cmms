@@ -177,6 +177,8 @@ const locale = {
   no_account_yet: 'ليس لديك حساب حتى الآن؟',
   signup_here: 'سجل هنا',
   wrong_credentials: 'تم تقديم بيانات اعتماد خاطئة',
+  server_not_reachable:
+    'خادم الواجهة الخلفية غير قابل للوصول. يمكنك الانتظار حتى يعمل ثم المحاولة مرة أخرى.',
   lost_password: 'فقدت كلمة المرور ؟',
   link_wo: 'ربط أوامر العمل',
   link_wo_description: 'إنشاء علاقات بين أوامر العمل',

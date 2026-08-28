@@ -194,6 +194,8 @@ const deJSON = {
   no_account_yet: 'Noch kein Konto? ',
   signup_here: 'Hier registrieren ',
   wrong_credentials: 'Falsche Anmeldedaten angegeben ',
+  server_not_reachable:
+    'Der Backend-Server ist nicht erreichbar. Warten Sie, bis er gestartet ist, und versuchen Sie es erneut.',
   lost_password: 'Passwort vergessen? ',
   //work-orders
   link_wo: 'Arbeitsaufträge verknüpfen ',

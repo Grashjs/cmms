@@ -185,6 +185,8 @@ const locale = {
   no_account_yet: 'Don’t have an account, yet?',
   signup_here: 'Sign up here',
   wrong_credentials: 'Wrong credentials provided',
+  server_not_reachable:
+    'The backend server is not reachable. You may wait for it to start and try again.',
   lost_password: 'Lost password ?',
   //work-orders
   link_wo: 'Link Work Orders',

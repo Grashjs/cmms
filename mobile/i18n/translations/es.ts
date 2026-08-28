@@ -188,6 +188,8 @@ const locale = {
   no_account_yet: '¿Aún no tienes una cuenta?',
   signup_here: 'Regístrate aquí',
   wrong_credentials: 'Credenciales incorrectas proporcionadas',
+  server_not_reachable:
+    'El servidor backend no está disponible. Puede esperar a que se inicie e intentarlo de nuevo.',
   lost_password: '¿Perdiste tu contraseña?',
   link_wo: 'Vincular Órdenes de Trabajo',
   link_wo_description: 'Crear relaciones entre Órdenes de Trabajo',

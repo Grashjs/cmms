@@ -192,6 +192,8 @@ const plJSON = {
   no_account_yet: 'Nie masz jeszcze konta?',
   signup_here: 'Zarejestruj się tutaj',
   wrong_credentials: 'Podano nieprawidłowe dane uwierzytelniające',
+  server_not_reachable:
+    'Serwer zaplecza jest niedostępny. Możesz poczekać, aż się uruchomi, i spróbować ponownie.',
   lost_password: 'Zapomniałeś hasła?',
   link_wo: 'Połącz zlecenia robocze',
   link_wo_description: 'Utwórz relacje między zleceniami roboczymi',

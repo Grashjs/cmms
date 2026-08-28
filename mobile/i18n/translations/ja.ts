@@ -183,6 +183,8 @@ const locale = {
   no_account_yet: 'まだアカウントをお持ちではありませんか？',
   signup_here: 'こちらからサインアップ',
   wrong_credentials: '提供された認証情報が間違っています',
+  server_not_reachable:
+    'バックエンドサーバーに接続できません。起動するまで待ってから、もう一度お試しください。',
   lost_password: 'パスワードを忘れましたか？',
   //work-orders
   link_wo: '作業指示書をリンク',
