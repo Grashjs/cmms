@@ -117,7 +117,7 @@ function SubscriptionPlans() {
     try {
       if (alreadySubscribed) {
         const { success } = await api.patch<{ success: boolean }>(
-          'subscription',
+          'paddle/subscription',
           {
             planId: path,
             quantity: usersCount

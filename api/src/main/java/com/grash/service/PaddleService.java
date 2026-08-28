@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -46,7 +47,7 @@ public class PaddleService {
     private String frontendHomeUrl;
 
     private String paddleApiUrl;
-    private final RestTemplate restTemplate = new RestTemplate();
+    private RestTemplate restTemplate;
     @Value("${cloud-version}")
     private boolean cloudVersion;
 
@@ -58,6 +59,7 @@ public class PaddleService {
         this.paddleApiUrl = "sandbox".equalsIgnoreCase(paddleEnvironment)
                 ? "https://sandbox-api.paddle.com"
                 : "https://api.paddle.com";
+        this.restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
     }
 
     public CheckoutResponse createCheckoutSession(CheckoutRequest request, @Nullable String email) {
@@ -197,7 +199,7 @@ public class PaddleService {
         savedSubscription.setEndsOn(endsOn);
         //avoid setting scheduledDate fields
         savedSubscription.setUsersCount(usersCount);
-        
+
         companyUsers.forEach(user -> cacheService.evictUserFromCache(user.getEmail()));
     }
 
@@ -406,6 +408,13 @@ public class PaddleService {
 
     private String inferProrationBillingMode(Subscription savedSubscription, SubscriptionPlan newPlan,
                                              int newQuantity, boolean monthly) {
+        boolean frequencyChanged = savedSubscription.isMonthly() != monthly;
+
+        if (frequencyChanged) {
+            // Paddle requires prorated_immediately, full_immediately, or do_not_bill here.
+            return "prorated_immediately";
+        }
+
         int currentQuantity = savedSubscription.getUsersCount();
         SubscriptionPlan currentPlan = savedSubscription.getSubscriptionPlan();
         double currentCost = currentQuantity * (savedSubscription.isMonthly() ? currentPlan.getMonthlyCostPerUser() :
