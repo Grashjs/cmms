@@ -7,6 +7,7 @@ import com.grash.utils.TenantAspectUtils;
 
 import jakarta.persistence.criteria.JoinType;
 import com.grash.dto.workOrder.WorkOrderShowDTO;
+import com.grash.event.RequestCreatedEvent;
 import com.grash.exception.CustomException;
 import com.grash.mapper.RequestMapper;
 import com.grash.mapper.WorkOrderMapper;
@@ -27,6 +28,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -60,6 +62,7 @@ public class RequestController {
     private final AssetService assetService;
     private final RequestPortalService requestPortalService;
     private final WebhookDispatchService webhookDispatchService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Value("${frontend.url}")
     private String frontendUrl;
@@ -166,6 +169,10 @@ public class RequestController {
                         company.getId());
         workflows.forEach(workflow -> workflowService.runRequest(workflow, createdRequest));
 
+        // Triage. Published rather than called: this method runs inside the controller's
+        // transaction, and the listener has to see a committed request. See RequestTriageListener,
+        // and docs/ki-meldungs-triage.md for why the workflow engine above cannot do this job.
+        eventPublisher.publishEvent(new RequestCreatedEvent(createdRequest.getId(), company.getId()));
     }
 
     @PostMapping("")

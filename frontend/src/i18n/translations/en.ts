@@ -1959,7 +1959,16 @@ const locale = {
   saved_view_delete_failed: 'Could not delete the view',
   export_filtered: 'Export filtered list',
   export_filtered_columns: 'Export visible columns only',
-  conflict_retry: 'The resource was modified by another request. Please retry in 5 seconds.'
+  conflict_retry: 'The resource was modified by another request. Please retry in 5 seconds.',
+  triage_title: 'Suggested asset',
+  triage_subtitle: 'Automatically matched from the request text ({{engine}})',
+  triage_apply: 'Use this asset',
+  triage_reject: 'None of these',
+  triage_rerun: 'Suggest again',
+  triage_match: 'Match',
+  triage_rejected: 'Suggestion dismissed',
+  triage_match_explanation:
+    'How much of the request text this asset accounts for. A guide, not a probability.'
 };
 
 export default locale;

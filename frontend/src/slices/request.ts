@@ -201,6 +201,23 @@ export const clearSingleRequest = (): AppThunk => async (dispatch) => {
   dispatch(slice.actions.clearSingleRequest({}));
 };
 
+/**
+ * Refetches one request and writes it into both places the detail view can read it from.
+ *
+ * <p>Needed because something changed a request through an endpoint other than the request's own
+ * — triage applying an asset is the first such case. `getSingleRequest` alone is not enough: the
+ * detail view resolves what to show as `requests.content.find(...) ?? singleRequest`, so for a
+ * request opened from the list the stale list entry keeps winning and the change appears not to
+ * have happened. Dispatching both keeps the two copies from disagreeing.
+ */
+export const refreshRequest =
+  (id: number): AppThunk =>
+  async (dispatch) => {
+    const request = await api.get<Request>(`${basePath}/${id}`);
+    dispatch(slice.actions.editRequest({ request }));
+    dispatch(slice.actions.getSingleRequest({ request }));
+  };
+
 export interface SubmitPublicRequestDTO {
   title: string;
   description?: string;

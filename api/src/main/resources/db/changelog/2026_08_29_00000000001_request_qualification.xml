@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <!--
+      Triage of incoming requests - stage 1: the asset suggestion. See docs/ki-meldungs-triage.md.
+
+      A qualification is an opinion ABOUT a request, never part of it. The request table is left
+      untouched by the matcher; a suggestion only reaches the request when a human presses apply,
+      and then through the ordinary asset field. That separation is the whole point: it keeps the
+      matcher side-effect free, lets a bad suggestion be ignored at zero cost, and makes "what did
+      it propose, and what did we do with it" answerable months later - which is what turns this
+      into training data for the later stages.
+
+      Rows are superseded, not updated. A second run against the same request writes a new row and
+      flips the previous one to SUPERSEDED, so the history survives a re-run after a photo was
+      added. Nothing here is ever deleted except with its request.
+    -->
+    <changeSet id="2026_08_29_00000000001-1" author="lars">
+        <createTable tableName="request_qualification">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="request_id" type="BIGINT" remarks="The request this opinion is about">
+                <constraints nullable="false" foreignKeyName="fk_request_qualification_request"
+                             references="request(id)" deleteCascade="true"/>
+            </column>
+            <column name="status" type="VARCHAR(20)" remarks="PENDING / APPLIED / REJECTED / SUPERSEDED">
+                <constraints nullable="false"/>
+            </column>
+            <!--
+              Which matcher produced this, as a version string (lexical-v1). A later stage replaces
+              the matcher; without this column the accuracy of the old and the new one cannot be
+              told apart afterwards, and that comparison is the only way to know whether the
+              upgrade was worth it.
+            -->
+            <column name="engine" type="VARCHAR(50)" remarks="Matcher and version that produced the candidates">
+                <constraints nullable="false"/>
+            </column>
+            <column name="decided_by" type="BIGINT" remarks="User who applied or rejected the suggestion">
+                <constraints foreignKeyName="fk_request_qualification_decided_by"
+                             references="own_user(id)"/>
+            </column>
+            <column name="decided_at" type="TIMESTAMP"/>
+            <!--
+              The chosen asset is stored separately from the candidate list: a user may apply the
+              second candidate rather than the first, and which one they took is exactly the signal
+              the later stages learn from.
+            -->
+            <column name="chosen_asset_id" type="BIGINT" remarks="Candidate the user actually applied">
+                <constraints foreignKeyName="fk_request_qualification_chosen_asset"
+                             references="asset(id)"/>
+            </column>
+            <column name="company_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_request_qualification_company"
+                             references="company(id)" deleteCascade="true"/>
+            </column>
+            <column name="created_by" type="BIGINT"/>
+            <column name="updated_by" type="BIGINT"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueDate="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueDate="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- Every read is "the current qualification of this request". -->
+        <createIndex tableName="request_qualification" indexName="idx_request_qualification_request">
+            <column name="request_id"/>
+            <column name="status"/>
+        </createIndex>
+    </changeSet>
+
+    <!--
+      One row per proposed asset. A list rather than a single suggestion, because the honest answer
+      to which asset "im 2. OG der Heizungsraum" means is often two or three - and asking a human to
+      pick from three beats asking them to correct one wrong guess.
+
+      matched_terms holds the words that actually drove the score, comma separated. It is the
+      explanation shown in the UI, and it is deliberately produced by the matcher rather than
+      reconstructed later: a score without a reason is a number nobody trusts.
+    -->
+    <changeSet id="2026_08_29_00000000001-2" author="lars">
+        <createTable tableName="request_qualification_candidate">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="qualification_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_rq_candidate_qualification"
+                             references="request_qualification(id)" deleteCascade="true"/>
+            </column>
+            <column name="asset_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_rq_candidate_asset"
+                             references="asset(id)" deleteCascade="true"/>
+            </column>
+            <column name="score" type="DOUBLE PRECISION" remarks="0..1, comparable only within one engine">
+                <constraints nullable="false"/>
+            </column>
+            <!-- ordinal, not rank or position: both read as keywords in every query on this table. -->
+            <column name="ordinal" type="INT" remarks="0 = best candidate">
+                <constraints nullable="false"/>
+            </column>
+            <column name="matched_terms" type="VARCHAR(500)" remarks="Words that produced the score, comma separated"/>
+        </createTable>
+
+        <createIndex tableName="request_qualification_candidate" indexName="idx_rq_candidate_qualification">
+            <column name="qualification_id"/>
+        </createIndex>
+    </changeSet>
+
+    <!--
+      CompanyAudit and the candidate both declare @GeneratedValue(AUTO), which Hibernate 6 resolves
+      to a sequence named <table>_seq. ddl-auto: validate does not check sequences, so a missing one
+      fails on the first insert rather than at startup. Increment 50 matches the other per-entity
+      sequences; a mismatch with hibernate allocationSize hands out colliding ids.
+    -->
+    <changeSet id="2026_08_29_00000000001-3" author="lars">
+        <createSequence sequenceName="request_qualification_seq" startValue="1" incrementBy="50"/>
+        <createSequence sequenceName="request_qualification_candidate_seq" startValue="1" incrementBy="50"/>
+    </changeSet>
+
+</databaseChangeLog>

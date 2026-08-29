@@ -41,6 +41,7 @@ import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext
 import FilesList from '../components/FilesList';
 import RequestCancellationModal from './RequestCancellationModal';
 import BasicField from '../components/BasicField';
+import QualificationCard from './QualificationCard';
 import { editAsset } from '../../../slices/asset';
 import { AssetStatus, assetStatuses } from '../../../models/owns/asset';
 import { getCustomFieldValuesForDetails } from '../type';
@@ -178,6 +179,11 @@ export default function RequestDetails({
             </IconButton>
           )}
         </Box>
+      </Grid>
+      {/* Above the approve and reject buttons on purpose: the suggestion is meant to inform that
+          decision, and a card underneath it would be read after the decision was already made. */}
+      <Grid item xs={12}>
+        <QualificationCard request={request} />
       </Grid>
       {!showAssetStatuses ? (
         !request.workOrder &&

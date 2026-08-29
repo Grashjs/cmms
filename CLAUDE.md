@@ -10,7 +10,10 @@ finished German wording migration, before editing `de.ts`; [`docs/TECHNICAL_DEBT
 [`docs/custom-field-categories.md`](docs/custom-field-categories.md) for custom fields bound to
 asset categories — read it before touching `CustomFieldValueService`, which deliberately
 *discards* a value for the wrong category instead of refusing the request, and before deciding
-anything about `mobile/`.
+anything about `mobile/`;
+[`docs/ki-meldungs-triage.md`](docs/ki-meldungs-triage.md) for the asset suggestion on incoming
+requests — read it before touching anything under `service/triage/`, and before assuming the
+workflow engine can carry out what a matcher decided, because it cannot.
 
 ## What this is
 
@@ -423,6 +426,7 @@ fix silently overwritten:
 | Reporting: shared asset scoping | `AssetService.getSearchCriteria` (extracted out of `AssetController.search`) |
 | Reporting: export headers | `messages.properties`, `messages_de_DE.properties` (appended keys) |
 | Saved views | `SavedView*` (new files), `frontend` work-order and asset list pages, `hooks/useTableState.ts`, `hooks/useExport.ts` |
+| Request triage | Almost all new files (`service/triage/**`, `event/**`, `RequestQualification*`, `AssetTriageRepository`, `frontend` `QualificationCard.tsx` + `slices/requestQualification.ts`), so a sync should not touch them. The exceptions are the ones to watch: **`RequestController`** carries one added line at the end of `onRequestCreation` — the published `RequestCreatedEvent` — and upstream edits that method; and `RequestDetails.tsx` renders `<QualificationCard>` above the approve buttons. `AssetRepository` is deliberately *not* involved: the triage query lives in its own repository interface so it cannot conflict |
 | File search and filters | `content/own/Files/index.tsx`, `content/own/Files/Filters/**` |
 | File→asset/work-order links | `File` (`workOrders` join table), `FileShowDTO`, `FileMapper` |
 | Build tooling (frontend) | **Upstream is still Create React App; this fork is not.** `frontend/vite.config.ts` (new), `frontend/index.html` (moved out of `public/`), `frontend/package.json` scripts, `src/config.ts` + `src/serviceWorker.ts` (`import.meta.env` instead of `process.env`), `src/vite-env.d.ts`. Deleted here: `config-overrides.js`, `src/react-app-env.d.ts`. An upstream change touching the build, `public/index.html` or `REACT_APP_*` needs translating, not merging |

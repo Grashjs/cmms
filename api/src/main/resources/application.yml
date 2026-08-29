@@ -253,3 +253,22 @@ springdoc:
 #  level:
 #    org.springdoc: DEBUG
 #    io.swagger.v3: DEBUG
+# Asset triage for incoming requests. See docs/ki-meldungs-triage.md.
+#
+# The defaults are also the values baked into the @Value annotations, repeated here because a
+# setting nobody can find is a setting nobody tunes. Everything is overridable from the
+# environment: the two numbers below decide how the suggestions feel, and finding the right pair
+# for an asset list is a matter of trying them, not of reasoning about them.
+triage:
+  # Off switch. Triage runs on every incoming request and reads the whole asset list of the
+  # company; TRIAGE_ENABLED=false stops it without a deploy and changes nothing else.
+  enabled: ${TRIAGE_ENABLED:true}
+  asset-match:
+    # Nothing weaker than this is offered. Raise it if the card starts showing assets that only
+    # share one unremarkable word; lower it if obvious matches are missing.
+    min-score: ${TRIAGE_MIN_SCORE:0.25}
+    # Where the 0..1 scale bends. Presentation only - it changes the percentages shown, never the
+    # order of the candidates.
+    saturation: ${TRIAGE_SATURATION:3.0}
+    # How many alternatives to offer. Three is about what someone will actually read.
+    max-candidates: ${TRIAGE_MAX_CANDIDATES:3}

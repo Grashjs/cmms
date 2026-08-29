@@ -2093,7 +2093,16 @@ const deJSON = {
   saved_view_save_failed: 'Ansicht konnte nicht gespeichert werden',
   saved_view_delete_failed: 'Ansicht konnte nicht gelöscht werden',
   export_filtered: 'Gefilterte Liste exportieren',
-  export_filtered_columns: 'Nur sichtbare Spalten exportieren'
+  export_filtered_columns: 'Nur sichtbare Spalten exportieren',
+  triage_title: 'Anlagen-Vorschlag',
+  triage_subtitle: 'Automatisch aus dem Meldungstext ermittelt ({{engine}})',
+  triage_apply: 'Anlage übernehmen',
+  triage_reject: 'Keine davon',
+  triage_rerun: 'Neu vorschlagen',
+  triage_match: 'Übereinstimmung',
+  triage_rejected: 'Vorschlag verworfen',
+  triage_match_explanation:
+    'Wie viel vom Meldungstext auf diese Anlage entfällt. Ein Anhaltspunkt, keine Wahrscheinlichkeit.'
 };
 
 export default deJSON;
