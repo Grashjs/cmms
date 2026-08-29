@@ -43,6 +43,8 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
     @Autowired
     private WorkOrderRepository workOrderRepository;
     @Autowired
+    private RequestRepository requestRepository;
+    @Autowired
     private UserRepository userRepository;
     @Autowired
     private CompanyRepository companyRepository;
@@ -635,6 +637,41 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
             em.flush();
             em.clear();
             assertFalse(workOrderRepository.findById(id).isPresent());
+        }
+
+        @Test
+        void deleteByIdAndUser_withParentRequest_clearsLinkAndDeletes() {
+            Request request = new Request();
+            request.setTitle("Parent Request");
+            request.setCompany(company);
+            request.setCreatedBy(user.getId());
+            request = requestRepository.saveAndFlush(request);
+
+            WorkOrder wo = new WorkOrder();
+            wo.setTitle("Child WO");
+            wo.setStatus(Status.OPEN);
+            wo.setPriority(Priority.NONE);
+            wo.setEstimatedDuration(1.0);
+            wo.setCompany(company);
+            wo.setCreatedBy(user.getId());
+            wo.setParentRequest(request);
+            wo.setAssignedTo(new ArrayList<>());
+            wo.setCustomers(new ArrayList<>());
+            wo.setFiles(new ArrayList<>());
+            wo.setCustomFieldValues(new ArrayList<>());
+            wo = workOrderRepository.saveAndFlush(wo);
+
+            request.setWorkOrder(wo);
+            requestRepository.saveAndFlush(request);
+
+            workOrderService.deleteByIdAndUser(wo.getId(), user);
+
+            em.flush();
+            em.clear();
+            assertFalse(workOrderRepository.findById(wo.getId()).isPresent());
+
+            Request reqFromDb = requestRepository.findById(request.getId()).get();
+            assertNull(reqFromDb.getWorkOrder());
         }
 
         @Test

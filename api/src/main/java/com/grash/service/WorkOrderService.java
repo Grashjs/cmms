@@ -267,6 +267,13 @@ public class WorkOrderService {
 
     @Transactional
     protected void delete(WorkOrder workOrder, Company company) {
+        Request parentRequest = workOrder.getParentRequest();
+        if (parentRequest != null) {
+            WorkOrder requestWorkOrder = parentRequest.getWorkOrder();
+            if (requestWorkOrder != null && requestWorkOrder.getId().equals(workOrder.getId())) {
+                parentRequest.setWorkOrder(null);
+            }
+        }
         Map<String, Object> webhookPayload = new HashMap<>();
         webhookPayload.put("workOrderId", workOrder.getId());
         webhookPayload.put("workOrderTitle", workOrder.getTitle());
