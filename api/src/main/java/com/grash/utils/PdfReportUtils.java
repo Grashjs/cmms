@@ -142,7 +142,7 @@ public final class PdfReportUtils {
     }
 
     private static FontProvider createReportFontProvider() {
-        DefaultFontProvider fontProvider = new DefaultFontProvider(true, false, true);
+        DefaultFontProvider fontProvider = new DefaultFontProvider(true, true, true);
         for (String fontResource : REPORT_FONT_RESOURCES) {
             try (InputStream fontStream = PdfReportUtils.class.getResourceAsStream(fontResource)) {
                 if (fontStream == null) {
