@@ -3,6 +3,7 @@ package com.grash.service;
 import com.grash.dto.SignedUrlEntry;
 import com.grash.model.File;
 import com.grash.model.User;
+import com.grash.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.springframework.cache.Cache;
@@ -18,6 +19,7 @@ import java.util.function.Supplier;
 public class CacheService {
     private final CacheManager cacheManager;
     private final String USERS_CACHE = "users";
+    private final UserRepository userRepository;
 
     public void evictUserFromCache(String email) {
         Cache usersCache = cacheManager.getCache(USERS_CACHE);
@@ -81,5 +83,9 @@ public class CacheService {
 
     private String getCacheKey(String email) {
         return email;
+    }
+
+    public void evictCompanyUsersFromCache(Long companyId) {
+        userRepository.findByCompany_Id(companyId).forEach(user -> evictUserFromCache(user.getEmail()));
     }
 }
