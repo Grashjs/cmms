@@ -75,6 +75,7 @@ public class WebhookEndpointController {
                     - `ASSET_STATUS_CHANGE` - Asset status changes
                     - `METER_TRIGGER_STATUS_CHANGE` - Meter trigger activations
                     - `NEW_CATEGORY_ON_WORK_ORDER` - Category changes on work orders
+                    - `NEW_COMMENT_ON_WORK_ORDER` - New comments on work orders
                     - `NEW_WORK_ORDER`, `WORK_ORDER_CHANGE`, `WORK_ORDER_DELETE`
                     - `NEW_ASSET`, `NEW_PART`, `PART_DELETE`
                     - `NEW_REQUEST`, `NEW_LOCATION`, `NEW_VENDOR`

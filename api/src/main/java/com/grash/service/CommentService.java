@@ -3,11 +3,13 @@ package com.grash.service;
 import com.grash.dto.comment.CommentCriteria;
 import com.grash.dto.comment.CommentPatchDTO;
 import com.grash.dto.comment.CommentPostDTO;
+import com.grash.dto.comment.CommentShowDTO;
 import com.grash.exception.CustomException;
 import com.grash.factory.MailServiceFactory;
 import com.grash.mapper.CommentMapper;
 import com.grash.model.*;
 import com.grash.model.enums.NotificationType;
+import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.CommentRepository;
 import com.grash.repository.UserRepository;
 import com.grash.utils.Helper;
@@ -21,6 +23,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -42,11 +45,12 @@ public class CommentService {
     private final NotificationService notificationService;
     private final MessageSource messageSource;
     private final MailServiceFactory mailServiceFactory;
+    private final WebhookDispatchService webhookDispatchService;
 
     @Value("${frontend.url}")
     private String frontendUrl;
 
-    public Comment create(@Valid CommentPostDTO commentReq, User user) {
+    public Pair<Comment, CommentShowDTO> create(@Valid CommentPostDTO commentReq, User user) {
         Comment comment = commentMapper.fromPostDto(commentReq);
         comment.setContent(Sanitizer.cleanText(comment.getContent()));
         WorkOrder workOrder = workOrderService.checkAccessToWorkOrderId(commentReq.getWorkOrder().getId(), user);
@@ -58,7 +62,17 @@ public class CommentService {
         Set<User> notifiedUsers = getNotifiedUsers(savedComment, workOrder, user);
         sendCommentNotifications(savedComment, workOrder, notifiedUsers, user, false);
 
-        return savedComment;
+        Map<String, Object> webhookPayload = new HashMap<>();
+        webhookPayload.put("commentId", savedComment.getId());
+        webhookPayload.put("workOrderId", workOrder.getId());
+        webhookPayload.put("workOrderTitle", workOrder.getTitle());
+        webhookPayload.put("commentContent", savedComment.getFormattedContent());
+        webhookPayload.put("createdBy", user.getFullName());
+        CommentShowDTO serializedComment = commentMapper.toShowDto(savedComment);
+        webhookDispatchService.dispatchWebhook(user.getCompany(), WebhookEvent.NEW_COMMENT_ON_WORK_ORDER,
+                webhookPayload, "newComment", serializedComment, null, null, null, null, null);
+
+        return Pair.of(savedComment, serializedComment);
     }
 
 

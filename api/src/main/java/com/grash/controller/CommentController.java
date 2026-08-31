@@ -75,7 +75,7 @@ public class CommentController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public CommentShowDTO create(@RequestBody @Valid CommentPostDTO comment,
                                  @Parameter(hidden = true) @CurrentUser User user) {
-        return commentMapper.toShowDto(commentService.create(comment, user));
+        return commentService.create(comment, user).getSecond();
     }
 
     @GetMapping("/{id}")
