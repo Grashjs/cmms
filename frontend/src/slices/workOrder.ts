@@ -195,11 +195,33 @@ const slice = createSlice({
     ) {
       const { count } = action.payload;
       state.urgentCount = count;
+    },
+    incrementUrgentCount(state: WorkOrderState) {
+      state.urgentCount += 1;
+    },
+    decrementUrgentCount(state: WorkOrderState) {
+      state.urgentCount = Math.max(0, state.urgentCount - 1);
     }
   }
 });
 
 export const reducer = slice.reducer;
+
+const isUrgent = (
+  workOrder: { dueDate?: string; status?: string } | null
+): boolean => {
+  if (!workOrder?.dueDate || workOrder.status === 'COMPLETE') return false;
+  return (
+    new Date(workOrder.dueDate).getTime() <= Date.now() + 2 * 24 * 3600 * 1000
+  );
+};
+
+const findWorkOrder = (
+  all: WorkOrderState,
+  id: number
+): WorkOrder | null =>
+  all.workOrders.content.find((workOrder) => workOrder.id === id) ??
+  (all.singleWorkOrder?.id === id ? all.singleWorkOrder : null);
 
 export const getWorkOrders =
   (criteria: SearchCriteria): AppThunk =>
@@ -242,6 +264,7 @@ export const addWorkOrder =
   async (dispatch) => {
     const workOrderResponse = await api.post<WorkOrder>(basePath, workOrder);
     dispatch(slice.actions.addWorkOrder({ workOrder: workOrderResponse }));
+    if (isUrgent(workOrderResponse)) dispatch(slice.actions.incrementUrgentCount());
     if (
       (!workOrderResponse.primaryUser &&
         workOrderResponse.assignedTo.length === 0) ||
@@ -271,12 +294,17 @@ export const addWorkOrder =
   };
 export const editWorkOrder =
   (id: number, workOrder): AppThunk =>
-  async (dispatch) => {
+  async (dispatch, getState) => {
+    const oldWorkOrder = findWorkOrder(getState().workOrders, id);
     const workOrderResponse = await api.patch<WorkOrder>(
       `${basePath}/${id}`,
       workOrder
     );
     dispatch(slice.actions.editWorkOrder({ workOrder: workOrderResponse }));
+    const wasUrgent = isUrgent(oldWorkOrder);
+    const isNowUrgent = isUrgent(workOrderResponse);
+    if (wasUrgent && !isNowUrgent) dispatch(slice.actions.decrementUrgentCount());
+    else if (!wasUrgent && isNowUrgent) dispatch(slice.actions.incrementUrgentCount());
     if (workOrder.archived) dispatch(slice.actions.deleteWorkOrder({ id }));
   };
 export const addFilesToWorkOrder =
@@ -303,22 +331,29 @@ export const changeWorkOrderStatus =
     id: number,
     body: { status: string; feedback?: string; signature?: string }
   ): AppThunk =>
-  async (dispatch) => {
+  async (dispatch, getState) => {
+    const oldWorkOrder = findWorkOrder(getState().workOrders, id);
     const workOrderResponse = await api.patch<WorkOrder>(
       `${basePath}/${id}/change-status`,
       body
     );
     dispatch(slice.actions.editWorkOrder({ workOrder: workOrderResponse }));
+    const wasUrgent = isUrgent(oldWorkOrder);
+    const isNowUrgent = isUrgent(workOrderResponse);
+    if (wasUrgent && !isNowUrgent) dispatch(slice.actions.decrementUrgentCount());
+    else if (!wasUrgent && isNowUrgent) dispatch(slice.actions.incrementUrgentCount());
   };
 export const deleteWorkOrder =
   (id: number): AppThunk =>
-  async (dispatch) => {
+  async (dispatch, getState) => {
+    const wasUrgent = isUrgent(findWorkOrder(getState().workOrders, id));
     const workOrderResponse = await api.deletes<{ success: boolean }>(
       `${basePath}/${id}`
     );
     const { success } = workOrderResponse;
     if (success) {
       dispatch(slice.actions.deleteWorkOrder({ id }));
+      if (wasUrgent) dispatch(slice.actions.decrementUrgentCount());
     }
   };
 
