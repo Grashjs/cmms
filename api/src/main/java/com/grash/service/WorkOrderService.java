@@ -1012,6 +1012,7 @@ public class WorkOrderService {
             put("tasksImagesPaths", tasksImagesPaths);
             put("messageSource", messageSource);
             put("locale", Helper.getLocale(user));
+            put("dir", Helper.isRtl(user.getCompany()) ? "rtl" : "ltr");
             put("reportConfig", config);
             put("comments", comments);
             put("commentFilesPaths", commentFilesPaths);

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" th:attr="dir=${dir}">
 <style th:inline="css">
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -38,6 +38,10 @@
         float: right;
         text-align: right;
     }
+
+    /* ── RTL ── */
+    [dir="rtl"] .header-brand { float: right; }
+    [dir="rtl"] .header-wo { float: left; text-align: left; }
 
     .company-name {
         display: block;

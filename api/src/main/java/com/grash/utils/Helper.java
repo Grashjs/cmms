@@ -183,6 +183,11 @@ public class Helper {
         }
     }
 
+    public static boolean isRtl(Company company) {
+        Language language = company.getCompanySettings().getGeneralPreferences().getLanguage();
+        return language == Language.AR;
+    }
+
     public static Date getDateFromJsString(String string) {
         DateFormat jsfmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         try {
