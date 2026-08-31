@@ -16,7 +16,7 @@ import { AssetDTO } from '../../../../models/owns/asset';
 import { UserMiniDTO } from '../../../../models/user';
 import { Customer } from '../../../../models/owns/customer';
 import { Vendor } from '../../../../models/owns/vendor';
-import Team from '../../../../models/owns/team';
+import Team, { TeamMiniDTO } from '../../../../models/owns/team';
 import {
   getCustomerUrl,
   getTeamUrl,
@@ -222,9 +222,7 @@ const AssetDetails = ({ asset, loading, onCopy }: PropsType) => {
                       <AssetStatusSelect
                         value={asset.status}
                         onChange={(status) =>
-                          dispatch(
-                            editAsset(asset.id, { ...asset, status })
-                          )
+                          dispatch(editAsset(asset.id, { ...asset, status }))
                         }
                         disabled={
                           !hasEditPermission(PermissionEntity.ASSETS, asset)
@@ -315,8 +313,8 @@ const AssetDetails = ({ asset, loading, onCopy }: PropsType) => {
               <ListField
                 values={asset?.teams}
                 label={t('teams')}
-                getHref={(team: Team) => getTeamUrl(team.id)}
-                getValueLabel={(team: Team) => team.name}
+                getHref={(team: TeamMiniDTO) => getTeamUrl(team.id)}
+                getValueLabel={(team: TeamMiniDTO) => team.name}
               />
             </Grid>
           </Card>
