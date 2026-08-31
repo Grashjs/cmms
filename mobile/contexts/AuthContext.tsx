@@ -53,6 +53,8 @@ import {
   setCustomUserId
   // LogLevel
 } from '@microsoft/react-native-clarity';
+import Part from '../models/part';
+import Request from '../models/request';
 
 interface AuthState {
   isInitialized: boolean;
@@ -1129,6 +1131,41 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         state.user.id === entity.createdBy ||
         state.user.role.editOtherPermissions.includes(permissionEntity) ||
         isAssignedTo(entity as unknown as Location, state.user)
+      );
+    } else if (permissionEntity === PermissionEntity.REQUESTS) {
+      const isAssignedTo = (request: Request, user: OwnUser): boolean => {
+        let users = [];
+        if (request.primaryUser) {
+          users.push(request.primaryUser);
+        }
+        if (request.team) {
+          users = users.concat(request.team.users);
+        }
+        if (request.assignedTo) {
+          users = users.concat(request.assignedTo);
+        }
+        return users.some((user1) => user1.id === user.id);
+      };
+      return (
+        state.user.id === entity.createdBy ||
+        state.user.role.editOtherPermissions.includes(permissionEntity) ||
+        isAssignedTo(entity as unknown as Request, state.user)
+      );
+    } else if (
+      permissionEntity === PermissionEntity.PARTS_AND_MULTIPARTS &&
+      'assignedTo' in entity
+    ) {
+      const isAssignedTo = (part: Part, user: OwnUser): boolean => {
+        let users = [];
+        if (part.assignedTo) {
+          users = users.concat(part.assignedTo);
+        }
+        return users.some((user1) => user1.id === user.id);
+      };
+      return (
+        state.user.id === entity.createdBy ||
+        state.user.role.editOtherPermissions.includes(permissionEntity) ||
+        isAssignedTo(entity as unknown as Part, state.user)
       );
     }
     return (
