@@ -946,10 +946,17 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         if (asset.primaryUser) {
           users.push(asset.primaryUser);
         }
+        if (asset.teams) {
+          asset.teams.forEach((team) => {
+            team.userIds.forEach((id) => users.push(id));
+          });
+        }
         if (asset.assignedTo) {
           users = users.concat(asset.assignedTo);
         }
-        return users.some((user1) => user1.id === user.id);
+        return users.some((user1) =>
+          typeof user1 === 'number' ? user1 === user.id : user1.id === user.id
+        );
       };
       return (
         state.user.id === entity.createdBy ||
@@ -959,10 +966,17 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     } else if (permissionEntity === PermissionEntity.LOCATIONS) {
       const isAssignedTo = (location: Location, user: OwnUser): boolean => {
         let users = [];
+        if (location.teams) {
+          location.teams.forEach((team) => {
+            team.userIds.forEach((id) => users.push(id));
+          });
+        }
         if (location.workers) {
           users = users.concat(location.workers);
         }
-        return users.some((user1) => user1.id === user.id);
+        return users.some((user1) =>
+          typeof user1 === 'number' ? user1 === user.id : user1.id === user.id
+        );
       };
       return (
         state.user.id === entity.createdBy ||
@@ -994,10 +1008,17 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     ) {
       const isAssignedTo = (part: Part, user: OwnUser): boolean => {
         let users = [];
+        if (part.teams) {
+          part.teams.forEach((team) => {
+            team.userIds.forEach((id) => users.push(id));
+          });
+        }
         if (part.assignedTo) {
           users = users.concat(part.assignedTo);
         }
-        return users.some((user1) => user1.id === user.id);
+        return users.some((user1) =>
+          typeof user1 === 'number' ? user1 === user.id : user1.id === user.id
+        );
       };
       return (
         state.user.id === entity.createdBy ||
