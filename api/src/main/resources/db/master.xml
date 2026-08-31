@@ -237,4 +237,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_08_18_00000000001_add_optimistic_locking_version.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_08_31_00000000001_fix_part_version_null.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

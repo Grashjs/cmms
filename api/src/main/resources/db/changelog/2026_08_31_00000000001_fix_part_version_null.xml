@@ -1,0 +1,11 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="2026_08_31_fix_part_version_null_00000000001" author="Ibrahima">
+        <sql>UPDATE part SET version = 0 WHERE version IS NULL</sql>
+        <addNotNullConstraint tableName="part" columnName="version"/>
+    </changeSet>
+</databaseChangeLog>
