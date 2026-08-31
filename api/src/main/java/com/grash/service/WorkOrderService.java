@@ -30,6 +30,7 @@ import com.grash.utils.MultipartFileImpl;
 import com.grash.utils.PdfReportUtils;
 import com.grash.utils.Sanitizer;
 import com.grash.utils.TenantAspectUtils;
+import com.grash.utils.TextDirectionUtils;
 import com.itextpdf.html2pdf.HtmlConverter;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -1025,7 +1026,10 @@ public class WorkOrderService {
 
         String reportHtml = thymeleafTemplateEngine.process("work-order-report.html", thymeleafContext);
 
-        HtmlConverter.convertToPdf(reportHtml, outputStream,
+        String reportHtmlTransformed = variables.get("dir") == "rtl" ?
+                TextDirectionUtils.transformHtmlText(reportHtml) : reportHtml;
+
+        HtmlConverter.convertToPdf(reportHtmlTransformed, outputStream,
                 PdfReportUtils.createReportConverterProperties(storageService::download));
     }
 

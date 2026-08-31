@@ -46,6 +46,15 @@ public final class PdfReportUtils {
             "/fonts/Inter-Medium.ttf",
             "/fonts/Inter-SemiBold.ttf",
             "/fonts/Inter-Bold.ttf");
+    private static final List<String> REPORT_CJK_FONTS = List.of(
+            "STSong-Light",        // Simplified Chinese
+            "MSung-Light",         // Traditional Chinese
+            "MHei-Medium",         // Traditional Chinese
+            "HeiseiMin-W3",        // Japanese
+            "HeiseiKakuGo-W5",     // Japanese
+            "HYSMyeongJo-Medium",  // Korean
+            "HYGoThic-Medium");    // Korean
+
     private static final FontProvider REPORT_FONT_PROVIDER = createReportFontProvider();
 
     private PdfReportUtils() {
@@ -140,15 +149,6 @@ public final class PdfReportUtils {
         if (normalized == null) normalized = resolveCssColor(fallbackColor);
         return normalized;
     }
-
-    private static final List<String> REPORT_CJK_FONTS = List.of(
-            "STSong-Light",        // Simplified Chinese
-            "MSung-Light",         // Traditional Chinese
-            "MHei-Medium",         // Traditional Chinese
-            "HeiseiMin-W3",        // Japanese
-            "HeiseiKakuGo-W5",     // Japanese
-            "HYSMyeongJo-Medium",  // Korean
-            "HYGoThic-Medium");    // Korean
 
     private static FontProvider createReportFontProvider() {
         DefaultFontProvider fontProvider = new DefaultFontProvider(true, false, true);
