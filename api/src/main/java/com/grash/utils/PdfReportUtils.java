@@ -141,6 +141,15 @@ public final class PdfReportUtils {
         return normalized;
     }
 
+    private static final List<String> REPORT_CJK_FONTS = List.of(
+            "STSong-Light",        // Simplified Chinese
+            "MSung-Light",         // Traditional Chinese
+            "MHei-Medium",         // Traditional Chinese
+            "HeiseiMin-W3",        // Japanese
+            "HeiseiKakuGo-W5",     // Japanese
+            "HYSMyeongJo-Medium",  // Korean
+            "HYGoThic-Medium");    // Korean
+
     private static FontProvider createReportFontProvider() {
         DefaultFontProvider fontProvider = new DefaultFontProvider(true, false, true);
         for (String fontResource : REPORT_FONT_RESOURCES) {
@@ -152,6 +161,13 @@ public final class PdfReportUtils {
                 fontProvider.addFont(fontStream.readAllBytes());
             } catch (IOException e) {
                 log.warn("Failed to register report font {}", fontResource, e);
+            }
+        }
+        for (String cjkFont : REPORT_CJK_FONTS) {
+            try {
+                fontProvider.addFont(cjkFont);
+            } catch (Exception e) {
+                log.warn("Failed to register CJK font {}", cjkFont, e);
             }
         }
         return fontProvider;
