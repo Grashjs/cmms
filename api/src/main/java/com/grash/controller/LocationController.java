@@ -2,21 +2,11 @@ package com.grash.controller;
 
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.*;
-import com.grash.exception.CustomException;
 import com.grash.mapper.LocationMapper;
-import com.grash.model.Asset;
-import com.grash.model.Location;
-import com.grash.model.RequestPortal;
 import com.grash.model.User;
-import com.grash.model.enums.PermissionEntity;
-import com.grash.model.enums.PortalFieldType;
-import com.grash.model.enums.RoleType;
+import com.grash.security.CurrentUser;
 import com.grash.service.LocationService;
-import com.grash.service.RateLimiterService;
-import com.grash.service.RequestPortalService;
-import com.grash.service.UserService;
-import com.grash.security.ClientIpResolver;
-import com.grash.utils.Helper;
+import com.grash.utils.TenantAspectUtils;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -28,13 +18,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.persistence.EntityManager;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -45,28 +32,16 @@ public class LocationController {
 
     private final LocationService locationService;
     private final LocationMapper locationMapper;
-    private final UserService userService;
-    private final EntityManager em;
-    private final RateLimiterService rateLimiterService;
-    private final RequestPortalService requestPortalService;
-    private final ClientIpResolver clientIpResolver;
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<LocationShowDTO>> search(@Parameter(description = "Search criteria for filtering " +
-                                                                "locations") @RequestBody SearchCriteria searchCriteria,
-                                                        HttpServletRequest req) {
-        User user = userService.whoami(req);
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            if (user.getRole().getViewPermissions().contains(PermissionEntity.LOCATIONS)) {
-                searchCriteria.filterCompany(user);
-                boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.ASSETS);
-                if (!canViewOthers) {
-                    searchCriteria.filterCreatedBy(user);
-                }
-            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
-        }
-        return ResponseEntity.ok(locationService.findBySearchCriteria(searchCriteria));
+                                                                 "locations") @RequestBody SearchCriteria searchCriteria,
+                                                        @Parameter(hidden = true) @CurrentUser User user) {
+        return ResponseEntity.ok(TenantAspectUtils.executeWithDisabledCompanyCheck(() ->
+                locationService.findBySearchCriteria(locationService.getSearchCriteria(user, searchCriteria))
+                        .map(location -> locationMapper.toShowDto(location, locationService))
+        ));
     }
 
     //TODO remove. Waiting for mobile app to switch to paginated version.
@@ -74,126 +49,63 @@ public class LocationController {
     @PreAuthorize("permitAll()")
     @Deprecated
     public Collection<LocationShowDTO> getChildrenById(@Parameter(description = "Location ID") @PathVariable("id") Long id,
-                                                       HttpServletRequest req) {
-        //only sort is used
-        User user = userService.whoami(req);
-        if (!user.getRole().getViewPermissions().contains(PermissionEntity.LOCATIONS))
-            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-        if (id.equals(0L) && user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            return locationService.findByCompany(user.getCompany().getId(), Pageable.unpaged()).stream().filter(location -> location.getParentLocation() == null).map(location -> locationMapper.toShowDto(location, locationService)).collect(Collectors.toList());
-        }
-        Optional<Location> optionalLocation = locationService.findById(id);
-        if (optionalLocation.isPresent()) {
-            Location savedLocation = optionalLocation.get();
-            return locationService.findLocationChildren(id, Pageable.unpaged()).stream().map(location -> locationMapper.toShowDto(location, locationService)).collect(Collectors.toList());
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+                                                       @Parameter(hidden = true) @CurrentUser User user) {
+        return locationService.getChildren(id, user).stream()
+                .map(location -> locationMapper.toShowDto(location, locationService))
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/children/{id}/paginated")
     @PreAuthorize("permitAll()")
     public Page<LocationShowDTO> getChildrenByIdPaginated(@PathVariable("id") Long id,
                                                           Pageable pageable,
-                                                          HttpServletRequest req) {
-        User user = userService.whoami(req);
-        if (!user.getRole().getViewPermissions().contains(PermissionEntity.LOCATIONS))
-            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-        if (id.equals(0L) && user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            Page<Location> locationsPage =
-                    locationService.findByCompany_IdAndParentLocationIsNull(user.getCompany().getId(), pageable);
-            return locationsPage.map(location -> locationMapper.toShowDto(location, locationService));
-        }
-        Optional<Location> optionalLocation = locationService.findById(id);
-        if (optionalLocation.isPresent()) {
-            Location savedLocation = optionalLocation.get();
-            Page<Location> locationsPage = locationService.findLocationChildren(id, pageable);
-            return locationsPage.map(location -> locationMapper.toShowDto(location, locationService));
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+                                                          @Parameter(hidden = true) @CurrentUser User user) {
+        return locationService.getChildrenPaginated(id, pageable, user)
+                .map(location -> locationMapper.toShowDto(location, locationService));
     }
 
     @GetMapping("/mini")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Collection<LocationMiniDTO> getMini(HttpServletRequest req) {
-        User location = userService.whoami(req);
-        return locationService.findByCompany(location.getCompany().getId()).stream().map(locationMapper::toMiniDto).collect(Collectors.toList());
+    public Collection<LocationMiniDTO> getMini(@Parameter(hidden = true) @CurrentUser User user) {
+        return locationService.findByCompany(user.getCompany().getId()).stream()
+                .map(locationMapper::toMiniDto).collect(Collectors.toList());
     }
 
     @GetMapping("/public/mini/{portalUUID}")
     public Collection<LocationMiniDTO> getMiniPublic(@Parameter(description = "Portal UUID") @PathVariable String portalUUID, HttpServletRequest req) {
-        String clientIp = clientIpResolver.resolve(req);
-        if (!rateLimiterService.resolvePublicMiniBucket(clientIp).tryConsume(1)) {
-            throw new CustomException("Rate limit exceeded. Try again later.", HttpStatus.TOO_MANY_REQUESTS);
-        }
-        RequestPortal requestPortal = requestPortalService.findByUuidByUser(portalUUID).get();
-        if (requestPortal.getFields().stream().anyMatch(requestPortalField -> requestPortalField.getLocation() != null && requestPortalField.getType().equals(PortalFieldType.LOCATION)))
-            throw new CustomException("This portal is not configured to show locations", HttpStatus.FORBIDDEN);
-        return locationService.findByCompany(requestPortal.getCompany().getId()).stream().map(locationMapper::toMiniDto).collect(Collectors.toList());
+        return locationService.getMiniPublic(portalUUID, req).stream()
+                .map(locationMapper::toMiniDto).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
     public LocationShowDTO getById(@Parameter(description = "Location ID") @PathVariable("id") Long id,
-                                   HttpServletRequest req) {
-        User user = userService.whoami(req);
-        Optional<Location> optionalLocation = locationService.findById(id);
-        if (optionalLocation.isPresent()) {
-            Location savedLocation = optionalLocation.get();
-            if (savedLocation.canBeViewedBy(user)) {
-                return locationMapper.toShowDto(savedLocation, locationService);
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+                                   @Parameter(hidden = true) @CurrentUser User user) {
+        return locationMapper.toShowDto(locationService.getById(id, user), locationService);
     }
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     LocationShowDTO create(@Parameter(description = "Location data to create") @Valid @RequestBody LocationPostDTO locationReq,
-                           HttpServletRequest req) {
-        User user = userService.whoami(req);
-        if (user.getRole().getCreatePermissions().contains(PermissionEntity.LOCATIONS)) {
-            Location savedLocation = locationService.create(locationReq, user.getCompany());
-            locationService.notify(savedLocation, Helper.getLocale(user));
-            return locationMapper.toShowDto(savedLocation, locationService);
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+                           @Parameter(hidden = true) @CurrentUser User user) {
+        return locationMapper.toShowDto(locationService.create(locationReq, user), locationService);
     }
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public LocationShowDTO patch(@Parameter(description = "Location fields to update") @Valid @RequestBody LocationPatchDTO location,
                                  @Parameter(description = "Location ID") @PathVariable("id") Long id,
-                                 HttpServletRequest req) {
-        User user = userService.whoami(req);
-        Optional<Location> optionalLocation = locationService.findById(id);
-        if (optionalLocation.isPresent()) {
-            Location savedLocation = optionalLocation.get();
-            em.detach(savedLocation);
-            if (savedLocation.canBeEditedBy(user)) {
-                if (location.getParentLocation() != null && location.getParentLocation().getId().equals(id))
-                    throw new CustomException("Parent location cannot be the same id", HttpStatus.NOT_ACCEPTABLE);
-
-                Location patchedLocation = locationService.update(id, location, user.getCompany());
-                locationService.patchNotify(savedLocation, patchedLocation, Helper.getLocale(user));
-                return locationMapper.toShowDto(patchedLocation, locationService);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("Location not found", HttpStatus.NOT_FOUND);
+                                 @Parameter(hidden = true) @CurrentUser User user) {
+        return locationMapper.toShowDto(locationService.patch(id, location, user), locationService);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity delete(@Parameter(description = "Location ID") @PathVariable("id") Long id,
-                                 HttpServletRequest req) {
-        User user = userService.whoami(req);
-
-        Optional<Location> optionalLocation = locationService.findById(id);
-        if (optionalLocation.isPresent()) {
-            Location savedLocation = optionalLocation.get();
-            if (savedLocation.canBeDeletedBy(user)) {
-                locationService.delete(id);
-                return new ResponseEntity(new SuccessResponse(true, "Deleted successfully"),
-                        HttpStatus.OK);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("Location not found", HttpStatus.NOT_FOUND);
+    public ResponseEntity<SuccessResponse> delete(@Parameter(description = "Location ID") @PathVariable("id") Long id,
+                                                  @Parameter(hidden = true) @CurrentUser User user) {
+        locationService.deleteByIdAndUser(id, user);
+        return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
+                HttpStatus.OK);
     }
 
 }
-
-
-
