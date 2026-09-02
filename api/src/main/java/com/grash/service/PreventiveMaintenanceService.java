@@ -104,36 +104,28 @@ public class PreventiveMaintenanceService {
     }
 
     @Transactional
-    public PreventiveMaintenance update(Long id, PreventiveMaintenancePatchDTO preventiveMaintenance, User user) {
-        if (!user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.PREVENTIVE_MAINTENANCE)) {
-            throw new CustomException("Preventive maintenance feature is not enabled for this subscription plan.",
-                    HttpStatus.FORBIDDEN);
-        }
-        if (preventiveMaintenanceRepository.existsById(id)) {
-            PreventiveMaintenance savedPreventiveMaintenance = preventiveMaintenanceRepository.findById(id).get();
-            if (!preventiveMaintenance.getCustomFields().isEmpty()) {
-                setPMCustomFields(savedPreventiveMaintenance, preventiveMaintenance.getCustomFields(),
-                        user.getCompany());
-            }
-            PreventiveMaintenance pmToSave =
-                    preventiveMaintenanceMapper.updatePreventiveMaintenance(savedPreventiveMaintenance,
-                            preventiveMaintenance);
-            Sanitizer.sanitizePreventiveMaintenance(pmToSave);
-            pmToSave.getSchedule().setDisabled(false);
-            PreventiveMaintenance updatedPM =
-                    preventiveMaintenanceRepository.saveAndFlush(pmToSave);
-            em.refresh(updatedPM);
-            return updatedPM;
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
-    }
-
-    @Transactional
     public PreventiveMaintenance patch(Long id, PreventiveMaintenancePatchDTO preventiveMaintenance, User user) {
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceRepository.findById(id);
         if (optionalPreventiveMaintenance.isPresent()) {
             PreventiveMaintenance savedPreventiveMaintenance = optionalPreventiveMaintenance.get();
             if (savedPreventiveMaintenance.canBeEditedBy(user)) {
-                return update(id, preventiveMaintenance, user);
+                if (!user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.PREVENTIVE_MAINTENANCE)) {
+                    throw new CustomException("Preventive maintenance feature is not enabled for this subscription plan.",
+                            HttpStatus.FORBIDDEN);
+                }
+                PreventiveMaintenance pmToSave =
+                        preventiveMaintenanceMapper.updatePreventiveMaintenance(savedPreventiveMaintenance,
+                                preventiveMaintenance);
+                if (!preventiveMaintenance.getCustomFields().isEmpty()) {
+                    setPMCustomFields(savedPreventiveMaintenance, preventiveMaintenance.getCustomFields(),
+                            user.getCompany());
+                }
+                Sanitizer.sanitizePreventiveMaintenance(pmToSave);
+                pmToSave.getSchedule().setDisabled(false);
+                PreventiveMaintenance updatedPM =
+                        preventiveMaintenanceRepository.saveAndFlush(pmToSave);
+                em.refresh(updatedPM);
+                return updatedPM;
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("PreventiveMaintenance not found", HttpStatus.NOT_FOUND);
     }
@@ -203,10 +195,6 @@ public class PreventiveMaintenanceService {
         return preventiveMaintenanceRepository.findAll();
     }
 
-    public void delete(Long id) {
-        preventiveMaintenanceRepository.deleteById(id);
-    }
-
     @Transactional
     public void deleteByIdAndUser(Long id, User user) {
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceRepository.findById(id);
@@ -214,7 +202,7 @@ public class PreventiveMaintenanceService {
             PreventiveMaintenance savedPreventiveMaintenance = optionalPreventiveMaintenance.get();
             if (savedPreventiveMaintenance.canBeDeletedBy(user)) {
                 scheduleService.stopScheduleJobs(savedPreventiveMaintenance.getSchedule().getId());
-                delete(id);
+                preventiveMaintenanceRepository.deleteById(id);
             } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
         } else throw new CustomException("PreventiveMaintenance not found", HttpStatus.NOT_FOUND);
     }
@@ -248,14 +236,6 @@ public class PreventiveMaintenanceService {
             throw new CustomException("You need a license to add a new PM schedule. Free Limit reached: " + threshold,
                     HttpStatus.FORBIDDEN);
 
-    }
-
-    public Page<PreventiveMaintenanceShowDTO> findBySearchCriteria(SearchCriteria searchCriteria) {
-        SpecificationBuilder<PreventiveMaintenance> builder = new SpecificationBuilder<>();
-        searchCriteria.getFilterFields().forEach(builder::with);
-        Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(),
-                searchCriteria.getDirection(), searchCriteria.getSortField());
-        return preventiveMaintenanceRepository.findAll(builder.build(), page).map(preventiveMaintenanceMapper::toShowDto);
     }
 
     public Page<PreventiveMaintenance> findBySearchCriteriaWithEntityGraph(SearchCriteria searchCriteria) {
