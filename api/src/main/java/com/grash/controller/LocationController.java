@@ -36,12 +36,12 @@ public class LocationController {
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<LocationShowDTO>> search(@Parameter(description = "Search criteria for filtering " +
-                                                                 "locations") @RequestBody SearchCriteria searchCriteria,
+                                                                "locations") @RequestBody SearchCriteria searchCriteria,
                                                         @Parameter(hidden = true) @CurrentUser User user) {
-        return ResponseEntity.ok(TenantAspectUtils.executeWithDisabledCompanyCheck(() ->
-                locationService.findBySearchCriteria(locationService.getSearchCriteria(user, searchCriteria))
-                        .map(location -> locationMapper.toShowDto(location, locationService))
-        ));
+        return ResponseEntity.ok(locationService.findBySearchCriteria(locationService.getSearchCriteria(user,
+                        searchCriteria))
+                .map(location -> locationMapper.toShowDto(location, locationService)
+                ));
     }
 
     //TODO remove. Waiting for mobile app to switch to paginated version.

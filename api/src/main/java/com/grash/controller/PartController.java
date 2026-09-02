@@ -7,18 +7,11 @@ import com.grash.dto.PartPostDTO;
 import com.grash.dto.PartRestockDTO;
 import com.grash.dto.PartShowDTO;
 import com.grash.dto.SuccessResponse;
-import com.grash.exception.CustomException;
 import com.grash.mapper.PartMapper;
 import com.grash.model.User;
-import com.grash.model.Part;
-import com.grash.model.Workflow;
-import com.grash.model.enums.PermissionEntity;
-import com.grash.model.enums.RoleType;
-import com.grash.model.enums.workflow.WFMainCondition;
+import com.grash.security.CurrentUser;
 import com.grash.service.PartService;
-import com.grash.service.UserService;
-import com.grash.service.WorkflowService;
-import com.grash.utils.Helper;
+import com.grash.utils.TenantAspectUtils;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -29,12 +22,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.persistence.EntityManager;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import java.util.Collection;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -45,75 +35,38 @@ public class PartController {
 
     private final PartService partService;
     private final PartMapper partMapper;
-    private final UserService userService;
-    private final WorkflowService workflowService;
-    private final EntityManager em;
-
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<PartShowDTO>> search(@Parameter(description = "Search criteria for filtering parts") @RequestBody SearchCriteria searchCriteria,
-                                                    HttpServletRequest req) {
-        User user = userService.whoami(req);
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            if (user.getRole().getViewPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
-                searchCriteria.filterCompany(user);
-                boolean canViewOthers =
-                        user.getRole().getViewOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS);
-                if (!canViewOthers) {
-                    searchCriteria.filterCreatedBy(user);
-                }
-            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
-        }
-        return ResponseEntity.ok(partService.findBySearchCriteria(searchCriteria));
+                                                    @Parameter(hidden = true) @CurrentUser User user) {
+        return ResponseEntity.ok(TenantAspectUtils.executeWithDisabledCompanyCheck(() ->
+                partService.findBySearchCriteria(partService.getSearchCriteria(user,
+                        searchCriteria)).map(partMapper::toShowDto)
+        ));
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
     public PartShowDTO getById(@Parameter(description = "Part ID") @PathVariable("id") Long id,
-                               HttpServletRequest req) {
-        User user = userService.whoami(req);
-        Optional<Part> optionalPart = partService.findById(id);
-        if (optionalPart.isPresent()) {
-            Part savedPart = optionalPart.get();
-            if (savedPart.canBeViewedBy(user)) {
-                return partMapper.toShowDto(savedPart);
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+                               @Parameter(hidden = true) @CurrentUser User user) {
+        return partMapper.toShowDto(partService.getById(id, user));
     }
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     PartShowDTO create(@Parameter(description = "Part data to create") @Valid @RequestBody PartPostDTO partReq,
-                       HttpServletRequest req) {
-        User user = userService.whoami(req);
-        if (user.getRole().getCreatePermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
-            if (partReq.getBarcode() != null) {
-                Optional<Part> optionalPartWithSameBarCode = partService.findByBarcodeAndCompany(partReq.getBarcode()
-                        , user.getCompany().getId());
-                if (optionalPartWithSameBarCode.isPresent()) {
-                    throw new CustomException("Part with same barcode exists", HttpStatus.NOT_ACCEPTABLE);
-                }
-            }
-            Part savedPart = partService.create(partReq, user);
-            partService.notify(savedPart, Helper.getLocale(user));
-            return partMapper.toShowDto(savedPart);
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+                       @Parameter(hidden = true) @CurrentUser User user) {
+        return partMapper.toShowDto(partService.create(partReq, user));
     }
 
     @PostMapping("/{id}/restock")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<SuccessResponse> restock(@Parameter(description = "Part ID") @PathVariable("id") Long id,
                                                    @Valid @RequestBody PartRestockDTO partRestockDTO,
-                                                   HttpServletRequest req) {
-        User user = userService.whoami(req);
-        Optional<Part> optionalPart = partService.findById(id);
-        if (optionalPart.isPresent()) {
-            if (optionalPart.get().canBeEditedBy(user)) {
-                partService.restockPart(id, partRestockDTO.getQuantity(), partRestockDTO.getDescription());
-                return new ResponseEntity<>(new SuccessResponse(true, "Restocked successfully"), HttpStatus.OK);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("Part not found", HttpStatus.NOT_FOUND);
+                                                   @Parameter(hidden = true) @CurrentUser User user) {
+        partService.restock(id, partRestockDTO, user);
+        return new ResponseEntity<>(new SuccessResponse(true, "Restocked successfully"), HttpStatus.OK);
     }
 
     @PatchMapping("/{id}")
@@ -121,57 +74,23 @@ public class PartController {
     public PartShowDTO patch(@Parameter(description = "Part fields to update") @Valid @RequestBody PartPatchDTO part,
                              @Parameter(description = "Part ID") @PathVariable(
                                      "id") Long id,
-                             HttpServletRequest req) {
-        User user = userService.whoami(req);
-        Optional<Part> optionalPart = partService.findById(id);
-
-        if (optionalPart.isPresent()) {
-            Part savedPart = optionalPart.get();
-            em.detach(savedPart);
-            if (savedPart.canBeEditedBy(user)) {
-                if (part.getBarcode() != null) {
-                    Optional<Part> optionalPartWithSameBarCode =
-                            partService.findByBarcodeAndCompany(part.getBarcode(), user.getCompany().getId());
-                    if (optionalPartWithSameBarCode.isPresent() && !optionalPartWithSameBarCode.get().getId().equals(id)) {
-                        throw new CustomException("Part with same barcode exists", HttpStatus.NOT_ACCEPTABLE);
-                    }
-                }
-                Part patchedPart = partService.update(id, part, user.getCompany());
-                Collection<Workflow> workflows =
-                        workflowService.findByMainConditionAndCompany(WFMainCondition.PART_UPDATED,
-                                user.getCompany().getId());
-                workflows.forEach(workflow -> workflowService.runPart(workflow, patchedPart));
-                partService.patchNotify(savedPart, patchedPart, Helper.getLocale(user));
-                return partMapper.toShowDto(patchedPart);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("Part not found", HttpStatus.NOT_FOUND);
+                             @Parameter(hidden = true) @CurrentUser User user) {
+        return partMapper.toShowDto(partService.patch(id, part, user));
     }
 
     @GetMapping("/mini")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Collection<PartMiniDTO> getMini(HttpServletRequest req) {
-        User part = userService.whoami(req);
-        return partService.findByCompany(part.getCompany().getId()).stream().map(partMapper::toMiniDto).collect(Collectors.toList());
+    public Collection<PartMiniDTO> getMini(@Parameter(hidden = true) @CurrentUser User user) {
+        return partService.getMini(user).stream().map(partMapper::toMiniDto).collect(Collectors.toList());
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<SuccessResponse> delete(@Parameter(description = "Part ID") @PathVariable("id") Long id,
-                                                  HttpServletRequest req) {
-        User user = userService.whoami(req);
-
-        Optional<Part> optionalPart = partService.findById(id);
-        if (optionalPart.isPresent()) {
-            Part savedPart = optionalPart.get();
-            if (savedPart.canBeDeletedBy(user)) {
-                partService.delete(savedPart);
-                return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
-                        HttpStatus.OK);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("Part not found", HttpStatus.NOT_FOUND);
+                                                  @Parameter(hidden = true) @CurrentUser User user) {
+        partService.deleteByIdAndUser(id, user);
+        return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
+                HttpStatus.OK);
     }
 
 }
-
-
-
