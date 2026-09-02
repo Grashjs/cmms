@@ -1,5 +1,6 @@
 package com.grash.service;
 
+import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.CalendarEvent;
@@ -66,6 +67,9 @@ public class PreventiveMaintenanceService {
 
     @Transactional
     public PreventiveMaintenance create(PreventiveMaintenancePostDTO preventiveMaintenancePost, User user) {
+        if (!user.getRole().getCreatePermissions().contains(PermissionEntity.PREVENTIVE_MAINTENANCES)) {
+            throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+        }
         PreventiveMaintenance preventiveMaintenance = preventiveMaintenanceMapper.toModel(preventiveMaintenancePost);
         if (!user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.PREVENTIVE_MAINTENANCE)) {
             throw new CustomException("Preventive maintenance feature is not enabled for this subscription plan.",
@@ -82,6 +86,20 @@ public class PreventiveMaintenanceService {
         Sanitizer.sanitizePreventiveMaintenance(preventiveMaintenance);
         PreventiveMaintenance savedPM = preventiveMaintenanceRepository.saveAndFlush(preventiveMaintenance);
         em.refresh(savedPM);
+
+        Schedule schedule = savedPM.getSchedule();
+        schedule.setDaysOfWeek(preventiveMaintenancePost.getDaysOfWeek());
+        schedule.setRecurrenceBasedOn(preventiveMaintenancePost.getRecurrenceBasedOn());
+        schedule.setRecurrenceType(preventiveMaintenancePost.getRecurrenceType());
+        schedule.setEndsOn(preventiveMaintenancePost.getEndsOn());
+        schedule.setStartsOn(preventiveMaintenancePost.getStartsOn() != null ?
+                preventiveMaintenancePost.getStartsOn() : new Date());
+        schedule.setFrequency(preventiveMaintenancePost.getFrequency());
+        schedule.setDueDateDelay(preventiveMaintenancePost.getDueDateDelay());
+        Schedule savedSchedule = scheduleService.save(schedule);
+        em.refresh(savedSchedule);
+        em.refresh(savedPM);
+        scheduleService.scheduleWorkOrder(savedSchedule);
         return savedPM;
     }
 
@@ -110,6 +128,17 @@ public class PreventiveMaintenanceService {
     }
 
     @Transactional
+    public PreventiveMaintenance patch(Long id, PreventiveMaintenancePatchDTO preventiveMaintenance, User user) {
+        Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceRepository.findById(id);
+        if (optionalPreventiveMaintenance.isPresent()) {
+            PreventiveMaintenance savedPreventiveMaintenance = optionalPreventiveMaintenance.get();
+            if (savedPreventiveMaintenance.canBeEditedBy(user)) {
+                return update(id, preventiveMaintenance, user);
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+        } else throw new CustomException("PreventiveMaintenance not found", HttpStatus.NOT_FOUND);
+    }
+
+    @Transactional
     public WorkOrder createWorkOrderFromPreventiveMaintenance(PreventiveMaintenance preventiveMaintenance) {
         WorkOrderPostDTO workOrder = workOrderService.getWorkOrderFromWorkOrderBase(preventiveMaintenance);
         workOrder.getCustomFields().removeIf(customFieldValue -> !workOrder.getCustomFieldValues()
@@ -135,6 +164,28 @@ public class PreventiveMaintenanceService {
         return savedWorkOrder;
     }
 
+    @Transactional
+    public WorkOrder triggerWorkOrder(Long id, User user) {
+        if (!(user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS))) {
+            throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+        }
+        PreventiveMaintenance preventiveMaintenance = findById(id)
+                .orElseThrow(() -> new CustomException("PreventiveMaintenance not found", HttpStatus.NOT_FOUND));
+        checkAccessToPreventiveMaintenance(user, preventiveMaintenance);
+        return createWorkOrderFromPreventiveMaintenance(preventiveMaintenance);
+    }
+
+    public List<WorkOrder> getRecentWorkOrders(Long id, User user) {
+        checkAccessToPreventiveMaintenance(user, findByIdAndCompany(id, user.getCompany().getId()).get());
+        return workOrderService.findLastByPM(id, 10).stream().collect(Collectors.toList());
+    }
+
+    private void checkAccessToPreventiveMaintenance(User user, PreventiveMaintenance preventiveMaintenance) {
+        if (!preventiveMaintenance.canBeViewedBy(user)) {
+            throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+        }
+    }
+
     private void setPMCustomFields(PreventiveMaintenance preventiveMaintenance,
                                    List<CustomFieldValuePostDTO> customFieldValuePostDTOS,
                                    Company company) {
@@ -156,8 +207,29 @@ public class PreventiveMaintenanceService {
         preventiveMaintenanceRepository.deleteById(id);
     }
 
+    @Transactional
+    public void deleteByIdAndUser(Long id, User user) {
+        Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceRepository.findById(id);
+        if (optionalPreventiveMaintenance.isPresent()) {
+            PreventiveMaintenance savedPreventiveMaintenance = optionalPreventiveMaintenance.get();
+            if (savedPreventiveMaintenance.canBeDeletedBy(user)) {
+                scheduleService.stopScheduleJobs(savedPreventiveMaintenance.getSchedule().getId());
+                delete(id);
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+        } else throw new CustomException("PreventiveMaintenance not found", HttpStatus.NOT_FOUND);
+    }
+
     public Optional<PreventiveMaintenance> findById(Long id) {
         return preventiveMaintenanceRepository.findById(id);
+    }
+
+    public PreventiveMaintenance getById(Long id, User user) {
+        Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceRepository.findById(id);
+        if (optionalPreventiveMaintenance.isPresent()) {
+            PreventiveMaintenance savedPreventiveMaintenance = optionalPreventiveMaintenance.get();
+            checkAccessToPreventiveMaintenance(user, savedPreventiveMaintenance);
+            return savedPreventiveMaintenance;
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     public Collection<PreventiveMaintenance> findByCompany(Long id) {
@@ -205,6 +277,29 @@ public class PreventiveMaintenanceService {
             return baseSpec == null ? null : baseSpec.toPredicate(root, query, criteriaBuilder);
         };
         return preventiveMaintenanceRepository.findAll(fetchSpec, page);
+    }
+
+    public SearchCriteria getSearchCriteria(User user, SearchCriteria searchCriteria) {
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.PREVENTIVE_MAINTENANCES)) {
+                if (!user.getSuperAccountRelations().isEmpty()) {
+                    List<Long> childCompanyIds = user.getSuperAccountRelations().stream()
+                            .map(rel -> rel.getChildUser().getCompany().getId())
+                            .distinct()
+                            .toList();
+                    searchCriteria.getFilterFields().add(FilterField.builder()
+                            .field("company")
+                            .operation("inm")
+                            .joinType(JoinType.LEFT)
+                            .value("")
+                            .values(new ArrayList<>(childCompanyIds))
+                            .build());
+                } else {
+                    searchCriteria.filterCompany(user);
+                }
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+        }
+        return searchCriteria;
     }
 
     public List<CalendarEvent<PreventiveMaintenance>> getEvents(Date end, Long companyId) {
