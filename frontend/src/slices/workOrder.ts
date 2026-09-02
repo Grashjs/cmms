@@ -20,7 +20,7 @@ const basePath = 'work-orders';
 
 export interface CalendarEvent<T extends WorkOrderBase> {
   type: string;
-  date: Date;
+  date: string;
   event: T;
 }
 
@@ -216,10 +216,7 @@ const isUrgent = (
   );
 };
 
-const findWorkOrder = (
-  all: WorkOrderState,
-  id: number
-): WorkOrder | null =>
+const findWorkOrder = (all: WorkOrderState, id: number): WorkOrder | null =>
   all.workOrders.content.find((workOrder) => workOrder.id === id) ??
   (all.singleWorkOrder?.id === id ? all.singleWorkOrder : null);
 
@@ -264,7 +261,8 @@ export const addWorkOrder =
   async (dispatch) => {
     const workOrderResponse = await api.post<WorkOrder>(basePath, workOrder);
     dispatch(slice.actions.addWorkOrder({ workOrder: workOrderResponse }));
-    if (isUrgent(workOrderResponse)) dispatch(slice.actions.incrementUrgentCount());
+    if (isUrgent(workOrderResponse))
+      dispatch(slice.actions.incrementUrgentCount());
     if (
       (!workOrderResponse.primaryUser &&
         workOrderResponse.assignedTo.length === 0) ||
@@ -303,8 +301,10 @@ export const editWorkOrder =
     dispatch(slice.actions.editWorkOrder({ workOrder: workOrderResponse }));
     const wasUrgent = isUrgent(oldWorkOrder);
     const isNowUrgent = isUrgent(workOrderResponse);
-    if (wasUrgent && !isNowUrgent) dispatch(slice.actions.decrementUrgentCount());
-    else if (!wasUrgent && isNowUrgent) dispatch(slice.actions.incrementUrgentCount());
+    if (wasUrgent && !isNowUrgent)
+      dispatch(slice.actions.decrementUrgentCount());
+    else if (!wasUrgent && isNowUrgent)
+      dispatch(slice.actions.incrementUrgentCount());
     if (workOrder.archived) dispatch(slice.actions.deleteWorkOrder({ id }));
   };
 export const addFilesToWorkOrder =
@@ -340,8 +340,10 @@ export const changeWorkOrderStatus =
     dispatch(slice.actions.editWorkOrder({ workOrder: workOrderResponse }));
     const wasUrgent = isUrgent(oldWorkOrder);
     const isNowUrgent = isUrgent(workOrderResponse);
-    if (wasUrgent && !isNowUrgent) dispatch(slice.actions.decrementUrgentCount());
-    else if (!wasUrgent && isNowUrgent) dispatch(slice.actions.incrementUrgentCount());
+    if (wasUrgent && !isNowUrgent)
+      dispatch(slice.actions.decrementUrgentCount());
+    else if (!wasUrgent && isNowUrgent)
+      dispatch(slice.actions.incrementUrgentCount());
   };
 export const deleteWorkOrder =
   (id: number): AppThunk =>
