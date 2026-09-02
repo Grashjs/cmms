@@ -186,12 +186,7 @@ function ApplicationsCalendar({
       'status' in eventPayload.event
         ? new Date(
             new Date(eventPayload.date).getTime() +
-              (eventPayload.event.estimatedDuration == null
-                ? 1
-                : eventPayload.event.estimatedDuration) *
-                60 *
-                60 *
-                1000
+              (eventPayload.event.estimatedDuration || 1) * 60 * 60 * 1000
           )
         : new Date(eventPayload.date);
     return {
