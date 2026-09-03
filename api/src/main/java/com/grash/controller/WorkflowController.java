@@ -99,10 +99,27 @@ public class WorkflowController {
         Optional<Workflow> optionalWorkflow = workflowService.findById(id);
 
         if (optionalWorkflow.isPresent()) {
-            Workflow savedWorkflow = optionalWorkflow.get();
-            workflowService.delete(id);
-            return workflowMapper.toShowDto(createWorkflow(workflow, user.getCompany()));
+            List<WorkflowCondition> workflowConditions =
+                    workflow.getSecondaryConditions().stream().map(workflowConditionMapper::toModel)
+                            .collect(Collectors.toList());
+            Collection<WorkflowCondition> savedConditions = workflowConditionService.saveAll(workflowConditions);
+            WorkflowAction savedAction =
+                    workflowActionService.create(workflowActionMapper.toModel(workflow.getAction()));
+            return workflowMapper.toShowDto(workflowService.patchContents(id, workflow.getTitle(),
+                    workflow.getMainCondition(), workflow.getEnabled(), savedConditions, savedAction));
         } else throw new CustomException("Workflow not found", HttpStatus.NOT_FOUND);
+    }
+
+    @PatchMapping("/{id}/enabled")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public WorkflowShowDTO setEnabled(@PathVariable("id") Long id,
+                                      @Parameter(description = "New state of the rule") @RequestParam boolean enabled,
+                                      HttpServletRequest req) {
+        User user = userService.whoami(req);
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        }
+        return workflowMapper.toShowDto(workflowService.setEnabled(id, enabled));
     }
 
     @DeleteMapping("/{id}")
@@ -134,7 +151,7 @@ public class WorkflowController {
                 .mainCondition(workflowReq.getMainCondition())
                 .secondaryConditions(savedWorkOrderConditions)
                 .action(savedWorkflowAction)
-                .enabled(true)
+                .enabled(workflowReq.getEnabled() == null || workflowReq.getEnabled())
                 .build();
         return workflowService.create(workflow);
     }

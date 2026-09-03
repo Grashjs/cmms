@@ -94,6 +94,15 @@ export const editWorkflow =
     );
     dispatch(slice.actions.editWorkflow({ workflow: workflowResponse }));
   };
+export const setWorkflowEnabled =
+  (id: number, enabled: boolean): AppThunk =>
+  async (dispatch) => {
+    const workflowResponse = await api.patch<Workflow>(
+      `${basePath}/${id}/enabled?enabled=${enabled}`,
+      {}
+    );
+    dispatch(slice.actions.editWorkflow({ workflow: workflowResponse }));
+  };
 export const deleteWorkflow =
   (id: number): AppThunk =>
   async (dispatch) => {

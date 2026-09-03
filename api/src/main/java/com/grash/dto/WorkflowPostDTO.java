@@ -28,5 +28,11 @@ public class WorkflowPostDTO {
     @NotNull
     @Schema(description = "Action to execute when workflow triggers")
     private WorkflowActionPostDTO action;
+    /**
+     * Nullable on purpose. A client that does not know about this field must not switch a rule
+     * off by omitting it, so absent means "leave it alone" on a patch and "on" on a create.
+     */
+    @Schema(description = "Whether the workflow is enabled; omit to keep the current state")
+    private Boolean enabled;
 }
 

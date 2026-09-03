@@ -3,11 +3,13 @@ import {
   Button,
   Card,
   CircularProgress,
+  FormControlLabel,
   Grid,
   IconButton,
   MenuItem,
   Select,
   Stack,
+  Switch,
   TextField,
   Typography
 } from '@mui/material';
@@ -24,7 +26,8 @@ import {
   addWorkflow,
   deleteWorkflow,
   editWorkflow,
-  getWorkflows
+  getWorkflows,
+  setWorkflowEnabled
 } from '../../../../../slices/workflow';
 import {
   mainConditions,
@@ -157,8 +160,22 @@ function Workflows() {
       actions: partActions
     }
   } as const;
+  // Actions the backend still answers with a //TODO. Offering them produces a rule that saves
+  // cleanly and then does nothing at all, which is worse than not offering it. The Java enums
+  // are upstream's surface and stay untouched; only the picker is narrowed.
+  const unimplementedActions: readonly WorkflowActionType[] = [
+    'ADD_CHECKLIST',
+    'SEND_REMINDER_EMAIL',
+    'CREATE_REQUEST',
+    'CREATE_WORK_ORDER',
+    'CREATE_PURCHASE_ORDER'
+  ];
+  const availableActions = (mainCondition: WFMainCondition) =>
+    mainConfig[mainCondition].actions.filter(
+      (action) => !unimplementedActions.includes(action)
+    );
   const [currentAction, setCurrentAction] = useState<UIAction>({
-    type: mainConfig[mainConditions[0]].actions[0],
+    type: availableActions(mainConditions[0])[0],
     value: null
   });
   const [openDelete, setOpenDelete] = useState<boolean>(false);
@@ -453,6 +470,11 @@ function Workflows() {
   const handleDelete = (id: number) => {
     dispatch(deleteWorkflow(id)).then(onDeleteSuccess).catch(onDeleteFailure);
     setOpenDelete(false);
+  };
+  const handleSetEnabled = (id: number, enabled: boolean) => {
+    dispatch(setWorkflowEnabled(id, enabled)).catch(() =>
+      showSnackBar(t('workflow_edit_failure'), 'error')
+    );
   };
   const handleConditionTypeChange = (
     value: WorkflowConditionType,
@@ -952,29 +974,51 @@ function Workflows() {
                   workflows.map((workflow) => (
                     <Card
                       sx={{ p: 2, mt: 1 }}
-                      style={{
-                        cursor: workflow.enabled ? 'pointer' : 'not-allowed'
-                      }}
+                      style={{ cursor: 'pointer' }}
                       key={workflow.id}
-                      onClick={() => {
-                        if (workflow.enabled) onEdit(workflow);
-                      }}
+                      onClick={() => onEdit(workflow)}
                     >
-                      <Stack direction="row" justifyContent="space-between">
+                      <Stack
+                        direction="row"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        spacing={2}
+                      >
                         <Typography variant="h4">{workflow.title}</Typography>
-                        {workflow.enabled || (
-                          <Typography variant="h6">{t('disabled')}</Typography>
-                        )}
-                        <Button
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            setCurrentWorkflowId(workflow.id);
-                            setOpenDelete(true);
-                          }}
-                          color="error"
+                        <Stack
+                          direction="row"
+                          alignItems="center"
+                          spacing={1}
+                          flexShrink={0}
                         >
-                          {t('to_delete')}
-                        </Button>
+                          <FormControlLabel
+                            onClick={(event) => event.stopPropagation()}
+                            control={
+                              <Switch
+                                checked={workflow.enabled}
+                                onChange={(event) =>
+                                  handleSetEnabled(
+                                    workflow.id,
+                                    event.target.checked
+                                  )
+                                }
+                              />
+                            }
+                            label={
+                              workflow.enabled ? t('enabled') : t('disabled')
+                            }
+                          />
+                          <Button
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              setCurrentWorkflowId(workflow.id);
+                              setOpenDelete(true);
+                            }}
+                            color="error"
+                          >
+                            {t('to_delete')}
+                          </Button>
+                        </Stack>
                       </Stack>
                     </Card>
                   ))
@@ -997,14 +1041,24 @@ function Workflows() {
                 <Select
                   value={currentMainCondition}
                   onChange={(event) => {
-                    setCurrentMainCondition(
-                      event.target.value as WFMainCondition
-                    );
+                    const mainCondition = event.target.value as WFMainCondition;
+                    setCurrentMainCondition(mainCondition);
                     setCurrentConditions([]);
+                    // Each trigger offers its own actions, so the one that was selected is
+                    // usually not among them any more. Without this the action select keeps
+                    // a value its own list no longer contains.
+                    handleActionTypeChange(availableActions(mainCondition)[0]);
                   }}
                 >
                   {mainConditions.map((mainCondition, index) => (
-                    <MenuItem key={index} value={mainCondition}>
+                    <MenuItem
+                      key={index}
+                      value={mainCondition}
+                      // A trigger whose every action is unimplemented cannot do anything.
+                      // It stays in the list so an existing rule still renders its own
+                      // trigger, but it cannot be picked for a new one.
+                      disabled={availableActions(mainCondition).length === 0}
+                    >
                       {t(mainCondition)}
                     </MenuItem>
                   ))}
@@ -1035,7 +1089,7 @@ function Workflows() {
                     )
                   }
                 >
-                  {mainConfig[currentMainCondition].actions.map(
+                  {availableActions(currentMainCondition).map(
                     (action, index) => (
                       <MenuItem key={index} value={action}>
                         {t(action)}

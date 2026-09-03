@@ -12,9 +12,12 @@ import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -22,6 +25,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class WorkflowService {
     private final WorkflowRepository workflowRepository;
+    private final WorkflowConditionRepository workflowConditionRepository;
+    private final WorkflowActionRepository workflowActionRepository;
     private final WorkflowMapper workflowMapper;
     private final WorkOrderRepository workOrderRepository;
     private final RequestRepository requestRepository;
@@ -42,6 +47,50 @@ public class WorkflowService {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
+    /**
+     * Replaces a rule's contents in place.
+     *
+     * <p>The endpoint used to delete the rule and create a new one, which gave the rule a new id
+     * on every edit, reset {@code enabled} to true, and skipped the licence count. An id that
+     * survives an edit is also what any future execution log has to point at.
+     *
+     * <p>The children have to be cleaned up by hand: {@code secondaryConditions} is owned through
+     * a join table and {@code action} through a foreign key, and neither has
+     * {@code orphanRemoval}, so the rows the rule stops pointing at would otherwise stay in the
+     * database forever.
+     */
+    @Transactional
+    public Workflow patchContents(Long id, String title, WFMainCondition mainCondition, Boolean enabled,
+                                  Collection<WorkflowCondition> newConditions, WorkflowAction newAction) {
+        Workflow saved = workflowRepository.findById(id)
+                .orElseThrow(() -> new CustomException("Not found", HttpStatus.NOT_FOUND));
+
+        List<Long> orphanedConditionIds = saved.getSecondaryConditions().stream()
+                .map(WorkflowCondition::getId)
+                .collect(Collectors.toList());
+        Long orphanedActionId = saved.getAction() == null ? null : saved.getAction().getId();
+
+        saved.setTitle(title);
+        saved.setMainCondition(mainCondition);
+        if (enabled != null) saved.setEnabled(enabled);
+        saved.setSecondaryConditions(new ArrayList<>(newConditions));
+        saved.setAction(newAction);
+        Sanitizer.sanitizeWorkflow(saved);
+        Workflow updated = workflowRepository.saveAndFlush(saved);
+
+        orphanedConditionIds.forEach(workflowConditionRepository::deleteById);
+        if (orphanedActionId != null) workflowActionRepository.deleteById(orphanedActionId);
+        return updated;
+    }
+
+    @Transactional
+    public Workflow setEnabled(Long id, boolean enabled) {
+        Workflow saved = workflowRepository.findById(id)
+                .orElseThrow(() -> new CustomException("Not found", HttpStatus.NOT_FOUND));
+        saved.setEnabled(enabled);
+        return workflowRepository.save(saved);
+    }
+
     public Collection<Workflow> getAll() {
         return workflowRepository.findAll();
     }
@@ -55,7 +104,7 @@ public class WorkflowService {
     }
 
     public Collection<Workflow> findByMainConditionAndCompany(WFMainCondition mainCondition, Long id) {
-        return workflowRepository.findByMainConditionAndCompany_Id(mainCondition, id);
+        return workflowRepository.findByMainConditionAndCompany_IdAndEnabledTrue(mainCondition, id);
     }
 
     public Collection<Workflow> findByCompany(Long id) {

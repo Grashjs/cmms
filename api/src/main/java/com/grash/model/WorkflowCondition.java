@@ -104,6 +104,8 @@ public class WorkflowCondition extends CompanyAudit {
                 return workOrder.getStatus().equals(this.workOrderStatus);
             case DUE_DATE_AFTER:
                 return workOrder.getDueDate() != null && workOrder.getDueDate().after(this.endDate);
+            case TITLE_CONTAINS:
+                return this.value != null && workOrder.getTitle() != null && workOrder.getTitle().contains(this.value);
             default:
                 return false;
         }
@@ -129,6 +131,8 @@ public class WorkflowCondition extends CompanyAudit {
                 return request.getDueDate() != null && request.getDueDate().after(this.startDate) && request.getDueDate().before(this.endDate);
             case DUE_DATE_AFTER:
                 return request.getDueDate() != null && request.getDueDate().after(this.endDate);
+            case TITLE_CONTAINS:
+                return this.value != null && request.getTitle() != null && request.getTitle().contains(this.value);
             default:
                 return false;
         }

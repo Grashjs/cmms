@@ -9,5 +9,10 @@ import java.util.Collection;
 public interface WorkflowRepository extends JpaRepository<Workflow, Long> {
     Collection<Workflow> findByCompany_Id(Long id);
 
-    Collection<Workflow> findByMainConditionAndCompany_Id(WFMainCondition mainCondition, Long companyId);
+    /**
+     * The trigger lookup. Filtering on {@code enabled} here rather than at the call sites is
+     * deliberate: there are ten of them, and every one of them used to run disabled rules.
+     */
+    Collection<Workflow> findByMainConditionAndCompany_IdAndEnabledTrue(WFMainCondition mainCondition,
+                                                                        Long companyId);
 }
