@@ -211,43 +211,125 @@ Ehrlich benannt, damit es niemand für fertig hält:
 - **Kein Backfill.** Meldungen, die vor dieser Funktion entstanden sind, haben keine
   Qualifikation. Für die Bestandsdaten reicht derselbe Knopf.
 - **Keine Auswertung.** Wie oft der Top-Kandidat übernommen wird, ist die entscheidende Zahl für
-  jede weitere Stufe, und sie steht in der Datenbank (`status`, `chosen_asset_id`, `ordinal`) —
-  aber es gibt weder eine Ansicht noch einen `rpt_*`-View dafür. Das ist der erste kleine
-  Nachtrag, den diese Stufe verdient.
+  alles Weitere, und sie steht in der Datenbank (`status`, `chosen_asset_id`, `ordinal`) — aber es
+  gibt weder eine Ansicht noch einen `rpt_*`-View dafür. Das ist der erste kleine Nachtrag, den
+  diese Stufe schuldet; welche zwei Zahlen genau gebraucht werden, steht in Abschnitt 6 unter
+  „Was zuerst geklärt sein muss".
 - **Der ganze Firmen-Anlagenbestand wird je Meldung gelesen.** Bewusst so: eine Meldung entsteht
   im Menschentempo, und ein Cache bräuchte Invalidierung bei jeder Anlagenänderung. Sollte eine
   Instanz je so groß werden, dass das wehtut, ist die Antwort ein Cache pro Firma mit kurzer
   Lebensdauer — keine Schemaänderung.
 
-## 6. Die weiteren Stufen
+## 6. Offene Punkte: die drei Hebel
 
-Die Reihenfolge ist nicht nach Aufwand sortiert, sondern danach, was worauf angewiesen ist.
+Notiert 2026-09-03, nach dem ersten Test von Stufe 1 auf der Instanz.
 
-**Erst messen.** Bevor Stufe 2 beginnt: Wie oft wird der erste Kandidat übernommen, wie oft der
-zweite, wie oft „Keine davon"? Liegt der Anteil brauchbarer Vorschläge niedrig, ist nicht der
-Matcher dran, sondern die Anlagenstammdaten. Das ist der eigentliche Ertrag dieser Stufe.
+**Der Anlagen-Vorschlag allein ist kein Game Changer, und das ist keine Enttäuschung, sondern
+ein Befund.** Drei Gründe, die man kennen muss, bevor man auf ihn aufbaut:
 
-**Stufe 2 — Kategorie und Priorität** per Sprachmodell mit strukturierter Ausgabe. Wirkt sofort
-in der Liste der offenen Meldungen. Erst hier wird ein `LlmProvider`-Interface gebraucht; es
-jetzt schon zu bauen, wäre eine Schnittstelle ohne zweite Implementierung und ohne bekannte
-Anforderungen. Mit ihm kommen die Fragen, die dieser Stand nicht hat: Schlüsselverwaltung,
-Kosten, und ob FM-Kundentexte die Instanz verlassen dürfen.
+- Er hilft am wenigsten dort, wo Hilfe gebraucht wird. Der Matcher ist genau so gut wie die
+  Anlagenstammdaten. Wo Namen, Standorte und Seriennummern gepflegt sind, findet der Mensch die
+  Anlage in fünf Sekunden — er kennt sein Gebäude. Wo die Daten dünn sind, findet der Matcher
+  sie ebenso wenig. Diese Korrelation ist der Kern des Problems.
+- Die Zeitersparnis trägt keine Rechnung. Dreißig Sekunden bei zwanzig Meldungen am Tag sind
+  zehn Minuten.
+- Es gibt einen deterministischen Weg, der jeden Matcher schlägt: ein QR- oder NFC-Aufkleber an
+  der Anlage, gescannt beim Melden. `Asset.nfcId` und `Asset.barCode` liegen im Datenmodell
+  bereits. Kein Verfahren, das Text rät, kommt gegen „der Melder stand davor und hat gescannt"
+  an. **Das entscheidet die Reihenfolge unten mit**: wer die Identifikation am Objekt löst,
+  braucht die späteren Stufen nicht schwächer, sondern kann sie auf sicherem Grund bauen.
 
-**Stufe 3 — Duplikaterkennung.** Braucht Historie und muss räumlich und zeitlich eingegrenzt
-sein — nur Meldungen und Aufträge derselben Anlage oder desselben Standorts, letzte 90 Tage —
-sonst findet „Beleuchtung" zweihundert Treffer. Und nie automatisch ablehnen: Hinweis mit Link,
-der Mensch entscheidet.
+**Was Stufe 1 dennoch rechtfertigt: sie ist ein Messinstrument, kein Feature.** Sie beantwortet
+mit Zahlen die Frage, die vor allen anderen steht — sind die Anlagenstammdaten gut genug, um
+überhaupt etwas darauf zu bauen? Alle drei Hebel unten brauchen zuerst eine sichere
+Anlagenzuordnung. Fällt der Match schlecht aus, lautet die Antwort auf alles Weitere „erst
+Datenqualität", und das zu wissen ist mehr wert als das Feature. Die zwei Zahlen, die zu erheben
+sind, stehen unter „Was zuerst geklärt sein muss".
 
-**Stufe 4 — Disposition** (`IN_HOUSE` / `EXTERNAL` / `DUPLICATE` / `INFO_ONLY`). Das Herzstück,
-und bewusst zuletzt: ob „Leuchtstoffröhre defekt" Hausmeister oder Fremdvergabe ist, ist eine
-unternehmensspezifische Entscheidung. Eine generische KI ohne Beispiele aus der eigenen Historie
-liefert hier Unsinn. Die Beispiele entstehen in den Stufen 1 bis 3.
+Die drei Hebel sind nach Aufwand *nicht* sortiert, sondern danach, wo Geld und Haftung liegen.
+Keiner davon ist begonnen. Alle drei brauchen einen Entwurf, bevor Code entsteht — der Wert
+steckt bei allen dreien in der fachlichen Modellierung, nicht in der Technik.
 
-**Stufe 5 — Bild und Audio.** OCR auf Typenschild-Fotos, Schadensbild, Spracherkennung für
-`audioDescription`. Schön, aber nicht kritisch — mit einer Ausnahme: OCR auf dem Typenschild
-speist den Bezeichner-Pfad aus Stufe 1, und der ist der stärkste Hebel im Anlagen-Match.
+### 6.1 Disposition — eigenes Team oder Fremdvergabe
 
-**Automatische Übernahme** ist keine eigene Stufe, sondern eine Entscheidung, die man erst
-treffen darf, wenn die Zahlen aus „Erst messen" sie tragen — und dann nur für die Teilmenge, für
-die sie sie tragen. Der Vertrag aus Abschnitt 3 (der Matcher schreibt nie selbst) ist genau das,
-was diese Entscheidung offen hält, statt sie vorwegzunehmen.
+**Warum es zählt.** Hier bewegt sich echtes Geld: ein unnötig beauftragter Techniker kostet
+dreistellig, ein nicht beauftragter kostet Stillstand. Und die Entscheidung ist
+unternehmensspezifisch — ob „Leuchtstoffröhre defekt" Hausmeister oder Fremdvergabe ist, ist bei
+Kunde A anders als bei Kunde B. Genau deshalb deckt Standardsoftware es nicht ab, und genau
+deshalb ist es die Art Problem, für die jemand Beratung kauft.
+
+**Was es braucht.** Beispiele aus der eigenen Historie: vergangene, freigegebene Aufträge mit
+Vendor gegen solche ohne. Eine generische KI ohne diese Beispiele liefert hier Unsinn — das ist
+der Grund, warum dieser Punkt nicht der erste sein kann, obwohl er der wertvollste ist.
+Zielwerte: `IN_HOUSE` / `EXTERNAL`, dazu bei `EXTERNAL` ein Vendor-Vorschlag aus
+`Asset.vendors` und den Vendor-Stammdaten.
+
+**Woran es scheitern würde.** An zu wenig Historie und an einer Instanz, in der der Unterschied
+gar nicht in den Daten steht — wenn Fremdvergaben nicht als solche erfasst sind, gibt es nichts
+zu lernen. Das ist vor dem Entwurf zu prüfen, nicht danach.
+
+### 6.2 Duplikate und Wiederholfehler
+
+**Warum es zählt.** Ein zweiter Auftrag für dieselbe Störung kostet einen kompletten Einsatz.
+Und die Wiederholung ist der eigentliche Ertrag: dieselbe Pumpe zum vierten Mal in sechs Monaten
+ist kein Wartungsfall mehr, sondern ein Investitionsfall. Das ist der Übergang von
+Ticketbearbeitung zu einer Lebenszyklus-Entscheidung — und damit von Betrieb zu Beratung.
+
+**Was es braucht.** Räumliche und zeitliche Eingrenzung, sonst findet „Beleuchtung"
+zweihundert Treffer: nur Meldungen und Aufträge derselben Anlage oder desselben Standorts,
+letzte 90 Tage. Für den Wiederholfehler zusätzlich eine Zählung über einen längeren Zeitraum und
+eine Schwelle, ab der aus „schon mal gemeldet" ein Hinweis auf Ersatz wird.
+
+**Woran es scheitern würde.** An falschen Positiven. Und deshalb gilt hier dieselbe Regel wie in
+Abschnitt 3: nie automatisch ablehnen, immer nur Hinweis mit Link auf die andere Meldung. Der
+Mensch entscheidet.
+
+### 6.3 Verbindlichkeit und Haftung
+
+**Warum es zählt.** Das ist der Punkt, an dem FM-Kunden tatsächlich Schmerz spüren — GEFMA 310,
+Verkehrssicherungspflichten, Nachweisführung. Eine Triage, die sagt „das ist eine prüfpflichtige
+Anlage, hier hängt eine Frist dran", ist etwas anderes als eine, die sagt „das ist vermutlich die
+Heizung". Sie verändert nicht die Bearbeitungsgeschwindigkeit, sondern das Risiko.
+
+**Was es braucht.** Anders als 6.1 und 6.2 ist das **kein KI-Problem, sondern ein
+Regelwerk-Problem**: welche Pflicht an welcher Anlagenklasse hängt, ist nachschlagbar und muss
+deterministisch beantwortet werden, nicht geschätzt. Eine Einschätzung mit Konfidenz ist hier die
+falsche Antwortform — bei einer Prüfpflicht will niemand 78 % hören. Die KI darf höchstens die
+Anlagenklasse vorschlagen; die Pflicht selbst muss aus einer Tabelle kommen.
+
+**Woran es scheitern würde.** Daran, es wie die anderen beiden zu bauen. Wenn ein Sprachmodell
+Fristen erfindet, ist der Schaden größer als der gesamte Nutzen der Triage.
+
+**Berührungspunkt.** Der Verbindlichkeitsfilter über die Klassifizierungsstufen ist Gegenstand
+eines eigenen Vorhabens außerhalb dieses Repositorys. Vor einem Entwurf hier ist zu klären, ob
+dieser Use Case dessen Regelwerk konsumiert statt ein zweites daneben zu stellen — zwei
+Pflichtenmodelle, die sich widersprechen können, sind schlimmer als keines.
+
+### Was zuerst geklärt sein muss
+
+Bevor an 6.1 bis 6.3 gebaut wird, zwei Zahlen aus dem laufenden Stand 1. Sie stehen in der
+Datenbank (`request_qualification.status`, `chosen_asset_id`, `request_qualification_candidate.ordinal`),
+aber es gibt noch keine Ansicht dafür — das ist der erste kleine Nachtrag, den diese Stufe
+schuldet:
+
+1. **Wie oft hätte der Bearbeiter die Anlage ohne die Karte sofort gewusst?** Das ist der Anteil,
+   an dem die Funktion nichts einspart. Nur von Hand erhebbar, über eine Stichprobe.
+2. **Wie oft war der erste Vorschlag richtig?** Das ist der Anteil, auf dem 6.1 bis 6.3 aufbauen
+   könnten. Aus `status = APPLIED` und `ordinal = 0` ablesbar.
+
+### Kleinere Punkte, die aus der ursprünglichen Skizze übrig sind
+
+Bewusst nachgeordnet, weil keiner davon Geld oder Haftung bewegt:
+
+- **Kategorie und Priorität** per Sprachmodell mit strukturierter Ausgabe. Wirkt in der Liste der
+  offenen Meldungen. Erst hier wird ein `LlmProvider`-Interface gebraucht; es jetzt zu bauen wäre
+  eine Schnittstelle ohne zweite Implementierung. Mit ihm kommen die Fragen, die dieser Stand
+  nicht hat: Schlüsselverwaltung, Kosten, und ob FM-Kundentexte die Instanz verlassen dürfen.
+- **Bild und Audio.** OCR auf Typenschild-Fotos, Schadensbild, Spracherkennung für
+  `audioDescription`. Eine Ausnahme ist hier wertvoll: OCR auf dem Typenschild speist den
+  Bezeichner-Pfad aus Stufe 1, und der ist der stärkste Hebel im Anlagen-Match — die zweitbeste
+  Variante dessen, was ein QR-Aufkleber sicher löst.
+- **Automatische Übernahme** ist keine Stufe, sondern eine Entscheidung, die man erst treffen
+  darf, wenn die Zahlen oben sie tragen — und dann nur für die Teilmenge, für die sie sie tragen.
+  Der Vertrag aus Abschnitt 3 (der Matcher schreibt nie selbst) ist genau das, was diese
+  Entscheidung offen hält, statt sie vorwegzunehmen.
