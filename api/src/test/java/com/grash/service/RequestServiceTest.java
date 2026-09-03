@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -74,6 +75,13 @@ class RequestServiceTest {
     private RequestPortalService requestPortalService;
     @Mock
     private WorkflowService workflowService;
+    /**
+     * {@code RequestService} publishes {@link com.grash.event.RequestCreatedEvent} on create.
+     * Without this mock the constructor injection leaves the publisher null and the create test
+     * dies on the publish rather than on anything it means to assert.
+     */
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     private Company company;
     private User user;
