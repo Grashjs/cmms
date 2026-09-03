@@ -13,7 +13,11 @@ asset categories — read it before touching `CustomFieldValueService`, which de
 anything about `mobile/`;
 [`docs/ki-meldungs-triage.md`](docs/ki-meldungs-triage.md) for the asset suggestion on incoming
 requests — read it before touching anything under `service/triage/`, and before assuming the
-workflow engine can carry out what a matcher decided, because it cannot.
+workflow engine can carry out what a matcher decided, because it cannot;
+[`docs/workflow-engine-konzept.md`](docs/workflow-engine-konzept.md) for the rule automation —
+read it before touching `Workflow*` or publishing a domain event from a service, because it
+records why an async listener cannot persist a `CompanyAudit` entity without setting the company
+by hand, and why a field diff in `AssetService.update` misses every status change.
 
 ## What this is
 
