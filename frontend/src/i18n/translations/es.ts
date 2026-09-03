@@ -1051,6 +1051,7 @@ const esJSON = {
   personal_details_description:
     'Gestionar información relacionada con sus datos personales',
   change_password: 'Cambiar contraseña',
+  delete_account_email_confirmation: 'Por favor revise sus correos electrónicos para confirmar la eliminación de la cuenta',
   notification_settings: 'Configuración de notificaciones',
   notification_settings_description:
     'Gestiona los detalles relacionados con sus notificaciones.',
@@ -1107,6 +1108,11 @@ const esJSON = {
   monthly_adverb: 'Mensual',
   yearly_adverb: 'Anual',
   features: 'Características',
+  subscription_change_summary: 'Resumen del cambio de suscripción',
+  change_from_to: '{{current}} → {{next}}',
+  billing_period: 'Período de facturación',
+  prorata_notice:
+    'Se le cobrará una cantidad prorrateada por el resto de su período de facturación actual.',
   checkout: 'Verificar',
   checkout_description: 'Rellene los campos que aparecen a continuación',
   per_month: 'por mes',

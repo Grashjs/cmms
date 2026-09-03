@@ -1043,6 +1043,7 @@ const locale = {
   personal_details_description:
     'Gestisci le informazioni relative ai tuoi dati personali',
   change_password: 'Cambiare la password',
+  delete_account_email_confirmation: "Controlla le tue email per confermare l'eliminazione dell'account",
   notification_settings: 'Impostazioni delle notifiche',
   notification_settings_description:
     'Gestisci i dettagli relativi alle tue notifiche',
@@ -1098,6 +1099,11 @@ const locale = {
   monthly_adverb: 'mensile',
   yearly_adverb: 'annuale',
   features: 'Caratteristiche',
+  subscription_change_summary: 'Riepilogo del cambio di abbonamento',
+  change_from_to: '{{current}} → {{next}}',
+  billing_period: 'Periodo di fatturazione',
+  prorata_notice:
+    'Ti verrà addebitato un importo proporzionale per il resto del periodo di fatturazione corrente.',
   checkout: 'Guardare',
   checkout_description: 'Compila i campi sottostanti',
   per_month: 'al mese',

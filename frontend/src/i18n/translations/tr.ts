@@ -998,6 +998,7 @@ const trJSON = {
   personal_details_description:
     'Kişisel bilgilerinizle ilgili bilgileri yönetin',
   change_password: 'Şifre değiştir',
+  delete_account_email_confirmation: 'Hesap silmeyi onaylamak için e-postalarınızı kontrol edin',
   notification_settings: 'Bildirim Ayarları',
   notification_settings_description:
     'Bildirimlerinizle ilgili ayrıntıları yönetin',
@@ -1053,6 +1054,11 @@ const trJSON = {
   monthly_adverb: 'aylık',
   yearly_adverb: 'yıllık',
   features: 'Özellikler',
+  subscription_change_summary: 'Abonelik Değişiklik Özeti',
+  change_from_to: '{{current}} → {{next}}',
+  billing_period: 'Faturalandırma dönemi',
+  prorata_notice:
+    'Mevcut fatura döneminin kalanı için orantılı bir tutar tahsil edilecektir.',
   checkout: 'Çıkış yap',
   checkout_description: 'Aşağıdaki alanları doldurun',
   per_month: 'her ay',

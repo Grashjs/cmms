@@ -192,6 +192,8 @@ const locale = {
   no_account_yet: 'Još nemate račun?',
   signup_here: 'Registrujte se ovdje',
   wrong_credentials: 'Uneseni su pogrešni podaci za prijavu',
+  server_not_reachable:
+    'Backend server nije dostupan. Možete sačekati da se pokrene i pokušati ponovo.',
   lost_password: 'Zaboravili ste lozinku?',
   //work-orders
   link_wo: 'Povežite radne naloge',
@@ -1038,6 +1040,7 @@ const locale = {
   account_deleted: 'Račun je uspješno obrisan',
   account_delete_error: 'Greška pri brisanju računa',
   confirm_delete_account: 'Potvrdi brisanje računa',
+  delete_account_email_confirmation: 'Provjerite svoju e-poštu da potvrdite brisanje računa',
   notification_settings: 'Postavke obavještenja',
   notification_settings_description:
     'Upravljajte detaljima svojih obavještenja',

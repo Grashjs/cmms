@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,6 +39,7 @@ public class MinioService implements StorageService {
     private String minioSecretKey;
     @Value("${storage.minio.public-endpoint}")
     private String minioPublicEndpoint;
+    private final CacheService cacheService;
 
     private MinioClient minioClient;
     private static boolean configured = false;
@@ -161,9 +161,9 @@ public class MinioService implements StorageService {
         }
     }
 
-    @Cacheable(cacheNames = "signedUrls", key = "#file.path + ':' + #expirationMinutes")
     public String generateSignedUrl(File file, long expirationMinutes) {
-        return generateSignedUrl(file.getPath(), expirationMinutes);
+        return cacheService.getCachedOrGenerateSignedUrl(file, expirationMinutes,
+                () -> generateSignedUrl(file.getPath(), expirationMinutes));
     }
 
     public String generateSignedUrl(String filePath, long expirationMinutes) {

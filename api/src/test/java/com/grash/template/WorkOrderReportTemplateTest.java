@@ -273,6 +273,7 @@ class WorkOrderReportTemplateTest extends AbstractTemplateTest {
         vars.put("workOrderHistories", createHistories());
         vars.put("partQuantities", createPartQuantities());
         vars.put("environment", environment());
+        vars.put("dir", "ltr");
         vars.put("tasksImagesPaths", Collections.singletonMap(1L,
                 new String[]{"images/task1.png"}));
         vars.put("messageSource", messageSource());

@@ -162,6 +162,8 @@ const locale = {
   no_account_yet: '还没有账户？',
   signup_here: '在此注册',
   wrong_credentials: '提供的凭证错误',
+  server_not_reachable:
+    '后端服务器不可达。您可以等待它启动后再试一次。',
   lost_password: '忘记密码？',
   link_wo: '关联工单',
   link_wo_description: '创建工单之间的关联关系',
@@ -929,6 +931,7 @@ const locale = {
   account_deleted: '账户删除成功',
   account_delete_error: '删除账户时出错',
   confirm_delete_account: '删除账户',
+  delete_account_email_confirmation: '请检查您的电子邮件以确认删除账户',
   notification_settings: '通知设置',
   notification_settings_description: '管理与您的通知相关的详细信息',
   recent_activity: '最近活动',

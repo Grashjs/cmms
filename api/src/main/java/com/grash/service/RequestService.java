@@ -1,35 +1,44 @@
 package com.grash.service;
 
+import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
+import com.grash.dto.RequestApproveDTO;
 import com.grash.dto.RequestPatchDTO;
 import com.grash.dto.RequestPostDTO;
-import com.grash.dto.RequestShowDTO;
 import com.grash.dto.cutomField.CustomFieldValuePostDTO;
 import com.grash.dto.license.LicenseEntitlement;
 import com.grash.dto.workOrder.WorkOrderPostDTO;
 import com.grash.exception.CustomException;
+import com.grash.factory.MailServiceFactory;
 import com.grash.mapper.RequestMapper;
 import com.grash.model.*;
-import com.grash.model.enums.CustomFieldEntityType;
-import com.grash.model.enums.PortalFieldType;
-import com.grash.model.enums.Priority;
+import com.grash.model.enums.*;
 import com.grash.model.enums.webhook.WebhookEvent;
-
-import com.grash.repository.FieldConfigurationRepository;
+import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.repository.RequestRepository;
+import com.grash.utils.Helper;
 import com.grash.utils.Sanitizer;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.*;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import com.grash.event.RequestCreatedEvent;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -45,6 +54,45 @@ public class RequestService {
     private final LicenseService licenseService;
     private final WebhookDispatchService webhookDispatchService;
     private final CustomFieldValueService customFieldValueService;
+    private final UserService userService;
+    private final NotificationService notificationService;
+    private final MessageSource messageSource;
+    private final MailServiceFactory mailServiceFactory;
+    private final AssetService assetService;
+    private final RequestPortalService requestPortalService;
+    private final ApplicationEventPublisher eventPublisher;
+    private WorkflowService workflowService;
+
+    @Value("${frontend.url}")
+    private String frontendUrl;
+
+    @Value("${security.recaptcha-secret-key:}")
+    private String recaptchaSecretKey;
+
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    @Autowired
+    public void setWorkflowService(@Lazy WorkflowService workflowService) {
+        this.workflowService = workflowService;
+    }
+
+    @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    private static class RecaptchaResponse {
+        private boolean success;
+    }
+
+    private void verifyRecaptcha(String token) {
+        String verifyUrl = "https://www.google.com/recaptcha/api/siteverify?secret=" +
+                recaptchaSecretKey + "&response=" + token;
+
+        ResponseEntity<RecaptchaResponse> response = restTemplate.postForEntity(verifyUrl, null,
+                RecaptchaResponse.class);
+
+        if (response.getBody() == null || !response.getBody().isSuccess()) {
+            throw new CustomException("reCAPTCHA verification failed", HttpStatus.BAD_REQUEST);
+        }
+    }
 
 
     @Transactional
@@ -164,7 +212,7 @@ public class RequestService {
         return requestRepository.findByCreatedAtBetweenAndCompany_Id(date1, date2, id);
     }
 
-    public Page<RequestShowDTO> findBySearchCriteria(SearchCriteria searchCriteria) {
+    public Page<Request> findBySearchCriteria(SearchCriteria searchCriteria) {
         SpecificationBuilder<Request> builder = new SpecificationBuilder<>();
         SearchCriteria searchCriteriaClone = searchCriteria.clone();
 
@@ -213,7 +261,7 @@ public class RequestService {
         searchCriteria.getFilterFields().forEach(builder::with);
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(),
                 searchCriteria.getDirection(), searchCriteria.getSortField());
-        return requestRepository.findAll(builder.build(), page).map(requestMapper::toShowDto);
+        return requestRepository.findAll(builder.build(), page);
     }
 
 
@@ -223,6 +271,252 @@ public class RequestService {
 
     public List<Request> findByCategoryAndCreatedAtBetween(Long id, Date start, Date end) {
         return requestRepository.findByCategory_IdAndCreatedAtBetween(id, start, end);
+    }
+
+    public SearchCriteria getSearchCriteria(User user, SearchCriteria searchCriteria) {
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.REQUESTS)) {
+                if (!user.getSuperAccountRelations().isEmpty()) {
+                    List<Long> childCompanyIds = user.getSuperAccountRelations().stream()
+                            .map(rel -> rel.getChildUser().getCompany().getId())
+                            .distinct()
+                            .toList();
+                    searchCriteria.getFilterFields().add(FilterField.builder()
+                            .field("company")
+                            .operation("inm")
+                            .joinType(JoinType.LEFT)
+                            .value("")
+                            .values(new ArrayList<>(childCompanyIds))
+                            .build());
+                } else {
+                    searchCriteria.filterCompany(user);
+                }
+                boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.REQUESTS);
+                if (!canViewOthers) {
+                    searchCriteria.filterCreatedBy(user);
+                }
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+        }
+        return searchCriteria;
+    }
+
+    public Request getById(Long id, User user) {
+        Optional<Request> optionalRequest = requestRepository.findById(id);
+        if (optionalRequest.isPresent()) {
+            Request savedRequest = optionalRequest.get();
+            if (savedRequest.canBeViewedBy(user)) {
+                return savedRequest;
+            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    @Transactional
+    public Request create(RequestPostDTO requestReq, User user) {
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.REQUESTS)) {
+            Request createdRequest = create(requestReq, user.getCompany());
+            onRequestCreation(createdRequest, user.getCompany(), user.getFullName());
+            return createdRequest;
+        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+    }
+
+    @Transactional
+    public Request createFromPortal(Request requestReq, String requestPortalUuid, String recaptchaToken) {
+        if (recaptchaSecretKey != null && !recaptchaSecretKey.isBlank()) {
+            if (recaptchaToken == null || recaptchaToken.isBlank())
+                throw new CustomException("Recaptcha token missing", HttpStatus.NOT_ACCEPTABLE);
+            verifyRecaptcha(recaptchaToken);
+        }
+        Optional<RequestPortal> optionalRequestPortal = requestPortalService.findByUuidByUser(requestPortalUuid);
+        if (optionalRequestPortal.isEmpty()) {
+            throw new CustomException("Request portal not found", HttpStatus.NOT_FOUND);
+        }
+        RequestPortal requestPortal = optionalRequestPortal.get();
+        Request createdRequest = create(requestReq, requestPortal.getCompany(), requestPortal);
+        onRequestCreation(createdRequest, requestPortal.getCompany(),
+                requestReq.getContact() == null || requestReq.getContact().isBlank() ? messageSource.getMessage(
+                        "someone", null
+                        , Helper.getLocale(requestPortal.getCompany())) : requestReq.getContact());
+        return createdRequest;
+    }
+
+    @Transactional
+    public Request patch(Long id, RequestPatchDTO request, User user) {
+        Optional<Request> optionalRequest = requestRepository.findById(id);
+        if (optionalRequest.isPresent()) {
+            Request savedRequest = optionalRequest.get();
+            if (savedRequest.getWorkOrder() != null) {
+                throw new CustomException("Can't patch an approved request", HttpStatus.NOT_ACCEPTABLE);
+            }
+            if (savedRequest.canBeEditedBy(user)) {
+                return update(id, request, user.getCompany());
+            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        } else throw new CustomException("Request not found", HttpStatus.NOT_FOUND);
+    }
+
+    @Transactional
+    public WorkOrder approve(Long id, RequestApproveDTO requestApproveDTO, User user) {
+        Optional<Request> optionalRequest = requestRepository.findById(id);
+        if (!(user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS) || user.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))) {
+            throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        }
+        if (optionalRequest.isPresent()) {
+            Request savedRequest = optionalRequest.get();
+            if (savedRequest.getWorkOrder() != null) {
+                throw new CustomException("Request is already approved", HttpStatus.NOT_ACCEPTABLE);
+            }
+            Collection<Workflow> workflows =
+                    workflowService.findByMainConditionAndCompany(WFMainCondition.REQUEST_APPROVED,
+                            user.getCompany().getId());
+            workflows.forEach(workflow -> workflowService.runRequest(workflow, savedRequest));
+
+            WorkOrder createdWorkOrder = createWorkOrderFromRequest(savedRequest, user);
+            if (savedRequest.getAsset() != null && requestApproveDTO.getAssetStatus() != null) {
+                savedRequest.getAsset().setStatus(requestApproveDTO.getAssetStatus());
+                assetService.save(savedRequest.getAsset());
+            }
+
+            Map<String, Object> webhookPayload = new HashMap<>();
+            webhookPayload.put("requestId", savedRequest.getId());
+            webhookPayload.put("requestTitle", savedRequest.getTitle());
+            webhookPayload.put("previousStatus", "PENDING");
+            webhookPayload.put("newStatus", "APPROVED");
+            webhookPayload.put("workOrderId", createdWorkOrder.getId());
+            Object serializedRequest = requestMapper.toShowDto(savedRequest);
+            webhookDispatchService.dispatchWebhook(user.getCompany(), WebhookEvent.WORK_REQUEST_STATUS_CHANGE,
+                    webhookPayload,
+                    "changedRequest", serializedRequest, null, null, null, null, null);
+
+            List<User> usersToMail =
+                    userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))
+                            .filter(user1 -> user1.isEnabled() && user1.getUserSettings().isEmailNotified()).collect(Collectors.toList());
+            String title = messageSource.getMessage("request_approved", null, Helper.getLocale(user));
+
+            if (savedRequest.getCreatedBy() != null) {
+                User requester = userService.findById(savedRequest.getCreatedBy()).get();
+                String message = messageSource.getMessage("request_approved_description",
+                        new Object[]{savedRequest.getTitle()}, Helper.getLocale(user));
+                notificationService.createMultiple(Collections.singletonList(new Notification(message, requester,
+                        NotificationType.WORK_ORDER, createdWorkOrder.getId())), true, title);
+                usersToMail.add(requester);
+            }
+            String message2 = messageSource.getMessage("request_approved_description_limited_admin",
+                    new Object[]{user.getFullName(), savedRequest.getTitle()}, Helper.getLocale(user));
+            notificationService.createMultiple(userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN) && !user1.getId().equals(user.getId())).map(user1 -> new Notification(message2, user1,
+                    NotificationType.WORK_ORDER, createdWorkOrder.getId())).collect(Collectors.toList()), true, title);
+
+            Map<String, Object> mailVariables = new HashMap<String, Object>() {{
+                put("workOrderLink", frontendUrl + "/app/work-orders/" + createdWorkOrder.getId());
+                put("workOrderTitle", createdWorkOrder.getTitle());
+            }};
+            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToMail.stream().map(User::getEmail)
+                            .toArray(String[]::new), title, mailVariables, "approved-request.html",
+                    Helper.getLocale(user),
+                    null);
+
+            return createdWorkOrder;
+        } else throw new CustomException("Request not found", HttpStatus.NOT_FOUND);
+    }
+
+    @Transactional
+    public Request cancel(Long id, String reason, User user) {
+        Optional<Request> optionalRequest = requestRepository.findById(id);
+        if (!(user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS) || user.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))) {
+            throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        }
+        if (optionalRequest.isPresent()) {
+            Request savedRequest = optionalRequest.get();
+            if (savedRequest.getWorkOrder() != null) {
+                throw new CustomException("Request is already approved", HttpStatus.NOT_ACCEPTABLE);
+            }
+            if (reason == null || reason.trim().isEmpty())
+                throw new CustomException("Please give a reason", HttpStatus.NOT_ACCEPTABLE);
+            savedRequest.setCancellationReason(reason);
+            savedRequest.setCancelled(true);
+            Collection<Workflow> workflows =
+                    workflowService.findByMainConditionAndCompany(WFMainCondition.REQUEST_REJECTED,
+                            user.getCompany().getId());
+            workflows.forEach(workflow -> workflowService.runRequest(workflow, savedRequest));
+
+            Map<String, Object> webhookPayload = new HashMap<>();
+            webhookPayload.put("requestId", savedRequest.getId());
+            webhookPayload.put("requestTitle", savedRequest.getTitle());
+            webhookPayload.put("previousStatus", "PENDING");
+            webhookPayload.put("newStatus", "CANCELLED");
+            webhookPayload.put("cancellationReason", reason);
+            Object serializedRequest = requestMapper.toShowDto(savedRequest);
+            webhookDispatchService.dispatchWebhook(user.getCompany(), WebhookEvent.WORK_REQUEST_STATUS_CHANGE,
+                    webhookPayload,
+                    "changedRequest", serializedRequest, null, null, null, null, null);
+
+            String title = messageSource.getMessage("request_rejected", null, Helper.getLocale(user));
+            List<User> usersToMail =
+                    userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))
+                            .filter(user1 -> user1.isEnabled() && user1.getUserSettings().isEmailNotified()).collect(Collectors.toList());
+
+            if (savedRequest.getCreatedBy() != null) {
+                User requester = userService.findById(savedRequest.getCreatedBy()).get();
+
+                String message = messageSource.getMessage("request_rejected_description",
+                        new Object[]{savedRequest.getTitle()}, Helper.getLocale(user));
+                notificationService.createMultiple(Collections.singletonList(new Notification(message, requester,
+                        NotificationType.INFO, null)), true, title);
+                usersToMail.add(requester);
+            }
+            String message2 = messageSource.getMessage("request_rejected_description_limited_admin",
+                    new Object[]{user.getFullName(), savedRequest.getTitle()}, Helper.getLocale(user));
+            notificationService.createMultiple(userService.findByCompany(user.getCompany().getId()).stream().filter(user1 -> user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN) && !user1.getId().equals(user.getId())).map(user1 -> new Notification(message2, user1,
+                    NotificationType.INFO, null)).collect(Collectors.toList()), true, title);
+
+            Map<String, Object> mailVariables = new HashMap<String, Object>() {{
+                put("requestLink", frontendUrl + "/app/requests/" + savedRequest.getId());
+                put("requestTitle", savedRequest.getTitle());
+            }};
+            mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToMail.stream().map(User::getEmail)
+                            .toArray(String[]::new), title, mailVariables, "rejected-request.html",
+                    Helper.getLocale(user),
+                    null);
+
+            return save(savedRequest);
+        } else throw new CustomException("Request not found", HttpStatus.NOT_FOUND);
+    }
+
+    public void deleteByIdAndUser(Long id, User user) {
+        Optional<Request> optionalRequest = requestRepository.findById(id);
+        if (optionalRequest.isPresent()) {
+            Request savedRequest = optionalRequest.get();
+            if (savedRequest.canBeDeletedBy(user)) {
+                delete(id);
+            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        } else throw new CustomException("Request not found", HttpStatus.NOT_FOUND);
+    }
+
+    private void onRequestCreation(Request createdRequest, Company company, String requesterName) {
+        String title = messageSource.getMessage("new_request", null, Helper.getLocale(company));
+        String message = messageSource.getMessage("notification_new_request", null, Helper.getLocale(company));
+        List<User> usersToNotify = userService.findByCompany(company.getId()).stream()
+                .filter(user1 -> user1.isEnabled() && user1.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
+                        || user1.getRole().getCode().equals(RoleCode.LIMITED_ADMIN)).collect(Collectors.toList());
+        notificationService.createMultiple(usersToNotify
+                .stream().map(user1 -> new Notification(message, user1, NotificationType.REQUEST,
+                        createdRequest.getId())).collect(Collectors.toList()), true, title);
+        Map<String, Object> mailVariables = new HashMap<String, Object>() {{
+            put("requestLink", frontendUrl + "/app/requests/" + createdRequest.getId());
+            put("requestTitle", createdRequest.getTitle());
+            put("requester", requesterName);
+        }};
+        mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(usersToNotify.stream().map(User::getEmail)
+                .toArray(String[]::new), messageSource.getMessage("new_request", null,
+                Helper.getLocale(company)), mailVariables, "new-request.html", Helper.getLocale(company), null);
+
+        Collection<Workflow> workflows =
+                workflowService.findByMainConditionAndCompany(WFMainCondition.REQUEST_CREATED,
+                        company.getId());
+        workflows.forEach(workflow -> workflowService.runRequest(workflow, createdRequest));
+
+        // Triage. Published rather than called: this method runs inside the request creation
+        // transaction, and the listener has to see a committed request. See RequestTriageListener,
+        // and docs/ki-meldungs-triage.md for why the workflow engine above cannot do this job.
+        eventPublisher.publishEvent(new RequestCreatedEvent(createdRequest.getId(), company.getId()));
     }
 }
 

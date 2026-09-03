@@ -1,19 +1,25 @@
 package com.grash.service;
 
+import com.grash.dto.SignedUrlEntry;
+import com.grash.model.File;
 import com.grash.model.User;
+import com.grash.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 @Service
 @RequiredArgsConstructor
 public class CacheService {
     private final CacheManager cacheManager;
     private final String USERS_CACHE = "users";
+    private final UserRepository userRepository;
 
     public void evictUserFromCache(String email) {
         Cache usersCache = cacheManager.getCache(USERS_CACHE);
@@ -52,7 +58,34 @@ public class CacheService {
         return cachedUser == null ? Optional.empty() : Optional.of(cachedUser);
     }
 
+    public String getCachedOrGenerateSignedUrl(File file, long expirationMinutes, Supplier<String> urlSupplier) {
+        String key = file.getPath() + ":" + expirationMinutes;
+        Cache cache = cacheManager.getCache("signedUrls");
+
+        if (cache != null) {
+            SignedUrlEntry cached = cache.get(key, SignedUrlEntry.class);
+            if (cached != null && !cached.isExpired()) {
+                return cached.url();
+            }
+        }
+
+        String freshUrl = urlSupplier.get();
+
+        if (cache != null) {
+            Instant expiresAt = Instant.now()
+                    .plusSeconds(expirationMinutes * 60)
+                    .minusSeconds(30);
+            cache.put(key, new SignedUrlEntry(freshUrl, expiresAt));
+        }
+
+        return freshUrl;
+    }
+
     private String getCacheKey(String email) {
         return email;
+    }
+
+    public void evictCompanyUsersFromCache(Long companyId) {
+        userRepository.findByCompany_Id(companyId).forEach(user -> evictUserFromCache(user.getEmail()));
     }
 }

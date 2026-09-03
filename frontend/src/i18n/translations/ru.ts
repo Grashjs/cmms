@@ -1061,6 +1061,7 @@ const ruJSON = {
   personal_details_description:
     'Управляйте информацией, связанной с вашими личными данными',
   change_password: 'Изменить пароль',
+  delete_account_email_confirmation: 'Проверьте свою электронную почту, чтобы подтвердить удаление аккаунта',
   notification_settings: 'Настройки уведомлений',
   notification_settings_description: 'Управляйте параметрами уведомлений',
   recent_activity: 'Последняя активность',
@@ -1115,6 +1116,11 @@ const ruJSON = {
   monthly_adverb: 'ежемесячно',
   yearly_adverb: 'ежегодно',
   features: 'Функции',
+  subscription_change_summary: 'Сводка изменений подписки',
+  change_from_to: '{{current}} → {{next}}',
+  billing_period: 'Расчетный период',
+  prorata_notice:
+    'Вам будет выставлен счет на пропорциональную сумму за оставшуюся часть текущего расчетного периода.',
   checkout: 'Оформление',
   checkout_description: 'Заполните поля ниже',
   per_month: 'в месяц',

@@ -183,6 +183,8 @@ const locale = {
   no_account_yet: 'まだアカウントをお持ちではありませんか？',
   signup_here: 'こちらからサインアップ',
   wrong_credentials: '提供された認証情報が間違っています',
+  server_not_reachable:
+    'バックエンドサーバーに接続できません。起動するまで待ってから、もう一度お試しください。',
   lost_password: 'パスワードを忘れましたか？',
   //work-orders
   link_wo: '作業指示書をリンク',
@@ -1036,6 +1038,7 @@ const locale = {
   account_deleted: 'アカウントが正常に削除されました',
   account_delete_error: 'アカウントの削除中にエラーが発生しました',
   confirm_delete_account: 'アカウントを削除',
+  delete_account_email_confirmation: 'メールを確認してアカウント削除を確定してください',
   notification_settings: '通知設定',
   notification_settings_description: '通知に関する詳細を管理します',
   recent_activity: '最近のアクティビティ',

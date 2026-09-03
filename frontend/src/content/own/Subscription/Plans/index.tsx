@@ -27,12 +27,11 @@ import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContex
 import { SubscriptionPlan } from '../../../../models/owns/subscriptionPlan';
 import { useNavigate } from 'react-router-dom';
 import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
-import api, { authHeader } from '../../../../utils/api';
+import api from '../../../../utils/api';
 import { useBrand } from '../../../../hooks/useBrand';
 import { fireGa4Event } from '../../../../utils/overall';
 import { initializePaddle, Paddle } from '@paddle/paddle-js';
 import {
-  apiUrl,
   homeUrl,
   isCloudVersion,
   PADDLE_SECRET_TOKEN,
@@ -78,7 +77,8 @@ function SubscriptionPlans() {
               id: randomInt(),
               usersCount,
               monthly: period === 'monthly',
-              subscriptionPlan: selectedPlanObject
+              subscriptionPlan: selectedPlanObject,
+              activated: true
             }).then(onSubcriptionPatchSuccess);
           }
         }
@@ -108,69 +108,55 @@ function SubscriptionPlans() {
     }
     fireGa4Event('checkout_started');
     setSubmitting(true);
-    // if (selectedPlan === 'BUSINESS' || selectedPlanObject.code === 'BUSINESS') {
-    //   onUpgradeRequest();
-    //   return;
-    // }
+
+    const alreadySubscribed = company.subscription.activated;
+
     let path = selectedPlanObject.code.toLowerCase();
     path = `${path}-${period === 'monthly' ? 'monthly' : 'yearly'}`;
-    try {
-      // Create Checkout Session on backend
-      const response = await fetch(`${apiUrl}paddle/create-checkout-session`, {
-        method: 'POST',
-        headers: {
-          ...authHeader(false)
-        },
-        body: JSON.stringify({
-          planId: path,
-          userId: user.id,
-          quantity: usersCount
-        })
-      });
 
-      const data = await response.json();
-      if (data.sessionId) {
-        paddle.current.Checkout.open({
-          transactionId: data.sessionId,
-          customer: {
-            email: user.email.trim().toLowerCase()
+    try {
+      if (alreadySubscribed) {
+        const { success } = await api.patch<{ success: boolean }>(
+          'paddle/subscription',
+          {
+            planId: path,
+            quantity: usersCount
           }
-        });
+        );
+        if (success) {
+          patchSubscription({
+            id: randomInt(),
+            usersCount,
+            monthly: period === 'monthly',
+            subscriptionPlan: selectedPlanObject,
+            activated: true
+          }).then(onSubcriptionPatchSuccess);
+        } else {
+          showSnackBar(t("The Subscription couldn't be changed"), 'error');
+        }
+      } else {
+        // New checkout session
+        const data = await api.post<{ sessionId: string }>(
+          'paddle/create-checkout-session',
+          {
+            planId: path,
+            userId: user.id,
+            quantity: usersCount
+          }
+        );
+
+        if (data.sessionId) {
+          paddle.current.Checkout.open({
+            transactionId: data.sessionId,
+            customer: {
+              email: user.email.trim().toLowerCase()
+            }
+          });
+        }
       }
     } catch (error) {
-      console.error('Failed to create checkout session:', error);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-  const onUpgradeRequest = async () => {
-    setSubmitting(true);
-    const cost = getCost();
-    fireGa4Event({
-      category: 'Pricing',
-      action: 'Upgrade_Request',
-      label: 'Upgrade_Request',
-      value: period == 'monthly' ? cost : cost * 10
-    });
-
-    const payload = {
-      code: selectedPlanObject.code,
-      monthly: period === 'monthly',
-      usersCount
-    };
-    try {
-      const { success } = await api.post<{ success: boolean }>(
-        'subscriptions/request-upgrade',
-        payload
-      );
-      if (success) {
-        showSnackBar(t('upgrade_request_success'), 'success');
-        navigate('/app/work-orders');
-        return;
-      }
-    } catch (err) {
-      showSnackBar(t('failure'), 'error');
-      return;
+      console.error('Failed to update subscription:', error);
+      showSnackBar(t("The Subscription couldn't be changed"), 'error');
     } finally {
       setSubmitting(false);
     }
@@ -187,6 +173,11 @@ function SubscriptionPlans() {
     );
   }, [selectedPlan, subscriptionPlans]);
 
+  const isChangingSubscription = company.subscription.activated;
+  const currentPeriodLabel = subscription.monthly
+    ? t('monthly')
+    : t('annually');
+
   const getCost = () => {
     const selectedPlanData = subscriptionPlans.find(
       (plan) => plan.code == selectedPlan
@@ -201,9 +192,6 @@ function SubscriptionPlans() {
   const onSubcriptionPatchSuccess = () => {
     showSnackBar(t('subscription_change_success'), 'success');
     navigate('/app/work-orders');
-  };
-  const onSubcriptionPatchFailure = () => {
-    showSnackBar(t("The Subscription couldn't be changed"), 'error');
   };
 
   useEffect(() => {
@@ -411,6 +399,79 @@ function SubscriptionPlans() {
                   </Typography>
                   <PlanFeatures features={selectedPlanObject?.features ?? []} />
                 </Box>
+                {isChangingSubscription && (
+                  <Box
+                    sx={{
+                      border: 1,
+                      borderColor: theme.colors.primary.main,
+                      backgroundColor: theme.colors.primary.lighter,
+                      borderRadius: 2,
+                      p: 2,
+                      my: 2
+                    }}
+                  >
+                    <Typography
+                      variant="h4"
+                      fontWeight="bold"
+                      gutterBottom
+                      sx={{ color: theme.colors.primary.dark }}
+                    >
+                      {t('subscription_change_summary')}
+                    </Typography>
+
+                    <Stack
+                      direction="row"
+                      justifyContent="space-between"
+                      my={1}
+                    >
+                      <Typography variant="body1">{t('plan')}</Typography>
+                      <Typography variant="body1" fontWeight="bold">
+                        {t('change_from_to', {
+                          current: subscription.subscriptionPlan.name,
+                          next: selectedPlanObject?.name
+                        })}
+                      </Typography>
+                    </Stack>
+
+                    <Stack
+                      direction="row"
+                      justifyContent="space-between"
+                      my={1}
+                    >
+                      <Typography variant="body1">{t('users')}</Typography>
+                      <Typography variant="body1" fontWeight="bold">
+                        {t('change_from_to', {
+                          current: subscription.usersCount,
+                          next: usersCount
+                        })}
+                      </Typography>
+                    </Stack>
+
+                    <Stack
+                      direction="row"
+                      justifyContent="space-between"
+                      my={1}
+                    >
+                      <Typography variant="body1">
+                        {t('billing_period')}
+                      </Typography>
+                      <Typography variant="body1" fontWeight="bold">
+                        {t('change_from_to', {
+                          current: currentPeriodLabel,
+                          next:
+                            period === 'monthly' ? t('monthly') : t('annually')
+                        })}
+                      </Typography>
+                    </Stack>
+
+                    <Typography
+                      variant="subtitle2"
+                      sx={{ mt: 2, fontStyle: 'italic' }}
+                    >
+                      {t('prorata_notice')}
+                    </Typography>
+                  </Box>
+                )}
                 <Box
                   sx={{
                     display: 'flex',

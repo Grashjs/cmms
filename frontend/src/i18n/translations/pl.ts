@@ -1047,6 +1047,7 @@ const plJSON = {
   personal_details_description:
     'Zarządzaj informacjami dotyczącymi twoich danych osobowych',
   change_password: 'Zmień hasło',
+  delete_account_email_confirmation: 'Sprawdź swoją pocztę e-mail, aby potwierdzić usunięcie konta',
   notification_settings: 'Ustawienia powiadomień',
   notification_settings_description:
     'Zarządzaj szczegółami dotyczącymi powiadomień',
@@ -1104,6 +1105,11 @@ const plJSON = {
   monthly_adverb: 'miesięcznie',
   yearly_adverb: 'rocznie',
   features: 'Funkcje',
+  subscription_change_summary: 'Podsumowanie zmiany subskrypcji',
+  change_from_to: '{{current}} → {{next}}',
+  billing_period: 'Okres rozliczeniowy',
+  prorata_notice:
+    'Za pozostałą część bieżącego okresu rozliczeniowego zostanie naliczona kwota proporcjonalna.',
   checkout: 'Zakupy',
   checkout_description: 'Wypełnij poniższe pola',
   per_month: 'za miesiąc',

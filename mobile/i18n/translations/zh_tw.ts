@@ -163,6 +163,8 @@ const locale = {
   no_account_yet: '還沒有帳號嗎？',
   signup_here: '在此註冊',
   wrong_credentials: '提供的憑證錯誤',
+  server_not_reachable:
+    '後端伺服器無法連線。您可以等待它啟動後再試一次。',
   lost_password: '忘記密碼？',
   //work-orders
   link_wo: '連結工單',
@@ -948,6 +950,7 @@ const locale = {
   account_deleted: '帳號刪除成功',
   account_delete_error: '刪除帳號時發生錯誤',
   confirm_delete_account: '刪除帳號',
+  delete_account_email_confirmation: '請檢查您的電子郵件以確認刪除帳戶',
   notification_settings: '通知設定',
   notification_settings_description: '管理與您的通知相關的詳細資訊',
   recent_activity: '近期活動',

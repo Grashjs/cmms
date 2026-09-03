@@ -63,6 +63,8 @@ public class RelationController {
         User user = userService.whoami(req);
         Long parentId = relationReq.getParent().getId();
         Long childId = relationReq.getChild().getId();
+        if (parentId.equals(childId))
+            throw new CustomException("Can't create relation with self", HttpStatus.NOT_ACCEPTABLE);
         if (relationService.findByParentAndChild(parentId, childId).isEmpty() && relationService.findByParentAndChild(childId, parentId).isEmpty()) {
             if (!workOrderService.findById(parentId).get().canBeEditedBy(user))
                 throw new CustomException("Access denied", HttpStatus.FORBIDDEN);

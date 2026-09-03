@@ -78,17 +78,25 @@ async function doFetch<T>(
     ...options
   });
   if (!response.ok) {
-      if (response.status === 401 && !retried && !isRefreshRequest(url)) {
-        const refreshed = await refreshAccessToken();
-        if (refreshed) {
-          return doFetch<T>(url, options, true);
-        }
+    if (response.status === 401 && !retried && !isRefreshRequest(url)) {
+      const refreshed = await refreshAccessToken();
+      if (refreshed) {
+        return doFetch<T>(url, options, true);
       }
-      if (response.status === 409) {
-        if (onConflictError) onConflictError();
-        throw new Error('conflict_error');
-      }
-    throw new Error(JSON.stringify(await response.json()));
+    }
+    if (response.status === 409) {
+      if (onConflictError) onConflictError();
+      throw new Error('conflict_error');
+    }
+    let body: any = null;
+    try {
+      body = await response.json();
+    } catch {
+      body = null;
+    }
+    const err = new Error(JSON.stringify(body));
+    (err as any).status = response.status;
+    throw err;
   }
   if (options?.raw) return response as unknown as Promise<T>;
   return response.json() as Promise<T>;
@@ -164,7 +172,7 @@ export async function authHeader(publicRoute: boolean) {
 }
 export const getErrorMessage = (
   error: any,
-  defaultMessage?: string
+  defaultMessage: string = 'An error occurred'
 ): string => {
   try {
     const parsed = JSON.parse(error.message);
@@ -174,4 +182,19 @@ export const getErrorMessage = (
   }
 };
 
-export default { get, patch, post, deletes, getErrorMessage };
+export const isNetworkError = (error: any): boolean => {
+  if (!error) return false;
+  if (error instanceof TypeError) return true;
+  if (error?.status === 502) return true;
+  const message = String(error?.message ?? '').toLowerCase();
+  return (
+    message.includes('failed to fetch') ||
+    message.includes('networkerror') ||
+    message.includes('network error') ||
+    message.includes('load failed') ||
+    message.includes('connection refused') ||
+    message.includes('err_connection_refused')
+  );
+};
+
+export default { get, patch, post, deletes, getErrorMessage, isNetworkError };

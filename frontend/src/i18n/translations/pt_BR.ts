@@ -1068,6 +1068,7 @@ const ptBRJSON = {
   personal_details_description:
     'Gerencie informações relacionadas aos seus detalhes pessoais',
   change_password: 'Alterar Senha',
+  delete_account_email_confirmation: 'Verifique seus e-mails para confirmar a exclusão da conta',
   notification_settings: 'Configurações de Notificações',
   notification_settings_description:
     'Gerencie detalhes relacionados às suas notificações',
@@ -1124,6 +1125,11 @@ const ptBRJSON = {
   monthly_adverb: 'mensalmente',
   yearly_adverb: 'anualmente',
   features: 'Recursos',
+  subscription_change_summary: 'Resumo da alteração da assinatura',
+  change_from_to: '{{current}} → {{next}}',
+  billing_period: 'Período de cobrança',
+  prorata_notice:
+    'Você será cobrado por um valor proporcional pelo restante do seu período de cobrança atual.',
   checkout: 'Finalizar Compra',
   checkout_description: 'Preencha os campos abaixo',
   per_month: 'por mês',

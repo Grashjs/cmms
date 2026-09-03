@@ -4,7 +4,6 @@ import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.LocationPatchDTO;
 import com.grash.dto.LocationPostDTO;
-import com.grash.dto.LocationShowDTO;
 import com.grash.dto.cutomField.CustomFieldValuePostDTO;
 import com.grash.dto.imports.LocationImportDTO;
 import com.grash.dto.license.LicenseEntitlement;
@@ -13,8 +12,13 @@ import com.grash.mapper.LocationMapper;
 import com.grash.model.*;
 import com.grash.model.enums.CustomFieldEntityType;
 import com.grash.model.enums.NotificationType;
+import com.grash.model.enums.PermissionEntity;
+import com.grash.model.enums.PortalFieldType;
+import com.grash.model.enums.RoleType;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.LocationRepository;
+import com.grash.security.ClientIpResolver;
+import com.grash.utils.Helper;
 import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -26,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -37,7 +42,6 @@ import static com.grash.utils.Consts.usageBasedFreeLimits;
 public class LocationService {
     private final LocationRepository locationRepository;
     private final UserService userService;
-    private final CompanyService companyService;
     private final CustomerService customerService;
     private final MessageSource messageSource;
     private final VendorService vendorService;
@@ -45,20 +49,23 @@ public class LocationService {
     private final NotificationService notificationService;
     private final TeamService teamService;
     private final EntityManager em;
-    private final FileService fileService;
     private final CustomSequenceService customSequenceService;
     private final LicenseService licenseService;
     private final WebhookDispatchService webhookDispatchService;
     private final CustomFieldValueService customFieldValueService;
+    private final RateLimiterService rateLimiterService;
+    private final RequestPortalService requestPortalService;
+    private final ClientIpResolver clientIpResolver;
 
     @Transactional
-    public Location create(Location location, Company company) {
+    public Location create(LocationPostDTO dto, User user) {
+        if (!user.getRole().getCreatePermissions().contains(PermissionEntity.LOCATIONS))
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        Company company = user.getCompany();
         checkUsageBasedLimit(company);
-        if (location instanceof LocationPostDTO locationPostDTO) {
-            location = locationMapper.fromPostDto(locationPostDTO);
-            if (locationPostDTO.getCustomFields() != null && !locationPostDTO.getCustomFields().isEmpty()) {
-                setLocationCustomFields(location, locationPostDTO.getCustomFields(), company);
-            }
+        Location location = locationMapper.fromPostDto(dto);
+        if (dto.getCustomFields() != null && !dto.getCustomFields().isEmpty()) {
+            setLocationCustomFields(location, dto.getCustomFields(), company);
         }
         location.setCustomId(getLocationNumber(company));
         Sanitizer.sanitizeLocation(location);
@@ -70,22 +77,31 @@ public class LocationService {
         Object serializedLocation = locationMapper.toShowDto(savedLocation, this);
         webhookDispatchService.dispatchWebhook(company, WebhookEvent.NEW_LOCATION, webhookPayload,
                 "newLocation", serializedLocation, null, null, null, null, null);
+        notify(savedLocation, Helper.getLocale(user));
         return savedLocation;
     }
 
     @Transactional
-    public Location update(Long id, LocationPatchDTO location, Company company) {
-        if (locationRepository.existsById(id)) {
-            Location savedLocation = locationRepository.findById(id).get();
-            if (location.getCustomFields() != null && !location.getCustomFields().isEmpty()) {
-                setLocationCustomFields(savedLocation, location.getCustomFields(), company);
-            }
-            Location patchedLocation = locationMapper.updateLocation(savedLocation, location);
-            Sanitizer.sanitizeLocation(patchedLocation);
-            patchedLocation = locationRepository.saveAndFlush(patchedLocation);
-            em.refresh(patchedLocation);
-            return patchedLocation;
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    public Location patch(Long id, LocationPatchDTO location, User user) {
+        Optional<Location> optionalLocation = locationRepository.findById(id);
+        if (optionalLocation.isPresent()) {
+            Location savedLocation = optionalLocation.get();
+            em.detach(savedLocation);
+            if (savedLocation.canBeEditedBy(user)) {
+                if (location.getParentLocation() != null && location.getParentLocation().getId().equals(id))
+                    throw new CustomException("Parent location cannot be the same id", HttpStatus.NOT_ACCEPTABLE);
+                Company company = user.getCompany();
+                if (location.getCustomFields() != null && !location.getCustomFields().isEmpty()) {
+                    setLocationCustomFields(savedLocation, location.getCustomFields(), company);
+                }
+                Location patchedLocation = locationMapper.updateLocation(savedLocation, location);
+                Sanitizer.sanitizeLocation(patchedLocation);
+                patchedLocation = locationRepository.saveAndFlush(patchedLocation);
+                em.refresh(patchedLocation);
+                patchNotify(savedLocation, patchedLocation, Helper.getLocale(user));
+                return patchedLocation;
+            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        } else throw new CustomException("Location not found", HttpStatus.NOT_FOUND);
     }
 
     private void checkUsageBasedLimit(Company company) {
@@ -100,10 +116,6 @@ public class LocationService {
 
     public Collection<Location> getAll() {
         return locationRepository.findAll();
-    }
-
-    public void delete(Long id) {
-        locationRepository.deleteById(id);
     }
 
     public Optional<Location> findById(Long id) {
@@ -227,13 +239,12 @@ public class LocationService {
         return locationRepository.findByIdInAndCompany_Id(ids, companyId);
     }
 
-    public Page<LocationShowDTO> findBySearchCriteria(SearchCriteria searchCriteria) {
+    public Page<Location> findBySearchCriteria(SearchCriteria searchCriteria) {
         SpecificationBuilder<Location> builder = new SpecificationBuilder<>();
         searchCriteria.getFilterFields().forEach(builder::with);
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(),
                 searchCriteria.getDirection(), searchCriteria.getSortField());
-        return locationRepository.findAll(builder.build(), page).map(location -> locationMapper.toShowDto(location,
-                this));
+        return locationRepository.findAll(builder.build(), page);
     }
 
     public static List<LocationImportDTO> orderLocations(List<LocationImportDTO> locations) {
@@ -301,6 +312,79 @@ public class LocationService {
 
     public Page<Location> findByCompany_IdAndParentLocationIsNull(Long id, Pageable pageable) {
         return locationRepository.findByCompany_IdAndParentLocationIsNull(id, pageable);
+    }
+
+    public SearchCriteria getSearchCriteria(User user, SearchCriteria searchCriteria) {
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.LOCATIONS)) {
+                searchCriteria.filterCompany(user);
+                boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.LOCATIONS);
+                if (!canViewOthers) {
+                    searchCriteria.filterCreatedBy(user);
+                }
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+        }
+        return searchCriteria;
+    }
+
+    public Location getById(Long id, User user) {
+        Optional<Location> optionalLocation = locationRepository.findById(id);
+        if (optionalLocation.isPresent()) {
+            Location savedLocation = optionalLocation.get();
+            if (savedLocation.canBeViewedBy(user)) {
+                return savedLocation;
+            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    public Collection<Location> getChildren(Long id, User user) {
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.LOCATIONS))
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        if (id.equals(0L) && user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            return locationRepository.findByCompany_Id(user.getCompany().getId()).stream()
+                    .filter(location -> location.getParentLocation() == null)
+                    .collect(Collectors.toList());
+        }
+        Optional<Location> optionalLocation = locationRepository.findById(id);
+        if (optionalLocation.isPresent()) {
+            return locationRepository.findByParentLocation_Id(id, Pageable.unpaged()).stream()
+                    .collect(Collectors.toList());
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    public Page<Location> getChildrenPaginated(Long id, Pageable pageable, User user) {
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.LOCATIONS))
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        if (id.equals(0L) && user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            return locationRepository.findByCompany_IdAndParentLocationIsNull(user.getCompany().getId(), pageable);
+        }
+        Optional<Location> optionalLocation = locationRepository.findById(id);
+        if (optionalLocation.isPresent()) {
+            return locationRepository.findByParentLocation_Id(id, pageable);
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    public Collection<Location> getMiniPublic(String portalUUID, HttpServletRequest req) {
+        String clientIp = clientIpResolver.resolve(req);
+        if (!rateLimiterService.resolvePublicMiniBucket(clientIp).tryConsume(1)) {
+            throw new CustomException("Rate limit exceeded. Try again later.", HttpStatus.TOO_MANY_REQUESTS);
+        }
+        RequestPortal requestPortal = requestPortalService.findByUuidByUser(portalUUID).get();
+        if (requestPortal.getFields().stream().anyMatch(requestPortalField ->
+                requestPortalField.getLocation() != null && requestPortalField.getType().equals(PortalFieldType.LOCATION)))
+            throw new CustomException("This portal is not configured to show locations", HttpStatus.FORBIDDEN);
+        return locationRepository.findByCompany_Id(requestPortal.getCompany().getId());
+    }
+
+    @Transactional
+    public void deleteByIdAndUser(Long id, User user) {
+        Optional<Location> optionalLocation = locationRepository.findById(id);
+        if (optionalLocation.isPresent()) {
+            Location savedLocation = optionalLocation.get();
+            if (savedLocation.canBeDeletedBy(user)) {
+                locationRepository.deleteById(id);
+            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        } else throw new CustomException("Location not found", HttpStatus.NOT_FOUND);
     }
 }
 

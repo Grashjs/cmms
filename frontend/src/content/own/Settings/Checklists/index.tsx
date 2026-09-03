@@ -65,7 +65,8 @@ function Checklists() {
       field: 'name',
       headerName: t('name'),
       description: t('name'),
-      width: 150,
+      resizable: true,
+      flex: 2,
       renderCell: (params: GridRenderCellParams<string>) => (
         <Box sx={{ fontWeight: 'bold' }}>{params.value}</Box>
       )
@@ -74,7 +75,7 @@ function Checklists() {
       field: 'description',
       headerName: t('description'),
       description: t('description'),
-      width: 300
+      flex: 2
     },
     {
       field: 'category',

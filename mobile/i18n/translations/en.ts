@@ -185,6 +185,8 @@ const locale = {
   no_account_yet: 'Don’t have an account, yet?',
   signup_here: 'Sign up here',
   wrong_credentials: 'Wrong credentials provided',
+  server_not_reachable:
+    'The backend server is not reachable. You may wait for it to start and try again.',
   lost_password: 'Lost password ?',
   //work-orders
   link_wo: 'Link Work Orders',
@@ -1026,6 +1028,7 @@ const locale = {
   account_deleted: 'Account deleted successfully',
   account_delete_error: 'Error deleting account',
   confirm_delete_account: 'Delete account',
+  delete_account_email_confirmation: 'Please check your emails to confirm the account deletion',
   notification_settings: 'Notifications Settings',
   notification_settings_description:
     'Manage details related to your notifications',

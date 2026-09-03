@@ -116,6 +116,12 @@ const slice = createSlice({
     ) {
       const { count } = action.payload;
       state.pendingCount = count;
+    },
+    incrementPendingCount(state: RequestState) {
+      state.pendingCount += 1;
+    },
+    decrementPendingCount(state: RequestState) {
+      state.pendingCount = Math.max(0, state.pendingCount - 1);
     }
   }
 });
@@ -147,6 +153,7 @@ export const addRequest =
   async (dispatch) => {
     const requestResponse = await api.post<Request>(basePath, request);
     dispatch(slice.actions.addRequest({ request: requestResponse }));
+    dispatch(slice.actions.incrementPendingCount());
   };
 export const editRequest =
   (id: number, request): AppThunk =>
@@ -159,13 +166,17 @@ export const editRequest =
   };
 export const deleteRequest =
   (id: number): AppThunk =>
-  async (dispatch) => {
+  async (dispatch, getState) => {
+    const wasPending = getState().requests.requests.content.some(
+      (request) => request.id === id && !request.cancelled && !request.workOrder
+    );
     const requestResponse = await api.deletes<{ success: boolean }>(
       `${basePath}/${id}`
     );
     const { success } = requestResponse;
     if (success) {
       dispatch(slice.actions.deleteRequest({ id }));
+      if (wasPending) dispatch(slice.actions.decrementPendingCount());
     }
   };
 
@@ -176,6 +187,7 @@ export const approveRequest =
       assetStatus
     });
     dispatch(slice.actions.approveRequest({ id, workOrder }));
+    dispatch(slice.actions.decrementPendingCount());
     return workOrder.id;
   };
 export const cancelRequest =
@@ -186,6 +198,7 @@ export const cancelRequest =
       {}
     );
     dispatch(slice.actions.cancelRequest({ id }));
+    dispatch(slice.actions.decrementPendingCount());
   };
 export const getPendingRequestsCount = (): AppThunk => async (dispatch) => {
   const response = await api.get<{ success: boolean; message: string }>(

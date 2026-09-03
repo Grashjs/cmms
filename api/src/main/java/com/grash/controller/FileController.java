@@ -59,8 +59,6 @@ public class FileController {
 
     @PostMapping(value = "/upload", produces = "application/json")
     public List<FileShowDTO> handleFileUpload(@Parameter(description = "Files to upload") @RequestParam("files") MultipartFile[] filesReq,
-                                              @Parameter(description = "Folder path to store files") @RequestParam(
-                                                      "folder") String folder,
                                               @Parameter(description = "Whether files should be hidden (true/false)") @RequestParam("hidden") String hidden, HttpServletRequest req,
                                               @Parameter(description = "Type of file") @RequestParam("type") FileType fileType,
                                               @Parameter(hidden = true) @RequestParam(value = "bypass", required =
@@ -77,7 +75,8 @@ public class FileController {
                 user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.FILE))) {
             Collection<File> result = new ArrayList<>();
             Arrays.asList(filesReq).forEach(fileReq -> {
-                String filePath = storageServiceFactory.getStorageService().upload(fileReq, folder);
+                String filePath = storageServiceFactory.getStorageService().upload(fileReq,
+                        "company " + user.getCompany().getId());
                 Task task = null;
                 if (taskId != null) {
                     Optional<Task> optionalTask = taskService.findById(taskId.longValue());

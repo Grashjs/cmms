@@ -65,4 +65,12 @@ public class VerificationTokenService {
                 verificationTokenRepository.findAllVerificationTokenEntityByUser(user));
         return savedUser;
     }
+
+    public void confirmDeleteAccount(String token) throws Exception {
+        VerificationToken verificationToken = verifyToken(token);
+        User user = verificationToken.getUser();
+        verificationTokenRepository.deleteAll(
+                verificationTokenRepository.findAllVerificationTokenEntityByUser(user));
+        userService.deleteAccount(user);
+    }
 }

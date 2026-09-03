@@ -1019,6 +1019,7 @@ const locale = {
   personal_details_description:
     'Upravljajte informacijama vezanim za vaše lične podatke',
   change_password: 'Promijeni lozinku',
+  delete_account_email_confirmation: 'Provjerite svoju e-poštu da potvrdite brisanje računa',
   notification_settings: 'Postavke obavijesti',
   notification_settings_description:
     'Upravljajte detaljima vezanim za vaše obavijesti',
@@ -1074,6 +1075,11 @@ const locale = {
   monthly_adverb: 'mjesečno',
   yearly_adverb: 'godišnje',
   features: 'Karakteristike',
+  subscription_change_summary: 'Sažetak promjene pretplate',
+  change_from_to: '{{current}} → {{next}}',
+  billing_period: 'Period naplate',
+  prorata_notice:
+    'Za ostatak vašeg trenutnog perioda naplate bit će naplaćen srazmjerni iznos.',
   checkout: 'Završi kupovinu',
   checkout_description: 'Popunite polja ispod',
   per_month: 'mjesečno',

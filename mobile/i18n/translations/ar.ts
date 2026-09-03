@@ -177,6 +177,8 @@ const locale = {
   no_account_yet: 'ليس لديك حساب حتى الآن؟',
   signup_here: 'سجل هنا',
   wrong_credentials: 'تم تقديم بيانات اعتماد خاطئة',
+  server_not_reachable:
+    'خادم الواجهة الخلفية غير قابل للوصول. يمكنك الانتظار حتى يعمل ثم المحاولة مرة أخرى.',
   lost_password: 'فقدت كلمة المرور ؟',
   link_wo: 'ربط أوامر العمل',
   link_wo_description: 'إنشاء علاقات بين أوامر العمل',
@@ -978,6 +980,7 @@ const locale = {
   account_deleted: 'تم حذف الحساب بنجاح',
   account_delete_error: 'حدث خطأ أثناء حذف الحساب',
   confirm_delete_account: 'حذف الحساب',
+  delete_account_email_confirmation: 'يرجى التحقق من بريدك الإلكتروني لتأكيد حذف الحساب',
   notification_settings: 'إعدادات الإشعارات',
   notification_settings_description: 'إدارة التفاصيل المتعلقة بإشعاراتك',
   recent_activity: 'النشاط الأخير',

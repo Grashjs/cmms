@@ -116,14 +116,12 @@ export const addFiles =
   ): AppThunk =>
   async (dispatch) => {
     let formData = new FormData();
-    const companyId = await AsyncStorage.getItem('companyId');
     const headers = await authHeader(false);
     delete headers['Content-Type'];
     files.forEach((file) => {
       //@ts-ignore
       formData.append('files', file);
     });
-    formData.append('folder', `company ${companyId}`);
     formData.append('type', fileType);
     formData.append('hidden', hidden);
     const baseRoute = `${basePath}/upload`;

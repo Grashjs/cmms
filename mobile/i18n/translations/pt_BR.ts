@@ -196,6 +196,8 @@ const ptBRJSON = {
   no_account_yet: 'Ainda não tem uma conta?',
   signup_here: 'Inscreva-se aqui',
   wrong_credentials: 'Credenciais incorretas fornecidas',
+  server_not_reachable:
+    'O servidor de backend não está acessível. Você pode aguardar a inicialização e tentar novamente.',
   lost_password: 'Perdeu a senha?',
   //work-orders
   link_wo: 'Vincular Ordens de Serviço',
@@ -1070,6 +1072,7 @@ const ptBRJSON = {
   account_deleted: 'Conta excluída com sucesso',
   account_delete_error: 'Erro ao excluir a conta',
   confirm_delete_account: 'Excluir conta',
+  delete_account_email_confirmation: 'Verifique seus e-mails para confirmar a exclusão da conta',
   notification_settings: 'Configurações de Notificações',
   notification_settings_description:
     'Gerencie detalhes relacionados às suas notificações',

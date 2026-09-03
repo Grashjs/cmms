@@ -1023,6 +1023,7 @@ const locale = {
   personal_details_description:
     'Hantera information relaterad till dina personuppgifter',
   change_password: 'Ändra lösenord',
+  delete_account_email_confirmation: 'Kontrollera dina e-postmeddelanden för att bekräfta borttagningen av kontot',
   notification_settings: 'Aviseringsinställningar',
   notification_settings_description:
     'Hantera information relaterade till dina aviseringar',
@@ -1078,6 +1079,11 @@ const locale = {
   monthly_adverb: 'månatlig',
   yearly_adverb: 'årlig',
   features: 'Drag',
+  subscription_change_summary: 'Sammanfattning av prenumerationsändring',
+  change_from_to: '{{current}} → {{next}}',
+  billing_period: 'Faktureringsperiod',
+  prorata_notice:
+    'Du kommer att debiteras ett proportionellt belopp för resten av din nuvarande faktureringsperiod.',
   checkout: 'Kassa',
   checkout_description: 'Fyll i fälten nedan',
   per_month: 'per månad',

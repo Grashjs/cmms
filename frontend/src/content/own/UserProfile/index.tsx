@@ -2,7 +2,6 @@ import { useContext, useEffect } from 'react';
 
 
 import { Button, Grid } from '@mui/material';
-import useRefMounted from 'src/hooks/useRefMounted';
 import { useTranslation } from 'react-i18next';
 import ProfileCover from './ProfileCover';
 import RecentActivity from './RecentActivity';
@@ -10,16 +9,14 @@ import ProfileDetails from './ProfileDetails';
 import { TitleContext } from '../../../contexts/TitleContext';
 import useAuth from '../../../hooks/useAuth';
 import api from '../../../utils/api';
-import WorkOrder from '../../../models/owns/workOrder';
 import { useNavigate } from 'react-router-dom';
-import { homeUrl } from '../../../config';
+import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
 
 function UserProfile() {
-  const isMountedRef = useRefMounted();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  // @ts-ignore
-  const { t }: { t: any } = useTranslation();
+  const { showSnackBar } = useContext(CustomSnackBarContext);
+  const { t } = useTranslation();
   const { setTitle } = useContext(TitleContext);
   useEffect(() => {
     setTitle(t('profile'));
@@ -31,10 +28,12 @@ function UserProfile() {
 
   const onDeleteAccount = async () => {
     if (window.confirm('Are you sure you want to delete your account?')) {
-      const { success } = await api.deletes<{ success: boolean }>(`auth`);
+      const { success } = await api.post<{ success: boolean }>(
+        `auth/delete-account-request`,
+        {}
+      );
       if (success) {
-        logout();
-        navigate('/');
+        showSnackBar(t('delete_account_email_confirmation'), 'warning');
       }
     }
   };

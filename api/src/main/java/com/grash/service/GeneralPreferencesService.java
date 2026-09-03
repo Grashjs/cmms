@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 public class GeneralPreferencesService {
     private final GeneralPreferencesRepository generalPreferencesRepository;
     private final GeneralPreferencesMapper generalPreferencesMapper;
+    private final CacheService cacheService;
     private static final Pattern HEX_PATTERN =
             Pattern.compile("^#([A-Fa-f0-9]{3,4}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{8})$");
 
@@ -44,7 +45,10 @@ public class GeneralPreferencesService {
                     throw new CustomException("Invalid color format", HttpStatus.BAD_REQUEST);
                 }
             GeneralPreferences savedGeneralPreferences = generalPreferencesRepository.findById(id).get();
-            return generalPreferencesRepository.save(generalPreferencesMapper.updateGeneralPreferences(savedGeneralPreferences, generalPreferencesPatchDTO));
+            GeneralPreferences result =
+                    generalPreferencesRepository.save(generalPreferencesMapper.updateGeneralPreferences(savedGeneralPreferences, generalPreferencesPatchDTO));
+            cacheService.evictCompanyUsersFromCache(savedGeneralPreferences.getCompanySettings().getCompany().getId());
+            return result;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 

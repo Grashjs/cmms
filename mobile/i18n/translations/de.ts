@@ -194,6 +194,8 @@ const deJSON = {
   no_account_yet: 'Noch kein Konto? ',
   signup_here: 'Hier registrieren ',
   wrong_credentials: 'Falsche Anmeldedaten angegeben ',
+  server_not_reachable:
+    'Der Backend-Server ist nicht erreichbar. Warten Sie, bis er gestartet ist, und versuchen Sie es erneut.',
   lost_password: 'Passwort vergessen? ',
   //work-orders
   link_wo: 'Arbeitsaufträge verknüpfen ',
@@ -1095,6 +1097,7 @@ const deJSON = {
   account_deleted: 'Konto erfolgreich gelöscht',
   account_delete_error: 'Fehler beim Löschen des Kontos',
   confirm_delete_account: 'Konto löschen',
+  delete_account_email_confirmation: 'Bitte überprüfen Sie Ihre E-Mails, um die Kontolöschung zu bestätigen',
   notification_settings: 'Benachrichtigungseinstellungen ',
   notification_settings_description:
     'Verwalten Sie Details zu Ihren Benachrichtigungen ',

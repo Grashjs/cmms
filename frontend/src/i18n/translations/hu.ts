@@ -844,6 +844,7 @@ const locale = {
   personal_details_description:
     'Kezeld a személyes adataidhoz kapcsolódó információkat',
   change_password: 'Jelszó módosítása',
+  delete_account_email_confirmation: 'Kérjük, ellenőrizze e-mailjeit a fiók törlésének megerősítéséhez',
   notification_settings: 'Értesítési beállítások',
   notification_settings_description:
     'Kezeld az értesítéseidhez kapcsolódó részleteket',
@@ -900,6 +901,11 @@ const locale = {
   monthly_adverb: 'havonta',
   yearly_adverb: 'évente',
   features: 'Funkciók',
+  subscription_change_summary: 'Előfizetés-módosítás összefoglalója',
+  change_from_to: '{{current}} → {{next}}',
+  billing_period: 'Számlázási időszak',
+  prorata_notice:
+    'Az aktuális számlázási időszak hátralévő részéért arányosított összeget számítunk fel.',
   checkout: 'Pénztár',
   checkout_description: 'Töltsd ki az alábbi mezőket',
   per_month: 'havonta',

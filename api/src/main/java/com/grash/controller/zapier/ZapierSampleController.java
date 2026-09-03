@@ -45,6 +45,7 @@ public class ZapierSampleController {
             case ASSET_STATUS_CHANGE -> assetStatusChangeSamples();
             case METER_TRIGGER_STATUS_CHANGE -> meterTriggerStatusChangeSamples();
             case NEW_CATEGORY_ON_WORK_ORDER -> newCategoryOnWorkOrderSamples();
+            case NEW_COMMENT_ON_WORK_ORDER -> newCommentOnWorkOrderSamples();
             case NEW_WORK_ORDER -> newWorkOrderSamples();
             case WORK_ORDER_CHANGE -> workOrderChangeSamples();
             case WORK_ORDER_DELETE -> workOrderDeleteSamples();
@@ -619,6 +620,61 @@ public class ZapierSampleController {
                                 Map.entry("image", "")
                         )),
                         Map.entry("occurredAt", "2026-04-07T11:00:00Z"),
+                        Map.entry("companyId", 1001)
+                )
+        );
+    }
+
+    private List<Map<String, Object>> newCommentOnWorkOrderSamples() {
+        return List.of(
+                Map.ofEntries(
+                        Map.entry("commentId", 8001),
+                        Map.entry("workOrderId", 12345),
+                        Map.entry("workOrderTitle", "HVAC System Maintenance"),
+                        Map.entry("commentContent", "Replacement filter has arrived. Scheduling the install for tomorrow morning."),
+                        Map.entry("createdBy", "John Smith"),
+                        Map.entry("newComment", Map.ofEntries(
+                                Map.entry("id", 8001),
+                                Map.entry("content", "Replacement filter has arrived. Scheduling the install for tomorrow morning."),
+                                Map.entry("user", Map.ofEntries(
+                                        Map.entry("id", 1001),
+                                        Map.entry("firstName", "John"),
+                                        Map.entry("lastName", "Smith"),
+                                        Map.entry("phone", "+1-555-0101")
+                                )),
+                                Map.entry("files", List.of()),
+                                Map.entry("system", false),
+                                Map.entry("createdAt", "2026-04-07T10:45:00Z")
+                        )),
+                        Map.entry("occurredAt", "2026-04-07T10:45:00Z"),
+                        Map.entry("companyId", 1001)
+                ),
+                Map.ofEntries(
+                        Map.entry("commentId", 8002),
+                        Map.entry("workOrderId", 12600),
+                        Map.entry("workOrderTitle", "Electrical Panel Upgrade"),
+                        Map.entry("commentContent", "Mentioning @[Sarah](user:1004) to confirm clearance for the panel shutdown."),
+                        Map.entry("createdBy", "Tom Brown"),
+                        Map.entry("newComment", Map.ofEntries(
+                                Map.entry("id", 8002),
+                                Map.entry("content", "Mentioning @Sarah to confirm clearance for the panel shutdown."),
+                                Map.entry("user", Map.ofEntries(
+                                        Map.entry("id", 1008),
+                                        Map.entry("firstName", "Tom"),
+                                        Map.entry("lastName", "Brown"),
+                                        Map.entry("phone", "+1-555-0108")
+                                )),
+                                Map.entry("files", List.of(
+                                        Map.of(
+                                                "id", 6004,
+                                                "name", "panel_shutdown_plan.pdf",
+                                                "url", "https://example.com/files/6004"
+                                        )
+                                )),
+                                Map.entry("system", false),
+                                Map.entry("createdAt", "2026-04-07T11:20:00Z")
+                        )),
+                        Map.entry("occurredAt", "2026-04-07T11:20:00Z"),
                         Map.entry("companyId", 1001)
                 )
         );

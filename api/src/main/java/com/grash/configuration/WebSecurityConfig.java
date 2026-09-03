@@ -62,6 +62,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/auth/sso/**").permitAll()
                         .requestMatchers("/auth/sendMail").permitAll()
                         .requestMatchers("/auth/resetpwd/**").permitAll()
+                        .requestMatchers("/auth/delete-account-confirm").permitAll()
                         .requestMatchers("/license/state").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
                         .requestMatchers("/login/oauth2/**").permitAll()
@@ -129,8 +130,6 @@ public class WebSecurityConfig {
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring()
                 .requestMatchers("/com/grash/configuration/**")//
-                .requestMatchers("/webjars/**")//
-                .requestMatchers("/public")
                 .requestMatchers("/images/**")
                 // Un-secure H2 Database (for testing purposes, H2 console shouldn\'t be unprotected in production)
 //                .requestMatchers("/h2-console/**")

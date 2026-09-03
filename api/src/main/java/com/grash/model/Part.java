@@ -69,7 +69,7 @@ public class Part extends CompanyAudit {
     private double quantity;
 
     @Version
-    private Long version;
+    private long version;
 
     @Schema(description = "The area or storage location where the part is kept")
     private String area;

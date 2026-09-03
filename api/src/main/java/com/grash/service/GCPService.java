@@ -9,7 +9,6 @@ import com.grash.utils.Helper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,6 +38,7 @@ public class GCPService implements StorageService {
     private String gcpBucketName;
     private Storage storage;
     private static boolean configured = false;
+    private final CacheService cacheService;
 
     @PostConstruct
     private void init() {
@@ -159,9 +159,9 @@ public class GCPService implements StorageService {
         return download(file.getPath());
     }
 
-    @Cacheable(cacheNames = "signedUrls", key = "#file.path + ':' + #expirationMinutes")
     public String generateSignedUrl(File file, long expirationMinutes) {
-        return generateSignedUrl(file.getPath(), expirationMinutes);
+        return cacheService.getCachedOrGenerateSignedUrl(file, expirationMinutes,
+                () -> generateSignedUrl(file.getPath(), expirationMinutes));
     }
 
     public String generateSignedUrl(String filePath, long expirationMinutes) {

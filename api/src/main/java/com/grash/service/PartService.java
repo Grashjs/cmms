@@ -1,9 +1,11 @@
 package com.grash.service;
 
+import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.PartPatchDTO;
 import com.grash.dto.PartPostDTO;
+import com.grash.dto.PartRestockDTO;
 import com.grash.dto.PartShowDTO;
 import com.grash.dto.cutomField.CustomFieldValuePostDTO;
 import com.grash.dto.imports.PartImportDTO;
@@ -15,8 +17,11 @@ import com.grash.model.*;
 import com.grash.model.enums.CustomFieldEntityType;
 import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.PermissionEntity;
+import com.grash.model.enums.RoleType;
 import com.grash.model.enums.webhook.PartField;
 import com.grash.model.enums.webhook.WebhookEvent;
+import com.grash.model.enums.workflow.WFMainCondition;
+import com.grash.model.Workflow;
 import com.grash.repository.PartRepository;
 import com.grash.utils.AuditComparator;
 import com.grash.utils.Helper;
@@ -60,6 +65,7 @@ public class PartService {
     private final WebhookDispatchService webhookDispatchService;
     private final CustomFieldValueService customFieldValueService;
     private final MailServiceFactory mailServiceFactory;
+    private final WorkflowService workflowService;
 
     @Value("${frontend.url}")
     private String frontendUrl;
@@ -259,12 +265,12 @@ public class PartService {
         return partRepository.saveAll(parts);
     }
 
-    public Page<PartShowDTO> findBySearchCriteria(SearchCriteria searchCriteria) {
+    public Page<Part> findBySearchCriteria(SearchCriteria searchCriteria) {
         SpecificationBuilder<Part> builder = new SpecificationBuilder<>();
         searchCriteria.getFilterFields().forEach(builder::with);
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(),
                 searchCriteria.getDirection(), searchCriteria.getSortField());
-        return partRepository.findAll(builder.build(), page).map(partMapper::toShowDto);
+        return partRepository.findAll(builder.build(), page);
     }
 
     public void importPart(Part part, PartImportDTO dto, Company company) {
@@ -372,6 +378,95 @@ public class PartService {
 
     public Optional<Part> findByBarcodeAndCompany(String barcode, Long companyId) {
         return partRepository.findByBarcodeAndCompany_Id(barcode, companyId);
+    }
+
+    public SearchCriteria getSearchCriteria(User user, SearchCriteria searchCriteria) {
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
+                searchCriteria.filterCompany(user);
+                boolean canViewOthers =
+                        user.getRole().getViewOtherPermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS);
+                if (!canViewOthers) {
+                    searchCriteria.filterCreatedBy(user);
+                }
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+        }
+        return searchCriteria;
+    }
+
+    public Part getById(Long id, User user) {
+        Optional<Part> optionalPart = partRepository.findById(id);
+        if (optionalPart.isPresent()) {
+            Part savedPart = optionalPart.get();
+            if (savedPart.canBeViewedBy(user)) {
+                return savedPart;
+            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    @Transactional
+    public Part create(PartPostDTO partReq, User user) {
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)) {
+            if (partReq.getBarcode() != null) {
+                Optional<Part> optionalPartWithSameBarCode = findByBarcodeAndCompany(partReq.getBarcode(),
+                        user.getCompany().getId());
+                if (optionalPartWithSameBarCode.isPresent()) {
+                    throw new CustomException("Part with same barcode exists", HttpStatus.NOT_ACCEPTABLE);
+                }
+            }
+            Part savedPart = create((Part) partReq, user);
+            notify(savedPart, Helper.getLocale(user));
+            return savedPart;
+        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+    }
+
+    @Transactional
+    public void restock(Long id, PartRestockDTO partRestockDTO, User user) {
+        Optional<Part> optionalPart = findById(id);
+        if (optionalPart.isPresent()) {
+            if (optionalPart.get().canBeEditedBy(user)) {
+                restockPart(id, partRestockDTO.getQuantity(), partRestockDTO.getDescription());
+            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        } else throw new CustomException("Part not found", HttpStatus.NOT_FOUND);
+    }
+
+    @Transactional
+    public Part patch(Long id, PartPatchDTO part, User user) {
+        Optional<Part> optionalPart = findById(id);
+        if (optionalPart.isPresent()) {
+            Part savedPart = optionalPart.get();
+            em.detach(savedPart);
+            if (savedPart.canBeEditedBy(user)) {
+                if (part.getBarcode() != null) {
+                    Optional<Part> optionalPartWithSameBarCode =
+                            findByBarcodeAndCompany(part.getBarcode(), user.getCompany().getId());
+                    if (optionalPartWithSameBarCode.isPresent() && !optionalPartWithSameBarCode.get().getId().equals(id)) {
+                        throw new CustomException("Part with same barcode exists", HttpStatus.NOT_ACCEPTABLE);
+                    }
+                }
+                Part patchedPart = update(id, part, user.getCompany());
+                Collection<Workflow> workflows =
+                        workflowService.findByMainConditionAndCompany(WFMainCondition.PART_UPDATED,
+                                user.getCompany().getId());
+                workflows.forEach(workflow -> workflowService.runPart(workflow, patchedPart));
+                patchNotify(savedPart, patchedPart, Helper.getLocale(user));
+                return patchedPart;
+            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        } else throw new CustomException("Part not found", HttpStatus.NOT_FOUND);
+    }
+
+    public Collection<Part> getMini(User user) {
+        return findByCompany(user.getCompany().getId());
+    }
+
+    public void deleteByIdAndUser(Long id, User user) {
+        Optional<Part> optionalPart = findById(id);
+        if (optionalPart.isPresent()) {
+            Part savedPart = optionalPart.get();
+            if (savedPart.canBeDeletedBy(user)) {
+                delete(savedPart);
+            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        } else throw new CustomException("Part not found", HttpStatus.NOT_FOUND);
     }
 
     private Collection<PartField> detectPatchDTOChangedFields(Part original, PartPatchDTO patchDTO) {

@@ -182,6 +182,13 @@ function ApplicationsCalendar({
   const getEventFromWO = (
     eventPayload: CalendarEvent<WorkOrder | PreventiveMaintenance>
   ): Event => {
+    const end =
+      'status' in eventPayload.event
+        ? new Date(
+            new Date(eventPayload.date).getTime() +
+              (eventPayload.event.estimatedDuration || 1) * 60 * 60 * 1000
+          )
+        : new Date(eventPayload.date);
     return {
       id: eventPayload.event.id.toString(),
       allDay: false,
@@ -191,7 +198,7 @@ function ApplicationsCalendar({
           ? theme.colors.alpha.black[30]
           : getColor(eventPayload.event.priority),
       description: eventPayload.event?.description,
-      end: new Date(eventPayload.date),
+      end,
       start: new Date(eventPayload.date),
       title: eventPayload.event.title,
       extendedProps: { type: eventPayload.type }

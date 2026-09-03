@@ -7,15 +7,15 @@ import com.grash.factory.MailServiceFactory;
 import com.grash.model.User;
 import com.grash.model.SuperAccountRelation;
 import com.grash.repository.SuperAccountRelationRepository;
-import com.grash.repository.UserRepository;
 import com.grash.security.CurrentUser;
-import com.grash.service.CompanyService;
 import com.grash.service.LdapService;
+import com.grash.service.RateLimiterService;
 import com.grash.service.RefreshTokenService;
 import com.grash.service.UserService;
 import com.grash.service.VerificationTokenService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -37,15 +37,16 @@ import java.util.*;
 @RequiredArgsConstructor
 public class AuthController {
 
+    private static final String TOO_MANY_ATTEMPTS_MESSAGE = "Too many attempts. Please try again later.";
+
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final VerificationTokenService verificationTokenService;
     private final UserMapper userMapper;
     private final SuperAccountRelationRepository superAccountRelationRepository;
-    private final CompanyService companyService;
-    private final UserRepository userRepository;
     private final LdapService ldapService;
     private final RefreshTokenService refreshTokenService;
+    private final RateLimiterService rateLimiterService;
     @Value("${frontend.url}")
     private String frontendUrl;
 
@@ -57,8 +58,17 @@ public class AuthController {
     )
     public ResponseEntity<AuthResponse> login(
             @Parameter(description = "User login credentials") @Valid @RequestBody UserLoginRequest userLoginRequest) {
+        String key = bruteForceKey(userLoginRequest.getEmail());
+        if (rateLimiterService.isBruteForceEnabled()) {
+            if (!rateLimiterService.tryConsumeLoginAttempt(key)) {
+                throw new CustomException(TOO_MANY_ATTEMPTS_MESSAGE, HttpStatus.TOO_MANY_REQUESTS);
+            }
+        }
         AuthTokens tokens = userService.signin(userLoginRequest.getEmail().toLowerCase(),
                 userLoginRequest.getPassword(), userLoginRequest.getType());
+        if (rateLimiterService.isBruteForceEnabled()) {
+            rateLimiterService.resetLoginAttempts(key);
+        }
         AuthResponse authResponse = AuthResponse.of(tokens);
         return new ResponseEntity<>(authResponse, HttpStatus.OK);
     }
@@ -71,7 +81,16 @@ public class AuthController {
     )
     public ResponseEntity<AuthResponse> signinLdap(
             @Parameter(description = "LDAP login credentials") @Valid @RequestBody LdapLoginRequest ldapLoginRequest) {
+        String key = bruteForceKey(ldapLoginRequest.getUsername());
+        if (rateLimiterService.isBruteForceEnabled()) {
+            if (!rateLimiterService.tryConsumeLoginAttempt(key)) {
+                throw new CustomException(TOO_MANY_ATTEMPTS_MESSAGE, HttpStatus.TOO_MANY_REQUESTS);
+            }
+        }
         AuthResponse authResponse = AuthResponse.of(ldapService.signinLdap(ldapLoginRequest));
+        if (rateLimiterService.isBruteForceEnabled()) {
+            rateLimiterService.resetLoginAttempts(key);
+        }
         return new ResponseEntity<>(authResponse, HttpStatus.OK);
     }
 
@@ -129,6 +148,7 @@ public class AuthController {
     ) {
         try {
             User user = verificationTokenService.confirmResetPassword(token);
+            rateLimiterService.resetResetPasswordAttempts(user.getEmail());
             httpServletResponse.setHeader("Location", frontendUrl + "/account/login?email=" + user.getEmail());
         } catch (Exception ex) {
             httpServletResponse.setHeader("Location", frontendUrl + "/account/register");
@@ -155,6 +175,10 @@ public class AuthController {
         return userMapper.toResponseDto(userService.whoami(req, false));
     }
 
+    private static String bruteForceKey(@NotNull String identifier) {
+        return identifier.trim().toLowerCase();
+    }
+
     @PostMapping("/refresh")
     @PreAuthorize("permitAll()")
     public AuthResponse refresh(@Parameter(description = "Refresh token request") @Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
@@ -172,6 +196,12 @@ public class AuthController {
     @PreAuthorize("permitAll()")
     @GetMapping(value = "/resetpwd", produces = "application/json")
     public SuccessResponse resetPassword(@Parameter(description = "User email address for password reset") @RequestParam String email) {
+        String key = bruteForceKey(email);
+        if (rateLimiterService.isBruteForceEnabled()) {
+            if (!rateLimiterService.tryConsumeResetPasswordAttempt(key)) {
+                throw new CustomException(TOO_MANY_ATTEMPTS_MESSAGE, HttpStatus.TOO_MANY_REQUESTS);
+            }
+        }
         return userService.resetPasswordRequest(email);
     }
 
@@ -215,13 +245,24 @@ public class AuthController {
         throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
-    @DeleteMapping("")
     @PreAuthorize("permitAll()")
-    public SuccessResponse deleteAccount(@Parameter(hidden = true) @CurrentUser User user) {
-        if (user.isOwnsCompany())
-            companyService.delete(user.getCompany().getId());
-        else userRepository.delete(user);
-        return new SuccessResponse(true, "Account deleted successfully");
+    @PostMapping(value = "/delete-account-request", produces = "application/json")
+    public SuccessResponse deleteAccountRequest(@Parameter(hidden = true) @CurrentUser User user) {
+        return userService.deleteAccountRequest(user);
+    }
+
+    @GetMapping("/delete-account-confirm")
+    public void deleteAccountConfirm(
+            @Parameter(description = "Account deletion token") @RequestParam String token,
+            HttpServletResponse httpServletResponse
+    ) {
+        try {
+            verificationTokenService.confirmDeleteAccount(token);
+            httpServletResponse.setHeader("Location", frontendUrl + "/account/deleted");
+        } catch (Exception ex) {
+            httpServletResponse.setHeader("Location", frontendUrl + "/account/register");
+        }
+        httpServletResponse.setStatus(302);
     }
 
 }

@@ -12,7 +12,7 @@ import * as React from 'react';
 import { Asset } from 'expo-asset';
 import { useAppTheme } from '../../custom-theme';
 import { getApiUrl } from '../../config';
-import api, { authHeader } from '../../utils/api';
+import api, { authHeader, getErrorMessage, isNetworkError } from '../../utils/api';
 import { useDispatch, useSelector } from '../../store';
 import { getInstanceConfig } from '../../slices/instanceConfig';
 
@@ -64,7 +64,14 @@ export default function LoginScreen({
             setSubmitting(true);
             return login(values.email, values.password, ldapEnabled)
               .catch((err) => {
-                showSnackBar(t('wrong_credentials'), 'error');
+                showSnackBar(
+                  isNetworkError(err)
+                    ? t('server_not_reachable')
+                    : err.status === 403
+                    ? t('wrong_credentials')
+                    : getErrorMessage(err),
+                  'error'
+                );
                 setStatus({ success: false });
               })
               .finally(() => {

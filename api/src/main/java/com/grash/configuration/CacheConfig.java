@@ -32,7 +32,8 @@ public class CacheConfig {
                             .expireAfterWrite(5, TimeUnit.MINUTES);
                     case "signedUrls" -> Caffeine.newBuilder()
                             .maximumSize(2000)
-                            .expireAfterWrite(170, TimeUnit.MINUTES);
+                            // backstop only: real expiry is enforced in code via SignedUrlEntry.isExpired()
+                            .expireAfterWrite(24, TimeUnit.HOURS);
                     default -> Caffeine.newBuilder()
                             .maximumSize(1000)
                             .expireAfterWrite(20, TimeUnit.MINUTES);

@@ -5,7 +5,10 @@ import { useTranslation } from 'react-i18next';
 import { setConflictErrorHandler } from '../utils/api';
 
 type CustomSnackBarContext = {
-  showSnackBar: (message: string, type: 'error' | 'success') => void;
+  showSnackBar: (
+    message: string,
+    type: 'error' | 'warning' | 'success'
+  ) => void;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
@@ -16,7 +19,10 @@ export const CustomSnackBarContext = createContext<CustomSnackBarContext>(
 export const CustomSnackBarProvider: FC = ({ children }) => {
   const { enqueueSnackbar } = useSnackbar();
   const { t } = useTranslation();
-  const showSnackBar = (message: string, type: 'error' | 'success') => {
+  const showSnackBar = (
+    message: string,
+    type: 'error' | 'warning' | 'success'
+  ) => {
     enqueueSnackbar(message, {
       variant: type,
       anchorOrigin: {

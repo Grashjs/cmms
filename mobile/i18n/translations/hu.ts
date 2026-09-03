@@ -188,6 +188,8 @@ const locale = {
   no_account_yet: 'Még nincs fiókja?',
   signup_here: 'Regisztráljon itt',
   wrong_credentials: 'Helytelen hitelesítő adatok',
+  server_not_reachable:
+    'A háttérszerver nem elérhető. Megvárhatod, amíg elindul, és újra próbálkozhatsz.',
   lost_password: 'Elfelejtett jelszó?',
   link_wo: 'Munkamegrendelések összekapcsolása',
   link_wo_description: 'Kapcsolatok létrehozása munkamegrendelések között',
@@ -1031,6 +1033,7 @@ const locale = {
   account_deleted: 'A fiók sikeresen törölve',
   account_delete_error: 'Hiba történt a fiók törlése során',
   confirm_delete_account: 'Fiók törlése',
+  delete_account_email_confirmation: 'Kérjük, ellenőrizze e-mailjeit a fiók törlésének megerősítéséhez',
   notification_settings: 'Értesítési beállítások',
   notification_settings_description:
     'Kezelje az értesítéseivel kapcsolatos beállításokat',

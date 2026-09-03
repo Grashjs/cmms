@@ -6,7 +6,7 @@ import com.grash.mapper.WorkflowMapper;
 import com.grash.model.*;
 import com.grash.model.enums.ApprovalStatus;
 import com.grash.model.enums.workflow.WFMainCondition;
-import com.grash.repository.WorkflowRepository;
+import com.grash.repository.*;
 import com.grash.utils.AuditComparator;
 import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
@@ -23,10 +23,10 @@ import java.util.stream.Collectors;
 public class WorkflowService {
     private final WorkflowRepository workflowRepository;
     private final WorkflowMapper workflowMapper;
-    private final WorkOrderService workOrderService;
-    private final RequestService requestService;
-    private final AssetService assetService;
-    private final PurchaseOrderService purchaseOrderService;
+    private final WorkOrderRepository workOrderRepository;
+    private final RequestRepository requestRepository;
+    private final AssetRepository assetRepository;
+    private final PurchaseOrderRepository purchaseOrderRepository;
 
     public Workflow create(Workflow Workflow) {
         Sanitizer.sanitizeWorkflow(Workflow);
@@ -93,7 +93,7 @@ public class WorkflowService {
                 default:
                     break;
             }
-            workOrderService.save(workOrder);
+            workOrderRepository.save(workOrder);
         }
     }
 
@@ -128,7 +128,7 @@ public class WorkflowService {
                 default:
                     break;
             }
-            requestService.save(request);
+            requestRepository.save(request);
         }
     }
 
@@ -151,7 +151,7 @@ public class WorkflowService {
                 default:
                     break;
             }
-            purchaseOrderService.save(purchaseOrder);
+            purchaseOrderRepository.save(purchaseOrder);
         }
     }
 
@@ -180,7 +180,7 @@ public class WorkflowService {
                     Asset asset = task.getWorkOrder().getAsset();
                     if (asset != null) {
                         asset.setStatus(action.getAssetStatus());
-                        assetService.save(asset);
+                        assetRepository.save(asset);
                     }
                     break;
                 default:

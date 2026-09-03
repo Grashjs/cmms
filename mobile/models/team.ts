@@ -10,6 +10,7 @@ export default interface Team extends Audit {
 export interface TeamMiniDTO {
   name: string;
   id: number;
+  userIds: number[];
 }
 export const teams: Team[] = [
   {

@@ -233,6 +233,38 @@ class MainLayoutConsumerTemplatesTest extends AbstractTemplateTest {
         assertTrue(html.contains("équipe Atlas"));
     }
 
+    @Test
+    void rendersDeleteAccount_ownsCompany() {
+        String html = renderEmail("delete-account.html", vars(
+                "ownsCompany", true,
+                "companyName", "Acme Corp",
+                "deleteConfirmLink", "https://app.example.com/delete/abc"));
+
+        assertRenderedEmail(html,
+                "Delete Atlas Account", "Delete Atlas Account",
+                "your account and the company Acme Corp will be permanently deleted",
+                "Confirm deletion", "https://app.example.com/delete/abc");
+
+        assertTrue(html.contains("Please click the button below to confirm"));
+        assertFalse(html.contains("your account will be permanently deleted along with all your data"));
+    }
+
+    @Test
+    void rendersDeleteAccount_notOwnsCompany() {
+        String html = renderEmail("delete-account.html", vars(
+                "ownsCompany", false,
+                "companyName", "Acme Corp",
+                "deleteConfirmLink", "https://app.example.com/delete/abc"));
+
+        assertRenderedEmail(html,
+                "Delete Atlas Account", "Delete Atlas Account",
+                "your account will be permanently deleted along with all your data",
+                "Confirm deletion", "https://app.example.com/delete/abc");
+
+        assertTrue(html.contains("Please click the button below to confirm"));
+        assertFalse(html.contains("and the company Acme Corp"));
+    }
+
     private String renderEmail(String template, Map<String, Object> extraVars) {
         return render(template, context(extraVars), Locale.ENGLISH);
     }

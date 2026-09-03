@@ -1039,6 +1039,7 @@ const locale = {
   personal_details_description:
     'Beheer informatie met betrekking tot uw persoonlijke gegevens',
   change_password: 'Wachtwoord wijzigen',
+  delete_account_email_confirmation: 'Controleer uw e-mails om de verwijdering van het account te bevestigen',
   delete_account: 'Account verwijderen',
   delete_account_confirmation:
     'Weet u zeker dat u uw account wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.',
@@ -1100,6 +1101,11 @@ const locale = {
   monthly_adverb: 'maandelijks',
   yearly_adverb: 'jaarlijks',
   features: 'Functies',
+  subscription_change_summary: 'Samenvatting van abonnementswijziging',
+  change_from_to: '{{current}} → {{next}}',
+  billing_period: 'Facturatieperiode',
+  prorata_notice:
+    'Voor de rest van uw huidige factureringsperiode wordt een evenredig bedrag in rekening gebracht.',
   checkout: 'Afrekenen',
   checkout_description: 'Vul de onderstaande velden in',
   per_month: 'per maand',

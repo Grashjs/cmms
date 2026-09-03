@@ -173,6 +173,8 @@ const ruJSON = {
   no_account_yet: 'Ещё нет аккаунта?',
   signup_here: 'Зарегистрироваться здесь',
   wrong_credentials: 'Неверные данные для входа',
+  server_not_reachable:
+    'Сервер недоступен. Подождите, пока он запустится, и попробуйте снова.',
   lost_password: 'Забыли пароль?',
   link_wo: 'Связать наряды',
   link_wo_description: 'Создавайте связи между нарядами',

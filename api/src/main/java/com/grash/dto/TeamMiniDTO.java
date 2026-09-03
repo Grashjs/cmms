@@ -17,4 +17,7 @@ public class TeamMiniDTO {
     
     @Schema(description = "List of team members")
     List<UserMiniDTO> users;
+
+    @Schema(description = "List of user IDs assigned to the team")
+    List<Long> userIds;
 }

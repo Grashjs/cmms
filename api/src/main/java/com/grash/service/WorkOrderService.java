@@ -31,6 +31,7 @@ import com.grash.utils.MultipartFileImpl;
 import com.grash.utils.PdfReportUtils;
 import com.grash.utils.Sanitizer;
 import com.grash.utils.TenantAspectUtils;
+import com.grash.utils.TextDirectionUtils;
 import com.itextpdf.html2pdf.HtmlConverter;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -268,6 +269,13 @@ public class WorkOrderService {
 
     @Transactional
     protected void delete(WorkOrder workOrder, Company company) {
+        Request parentRequest = workOrder.getParentRequest();
+        if (parentRequest != null) {
+            WorkOrder requestWorkOrder = parentRequest.getWorkOrder();
+            if (requestWorkOrder != null && requestWorkOrder.getId().equals(workOrder.getId())) {
+                parentRequest.setWorkOrder(null);
+            }
+        }
         Map<String, Object> webhookPayload = new HashMap<>();
         webhookPayload.put("workOrderId", workOrder.getId());
         webhookPayload.put("workOrderTitle", workOrder.getTitle());
@@ -1032,6 +1040,7 @@ public class WorkOrderService {
             put("tasksImagesPaths", tasksImagesPaths);
             put("messageSource", messageSource);
             put("locale", Helper.getLocale(user));
+            put("dir", Helper.isRtl(user.getCompany()) ? "rtl" : "ltr");
             put("reportConfig", config);
             put("comments", comments);
             put("commentFilesPaths", commentFilesPaths);
@@ -1044,7 +1053,10 @@ public class WorkOrderService {
 
         String reportHtml = thymeleafTemplateEngine.process("work-order-report.html", thymeleafContext);
 
-        HtmlConverter.convertToPdf(reportHtml, outputStream,
+        String reportHtmlTransformed = variables.get("dir") == "rtl" ?
+                TextDirectionUtils.transformHtmlText(reportHtml) : reportHtml;
+
+        HtmlConverter.convertToPdf(reportHtmlTransformed, outputStream,
                 PdfReportUtils.createReportConverterProperties(storageService::download));
     }
 

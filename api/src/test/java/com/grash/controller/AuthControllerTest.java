@@ -7,8 +7,6 @@ import com.grash.mapper.UserMapper;
 import com.grash.model.*;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.SuperAccountRelationRepository;
-import com.grash.repository.UserRepository;
-import com.grash.service.CompanyService;
 import com.grash.service.LdapService;
 import com.grash.service.RefreshTokenService;
 import com.grash.service.UserService;
@@ -63,12 +61,6 @@ class AuthControllerTest extends AbstractControllerTest {
     private SuperAccountRelationRepository superAccountRelationRepository;
 
     @MockitoBean
-    private CompanyService companyService;
-
-    @MockitoBean
-    private UserRepository userRepository;
-
-    @MockitoBean
     private LdapService ldapService;
 
     @MockitoBean
@@ -81,6 +73,10 @@ class AuthControllerTest extends AbstractControllerTest {
 
     @BeforeEach
     void setUp() {
+        when(rateLimiterService.isBruteForceEnabled()).thenReturn(true);
+        when(rateLimiterService.tryConsumeLoginAttempt(anyString())).thenReturn(true);
+        when(rateLimiterService.tryConsumeResetPasswordAttempt(anyString())).thenReturn(true);
+
         Role clientRole = Role.builder()
                 .id(1L)
                 .roleType(RoleType.ROLE_CLIENT)
@@ -243,7 +239,8 @@ class AuthControllerTest extends AbstractControllerTest {
 
             mockMvc.perform(post("/auth/signup")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content("{\"email\":\"new@test.com\",\"password\":\"pass123pass12\",\"firstName\":\"John\"," +
+                            .content("{\"email\":\"new@test.com\",\"password\":\"pass123pass12\"," +
+                                    "\"firstName\":\"John\"," +
                                     "\"lastName\":\"Doe\",\"phone\":\"12345678\"}"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.success").value(true))
@@ -526,39 +523,38 @@ class AuthControllerTest extends AbstractControllerTest {
         }
 
         @Test
-        void deleteAccount_ownsCompany_deletesCompany() throws Exception {
-            Company company = new Company();
-            company.setId(1L);
-            clientUser.setOwnsCompany(true);
-            clientUser.setCompany(company);
-
+        void deleteAccountRequest_returnsSuccessResponse() throws Exception {
             setCurrentUser(clientUser);
             when(userService.whoami(any())).thenReturn(clientUser);
-            doNothing().when(companyService).delete(1L);
+            when(userService.deleteAccountRequest(clientUser))
+                    .thenReturn(new SuccessResponse(true, "Account deletion link sent successfully"));
 
-            mockMvc.perform(delete("/auth"))
+            mockMvc.perform(post("/auth/delete-account-request"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.success").value(true))
-                    .andExpect(jsonPath("$.message").value("Account deleted successfully"));
+                    .andExpect(jsonPath("$.message").value("Account deletion link sent successfully"));
 
-            verify(companyService).delete(1L);
-            verify(userRepository, never()).delete((User) any());
+            verify(userService).deleteAccountRequest(clientUser);
         }
 
         @Test
-        void deleteAccount_notOwnsCompany_deletesUser() throws Exception {
-            setCurrentUser(clientUser);
-            when(userService.whoami(any())).thenReturn(clientUser);
-            clientUser.setOwnsCompany(false);
-            doNothing().when(userRepository).delete(clientUser);
+        void deleteAccountConfirm_validToken_redirectsToLogin() throws Exception {
+            String token = "valid-delete-token";
+            doNothing().when(verificationTokenService).confirmDeleteAccount(token);
 
-            mockMvc.perform(delete("/auth"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.success").value(true))
-                    .andExpect(jsonPath("$.message").value("Account deleted successfully"));
+            mockMvc.perform(get("/auth/delete-account-confirm?token=" + token))
+                    .andExpect(status().isFound())
+                    .andExpect(header().string("Location", endsWith("/account/deleted")));
+        }
 
-            verify(companyService, never()).delete(any());
-            verify(userRepository).delete((User) clientUser);
+        @Test
+        void deleteAccountConfirm_invalidToken_redirectsToRegister() throws Exception {
+            String token = "invalid-delete-token";
+            doThrow(new Exception("Invalid token")).when(verificationTokenService).confirmDeleteAccount(token);
+
+            mockMvc.perform(get("/auth/delete-account-confirm?token=" + token))
+                    .andExpect(status().isFound())
+                    .andExpect(header().string("Location", endsWith("/account/register")));
         }
     }
 }

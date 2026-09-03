@@ -366,6 +366,36 @@ public class UserService {
         return new SuccessResponse(true, "Password changed successfully");
     }
 
+    public SuccessResponse deleteAccountRequest(User user) {
+        throwIfEmailNotificationsNotEnabled();
+        String token = UUID.randomUUID().toString();
+
+        Map<String, Object> variables = new HashMap<String, Object>() {{
+            put("deleteConfirmLink", PUBLIC_API_URL + "/auth/delete-account-confirm?token=" + token);
+            put("ownsCompany", user.isOwnsCompany());
+            put("companyName", user.getCompany() == null ? "" : user.getCompany().getName());
+        }};
+        VerificationToken newUserToken = new VerificationToken(token, user, null);
+        verificationTokenRepository.save(newUserToken);
+        mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(new String[]{user.getEmail()},
+                messageSource.getMessage("delete_account"
+                        , new String[]{brandingService.getBrandConfig().getName()}, Helper.getLocale(user)),
+                variables,
+                "delete-account.html", Helper.getLocale(user), null);
+        return new SuccessResponse(true, "Account deletion link sent successfully");
+    }
+
+    public void deleteAccount(User user) {
+        if (user.isOwnsCompany()) {
+            companyService.delete(user.getCompany().getId());
+        } else {
+            apiKeyService.revokeAllByUser(user);
+            userRepository.delete(user);
+        }
+        cacheService.evictUserFromCache(user.getEmail());
+        refreshTokenService.revokeAllForUser(user);
+    }
+
     public Collection<User> findByCompany(Long id) {
         return userRepository.findByCompany_Id(id);
     }

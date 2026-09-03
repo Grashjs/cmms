@@ -192,6 +192,8 @@ const plJSON = {
   no_account_yet: 'Nie masz jeszcze konta?',
   signup_here: 'Zarejestruj się tutaj',
   wrong_credentials: 'Podano nieprawidłowe dane uwierzytelniające',
+  server_not_reachable:
+    'Serwer zaplecza jest niedostępny. Możesz poczekać, aż się uruchomi, i spróbować ponownie.',
   lost_password: 'Zapomniałeś hasła?',
   link_wo: 'Połącz zlecenia robocze',
   link_wo_description: 'Utwórz relacje między zleceniami roboczymi',
@@ -1035,6 +1037,7 @@ const plJSON = {
   account_deleted: 'Konto zostało pomyślnie usunięte',
   account_delete_error: 'Błąd podczas usuwania konta',
   confirm_delete_account: 'Usuń konto',
+  delete_account_email_confirmation: 'Sprawdź swoją pocztę e-mail, aby potwierdzić usunięcie konta',
   notification_settings: 'Ustawienia powiadomień',
   notification_settings_description:
     'Zarządzaj szczegółami związanymi z powiadomieniami',

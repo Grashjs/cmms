@@ -292,6 +292,8 @@ const frJSON = {
   no_account_yet: "Vous n'avez pas encore de compte?",
   signup_here: 'Inscrivez-vous ici',
   wrong_credentials: "Informations d'identification erronées fournies",
+  server_not_reachable:
+    "Le serveur principal est inaccessible. Vous pouvez attendre qu'il démarre puis réessayer.",
   lost_password: 'Mot de passe oublié ?',
   register: "S'inscrire",
   //work-orders
@@ -1166,6 +1168,7 @@ const frJSON = {
   account_deleted: 'Compte supprimé avec succès',
   account_delete_error: 'Erreur lors de la suppression du compte',
   confirm_delete_account: 'Supprimer le compte',
+  delete_account_email_confirmation: 'Veuillez vérifier vos e-mails pour confirmer la suppression du compte',
   notification_settings: 'Paramètres de notifications',
   notification_settings_description:
     'Gérer les détails liés à vos notifications',

@@ -1095,6 +1095,7 @@ const deJSON = {
   personal_details_description:
     'Verwalten Sie Informationen zu Ihren persönlichen Details',
   change_password: 'Passwort ändern',
+  delete_account_email_confirmation: 'Bitte überprüfen Sie Ihre E-Mails, um die Kontolöschung zu bestätigen',
   notification_settings: 'Benachrichtigungseinstellungen',
   notification_settings_description:
     'Verwalten Sie Details zu Ihren Benachrichtigungen',
@@ -1151,6 +1152,11 @@ const deJSON = {
   monthly_adverb: 'monatlich',
   yearly_adverb: 'jährlich',
   features: 'Funktionen',
+  subscription_change_summary: 'Zusammenfassung der Abonnementänderung',
+  change_from_to: '{{current}} → {{next}}',
+  billing_period: 'Abrechnungszeitraum',
+  prorata_notice:
+    'Für den Rest Ihres aktuellen Abrechnungszeitraums wird Ihnen ein anteiliger Betrag berechnet.',
   checkout: 'Kasse',
   checkout_description: 'Füllen Sie die untenstehenden Felder aus',
   per_month: 'pro Monat',
