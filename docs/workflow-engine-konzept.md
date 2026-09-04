@@ -8,6 +8,10 @@ Bezogener Code: `api/src/main/java/com/grash/{model,service,controller}/Workflow
 
 ---
 
+> **Ist-Stand und nächste Schritte stehen nicht hier.** Dieses Dokument hält die Entscheidungen
+> fest und soll stabil bleiben. Was heute tatsächlich verdrahtet ist, wie ein weiterer Auslöser
+> entsteht und welche Kandidaten es gibt: [`automation-engine.md`](automation-engine.md).
+
 ## 1. Ziel und Nicht-Ziele
 
 ### Ziele

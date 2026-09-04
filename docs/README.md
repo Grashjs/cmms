@@ -25,6 +25,7 @@ one. Documentation nobody is routed to is documentation nobody reads.
 | [TECHNICAL_DEBT_REMEDIATION.md](TECHNICAL_DEBT_REMEDIATION.md) | Frontend-Altlasten: gemessener Rückstand pro Paket, was davon den React-Upgrade blockiert, und das Vorgehen in drei Stufen |
 | [custom-field-categories.md](custom-field-categories.md) | Merkmale an Anlagenklassen gebunden: der Vertrag, warum ein klassenfremder Wert verworfen statt abgelehnt wird, und was es kostet, die Android-App selbst zu übernehmen |
 | [workflow-engine-konzept.md](workflow-engine-konzept.md) | Regel-Automatisierung: die Defizite der Alt-Engine, die vier Fallen im Bestand (Company im Async-Thread, überschriebener Anlagen-Status, Eltern-Propagation, geteilter Async-Pool), warum die neue Engine daneben statt darüber entsteht — und in Abschnitt 10 die vier Stufen bis zu einem echten Workflow-System, mit der Begründung, warum Zeit-Auslöser vor Prozessinstanzen kommen |
+| [automation-engine.md](automation-engine.md) | Automatisierungs-Engine, das Arbeitsdokument neben dem Konzept: was heute läuft (eine von 36 Trigger-Kombinationen), das Rezept in sieben Schritten für einen weiteren Auslöser, das Inventar aller 23 Webhook-Stellen als Publikationskandidaten mit Aufwand und Fallen — und die vier Fragen, mit denen ein Use Case geprüft wird, bevor er gebaut wird |
 | [ki-meldungs-triage.md](ki-meldungs-triage.md) | Meldungs-Triage: der Anlagen-Vorschlag beim Eingang, warum der Matcher nie selbst schreibt, warum die Workflow-Engine ihn nicht ausführen kann — und in Abschnitt 6 die offenen Punkte, wo der eigentliche Wert liegt (Disposition, Duplikate/Wiederholfehler, Verbindlichkeit) |
 | [mcp-server-konzept.md](mcp-server-konzept.md) | MCP-Server als universelles Addon: der externe, zustandslose Proxy als *eine* stabile Werkzeuggrenze zum CMMS, aus der OpenAPI-Spec abgeleitet und über Profile kuratiert — warum er neben `api/` statt darin entsteht, wie die Auth-Durchreichung dafür sorgt, dass er nie mehr kann als der vorgelegte Schlüssel, und wie Use Cases über ihn wachsen statt in ihm. **Umgesetzt als [`mcp/`](../mcp/README.md)**; Abschnitt 12 hält fest, was der Bau am Konzept korrigiert hat (Gruppen-URL der Spec, `operationId` als Tool-Name unbrauchbar, POST-Suche bricht die Lesen/Schreiben-Ableitung, Kuratierung als Voraussetzung) und welche drei Schritte für den Ende-zu-Ende-Beweis noch fehlen |
 
@@ -40,3 +41,9 @@ Something a future change would get wrong without it. In practice that is:
 
 What does not belong here: anything the code already says clearly, and anything that will be
 stale within a month (in-progress task lists, current data volumes).
+
+One deliberate exception: [automation-engine.md](automation-engine.md) does describe a current
+state, because for that subsystem the state *is* the thing a change gets wrong — which triggers
+are wired, and which three places have to be edited together to wire another. It is kept next to
+the concept document rather than inside it so that the record of decisions stays stable while the
+inventory moves.

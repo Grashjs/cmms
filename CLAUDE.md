@@ -19,6 +19,11 @@ read it before touching `Workflow*` or publishing a domain event from a service,
 records why an async listener cannot persist a `CompanyAudit` entity without setting the company
 by hand, why a field diff in `AssetService.update` misses every status change, and why the rule
 editor asks the server what exists instead of keeping its own lists;
+[`docs/automation-engine.md`](docs/automation-engine.md) is its working companion — read it
+before publishing a new trigger, because it lists the three places that have to be edited
+together (`AutomationRuleRunner.loadTriggerEntity`, `AutomationMetaService.LIVE_TRIGGERS`, a
+resolver) and the four traps in the candidate publish points, above all that work orders have
+two update paths and that a request approval is a cascade;
 [`docs/mcp-server-konzept.md`](docs/mcp-server-konzept.md) plus [`mcp/README.md`](mcp/README.md)
 for the MCP server — read them before touching `mcp/`, the `/mcp` nginx route or anything about
 `x-api-key`, because they record why tool names cannot come from `operationId`, why read/write
