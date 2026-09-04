@@ -252,7 +252,10 @@ springdoc:
   api-docs:
     version: openapi_3_1
     enabled: true
-  packages-to-scan: com.grash.controller
+  # The automation package keeps its own controller, so it has to be listed here or its endpoints
+  # are missing from the OpenAPI document — present and working, but undocumented, which is the
+  # worst of both.
+  packages-to-scan: com.grash.controller,com.grash.automation.controller
   pre-loading-enabled: true
   cache:
     disabled: false
@@ -260,7 +263,18 @@ springdoc:
   enable-default-api-docs: false
   swagger-ui:
     tags-sorter: alpha
-    enabled: false
+    enabled: true
+    # nginx serves the API under /api/ and strips that prefix (proxy_pass with a trailing slash)
+    # without setting X-Forwarded-Prefix, so the application cannot know where it is mounted. The
+    # UI page itself would load, then fetch its configuration from the host root — where the
+    # frontend answers, and the page reports "failed to load API definition". Naming the prefixed
+    # paths here keeps the correction inside the Swagger page rather than changing how the whole
+    # application builds URLs, which forward-headers-strategy would.
+    #
+    # The document lives at the group URL, not at /v3/api-docs: enable-default-api-docs is false
+    # above, so only the named groups are served.
+    config-url: /api/v3/api-docs/swagger-config
+    url: /api/v3/api-docs/atlas-cmms
 #logging:
 #  level:
 #    org.springdoc: DEBUG
