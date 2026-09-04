@@ -300,6 +300,13 @@ limits (assets, work orders, users, ...) behind two stacked checks: the company'
 against `api.keygen.sh`. For a private single-tenant instance that is both a paywall
 around AGPL source we already have and a hard dependency on a third party.
 
+**Setting the variable in Coolify is not enough on its own, and the failure is silent.** The
+`api` service in `docker-compose.yml` enumerates its environment explicitly, so a variable that
+no `${...}` in that block references never reaches the container — the application falls back to
+its own default and nothing in any log says why. `SELF_HOSTED_UNLOCK_PREMIUM`,
+`AUTOMATION_ENABLED` and `TRIAGE_ENABLED` are listed there now; **any further switch has to be
+added in both places**, the application's `application.yml` and that block.
+
 `SELF_HOSTED_UNLOCK_PREMIUM=true` (default `false`) opens both gates without any outbound
 call:
 

@@ -92,6 +92,16 @@ services:
       SINGLE_INGRESS: ${SINGLE_INGRESS:-true}
       TRUSTED_PROXY_IPS: ${TRUSTED_PROXY_IPS:-}
 
+      # Feature switches this fork added. They have to be listed here even though the
+      # application already declares defaults for them: this service enumerates its
+      # environment explicitly, so a variable set in Coolify that no ${...} here references
+      # never reaches the container at all. Setting one and seeing nothing happen is a
+      # remarkably quiet way to lose an afternoon.
+      SELF_HOSTED_UNLOCK_PREMIUM: ${SELF_HOSTED_UNLOCK_PREMIUM:-false}
+      AUTOMATION_ENABLED: ${AUTOMATION_ENABLED:-false}
+      AUTOMATION_MAX_DEPTH: ${AUTOMATION_MAX_DEPTH:-3}
+      TRIAGE_ENABLED: ${TRIAGE_ENABLED:-true}
+
       LDAP_ENABLED: ${LDAP_ENABLED:-false}
       LDAP_ORG_ADMIN: ${LDAP_ORG_ADMIN:-}
       LDAP_URL: ${LDAP_URL:-}
