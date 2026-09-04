@@ -17,6 +17,7 @@ import com.grash.model.enums.RoleType;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.VendorRepository;
 import com.grash.utils.Sanitizer;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -39,6 +40,7 @@ public class VendorService {
     private final LicenseService licenseService;
     private final WebhookDispatchService webhookDispatchService;
     private final CustomFieldValueService customFieldValueService;
+    private final EntityManager em;
 
     private void setVendorCustomFields(Vendor vendor, List<CustomFieldValuePostDTO> customFieldValuePostDTOS,
                                        Company company) {
@@ -125,6 +127,7 @@ public class VendorService {
         if (optionalVendor.isEmpty())
             throw new CustomException("Vendor not found", HttpStatus.NOT_FOUND);
         Vendor savedVendor = optionalVendor.get();
+        em.detach(savedVendor);
         if (savedVendor.canBeEditedBy(user)) {
             if (vendor.getCustomFields() != null && !vendor.getCustomFields().isEmpty()) {
                 setVendorCustomFields(savedVendor, vendor.getCustomFields(), user.getCompany());
