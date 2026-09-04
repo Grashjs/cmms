@@ -19,6 +19,18 @@ public interface ActionHandler {
     ActionType getType();
 
     /**
+     * What this action needs, so the editor can build the form for it.
+     *
+     * <p>The counterpart of {@link com.grash.automation.eval.OperandResolver#describe}: the
+     * frontend asks the server what exists instead of keeping its own list. The old engine kept
+     * four such lists — an enum in Java and three mirrors in TypeScript — and they disagreed:
+     * the settings form offered actions no branch implemented, and offered them for triggers
+     * where they were never wired at all. A handler that exists here can be configured, and one
+     * that does not exist cannot be, without anyone maintaining a second list.
+     */
+    ActionDescriptor descriptor();
+
+    /**
      * @throws RuntimeException to fail the step. The engine catches it, records the run as
      *                          FAILED with the message, and either stops or continues depending
      *                          on the step's {@code abortOnFailure}. Throwing is the right

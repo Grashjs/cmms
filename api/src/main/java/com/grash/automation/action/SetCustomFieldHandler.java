@@ -55,6 +55,17 @@ public class SetCustomFieldHandler implements ActionHandler {
     }
 
     @Override
+    public ActionDescriptor descriptor() {
+        return new ActionDescriptor(ActionType.SET_CUSTOM_FIELD, "automation_action_set_custom_field",
+                List.of(
+                        ActionDescriptor.Parameter.entity("customField", "CUSTOM_FIELD", true),
+                        // TEXT even for a choice field: which options are permitted depends on
+                        // the field chosen in the parameter above, so it is the editor that pairs
+                        // the two using the operand metadata, not this static list.
+                        ActionDescriptor.Parameter.text("value", true)));
+    }
+
+    @Override
     public void execute(AutomationActionStep step, ExecutionContext context) {
         ActionParameters parameters = ActionParameters.of(step.getParameters(), context);
         Long fieldId = parameters.requireLong("customField");

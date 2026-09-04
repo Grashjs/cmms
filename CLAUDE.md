@@ -17,7 +17,8 @@ workflow engine can carry out what a matcher decided, because it cannot;
 [`docs/workflow-engine-konzept.md`](docs/workflow-engine-konzept.md) for the rule automation —
 read it before touching `Workflow*` or publishing a domain event from a service, because it
 records why an async listener cannot persist a `CompanyAudit` entity without setting the company
-by hand, and why a field diff in `AssetService.update` misses every status change.
+by hand, why a field diff in `AssetService.update` misses every status change, and why the rule
+editor asks the server what exists instead of keeping its own lists.
 
 ## What this is
 
@@ -438,6 +439,7 @@ fix silently overwritten:
 | Reporting: export headers | `messages.properties`, `messages_de_DE.properties` (appended keys) |
 | Saved views | `SavedView*` (new files), `frontend` work-order and asset list pages, `hooks/useTableState.ts`, `hooks/useExport.ts` |
 | Request triage | Almost all new files (`service/triage/**`, `event/**`, `RequestQualification*`, `AssetTriageRepository`, `frontend` `QualificationCard.tsx` + `slices/requestQualification.ts`), so a sync should not touch them. The exceptions are the ones to watch: **`RequestController`** carries one added line at the end of `onRequestCreation` — the published `RequestCreatedEvent` — and upstream edits that method; and `RequestDetails.tsx` renders `<QualificationCard>` above the approve buttons. `AssetRepository` is deliberately *not* involved: the triage query lives in its own repository interface so it cannot conflict |
+| Rule automation (new engine) | `api/.../automation/**` and the `frontend` `Settings/Features/Automation/**`, `slices/automation.ts`, `models/owns/automation.ts` are all new, so a sync cannot touch them. The edited files are the ones to watch: **`AssetService.dispatchAssetStatusChangeWebhook`** publishes the `EntityChangedEvent` and upstream edits that method (`AssetServiceTest` needs the `ApplicationEventPublisher` mock with it); `application.yml` carries `automation.*`; and on the frontend `router/app.tsx`, `Settings/Features/index.tsx`, `store/rootReducer.ts` plus the appended `en.ts`/`de.ts` keys each hold one added line or block. Note also that `AutomationMetaService.LIVE_TRIGGERS` is hand-maintained: a new publish point has to be added there or the editor keeps showing that trigger as unavailable |
 | File search and filters | `content/own/Files/index.tsx`, `content/own/Files/Filters/**` |
 | File→asset/work-order links | `File` (`workOrders` join table), `FileShowDTO`, `FileMapper` |
 | Build tooling (frontend) | **Upstream is still Create React App; this fork is not.** `frontend/vite.config.ts` (new), `frontend/index.html` (moved out of `public/`), `frontend/package.json` scripts, `src/config.ts` + `src/serviceWorker.ts` (`import.meta.env` instead of `process.env`), `src/vite-env.d.ts`. Deleted here: `config-overrides.js`, `src/react-app-env.d.ts`. An upstream change touching the build, `public/index.html` or `REACT_APP_*` needs translating, not merging |

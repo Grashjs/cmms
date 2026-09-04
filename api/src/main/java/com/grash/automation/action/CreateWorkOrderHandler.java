@@ -36,6 +36,19 @@ public class CreateWorkOrderHandler implements ActionHandler {
     }
 
     @Override
+    public ActionDescriptor descriptor() {
+        return new ActionDescriptor(ActionType.CREATE_WORK_ORDER, "automation_action_create_work_order",
+                java.util.List.of(
+                        ActionDescriptor.Parameter.text("title", true),
+                        ActionDescriptor.Parameter.enumOf("priority", false,
+                                java.util.Arrays.stream(Priority.values()).map(Enum::name).toList()),
+                        ActionDescriptor.Parameter.entity("category", "WORK_ORDER_CATEGORY", false),
+                        // Not an asset picker: a rule says "for the asset that triggered me", and
+                        // a fixed id here would point every run at the same machine.
+                        ActionDescriptor.Parameter.triggerReference("asset", false)));
+    }
+
+    @Override
     public void execute(AutomationActionStep step, ExecutionContext context) {
         ActionParameters parameters = ActionParameters.of(step.getParameters(), context);
 

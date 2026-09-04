@@ -83,6 +83,10 @@ const ChecklistsSettings = Loader(
 const WorkflowsSettings = Loader(
   lazy(() => import('../content/own/Settings/Features/Workflows'))
 );
+// Beside the old workflow settings, not instead of them: the two engines coexist.
+const AutomationSettings = Loader(
+  lazy(() => import('../content/own/Settings/Features/Automation'))
+);
 
 const RequestPortalSettings = Loader(
   lazy(() => import('../content/own/Settings/Features/RequestPortal'))
@@ -237,7 +241,8 @@ const appRoutes = [
           },
           { path: 'request-portals', element: <RequestPortalSettings /> },
           { path: 'request-portals/:id', element: <RequestPortalSettings /> },
-          { path: 'workflows', element: <WorkflowsSettings /> }
+          { path: 'workflows', element: <WorkflowsSettings /> },
+          { path: 'automation', element: <AutomationSettings /> }
         ]
       },
       {

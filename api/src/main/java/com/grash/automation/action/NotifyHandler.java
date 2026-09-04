@@ -42,6 +42,18 @@ public class NotifyHandler implements ActionHandler {
     }
 
     @Override
+    public ActionDescriptor descriptor() {
+        // Neither recipient is marked required, because exactly one of them is — a constraint a
+        // flat parameter list cannot express. The editor offers a choice between the two; the
+        // handler enforces it, and says so in the run log if it is violated.
+        return new ActionDescriptor(ActionType.NOTIFY, "automation_action_notify",
+                List.of(
+                        ActionDescriptor.Parameter.text("message", true),
+                        ActionDescriptor.Parameter.entity("team", "TEAM", false),
+                        ActionDescriptor.Parameter.entity("user", "USER", false)));
+    }
+
+    @Override
     public void execute(AutomationActionStep step, ExecutionContext context) {
         ActionParameters parameters = ActionParameters.of(step.getParameters(), context);
         String message = parameters.requireString("message");

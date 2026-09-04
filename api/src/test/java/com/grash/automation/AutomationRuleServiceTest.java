@@ -69,12 +69,32 @@ class AutomationRuleServiceTest {
         public Object resolve(AutomationCondition condition, ExecutionContext context) {
             return null;
         }
+
+        @Override
+        public List<com.grash.automation.eval.OperandDescriptor> describe(Company company) {
+            return List.of();
+        }
     }
 
     private static class CreateWorkOrderStub implements ActionHandler {
         @Override
         public ActionType getType() {
             return ActionType.CREATE_WORK_ORDER;
+        }
+
+        @Override
+        public com.grash.automation.action.ActionDescriptor descriptor() {
+            // The real handler's parameter list, because the service now validates against it:
+            // a stub declaring no parameters would make every rule below fail on "title".
+            return new com.grash.automation.action.ActionDescriptor(ActionType.CREATE_WORK_ORDER,
+                    "automation_action_create_work_order", List.of(
+                    com.grash.automation.action.ActionDescriptor.Parameter.text("title", true),
+                    com.grash.automation.action.ActionDescriptor.Parameter.enumOf("priority", false,
+                            List.of("NONE", "LOW", "MEDIUM", "HIGH")),
+                    com.grash.automation.action.ActionDescriptor.Parameter.entity("category",
+                            "WORK_ORDER_CATEGORY", false),
+                    com.grash.automation.action.ActionDescriptor.Parameter.triggerReference("asset",
+                            false)));
         }
 
         @Override
@@ -232,6 +252,87 @@ class AutomationRuleServiceTest {
                             "[\"nicht\",\"ein\",\"objekt\"]", null, null)));
 
             assertThrows(CustomException.class, () -> service.create(dto, company));
+        }
+    }
+
+    @Nested
+    @DisplayName("action parameters")
+    class Parameters {
+
+        private AutomationRulePostDTO withParameters(String json) {
+            return new AutomationRulePostDTO(
+                    "Auftrag anlegen", ChangeType.UPDATED, EntityType.ASSET, null, null, null,
+                    List.of(),
+                    List.of(new AutomationActionPostDTO(ActionType.CREATE_WORK_ORDER, json, null,
+                            null)));
+        }
+
+        @Test
+        @DisplayName("a required one that is missing is refused")
+        void refusesAMissingRequiredParameter() {
+            CustomException exception = assertThrows(CustomException.class,
+                    () -> service.create(withParameters("{\"priority\":\"HIGH\"}"), company));
+
+            assertEquals(422, exception.getHttpStatus().value());
+            assertTrue(exception.getMessage().contains("title"), exception.getMessage());
+        }
+
+        @Test
+        @DisplayName("a misspelled key is refused rather than ignored")
+        void refusesAnUnknownParameter() {
+            // Without this the handler reads its own key, finds nothing, and reports the required
+            // parameter missing — from a background thread, minutes later, in the run log. The
+            // typo itself is never mentioned.
+            CustomException exception = assertThrows(CustomException.class, () -> service.create(
+                    withParameters("{\"title\":\"St\u00f6rung\",\"titel\":\"x\"}"), company));
+
+            assertEquals(422, exception.getHttpStatus().value());
+            assertTrue(exception.getMessage().contains("titel"), exception.getMessage());
+        }
+
+        @Test
+        @DisplayName("a value outside an enum parameter's options is refused")
+        void refusesAnImpossibleEnumValue() {
+            CustomException exception = assertThrows(CustomException.class, () -> service.create(
+                    withParameters("{\"title\":\"x\",\"priority\":\"URGENT\"}"), company));
+
+            assertEquals(422, exception.getHttpStatus().value());
+            assertTrue(exception.getMessage().contains("HIGH"),
+                    "the message has to list what would work: " + exception.getMessage());
+        }
+
+        @Test
+        void refusesAnUnknownPlaceholder() {
+            CustomException exception = assertThrows(CustomException.class, () -> service.create(
+                    withParameters("{\"title\":\"${trigger.asset.serial}\"}"), company));
+
+            assertEquals(422, exception.getHttpStatus().value());
+            assertTrue(exception.getMessage().contains("trigger.asset.serial"),
+                    exception.getMessage());
+        }
+
+        @Test
+        @DisplayName("a placeholder in a parameter that cannot carry one is refused")
+        void refusesAPlaceholderWhereItCannotWork() {
+            // Interpolating an asset id into a title is the point of the mechanism. Doing it in a
+            // category reference produces a lookup for a category id that does not exist.
+            CustomException exception = assertThrows(CustomException.class, () -> service.create(
+                    withParameters("{\"title\":\"x\",\"category\":\"${trigger.asset.id}\"}"),
+                    company));
+
+            assertEquals(422, exception.getHttpStatus().value());
+            assertTrue(exception.getMessage().contains("category"), exception.getMessage());
+        }
+
+        @Test
+        @DisplayName("a valid set, placeholders included, is accepted")
+        void acceptsWhatTheHandlerAsksFor() {
+            AutomationRule rule = service.create(withParameters(
+                    "{\"title\":\"St\u00f6rung ${trigger.asset.name}\",\"priority\":\"HIGH\","
+                            + "\"asset\":\"${trigger.asset.id}\"}"), company);
+
+            assertEquals(1, rule.getActions().size());
+            assertTrue(rule.getActions().get(0).getParameters().contains("trigger.asset.name"));
         }
     }
 

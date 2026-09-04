@@ -45,6 +45,7 @@ import { reducer as customFieldReducer } from 'src/slices/customField';
 import { reducer as workloadReducer } from 'src/slices/workload';
 import { reducer as savedViewReducer } from 'src/slices/savedView';
 import { reducer as requestQualificationReducer } from 'src/slices/requestQualification';
+import { reducer as automationReducer } from 'src/slices/automation';
 
 const rootReducer = combineReducers({
   customers: customerReducer,
@@ -92,7 +93,8 @@ const rootReducer = combineReducers({
   customFields: customFieldReducer,
   workload: workloadReducer,
   savedViews: savedViewReducer,
-  requestQualifications: requestQualificationReducer
+  requestQualifications: requestQualificationReducer,
+  automation: automationReducer
 });
 
 export default rootReducer;
