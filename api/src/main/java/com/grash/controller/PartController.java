@@ -40,10 +40,8 @@ public class PartController {
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<PartShowDTO>> search(@Parameter(description = "Search criteria for filtering parts") @RequestBody SearchCriteria searchCriteria,
                                                     @Parameter(hidden = true) @CurrentUser User user) {
-        return ResponseEntity.ok(TenantAspectUtils.executeWithDisabledCompanyCheck(() ->
-                partService.findBySearchCriteria(partService.getSearchCriteria(user,
-                        searchCriteria)).map(partMapper::toShowDto)
-        ));
+        return ResponseEntity.ok(partService.findBySearchCriteria(partService.getSearchCriteria(user,
+                searchCriteria)).map(partMapper::toShowDto));
     }
 
     @GetMapping("/{id}")
