@@ -29,7 +29,9 @@ Bezogener Code: `api/src/main/java/com/grash/{model,service,controller}/Workflow
 
 - **Kein BPMN-/Prozess-Orchestrator** (Camunda/Flowable, wartende Human-Tasks, mehrstufige
   Genehmigungsketten). Der Bedarf ist ereignisbasierte Regel-Automatisierung (Event–Condition–
-  Action). Echte Approval-Workflows mit Wartezuständen wären ein separates Feature.
+  Action). Echte Approval-Workflows mit Wartezuständen sind ein separater Ausbau — §10 beschreibt
+  die vier Stufen dorthin, was jede kostet, und warum keine davon verlangt, diese hier neu zu
+  bauen.
 - **Keine Endanwender-Scripting-Engine** (SpEL, Groovy, JS). Strukturierte Bedingungen
   (Subjekt/Operator/Wert) reichen und bleiben validierbar.
 - **Kein Ersatz der KI-Triage.** Sie bleibt eigenständig; eine Anbindung ist optional und später.
@@ -336,6 +338,7 @@ Registrierung über Spring (`List<ActionHandler>` → Map nach Typ). Handler und
 | `CreateWorkOrderHandler` | über `WorkOrderService.create(wo, company)`; **muss Company explizit setzen (F1)** und `checkUsageBasedLimit`-Ausnahmen als `FAILED` protokollieren, nicht durchschlagen lassen |
 | `CreateRequestHandler` | analog |
 | `SetAssetStatusHandler` | **muss über `triggerDownTime`/`stopDownTime`** laufen, nicht über das Repository (D9); idempotent — setzt nur bei echter Änderung |
+| `SetCustomFieldHandler` | schreibt einen Merkmalswert über `CustomFieldValueService`. **Nicht optional** (Entscheidung in §9.2): ohne ihn sind Merkmale nur lesbar, und die Engine kann keinen Zustand fortschreiben, den sie selbst auswertet. Achtung Klassenbindung: ein Wert für die falsche Anlagenklasse wird von `CustomFieldValueService` *verworfen*, nicht abgelehnt (siehe [`custom-field-categories.md`](custom-field-categories.md)) — der Handler muss das prüfen und als `FAILED` protokollieren, sonst schluckt er den Fehlschlag |
 | `NotifyHandler` | `NotificationService.createMultiple` (In-App + Push) und/oder Mail; `Notification` erbt von `Audit`, F1 gilt hier nicht |
 
 Der `ExecutionContext` liefert: frisch geladenes Trigger-Entity, Company, Diff, Regel-Id,
@@ -425,7 +428,9 @@ Metadaten-Endpunkt und Editor gebaut werden. Umfang:
 - Tabellen `automation_rule`, `automation_condition`, `automation_action_step`, `automation_run`.
 - Evaluator mit AND-Gruppe und den Operatoren `IS` und `CHANGED_TO`.
 - `AssetResolver` + `CustomFieldResolver`.
-- `CreateWorkOrderHandler` + `NotifyHandler` (beide Wirkung, beide mit F1-Vertrag).
+- `CreateWorkOrderHandler` + `NotifyHandler` + `SetCustomFieldHandler` (alle Wirkung, alle mit
+  F1-Vertrag). Der dritte kostet etwa einen halben Tag mehr und ist der Preis der Entscheidung
+  in §9.2 — er macht Merkmale schreibbar und nicht nur lesbar.
 - Regel-CRUD als schlichter Endpunkt; **Konfiguration interim über Swagger**, keine UI.
 - Tests: Evaluator als reine Funktion ohne Spring; ein `@SpringBootTest` mit `Awaitility` für
   Ereignis → Regel → Workorder, inkl. AFTER_COMMIT.
@@ -487,15 +492,119 @@ braucht keine eigene Zählbasis.
 
 ## 9. Offene Punkte
 
-1. **Wer „ist" die Engine?** `createdBy` bleibt im Async-Thread leer (F1). Entweder null und im
-   UI als „System" anzeigen, oder ein technischer Benutzer je Company. Betrifft auch Absender und
-   Locale von Benachrichtigungen. **Zu klären vor Phase S**, weil `CreateWorkOrderHandler` davon
-   abhängt.
-2. **Führende Quelle für den Betriebszustand:** nativer `AssetStatus` oder Merkmal. Empfehlung:
-   nativer Status — er hat Stillstandserfassung, Eltern-Propagation und Webhook. Wenn ein Merkmal
-   führen soll, fehlt eine Aktion `SET_CUSTOM_FIELD`, die es in der Liste in §4.4 nicht gibt.
-   **Zu entscheiden vor Phase S.**
-3. **Benachrichtigungskanäle in Phase S:** In-App genügt (`NotificationService` vorhanden), oder
-   Mail von Anfang an?
-4. **Massenänderungen** (Import, Klassen-Umzug): pro Entity ein Lauf. Einfach, kann viele
-   Run-Zeilen erzeugen — Aufbewahrungsdauer für `automation_run` festlegen.
+### 9.1 Akteur der Engine — entschieden, bleibt offen
+
+**Entscheidung (2026-09-04): `createdBy` bleibt leer.** Von der Engine angelegte Objekte haben
+keinen Ersteller; die UI zeigt dort „System". Das ist konsistent mit dem Bestand — Meldungen aus
+dem Meldeportal haben schon heute keinen Ersteller, weil dort ebenfalls niemand angemeldet ist.
+
+Der Punkt bleibt trotzdem als offen notiert, aus zwei Gründen:
+
+- **Die Alternative ist derzeit gar nicht baubar.** Ein technischer Benutzer je Company wäre die
+  saubere Lösung, weil damit *alle* bestehenden Filter unverändert funktionieren. Auf dieser
+  Instanz lassen sich aber momentan keine Benutzer anlegen: `UserService.checkUsageBasedLimit`
+  wirft ab dem fünften bezahlten Benutzer (`Consts.usageBasedFreeLimits`, `UNLIMITED_USERS: 5`),
+  und `SELF_HOSTED_UNLOCK_PREMIUM` ist per Default `false` und nicht in `docker-compose.yml`
+  gesetzt. Solange das so ist, ist die Entscheidung erzwungen, nicht gewählt.
+- **Ein leeres `createdBy` versteckt Datensätze.** Wer das Recht „andere sehen" für Aufträge
+  nicht hat, bekommt nur, was er selbst erstellt hat oder was ihm bzw. seinem Team zugewiesen
+  ist (`WorkOrderService.getSearchCriteria`). Eine Regel, die ein Team zuweist, ist gedeckt —
+  UC-1 also. **Auslöser zum Umsteigen:** die erste Regel, die weder Benutzer noch Team zuweist.
+  Vorher lohnt der technische Benutzer nicht, danach führt kein Weg daran vorbei.
+
+Nebenbefund, der nicht hierher gehört, aber notiert werden will: die Grenzverletzung wirft eine
+nackte `RuntimeException` und landet damit im Catch-all von
+`GlobalExceptionHandlerController` — der Anwender bekommt einen HTTP 500 statt einer
+Fachmeldung, obwohl der Text durchgereicht wird.
+
+### 9.2 Merkmale müssen schreibbar sein — entschieden
+
+**Entscheidung (2026-09-04): beides, und Merkmale sind erstklassig.** Die Aufgabenstellung ist
+nicht ein bestimmter Prozess, sondern die flexible Erweiterbarkeit der Gesamtfunktionalität.
+Damit ist die Frage „nativer Status *oder* Merkmal" falsch gestellt:
+
+- Der native `AssetStatus` bleibt die führende Quelle für den **Betriebszustand**, weil an ihm
+  Stillstandserfassung, Eltern-Propagation und Webhook hängen. Sieben feste Werte, und die Liste
+  zu erweitern wäre eine Änderung an einem Upstream-Enum plus Datenmigration.
+- **Merkmale sind gleichrangige Operanden — lesend *und* schreibend.** Ohne Schreibzugriff kann
+  die Engine keinen Zustand fortschreiben, den sie selbst auswertet, und genau das ist die
+  Erweiterbarkeit, um die es geht. Deshalb steht `SetCustomFieldHandler` ab Phase S in §4.4 und
+  ist nicht als spätere Option geführt.
+
+Preis: etwa ein halber Tag in Phase S, plus die Klassenbindung als Falle (ein Wert für die
+falsche Anlagenklasse wird verworfen, nicht abgelehnt).
+### 9.3 Noch zu klären
+
+- **Benachrichtigungskanäle in Phase S:** In-App genügt (`NotificationService` vorhanden), oder
+  Mail von Anfang an?
+- **Massenänderungen** (Import, Klassen-Umzug): pro Entity ein Lauf. Einfach, kann viele
+  Run-Zeilen erzeugen — Aufbewahrungsdauer für `automation_run` festlegen.
+
+---
+
+## 10. Von Regel-Automatisierung zum Workflow-System
+
+Die Frage, ob daraus „ein echtes Workflow-System" wird, vermischt zwei Achsen, die getrennt
+entschieden werden sollten:
+
+- **Erweiterbarkeit** — wie viel neue Automatisierung ohne Codeänderung konfigurierbar ist.
+- **Prozesstiefe** — ob ein Vorgang über Zeit und über mehrere Beteiligte einen Zustand behält.
+
+Die erste ist das eigentliche Ziel dieses Konzepts und wird in Stufe 1 vollständig erreicht. Die
+zweite ist ein separater Ausbau, und keine ihrer Stufen verlangt, Stufe 1 neu zu bauen — das ist
+der Grund, sie nicht vorzuziehen.
+
+### Stufe 1 — Regel-Automatisierung (dieses Konzept)
+
+Ereignis → Bedingungen → Aktionen, ohne Gedächtnis: jede Auslösung ist unabhängig von der
+vorigen. Was Erweiterbarkeit hier ausmacht, sind drei Eigenschaften, nicht die Prozesstiefe:
+Bedingungen als Daten über beliebige Merkmale, parametrisierte Aktionen einschließlich
+*Schreiben* von Merkmalen, und ein Metadaten-Endpunkt, aus dem die UI sich selbst baut. Damit ist
+eine neue Automatisierung eine Konfiguration und keine Änderung an fünf Codestellen.
+
+### Stufe 2 — Zeit als Auslöser
+
+Der billigste große Gewinn, und Quartz ist bereits eingerichtet (`job/`, JDBC-JobStore). Zwei
+neue Auslöserarten:
+
+- **Terminbasiert** — „jeden Montag 6:00 alle Anlagen der Klasse A prüfen".
+- **Fristbasiert** — „48 Stunden nach diesem Ereignis, falls Zustand X dann noch gilt, …".
+
+Die zweite ist bereits Eskalation: Erinnerung, Fristüberschreitung, Wiederholfehler. Für FM ist
+das erfahrungsgemäß der Bereich, in dem die meiste echte Automatisierung liegt — mehr als in
+mehrstufigen Genehmigungen. Kosten: eine Tabelle geplanter Auslösungen plus ein Quartz-Job,
+2–3 Tage. **Empfehlung: direkt nach Stufe 1.**
+
+### Stufe 3 — Prozessinstanzen mit Wartezustand
+
+Erst hier wird es ein Workflow-System im engeren Sinn. Eine Regel startet keinen Einzelschuss,
+sondern einen *Fall*, der Zustand behält und auf etwas wartet — eine Freigabe, eine Rückmeldung,
+eine Frist. Was dazukommt:
+
+- eine Instanztabelle (welche Definition, welches Objekt, aktueller Schritt, Wartegrund) mit
+  **Versionierung**: ein laufender Fall behält die Definition, mit der er gestartet ist
+- Fortsetzungs-Auslöser: ein Ereignis oder ein Timer setzt einen wartenden Fall fort
+- Verzweigung nach Ergebnis (freigegeben/abgelehnt), nicht nur AND/OR auf einem Ereignis
+- Sichtbarkeit: „wo steht dieser Fall?" — das ist die Hälfte des Aufwands
+
+Grob 8–12 Tage. Das ist der große Sprung, und er lohnt erst, wenn ein konkreter Prozess mit
+echtem Wartezustand ansteht.
+
+### Stufe 4 — Menschliche Aufgaben
+
+Ein Eingangskorb, Zuweisung und Delegation, Fristen, Eskalation. Setzt Stufe 3 voraus. Hier ist
+die Hauptgefahr nicht der Aufwand, sondern die Dopplung: die App hat schon zwei aufgabenartige
+Konzepte — Workorder-Aufgaben (`Task`) und die Freigabe/Ablehnung von Meldungen. Ein drittes
+danebenzustellen wäre der teuerste Fehler in dieser Reihe.
+
+### Die Alternative, und warum sie hier nicht empfohlen wird
+
+Für Stufe 3 und 4 gibt es fertige Engines; **Flowable** ist Apache-2.0 und in Spring Boot
+einbettbar. Man bekäme Wartezustände, Timer, menschliche Aufgaben und einen Prozess-Designer
+geschenkt. Bezahlt wird mit einem zweiten Datenmodell neben dem CMMS-Modell, einer BPMN-Lernkurve
+und einer dauerhaft größeren Divergenzfläche gegenüber Upstream.
+
+Für eine Instanz, deren Zweck es ist herauszufinden, *welche* FM-Funktionen der Markt braucht,
+ist die Reihenfolge deshalb: **Stufe 1, dann Stufe 2, dann messen.** Wenn danach ein echter
+mehrstufiger Prozess mit Wartezustand auftaucht, ist die Bewertung von Flowable gegen Stufe 3 die
+richtige Frage — vorher ist sie eine Wette auf einen Bedarf, den niemand belegt hat.

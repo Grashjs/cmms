@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - main
+    # No image content comes from prose, so a documentation commit has nothing to deploy.
+    # This only started to matter once the Coolify trigger worked: before that a push
+    # merely built images, now it restarts the running containers.
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'dev-docs/**'
   workflow_dispatch:
 
 # A second push while a build is running cancels the first one — Coolify must
