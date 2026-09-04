@@ -1,6 +1,8 @@
 package com.grash.automation;
 
+import com.grash.automation.action.ActionDescriptor;
 import com.grash.automation.action.ActionHandler;
+import com.grash.automation.action.ActionParameters;
 import com.grash.automation.dto.AutomationActionPostDTO;
 import com.grash.automation.dto.AutomationConditionPostDTO;
 import com.grash.automation.dto.AutomationRulePostDTO;
@@ -26,8 +28,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Creates, updates and validates rules.
@@ -41,6 +45,7 @@ import java.util.Set;
 public class AutomationRuleService {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final Pattern PLACEHOLDER = Pattern.compile("\\$\\{([^}]+)}");
 
     private final AutomationRuleRepository ruleRepository;
     private final CustomFieldRepository customFieldRepository;
@@ -193,13 +198,13 @@ public class AutomationRuleService {
     }
 
     private AutomationActionStep toAction(AutomationActionPostDTO dto, int index) {
-        Set<ActionType> supported = handlers.stream().map(ActionHandler::getType)
-                .collect(java.util.stream.Collectors.toSet());
-        if (!supported.contains(dto.actionType())) {
-            throw new CustomException("No handler for action " + dto.actionType() + ". Available: "
-                    + supported, HttpStatus.UNPROCESSABLE_ENTITY);
-        }
-        assertJsonObject(dto.parameters());
+        ActionHandler handler = handlers.stream()
+                .filter(candidate -> candidate.getType() == dto.actionType())
+                .findFirst()
+                .orElseThrow(() -> new CustomException("No handler for action " + dto.actionType()
+                        + ". Available: " + handlers.stream().map(ActionHandler::getType).toList(),
+                        HttpStatus.UNPROCESSABLE_ENTITY));
+        assertParametersMatchDescriptor(handler.descriptor(), dto.parameters());
 
         AutomationActionStep step = new AutomationActionStep();
         step.setActionType(dto.actionType());
@@ -210,19 +215,82 @@ public class AutomationRuleService {
     }
 
     /**
-     * Syntax only for now. Checking each parameter against the handler's descriptor is what the
-     * metadata endpoint brings in the next phase; until then a typo in a key surfaces as a FAILED
-     * run rather than a rejected save, which the run log does say out loud.
+     * Checks the parameters against what the handler says it needs.
+     *
+     * <p>The same descriptor the editor builds its form from is the one validated against here,
+     * so the form and the rule cannot disagree — and a rule posted by hand through Swagger, or by
+     * an older client, is held to the same standard as one built in the UI. Every case below is
+     * something that would otherwise surface as a FAILED run minutes later, on a background
+     * thread, with only the run log to explain it.
      */
-    private void assertJsonObject(String parameters) {
+    private void assertParametersMatchDescriptor(ActionDescriptor descriptor, String parameters) {
+        Map<String, Object> values = readObject(parameters);
+
+        Map<String, ActionDescriptor.Parameter> known = descriptor.parameters().stream()
+                .collect(java.util.stream.Collectors.toMap(ActionDescriptor.Parameter::name,
+                        parameter -> parameter));
+
+        for (String name : values.keySet()) {
+            if (!known.containsKey(name)) {
+                // A typo in a key is otherwise indistinguishable from an omitted parameter: the
+                // handler reads its own name, finds nothing, and reports the required one missing.
+                throw new CustomException("Action " + descriptor.type() + " has no parameter \""
+                        + name + "\". It takes: " + known.keySet(), HttpStatus.UNPROCESSABLE_ENTITY);
+            }
+        }
+
+        for (ActionDescriptor.Parameter parameter : descriptor.parameters()) {
+            Object value = values.get(parameter.name());
+            String text = value == null ? null : String.valueOf(value);
+            if (parameter.required() && (text == null || text.isBlank())) {
+                throw new CustomException("Action " + descriptor.type() + " needs parameter \""
+                        + parameter.name() + "\"", HttpStatus.UNPROCESSABLE_ENTITY);
+            }
+            if (text == null || text.isBlank()) {
+                continue;
+            }
+            assertPlaceholdersAllowed(descriptor, parameter, text);
+            if (!parameter.options().isEmpty() && !parameter.options().contains(text)) {
+                throw new CustomException("\"" + text + "\" is not a permitted value for \""
+                        + parameter.name() + "\". Permitted: " + parameter.options(),
+                        HttpStatus.UNPROCESSABLE_ENTITY);
+            }
+        }
+    }
+
+    /**
+     * A placeholder must exist, and must sit in a parameter that can carry one. Interpolating an
+     * asset id into a title is the point of the mechanism; interpolating one into a category
+     * reference silently produces a lookup for a category that does not exist.
+     */
+    private void assertPlaceholdersAllowed(ActionDescriptor descriptor,
+                                           ActionDescriptor.Parameter parameter, String text) {
+        Matcher matcher = PLACEHOLDER.matcher(text);
+        while (matcher.find()) {
+            String name = matcher.group(1).trim();
+            if (!parameter.placeholders()) {
+                throw new CustomException("Parameter \"" + parameter.name() + "\" of "
+                        + descriptor.type() + " cannot carry a placeholder", HttpStatus.UNPROCESSABLE_ENTITY);
+            }
+            if (!ActionParameters.PLACEHOLDERS.containsKey(name)) {
+                throw new CustomException("Unknown placeholder ${" + name + "}. Known: "
+                        + ActionParameters.PLACEHOLDERS.keySet(), HttpStatus.UNPROCESSABLE_ENTITY);
+            }
+        }
+    }
+
+    private Map<String, Object> readObject(String parameters) {
         if (parameters == null || parameters.isBlank()) {
-            return;
+            return Map.of();
         }
         try {
             if (!MAPPER.readTree(parameters).isObject()) {
                 throw new CustomException("Action parameters must be a JSON object",
                         HttpStatus.UNPROCESSABLE_ENTITY);
             }
+            return MAPPER.readValue(parameters,
+                    new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() {
+                    });
         } catch (CustomException exception) {
             throw exception;
         } catch (Exception exception) {

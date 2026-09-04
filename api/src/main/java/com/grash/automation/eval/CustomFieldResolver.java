@@ -1,12 +1,21 @@
 package com.grash.automation.eval;
 
 import com.grash.automation.model.AutomationCondition;
+import com.grash.automation.model.ConditionOperator;
 import com.grash.exception.CustomException;
 import com.grash.model.Asset;
+import com.grash.model.AssetCategory;
+import com.grash.model.Company;
 import com.grash.model.CustomField;
 import com.grash.model.CustomFieldValue;
+import com.grash.model.enums.CustomFieldEntityType;
+import com.grash.model.enums.CustomFieldType;
+import com.grash.repository.CustomFieldRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * Reads a custom field value off the triggering asset — the resolver the leading use case needs,
@@ -20,14 +29,54 @@ import org.springframework.stereotype.Component;
  * easy to misread as a broken rule, which is why the editor has to show the binding.
  */
 @Component
+@RequiredArgsConstructor
 public class CustomFieldResolver implements OperandResolver {
 
     public static final String SUBJECT = "asset.cf";
+
+    private final CustomFieldRepository customFieldRepository;
 
     @Override
     public boolean supports(String subject) {
         return SUBJECT.equals(subject);
     }
+
+    /**
+     * Every asset custom field this company defined, each as its own operand.
+     *
+     * <p>A choice field reports its options, which is what lets the editor offer a dropdown
+     * instead of a text box — and a text box is how a rule ends up comparing "Assetclass" to a
+     * value that field can never hold.
+     */
+    @Override
+    public List<OperandDescriptor> describe(Company company) {
+        return customFieldRepository
+                .findByCompanySettingsAndEntityTypeFetchAssetCategories(
+                        company.getCompanySettings(), CustomFieldEntityType.ASSET)
+                .stream()
+                .map(field -> new OperandDescriptor(
+                        SUBJECT,
+                        field.getId(),
+                        null,
+                        // The field's own name, not a translation key: it is data the user typed.
+                        field.getLabel(),
+                        field.getFieldType() == CustomFieldType.SINGLE_CHOICE ? "CHOICE" : "TEXT",
+                        OPERATORS,
+                        field.getFieldType() == CustomFieldType.SINGLE_CHOICE
+                                ? field.getOptions() : List.of(),
+                        field.getAssetCategories().stream().map(AssetCategory::getName).toList()))
+                .toList();
+    }
+
+    /**
+     * The same three for every field type, and that is worth stating rather than looking like an
+     * oversight. CONTAINS earns its place even on a choice field, because matching "Critical"
+     * across "1-Critical" and "2-Operational Critical" is a real thing to ask for. CHANGED_TO is
+     * absent for all of them: the event diff reports native fields only, so a rule using it on a
+     * custom field could never hold, and an operator that cannot work is not offered.
+     */
+    private static final List<ConditionOperator> OPERATORS =
+            List.of(ConditionOperator.IS, ConditionOperator.IS_NOT, ConditionOperator.CONTAINS);
 
     @Override
     public Object resolve(AutomationCondition condition, ExecutionContext context) {

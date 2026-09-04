@@ -363,22 +363,73 @@ Akteur, `correlationId`, `depth`, Operand-Cache.
 ### 4.7 API und Frontend
 
 **Metadaten-Endpunkt** `GET /automation-rules/meta`, company-scoped (und *nicht* nach dem
-Muster von D10 gebaut) — liefert Trigger, Subjekte inkl. der Merkmale dieser Company mit ihrer
-Klassenbindung, und Aktions-Parameterschemata:
+Muster von D10 gebaut). Er ist die einzige Stelle, an der das Vokabular der Engine definiert
+ist — und er zählt es nicht auf, sondern fragt die registrierten Resolver und Handler
+selbst (`AutomationMetaService`). Ein neuer Resolver erscheint dadurch als Bedingung im Editor,
+ein neuer Handler als Aktion, ohne eine Zeile Frontend-Arbeit:
 
 ```json
-{ "triggers": [{ "changeType": "UPDATED", "entityType": "ASSET", "supportsChangedFields": true }],
-  "subjects": [{ "subject": "asset.cf", "customFieldId": 42, "label": "Anlagenklasse",
-                 "type": "string", "boundToCategories": ["Pumpen"],
-                 "operators": ["IS","IS_NOT","IN","CHANGED_TO"], "options": ["A","B","C"] }],
-  "actions":  [{ "type": "CREATE_WORK_ORDER",
-                 "parameters": { "category": "entity:workOrderCategory",
-                                 "priority": "enum:priority", "asset": "ref:${trigger.asset}" } }] }
+{ "engineEnabled": true,
+  "triggers": [{ "entityType": "ASSET", "changeType": "UPDATED", "live": true,
+                 "changedFields": ["status"] },
+               { "entityType": "WORK_ORDER", "changeType": "CREATED", "live": false,
+                 "changedFields": [] }],
+  "subjects": [{ "subject": "asset.status", "customFieldId": null,
+                 "labelKey": "automation_subject_asset_status", "label": null,
+                 "valueType": "ENUM", "operators": ["IS","IS_NOT","CHANGED_TO"],
+                 "options": ["OPERATIONAL","DOWN"], "boundToCategories": [] },
+               { "subject": "asset.cf", "customFieldId": 202, "labelKey": null,
+                 "label": "Assetclass", "valueType": "CHOICE",
+                 "operators": ["IS","IS_NOT","CONTAINS"],
+                 "options": ["1-Critical","2-Operational Critical","3-Support"],
+                 "boundToCategories": [] }],
+  "actions":  [{ "type": "CREATE_WORK_ORDER", "labelKey": "automation_action_create_work_order",
+                 "parameters": [
+                   { "name": "title", "valueType": "TEXT", "required": true, "placeholders": true },
+                   { "name": "priority", "valueType": "ENUM", "required": false,
+                     "options": ["NONE","LOW","MEDIUM","HIGH"], "placeholders": false },
+                   { "name": "asset", "valueType": "TRIGGER_REFERENCE", "required": false,
+                     "options": ["${trigger.asset.id}"], "placeholders": true }] }],
+  "placeholders": ["${trigger.asset.id}","${trigger.asset.name}","${trigger.asset.status}",
+                   "${trigger.id}"] }
 ```
 
-Das Frontend rendert den Editor **vollständig metadatengetrieben**, als neue Route neben der
-bestehenden Workflow-Seite. Neue Backend-Fähigkeiten erscheinen automatisch — für die neue
-Engine gibt es keinen TS-Spiegel, und die vier bestehenden bleiben unberührt.
+Vier Felder daran sind nicht Kosmetik, sondern jeweils die Antwort auf eine konkrete
+Fehlbedienung:
+
+- **`live`** — jede Trigger-Kombination wird gemeldet, aber nur die tatsächlich
+  publizierten als `live`. Der Editor zeigt die übrigen als *noch nicht verfügbar* statt
+  sie zu verstecken: eine Regel auf einem unpublizierten Trigger speichert sauber, sieht
+  richtig aus und feuert nie — das ist von einem Fehler nicht zu unterscheiden. Die Liste
+  (`LIVE_TRIGGERS`) ist die eine handgepflegte Stelle im Endpunkt; wer eine Publikationsstelle
+  ergänzt, ergänzt sie dort mit.
+- **`engineEnabled`** — `AUTOMATION_ENABLED` ist standardmäßig `false`. Ohne diese
+  Angabe wäre die Seite eine Falle: Regeln speichern, laufen nie, und nichts auf dem
+  Bildschirm sagt warum.
+- **`options`** bei einem Auswahlmerkmal — der Editor bietet die echten Optionen als
+  Dropdown an. Genau hier ist die erste reale Regel gescheitert: Sie verglich
+  „Assetclass“ mit `A`, während die Optionen `1-Critical` / `2-Operational Critical` /
+  `3-Support` heißen.
+- **`boundToCategories`** — ein an Anlagenklassen gebundenes Merkmal hat für eine Anlage
+  anderer Klasse keinen Wert; die Bedingung *kann* dann nicht zutreffen. Der Editor schreibt
+  das unter das Feld.
+
+Das Frontend rendert den Editor **vollständig metadatengetrieben**, als neue Route
+`/app/settings/features/automation` neben der bestehenden Workflow-Seite. Es hält keine Liste
+von Subjekten, Operatoren oder Aktionen — die einzige Abbildung ist `ValueInput.tsx`, das
+aus `valueType` das Eingabefeld wählt und einen unbekannten Typ auf ein Textfeld
+zurückfallen lässt. Eine serverseitig neue Fähigkeit ist damit am selben Tag bedienbar,
+auch ohne passenden Picker. Für die neue Engine gibt es keinen TS-Spiegel, und die vier
+bestehenden bleiben unberührt.
+
+**Gegenprobe beim Speichern.** Dieselben Descriptors, aus denen der Editor sein Formular baut,
+validiert `AutomationRuleService` beim Speichern (`assertParametersMatchDescriptor`): fehlender
+Pflichtparameter, unbekannter Schlüssel, Wert außerhalb der Optionen, unbekannter
+Platzhalter, Platzhalter in einem Parameter, der keinen tragen kann. Das ist kein doppelter
+Check, sondern der eigentliche: Formular und Regel können so nicht auseinanderlaufen, und
+eine per Swagger oder von einem älteren Client geschickte Regel wird am gleichen Maßstab
+gemessen. Jeder dieser Fälle wäre sonst ein FAILED-Lauf Minuten später auf einem
+Hintergrund-Thread.
 
 ### 4.8 Persistenz
 
@@ -395,7 +446,7 @@ kann nicht semantisch driften.
 | Aspekt | Konfiguration |
 |---|---|
 | Trigger | `UPDATED` + `ASSET`, `changedFields`-Filter `status` |
-| Bedingung (AND) | `asset.cf` (`customFieldId=42`, „Anlagenklasse") `IS` `A` **und** `asset.status` `CHANGED_TO` `DOWN` |
+| Bedingung (AND) | `asset.cf` (`customFieldId=202`, „Assetclass") `IS` `1-Critical` **und** `asset.status` `CHANGED_TO` `DOWN` |
 | Aktion 1 | `CREATE_WORK_ORDER`, Wirkung — Kategorie „Störung", Priorität „Hoch", `asset = ${trigger.asset.id}`, Titel „Störung ${trigger.asset.name}" |
 | Aktion 2 | `NOTIFY`, Wirkung — Team „Schichtleitung", In-App + Mail |
 | Absicherung | Ereignis aus `AssetService.patch` (F2), Eltern-Ereignisse (F3), Company explizit (F1), eigener Executor (F4), Run-Log pro Lauf |
@@ -437,12 +488,19 @@ Metadaten-Endpunkt und Editor gebaut werden. Umfang:
 
 Danach wird neu entschieden. Trägt UC-1 fachlich, folgt:
 
+### Phase 1F — Metadaten und Editor (erledigt)
+
+`OperandResolver.describe` und `ActionHandler.descriptor` als zweite Hälfte der beiden
+Erweiterungspunkte, `GET /automation-rules/meta`, Parametervalidierung gegen die Descriptors,
+und im Frontend die Route `/app/settings/features/automation`: Regelliste mit Ein-/Aus-Schalter,
+metadatengetriebener Editor und Ausführungsverlauf (gesamt und je Regel). Die alte
+Workflow-Seite bleibt unberührt daneben stehen.
+
 ### Phase 1 — Breite (nach Bedarf)
 
-Weitere Publikationsstellen (die verbleibenden Webhook-Stellen), OR-Gruppen, restliche
-Operatoren, `AssignFieldHandler` als Anreicherung, `SetAssetStatusHandler` über
-`triggerDownTime`, Metadaten-Endpunkt, metadatengetriebener Editor als neue Route,
-Ausführungsverlauf in der UI. Backend 3–4 T, Frontend 3–4 T.
+Weitere Publikationsstellen (die verbleibenden Webhook-Stellen) — und mit jeder davon ein
+Eintrag in `LIVE_TRIGGERS` — OR-Gruppen, restliche Operatoren, `AssignFieldHandler` als
+Anreicherung, `SetAssetStatusHandler` über `triggerDownTime`. Backend 2—3 T.
 
 ### Phase 2 — Konsolidierung und Erweiterung (jeweils eigenständig)
 

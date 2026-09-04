@@ -20,6 +20,14 @@ public interface OperandResolver {
     boolean supports(String subject);
 
     /**
+     * Everything this resolver can read, for the metadata endpoint the editor is built on.
+     *
+     * <p>Takes the company because what is readable is not the same everywhere: the native asset
+     * fields are, the custom fields are whatever that company defined.
+     */
+    java.util.List<OperandDescriptor> describe(com.grash.model.Company company);
+
+    /**
      * The current value, or null when the entity has none. Null is a legitimate answer, not an
      * error: an asset simply may not have a value for a custom field.
      */

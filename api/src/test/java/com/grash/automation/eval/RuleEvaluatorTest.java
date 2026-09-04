@@ -41,6 +41,11 @@ class RuleEvaluatorTest {
         }
 
         @Override
+        public List<OperandDescriptor> describe(com.grash.model.Company company) {
+            return List.of();
+        }
+
+        @Override
         public Object resolve(AutomationCondition condition, ExecutionContext context) {
             return values.get(condition.getSubject());
         }
