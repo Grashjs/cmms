@@ -117,13 +117,35 @@ import java.util.LinkedHashMap;
                         name = "Proprietary"
                 )
         ),
+        // Two entries, not one, and OpenAPI reads a list of requirements as "any of these".
+        // Upstream offers only the API key, which on a self-hosted instance is the one scheme
+        // that may be switched off: ApiKeyAuthFilter demands both the API_ACCESS entitlement and
+        // the plan feature, so without SELF_HOSTED_UNLOCK_PREMIUM no key authenticates and the
+        // whole documentation page becomes unusable. A bearer token from /auth/signin is what the
+        // frontend uses anyway and needs no premium flag.
         security = {
-                @SecurityRequirement(name = "apiKey")
+                @SecurityRequirement(name = "apiKey"),
+                @SecurityRequirement(name = "bearerAuth")
         },
         servers = {
-                @Server(url = "https://api.atlas-cmms.com", description = "Production server"),
-                @Server(url = "http://localhost:8080", description = "Development server")
+                // Relative, and first, so "Try it out" talks to whichever host is serving this
+                // page. Upstream's absolute production URL used to be first, which meant every
+                // request from a self-hosted instance was aimed at api.atlas-cmms.com and failed
+                // on CORS — after the browser had already been asked to send the local API key
+                // to somebody else's server. Relative also keeps a hostname out of the
+                // repository, which is public.
+                @Server(url = "/api", description = "This instance, through its reverse proxy"),
+                @Server(url = "https://api.atlas-cmms.com", description = "Upstream production server"),
+                @Server(url = "http://localhost:8080", description = "Development server, no proxy in front")
         }
+)
+@SecurityScheme(
+        name = "bearerAuth",
+        type = SecuritySchemeType.HTTP,
+        scheme = "bearer",
+        bearerFormat = "JWT",
+        description = "The access token from POST /auth/signin. Paste the token itself; Swagger "
+                + "adds the \"Bearer \" prefix."
 )
 @SecurityScheme(
         name = "apiKey",
