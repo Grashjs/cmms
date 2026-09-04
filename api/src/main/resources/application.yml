@@ -284,3 +284,13 @@ triage:
     saturation: ${TRIAGE_SATURATION:3.0}
     # How many alternatives to offer. Three is about what someone will actually read.
     max-candidates: ${TRIAGE_MAX_CANDIDATES:3}
+
+automation:
+  # Off by default, and meant to stay that way until a company has rules. The new rule engine
+  # runs beside the old workflow engine rather than replacing it (see
+  # docs/workflow-engine-konzept.md), so switching it on adds behaviour and removes none.
+  enabled: ${AUTOMATION_ENABLED:false}
+  # How deep a chain of rules triggering rules may go. The worst case is an ASSET_UPDATED rule
+  # whose action writes that asset; the diff filter and idempotent handlers usually stop that
+  # earlier, and this is the backstop that does not depend on either being right.
+  max-depth: ${AUTOMATION_MAX_DEPTH:3}

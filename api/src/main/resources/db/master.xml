@@ -249,4 +249,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_08_31_00000000001_fix_part_version_null.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_09_04_00000000001_automation_engine.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

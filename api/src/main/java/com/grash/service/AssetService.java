@@ -18,12 +18,17 @@ import com.grash.model.enums.NotificationType;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PortalFieldType;
 import com.grash.model.enums.RoleType;
+import com.grash.automation.event.ChangeType;
+import com.grash.automation.event.CurrentActor;
+import com.grash.automation.event.EntityChangedEvent;
+import com.grash.automation.event.EntityType;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.AssetRepository;
 import com.grash.utils.Helper;
 import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
@@ -67,6 +72,7 @@ public class AssetService {
     private final RequestPortalService requestPortalService;
     private WebhookDispatchService webhookDispatchService;
     private final CustomFieldValueService customFieldValueService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Autowired
     public void setDeps(@Lazy LocationService locationService, @Lazy LaborService laborService,
@@ -750,7 +756,30 @@ public class AssetService {
         return workOrderService.getAllCost(workOrders, includeLaborCost);
     }
 
+    /**
+     * Announces a status change to everything that reacts to one: the webhook subscribers, and
+     * now the automation engine.
+     *
+     * <p>Publishing here rather than in {@link #patch} is not a detail. By the time {@code patch}
+     * returns, {@code triggerDownTime}/{@code stopDownTime} have already written the new status,
+     * so a field diff computed at that point sees no change at all and a rule on "status changed
+     * to DOWN" would never fire. This method, on the other hand, is called from every path that
+     * really changes a status — the asset itself, its parents when one fails, its children when
+     * one recovers — and each caller still holds the previous value.
+     *
+     * <p>The event is published inside the caller's transaction on purpose; the listener is
+     * {@code AFTER_COMMIT}, so nothing runs until the change is actually visible.
+     */
     private void dispatchAssetStatusChangeWebhook(Asset asset, AssetStatus previousStatus, AssetStatus newStatus) {
+        if (previousStatus != newStatus) {
+            eventPublisher.publishEvent(EntityChangedEvent.root(
+                    ChangeType.UPDATED,
+                    EntityType.ASSET,
+                    asset.getId(),
+                    asset.getCompany().getId(),
+                    Set.of("status"),
+                    CurrentActor.userIdOrNull()));
+        }
         Map<String, Object> webhookPayload = new HashMap<>();
         webhookPayload.put("assetId", asset.getId());
         webhookPayload.put("assetName", asset.getName());

@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <!--
+      The automation engine - the walking skeleton described in docs/workflow-engine-konzept.md.
+
+      These tables sit BESIDE workflow / workflow_condition / workflow_action, which are left
+      exactly as they are. That is not caution about the migration; it is arithmetic about the
+      fork. Upstream moves at roughly eleven commits a day and is merged monthly, so every
+      upstream file this replaces costs a resolution at every future sync, forever. New tables and
+      a new package cost nothing at merge time.
+
+      Two shapes here are deliberate and easy to "tidy up" wrongly later:
+
+      - automation_condition.custom_field_id is a real foreign key, not the field id encoded into
+        the subject string. Without it, deleting a custom field would leave a rule pointing at
+        nothing and the database could not object - the rule would simply stop matching, quietly.
+      - automation_action_step.parameters is JSON in a TEXT column rather than typed columns.
+        workflow_action took the typed route and has seventeen columns, nearly all null on any
+        given row, and still cannot express "a work order for THIS asset". The trade is that the
+        shape is validated against the handler descriptor on save instead of by the schema.
+    -->
+    <changeSet id="2026_09_04_00000000001-1" author="lars">
+        <createTable tableName="automation_rule">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="title" type="VARCHAR(255)" remarks="Shown in the rule list and in every run log row">
+                <constraints nullable="false"/>
+            </column>
+            <!--
+              The trigger is the pair (change type, entity type). The old engine spelled the same
+              thing out as ten fixed enum values, which is why adding an entity meant adding a
+              value plus a switch plus three TypeScript mirrors.
+            -->
+            <column name="trigger_change_type" type="VARCHAR(32)" remarks="CREATED / UPDATED / ARCHIVED / CLOSED / APPROVED / REJECTED">
+                <constraints nullable="false"/>
+            </column>
+            <column name="trigger_entity_type" type="VARCHAR(32)" remarks="ASSET / WORK_ORDER / REQUEST / PURCHASE_ORDER / PART / TASK">
+                <constraints nullable="false"/>
+            </column>
+            <column name="enabled" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="max_depth" type="INT" remarks="Cascade limit for this rule; null uses automation.max-depth"/>
+            <column name="company_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_automation_rule_company"
+                             references="company(id)" deleteCascade="true"/>
+            </column>
+            <column name="created_by" type="BIGINT"/>
+            <column name="updated_by" type="BIGINT"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueDate="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueDate="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- Every evaluation starts as "the enabled rules of this company for this trigger". -->
+        <createIndex tableName="automation_rule" indexName="idx_automation_rule_trigger">
+            <column name="company_id"/>
+            <column name="trigger_change_type"/>
+            <column name="trigger_entity_type"/>
+            <column name="enabled"/>
+        </createIndex>
+    </changeSet>
+
+    <!--
+      Optional narrowing of an UPDATED trigger to particular fields. Empty means "any change".
+      It is an efficiency measure and the cheapest loop guard at once: a rule that only reacts to
+      status cannot be woken by an action that writes something else.
+    -->
+    <changeSet id="2026_09_04_00000000001-2" author="lars">
+        <createTable tableName="automation_rule_changed_fields">
+            <column name="rule_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_automation_changed_fields_rule"
+                             references="automation_rule(id)" deleteCascade="true"/>
+            </column>
+            <column name="field_name" type="VARCHAR(64)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="automation_rule_changed_fields" indexName="idx_automation_changed_fields_rule">
+            <column name="rule_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="2026_09_04_00000000001-3" author="lars">
+        <createTable tableName="automation_condition">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="rule_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_automation_condition_rule"
+                             references="automation_rule(id)" deleteCascade="true"/>
+            </column>
+            <column name="subject" type="VARCHAR(128)" remarks="Dotted operand path, e.g. asset.status or asset.cf">
+                <constraints nullable="false"/>
+            </column>
+            <column name="custom_field_id" type="BIGINT" remarks="Which custom field, when subject is asset.cf">
+                <constraints foreignKeyName="fk_automation_condition_custom_field"
+                             references="custom_field(id)" deleteCascade="true"/>
+            </column>
+            <column name="operator" type="VARCHAR(32)" remarks="IS / IS_NOT / CONTAINS / CHANGED_TO">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expected_value" type="TEXT"/>
+            <column name="created_by" type="BIGINT"/>
+            <column name="updated_by" type="BIGINT"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueDate="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueDate="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="automation_condition" indexName="idx_automation_condition_rule">
+            <column name="rule_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="2026_09_04_00000000001-4" author="lars">
+        <createTable tableName="automation_action_step">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="rule_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_automation_action_rule"
+                             references="automation_rule(id)" deleteCascade="true"/>
+            </column>
+            <column name="action_type" type="VARCHAR(48)" remarks="CREATE_WORK_ORDER / NOTIFY / SET_CUSTOM_FIELD">
+                <constraints nullable="false"/>
+            </column>
+            <column name="parameters" type="TEXT" remarks="JSON object; string values may contain ${trigger.*}"/>
+            <column name="order_index" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <!--
+              Defaults to stopping the rule. A rule whose first action creates the work order that
+              the second one notifies about should not send the notification when the first failed.
+            -->
+            <column name="abort_on_failure" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="BIGINT"/>
+            <column name="updated_by" type="BIGINT"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueDate="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueDate="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="automation_action_step" indexName="idx_automation_action_rule">
+            <column name="rule_id"/>
+            <column name="order_index"/>
+        </createIndex>
+    </changeSet>
+
+    <!--
+      The run log, and the SKIPPED rows are the reason it exists. The old engine records nothing,
+      so "why did my rule not fire?" has no answer at all - that was defect D5. A run keeps the
+      reason in plain text, because the useful answer is "condition asset.cf(42) IS A did not
+      hold", not a code.
+
+      correlation_id and depth are what make a loop recognisable after the fact: same rule, same
+      entity, same cascade. They travel in the event rather than in a thread-local, because a
+      thread-local does not survive the AFTER_COMMIT hop onto the executor.
+    -->
+    <changeSet id="2026_09_04_00000000001-5" author="lars">
+        <createTable tableName="automation_run">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="rule_id" type="BIGINT">
+                <constraints foreignKeyName="fk_automation_run_rule"
+                             references="automation_rule(id)" deleteCascade="true"/>
+            </column>
+            <column name="entity_type" type="VARCHAR(32)"/>
+            <column name="entity_id" type="BIGINT"/>
+            <column name="status" type="VARCHAR(16)" remarks="SUCCESS / SKIPPED / FAILED">
+                <constraints nullable="false"/>
+            </column>
+            <column name="detail" type="TEXT" remarks="Why it was skipped, or what failed"/>
+            <column name="actions_executed" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="correlation_id" type="VARCHAR(36)" remarks="Root event of the cascade this run belongs to"/>
+            <column name="depth" type="INT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="company_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_automation_run_company"
+                             references="company(id)" deleteCascade="true"/>
+            </column>
+            <column name="created_by" type="BIGINT"/>
+            <column name="updated_by" type="BIGINT"/>
+            <column name="created_at" type="TIMESTAMP" defaultValueDate="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueDate="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- "The last runs of this rule", which is what the rule detail view asks for. -->
+        <createIndex tableName="automation_run" indexName="idx_automation_run_rule">
+            <column name="rule_id"/>
+            <column name="id"/>
+        </createIndex>
+        <!-- The loop guard reads exactly this triple. -->
+        <createIndex tableName="automation_run" indexName="idx_automation_run_cascade">
+            <column name="rule_id"/>
+            <column name="entity_id"/>
+            <column name="correlation_id"/>
+        </createIndex>
+    </changeSet>
+
+    <!--
+      @GeneratedValue(AUTO) resolves to a sequence named <table>_seq. ddl-auto: validate does not
+      check sequences, so a missing one fails on the first insert rather than at startup - which
+      means the mistake shows up in production and not in a boot log. Increment 50 matches the
+      other per-entity sequences; a mismatch with Hibernate's allocationSize hands out colliding
+      ids.
+    -->
+    <changeSet id="2026_09_04_00000000001-6" author="lars">
+        <createSequence sequenceName="automation_rule_seq" startValue="1" incrementBy="50"/>
+        <createSequence sequenceName="automation_condition_seq" startValue="1" incrementBy="50"/>
+        <createSequence sequenceName="automation_action_step_seq" startValue="1" incrementBy="50"/>
+        <createSequence sequenceName="automation_run_seq" startValue="1" incrementBy="50"/>
+    </changeSet>
+
+</databaseChangeLog>

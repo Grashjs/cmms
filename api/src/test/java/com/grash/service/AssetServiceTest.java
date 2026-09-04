@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -88,6 +89,14 @@ class AssetServiceTest {
     private WorkOrderService workOrderService;
     @Mock
     private WebhookDispatchService webhookDispatchService;
+    /**
+     * {@code AssetService} publishes an {@code EntityChangedEvent} from every path that changes a
+     * status, next to the webhook dispatch. Without this mock the constructor injection leaves
+     * the publisher null and each of those tests dies on the publish rather than on what it
+     * asserts.
+     */
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     private Company company;
     private User user;
