@@ -246,7 +246,7 @@ export const PurpleFlowTheme = createTheme({
     width: '290px'
   },
   header: {
-    height: '80px',
+    height: '64px',
     background: '#fbf9fb',
     boxShadow: '0 1px 1px #e0e0e0',
     textColor: themeColors.black

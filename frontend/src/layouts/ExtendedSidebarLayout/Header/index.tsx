@@ -79,7 +79,9 @@ function Header() {
         <IconButton onClick={()=>navigate(-1)} disabled={location.key==='default'}>
           <ArrowBackTwoToneIcon/>
           </IconButton>
-        <Typography variant="h2">{title}</Typography>
+        <Typography variant="h2" sx={{ fontSize: 22 }}>
+          {title}
+        </Typography>
       </Stack>
       <Box display="flex" alignItems="center">
         <HeaderButtons />
