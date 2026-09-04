@@ -81,9 +81,22 @@ jobs:
             echo "::warning::COOLIFY_WEBHOOK_URL not set — skipping deploy trigger."
             exit 0
           fi
-          if [ -n "$TOKEN" ]; then
-            curl -fsS -X GET -H "Authorization: Bearer $TOKEN" "$HOOK"
-          else
-            curl -fsS -X GET "$HOOK"
-          fi
-          echo "Coolify deploy triggered for sha-${GITHUB_SHA}"
+          # Coolify exposes two triggers and they disagree about the method: the deploy API
+          # (/api/v1/deploy?uuid=…) answers GET, the resource webhook (/webhooks/…) answers
+          # POST and returns 405 for anything else. Which one a given installation hands out
+          # is not visible from here, and the secret cannot be read back — so try both rather
+          # than encode a guess. Every run from 2026-08-26 to 2026-09-04 failed on a bare GET
+          # with exactly that 405, built three images, and told Coolify nothing.
+          # An array, not string interpolation: an unquoted ${AUTH:+-H "$AUTH"} word-splits on
+          # the spaces inside the header and curl receives four arguments instead of two.
+          ARGS=(-fsS)
+          if [ -n "$TOKEN" ]; then ARGS+=(-H "Authorization: Bearer $TOKEN"); fi
+          for method in GET POST; do
+            if curl "${ARGS[@]}" -X "$method" "$HOOK" >/dev/null; then
+              echo "Coolify deploy triggered for sha-${GITHUB_SHA} ($method)"
+              exit 0
+            fi
+            echo "::notice::Coolify rejected $method; trying the other method."
+          done
+          echo "::error::Coolify refused both GET and POST. Check that COOLIFY_WEBHOOK_URL points at an existing resource and that COOLIFY_API_TOKEN may deploy it."
+          exit 1
