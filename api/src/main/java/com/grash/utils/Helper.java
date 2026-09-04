@@ -284,8 +284,10 @@ public class Helper {
                                 PermissionEntity.PARTS_AND_MULTIPARTS, PermissionEntity.LOCATIONS,
                                 PermissionEntity.ASSETS)))
                         .viewPermissions(new HashSet<>(Arrays.asList(PermissionEntity.WORK_ORDERS,
+                                PermissionEntity.PARTS_AND_MULTIPARTS,
                                 PermissionEntity.LOCATIONS, PermissionEntity.ASSETS, PermissionEntity.CATEGORIES,
-                                PermissionEntity.PREVENTIVE_MAINTENANCES, PermissionEntity.METERS)))
+                                PermissionEntity.PREVENTIVE_MAINTENANCES, PermissionEntity.METERS
+                        )))
                         .build(),
                 Role.builder()
                         .roleType(RoleType.ROLE_CLIENT)
