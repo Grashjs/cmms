@@ -136,7 +136,6 @@ public class MeterService {
         Optional<Meter> optionalMeter = meterRepository.findById(id);
         if (optionalMeter.isPresent()) {
             Meter savedMeter = optionalMeter.get();
-            em.detach(savedMeter);
             if (savedMeter.canBeEditedBy(user)) {
                 if (meter.getCustomFields() != null && !meter.getCustomFields().isEmpty()) {
                     setMeterCustomFields(savedMeter, meter.getCustomFields(), user.getCompany());
