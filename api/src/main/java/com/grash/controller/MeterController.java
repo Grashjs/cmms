@@ -1,6 +1,5 @@
 package com.grash.controller;
 
-import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.MeterMiniDTO;
 import com.grash.dto.MeterPatchDTO;
@@ -10,16 +9,12 @@ import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.mapper.MeterMapper;
 import com.grash.model.Asset;
-import com.grash.model.Meter;
 import com.grash.model.User;
-import com.grash.model.enums.PermissionEntity;
-import com.grash.model.enums.PlanFeatures;
-import com.grash.model.enums.RoleType;
+import com.grash.security.CurrentUser;
 import com.grash.service.AssetService;
 import com.grash.service.MeterService;
 import com.grash.service.ReadingService;
-import com.grash.service.UserService;
-import com.grash.utils.Helper;
+import com.grash.utils.TenantAspectUtils;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -30,9 +25,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.JoinType;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import java.util.*;
@@ -46,97 +38,50 @@ public class MeterController {
 
     private final MeterService meterService;
     private final MeterMapper meterMapper;
-    private final UserService userService;
     private final AssetService assetService;
     private final ReadingService readingService;
-    private final EntityManager em;
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<MeterShowDTO>> search(@Parameter(description = "Search criteria for filtering meters") @RequestBody SearchCriteria searchCriteria,
-                                                     HttpServletRequest req) {
-        User user = userService.whoami(req);
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            if (user.getRole().getViewPermissions().contains(PermissionEntity.METERS)) {
-                searchCriteria.filterCompany(user);
-                boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.METERS);
-                if (!canViewOthers) {
-                    searchCriteria.getFilterFields().add(FilterField.builder()
-                            .field("createdBy")
-                            .value(user.getId())
-                            .operation("eq")
-                            .values(new ArrayList<>())
-                            .alternatives(Arrays.asList(
-                                    FilterField.builder()
-                                            .field("users")
-                                            .operation("inm")
-                                            .joinType(JoinType.LEFT)
-                                            .value("")
-                                            .values(Collections.singletonList(user.getId())).build())).build());
-                }
-            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
-        }
-        return ResponseEntity.ok(meterService.findBySearchCriteria(searchCriteria));
+                                                     @Parameter(hidden = true) @CurrentUser User user) {
+        return ResponseEntity.ok(meterService.findBySearchCriteria(meterService.getSearchCriteria(user, searchCriteria))
+                .map(meter -> meterMapper.toShowDto(meter, readingService)
+                ));
     }
 
     @GetMapping("/mini")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Collection<MeterMiniDTO> getMini(HttpServletRequest req) {
-        User user = userService.whoami(req);
+    public Collection<MeterMiniDTO> getMini(@Parameter(hidden = true) @CurrentUser User user) {
         return meterService.findByCompany(user.getCompany().getId()).stream().map(meterMapper::toMiniDto).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
     public MeterShowDTO getById(@Parameter(description = "Meter ID") @PathVariable("id") Long id,
-                                HttpServletRequest req) {
-        User user = userService.whoami(req);
-        Optional<Meter> optionalMeter = meterService.findById(id);
-        if (optionalMeter.isPresent()) {
-            Meter savedMeter = optionalMeter.get();
-            if (savedMeter.canBeViewedBy(user)) {
-                return meterMapper.toShowDto(savedMeter, readingService);
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+                                @Parameter(hidden = true) @CurrentUser User user) {
+        return meterMapper.toShowDto(meterService.getById(id, user), readingService);
     }
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     MeterShowDTO create(@Parameter(description = "Meter data to create") @Valid @RequestBody MeterPostDTO meterReq,
-                        HttpServletRequest req) {
-        User user = userService.whoami(req);
-        if (user.getRole().getCreatePermissions().contains(PermissionEntity.METERS)
-                && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.METER)) {
-            Meter savedMeter = meterService.create(meterReq, user);
-            meterService.notify(savedMeter, Helper.getLocale(user));
-            return meterMapper.toShowDto(savedMeter, readingService);
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+                        @Parameter(hidden = true) @CurrentUser User user) {
+        return meterMapper.toShowDto(meterService.create(meterReq, user), readingService);
     }
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public MeterShowDTO patch(@Parameter(description = "Meter fields to update") @Valid @RequestBody MeterPatchDTO meter,
                               @Parameter(description = "Meter ID") @PathVariable("id") Long id,
-                              HttpServletRequest req) {
-        User user = userService.whoami(req);
-        Optional<Meter> optionalMeter = meterService.findById(id);
-
-        if (optionalMeter.isPresent()) {
-            Meter savedMeter = optionalMeter.get();
-            em.detach(savedMeter);
-            if (savedMeter.canBeEditedBy(user)) {
-                Meter patchedMeter = meterService.update(id, meter, user.getCompany());
-                meterService.patchNotify(savedMeter, patchedMeter, Helper.getLocale(user));
-                return meterMapper.toShowDto(patchedMeter, readingService);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("Meter not found", HttpStatus.NOT_FOUND);
+                              @Parameter(hidden = true) @CurrentUser User user) {
+        return meterMapper.toShowDto(meterService.patch(id, meter, user), readingService);
     }
 
     @GetMapping("/asset/{id}")
     @PreAuthorize("permitAll()")
     public Collection<MeterShowDTO> getByAsset(@Parameter(description = "Asset ID") @PathVariable("id") Long id,
-                                               HttpServletRequest req) {
-        User user = userService.whoami(req);
+                                               @Parameter(hidden = true) @CurrentUser User user) {
         Optional<Asset> optionalAsset = assetService.findById(id);
         if (optionalAsset.isPresent()) {
             if (!optionalAsset.get().canBeViewedBy(user))
@@ -148,20 +93,9 @@ public class MeterController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public ResponseEntity<SuccessResponse> delete(@Parameter(description = "Meter ID") @PathVariable("id") Long id,
-                                                  HttpServletRequest req) {
-        User user = userService.whoami(req);
-
-        Optional<Meter> optionalMeter = meterService.findById(id);
-        if (optionalMeter.isPresent()) {
-            Meter savedMeter = optionalMeter.get();
-            if (savedMeter.canBeDeletedBy(user)) {
-                meterService.delete(id);
-                return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
-                        HttpStatus.OK);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("Meter not found", HttpStatus.NOT_FOUND);
+                                                  @Parameter(hidden = true) @CurrentUser User user) {
+        meterService.deleteByIdAndUser(id, user);
+        return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
+                HttpStatus.OK);
     }
 }
-
-
-

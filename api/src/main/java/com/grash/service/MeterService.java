@@ -1,10 +1,10 @@
 package com.grash.service;
 
+import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.MeterPatchDTO;
 import com.grash.dto.MeterPostDTO;
-import com.grash.dto.MeterShowDTO;
 import com.grash.dto.cutomField.CustomFieldValuePostDTO;
 import com.grash.dto.imports.MeterImportDTO;
 import com.grash.dto.license.LicenseEntitlement;
@@ -13,6 +13,9 @@ import com.grash.mapper.MeterMapper;
 import com.grash.model.*;
 import com.grash.model.enums.CustomFieldEntityType;
 import com.grash.model.enums.NotificationType;
+import com.grash.model.enums.PermissionEntity;
+import com.grash.model.enums.PlanFeatures;
+import com.grash.model.enums.RoleType;
 import com.grash.repository.MeterRepository;
 import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.JoinType;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -36,34 +40,15 @@ import static com.grash.utils.Consts.usageBasedFreeLimits;
 public class MeterService {
     private final MeterRepository meterRepository;
     private final MeterCategoryService meterCategoryService;
-    private final FileService fileService;
     private final AssetService assetService;
-    private final CompanyService companyService;
     private final MessageSource messageSource;
     private final LocationService locationService;
     private final UserService userService;
     private final EntityManager em;
     private final MeterMapper meterMapper;
     private final NotificationService notificationService;
-    private final ReadingService readingService;
     private final LicenseService licenseService;
     private final CustomFieldValueService customFieldValueService;
-
-    @Transactional
-    public Meter create(Meter meter, User user) {
-        checkUsageBasedLimit(user.getCompany());
-        Company company = user.getCompany();
-        if (meter instanceof MeterPostDTO meterPostDTO) {
-            meter = meterMapper.fromPostDto(meterPostDTO);
-            if (meterPostDTO.getCustomFields() != null && !meterPostDTO.getCustomFields().isEmpty()) {
-                setMeterCustomFields(meter, meterPostDTO.getCustomFields(), company);
-            }
-        }
-        Sanitizer.sanitizeMeter(meter);
-        Meter savedMeter = meterRepository.saveAndFlush(meter);
-        em.refresh(savedMeter);
-        return savedMeter;
-    }
 
     private void checkUsageBasedLimit(Company company) {
         Integer threshold = usageBasedFreeLimits.get(LicenseEntitlement.UNLIMITED_METERS);
@@ -109,6 +94,80 @@ public class MeterService {
         meterRepository.deleteById(id);
     }
 
+    public SearchCriteria getSearchCriteria(User user, SearchCriteria searchCriteria) {
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.METERS)) {
+                searchCriteria.filterCompany(user);
+                boolean canViewOthers = user.getRole().getViewOtherPermissions().contains(PermissionEntity.METERS);
+                if (!canViewOthers) {
+                    searchCriteria.getFilterFields().add(FilterField.builder()
+                            .field("createdBy")
+                            .value(user.getId())
+                            .operation("eq")
+                            .values(new ArrayList<>())
+                            .alternatives(Arrays.asList(
+                                    FilterField.builder()
+                                            .field("users")
+                                            .operation("inm")
+                                            .joinType(JoinType.LEFT)
+                                            .value("")
+                                            .values(Collections.singletonList(user.getId())).build())).build());
+                }
+            } else throw new CustomException("Access Denied", org.springframework.http.HttpStatus.FORBIDDEN);
+        }
+        return searchCriteria;
+    }
+
+    public Meter getById(Long id, User user) {
+        Optional<Meter> optionalMeter = meterRepository.findById(id);
+        if (optionalMeter.isPresent()) {
+            Meter savedMeter = optionalMeter.get();
+            if (savedMeter.canBeViewedBy(user)) {
+                return savedMeter;
+            } else throw new CustomException("Access denied", org.springframework.http.HttpStatus.FORBIDDEN);
+        } else throw new CustomException("Not found", org.springframework.http.HttpStatus.NOT_FOUND);
+    }
+
+    @Transactional
+    public Meter create(MeterPostDTO meterReq, User user) {
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.METERS)
+                && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.METER)) {
+            Company company = user.getCompany();
+            checkUsageBasedLimit(company);
+            Meter meter = meterMapper.fromPostDto(meterReq);
+            if (meterReq.getCustomFields() != null && !meterReq.getCustomFields().isEmpty()) {
+                setMeterCustomFields(meter, meterReq.getCustomFields(), company);
+            }
+
+            Sanitizer.sanitizeMeter(meter);
+            Meter savedMeter = meterRepository.saveAndFlush(meter);
+            em.refresh(savedMeter);
+            return savedMeter;
+        } else throw new CustomException("Access denied", org.springframework.http.HttpStatus.FORBIDDEN);
+    }
+
+    @Transactional
+    public Meter patch(Long id, MeterPatchDTO meter, User user) {
+        Optional<Meter> optionalMeter = meterRepository.findById(id);
+        if (optionalMeter.isPresent()) {
+            Meter savedMeter = optionalMeter.get();
+            em.detach(savedMeter);
+            if (savedMeter.canBeEditedBy(user)) {
+                return update(id, meter, user.getCompany());
+            } else throw new CustomException("Forbidden", org.springframework.http.HttpStatus.FORBIDDEN);
+        } else throw new CustomException("Meter not found", org.springframework.http.HttpStatus.NOT_FOUND);
+    }
+
+    public void deleteByIdAndUser(Long id, User user) {
+        Optional<Meter> optionalMeter = meterRepository.findById(id);
+        if (optionalMeter.isPresent()) {
+            Meter savedMeter = optionalMeter.get();
+            if (savedMeter.canBeDeletedBy(user)) {
+                delete(id);
+            } else throw new CustomException("Forbidden", org.springframework.http.HttpStatus.FORBIDDEN);
+        } else throw new CustomException("Meter not found", org.springframework.http.HttpStatus.NOT_FOUND);
+    }
+
     public Optional<Meter> findById(Long id) {
         return meterRepository.findById(id);
     }
@@ -147,13 +206,12 @@ public class MeterService {
     }
 
 
-    public Page<MeterShowDTO> findBySearchCriteria(SearchCriteria searchCriteria) {
+    public Page<Meter> findBySearchCriteria(SearchCriteria searchCriteria) {
         SpecificationBuilder<Meter> builder = new SpecificationBuilder<>();
         searchCriteria.getFilterFields().forEach(builder::with);
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(),
                 searchCriteria.getDirection(), searchCriteria.getSortField());
-        return meterRepository.findAll(builder.build(), page).map(meter -> meterMapper.toShowDto(meter,
-                readingService));
+        return meterRepository.findAll(builder.build(), page);
     }
 
     public void importMeter(Meter meter, MeterImportDTO dto, Company company) {

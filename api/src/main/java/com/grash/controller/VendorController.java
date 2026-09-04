@@ -7,13 +7,8 @@ import com.grash.dto.VendorPatchDTO;
 import com.grash.dto.VendorPostDTO;
 import com.grash.dto.VendorShowDTO;
 import com.grash.mapper.VendorMapper;
-import com.grash.exception.CustomException;
-import com.grash.mapper.VendorMapper;
 import com.grash.model.User;
-import com.grash.model.Vendor;
-import com.grash.model.enums.PermissionEntity;
-import com.grash.model.enums.RoleType;
-import com.grash.service.UserService;
+import com.grash.security.CurrentUser;
 import com.grash.service.VendorService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,11 +20,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import java.util.Collection;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -39,85 +32,52 @@ import java.util.stream.Collectors;
 public class VendorController {
 
     private final VendorService vendorService;
-    private final UserService userService;
     private final VendorMapper vendorMapper;
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<VendorShowDTO>> search(@Parameter(description = "Search criteria for filtering " +
-            "vendors") @RequestBody SearchCriteria searchCriteria, HttpServletRequest req) {
-        User user = userService.whoami(req);
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            if (user.getRole().getViewPermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
-                searchCriteria.filterCompany(user);
-            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
-        }
-        return ResponseEntity.ok(vendorService.findBySearchCriteria(searchCriteria).map(vendorMapper::toShowDto));
+            "vendors") @RequestBody SearchCriteria searchCriteria,
+            @Parameter(hidden = true) @CurrentUser User user) {
+        return ResponseEntity.ok(vendorService.findBySearchCriteria(vendorService.getSearchCriteria(user,
+                searchCriteria)).map(vendorMapper::toShowDto));
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    public VendorShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
-        Optional<Vendor> optionalVendor = vendorService.findById(id);
-        if (optionalVendor.isPresent()) {
-            Vendor savedVendor = optionalVendor.get();
-            if (savedVendor.canBeViewedBy(user)) {
-                return vendorMapper.toShowDto(savedVendor);
-            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    public VendorShowDTO getById(@PathVariable("id") Long id,
+                                 @Parameter(hidden = true) @CurrentUser User user) {
+        return vendorMapper.toShowDto(vendorService.getById(id, user));
     }
 
     @GetMapping("/mini")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Collection<VendorMiniDTO> getMini(HttpServletRequest req) {
-        User user = userService.whoami(req);
+    public Collection<VendorMiniDTO> getMini(@Parameter(hidden = true) @CurrentUser User user) {
         return vendorService.findByCompany(user.getCompany().getId()).stream().map(vendorMapper::toMiniDto).collect(Collectors.toList());
     }
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     VendorShowDTO create(@Parameter(description = "Vendor data to create") @Valid @RequestBody VendorPostDTO vendorReq,
-                         HttpServletRequest req) {
-        User user = userService.whoami(req);
-        if (user.getRole().getCreatePermissions().contains(PermissionEntity.VENDORS_AND_CUSTOMERS)) {
-            Vendor savedVendor = vendorService.create(vendorReq, user.getCompany());
-            return vendorMapper.toShowDto(savedVendor);
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+                         @Parameter(hidden = true) @CurrentUser User user) {
+        return vendorMapper.toShowDto(vendorService.create(vendorReq, user));
     }
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public VendorShowDTO patch(@Parameter(description = "Vendor fields to update") @Valid @RequestBody VendorPatchDTO vendor
-            , @PathVariable(
-                    "id") Long id,
-                               HttpServletRequest req) {
-        User user = userService.whoami(req);
-        Optional<Vendor> optionalVendor = vendorService.findById(id);
-
-        if (optionalVendor.isPresent()) {
-            Vendor savedVendor = optionalVendor.get();
-            if (savedVendor.canBeEditedBy(user)) {
-                Vendor updatedVendor = vendorService.update(id, vendor, user.getCompany());
-                return vendorMapper.toShowDto(updatedVendor);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("Vendor not found", HttpStatus.NOT_FOUND);
+    public VendorShowDTO patch(@Parameter(description = "Vendor fields to update") @Valid @RequestBody VendorPatchDTO vendor,
+                               @PathVariable("id") Long id,
+                               @Parameter(hidden = true) @CurrentUser User user) {
+        return vendorMapper.toShowDto(vendorService.patch(id, vendor, user));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
-
-        Optional<Vendor> optionalVendor = vendorService.findById(id);
-        if (optionalVendor.isPresent()) {
-            Vendor savedVendor = optionalVendor.get();
-            if (savedVendor.canBeDeletedBy(user)) {
-                vendorService.delete(id);
-                return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
-                        HttpStatus.OK);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("Vendor not found", HttpStatus.NOT_FOUND);
+    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id,
+                                                  @Parameter(hidden = true) @CurrentUser User user) {
+        vendorService.deleteByIdAndUser(id, user);
+        return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
+                HttpStatus.OK);
     }
 
 }
