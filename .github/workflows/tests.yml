@@ -1,4 +1,4 @@
-name: API Tests
+name: Tests
 
 # Deliberately separate from deploy.yml: tests run alongside the image build
 # rather than gating it, so a deploy is never held up by a 20-minute test run.
@@ -32,3 +32,31 @@ jobs:
       - name: Run tests
         run: mvn -B test -DargLine="--add-opens java.base/java.lang=ALL-UNNAMED"
         working-directory: ./api
+
+  mcp:
+    name: MCP server tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Must satisfy `engines` in mcp/package.json (>=22.12.0). npm only warns on a
+      # mismatch, so the version lives here rather than being inferred - the same trap the
+      # frontend image hit (CLAUDE.md, "The builder image's Node version").
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: mcp/package-lock.json
+
+      - name: Install
+        run: npm ci
+        working-directory: ./mcp
+
+      # `npm test` compiles with strict tsc and then runs the compiled suite, so a type
+      # error fails here as well - the same check the image build runs.
+      - name: Run tests
+        run: npm test
+        working-directory: ./mcp

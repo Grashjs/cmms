@@ -17,7 +17,12 @@ workflow engine can carry out what a matcher decided, because it cannot;
 [`docs/workflow-engine-konzept.md`](docs/workflow-engine-konzept.md) for the rule automation —
 read it before touching `Workflow*` or publishing a domain event from a service, because it
 records why an async listener cannot persist a `CompanyAudit` entity without setting the company
-by hand, and why a field diff in `AssetService.update` misses every status change.
+by hand, and why a field diff in `AssetService.update` misses every status change;
+[`docs/mcp-server-konzept.md`](docs/mcp-server-konzept.md) plus [`mcp/README.md`](mcp/README.md)
+for the MCP server — read them before touching `mcp/`, the `/mcp` nginx route or anything about
+`x-api-key`, because they record why tool names cannot come from `operationId`, why read/write
+cannot be derived from the HTTP method in this API, and that the whole thing is dead without
+`SELF_HOSTED_UNLOCK_PREMIUM=true`.
 
 ## What this is
 
@@ -50,17 +55,18 @@ accurate, which is the cheaper half of the same bargain.
 | `api/` | Spring Boot 3.2.3, Java 17, Liquibase, Quartz, Envers | 8080 | `cmms4fm-api` |
 | `frontend/` | React 17 + Vite, served by nginx | 3000 | `cmms4fm-frontend` |
 | `docker/nginx/` | Single-domain reverse proxy | 80 | `cmms4fm-nginx` |
+| `mcp/` | MCP server (TypeScript, Node 22) over the REST API | 8081 | `cmms4fm-mcp` |
 | — | PostgreSQL 16 | 5432 | upstream |
 | — | MinIO (attachments) | 9000 | upstream |
 | `mobile/` | React Native app (Expo 53 / RN 0.79) | — | not built here, **unmodified upstream** |
 
 The nginx service is the **only** publicly reachable one. It routes `/` → frontend,
-`/api/` → api, `/storage/` → minio. Single domain, so no CORS and one certificate.
+`/api/` → api, `/storage/` → minio, `/mcp` → mcp. Single domain, so no CORS and one certificate.
 
 ## Commands
 
 ```bash
-# API tests (the only automated test suite; ~3 min in CI)
+# API tests (~3 min in CI)
 cd api && mvn -B test -DargLine="--add-opens java.base/java.lang=ALL-UNNAMED"
 
 # API package
@@ -70,6 +76,9 @@ cd api && mvn clean package -DskipTests
 cd frontend && npm install --legacy-peer-deps && npm run build   # vite build, ~1 min
 cd frontend && npm run lint
 cd frontend && npm start                                       # vite dev server on 3000
+
+# MCP server (compiles with strict tsc, then runs the suite; ~2 s)
+cd mcp && npm ci && npm test
 ```
 
 **`mvn compile` is not a check.** Without `clean` the compiler plugin's incremental pass can
@@ -114,8 +123,8 @@ the frontend build is the memory-hungry step and will freeze a shared host.
 
 ```
 push to main → .github/workflows/deploy.yml
-             → builds api, frontend, nginx in parallel (GHA cache per image)
-             → pushes ghcr.io/<owner>/cmms4fm-{api,frontend,nginx}:latest and :sha-<commit>
+             → builds api, frontend, nginx, mcp in parallel (GHA cache per image)
+             → pushes ghcr.io/<owner>/cmms4fm-{api,frontend,nginx,mcp}:latest and :sha-<commit>
              → curls the Coolify deploy webhook
 ```
 
@@ -130,11 +139,11 @@ developers here run a much newer Node, and npm only *warns* on an engines mismat
 refusing to install. So the mismatch is invisible until CI, and it looks like the application
 broke rather than the toolchain. When bumping Vite, read `engines` and check the `FROM` line.
 
-`.github/workflows/tests.yml` runs the Maven suite separately so a test failure does not
-block an image build, and a build failure is distinguishable from a test failure. It also runs
-on `pull_request`, which is the reason to route anything risky — an upstream sync above all —
-through a branch and a PR: CI on JDK 17 is the authority for the backend, and it has already
-caught a bad merge resolution that a local build called green.
+`.github/workflows/tests.yml` runs the Maven suite and the `mcp/` suite as separate jobs, so a
+test failure does not block an image build and a build failure stays distinguishable from a
+test failure. It also runs on `pull_request`, which is the reason to route anything risky — an
+upstream sync above all — through a branch and a PR: CI on JDK 17 is the authority for the
+backend, and it has already caught a bad merge resolution that a local build called green.
 
 **A deploy takes about 50 seconds** since the move to Vite; it used to be around five minutes.
 If one suddenly takes minutes again, that is a signal worth following rather than waiting out.
@@ -341,7 +350,9 @@ upstream FREE behaviour again. When syncing upstream, re-check `LicenseService`,
   `.requestMatchers("/actuator/health/readiness", "/actuator/health/liveness").permitAll()`.
   Worth doing: a signal that is permanently red trains everyone to ignore it, and on this
   codebase misleading health and error signals have already cost hours (see "Wrong
-  credentials" above).
+  credentials" above). It also already costs something: the `mcp` service cannot wait on
+  `service_healthy` for the api and settles for `service_started`, retrying the OpenAPI
+  document itself instead.
 - **`POST /work-orders/search` returns the whole company** for a user who has no work-order
   view permission at all. `WorkOrderService.getSearchCriteria` only ever narrows: it adds the
   company filter, then adds the own-records filter *inside* an `if (viewPermissions contains
@@ -442,6 +453,7 @@ fix silently overwritten:
 | File→asset/work-order links | `File` (`workOrders` join table), `FileShowDTO`, `FileMapper` |
 | Build tooling (frontend) | **Upstream is still Create React App; this fork is not.** `frontend/vite.config.ts` (new), `frontend/index.html` (moved out of `public/`), `frontend/package.json` scripts, `src/config.ts` + `src/serviceWorker.ts` (`import.meta.env` instead of `process.env`), `src/vite-env.d.ts`. Deleted here: `config-overrides.js`, `src/react-app-env.d.ts`. An upstream change touching the build, `public/index.html` or `REACT_APP_*` needs translating, not merging |
 | Container plumbing | frontend `Dockerfile` + `docker-entrypoint.sh`, `docker/nginx/**`, `docker-compose.yml` |
+| MCP server | `mcp/**` is entirely new, so a sync cannot touch it. What it *reads* can change under it, and that is what to re-check: `springdoc` settings in `application.yml` (the document's group URL — `SPEC_GROUP` defaults to `atlas-cmms`), `ApiKeyAuthFilter` (the auth path it relies on), and the endpoints its curated tools name. A renamed or removed endpoint from the curated table fails `mcp/test/catalog.test.ts` rather than failing silently at runtime — refresh `mcp/test/fixtures/api-docs.json` from the running instance after a sync and run `npm test` in `mcp/` |
 
 `ApiKeyAuthFilter` is **not** in that list. It reads the license and plan gates that
 `SELF_HOSTED_UNLOCK_PREMIUM` opens, so it is worth reading to understand the unlock — but

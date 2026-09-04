@@ -40,6 +40,9 @@ jobs:
           - name: nginx
             context: ./docker/nginx
             image: cmms4fm-nginx
+          - name: mcp
+            context: ./mcp
+            image: cmms4fm-mcp
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
