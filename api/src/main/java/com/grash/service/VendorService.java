@@ -52,17 +52,6 @@ public class VendorService {
         );
     }
 
-    public Vendor update(Long id, VendorPatchDTO vendor, Company company) {
-        if (vendorRepository.existsById(id)) {
-            Vendor savedVendor = vendorRepository.findById(id).get();
-            if (vendor.getCustomFields() != null && !vendor.getCustomFields().isEmpty()) {
-                setVendorCustomFields(savedVendor, vendor.getCustomFields(), company);
-            }
-            Vendor updatedVendor = vendorMapper.updateVendor(savedVendor, vendor);
-            Sanitizer.sanitizeVendor(updatedVendor);
-            return vendorRepository.save(updatedVendor);
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
-    }
 
     public Collection<Vendor> getAll() {
         return vendorRepository.findAll();
@@ -133,12 +122,17 @@ public class VendorService {
     @Transactional
     public Vendor patch(Long id, VendorPatchDTO vendor, User user) {
         Optional<Vendor> optionalVendor = vendorRepository.findById(id);
-        if (optionalVendor.isPresent()) {
-            Vendor savedVendor = optionalVendor.get();
-            if (savedVendor.canBeEditedBy(user)) {
-                return update(id, vendor, user.getCompany());
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("Vendor not found", HttpStatus.NOT_FOUND);
+        if (optionalVendor.isEmpty())
+            throw new CustomException("Vendor not found", HttpStatus.NOT_FOUND);
+        Vendor savedVendor = optionalVendor.get();
+        if (savedVendor.canBeEditedBy(user)) {
+            if (vendor.getCustomFields() != null && !vendor.getCustomFields().isEmpty()) {
+                setVendorCustomFields(savedVendor, vendor.getCustomFields(), user.getCompany());
+            }
+            Vendor updatedVendor = vendorMapper.updateVendor(savedVendor, vendor);
+            Sanitizer.sanitizeVendor(updatedVendor);
+            return vendorRepository.save(updatedVendor);
+        } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
     }
 
     @Transactional

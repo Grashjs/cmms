@@ -71,21 +71,6 @@ public class MeterService {
         );
     }
 
-    @Transactional
-    public Meter update(Long id, MeterPatchDTO meter, Company company) {
-        if (meterRepository.existsById(id)) {
-            Meter savedMeter = meterRepository.findById(id).get();
-            if (meter.getCustomFields() != null && !meter.getCustomFields().isEmpty()) {
-                setMeterCustomFields(savedMeter, meter.getCustomFields(), company);
-            }
-            Meter patchedMeter = meterMapper.updateMeter(savedMeter, meter);
-            Sanitizer.sanitizeMeter(patchedMeter);
-            patchedMeter = meterRepository.saveAndFlush(patchedMeter);
-            em.refresh(patchedMeter);
-            return patchedMeter;
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
-    }
-
     public Collection<Meter> getAll() {
         return meterRepository.findAll();
     }
@@ -153,7 +138,14 @@ public class MeterService {
             Meter savedMeter = optionalMeter.get();
             em.detach(savedMeter);
             if (savedMeter.canBeEditedBy(user)) {
-                return update(id, meter, user.getCompany());
+                if (meter.getCustomFields() != null && !meter.getCustomFields().isEmpty()) {
+                    setMeterCustomFields(savedMeter, meter.getCustomFields(), user.getCompany());
+                }
+                Meter patchedMeter = meterMapper.updateMeter(savedMeter, meter);
+                Sanitizer.sanitizeMeter(patchedMeter);
+                patchedMeter = meterRepository.saveAndFlush(patchedMeter);
+                em.refresh(patchedMeter);
+                return patchedMeter;
             } else throw new CustomException("Forbidden", org.springframework.http.HttpStatus.FORBIDDEN);
         } else throw new CustomException("Meter not found", org.springframework.http.HttpStatus.NOT_FOUND);
     }
