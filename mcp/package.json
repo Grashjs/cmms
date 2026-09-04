@@ -1,0 +1,27 @@
+{
+  "name": "cmms4fm-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MCP server for cmms4fm — a stateless proxy over the CMMS REST API",
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "bin": {
+    "cmms4fm-mcp": "dist/src/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "start": "node dist/src/index.js",
+    "test": "tsc && node --test dist/test/*.test.js",
+    "dev": "node --experimental-strip-types src/index.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "typescript": "^5.9.3"
+  }
+}

@@ -166,6 +166,47 @@ services:
     depends_on:
       - api
 
+  mcp:
+    # MCP server for agentic tool use over the REST API. Design: docs/mcp-server-konzept.md.
+    #
+    # It holds no privilege of its own: it forwards the caller's `x-api-key` to the api and
+    # can therefore never do more than that key's user may. Which means the sharpest control
+    # is not here but in the CMMS — give each client its own minimally permitted user.
+    #
+    # Requires SELF_HOSTED_UNLOCK_PREMIUM=true on the api service, because ApiKeyAuthFilter
+    # gates the whole x-api-key path behind the API_ACCESS entitlement and plan feature. With
+    # the flag off every tool call answers 403 "Access denied" and nothing says why.
+    image: ghcr.io/sayou2000/cmms4fm-mcp:${IMAGE_TAG:-latest}
+    pull_policy: always
+    container_name: cmms4fm-mcp
+    depends_on:
+      api:
+        # Not service_healthy: the api healthcheck has never been green (CLAUDE.md, "Open
+        # items"), so waiting on it would keep this service down forever. The server retries
+        # the OpenAPI document on its own for a few minutes, which covers the api's boot.
+        condition: service_started
+    environment:
+      # Straight to the api inside the compose network, bypassing nginx.
+      CMMS_BASE_URL: http://api:8080
+      MCP_TRANSPORT: http
+      PORT: "8081"
+      # Same trap as the api block: this service enumerates its environment explicitly, so a
+      # variable set in Coolify that no ${...} here references never reaches the container.
+      PROFILE: ${MCP_PROFILE:-readonly}
+      READ_ONLY: ${MCP_READ_ONLY:-false}
+      AUTH_MODE: ${MCP_AUTH_MODE:-passthrough}
+      SERVICE_API_KEY: ${MCP_SERVICE_API_KEY:-}
+      TOOLS_ALLOW: ${MCP_TOOLS_ALLOW:-}
+      TOOLS_DENY: ${MCP_TOOLS_DENY:-}
+      RATE_LIMIT: ${MCP_RATE_LIMIT:-120}
+      SPEC_REFRESH_MINUTES: ${MCP_SPEC_REFRESH_MINUTES:-0}
+      MAX_RESPONSE_CHARS: ${MCP_MAX_RESPONSE_CHARS:-60000}
+      LOG_LEVEL: ${MCP_LOG_LEVEL:-info}
+    expose:
+      - "8081"
+    # No ports: — Coolify's proxy routes to the container, and this service is reached
+    # through nginx at /mcp anyway.
+
   minio:
     image: minio/minio:RELEASE.2025-04-22T22-12-26Z
     container_name: atlas_minio
@@ -188,6 +229,10 @@ services:
       - frontend
       - api
       - minio
+      # Ordering only. The /mcp route resolves the service name at request time (see
+      # docker/nginx/nginx.conf), so nginx starts and serves everything else even when
+      # this one is stopped.
+      - mcp
     environment:
       # Coolify magic variable: binds its reverse proxy (TLS, certificates) to
       # port 80 of this service and fills in the domain. Set the domain in the
