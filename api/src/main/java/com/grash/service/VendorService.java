@@ -127,7 +127,6 @@ public class VendorService {
         if (optionalVendor.isEmpty())
             throw new CustomException("Vendor not found", HttpStatus.NOT_FOUND);
         Vendor savedVendor = optionalVendor.get();
-        em.detach(savedVendor);
         if (savedVendor.canBeEditedBy(user)) {
             if (vendor.getCustomFields() != null && !vendor.getCustomFields().isEmpty()) {
                 setVendorCustomFields(savedVendor, vendor.getCustomFields(), user.getCompany());
