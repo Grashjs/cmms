@@ -77,8 +77,15 @@ public class AutomationRule extends CompanyAudit {
     @Column(name = "max_depth")
     private Integer maxDepth;
 
+    /**
+     * Ordered, and not for presentation. The evaluator reports the <em>first</em> condition that
+     * did not hold, and that sentence goes into the run log as the answer to "why did my rule not
+     * fire?". Without a stable order the same rule can blame a different condition from one run
+     * to the next, which makes the log misleading exactly where it is meant to be trusted.
+     */
     @OneToMany(mappedBy = "rule", cascade = CascadeType.ALL, orphanRemoval = true,
             fetch = FetchType.EAGER)
+    @OrderBy("id ASC")
     private List<AutomationCondition> conditions = new ArrayList<>();
 
     @OneToMany(mappedBy = "rule", cascade = CascadeType.ALL, orphanRemoval = true,

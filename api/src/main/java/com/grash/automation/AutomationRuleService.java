@@ -7,6 +7,8 @@ import com.grash.automation.dto.AutomationRulePostDTO;
 import com.grash.automation.eval.CustomFieldResolver;
 import com.grash.automation.eval.OperandResolver;
 import com.grash.automation.model.ActionType;
+import com.grash.automation.model.ConditionOperator;
+import com.grash.model.enums.CustomFieldType;
 import com.grash.automation.model.AutomationActionStep;
 import com.grash.automation.model.AutomationCondition;
 import com.grash.automation.model.AutomationRule;
@@ -124,12 +126,44 @@ public class AutomationRuleService {
 
         boolean isCustomField = CustomFieldResolver.SUBJECT.equals(dto.subject());
         if (isCustomField) {
-            condition.setCustomField(loadCustomField(dto.customFieldId(), company));
+            CustomField field = loadCustomField(dto.customFieldId(), company);
+            assertValueIsPossible(field, dto);
+            condition.setCustomField(field);
         } else if (dto.customFieldId() != null) {
             throw new CustomException("customFieldId only applies to subject \""
                     + CustomFieldResolver.SUBJECT + "\"", HttpStatus.UNPROCESSABLE_ENTITY);
         }
         return condition;
+    }
+
+    /**
+     * A choice field can only ever hold one of its options, so a condition comparing it to
+     * anything else can never be true. Storing such a rule produces the exact failure this engine
+     * exists to remove: it saves, it runs, it decides "condition not met" every single time, and
+     * the run log dutifully reports a comparison that was never winnable.
+     *
+     * <p>Found the hard way: the first rule configured against a real instance compared an
+     * "Assetclass" field to "A" while its options were "1-Critical", "2-Operational Critical" and
+     * "3-Support". The engine behaved correctly and was useless.
+     *
+     * <p>{@code CONTAINS} is exempt on purpose — matching the substring "Critical" across
+     * "1-Critical" and "2-Operational Critical" is a legitimate thing to ask for. A null expected
+     * value is exempt too: comparing to nothing is how you ask whether the field is unset.
+     */
+    private void assertValueIsPossible(CustomField field, AutomationConditionPostDTO dto) {
+        if (field.getFieldType() != CustomFieldType.SINGLE_CHOICE
+                || dto.operator() == ConditionOperator.CONTAINS
+                || dto.expectedValue() == null) {
+            return;
+        }
+        List<String> options = field.getOptions();
+        if (options.isEmpty() || options.contains(dto.expectedValue())) {
+            return;
+        }
+        throw new CustomException("\"" + dto.expectedValue() + "\" is not one of the options of "
+                + "custom field \"" + field.getLabel() + "\" (" + field.getId() + "), so this "
+                + "condition could never hold. Its options are: " + options,
+                HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     private void assertResolvable(String subject) {
