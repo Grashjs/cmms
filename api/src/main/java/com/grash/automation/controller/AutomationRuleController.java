@@ -1,7 +1,9 @@
 package com.grash.automation.controller;
 
+import com.grash.automation.AutomationMetaService;
 import com.grash.automation.AutomationRuleService;
 import com.grash.automation.AutomationRunService;
+import com.grash.automation.dto.AutomationMetaDTO;
 import com.grash.automation.dto.AutomationRulePostDTO;
 import com.grash.automation.dto.AutomationRuleShowDTO;
 import com.grash.automation.dto.AutomationRunShowDTO;
@@ -50,7 +52,23 @@ public class AutomationRuleController {
 
     private final AutomationRuleService ruleService;
     private final AutomationRunService runService;
+    private final AutomationMetaService metaService;
     private final UserService userService;
+
+    /**
+     * What the rule editor is built from: the triggers, subjects, actions and placeholders this
+     * server actually supports, including this company's custom fields.
+     *
+     * <p>The frontend holds no copy of any of it. That is the fix for the defect that made the
+     * old settings form offer conditions nothing evaluated — four hand-kept lists that drifted
+     * apart — and it is why this endpoint comes before the editor rather than after it.
+     */
+    @GetMapping("/meta")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public AutomationMetaDTO getMeta(HttpServletRequest request) {
+        User user = requireSettingsView(request);
+        return metaService.describe(user.getCompany());
+    }
 
     @GetMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")

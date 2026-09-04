@@ -37,6 +37,7 @@ import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone';
 import { useContext, useEffect } from 'react';
 import { TitleContext } from '../../../../contexts/TitleContext';
 import BusinessTwoToneIcon from '@mui/icons-material/BusinessTwoTone';
+import BoltTwoToneIcon from '@mui/icons-material/BoltTwoTone';
 
 interface FeatureModule {
   id: string;
@@ -137,6 +138,13 @@ function FeaturesSettings() {
       titleKey: 'workflows',
       descriptionKey: 'workflows_settings_description',
       preferencesPath: '/app/settings/features/workflows'
+    },
+    {
+      id: 'automation',
+      icon: BoltTwoToneIcon,
+      titleKey: 'automation_rules',
+      descriptionKey: 'automation_rules_settings_description',
+      preferencesPath: '/app/settings/features/automation'
     }
   ];
 
