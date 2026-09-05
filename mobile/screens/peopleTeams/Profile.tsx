@@ -27,6 +27,7 @@ import { OwnUser } from '../../models/user';
 import { formatImages } from '../../utils/overall';
 import { useAppTheme } from '../../custom-theme';
 import { IconWithLabel } from '../../components/IconWithLabel';
+import { useThemeMode } from '../../theme';
 
 export default function UserProfile({
   navigation,
@@ -42,6 +43,13 @@ export default function UserProfile({
     deleteAccount
   } = useAuth();
   const theme = useAppTheme();
+  const { resolvedScheme } = useThemeMode();
+  const isDarkMode = resolvedScheme === 'dark';
+  const sectionSurfaceColor = isDarkMode ? '#111827' : theme.colors.surface;
+  const sectionTextColor = isDarkMode ? '#e5e7eb' : theme.colors.onSurface;
+  const sectionMutedColor = isDarkMode
+    ? '#cbd5e1'
+    : theme.colors.onSurfaceVariant;
   const { t } = useTranslation();
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const [changingPicture, setChangingPicture] = useState<boolean>(false);
@@ -107,7 +115,7 @@ export default function UserProfile({
         <Dialog
           visible={openChangePassword}
           onDismiss={() => setOpenChangePassword(false)}
-          style={{ backgroundColor: 'white', borderRadius: 5 }}
+          style={{ backgroundColor: sectionSurfaceColor, borderRadius: 5 }}
         >
           <Dialog.Title>{t('change_password')}</Dialog.Title>
           <Formik
@@ -243,7 +251,7 @@ export default function UserProfile({
         <Dialog
           visible={openDeleteAccountDialog}
           onDismiss={handleCloseDeleteAccountDialog}
-          style={{ backgroundColor: 'white', borderRadius: 5 }}
+          style={{ backgroundColor: sectionSurfaceColor, borderRadius: 5 }}
         >
           <Dialog.Title>{t('delete_account')}</Dialog.Title>
           <Dialog.Content>
@@ -285,7 +293,7 @@ export default function UserProfile({
         style={{
           alignItems: 'center',
           paddingVertical: 30,
-          backgroundColor: 'white'
+          backgroundColor: sectionSurfaceColor
         }}
       >
         {changingPicture ? (
@@ -310,7 +318,7 @@ export default function UserProfile({
                 borderRadius: 20,
                 padding: 4,
                 borderWidth: 2,
-                borderColor: 'white'
+                borderColor: sectionSurfaceColor
               }}
             >
               <Avatar.Icon
@@ -324,46 +332,51 @@ export default function UserProfile({
         )}
         <Text
           variant="headlineSmall"
-          style={{ marginTop: 15, fontWeight: 'bold' }}
+          style={{ marginTop: 15, fontWeight: 'bold', color: sectionTextColor }}
         >
           {`${user.firstName} ${user.lastName}`}
         </Text>
-        <Text variant="bodyLarge" style={{ color: theme.colors.grey }}>
+        <Text variant="bodyLarge" style={{ color: sectionMutedColor }}>
           {user.jobTitle}
         </Text>
       </View>
 
       <View style={styles.section}>
-        <Text variant="titleMedium" style={styles.sectionTitle}>
+        <Text
+          variant="titleMedium"
+          style={[styles.sectionTitle, { color: sectionMutedColor }]}
+        >
           {t('informations')}
         </Text>
-        <View style={styles.sectionContent}>
+        <View
+          style={[styles.sectionContent, { backgroundColor: sectionSurfaceColor }]}
+        >
           {user.email && (
             <IconWithLabel
               label={user.email}
               icon="email-outline"
-              color={theme.colors.grey}
+              color={sectionMutedColor}
             />
           )}
           {user.phone && (
             <IconWithLabel
               label={user.phone}
               icon="phone-outline"
-              color={theme.colors.grey}
+              color={sectionMutedColor}
             />
           )}
           {user.role && (
             <IconWithLabel
               label={user.role.name}
               icon="shield-account-outline"
-              color={theme.colors.grey}
+              color={sectionMutedColor}
             />
           )}
           {user.rate > 0 && (
             <IconWithLabel
               label={`${user.rate} / ${t('hour')}`}
               icon="currency-usd"
-              color={theme.colors.grey}
+              color={sectionMutedColor}
             />
           )}
         </View>
@@ -371,10 +384,15 @@ export default function UserProfile({
 
       {user?.role.code !== 'REQUESTER' && (
         <View style={styles.section}>
-          <Text variant="titleMedium" style={styles.sectionTitle}>
+          <Text
+            variant="titleMedium"
+            style={[styles.sectionTitle, { color: sectionMutedColor }]}
+          >
             {t('notifications')}
           </Text>
-          <View style={styles.sectionContent}>
+          <View
+            style={[styles.sectionContent, { backgroundColor: sectionSurfaceColor }]}
+          >
             {switches.map(({ title, value, accessor }, index) => (
               <Fragment key={accessor}>
                 <View style={styles.switchRow}>
@@ -425,13 +443,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     marginHorizontal: 20,
     marginVertical: 8,
-    color: '#666',
     textTransform: 'uppercase',
     fontSize: 12,
     fontWeight: 'bold'
   },
   sectionContent: {
-    backgroundColor: 'white',
     padding: 20,
     gap: 10
   },
