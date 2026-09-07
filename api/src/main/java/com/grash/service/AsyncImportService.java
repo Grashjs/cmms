@@ -1,11 +1,14 @@
 package com.grash.service;
 
+import com.grash.dto.SuccessResponse;
 import com.grash.dto.imports.*;
+import com.grash.exception.CustomException;
 import com.grash.model.User;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -22,8 +25,51 @@ public class AsyncImportService {
     private final IntercomService intercomService;
     private final SimpMessageSendingOperations messagingTemplate;
 
+    private void checkImportPermission(User user, PermissionEntity permission) {
+        if (!user.getRole().getCreatePermissions().contains(permission)
+                || !user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
+            throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+        }
+    }
+
+    public SuccessResponse importWorkOrders(User user, List<WorkOrderImportDTO> toImport, String uuid) {
+        checkImportPermission(user, PermissionEntity.WORK_ORDERS);
+        importWorkOrdersAsync(user, toImport, uuid);
+        return new SuccessResponse(true, uuid);
+    }
+
+    public SuccessResponse importAssets(User user, List<AssetImportDTO> toImport, String uuid) {
+        checkImportPermission(user, PermissionEntity.ASSETS);
+        importAssetsAsync(user, toImport, uuid);
+        return new SuccessResponse(true, uuid);
+    }
+
+    public SuccessResponse importLocations(User user, List<LocationImportDTO> toImport, String uuid) {
+        checkImportPermission(user, PermissionEntity.LOCATIONS);
+        importLocationsAsync(user, toImport, uuid);
+        return new SuccessResponse(true, uuid);
+    }
+
+    public SuccessResponse importMeters(User user, List<MeterImportDTO> toImport, String uuid) {
+        checkImportPermission(user, PermissionEntity.METERS);
+        importMetersAsync(user, toImport, uuid);
+        return new SuccessResponse(true, uuid);
+    }
+
+    public SuccessResponse importParts(User user, List<PartImportDTO> toImport, String uuid) {
+        checkImportPermission(user, PermissionEntity.PARTS_AND_MULTIPARTS);
+        importPartsAsync(user, toImport, uuid);
+        return new SuccessResponse(true, uuid);
+    }
+
+    public SuccessResponse importPreventiveMaintenances(User user, List<PreventiveMaintenanceImportDTO> toImport, String uuid) {
+        checkImportPermission(user, PermissionEntity.PREVENTIVE_MAINTENANCES);
+        importPreventiveMaintenancesAsync(user, toImport, uuid);
+        return new SuccessResponse(true, uuid);
+    }
+
     @Async
-    public void importWorkOrders(User user, List<WorkOrderImportDTO> toImport, String uuid) {
+    public void importWorkOrdersAsync(User user, List<WorkOrderImportDTO> toImport, String uuid) {
         try {
             if (!user.getRole().getCreatePermissions().contains(PermissionEntity.WORK_ORDERS)
                     || !user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
@@ -42,7 +88,7 @@ public class AsyncImportService {
     }
 
     @Async
-    public void importAssets(User user, List<AssetImportDTO> toImport, String uuid) {
+    public void importAssetsAsync(User user, List<AssetImportDTO> toImport, String uuid) {
         try {
             if (!user.getRole().getCreatePermissions().contains(PermissionEntity.ASSETS)
                     || !user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
@@ -76,7 +122,7 @@ public class AsyncImportService {
     }
 
     @Async
-    public void importLocations(User user, List<LocationImportDTO> toImport, String uuid) {
+    public void importLocationsAsync(User user, List<LocationImportDTO> toImport, String uuid) {
         try {
             if (!user.getRole().getCreatePermissions().contains(PermissionEntity.LOCATIONS)
                     || !user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
@@ -95,7 +141,7 @@ public class AsyncImportService {
     }
 
     @Async
-    public void importMeters(User user, List<MeterImportDTO> toImport, String uuid) {
+    public void importMetersAsync(User user, List<MeterImportDTO> toImport, String uuid) {
         try {
             if (!user.getRole().getCreatePermissions().contains(PermissionEntity.METERS)
                     || !user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
@@ -114,7 +160,7 @@ public class AsyncImportService {
     }
 
     @Async
-    public void importParts(User user, List<PartImportDTO> toImport, String uuid) {
+    public void importPartsAsync(User user, List<PartImportDTO> toImport, String uuid) {
         try {
             if (!user.getRole().getCreatePermissions().contains(PermissionEntity.PARTS_AND_MULTIPARTS)
                     || !user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {
@@ -133,7 +179,7 @@ public class AsyncImportService {
     }
 
     @Async
-    public void importPreventiveMaintenances(User user, List<PreventiveMaintenanceImportDTO> toImport, String uuid) {
+    public void importPreventiveMaintenancesAsync(User user, List<PreventiveMaintenanceImportDTO> toImport, String uuid) {
         try {
             if (!user.getRole().getCreatePermissions().contains(PermissionEntity.PREVENTIVE_MAINTENANCES)
                     || !user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.IMPORT_CSV)) {

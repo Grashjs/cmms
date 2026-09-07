@@ -2,11 +2,16 @@ package com.grash.service;
 
 import com.grash.dto.imports.*;
 import com.grash.model.*;
+import com.grash.model.enums.ImportEntity;
+import com.grash.model.enums.Language;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StreamUtils;
 import lombok.RequiredArgsConstructor;
 
 import jakarta.transaction.Transactional;
 
+import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -298,6 +303,24 @@ public class ImportService {
                 .created(created[0])
                 .updated(updated[0])
                 .build();
+    }
+
+    public byte[] getTemplate(Language language, ImportEntity importEntity) throws IOException {
+        String path =
+                "import-templates/" + language.name().toLowerCase() + "/" + importEntity.name().toLowerCase() + ".csv";
+        String fallbackPath = "import-templates/en/" + importEntity.name().toLowerCase() + ".csv";
+
+        return readFileWithFallback(path, fallbackPath);
+    }
+
+    private byte[] readFileWithFallback(String path, String fallbackPath) throws IOException {
+        ClassPathResource resource = new ClassPathResource(path);
+
+        if (!resource.exists()) {
+            resource = new ClassPathResource(fallbackPath);
+        }
+
+        return StreamUtils.copyToByteArray(resource.getInputStream());
     }
 
 }
