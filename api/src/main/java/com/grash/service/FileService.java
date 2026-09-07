@@ -13,6 +13,7 @@ import com.grash.model.Task;
 import com.grash.model.User;
 import com.grash.model.enums.*;
 import com.grash.repository.FileRepository;
+import com.grash.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,7 +33,7 @@ import java.util.Optional;
 public class FileService {
     private final FileRepository fileRepository;
     private final StorageServiceFactory storageServiceFactory;
-    private final TaskService taskService;
+    private final TaskRepository taskRepository;
     private final LicenseService licenseService;
     private final RequestPortalService requestPortalService;
     private final RateLimiterService rateLimiterService;
@@ -86,7 +87,7 @@ public class FileService {
                         "company " + user.getCompany().getId());
                 Task task = null;
                 if (taskId != null) {
-                    Optional<Task> optionalTask = taskService.findById(taskId.longValue());
+                    Optional<Task> optionalTask = taskRepository.findById(taskId.longValue());
                     if (optionalTask.isPresent()) {
                         task = optionalTask.get();
                     }
