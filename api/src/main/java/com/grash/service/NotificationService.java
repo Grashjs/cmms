@@ -1,13 +1,16 @@
 package com.grash.service;
 
+import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.NotificationPatchDTO;
+import com.grash.dto.PushTokenPayload;
 import com.grash.exception.CustomException;
 import com.grash.mapper.NotificationMapper;
 import com.grash.model.Notification;
 import com.grash.model.User;
 import com.grash.model.PushNotificationToken;
+import com.grash.model.enums.RoleType;
 import com.grash.repository.NotificationRepository;
 import io.github.jav.exposerversdk.*;
 import lombok.RequiredArgsConstructor;
@@ -60,16 +63,63 @@ public class NotificationService {
             }
     }
 
-    public Notification update(Long id, NotificationPatchDTO notificationsPatchDTO) {
-        if (notificationRepository.existsById(id)) {
-            Notification savedNotification = notificationRepository.findById(id).get();
-            return notificationRepository.save(notificationMapper.updateNotification(savedNotification,
-                    notificationsPatchDTO));
+
+    public Collection<Notification> getAll(User user) {
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            return findByUser(user.getId());
+        } else return notificationRepository.findAll();
+    }
+
+    public SearchCriteria getSearchCriteria(User user, SearchCriteria searchCriteria) {
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            searchCriteria.getFilterFields().add(FilterField.builder()
+                    .field("user")
+                    .value(user.getId())
+                    .operation("eq")
+                    .values(new ArrayList<>())
+                    .build());
+        }
+        return searchCriteria;
+    }
+
+    public Notification getById(Long id, User user) {
+        Optional<Notification> optionalNotification = notificationRepository.findById(id);
+        if (optionalNotification.isPresent()) {
+            Notification savedNotification = optionalNotification.get();
+            checkAccessToNotification(savedNotification, user);
+            return savedNotification;
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
-    public Collection<Notification> getAll() {
-        return notificationRepository.findAll();
+    public Notification patch(Long id, NotificationPatchDTO notificationsPatchDTO, User user) {
+        Optional<Notification> optionalNotification = notificationRepository.findById(id);
+        if (optionalNotification.isPresent()) {
+            Notification savedNotification = optionalNotification.get();
+            checkAccessToNotification(savedNotification, user);
+            return notificationRepository.save(notificationMapper.updateNotification(savedNotification,
+                    notificationsPatchDTO));
+        } else throw new CustomException("Notification not found", HttpStatus.NOT_FOUND);
+    }
+
+    public void savePushToken(User user, PushTokenPayload tokenPayload) {
+        String token = tokenPayload.getToken();
+        PushNotificationToken pushNotificationToken;
+        Optional<PushNotificationToken> optionalPushNotificationToken =
+                pushNotificationTokenService.findByUser(user.getId());
+        if (optionalPushNotificationToken.isPresent()) {
+            pushNotificationToken = optionalPushNotificationToken.get();
+            pushNotificationToken.setToken(token);
+        } else {
+            pushNotificationToken = PushNotificationToken.builder()
+                    .user(user)
+                    .token(token).build();
+        }
+        pushNotificationTokenService.save(pushNotificationToken);
+    }
+
+    private void checkAccessToNotification(Notification notification, User user) {
+        if (!notification.getUser().getId().equals(user.getId()))
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
 
     public void delete(Long id) {
