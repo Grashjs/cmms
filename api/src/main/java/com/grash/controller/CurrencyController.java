@@ -2,12 +2,10 @@ package com.grash.controller;
 
 import com.grash.dto.CurrencyPatchDTO;
 import com.grash.dto.SuccessResponse;
-import com.grash.exception.CustomException;
 import com.grash.model.Currency;
 import com.grash.model.User;
-import com.grash.model.enums.RoleType;
+import com.grash.security.CurrentUser;
 import com.grash.service.CurrencyService;
-import com.grash.service.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -17,11 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import java.util.Collection;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/currencies")
@@ -30,32 +26,25 @@ import java.util.Optional;
 public class CurrencyController {
 
     private final CurrencyService currencyService;
-    private final UserService userService;
-
-    private final static String CURRENCY_NOT_FOUND = "Currency not found";
 
     @GetMapping("")
     @PreAuthorize("permitAll()")
-    public Collection<Currency> getAll(HttpServletRequest req) {
+    public Collection<Currency> getAll() {
         return currencyService.getAll();
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    public Currency getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
-        Optional<Currency> optionalCurrency = currencyService.findById(id);
-        if (optionalCurrency.isPresent()) {
-            return optionalCurrency.get();
-        } else throw new CustomException(CURRENCY_NOT_FOUND, HttpStatus.NOT_FOUND);
+    public Currency getById(@PathVariable("id") Long id,
+                            @Parameter(hidden = true) @CurrentUser User user) {
+        return currencyService.getById(id);
     }
 
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
     Currency create(@Parameter(description = "Currency to create") @Valid @RequestBody Currency currency,
-                    HttpServletRequest req) {
-        User user = userService.whoami(req);
+                    @Parameter(hidden = true) @CurrentUser User user) {
         return currencyService.create(currency);
     }
 
@@ -63,30 +52,17 @@ public class CurrencyController {
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
     public Currency patch(@Parameter(description = "Currency fields to update") @Valid @RequestBody CurrencyPatchDTO currencyPatchDTO,
                           @PathVariable("id") Long id,
-                          HttpServletRequest req) {
-        User user = userService.whoami(req);
-        Optional<Currency> optionalCurrency = currencyService.findById(id);
-
-        if (optionalCurrency.isPresent()) {
-            return currencyService.update(id, currencyPatchDTO);
-        } else throw new CustomException(CURRENCY_NOT_FOUND, HttpStatus.NOT_FOUND);
+                          @Parameter(hidden = true) @CurrentUser User user) {
+        return currencyService.patch(id, currencyPatchDTO);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
-    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
-
-        Optional<Currency> optionalCurrency = currencyService.findById(id);
-        if (optionalCurrency.isPresent()) {
-            if (user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)) {
-                currencyService.delete(id);
-                return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
-                        HttpStatus.OK);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-        } else throw new CustomException(CURRENCY_NOT_FOUND, HttpStatus.NOT_FOUND);
+    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id,
+                                                  @Parameter(hidden = true) @CurrentUser User user) {
+        currencyService.deleteByIdAndUser(id, user);
+        return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
+                HttpStatus.OK);
     }
 
 }
-
-
