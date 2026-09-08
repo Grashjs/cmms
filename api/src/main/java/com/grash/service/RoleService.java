@@ -1,12 +1,14 @@
 package com.grash.service;
 
-import com.google.rpc.Help;
 import com.grash.dto.RolePatchDTO;
 import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.RoleMapper;
 import com.grash.model.Company;
 import com.grash.model.Role;
+import com.grash.model.User;
+import com.grash.model.enums.PermissionEntity;
+import com.grash.model.enums.PlanFeatures;
 import com.grash.model.enums.RoleCode;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.RoleRepository;
@@ -16,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -35,6 +38,46 @@ public class RoleService {
         return roleRepository.save(role);
     }
 
+    @Transactional
+    public Role create(Role roleReq, User user) {
+        if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
+                && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.ROLE)) {
+            assertCanGrant(roleReq.getCreatePermissions(), user.getRole().getCreatePermissions());
+            assertCanGrant(roleReq.getViewPermissions(), user.getRole().getViewPermissions());
+            assertCanGrant(roleReq.getViewOtherPermissions(), user.getRole().getViewOtherPermissions());
+            assertCanGrant(roleReq.getEditOtherPermissions(), user.getRole().getEditOtherPermissions());
+            assertCanGrant(roleReq.getDeleteOtherPermissions(), user.getRole().getDeleteOtherPermissions());
+            roleReq.setPaid(true);
+            roleReq.setCode(RoleCode.USER_CREATED);
+            roleReq.setRoleType(RoleType.ROLE_CLIENT);
+            roleReq.setCompanySettings(user.getCompany().getCompanySettings());
+            return create(roleReq);
+        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+    }
+
+    @Transactional
+    public Role patch(Long id, RolePatchDTO role, User user) {
+        Optional<Role> optionalRole = findById(id);
+        if (optionalRole.isPresent()) {
+            Role savedRole = optionalRole.get();
+            if (!savedRole.belongsOnlyToCompany(user.getCompany())) {
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            }
+            assertCanGrant(role.getCreatePermissions(), user.getRole().getCreatePermissions());
+            assertCanGrant(role.getViewPermissions(), user.getRole().getViewPermissions());
+            assertCanGrant(role.getViewOtherPermissions(), user.getRole().getViewOtherPermissions());
+            assertCanGrant(role.getEditOtherPermissions(), user.getRole().getEditOtherPermissions());
+            assertCanGrant(role.getDeleteOtherPermissions(), user.getRole().getDeleteOtherPermissions());
+            return update(id, role);
+        } else throw new CustomException("Role not found", HttpStatus.NOT_FOUND);
+    }
+
+    private void assertCanGrant(Collection<PermissionEntity> requested, Collection<PermissionEntity> owned) {
+        if (requested != null && owned != null && !owned.containsAll(requested)) {
+            throw new CustomException("Cannot grant permissions you don't have", HttpStatus.FORBIDDEN);
+        }
+    }
+
     public Role update(Long id, RolePatchDTO role) {
         if (roleRepository.existsById(id)) {
             Role savedRole = roleRepository.findById(id).get();
@@ -48,12 +91,45 @@ public class RoleService {
         return roleRepository.findAll();
     }
 
+    public Collection<Role> getAll(User user) {
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+                return findByCompany(user.getCompany().getId());
+            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        } else return getAll();
+    }
+
     public void delete(Long id) {
         roleRepository.deleteById(id);
     }
 
+    @Transactional
+    public void deleteByIdAndUser(Long id, User user) {
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+            throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        }
+        Optional<Role> optionalRole = findById(id);
+        if (optionalRole.isPresent()) {
+            Role savedRole = optionalRole.get();
+            if (!savedRole.belongsOnlyToCompany(user.getCompany())) {
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            }
+            delete(id);
+        } else throw new CustomException("Role not found", HttpStatus.NOT_FOUND);
+    }
+
     public Optional<Role> findById(Long id) {
         return roleRepository.findById(id);
+    }
+
+    public Role getById(Long id, User user) {
+        Optional<Role> optionalRole = findById(id);
+        if (optionalRole.isPresent()) {
+            Role savedRole = optionalRole.get();
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS) && savedRole.belongsToCompany(user.getCompany())) {
+                return savedRole;
+            } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     public List<Role> findByCodeAndRoleType(RoleCode code, RoleType roleType) {

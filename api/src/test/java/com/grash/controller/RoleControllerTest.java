@@ -1,6 +1,7 @@
 package com.grash.controller;
 
 import com.grash.dto.RolePatchDTO;
+import com.grash.exception.CustomException;
 import com.grash.model.Company;
 import com.grash.model.Role;
 import com.grash.model.Subscription;
@@ -20,22 +21,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
 
 import static com.grash.utils.Helper.setCurrentUser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -180,6 +180,8 @@ class RoleControllerTest extends AbstractControllerTest {
         void getAll_clientWithoutSettings_returns403() throws Exception {
             setCurrentUser(clientUserWithoutPermission);
             when(userService.whoami(any())).thenReturn(clientUserWithoutPermission);
+            when(roleService.getAll(clientUserWithoutPermission))
+                    .thenThrow(new CustomException("Forbidden", HttpStatus.FORBIDDEN));
 
             mockMvc.perform(get("/roles"))
                     .andExpect(status().isForbidden());
@@ -189,7 +191,8 @@ class RoleControllerTest extends AbstractControllerTest {
         void getById_clientWithoutSettings_returns403() throws Exception {
             setCurrentUser(clientUserWithoutPermission);
             when(userService.whoami(any())).thenReturn(clientUserWithoutPermission);
-            when(roleService.findById(4L)).thenReturn(Optional.of(companyRole));
+            when(roleService.getById(4L, clientUserWithoutPermission))
+                    .thenThrow(new CustomException("Access denied", HttpStatus.FORBIDDEN));
 
             mockMvc.perform(get("/roles/4"))
                     .andExpect(status().isForbidden());
@@ -199,6 +202,8 @@ class RoleControllerTest extends AbstractControllerTest {
         void create_clientWithoutSettingsPermission_returns403() throws Exception {
             setCurrentUser(clientUserWithoutPermission);
             when(userService.whoami(any())).thenReturn(clientUserWithoutPermission);
+            when(roleService.create(any(Role.class), eq(clientUserWithoutPermission)))
+                    .thenThrow(new CustomException("Access denied", HttpStatus.FORBIDDEN));
 
             mockMvc.perform(post("/roles")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -211,6 +216,8 @@ class RoleControllerTest extends AbstractControllerTest {
             company.getSubscription().getSubscriptionPlan().setFeatures(new HashSet<>(Set.of(PlanFeatures.ANALYTICS)));
             setCurrentUser(clientUser);
             when(userService.whoami(any())).thenReturn(clientUser);
+            when(roleService.create(any(Role.class), eq(clientUser)))
+                    .thenThrow(new CustomException("Access denied", HttpStatus.FORBIDDEN));
 
             mockMvc.perform(post("/roles")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -222,7 +229,8 @@ class RoleControllerTest extends AbstractControllerTest {
         void patch_roleFromAnotherCompany_returns403() throws Exception {
             setCurrentUser(clientUser);
             when(userService.whoami(any())).thenReturn(clientUser);
-            when(roleService.findById(4L)).thenReturn(Optional.of(roleOfAnotherCompany()));
+            when(roleService.patch(eq(4L), any(RolePatchDTO.class), eq(clientUser)))
+                    .thenThrow(new CustomException("Access denied", HttpStatus.FORBIDDEN));
 
             mockMvc.perform(patch("/roles/4")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -234,7 +242,8 @@ class RoleControllerTest extends AbstractControllerTest {
         void delete_roleFromAnotherCompany_returns403() throws Exception {
             setCurrentUser(clientUser);
             when(userService.whoami(any())).thenReturn(clientUser);
-            when(roleService.findById(4L)).thenReturn(Optional.of(roleOfAnotherCompany()));
+            doThrow(new CustomException("Access denied", HttpStatus.FORBIDDEN))
+                    .when(roleService).deleteByIdAndUser(4L, clientUser);
 
             mockMvc.perform(delete("/roles/4"))
                     .andExpect(status().isForbidden());
@@ -248,7 +257,8 @@ class RoleControllerTest extends AbstractControllerTest {
         void getById_notFound_returns404() throws Exception {
             setCurrentUser(clientUser);
             when(userService.whoami(any())).thenReturn(clientUser);
-            when(roleService.findById(99L)).thenReturn(Optional.empty());
+            when(roleService.getById(99L, clientUser))
+                    .thenThrow(new CustomException("Not found", HttpStatus.NOT_FOUND));
 
             mockMvc.perform(get("/roles/99"))
                     .andExpect(status().isNotFound());
@@ -258,7 +268,8 @@ class RoleControllerTest extends AbstractControllerTest {
         void getById_notBelongsToCompany_returns403() throws Exception {
             setCurrentUser(clientUser);
             when(userService.whoami(any())).thenReturn(clientUser);
-            when(roleService.findById(4L)).thenReturn(Optional.of(roleOfAnotherCompany()));
+            when(roleService.getById(4L, clientUser))
+                    .thenThrow(new CustomException("Access denied", HttpStatus.FORBIDDEN));
 
             mockMvc.perform(get("/roles/4"))
                     .andExpect(status().isForbidden());
@@ -268,7 +279,8 @@ class RoleControllerTest extends AbstractControllerTest {
         void patch_notFound_returns404() throws Exception {
             setCurrentUser(clientUser);
             when(userService.whoami(any())).thenReturn(clientUser);
-            when(roleService.findById(99L)).thenReturn(Optional.empty());
+            when(roleService.patch(eq(99L), any(RolePatchDTO.class), eq(clientUser)))
+                    .thenThrow(new CustomException("Role not found", HttpStatus.NOT_FOUND));
 
             mockMvc.perform(patch("/roles/99")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -280,7 +292,8 @@ class RoleControllerTest extends AbstractControllerTest {
         void delete_notFound_returns404() throws Exception {
             setCurrentUser(clientUser);
             when(userService.whoami(any())).thenReturn(clientUser);
-            when(roleService.findById(99L)).thenReturn(Optional.empty());
+            doThrow(new CustomException("Role not found", HttpStatus.NOT_FOUND))
+                    .when(roleService).deleteByIdAndUser(99L, clientUser);
 
             mockMvc.perform(delete("/roles/99"))
                     .andExpect(status().isNotFound());
@@ -290,6 +303,8 @@ class RoleControllerTest extends AbstractControllerTest {
         void delete_withoutSettingsPermission_returns403() throws Exception {
             setCurrentUser(clientUserWithoutPermission);
             when(userService.whoami(any())).thenReturn(clientUserWithoutPermission);
+            doThrow(new CustomException("Forbidden", HttpStatus.FORBIDDEN))
+                    .when(roleService).deleteByIdAndUser(4L, clientUserWithoutPermission);
 
             mockMvc.perform(delete("/roles/4"))
                     .andExpect(status().isForbidden());
@@ -303,35 +318,35 @@ class RoleControllerTest extends AbstractControllerTest {
         void getAll_nonClient_returnsAllRoles() throws Exception {
             setCurrentUser(nonClientUser);
             when(userService.whoami(any())).thenReturn(nonClientUser);
-            when(roleService.getAll()).thenReturn(Arrays.asList(companyRole, defaultRole));
+            when(roleService.getAll(nonClientUser)).thenReturn(Arrays.asList(companyRole, defaultRole));
 
             mockMvc.perform(get("/roles"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$[0].id").value(4))
                     .andExpect(jsonPath("$[1].id").value(5));
 
-            verify(roleService).getAll();
+            verify(roleService).getAll(nonClientUser);
         }
 
         @Test
         void getAll_clientWithSettings_filtersByCompany() throws Exception {
             setCurrentUser(clientUser);
             when(userService.whoami(any())).thenReturn(clientUser);
-            when(roleService.findByCompany(1L)).thenReturn(Collections.singletonList(companyRole));
+            when(roleService.getAll(clientUser)).thenReturn(Collections.singletonList(companyRole));
 
             mockMvc.perform(get("/roles"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$[0].id").value(4))
                     .andExpect(jsonPath("$[0].name").value("Custom Role"));
 
-            verify(roleService).findByCompany(1L);
+            verify(roleService).getAll(clientUser);
         }
 
         @Test
         void getById_returnsRole() throws Exception {
             setCurrentUser(clientUser);
             when(userService.whoami(any())).thenReturn(clientUser);
-            when(roleService.findById(4L)).thenReturn(Optional.of(companyRole));
+            when(roleService.getById(4L, clientUser)).thenReturn(companyRole);
 
             mockMvc.perform(get("/roles/4"))
                     .andExpect(status().isOk())
@@ -344,7 +359,7 @@ class RoleControllerTest extends AbstractControllerTest {
         void getById_defaultRole_belongsToAllCompanies() throws Exception {
             setCurrentUser(clientUser);
             when(userService.whoami(any())).thenReturn(clientUser);
-            when(roleService.findById(5L)).thenReturn(Optional.of(defaultRole));
+            when(roleService.getById(5L, clientUser)).thenReturn(defaultRole);
 
             mockMvc.perform(get("/roles/5"))
                     .andExpect(status().isOk())
@@ -356,7 +371,7 @@ class RoleControllerTest extends AbstractControllerTest {
         void create_returnsCreatedRole() throws Exception {
             setCurrentUser(clientUser);
             when(userService.whoami(any())).thenReturn(clientUser);
-            when(roleService.create(any(Role.class))).thenReturn(companyRole);
+            when(roleService.create(any(Role.class), eq(clientUser))).thenReturn(companyRole);
 
             mockMvc.perform(post("/roles")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -366,20 +381,15 @@ class RoleControllerTest extends AbstractControllerTest {
                     .andExpect(jsonPath("$.name").value("Custom Role"));
 
             ArgumentCaptor<Role> captor = ArgumentCaptor.forClass(Role.class);
-            verify(roleService).create(captor.capture());
-            Role captured = captor.getValue();
-            assertEquals(RoleCode.USER_CREATED, captured.getCode());
-            assertEquals(RoleType.ROLE_CLIENT, captured.getRoleType());
-            assertTrue(captured.isPaid());
-            assertSame(company.getCompanySettings(), captured.getCompanySettings());
+            verify(roleService).create(captor.capture(), eq(clientUser));
+            assertEquals("New Custom Role", captor.getValue().getName());
         }
 
         @Test
         void patch_returnsUpdatedRole() throws Exception {
             setCurrentUser(clientUser);
             when(userService.whoami(any())).thenReturn(clientUser);
-            when(roleService.findById(4L)).thenReturn(Optional.of(companyRole));
-            when(roleService.update(eq(4L), any(RolePatchDTO.class))).thenReturn(companyRole);
+            when(roleService.patch(eq(4L), any(RolePatchDTO.class), eq(clientUser))).thenReturn(companyRole);
 
             mockMvc.perform(patch("/roles/4")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -388,34 +398,21 @@ class RoleControllerTest extends AbstractControllerTest {
                     .andExpect(jsonPath("$.id").value(4))
                     .andExpect(jsonPath("$.name").value("Custom Role"));
 
-            verify(roleService).update(eq(4L), any(RolePatchDTO.class));
+            verify(roleService).patch(eq(4L), any(RolePatchDTO.class), eq(clientUser));
         }
 
         @Test
         void delete_returnsSuccessResponse() throws Exception {
             setCurrentUser(clientUser);
             when(userService.whoami(any())).thenReturn(clientUser);
-            when(roleService.findById(4L)).thenReturn(Optional.of(companyRole));
-            doNothing().when(roleService).delete(4L);
+            doNothing().when(roleService).deleteByIdAndUser(4L, clientUser);
 
             mockMvc.perform(delete("/roles/4"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.success").value(true))
                     .andExpect(jsonPath("$.message").value("Deleted successfully"));
 
-            verify(roleService).delete(4L);
+            verify(roleService).deleteByIdAndUser(4L, clientUser);
         }
-    }
-
-    private Role roleOfAnotherCompany() {
-        Company otherCompany = new Company();
-        otherCompany.getCompanySettings().setId(99L);
-        return Role.builder()
-                .id(4L)
-                .roleType(RoleType.ROLE_CLIENT)
-                .code(RoleCode.USER_CREATED)
-                .name("Other Company Role")
-                .companySettings(otherCompany.getCompanySettings())
-                .build();
     }
 }
