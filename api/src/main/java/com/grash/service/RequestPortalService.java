@@ -47,19 +47,35 @@ public class RequestPortalService {
     }
 
 
-    public List<RequestPortal> getAll() {
-        return requestPortalRepository.findAll();
+    public SearchCriteria getSearchCriteria(User user, SearchCriteria searchCriteria) {
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS))
+            throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+        searchCriteria.filterCompany(user);
+        return searchCriteria;
     }
 
-    public void delete(Long id) {
-        requestPortalRepository.deleteById(id);
+    public RequestPortal getById(Long id, User user) {
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        }
+        return requestPortalRepository.findById(id).orElseThrow(() -> new CustomException("Not found",
+                HttpStatus.NOT_FOUND));
     }
 
-    public Optional<RequestPortal> findById(Long id) {
-        return requestPortalRepository.findById(id);
+    public void deleteByIdAndUser(Long id, User user) {
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        }
+        Optional<RequestPortal> optionalRequestPortal = requestPortalRepository.findById(id);
+        if (optionalRequestPortal.isPresent()) {
+            requestPortalRepository.deleteById(id);
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
     public RequestPortal update(Long id, RequestPortalPatchDTO requestPortalPatchDTO, User user) {
+        if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        }
         RequestPortal savedRequestPortal =
                 requestPortalRepository.findById(id).orElseThrow(() -> new CustomException("Not found",
                         HttpStatus.NOT_FOUND));
