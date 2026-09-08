@@ -5,18 +5,13 @@ import com.grash.dto.SuccessResponse;
 import com.grash.dto.TeamMiniDTO;
 import com.grash.dto.TeamPatchDTO;
 import com.grash.dto.TeamShowDTO;
-import com.grash.exception.CustomException;
 import com.grash.mapper.TeamMapper;
-import com.grash.model.User;
+import com.grash.security.CurrentUser;
 import com.grash.model.Team;
-import com.grash.model.enums.PermissionEntity;
-import com.grash.model.enums.RoleType;
+import com.grash.model.User;
 import com.grash.service.TeamService;
-import com.grash.service.UserService;
-import com.grash.utils.Helper;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -24,12 +19,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.persistence.EntityManager;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import java.util.Collection;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -40,91 +32,48 @@ public class TeamController {
 
     private final TeamService teamService;
     private final TeamMapper teamMapper;
-    private final UserService userService;
-    private final EntityManager em;
 
     @PostMapping("/search")
     @PreAuthorize("permitAll()")
     public ResponseEntity<Page<TeamShowDTO>> search(@Parameter(description = "Search criteria for filtering teams") @RequestBody SearchCriteria searchCriteria,
-                                                    HttpServletRequest req) {
-        User user = userService.whoami(req);
-        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
-            if (user.getRole().getViewPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
-                searchCriteria.filterCompany(user);
-            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
-        }
-        return ResponseEntity.ok(teamService.findBySearchCriteria(searchCriteria));
+                                                    @Parameter(hidden = true) @CurrentUser User user) {
+        return ResponseEntity.ok(teamService.findBySearchCriteria(teamService.getSearchCriteria(user, searchCriteria)));
     }
 
     @GetMapping("/mini")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public Collection<TeamMiniDTO> getMini(HttpServletRequest req) {
-        User team = userService.whoami(req);
-        return teamService.findByCompany(team.getCompany().getId()).stream().map(teamMapper::toMiniDto).collect(Collectors.toList());
+    public Collection<TeamMiniDTO> getMini(@Parameter(hidden = true) @CurrentUser User user) {
+        return teamService.findByCompany(user.getCompany().getId()).stream().map(teamMapper::toMiniDto).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    public TeamShowDTO getById(@PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
-        Optional<Team> optionalTeam = teamService.findById(id);
-        if (optionalTeam.isPresent()) {
-            Team savedTeam = optionalTeam.get();
-            if (!savedTeam.canBeViewedBy(user))
-                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-            return teamMapper.toShowDto(savedTeam);
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    public TeamShowDTO getById(@PathVariable("id") Long id, @Parameter(hidden = true) @CurrentUser User user) {
+        return teamMapper.toShowDto(teamService.getById(id, user));
     }
 
     @PostMapping("")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     TeamShowDTO create(@Parameter(description = "Team data to create") @Valid @RequestBody Team teamReq,
-                       HttpServletRequest req) {
-        User user = userService.whoami(req);
-        if (user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
-            Team savedTeam = teamService.create(teamReq);
-            teamService.notify(savedTeam, Helper.getLocale(user));
-            return teamMapper.toShowDto(savedTeam);
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+                       @Parameter(hidden = true) @CurrentUser User user) {
+        return teamMapper.toShowDto(teamService.create(teamReq, user));
     }
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public TeamShowDTO patch(@Parameter(description = "Team fields to update") @Valid @RequestBody TeamPatchDTO team,
-                             @PathVariable(
-                                     "id") Long id,
-                             HttpServletRequest req) {
-        User user = userService.whoami(req);
-        Optional<Team> optionalTeam = teamService.findById(id);
-        if (optionalTeam.isPresent()) {
-            Team savedTeam = optionalTeam.get();
-            if (!savedTeam.canBeEditedBy(user)) {
-                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-            }
-            em.detach(savedTeam);
-            Team patchTeam = teamService.update(id, team);
-            teamService.patchNotify(savedTeam, patchTeam, Helper.getLocale(user));
-            return teamMapper.toShowDto(patchTeam);
-        } else throw new CustomException("Team not found", HttpStatus.NOT_FOUND);
+                             @PathVariable Long id,
+                             @Parameter(hidden = true) @CurrentUser User user) {
+        return teamMapper.toShowDto(teamService.patch(id, team, user));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<SuccessResponse> delete(@PathVariable("id") Long id, HttpServletRequest req) {
-        User user = userService.whoami(req);
-
-        Optional<Team> optionalTeam = teamService.findById(id);
-        if (optionalTeam.isPresent()) {
-            Team savedTeam = optionalTeam.get();
-            if (savedTeam.canBeDeletedBy(user)) {
-                teamService.delete(id);
-                return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
-                        HttpStatus.OK);
-            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-        } else throw new CustomException("Team not found", HttpStatus.NOT_FOUND);
+    public ResponseEntity<SuccessResponse> delete(@PathVariable Long id,
+                                                  @Parameter(hidden = true) @CurrentUser User user) {
+        teamService.deleteByIdAndUser(id, user);
+        return new ResponseEntity<>(new SuccessResponse(true, "Deleted successfully"),
+                HttpStatus.OK);
     }
 
 }
-
-
-

@@ -10,7 +10,10 @@ import com.grash.model.Notification;
 import com.grash.model.User;
 import com.grash.model.Team;
 import com.grash.model.enums.NotificationType;
+import com.grash.model.enums.PermissionEntity;
+import com.grash.model.enums.RoleType;
 import com.grash.repository.TeamRepository;
+import com.grash.utils.Helper;
 import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,29 +38,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TeamService {
     private final TeamRepository teamRepository;
-    private final CompanyService companyService;
     private final TeamMapper teamMapper;
     private final NotificationService notificationService;
     private final EntityManager em;
     private final MessageSource messageSource;
-    private AssetService assetService;
-    private LocationService locationService;
-    private final UserService userService;
-
-    @Autowired
-    public void setDeps(@Lazy AssetService assetService, @Lazy LocationService locationService
-    ) {
-        this.assetService = assetService;
-        this.locationService = locationService;
-    }
-
-    @Transactional
-    public Team create(Team team) {
-        Sanitizer.sanitizeTeam(team);
-        Team savedTeam = teamRepository.saveAndFlush(team);
-        em.refresh(savedTeam);
-        return savedTeam;
-    }
 
     @Transactional
     public Team update(Long id, TeamPatchDTO team) {
@@ -71,13 +55,62 @@ public class TeamService {
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
-    public Collection<Team> getAll() {
-        return teamRepository.findAll();
+    public SearchCriteria getSearchCriteria(User user, SearchCriteria searchCriteria) {
+        if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
+            if (user.getRole().getViewPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
+                searchCriteria.filterCompany(user);
+            } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+        }
+        return searchCriteria;
     }
 
-    public void delete(Long id) {
-        teamRepository.deleteById(id);
+    @Transactional
+    public Team create(Team teamReq, User user) {
+        if (user.getRole().getCreatePermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
+            Sanitizer.sanitizeTeam(teamReq);
+            Team savedTeam = teamRepository.saveAndFlush(teamReq);
+            em.refresh(savedTeam);
+            notify(savedTeam, Helper.getLocale(user));
+            return savedTeam;
+        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
     }
+
+    public Team getById(Long id, User user) {
+        Optional<Team> optionalTeam = findById(id);
+        if (optionalTeam.isPresent()) {
+            Team savedTeam = optionalTeam.get();
+            if (!savedTeam.canBeViewedBy(user))
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            return savedTeam;
+        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    @Transactional
+    public Team patch(Long id, TeamPatchDTO team, User user) {
+        Optional<Team> optionalTeam = findById(id);
+        if (optionalTeam.isPresent()) {
+            Team savedTeam = optionalTeam.get();
+            if (!savedTeam.canBeEditedBy(user)) {
+                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            }
+            em.detach(savedTeam);
+            Team patchTeam = update(id, team);
+            patchNotify(savedTeam, patchTeam, Helper.getLocale(user));
+            return patchTeam;
+        } else throw new CustomException("Team not found", HttpStatus.NOT_FOUND);
+    }
+
+    @Transactional
+    public void deleteByIdAndUser(Long id, User user) {
+        Optional<Team> optionalTeam = findById(id);
+        if (optionalTeam.isPresent()) {
+            Team savedTeam = optionalTeam.get();
+            if (savedTeam.canBeDeletedBy(user)) {
+                teamRepository.deleteById(id);
+            } else throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        } else throw new CustomException("Team not found", HttpStatus.NOT_FOUND);
+    }
+
 
     public Optional<Team> findById(Long id) {
         return teamRepository.findById(id);
