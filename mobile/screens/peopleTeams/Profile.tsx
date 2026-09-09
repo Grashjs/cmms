@@ -1,4 +1,10 @@
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  Dimensions
+} from 'react-native';
 import * as React from 'react';
 import { Fragment, useContext, useEffect, useState } from 'react';
 import { RootStackScreenProps } from '../../types';
@@ -10,6 +16,7 @@ import {
   Divider,
   HelperText,
   Portal,
+  RadioButton,
   Switch,
   Text,
   TextInput
@@ -27,6 +34,9 @@ import { OwnUser } from '../../models/user';
 import { formatImages } from '../../utils/overall';
 import { useAppTheme } from '../../custom-theme';
 import { IconWithLabel } from '../../components/IconWithLabel';
+import internationalization, {
+  supportedLanguages
+} from '../../i18n/i18n';
 
 export default function UserProfile({
   navigation,
@@ -39,7 +49,8 @@ export default function UserProfile({
     userSettings,
     updatePassword,
     patchUser,
-    deleteAccount
+    deleteAccount,
+    companySettings
   } = useAuth();
   const theme = useAppTheme();
   const { t } = useTranslation();
@@ -49,6 +60,13 @@ export default function UserProfile({
   const [openDeleteAccountDialog, setOpenDeleteAccountDialog] =
     useState<boolean>(false);
   const [deletingAccount, setDeletingAccount] = useState<boolean>(false);
+  const [openLanguageDialog, setOpenLanguageDialog] = useState<boolean>(false);
+  const [selectedLanguage, setSelectedLanguage] = useState<string>(
+    (user.language ||
+      companySettings?.generalPreferences?.language ||
+      'EN'
+    ).toLowerCase()
+  );
   const { uploadFiles } = useContext(CompanySettingsContext);
   const switches: {
     value: boolean;
@@ -237,6 +255,50 @@ export default function UserProfile({
     }
   };
 
+  const renderLanguageDialog = () => {
+    return (
+      <Portal theme={theme}>
+        <Dialog
+          visible={openLanguageDialog}
+          onDismiss={() => setOpenLanguageDialog(false)}
+          style={{ backgroundColor: 'white', borderRadius: 5 }}
+        >
+          <Dialog.Title>{t('language')}</Dialog.Title>
+          <Dialog.Content>
+            <ScrollView style={{ maxHeight: Dimensions.get('window').height * 0.5 }}>
+              <RadioButton.Group
+                onValueChange={(value) => setSelectedLanguage(value)}
+                value={selectedLanguage}
+              >
+                {supportedLanguages.map((language) => (
+                  <RadioButton.Item
+                    key={language.code}
+                    label={language.label}
+                    value={language.code}
+                  />
+                ))}
+              </RadioButton.Group>
+            </ScrollView>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setOpenLanguageDialog(false)}>
+              {t('cancel')}
+            </Button>
+            <Button
+              onPress={() => {
+                internationalization.changeLanguage(selectedLanguage);
+                patchUser({ language: selectedLanguage.toUpperCase() as any });
+                setOpenLanguageDialog(false);
+              }}
+            >
+              {t('save')}
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
+    );
+  };
+
   const renderDeleteAccountDialog = () => {
     return (
       <Portal theme={theme}>
@@ -280,6 +342,7 @@ export default function UserProfile({
       }}
     >
       {renderChangePassword()}
+      {renderLanguageDialog()}
       {renderDeleteAccountDialog()}
       <View
         style={{
@@ -398,6 +461,31 @@ export default function UserProfile({
           </View>
         </View>
       )}
+
+      <View style={styles.section}>
+        <Text variant="titleMedium" style={styles.sectionTitle}>
+          {t('language')}
+        </Text>
+        <View style={styles.sectionContent}>
+          <TouchableOpacity onPress={() => setOpenLanguageDialog(true)}>
+            <IconWithLabel
+              label={
+                supportedLanguages.find(
+                  (l) =>
+                    l.code ===
+                    (
+                      user.language ||
+                      companySettings?.generalPreferences?.language ||
+                      'EN'
+                    ).toLowerCase()
+                )?.label || 'English'
+              }
+              icon="translate"
+              color={theme.colors.grey}
+            />
+          </TouchableOpacity>
+        </View>
+      </View>
 
       <View style={{ padding: 20 }}>
         <Button

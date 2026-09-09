@@ -705,7 +705,9 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     companySettings: CompanySettings
   ) => {
     switchLanguage({
-      lng: companySettings.generalPreferences.language.toLowerCase()
+      lng:
+        user.language?.toLowerCase() ||
+        companySettings.generalPreferences.language.toLowerCase()
     });
     checkPushNotificationState();
     globalDispatch(getCustomFields());

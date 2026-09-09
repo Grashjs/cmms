@@ -55,4 +55,44 @@ i18n
     }
   });
 
+export type SupportedLanguage =
+  | 'DE'
+  | 'EN'
+  | 'FR'
+  | 'TR'
+  | 'ES'
+  | 'PT_BR'
+  | 'PL'
+  | 'IT'
+  | 'SV'
+  | 'RU'
+  | 'AR'
+  | 'HU'
+  | 'NL'
+  | 'ZH_CN'
+  | 'BA'
+  | 'JA';
+
+export const supportedLanguages: {
+  code: Lowercase<SupportedLanguage>;
+  label: string;
+}[] = [
+  { code: 'en', label: 'English' },
+  { code: 'fr', label: 'French' },
+  { code: 'es', label: 'Spanish' },
+  { code: 'de', label: 'German' },
+  { code: 'tr', label: 'Turkish' },
+  { code: 'pt_br', label: 'Portuguese (Brazil)' },
+  { code: 'pl', label: 'Polish' },
+  { code: 'ar', label: 'Arabic' },
+  { code: 'it', label: 'Italian' },
+  { code: 'sv', label: 'Swedish' },
+  { code: 'ru', label: 'Russian' },
+  { code: 'hu', label: 'Hungarian' },
+  { code: 'nl', label: 'Dutch' },
+  { code: 'zh_cn', label: 'Chinese (Simplified)' },
+  { code: 'ba', label: 'Bosnian' },
+  { code: 'ja', label: 'Japanese' }
+];
+
 export default i18n;

@@ -2,6 +2,7 @@ import { Audit } from './audit';
 import { Role } from './role';
 import File from './file';
 import { UiConfiguration } from './uiConfiguration';
+import { SupportedLanguage } from '../i18n/i18n';
 
 export type UserRole = 'admin' | 'customer' | 'subscriber';
 export default interface User {
@@ -28,6 +29,7 @@ export interface OwnUser extends Audit {
   role: Role;
   companyId: number;
   image: File;
+  language: SupportedLanguage;
 }
 
 export interface UserMiniDTO {
