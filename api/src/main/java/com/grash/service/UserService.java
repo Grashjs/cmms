@@ -327,6 +327,8 @@ public class UserService {
         try {
             email = email.toLowerCase();
             User user = findByEmail(email).get();
+            if (!user.isEnabled())
+                throw new CustomException("User is disabled", HttpStatus.NOT_ACCEPTABLE);
             Helper helper = new Helper();
             String password = helper.generateString().replace("-", "").substring(0, 8).toUpperCase();
 
