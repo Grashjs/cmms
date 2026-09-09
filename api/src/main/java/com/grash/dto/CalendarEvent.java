@@ -14,10 +14,14 @@ import java.util.Date;
 public class CalendarEvent<T> {
     @Schema(description = "Event type")
     private String type;
-    
+
     @Schema(description = "Event data")
     private T event;
-    
+
     @Schema(description = "Event date")
     private Date date;
+
+    @Schema(description = "Event end date")
+    private Date endDate;
+
 }

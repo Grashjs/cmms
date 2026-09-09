@@ -1204,12 +1204,28 @@ public class WorkOrderService {
                             .filter(calendarEvent -> canViewWorkOrderBase(user, calendarEvent.getEvent()))
                             .map(calendarEvent -> new CalendarEvent<>(calendarEvent.getType(),
                                     preventiveMaintenanceMapper.toBaseMiniDto(calendarEvent.getEvent()),
-                                    calendarEvent.getDate()))
+                                    calendarEvent.getDate(),
+                                    calendarEvent.getEndDate()))
                             .toList());
-                    result.addAll(findByDueDateBetweenAndCompany(dateRange.getStart(),
-                            dateRange.getEnd(),
-                            compId).stream().filter(workOrder -> canViewWorkOrderBase(user, workOrder)).map(workOrderMapper::toBaseMiniDto).map(workOrderMiniDTO -> new CalendarEvent<>("WORK_ORDER",
-                            workOrderMiniDTO, workOrderMiniDTO.getDueDate())).toList());
+                    result.addAll(workOrderRepository.findByDueDateOrEstimatedStartDateInRange(dateRange.getStart(),
+                                    dateRange.getEnd(),
+                                    compId).stream().filter(workOrder -> canViewWorkOrderBase(user, workOrder))
+                            .map(workOrder -> {
+                                WorkOrderBaseMiniDTO miniDto = workOrderMapper.toBaseMiniDto(workOrder);
+                                long durationMillis = workOrder.getEstimatedDuration() > 0
+                                        ? (long) (workOrder.getEstimatedDuration() * 3600_000)
+                                        : 3600_000L;
+                                Date eventDate;
+                                Date eventEndDate;
+                                if (workOrder.getEstimatedStartDate() != null) {
+                                    eventDate = workOrder.getEstimatedStartDate();
+                                    eventEndDate = new Date(eventDate.getTime() + durationMillis);
+                                } else {
+                                    eventEndDate = workOrder.getDueDate();
+                                    eventDate = new Date(eventEndDate.getTime() - durationMillis);
+                                }
+                                return new CalendarEvent<>("WORK_ORDER", miniDto, eventDate, eventEndDate);
+                            }).toList());
                 }
                 return result;
             });

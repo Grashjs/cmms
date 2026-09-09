@@ -37,6 +37,8 @@ import org.springframework.transaction.annotation.Transactional;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.JoinType;
 
+import java.util.concurrent.TimeUnit;
+
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -110,7 +112,8 @@ public class PreventiveMaintenanceService {
             PreventiveMaintenance savedPreventiveMaintenance = optionalPreventiveMaintenance.get();
             if (savedPreventiveMaintenance.canBeEditedBy(user)) {
                 if (!user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.PREVENTIVE_MAINTENANCE)) {
-                    throw new CustomException("Preventive maintenance feature is not enabled for this subscription plan.",
+                    throw new CustomException("Preventive maintenance feature is not enabled for this subscription " +
+                            "plan.",
                             HttpStatus.FORBIDDEN);
                 }
                 PreventiveMaintenance pmToSave =
@@ -334,7 +337,21 @@ public class PreventiveMaintenanceService {
 
                 // Convert fire times to calendar events
                 result.addAll(fireTimes.stream()
-                        .map(date -> new CalendarEvent<>("PREVENTIVE_MAINTENANCE", preventiveMaintenance, date))
+                        .map(fireTime -> {
+                            long durationMillis = preventiveMaintenance.getEstimatedDuration() > 0
+                                    ? (long) (preventiveMaintenance.getEstimatedDuration() * 3600_000)
+                                    : 3600_000L;
+                            Date eventDate;
+                            Date endDate = fireTime;
+                            if (schedule.getDueDateDelay() != null) {
+                                endDate =
+                                        new Date(fireTime.getTime() + TimeUnit.DAYS.toMillis(schedule.getDueDateDelay()));
+                            }
+                            eventDate = new Date(endDate.getTime() - durationMillis);
+
+                            return new CalendarEvent<>("PREVENTIVE_MAINTENANCE", preventiveMaintenance, eventDate,
+                                    endDate);
+                        })
                         .toList());
 
             } catch (SchedulerException e) {

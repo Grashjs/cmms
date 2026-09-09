@@ -37,7 +37,7 @@ public abstract class WorkOrderBase extends CompanyAudit {
     private double estimatedDuration;
 
     @Schema(description = "The estimated start date for the work order")
-    private Date estimatedStartDate;
+    private Date estimatedStartDate; //unused for PMs
 
     @Schema(description = "Detailed description of the work order", maxLength = 10000)
     @Column(length = 10000)
@@ -106,7 +106,7 @@ public abstract class WorkOrderBase extends CompanyAudit {
     @ManyToOne
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private Asset asset;
-    
+
     public abstract List<CustomFieldValue> getCustomFieldValues();
 
     @JsonIgnore

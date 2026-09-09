@@ -628,7 +628,8 @@ class WorkOrderControllerTest extends AbstractControllerTest {
             WorkOrderBaseMiniDTO miniDto = new WorkOrderBaseMiniDTO();
             miniDto.setId(1L);
             miniDto.setTitle("Event WO");
-            CalendarEvent<WorkOrderBaseMiniDTO> event = new CalendarEvent<>("workOrder", miniDto, new Date());
+            CalendarEvent<WorkOrderBaseMiniDTO> event = new CalendarEvent<>("workOrder", miniDto, new Date(),
+                    new Date(new Date().getTime() + 36000));
             when(workOrderService.getEvents(any(), isNull(), eq(clientUser)))
                     .thenReturn(Collections.singletonList(event));
 

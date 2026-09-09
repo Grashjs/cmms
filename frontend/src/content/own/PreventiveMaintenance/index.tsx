@@ -592,7 +592,11 @@ function PMs() {
     )
   };
   const getFieldsAndShapes = (): [Array<IField>, { [key: string]: any }] => {
-    return getWOFieldsAndShapes(defaultFields, defaultShape);
+    const fieldsAndShapes = getWOFieldsAndShapes(defaultFields, defaultShape);
+    return [
+      fieldsAndShapes[0].filter((field) => field.name !== 'estimatedStartDate'),
+      fieldsAndShapes[1]
+    ];
   };
   const renderAddModal = () => (
     <Dialog

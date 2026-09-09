@@ -2266,7 +2266,7 @@ class WorkOrderServiceTest {
 
             WorkOrder wo = buildWorkOrder(1L);
             wo.setDueDate(futureDate);
-            when(workOrderRepository.findByDueDateBetweenAndCompany_Id(range.getStart(), range.getEnd(),
+            when(workOrderRepository.findByDueDateOrEstimatedStartDateInRange(range.getStart(), range.getEnd(),
                     company.getId()))
                     .thenReturn(List.of(wo));
 
@@ -2294,7 +2294,7 @@ class WorkOrderServiceTest {
             when(preventiveMaintenanceService.getEvents(range.getEnd(), company.getId()))
                     .thenReturn(List.of(pmEvent));
 
-            when(workOrderRepository.findByDueDateBetweenAndCompany_Id(any(), any(), any()))
+            when(workOrderRepository.findByDueDateOrEstimatedStartDateInRange(any(), any(), any()))
                     .thenReturn(Collections.emptyList());
 
             Collection<CalendarEvent<WorkOrderBaseMiniDTO>> result =
@@ -2318,7 +2318,7 @@ class WorkOrderServiceTest {
             wo.setPrimaryUser(buildUser(888L));
             wo.setAssignedTo(new ArrayList<>());
             wo.setDueDate(futureDate);
-            when(workOrderRepository.findByDueDateBetweenAndCompany_Id(range.getStart(), range.getEnd(),
+            when(workOrderRepository.findByDueDateOrEstimatedStartDateInRange(range.getStart(), range.getEnd(),
                     company.getId()))
                     .thenReturn(List.of(wo));
 
@@ -2342,7 +2342,7 @@ class WorkOrderServiceTest {
             wo.setPrimaryUser(buildUser(888L));
             wo.setAssignedTo(new ArrayList<>());
             wo.setDueDate(futureDate);
-            when(workOrderRepository.findByDueDateBetweenAndCompany_Id(range.getStart(), range.getEnd(),
+            when(workOrderRepository.findByDueDateOrEstimatedStartDateInRange(range.getStart(), range.getEnd(),
                     company.getId()))
                     .thenReturn(List.of(wo));
 
@@ -2370,7 +2370,7 @@ class WorkOrderServiceTest {
             wo.setPrimaryUser(user);
             wo.setAssignedTo(new ArrayList<>());
             wo.setDueDate(futureDate);
-            when(workOrderRepository.findByDueDateBetweenAndCompany_Id(range.getStart(), range.getEnd(),
+            when(workOrderRepository.findByDueDateOrEstimatedStartDateInRange(range.getStart(), range.getEnd(),
                     company.getId()))
                     .thenReturn(List.of(wo));
 
@@ -2391,14 +2391,14 @@ class WorkOrderServiceTest {
 
             when(preventiveMaintenanceService.getEvents(range.getEnd(), company.getId()))
                     .thenReturn(Collections.emptyList());
-            when(workOrderRepository.findByDueDateBetweenAndCompany_Id(range.getStart(), range.getEnd(),
+            when(workOrderRepository.findByDueDateOrEstimatedStartDateInRange(range.getStart(), range.getEnd(),
                     company.getId()))
                     .thenReturn(Collections.emptyList());
 
             Collection<CalendarEvent<WorkOrderBaseMiniDTO>> result =
                     workOrderService.getEvents(range, company.getId(), user);
 
-            verify(workOrderRepository).findByDueDateBetweenAndCompany_Id(range.getStart(), range.getEnd(),
+            verify(workOrderRepository).findByDueDateOrEstimatedStartDateInRange(range.getStart(), range.getEnd(),
                     company.getId());
             assertTrue(result.isEmpty());
         }
@@ -2420,7 +2420,7 @@ class WorkOrderServiceTest {
 
             when(preventiveMaintenanceService.getEvents(any(), any()))
                     .thenReturn(Collections.emptyList());
-            when(workOrderRepository.findByDueDateBetweenAndCompany_Id(any(), any(), any()))
+            when(workOrderRepository.findByDueDateOrEstimatedStartDateInRange(any(), any(), any()))
                     .thenReturn(Collections.emptyList());
 
             Collection<CalendarEvent<WorkOrderBaseMiniDTO>> result =
@@ -2443,7 +2443,7 @@ class WorkOrderServiceTest {
             when(preventiveMaintenanceService.getEvents(range.getEnd(), company.getId()))
                     .thenReturn(List.of(pmEvent));
 
-            when(workOrderRepository.findByDueDateBetweenAndCompany_Id(any(), any(), any()))
+            when(workOrderRepository.findByDueDateOrEstimatedStartDateInRange(any(), any(), any()))
                     .thenReturn(Collections.emptyList());
 
             WorkOrderBaseMiniDTO pmDto = new WorkOrderBaseMiniDTO();
@@ -2473,16 +2473,16 @@ class WorkOrderServiceTest {
             user.setSuperAccountRelations(List.of(relation));
 
             when(preventiveMaintenanceService.getEvents(any(), any())).thenReturn(Collections.emptyList());
-            when(workOrderRepository.findByDueDateBetweenAndCompany_Id(any(), any(), anyLong()))
+            when(workOrderRepository.findByDueDateOrEstimatedStartDateInRange(any(), any(), anyLong()))
                     .thenReturn(Collections.emptyList());
 
             Collection<CalendarEvent<WorkOrderBaseMiniDTO>> result =
                     workOrderService.getEvents(range, null, user);
 
             verify(workOrderRepository, never())
-                    .findByDueDateBetweenAndCompany_Id(any(), any(), eq(company.getId()));
+                    .findByDueDateOrEstimatedStartDateInRange(any(), any(), eq(company.getId()));
             verify(workOrderRepository)
-                    .findByDueDateBetweenAndCompany_Id(any(), any(), eq(2L));
+                    .findByDueDateOrEstimatedStartDateInRange(any(), any(), eq(2L));
             assertTrue(result.isEmpty());
         }
     }
