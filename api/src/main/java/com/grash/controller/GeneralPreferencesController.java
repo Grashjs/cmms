@@ -67,7 +67,7 @@ public class GeneralPreferencesController {
             GeneralPreferences savedGeneralPreferences = optionalGeneralPreferences.get();
             if (savedGeneralPreferences.getCompanySettings().getId().equals(user.getCompany().getCompanySettings().getId())
                     && user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
-                return generalPreferencesService.update(id, generalPreferences);
+                return generalPreferencesService.update(id, generalPreferences, user);
             } else {
                 throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
             }

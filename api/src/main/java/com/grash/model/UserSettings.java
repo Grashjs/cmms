@@ -29,9 +29,6 @@ public class UserSettings {
     @Schema(description = "Whether stats for assigned work orders are shown")
     private boolean statsForAssignedWorkOrders = true;
 
-    @Nullable
-    private Language language;
-
     public boolean shouldEmailUpdatesForWorkOrders() {
         return emailNotified && emailUpdatesForWorkOrders;
     }

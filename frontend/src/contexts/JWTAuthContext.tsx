@@ -540,9 +540,14 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     }
     return user;
   };
-  const setupUser = async (companySettings: CompanySettings) => {
+  const setupUser = async (
+    user: UserResponseDTO,
+    companySettings: CompanySettings
+  ) => {
     switchLanguage({
-      lng: companySettings.generalPreferences.language.toLowerCase()
+      lng:
+        user.language?.toLowerCase() ||
+        companySettings.generalPreferences.language.toLowerCase()
     });
   };
   const getInfos = async (): Promise<void> => {
@@ -566,7 +571,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         setSession(newAccessToken, newRefreshToken);
         const user = await updateUserInfos();
         const company = await api.get<Company>(`companies/${user.companyId}`);
-        await setupUser(company.companySettings);
+        await setupUser(user, company.companySettings);
         dispatch({
           type: 'INITIALIZE',
           payload: {
@@ -632,7 +637,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     }
     const user = await updateUserInfos();
     const company = await api.get<Company>(`companies/${user.companyId}`);
-    await setupUser(company.companySettings);
+    await setupUser(user, company.companySettings);
     //@ts-ignore
     dispatch({
       type: 'LOGIN',

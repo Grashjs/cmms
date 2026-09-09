@@ -5,6 +5,7 @@ import com.grash.model.File;
 import com.grash.model.Role;
 import com.grash.model.SuperAccountRelation;
 import com.grash.model.UiConfiguration;
+import com.grash.model.enums.Language;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -84,4 +85,6 @@ public class UserResponseDTO {
 
     @Schema(hidden = true)
     private ShiftConfigurationShowDTO shiftConfiguration;
+
+    private Language language;
 }

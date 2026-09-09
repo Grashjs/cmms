@@ -2,6 +2,7 @@ package com.grash.dto;
 
 import com.grash.model.File;
 import com.grash.model.Location;
+import com.grash.model.enums.Language;
 import com.grash.validation.ValidPassword;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -38,4 +39,7 @@ public class UserPatchDTO {
     @Schema(description = "New password for the user")
     @ValidPassword
     private String newPassword;
+
+    @Schema(description = "User language")
+    private Language language;
 }

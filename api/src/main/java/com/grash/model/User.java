@@ -3,9 +3,11 @@ package com.grash.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.Audit;
+import com.grash.model.enums.Language;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.annotation.Nullable;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -136,6 +138,9 @@ public class User extends Audit {
     @Schema(description = "Timestamp of the last session revocation (logout, password change, disable). " +
             "JWTs issued before this timestamp are rejected.", accessMode = Schema.AccessMode.READ_ONLY)
     private Date sessionInvalidatedAt;
+
+    @Nullable
+    private Language language;
 
 
     public int hashCode() {

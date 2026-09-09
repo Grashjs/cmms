@@ -137,7 +137,7 @@ public class Helper {
     }
 
     public static Locale getLocale(User user) {
-        Language userLanguage = user.getUserSettings().getLanguage();
+        Language userLanguage = user.getLanguage();
         return userLanguage == null ? getLocale(user.getCompany()) : getLocale(userLanguage);
     }
 

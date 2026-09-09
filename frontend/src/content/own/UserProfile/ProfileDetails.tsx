@@ -8,6 +8,8 @@ import {
   DialogContent,
   Divider,
   Grid,
+  MenuItem,
+  Select,
   Switch,
   TextField,
   Typography
@@ -23,11 +25,17 @@ import { phoneRegExp } from '../../../utils/validators';
 import CustomDialog from '../components/CustomDialog';
 import useAuth from '../../../hooks/useAuth';
 import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
+import internationalization, {
+  loadLanguage,
+  SupportedLanguage,
+  supportedLanguages
+} from '../../../i18n/i18n';
 
 function ProfileDetails() {
   const { t }: { t: any } = useTranslation();
   const {
     user,
+    companySettings,
     userSettings,
     fetchUserSettings,
     patchUserSettings,
@@ -42,17 +50,39 @@ function ProfileDetails() {
   const handleOpenPasswordModal = () => setOpenPasswordModal(true);
   const handleClosePasswordModal = () => setOpenPasswordModal(false);
 
+  const switchLanguage = async ({ lng }: { lng: any }) => {
+    await loadLanguage(lng);
+    await internationalization.changeLanguage(lng);
+  };
+
   useEffect(() => {
     fetchUserSettings();
   }, []);
 
-  const userConfig = {
+  const userConfig:
+    | Record<string, { value: string; title: string; label?: string }> & {
+        language: { value: SupportedLanguage; title: string; label: string };
+      } = {
     firstName: { value: user.firstName, title: t('first_name') },
     lastName: { value: user.lastName, title: t('last_name') },
     email: { value: user.email, title: t('email') },
     phone: { value: user.phone, title: t('phone') },
     jobTitle: { value: user.jobTitle, title: t('job_title') },
-    settings: {
+    language: {
+      value: user.language || companySettings.generalPreferences.language,
+      label: supportedLanguages.find(
+        (lang) =>
+          lang.code ===
+          (
+            user.language || companySettings.generalPreferences.language
+          ).toLowerCase()
+      )?.label,
+      title: t('language')
+    }
+  };
+
+  const userBooleanSettings: Record<string, { value: boolean; title: string }> =
+    {
       emailNotified: {
         value: userSettings?.emailNotified,
         title: t('email_notifications')
@@ -70,8 +100,7 @@ function ProfileDetails() {
       //   value: userSettings?.emailUpdatesForPurchaseOrders,
       //   title: t('po_emails')
       // }
-    }
-  };
+    };
 
   const renderKeyAndValue = (key: string, value: string) => {
     return (
@@ -123,7 +152,8 @@ function ProfileDetails() {
           firstName: userConfig.firstName.value,
           lastName: userConfig.lastName.value,
           phone: userConfig.phone.value,
-          jobTitle: userConfig.jobTitle.value
+          jobTitle: userConfig.jobTitle.value,
+          language: userConfig.language.value
         }}
         validationSchema={Yup.object().shape({
           firstName: Yup.string().max(100).required(t('required_firstName')),
@@ -132,14 +162,19 @@ function ProfileDetails() {
           jobTitle: Yup.string()
             .max(100)
             .required(t('required_job_title'))
-            .nullable()
+            .nullable(),
+          language: Yup.string()
         })}
         onSubmit={async (
           _values,
           { resetForm, setErrors, setStatus, setSubmitting }
         ) => {
           setSubmitting(true);
+          const { language } = _values;
           return patchUser(_values)
+            .then(() => {
+              switchLanguage({ lng: language.toLowerCase() });
+            })
             .then(handleCloseEditModal)
             .finally(() => setSubmitting(false));
         }}
@@ -215,6 +250,27 @@ function ProfileDetails() {
                         variant="outlined"
                       />
                     </Grid>
+                    <Grid item xs={12}>
+                      <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                        {t('language')}
+                      </Typography>
+                      <Select
+                        fullWidth
+                        name="language"
+                        value={values.language}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                      >
+                        {supportedLanguages.map((language) => (
+                          <MenuItem
+                            key={language.code}
+                            value={language.code.toUpperCase()}
+                          >
+                            {language.label}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </Grid>
                   </Grid>
                 </Grid>
               </Grid>
@@ -257,8 +313,7 @@ function ProfileDetails() {
           confirmPassword: ''
         }}
         validationSchema={Yup.object().shape({
-          oldPassword: Yup.string()
-            .required(t('required_old_password')),
+          oldPassword: Yup.string().required(t('required_old_password')),
           newPassword: Yup.string()
             .required(t('required_new_password'))
             .min(12, t('invalid_password')),
@@ -424,11 +479,10 @@ function ProfileDetails() {
             <Typography variant="subtitle2">
               <Grid container spacing={0}>
                 {Object.keys(userConfig).map((key) => {
-                  if (key !== 'settings')
-                    return renderKeyAndValue(
-                      userConfig[key].title,
-                      userConfig[key].value
-                    );
+                  return renderKeyAndValue(
+                    userConfig[key].title,
+                    userConfig[key].label || userConfig[key].value
+                  );
                 })}
               </Grid>
             </Typography>
@@ -460,10 +514,10 @@ function ProfileDetails() {
           >
             <Typography variant="subtitle2">
               <Grid container spacing={0}>
-                {Object.keys(userConfig.settings).map((key) =>
+                {Object.keys(userBooleanSettings).map((key) =>
                   renderKeyAndSwitch(
-                    userConfig.settings[key].title,
-                    userConfig.settings[key].value,
+                    userBooleanSettings[key].title,
+                    userBooleanSettings[key].value,
                     key
                   )
                 )}

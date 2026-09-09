@@ -4,7 +4,9 @@ import com.grash.dto.GeneralPreferencesPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.GeneralPreferencesMapper;
 import com.grash.model.GeneralPreferences;
+import com.grash.model.User;
 import com.grash.repository.GeneralPreferencesRepository;
+import com.grash.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,7 @@ public class GeneralPreferencesService {
 
     private static final Pattern URL_PATTERN =
             Pattern.compile("(?i)\\b(https?://|www\\.)\\S+\\b");
+    private final UserRepository userRepository;
 
     public static boolean isValidColor(String text) {
         if (text == null || text.isBlank()) {
@@ -38,13 +41,17 @@ public class GeneralPreferencesService {
         return generalPreferencesRepository.save(GeneralPreferences);
     }
 
-    public GeneralPreferences update(Long id, GeneralPreferencesPatchDTO generalPreferencesPatchDTO) {
+    public GeneralPreferences update(Long id, GeneralPreferencesPatchDTO generalPreferencesPatchDTO, User user) {
         if (generalPreferencesRepository.existsById(id)) {
             if (generalPreferencesPatchDTO.getColor() != null && !generalPreferencesPatchDTO.getColor().isBlank())
                 if (!isValidColor(generalPreferencesPatchDTO.getColor())) {
                     throw new CustomException("Invalid color format", HttpStatus.BAD_REQUEST);
                 }
             GeneralPreferences savedGeneralPreferences = generalPreferencesRepository.findById(id).get();
+            if (savedGeneralPreferences.getLanguage() != generalPreferencesPatchDTO.getLanguage()) {
+                user.setLanguage(generalPreferencesPatchDTO.getLanguage());
+                userRepository.save(user);
+            }
             GeneralPreferences result =
                     generalPreferencesRepository.save(generalPreferencesMapper.updateGeneralPreferences(savedGeneralPreferences, generalPreferencesPatchDTO));
             cacheService.evictCompanyUsersFromCache(savedGeneralPreferences.getCompanySettings().getCompany().getId());

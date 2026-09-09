@@ -12,4 +12,12 @@
             </column>
         </addColumn>
     </changeSet>
+    <changeSet id="1788957165122-1" author="Ibrahima G. Coulibaly">
+        <dropColumn tableName="user_settings" columnName="language"/>
+        <addColumn tableName="own_user">
+            <column name="language" type="int">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

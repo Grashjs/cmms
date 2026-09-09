@@ -2,6 +2,7 @@ import { Audit } from './owns/audit';
 import { Role } from './owns/role';
 import File, { FileThumbnailDTO } from './owns/file';
 import { UiConfiguration } from './owns/uiConfiguration';
+import { SupportedLanguage } from '../i18n/i18n';
 
 export type UserRole = 'admin' | 'customer' | 'subscriber';
 
@@ -36,6 +37,7 @@ export interface OwnUser extends Audit {
   lastLogin: string;
   enabled: boolean;
   paddleUserId: string;
+  language: SupportedLanguage;
 }
 export interface UserMiniDTO {
   firstName: string;
