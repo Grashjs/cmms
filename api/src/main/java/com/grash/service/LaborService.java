@@ -86,6 +86,8 @@ public class LaborService {
     }
 
     public Labor stop(Labor labor) {
+        if (labor.getStatus() != null && labor.getStatus().equals(TimeStatus.STOPPED))
+            return labor;
         labor.setStatus(TimeStatus.STOPPED);
         labor.setDuration(labor.getDuration() + Helper.getDateDiff(labor.getStartedAt(), new Date(), TimeUnit.SECONDS));
         return save(labor);
