@@ -61,7 +61,7 @@ export default function AssetDetailsHome({
     <TabBar
       {...props}
       scrollEnabled
-      indicatorStyle={{ backgroundColor: 'white' }}
+      indicatorStyle={{ backgroundColor: theme.colors.onPrimary }}
       style={{ backgroundColor: theme.colors.primary }}
     />
   );

@@ -33,11 +33,11 @@ const CommentWrapper = styled(Box)<{ highlighted?: boolean }>(
   ({ theme, highlighted }) => `
     padding: ${theme.spacing(2)};
     border-radius: ${theme.general.borderRadius};
-    background: ${theme.colors.alpha.white[100]};
+    background: ${theme.palette.background.paper};
     border: ${
       highlighted
         ? `2px solid ${theme.palette.primary.main}`
-        : `1px solid ${theme.colors.alpha.black[10]}`
+        : `1px solid ${theme.palette.divider}`
     };
     transition: all 0.2s ease-in-out;
     ${highlighted ? `box-shadow: 0 0 8px ${theme.palette.primary.main}40;` : ''}

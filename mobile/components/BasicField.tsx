@@ -1,5 +1,5 @@
 import { View } from './Themed';
-import { Divider, Text, TouchableRipple } from 'react-native-paper';
+import { Divider, Text, TouchableRipple, useTheme } from 'react-native-paper';
 import * as React from 'react';
 import { Linking } from 'react-native';
 
@@ -12,6 +12,8 @@ export default function BasicField({
   value: string | number;
   isLink?: boolean;
 }) {
+  const theme = useTheme();
+
   if (!value) return null;
 
   const handlePress = () => {
@@ -39,7 +41,11 @@ export default function BasicField({
         {isLink ? (
           <TouchableRipple onPress={handlePress}>
             <Text
-              style={{ fontWeight: 'bold', flexShrink: 1, color: '#1976d2' }}
+              style={{
+                fontWeight: 'bold',
+                flexShrink: 1,
+                color: theme.colors.primary
+              }}
             >
               {value}
             </Text>

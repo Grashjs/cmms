@@ -4,22 +4,31 @@
  */
 
 import { Text as DefaultText, View as DefaultView } from 'react-native';
+import { useTheme } from 'react-native-paper';
 
 import Colors from '../constants/Colors';
-import useColorScheme from '../hooks/useColorScheme';
 
 export function useThemeColor(
   props: { light?: string; dark?: string },
   colorName: keyof typeof Colors.light & keyof typeof Colors.dark
 ) {
-  const theme = useColorScheme();
-  const colorFromProps = props[theme];
+  const paperTheme = useTheme();
+  const colorScheme = paperTheme.dark ? 'dark' : 'light';
+  const colorFromProps = props[colorScheme];
 
   if (colorFromProps) {
     return colorFromProps;
-  } else {
-    return Colors[theme][colorName];
   }
+
+  const themeColor = paperTheme.colors[
+    colorName as keyof typeof paperTheme.colors
+  ] as string | undefined;
+
+  if (themeColor) {
+    return themeColor;
+  }
+
+  return Colors[colorScheme][colorName];
 }
 
 type ThemeProps = {
@@ -43,10 +52,16 @@ export function View(props: ViewProps) {
     { light: lightColor, dark: darkColor },
     'background'
   );
+  const paperTheme = useTheme();
+  const colorScheme = paperTheme.dark ? 'dark' : 'light';
+  const defaultBackgroundColor =
+    colorScheme === 'light' ? Colors.light.background : Colors.dark.background;
+  const resolvedBackgroundColor =
+    backgroundColor ?? paperTheme.colors.background ?? defaultBackgroundColor;
 
   return (
     <DefaultView
-      style={[{ backgroundColor: 'white' }, style]}
+      style={[{ backgroundColor: resolvedBackgroundColor }, style]}
       {...otherProps}
     />
   );

@@ -27,14 +27,28 @@ const DropDownSheet = (
   };
 
   return (
-    <ActionSheet id={props.sheetId}>
-      <View style={{ padding: 20 }}>
+    <ActionSheet
+      id={props.sheetId}
+      containerStyle={{
+        backgroundColor: theme.colors.surface,
+        borderTopLeftRadius: 14,
+        borderTopRightRadius: 14
+      }}
+      indicatorStyle={{ backgroundColor: theme.colors.onSurfaceVariant }}
+    >
+      <View style={{ padding: 20, backgroundColor: theme.colors.surface }}>
         {items.map((item) => (
           <TouchableOpacity
             key={item.value}
             onPress={() => handleSelect(item.value)}
             style={{
-              paddingVertical: 15
+              paddingVertical: 15,
+              borderRadius: 8,
+              backgroundColor:
+                value === item.value
+                  ? theme.colors.primaryContainer
+                  : theme.colors.surface,
+              marginBottom: 5
             }}
           >
             <Text

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ThemeProvider } from '@mui/material';
+import { ThemeProvider } from '@mui/material/styles';
 import { themeCreator } from './base';
 import { StylesProvider } from '@mui/styles';
 import { CacheProvider } from '@emotion/react';

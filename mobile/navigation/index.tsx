@@ -4,7 +4,7 @@
  *
  */
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
+import { DarkTheme, DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as React from 'react';
 import {
@@ -119,7 +119,7 @@ export default function Navigation({
     <NavigationContainer
       ref={navigationRef}
       linking={LinkingConfiguration}
-      theme={DefaultTheme}
+      theme={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
     >
       {isInitialized ? (
         isAuthenticated ? (
@@ -603,7 +603,7 @@ function BottomTabNavigator({ navigation }: RootTabScreenProps<'Home'>) {
           paddingTop: 6,
           paddingBottom: Platform.OS === 'ios' ? 18 : 10,
           borderTopWidth: 0,
-          shadowColor: '#000',
+          shadowColor: theme.colors.onSurface,
           shadowOpacity: 0.15,
           shadowRadius: 8,
           shadowOffset: { width: 0, height: -2 }
