@@ -137,50 +137,36 @@ public class Helper {
     }
 
     public static Locale getLocale(User user) {
-        return getLocale(user.getCompany());
+        Language userLanguage = user.getUserSettings().getLanguage();
+        return userLanguage == null ? getLocale(user.getCompany()) : getLocale(userLanguage);
     }
 
     public static Locale getLocale(Company company) {
         Language language = company.getCompanySettings().getGeneralPreferences().getLanguage();
-        switch (language) {
-            case FR:
-                return Locale.FRANCE;
-            case TR:
-                return new Locale("tr", "TR");
-            case ES:
-                return new Locale("es", "ES");
-            case PT_BR:
-                return new Locale("pt", "BR");
-            case PT:
-                return new Locale("pt", "BR");
-            case PL:
-                return new Locale("pl", "PL");
-            case DE:
-                return new Locale("de", "DE");
-            case AR:
-                return new Locale("ar", "AR");
-            case IT:
-                return new Locale("it", "IT");
-            case SV:
-                return new Locale("sv", "SE");
-            case RU:
-                return new Locale("ru", "RU");
-            case HU:
-                return new Locale("hu", "HU");
-            case NL:
-                return new Locale("nl", "NL");
-            case ZH_CN:
-                return new Locale("zh", "CN");
-            case ZH:
-                return new Locale("zh", "CN");
-            case BA:
-                return new Locale("ba", "BA");
-            case JA:
-                return new Locale("ja", "JP");
+        return getLocale(language);
+    }
 
-            default:
-                return Locale.getDefault();
-        }
+    private static Locale getLocale(Language language) {
+        return switch (language) {
+            case FR -> Locale.FRANCE;
+            case TR -> new Locale("tr", "TR");
+            case ES -> new Locale("es", "ES");
+            case PT_BR -> new Locale("pt", "BR");
+            case PT -> new Locale("pt", "BR");
+            case PL -> new Locale("pl", "PL");
+            case DE -> new Locale("de", "DE");
+            case AR -> new Locale("ar", "AR");
+            case IT -> new Locale("it", "IT");
+            case SV -> new Locale("sv", "SE");
+            case RU -> new Locale("ru", "RU");
+            case HU -> new Locale("hu", "HU");
+            case NL -> new Locale("nl", "NL");
+            case ZH_CN -> new Locale("zh", "CN");
+            case ZH -> new Locale("zh", "CN");
+            case BA -> new Locale("ba", "BA");
+            case JA -> new Locale("ja", "JP");
+            default -> Locale.getDefault();
+        };
     }
 
     public static boolean isRtl(Company company) {

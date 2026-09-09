@@ -239,4 +239,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_08_31_00000000001_fix_part_version_null.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_09_09_1788956680_user_settings_language.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

@@ -1,14 +1,12 @@
 package com.grash.model;
 
+import com.grash.model.enums.Language;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.annotation.Nullable;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 
 @Entity
 @NoArgsConstructor
@@ -30,6 +28,9 @@ public class UserSettings {
     private boolean emailUpdatesForPurchaseOrders = true;
     @Schema(description = "Whether stats for assigned work orders are shown")
     private boolean statsForAssignedWorkOrders = true;
+
+    @Nullable
+    private Language language;
 
     public boolean shouldEmailUpdatesForWorkOrders() {
         return emailNotified && emailUpdatesForWorkOrders;
