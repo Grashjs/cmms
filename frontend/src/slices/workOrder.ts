@@ -21,6 +21,7 @@ const basePath = 'work-orders';
 export interface CalendarEvent<T extends WorkOrderBase> {
   type: string;
   date: string;
+  endDate: string;
   event: T;
 }
 
