@@ -143,7 +143,7 @@ interface OwnProps {
   companyId: number | null;
 }
 
-const FILTERS_STORAGE_KEY = 'workOrder_calendar_filters';
+const FILTERS_STORAGE_KEY = 'workOrder_filters';
 const DEFAULT_FILTER_FIELDS: FilterField[] = [
   { field: 'archived', operation: 'eq', value: false },
   {
@@ -307,10 +307,12 @@ function ApplicationsCalendar({
         changeView={changeView}
         view={view}
         onFilterClick={() => setOpenFilterDrawer(true)}
-        hasActiveFilters={!_.isEqual(
-          normalizeFields(filterFields),
-          normalizeFields(DEFAULT_FILTER_FIELDS)
-        )}
+        hasActiveFilters={
+          !_.isEqual(
+            normalizeFields(filterFields),
+            normalizeFields(DEFAULT_FILTER_FIELDS)
+          )
+        }
       />
       <Divider />
       <FullCalendarWrapper>
@@ -366,6 +368,7 @@ function ApplicationsCalendar({
             onFilterChange(DEFAULT_FILTER_FIELDS);
             handleCloseFilterDrawer();
           }}
+          showEnumFilters
         />
       </Drawer>
     </Grid>

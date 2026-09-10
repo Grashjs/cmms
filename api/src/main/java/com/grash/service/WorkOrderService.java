@@ -1226,7 +1226,16 @@ public class WorkOrderService {
                             .value(dateRange.getEnd())
                             .values(new ArrayList<>()).build());
                     if (dateRange.getFilterFields() != null) {
-                        pmSearchCriteria.getFilterFields().addAll(dateRange.getFilterFields());
+                        Set<String> pmFields = Set.of(
+                                "dueDate", "priority", "estimatedDuration", "estimatedStartDate",
+                                "description", "title", "requiredSignature", "image",
+                                "category", "location", "team", "primaryUser",
+                                "assignedTo", "customers", "files", "asset",
+                                "company", "createdBy", "createdAt", "updatedAt"
+                        );
+                        dateRange.getFilterFields().stream()
+                                .filter(f -> pmFields.contains(f.getField()))
+                                .forEach(pmSearchCriteria.getFilterFields()::add);
                     }
                     result.addAll(preventiveMaintenanceService.getEventsByCriteria(pmSearchCriteria).stream()
                             .filter(calendarEvent -> calendarEvent.getDate().after(new Date()))

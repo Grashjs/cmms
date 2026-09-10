@@ -25,13 +25,15 @@ interface OwnProps {
   filterFields: FilterField[];
   onClose: () => void;
   onReset: () => void;
+  showEnumFilters?: boolean;
 }
 
 function MoreFilters({
   filterFields,
   onFilterChange,
   onClose,
-  onReset
+  onReset,
+  showEnumFilters = false
 }: OwnProps) {
   const { t }: { t: any } = useTranslation();
   const { customersMini } = useSelector((state) => state.customers);
@@ -77,7 +79,32 @@ function MoreFilters({
     { accessor: 'updatedAt', fieldName: 'updatedAt', type: 'date' },
     { accessor: 'completedOn', fieldName: 'completedOn', type: 'date' }
   ];
+  const enumFields: Array<IField> = showEnumFilters
+    ? [
+        {
+          name: 'priority',
+          type: 'select',
+          label: t('priority'),
+          multiple: true,
+          items: ['NONE', 'LOW', 'MEDIUM', 'HIGH'].map((value) => ({
+            label: t(value),
+            value
+          }))
+        },
+        {
+          name: 'status',
+          type: 'select',
+          label: t('status'),
+          multiple: true,
+          items: ['OPEN', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETE'].map((value) => ({
+            label: t(value),
+            value
+          }))
+        }
+      ]
+    : [];
   const fields: Array<IField> = [
+    ...enumFields,
     {
       name: 'type',
       type: 'select',
@@ -205,6 +232,7 @@ function MoreFilters({
     [key: string]:
       | { label: string; value: string }
       | { label: string; value: number }[]
+      | { label: string; value: string }[]
       | boolean
       | [Date | null, Date | null];
   } => {
@@ -218,6 +246,14 @@ function MoreFilters({
             value: getTypeLabelAndValue(typeValue.operation).value
           }
         : { label: t('ALL'), value: 'ALL' },
+      priority:
+        filterFields.find(
+          (filterField) => filterField.field === 'priority'
+        )?.values?.map((value) => ({ label: t(value), value })) ?? [],
+      status:
+        filterFields.find(
+          (filterField) => filterField.field === 'status'
+        )?.values?.map((value) => ({ label: t(value), value })) ?? [],
       archived: filterFields.find(
         (filterField) => filterField.field === 'archived'
       ).value,
@@ -358,6 +394,25 @@ function MoreFilters({
                 break;
               default:
                 break;
+            }
+            if (showEnumFilters) {
+              ['priority', 'status'].forEach((fieldName) => {
+                newFilters = newFilters.filter(
+                  ({ field }) => field !== fieldName
+                );
+                const selected = values[fieldName] as
+                  | { label: string; value: string }[]
+                  | undefined;
+                if (selected?.length) {
+                  newFilters.push({
+                    field: fieldName,
+                    operation: 'in',
+                    value: '',
+                    values: selected.map((s) => s.value),
+                    enumName: fieldName === 'priority' ? 'PRIORITY' : 'STATUS'
+                  });
+                }
+              });
             }
             onFilterChange(newFilters);
             onClose();
