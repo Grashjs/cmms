@@ -2261,13 +2261,12 @@ class WorkOrderServiceTest {
 
             PreventiveMaintenance pm = buildPM(10L, 99L);
             CalendarEvent<PreventiveMaintenance> pmEvent = buildPMCalendarEvent(pm, futureDate);
-            when(preventiveMaintenanceService.getEvents(range.getEnd(), company.getId()))
+            when(preventiveMaintenanceService.getEventsByCriteria(any(SearchCriteria.class)))
                     .thenReturn(List.of(pmEvent));
 
             WorkOrder wo = buildWorkOrder(1L);
             wo.setDueDate(futureDate);
-            when(workOrderRepository.findByDueDateOrEstimatedStartDateInRange(range.getStart(), range.getEnd(),
-                    company.getId()))
+            when(workOrderRepository.findAll(any(Specification.class)))
                     .thenReturn(List.of(wo));
 
             WorkOrderBaseMiniDTO pmDto = new WorkOrderBaseMiniDTO();
@@ -2291,10 +2290,10 @@ class WorkOrderServiceTest {
 
             PreventiveMaintenance pm = buildPM(10L, 99L);
             CalendarEvent<PreventiveMaintenance> pmEvent = buildPMCalendarEvent(pm, pastDate);
-            when(preventiveMaintenanceService.getEvents(range.getEnd(), company.getId()))
+            when(preventiveMaintenanceService.getEventsByCriteria(any(SearchCriteria.class)))
                     .thenReturn(List.of(pmEvent));
 
-            when(workOrderRepository.findByDueDateOrEstimatedStartDateInRange(any(), any(), any()))
+            when(workOrderRepository.findAll(any(Specification.class)))
                     .thenReturn(Collections.emptyList());
 
             Collection<CalendarEvent<WorkOrderBaseMiniDTO>> result =
@@ -2310,7 +2309,7 @@ class WorkOrderServiceTest {
                     new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
             Date futureDate = new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
 
-            when(preventiveMaintenanceService.getEvents(any(), any()))
+            when(preventiveMaintenanceService.getEventsByCriteria(any(SearchCriteria.class)))
                     .thenReturn(Collections.emptyList());
 
             WorkOrder wo = buildWorkOrder(1L);
@@ -2318,8 +2317,7 @@ class WorkOrderServiceTest {
             wo.setPrimaryUser(buildUser(888L));
             wo.setAssignedTo(new ArrayList<>());
             wo.setDueDate(futureDate);
-            when(workOrderRepository.findByDueDateOrEstimatedStartDateInRange(range.getStart(), range.getEnd(),
-                    company.getId()))
+            when(workOrderRepository.findAll(any(Specification.class)))
                     .thenReturn(List.of(wo));
 
             Collection<CalendarEvent<WorkOrderBaseMiniDTO>> result =
@@ -2334,7 +2332,7 @@ class WorkOrderServiceTest {
                     new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
             Date futureDate = new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
 
-            when(preventiveMaintenanceService.getEvents(any(), any()))
+            when(preventiveMaintenanceService.getEventsByCriteria(any(SearchCriteria.class)))
                     .thenReturn(Collections.emptyList());
 
             WorkOrder wo = buildWorkOrder(1L);
@@ -2342,8 +2340,7 @@ class WorkOrderServiceTest {
             wo.setPrimaryUser(buildUser(888L));
             wo.setAssignedTo(new ArrayList<>());
             wo.setDueDate(futureDate);
-            when(workOrderRepository.findByDueDateOrEstimatedStartDateInRange(range.getStart(), range.getEnd(),
-                    company.getId()))
+            when(workOrderRepository.findAll(any(Specification.class)))
                     .thenReturn(List.of(wo));
 
             WorkOrderBaseMiniDTO woDto = new WorkOrderBaseMiniDTO();
@@ -2362,7 +2359,7 @@ class WorkOrderServiceTest {
                     new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
             Date futureDate = new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
 
-            when(preventiveMaintenanceService.getEvents(any(), any()))
+            when(preventiveMaintenanceService.getEventsByCriteria(any(SearchCriteria.class)))
                     .thenReturn(Collections.emptyList());
 
             WorkOrder wo = buildWorkOrder(1L);
@@ -2370,8 +2367,7 @@ class WorkOrderServiceTest {
             wo.setPrimaryUser(user);
             wo.setAssignedTo(new ArrayList<>());
             wo.setDueDate(futureDate);
-            when(workOrderRepository.findByDueDateOrEstimatedStartDateInRange(range.getStart(), range.getEnd(),
-                    company.getId()))
+            when(workOrderRepository.findAll(any(Specification.class)))
                     .thenReturn(List.of(wo));
 
             WorkOrderBaseMiniDTO woDto = new WorkOrderBaseMiniDTO();
@@ -2389,17 +2385,15 @@ class WorkOrderServiceTest {
             DateRange range = buildDateRange(new Date(0),
                     new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
 
-            when(preventiveMaintenanceService.getEvents(range.getEnd(), company.getId()))
+            when(preventiveMaintenanceService.getEventsByCriteria(any(SearchCriteria.class)))
                     .thenReturn(Collections.emptyList());
-            when(workOrderRepository.findByDueDateOrEstimatedStartDateInRange(range.getStart(), range.getEnd(),
-                    company.getId()))
+            when(workOrderRepository.findAll(any(Specification.class)))
                     .thenReturn(Collections.emptyList());
 
             Collection<CalendarEvent<WorkOrderBaseMiniDTO>> result =
                     workOrderService.getEvents(range, company.getId(), user);
 
-            verify(workOrderRepository).findByDueDateOrEstimatedStartDateInRange(range.getStart(), range.getEnd(),
-                    company.getId());
+            verify(workOrderRepository).findAll(any(Specification.class));
             assertTrue(result.isEmpty());
         }
 
@@ -2418,9 +2412,9 @@ class WorkOrderServiceTest {
             DateRange range = buildDateRange(new Date(0),
                     new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
 
-            when(preventiveMaintenanceService.getEvents(any(), any()))
+            when(preventiveMaintenanceService.getEventsByCriteria(any(SearchCriteria.class)))
                     .thenReturn(Collections.emptyList());
-            when(workOrderRepository.findByDueDateOrEstimatedStartDateInRange(any(), any(), any()))
+            when(workOrderRepository.findAll(any(Specification.class)))
                     .thenReturn(Collections.emptyList());
 
             Collection<CalendarEvent<WorkOrderBaseMiniDTO>> result =
@@ -2440,10 +2434,10 @@ class WorkOrderServiceTest {
             pm.setPrimaryUser(user);
             pm.setAssignedTo(new ArrayList<>());
             CalendarEvent<PreventiveMaintenance> pmEvent = buildPMCalendarEvent(pm, futureDate);
-            when(preventiveMaintenanceService.getEvents(range.getEnd(), company.getId()))
+            when(preventiveMaintenanceService.getEventsByCriteria(any(SearchCriteria.class)))
                     .thenReturn(List.of(pmEvent));
 
-            when(workOrderRepository.findByDueDateOrEstimatedStartDateInRange(any(), any(), any()))
+            when(workOrderRepository.findAll(any(Specification.class)))
                     .thenReturn(Collections.emptyList());
 
             WorkOrderBaseMiniDTO pmDto = new WorkOrderBaseMiniDTO();
@@ -2472,18 +2466,122 @@ class WorkOrderServiceTest {
             relation.setChildUser(childUser);
             user.setSuperAccountRelations(List.of(relation));
 
-            when(preventiveMaintenanceService.getEvents(any(), any())).thenReturn(Collections.emptyList());
-            when(workOrderRepository.findByDueDateOrEstimatedStartDateInRange(any(), any(), anyLong()))
+            when(preventiveMaintenanceService.getEventsByCriteria(any(SearchCriteria.class)))
+                    .thenReturn(Collections.emptyList());
+            when(workOrderRepository.findAll(any(Specification.class)))
                     .thenReturn(Collections.emptyList());
 
             Collection<CalendarEvent<WorkOrderBaseMiniDTO>> result =
                     workOrderService.getEvents(range, null, user);
 
-            verify(workOrderRepository, never())
-                    .findByDueDateOrEstimatedStartDateInRange(any(), any(), eq(company.getId()));
-            verify(workOrderRepository)
-                    .findByDueDateOrEstimatedStartDateInRange(any(), any(), eq(2L));
+            ArgumentCaptor<SearchCriteria> pmCriteriaCaptor =
+                    ArgumentCaptor.forClass(SearchCriteria.class);
+            verify(preventiveMaintenanceService).getEventsByCriteria(pmCriteriaCaptor.capture());
+            verify(workOrderRepository).findAll(any(Specification.class));
+
+            Optional<FilterField> companyFilter = pmCriteriaCaptor.getValue().getFilterFields().stream()
+                    .filter(filterField -> "company".equals(filterField.getField()))
+                    .findFirst();
+            assertTrue(companyFilter.isPresent());
+            assertEquals(2L, companyFilter.get().getValue());
+            assertFalse(pmCriteriaCaptor.getValue().getFilterFields().stream()
+                    .anyMatch(filterField -> "company".equals(filterField.getField())
+                            && company.getId().equals(filterField.getValue())));
             assertTrue(result.isEmpty());
+        }
+
+        @Test
+        void filterFields_onlyWhitelistedFieldsForwardedToPreventiveMaintenanceCriteria() {
+            role.getViewOtherPermissions().add(PermissionEntity.WORK_ORDERS);
+            DateRange range = buildDateRange(new Date(0),
+                    new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
+            range.setFilterFields(List.of(
+                    FilterField.builder().field("priority").value("HIGH").operation("eq").values(new ArrayList<>()).build(),
+                    FilterField.builder().field("title").value("Engine").operation("contains").values(new ArrayList<>()).build(),
+                    FilterField.builder().field("status").value("OPEN").operation("eq").values(new ArrayList<>()).build()
+            ));
+
+            when(preventiveMaintenanceService.getEventsByCriteria(any(SearchCriteria.class)))
+                    .thenReturn(Collections.emptyList());
+            when(workOrderRepository.findAll(any(Specification.class)))
+                    .thenReturn(Collections.emptyList());
+
+            workOrderService.getEvents(range, null, user);
+
+            ArgumentCaptor<SearchCriteria> pmCriteriaCaptor =
+                    ArgumentCaptor.forClass(SearchCriteria.class);
+            verify(preventiveMaintenanceService).getEventsByCriteria(pmCriteriaCaptor.capture());
+
+            List<FilterField> pmFilterFields = pmCriteriaCaptor.getValue().getFilterFields();
+            assertTrue(pmFilterFields.stream()
+                    .anyMatch(filterField -> "priority".equals(filterField.getField())
+                            && "HIGH".equals(filterField.getValue())));
+            assertTrue(pmFilterFields.stream()
+                    .anyMatch(filterField -> "title".equals(filterField.getField())
+                            && "Engine".equals(filterField.getValue())));
+            assertFalse(pmFilterFields.stream()
+                    .anyMatch(filterField -> "status".equals(filterField.getField())));
+        }
+
+        @Test
+        void filterFields_null_pmCriteriaHasCompanyAndCreatedAtOnly() {
+            role.getViewOtherPermissions().add(PermissionEntity.WORK_ORDERS);
+            DateRange range = buildDateRange(new Date(0),
+                    new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
+
+            when(preventiveMaintenanceService.getEventsByCriteria(any(SearchCriteria.class)))
+                    .thenReturn(Collections.emptyList());
+            when(workOrderRepository.findAll(any(Specification.class)))
+                    .thenReturn(Collections.emptyList());
+
+            workOrderService.getEvents(range, null, user);
+
+            ArgumentCaptor<SearchCriteria> pmCriteriaCaptor =
+                    ArgumentCaptor.forClass(SearchCriteria.class);
+            verify(preventiveMaintenanceService).getEventsByCriteria(pmCriteriaCaptor.capture());
+
+            List<FilterField> pmFilterFields = pmCriteriaCaptor.getValue().getFilterFields();
+            assertEquals(2, pmFilterFields.size());
+            assertTrue(pmFilterFields.stream()
+                    .anyMatch(filterField -> "company".equals(filterField.getField())
+                            && "eq".equals(filterField.getOperation())));
+            assertTrue(pmFilterFields.stream()
+                    .anyMatch(filterField -> "createdAt".equals(filterField.getField())
+                            && "le".equals(filterField.getOperation())
+                            && range.getEnd().equals(filterField.getValue())));
+        }
+
+        @Test
+        void filterFields_workOrderQueryExecutesWithFilters() {
+            role.getViewOtherPermissions().add(PermissionEntity.WORK_ORDERS);
+            DateRange range = buildDateRange(new Date(0),
+                    new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)));
+            Date futureDate = new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
+            range.setFilterFields(List.of(
+                    FilterField.builder().field("status").value("OPEN").operation("eq").values(new ArrayList<>()).build(),
+                    FilterField.builder().field("title").value("Engine").operation("contains").values(new ArrayList<>()).build()
+            ));
+
+            when(preventiveMaintenanceService.getEventsByCriteria(any(SearchCriteria.class)))
+                    .thenReturn(Collections.emptyList());
+
+            WorkOrder wo = buildWorkOrder(1L);
+            wo.setCreatedBy(999L);
+            wo.setPrimaryUser(user);
+            wo.setAssignedTo(new ArrayList<>());
+            wo.setDueDate(futureDate);
+            when(workOrderRepository.findAll(any(Specification.class)))
+                    .thenReturn(List.of(wo));
+
+            WorkOrderBaseMiniDTO woDto = new WorkOrderBaseMiniDTO();
+            when(workOrderMapper.toBaseMiniDto(wo)).thenReturn(woDto);
+
+            Collection<CalendarEvent<WorkOrderBaseMiniDTO>> result =
+                    workOrderService.getEvents(range, null, user);
+
+            verify(workOrderRepository).findAll(any(Specification.class));
+            assertEquals(1, result.size());
+            assertEquals(woDto, result.iterator().next().getEvent());
         }
     }
 

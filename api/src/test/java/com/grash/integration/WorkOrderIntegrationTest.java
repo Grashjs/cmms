@@ -2,6 +2,8 @@ package com.grash.integration;
 
 import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
+import com.grash.dto.CalendarEvent;
+import com.grash.dto.DateRange;
 import com.grash.dto.ReportConfig;
 import com.grash.dto.WorkOrderChangeStatusDTO;
 import com.grash.dto.license.LicenseEntitlement;
@@ -1741,6 +1743,144 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
             Object[] row = result.get(0);
             assertEquals(150.0, ((Number) row[0]).doubleValue(), 0.001);
             assertEquals(300.0, ((Number) row[2]).doubleValue(), 0.001);
+        }
+    }
+
+    @Nested
+    class GetEventsTests {
+
+        private WorkOrder createWO(String title, Status status, Date dueDate, Date estimatedStartDate, Priority priority) {
+            WorkOrder wo = new WorkOrder();
+            wo.setTitle(title);
+            wo.setStatus(status);
+            wo.setPriority(priority);
+            wo.setEstimatedDuration(1.0);
+            wo.setDueDate(dueDate);
+            wo.setEstimatedStartDate(estimatedStartDate);
+            wo.setCompany(company);
+            wo.setCreatedBy(user.getId());
+            wo.setAssignedTo(new ArrayList<>());
+            wo.setCustomers(new ArrayList<>());
+            wo.setFiles(new ArrayList<>());
+            wo.setCustomFieldValues(new ArrayList<>());
+            return workOrderRepository.saveAndFlush(wo);
+        }
+
+        @Test
+        void dueDateInRange_returnsWorkOrder() {
+            Date futureDate = new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
+            createWO("DueDate WO", Status.OPEN, futureDate, null, Priority.NONE);
+            em.clear();
+
+            DateRange range = DateRange.builder()
+                    .start(new Date(0))
+                    .end(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)))
+                    .build();
+
+            Collection<CalendarEvent<com.grash.dto.WorkOrderBaseMiniDTO>> result =
+                    workOrderService.getEvents(range, null, user);
+
+            assertEquals(1, result.size());
+            assertEquals("WORK_ORDER", result.iterator().next().getType());
+        }
+
+        @Test
+        void estimatedStartDateInRange_returnsWorkOrder() {
+            Date estimatedStart = new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
+            createWO("EstStart WO", Status.OPEN, null, estimatedStart, Priority.HIGH);
+            em.clear();
+
+            DateRange range = DateRange.builder()
+                    .start(new Date(0))
+                    .end(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)))
+                    .build();
+
+            Collection<CalendarEvent<com.grash.dto.WorkOrderBaseMiniDTO>> result =
+                    workOrderService.getEvents(range, null, user);
+
+            assertEquals(1, result.size());
+            assertEquals("WORK_ORDER", result.iterator().next().getType());
+        }
+
+        @Test
+        void outOfRange_returnsEmpty() {
+            Date farFutureDate = new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(30));
+            createWO("Far future WO", Status.OPEN, farFutureDate, null, Priority.NONE);
+            em.clear();
+
+            DateRange range = DateRange.builder()
+                    .start(new Date(0))
+                    .end(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)))
+                    .build();
+
+            Collection<CalendarEvent<com.grash.dto.WorkOrderBaseMiniDTO>> result =
+                    workOrderService.getEvents(range, null, user);
+
+            assertTrue(result.isEmpty());
+        }
+
+        @Test
+        void filterFields_statusOpen_filtersCorrectly() {
+            Date inRangeDate = new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(2));
+            createWO("Open Pump WO", Status.OPEN, inRangeDate, null, Priority.NONE);
+            createWO("Complete Pump WO", Status.COMPLETE, inRangeDate, null, Priority.NONE);
+            em.clear();
+
+            DateRange range = DateRange.builder()
+                    .start(new Date(0))
+                    .end(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)))
+                    .filterFields(List.of(
+                            FilterField.builder().field("status").value(Status.OPEN).operation("eq").values(new ArrayList<>()).build(),
+                            FilterField.builder().field("title").value("Pump").operation("cn").values(new ArrayList<>()).build()
+                    ))
+                    .build();
+
+            Collection<CalendarEvent<com.grash.dto.WorkOrderBaseMiniDTO>> result =
+                    workOrderService.getEvents(range, null, user);
+
+            assertEquals(1, result.size());
+        }
+
+        @Test
+        void filterFields_combinedTitleAndPriority_filtersCorrectly() {
+            Date inRangeDate = new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(3));
+            createWO("HVAC Repair", Status.OPEN, inRangeDate, null, Priority.HIGH);
+            createWO("HVAC Maintenance", Status.OPEN, inRangeDate, null, Priority.LOW);
+            createWO("Pump Overhaul", Status.OPEN, inRangeDate, null, Priority.HIGH);
+            em.clear();
+
+            DateRange range = DateRange.builder()
+                    .start(new Date(0))
+                    .end(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)))
+                    .filterFields(List.of(
+                            FilterField.builder().field("title").value("HVAC").operation("cn").values(new ArrayList<>()).build(),
+                            FilterField.builder().field("priority").value(Priority.HIGH).operation("in").values(new ArrayList<>(Collections.singletonList(Priority.HIGH))).build()
+                    ))
+                    .build();
+
+            Collection<CalendarEvent<com.grash.dto.WorkOrderBaseMiniDTO>> result =
+                    workOrderService.getEvents(range, null, user);
+
+            assertEquals(1, result.size());
+        }
+
+        @Test
+        void filterFields_noFilterFields_returnsAll() {
+            Date inRangeDate1 = new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1));
+            Date inRangeDate2 = new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(2));
+            createWO("WO One", Status.OPEN, inRangeDate1, null, Priority.NONE);
+            createWO("WO Two", Status.COMPLETE, inRangeDate2, null, Priority.HIGH);
+            em.clear();
+
+            DateRange range = DateRange.builder()
+                    .start(new Date(0))
+                    .end(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(7)))
+                    .build();
+
+            Collection<CalendarEvent<com.grash.dto.WorkOrderBaseMiniDTO>> result =
+                    workOrderService.getEvents(range, null, user);
+
+            assertEquals(2, result.size());
         }
     }
 }
