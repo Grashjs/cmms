@@ -9,6 +9,7 @@ import ViewAgendaTwoToneIcon from '@mui/icons-material/ViewAgendaTwoTone';
 import ViewDayTwoToneIcon from '@mui/icons-material/ViewDayTwoTone';
 import CalendarViewMonthTwoToneIcon from '@mui/icons-material/CalendarViewMonthTwoTone';
 import ViewWeekTwoToneIcon from '@mui/icons-material/ViewWeekTwoTone';
+import FilterAltTwoToneIcon from '@mui/icons-material/FilterAltTwoTone';
 import type { View } from 'src/models/calendar';
 import { useTranslation } from 'react-i18next';
 import TodayTwoToneIcon from '@mui/icons-material/TodayTwoTone';
@@ -27,6 +28,8 @@ interface ActionsProps {
   handleCreateEvent?: () => void;
   changeView?: (view: View) => void;
   view: View;
+  onFilterClick?: () => void;
+  hasActiveFilters?: boolean;
 }
 
 interface ViewOption {
@@ -64,7 +67,9 @@ const Actions: FC<ActionsProps> = ({
   onPrevious,
   onToday,
   changeView,
-  view
+  view,
+  onFilterClick,
+  hasActiveFilters
 }) => {
   const { t }: { t: any } = useTranslation();
   const dateLocale = useDateLocale();
@@ -92,6 +97,17 @@ const Actions: FC<ActionsProps> = ({
             <ArrowForwardTwoToneIcon />
           </IconButton>
         </Tooltip>
+        {onFilterClick && (
+          <Tooltip arrow placement="top" title={t('more_filters')}>
+            <IconButton
+              color={hasActiveFilters ? 'primary' : 'secondary'}
+              sx={hasActiveFilters ? { backgroundColor: 'action.selected' } : {}}
+              onClick={onFilterClick}
+            >
+              <FilterAltTwoToneIcon />
+            </IconButton>
+          </Tooltip>
+        )}
       </Grid>
       <Grid item sx={{ display: { xs: 'none', sm: 'inline-block' } }}>
         <Typography variant="h3" color="text.primary">
@@ -144,7 +160,9 @@ Actions.defaultProps = {
   onPrevious: () => {},
   onToday: () => {},
   handleCreateEvent: () => {},
-  changeView: () => {}
+  changeView: () => {},
+  onFilterClick: null,
+  hasActiveFilters: false
 };
 
 export default Actions;

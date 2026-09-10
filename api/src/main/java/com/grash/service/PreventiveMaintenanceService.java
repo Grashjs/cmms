@@ -288,8 +288,27 @@ public class PreventiveMaintenanceService {
     public List<CalendarEvent<PreventiveMaintenance>> getEvents(Date end, Long companyId) {
         if (!licenseService.hasEntitlement(LicenseEntitlement.PM_CALENDAR))
             return Collections.emptyList();
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.getFilterFields().add(FilterField.builder()
+                .field("company")
+                .value(companyId)
+                .operation("eq")
+                .values(new ArrayList<>()).build());
+        searchCriteria.getFilterFields().add(FilterField.builder()
+                .field("createdAt")
+                .operation("le")
+                .value(end)
+                .values(new ArrayList<>()).build());
+        return getEventsByCriteria(searchCriteria);
+    }
+
+    public List<CalendarEvent<PreventiveMaintenance>> getEventsByCriteria(SearchCriteria searchCriteria) {
+        if (!licenseService.hasEntitlement(LicenseEntitlement.PM_CALENDAR))
+            return Collections.emptyList();
+        SpecificationBuilder<PreventiveMaintenance> builder = new SpecificationBuilder<>();
+        searchCriteria.getFilterFields().forEach(builder::with);
         List<PreventiveMaintenance> preventiveMaintenances =
-                preventiveMaintenanceRepository.findByCreatedAtBeforeAndCompany_Id(end, companyId);
+                preventiveMaintenanceRepository.findAll(builder.build());
         List<CalendarEvent<PreventiveMaintenance>> result = new ArrayList<>();
 
         for (PreventiveMaintenance preventiveMaintenance : preventiveMaintenances) {
@@ -321,7 +340,7 @@ public class PreventiveMaintenanceService {
 
                     // Compute fire times
                     Date fireTime = operableTrigger.getFireTimeAfter(startTime);
-                    while (fireTime != null && (fireTime.before(end) || fireTime.equals(end))) {
+                    while (fireTime != null) {
                         if (shouldFireOnDate(schedule, fireTime)) {
                             fireTimes.add(fireTime);
                         }

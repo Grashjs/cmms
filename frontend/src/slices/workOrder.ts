@@ -4,7 +4,12 @@ import type { AppThunk } from 'src/store';
 import WorkOrder from '../models/owns/workOrder';
 import api from '../utils/api';
 import { Task } from '../models/owns/tasks';
-import { getInitialPage, Page, SearchCriteria } from '../models/owns/page';
+import {
+  FilterField,
+  getInitialPage,
+  Page,
+  SearchCriteria
+} from '../models/owns/page';
 import {
   WorkOrderBase,
   WorkOrderBaseMiniDTO
@@ -436,14 +441,20 @@ export const sendWorkOrderReport =
   };
 
 export const getWorkOrderEvents =
-  (start: Date, end: Date, companyId: number = null): AppThunk =>
+  (
+    start: Date,
+    end: Date,
+    companyId: number = null,
+    filterFields: FilterField[] = null
+  ): AppThunk =>
   async (dispatch) => {
     dispatch(slice.actions.setLoadingGet({ loading: true }));
     const response = await api.post<
       CalendarEvent<WorkOrder | PreventiveMaintenance>[]
     >(`${basePath}/events?companyId=${companyId || ''}`, {
       start,
-      end
+      end,
+      filterFields
     });
     dispatch(
       slice.actions.getEvents({

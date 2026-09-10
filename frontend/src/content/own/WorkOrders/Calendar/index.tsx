@@ -11,6 +11,7 @@ import {
   Card,
   CircularProgress,
   Divider,
+  Drawer,
   Grid,
   Stack,
   styled,
@@ -35,6 +36,10 @@ import {
 import { Locale as DateLocale } from 'date-fns';
 import enGb from '@fullcalendar/core/locales/en-gb';
 import { useTranslation } from 'react-i18next';
+import { FilterField } from 'src/models/owns/page';
+import { loadFilterFields, saveFilterFields } from 'src/utils/filter';
+import MoreFilters from '../Filters/MoreFilters';
+import _ from 'lodash';
 
 const FullCalendarWrapper = styled(Box)(
   ({ theme }) => `
@@ -138,6 +143,33 @@ interface OwnProps {
   companyId: number | null;
 }
 
+const FILTERS_STORAGE_KEY = 'workOrder_calendar_filters';
+const DEFAULT_FILTER_FIELDS: FilterField[] = [
+  { field: 'archived', operation: 'eq', value: false },
+  {
+    field: 'priority',
+    operation: 'in',
+    values: ['NONE', 'LOW', 'MEDIUM', 'HIGH'],
+    value: '',
+    enumName: 'PRIORITY'
+  },
+  {
+    field: 'status',
+    operation: 'in',
+    values: ['OPEN', 'IN_PROGRESS', 'ON_HOLD'],
+    value: '',
+    enumName: 'STATUS'
+  }
+];
+
+const normalizeFields = (fields: FilterField[]) =>
+  [...fields]
+    .sort((a, b) => a.field.localeCompare(b.field))
+    .map((f) => ({ ...f, values: f.values ? [...f.values].sort() : f.values }));
+
+const getInitialFilterFields = (): FilterField[] =>
+  loadFilterFields(FILTERS_STORAGE_KEY, DEFAULT_FILTER_FIELDS);
+
 function ApplicationsCalendar({
   handleAddWorkOrder,
   handleOpenDetails,
@@ -151,8 +183,18 @@ function ApplicationsCalendar({
   const { calendar, loadingGet } = useSelector((state) => state.workOrders);
   const [date, setDate] = useState<Date>(new Date());
   const [view, setView] = useState<View>('timeGridWeek');
+  const [filterFields, setFilterFields] = useState<FilterField[]>(
+    getInitialFilterFields()
+  );
+  const [openFilterDrawer, setOpenFilterDrawer] = useState<boolean>(false);
   const getLanguage = i18n.language;
   const [calendarLocale, setCalendarLocale] = useState<LocaleSingularArg>(enGb);
+
+  const onFilterChange = (newFilters: FilterField[]) => {
+    setFilterFields(newFilters);
+    saveFilterFields(FILTERS_STORAGE_KEY, newFilters, new Set());
+  };
+  const handleCloseFilterDrawer = () => setOpenFilterDrawer(false);
 
   useEffect(() => {
     getCalendarLocale(i18n.language).then(setCalendarLocale);
@@ -220,8 +262,8 @@ function ApplicationsCalendar({
     }
     const start = newView.activeStart;
     const end = newView.activeEnd;
-    dispatch(getWorkOrderEvents(start, end, companyId));
-  }, [date, view, companyId]);
+    dispatch(getWorkOrderEvents(start, end, companyId, filterFields));
+  }, [date, view, companyId, filterFields]);
   const changeView = (changedView: View): void => {
     const calItem = calendarRef.current;
 
@@ -264,6 +306,11 @@ function ApplicationsCalendar({
         onToday={handleDateToday}
         changeView={changeView}
         view={view}
+        onFilterClick={() => setOpenFilterDrawer(true)}
+        hasActiveFilters={!_.isEqual(
+          normalizeFields(filterFields),
+          normalizeFields(DEFAULT_FILTER_FIELDS)
+        )}
       />
       <Divider />
       <FullCalendarWrapper>
@@ -303,6 +350,24 @@ function ApplicationsCalendar({
           ]}
         />
       </FullCalendarWrapper>
+      <Drawer
+        anchor="left"
+        open={openFilterDrawer}
+        onClose={handleCloseFilterDrawer}
+        PaperProps={{
+          sx: { width: '30%' }
+        }}
+      >
+        <MoreFilters
+          filterFields={filterFields}
+          onFilterChange={onFilterChange}
+          onClose={handleCloseFilterDrawer}
+          onReset={() => {
+            onFilterChange(DEFAULT_FILTER_FIELDS);
+            handleCloseFilterDrawer();
+          }}
+        />
+      </Drawer>
     </Grid>
   );
 }

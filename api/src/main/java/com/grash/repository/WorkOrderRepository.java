@@ -48,13 +48,6 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>, Jpa
 
     Collection<WorkOrder> findByDueDateBetweenAndCompany_Id(Date date1, Date date2, Long id);
 
-    @Query("SELECT DISTINCT wo FROM WorkOrder wo WHERE wo.company.id = :companyId " +
-            "AND ((wo.dueDate BETWEEN :start AND :end AND wo.estimatedStartDate IS NULL) " +
-            "OR (wo.estimatedStartDate BETWEEN :start AND :end))")
-    Collection<WorkOrder> findByDueDateOrEstimatedStartDateInRange(
-            @Param("start") Date start,
-            @Param("end") Date end,
-            @Param("companyId") Long companyId);
 
     Optional<WorkOrder> findByIdAndCompany_Id(Long id, Long companyId);
 

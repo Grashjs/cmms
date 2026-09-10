@@ -55,7 +55,7 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
@@ -1181,6 +1181,21 @@ public class WorkOrderService {
         );
     }
 
+    private Specification<WorkOrder> buildDateRangeSpec(Date start, Date end) {
+        return (root, query, cb) -> {
+            Predicate estimatedStartInRange = cb.and(
+                    cb.greaterThanOrEqualTo(root.get("estimatedStartDate"), start),
+                    cb.lessThanOrEqualTo(root.get("estimatedStartDate"), end)
+            );
+            Predicate dueDateInRange = cb.and(
+                    cb.isNull(root.get("estimatedStartDate")),
+                    cb.greaterThanOrEqualTo(root.get("dueDate"), start),
+                    cb.lessThanOrEqualTo(root.get("dueDate"), end)
+            );
+            return cb.or(estimatedStartInRange, dueDateInRange);
+        };
+    }
+
     public Collection<CalendarEvent<WorkOrderBaseMiniDTO>> getEvents(@Valid DateRange dateRange, Long companyId,
                                                                      User user) {
         if (user.getRole().getViewPermissions().contains(PermissionEntity.WORK_ORDERS)) {
@@ -1199,7 +1214,21 @@ public class WorkOrderService {
 
                 List<CalendarEvent<WorkOrderBaseMiniDTO>> result = new ArrayList<>();
                 for (Long compId : companyIds) {
-                    result.addAll(preventiveMaintenanceService.getEvents(dateRange.getEnd(), compId).stream()
+                    SearchCriteria pmSearchCriteria = new SearchCriteria();
+                    pmSearchCriteria.getFilterFields().add(FilterField.builder()
+                            .field("company")
+                            .value(compId)
+                            .operation("eq")
+                            .values(new ArrayList<>()).build());
+                    pmSearchCriteria.getFilterFields().add(FilterField.builder()
+                            .field("createdAt")
+                            .operation("le")
+                            .value(dateRange.getEnd())
+                            .values(new ArrayList<>()).build());
+                    if (dateRange.getFilterFields() != null) {
+                        pmSearchCriteria.getFilterFields().addAll(dateRange.getFilterFields());
+                    }
+                    result.addAll(preventiveMaintenanceService.getEventsByCriteria(pmSearchCriteria).stream()
                             .filter(calendarEvent -> calendarEvent.getDate().after(new Date()))
                             .filter(calendarEvent -> canViewWorkOrderBase(user, calendarEvent.getEvent()))
                             .map(calendarEvent -> new CalendarEvent<>(calendarEvent.getType(),
@@ -1207,9 +1236,19 @@ public class WorkOrderService {
                                     calendarEvent.getDate(),
                                     calendarEvent.getEndDate()))
                             .toList());
-                    result.addAll(workOrderRepository.findByDueDateOrEstimatedStartDateInRange(dateRange.getStart(),
-                                    dateRange.getEnd(),
-                                    compId).stream().filter(workOrder -> canViewWorkOrderBase(user, workOrder))
+
+                    SearchCriteria woSearchCriteria = new SearchCriteria();
+                    if (dateRange.getFilterFields() != null) {
+                        woSearchCriteria.getFilterFields().addAll(dateRange.getFilterFields());
+                    }
+                    woSearchCriteria = getSearchCriteria(user, woSearchCriteria);
+                    SpecificationBuilder<WorkOrder> builder = new SpecificationBuilder<>();
+                    woSearchCriteria.getFilterFields().forEach(builder::with);
+                    Specification<WorkOrder> spec = builder.build();
+                    Specification<WorkOrder> dateSpec = buildDateRangeSpec(dateRange.getStart(), dateRange.getEnd());
+                    spec = spec != null ? spec.and(dateSpec) : dateSpec;
+                    workOrderRepository.findAll(spec).stream()
+                            .filter(workOrder -> canViewWorkOrderBase(user, workOrder))
                             .map(workOrder -> {
                                 WorkOrderBaseMiniDTO miniDto = workOrderMapper.toBaseMiniDto(workOrder);
                                 long durationMillis = workOrder.getEstimatedDuration() > 0
@@ -1225,7 +1264,8 @@ public class WorkOrderService {
                                     eventDate = new Date(eventEndDate.getTime() - durationMillis);
                                 }
                                 return new CalendarEvent<>("WORK_ORDER", miniDto, eventDate, eventEndDate);
-                            }).toList());
+                            })
+                            .forEach(result::add);
                 }
                 return result;
             });
