@@ -871,7 +871,7 @@ public class WorkOrderService {
                         scheduleService.scheduleNextWorkOrderJobAfterCompletion(mutableWO.getParentPreventiveMaintenance().getSchedule().getId(), mutableWO.getCompletedOn());
                 }
                 Collection<Labor> labors = laborService.findByWorkOrder(id);
-                Collection<Labor> primaryTimes = labors.stream().filter(Labor::isLogged).collect(Collectors.toList());
+                Collection<Labor> primaryTimes = labors.stream().filter(Labor::isLogged).toList();
                 primaryTimes.forEach(laborService::stop);
             }
             WorkOrder patchedWorkOrder = saveAndFlushWithWebhook(mutableWO, user.getCompany(),

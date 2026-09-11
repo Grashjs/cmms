@@ -12,6 +12,7 @@ import com.grash.model.User;
 import com.grash.model.PushNotificationToken;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.NotificationRepository;
+import com.grash.security.CustomUserDetail;
 import io.github.jav.exposerversdk.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,6 +21,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,16 +50,18 @@ public class NotificationService {
     @Async
     public void createMultiple(List<Notification> notifications, boolean mobile, String title) {
         if (notifications.isEmpty()) return;
-        List<Notification> savedNotifications = notificationRepository.saveAll(notifications);
+        List<Notification> notificationsToSend = excludeCurrentUser(notifications);
+        if (notificationsToSend.isEmpty()) return;
+        List<Notification> savedNotifications = notificationRepository.saveAll(notificationsToSend);
         savedNotifications.forEach(notification ->
                 messagingTemplate.convertAndSendToUser(notification.getUser().getEmail(),
                         "/notifications", notification));
-        if (mobile && !notifications.isEmpty())
+        if (mobile && !notificationsToSend.isEmpty())
             try {
-                sendPushNotifications(notifications.stream().map(Notification::getUser).collect(Collectors.toList()),
-                        title, notifications.get(0).getMessage(), new HashMap<String, Object>() {{
-                            put("type", notifications.get(0).getNotificationType());
-                            put("id", notifications.get(0).getResourceId());
+                sendPushNotifications(notificationsToSend.stream().map(Notification::getUser).collect(Collectors.toList()),
+                        title, notificationsToSend.get(0).getMessage(), new HashMap<String, Object>() {{
+                            put("type", notificationsToSend.get(0).getNotificationType());
+                            put("id", notificationsToSend.get(0).getResourceId());
                         }});
             } catch (Exception e) {
                 e.printStackTrace();
@@ -80,6 +85,19 @@ public class NotificationService {
                     .build());
         }
         return searchCriteria;
+    }
+
+    private List<Notification> excludeCurrentUser(List<Notification> notifications) {
+        User currentUser = null;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof CustomUserDetail) {
+            currentUser = ((CustomUserDetail) authentication.getPrincipal()).getUser();
+        }
+        if (currentUser == null) return notifications;
+        Long currentUserId = currentUser.getId();
+        return notifications.stream()
+                .filter(notification -> !notification.getUser().getId().equals(currentUserId))
+                .collect(Collectors.toList());
     }
 
     public Notification getById(Long id, User user) {
