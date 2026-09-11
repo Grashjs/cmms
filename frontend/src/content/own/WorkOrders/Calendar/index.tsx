@@ -209,6 +209,7 @@ function ApplicationsCalendar({
     'timeGridDay'
   ];
   const previousView = usePrevious(view);
+  const previousRefreshTrigger = usePrevious(eventsRefreshTrigger);
   const getColor = (priority: Priority) => {
     switch (priority) {
       case 'HIGH':
@@ -255,6 +256,7 @@ function ApplicationsCalendar({
     const calItem = calendarRef.current;
     const newView = calItem.getApi().view;
     if (
+      previousRefreshTrigger === eventsRefreshTrigger &&
       previousView &&
       previousView !== view &&
       viewsOrder.findIndex((v) => v === previousView) <
