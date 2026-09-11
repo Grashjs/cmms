@@ -18,6 +18,7 @@ import com.grash.service.UserService;
 import com.grash.service.AssetService;
 import com.grash.service.WorkOrderCategoryService;
 import com.grash.security.CustomUserDetail;
+import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.MessageSource;
 import org.springframework.util.StringUtils;
@@ -393,6 +394,7 @@ public class Helper {
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
+    @Nullable
     public static User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof CustomUserDetail) {
