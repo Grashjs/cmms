@@ -23,6 +23,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.security.NoSuchAlgorithmException;
@@ -612,6 +614,55 @@ class HelperTest {
 
             assertNotNull(SecurityContextHolder.getContext().getAuthentication());
             assertTrue(SecurityContextHolder.getContext().getAuthentication().isAuthenticated());
+            SecurityContextHolder.clearContext();
+        }
+    }
+
+    @Nested
+    class GetCurrentUser {
+        @Test
+        void noAuthentication_returnsNull() {
+            SecurityContextHolder.clearContext();
+
+            assertNull(Helper.getCurrentUser());
+        }
+
+        @Test
+        void afterSetCurrentUser_returnsUser() {
+            User user = new User();
+            user.setId(99L);
+            user.setFirstName("Jane");
+            user.setLastName("Doe");
+            Role role = new Role();
+            role.setRoleType(RoleType.ROLE_CLIENT);
+            user.setRole(role);
+
+            Helper.setCurrentUser(user);
+
+            User result = Helper.getCurrentUser();
+            assertNotNull(result);
+            assertEquals(99L, result.getId());
+            assertEquals("Jane", result.getFirstName());
+            SecurityContextHolder.clearContext();
+        }
+
+        @Test
+        void nonCustomUserDetailPrincipal_returnsNull() {
+            Authentication auth = new UsernamePasswordAuthenticationToken("anonymous", null);
+            SecurityContextHolder.getContext().setAuthentication(auth);
+
+            assertNull(Helper.getCurrentUser());
+
+            SecurityContextHolder.clearContext();
+        }
+
+        @Test
+        void nullPrincipal_returnsNull() {
+            Authentication auth = new UsernamePasswordAuthenticationToken(null, null);
+            SecurityContextHolder.getContext().setAuthentication(auth);
+
+            assertNull(Helper.getCurrentUser());
+
             SecurityContextHolder.clearContext();
         }
     }

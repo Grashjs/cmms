@@ -393,6 +393,14 @@ public class Helper {
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
+    public static User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof CustomUserDetail) {
+            return ((CustomUserDetail) authentication.getPrincipal()).getUser();
+        }
+        return null;
+    }
+
     public static String hashKey(String raw) throws NoSuchAlgorithmException {
         // Use SHA-256
         MessageDigest digest = MessageDigest.getInstance("SHA-256");

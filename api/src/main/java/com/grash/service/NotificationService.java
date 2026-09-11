@@ -12,7 +12,7 @@ import com.grash.model.User;
 import com.grash.model.PushNotificationToken;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.NotificationRepository;
-import com.grash.security.CustomUserDetail;
+import com.grash.utils.Helper;
 import io.github.jav.exposerversdk.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,8 +21,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -88,11 +86,7 @@ public class NotificationService {
     }
 
     private List<Notification> excludeCurrentUser(List<Notification> notifications) {
-        User currentUser = null;
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof CustomUserDetail) {
-            currentUser = ((CustomUserDetail) authentication.getPrincipal()).getUser();
-        }
+        User currentUser = Helper.getCurrentUser();
         if (currentUser == null) return notifications;
         Long currentUserId = currentUser.getId();
         return notifications.stream()
