@@ -179,7 +179,6 @@ function ApplicationsCalendar({
   const theme = useTheme();
   const { i18n } = useTranslation();
   const calendarRef = useRef<FullCalendar | null>(null);
-  const mobile = useMediaQuery(theme.breakpoints.down('md'));
   const dispatch = useDispatch();
   const { calendar, loadingGet } = useSelector((state) => state.workOrders);
   const [date, setDate] = useState<Date>(new Date());
