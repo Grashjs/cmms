@@ -141,6 +141,7 @@ interface OwnProps {
   handleAddWorkOrder: (date: Date) => void;
   handleOpenDetails: (id: number, type: string) => void;
   companyId: number | null;
+  eventsRefreshTrigger?: number;
 }
 
 const FILTERS_STORAGE_KEY = 'workOrder_filters';
@@ -173,7 +174,8 @@ const getInitialFilterFields = (): FilterField[] =>
 function ApplicationsCalendar({
   handleAddWorkOrder,
   handleOpenDetails,
-  companyId
+  companyId,
+  eventsRefreshTrigger = 0
 }: OwnProps) {
   const theme = useTheme();
   const { i18n } = useTranslation();
@@ -263,7 +265,7 @@ function ApplicationsCalendar({
     const start = newView.activeStart;
     const end = newView.activeEnd;
     dispatch(getWorkOrderEvents(start, end, companyId, filterFields));
-  }, [date, view, companyId, filterFields]);
+  }, [date, view, companyId, filterFields, eventsRefreshTrigger]);
   const changeView = (changedView: View): void => {
     const calItem = calendarRef.current;
 
