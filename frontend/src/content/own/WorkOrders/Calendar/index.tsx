@@ -26,7 +26,6 @@ import { CalendarEvent, getWorkOrderEvents } from 'src/slices/workOrder';
 import Actions from './Actions';
 import i18n from 'i18next';
 import PreventiveMaintenance from 'src/models/owns/preventiveMaintenance';
-import { usePrevious } from '../../../../hooks/usePrevious';
 import {
   getCalendarLocale,
   getDateLocale,
@@ -185,6 +184,10 @@ function ApplicationsCalendar({
   const { calendar, loadingGet } = useSelector((state) => state.workOrders);
   const [date, setDate] = useState<Date>(new Date());
   const [view, setView] = useState<View>('timeGridWeek');
+  const [visibleRange, setVisibleRange] = useState<{ start: Date; end: Date }>({
+    start: null,
+    end: null
+  });
   const [filterFields, setFilterFields] = useState<FilterField[]>(
     getInitialFilterFields()
   );
@@ -202,14 +205,6 @@ function ApplicationsCalendar({
     getCalendarLocale(i18n.language).then(setCalendarLocale);
   }, [i18n.language]);
 
-  const viewsOrder: View[] = [
-    'dayGridMonth',
-    'timeGridWeek',
-    'listWeek',
-    'timeGridDay'
-  ];
-  const previousView = usePrevious(view);
-  const previousRefreshTrigger = usePrevious(eventsRefreshTrigger);
   const getColor = (priority: Priority) => {
     switch (priority) {
       case 'HIGH':
@@ -253,21 +248,22 @@ function ApplicationsCalendar({
     }
   };
   useEffect(() => {
-    const calItem = calendarRef.current;
-    const newView = calItem.getApi().view;
-    if (
-      previousRefreshTrigger === eventsRefreshTrigger &&
-      previousView &&
-      previousView !== view &&
-      viewsOrder.findIndex((v) => v === previousView) <
-        viewsOrder.findIndex((v) => v === view)
-    ) {
-      return;
-    }
-    const start = newView.activeStart;
-    const end = newView.activeEnd;
-    dispatch(getWorkOrderEvents(start, end, companyId, filterFields));
-  }, [date, view, companyId, filterFields, eventsRefreshTrigger]);
+    if (visibleRange.start && visibleRange.end)
+      dispatch(
+        getWorkOrderEvents(
+          visibleRange.start,
+          visibleRange.end,
+          companyId,
+          filterFields
+        )
+      );
+  }, [
+    visibleRange.start,
+    visibleRange.end,
+    companyId,
+    filterFields,
+    eventsRefreshTrigger
+  ]);
   const changeView = (changedView: View): void => {
     const calItem = calendarRef.current;
 
@@ -340,6 +336,9 @@ function ApplicationsCalendar({
           }
           dateClick={(event) => handleAddWorkOrder(event.date)}
           dayMaxEventRows={4}
+          datesSet={(arg) =>
+            setVisibleRange({ start: arg.start, end: arg.end })
+          }
           events={calendar.events.map((eventPayload) =>
             getEventFromWO(eventPayload)
           )}
