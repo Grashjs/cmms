@@ -167,7 +167,7 @@ oauth2:
   client-id: ${OAUTH2_CLIENT_ID:}
   client-secret: ${OAUTH2_CLIENT_SECRET:}
 license-key: ${LICENSE_KEY:}
-license-fingerprint-required: ${LICENSE_FINGERPRINT_REQUIRED:true}
+license-fingerprint-required: ${LICENSE_FINGERPRINT_REQUIRED:false}
 license-file-path: ${LICENSE_FILE_PATH:}
 white-labeling:
   logo-paths: ${LOGO_PATHS:}
