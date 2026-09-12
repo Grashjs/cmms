@@ -392,7 +392,7 @@ public class PaddleService {
         int newQuantity = request.getQuantity();
 
         if (newPlan.getId().equals(savedSubscription.getSubscriptionPlan().getId()) &&
-                newQuantity == savedSubscription.getUsersCount()) {
+                newQuantity == savedSubscription.getUsersCount() && savedSubscription.isMonthly() == monthly) {
             throw new CustomException("There is no change in the plan or users count", HttpStatus.NOT_ACCEPTABLE);
         }
 
