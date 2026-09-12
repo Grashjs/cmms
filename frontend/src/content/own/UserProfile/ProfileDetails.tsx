@@ -365,6 +365,7 @@ function ProfileDetails() {
                         label={t('current_password')}
                         type="password"
                         name="oldPassword"
+                        autoComplete={'current-password'}
                         onBlur={handleBlur}
                         onChange={handleChange}
                         value={values.oldPassword}
@@ -381,6 +382,7 @@ function ProfileDetails() {
                         label={t('new_password')}
                         type="password"
                         name="newPassword"
+                        autoComplete={'new-password'}
                         onBlur={handleBlur}
                         onChange={handleChange}
                         value={values.newPassword}
@@ -399,6 +401,7 @@ function ProfileDetails() {
                         type="password"
                         label={t('confirm_password')}
                         name="confirmPassword"
+                        autoComplete={'new-password'}
                         onBlur={handleBlur}
                         onChange={handleChange}
                         value={values.confirmPassword}

@@ -109,6 +109,7 @@ const LoginJWT: FC = () => {
             onBlur={handleBlur}
             onChange={handleChange}
             type={showPassword ? 'text' : 'password'}
+            autoComplete={'current-password'}
             value={values.password}
             variant="outlined"
             InputProps={{

@@ -227,6 +227,7 @@ function RegisterJWT({
             onBlur={handleBlur}
             onChange={handleChange}
             type={showPassword ? 'text' : 'password'}
+            autoComplete={'new-password'}
             value={values.password}
             variant="outlined"
             InputProps={{
