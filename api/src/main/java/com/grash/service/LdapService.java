@@ -9,6 +9,7 @@ import com.grash.model.User;
 import com.grash.model.enums.RoleCode;
 import com.grash.repository.UserRepository;
 import com.grash.utils.Helper;
+import com.grash.utils.Sanitizer;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -173,7 +174,8 @@ public class LdapService {
 
         List<String> userOus = getLdapUserOu(ldapUsername);
         user.setRole(getRoleForOu(userOus));
-
+        Sanitizer.sanitizeUser(user);
+        company.setName(Sanitizer.cleanText(company.getName()));
         user.setCompany(company);
         return user;
     }
@@ -272,7 +274,7 @@ public class LdapService {
                 List<String> userOus = getLdapUserOu(ldapUsername);
                 user.setRole(getRoleForOu(userOus));
             }
-
+            Sanitizer.sanitizeUser(user);
             user = userRepository.save(user);
             cacheService.putUserInCache(user);
             return refreshTokenService.createTokenPair(user);

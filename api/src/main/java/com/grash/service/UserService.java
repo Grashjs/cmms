@@ -146,8 +146,11 @@ public class UserService {
     }
 
     public SignupSuccessResponse<User> signup(UserSignupRequest userReq) {
+        userReq.setCompanyName(Sanitizer.cleanText(userReq.getCompanyName()));
+        userReq.setEmail(userReq.getEmail().toLowerCase());
         User user = userMapper.toModel(userReq);
-        user.setEmail(user.getEmail().toLowerCase());
+        Sanitizer.sanitizeUser(user);
+
         if (userRepository.existsByEmailIgnoreCase(user.getEmail())) {
             throw new CustomException("Email is already in use", HttpStatus.UNPROCESSABLE_ENTITY);
         }
