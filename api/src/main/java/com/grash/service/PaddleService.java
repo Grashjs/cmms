@@ -387,16 +387,16 @@ public class PaddleService {
                 subscriptionPlanService.findByCode(request.getPlanId().split("-")[0].toUpperCase())
                         .orElseThrow(() -> new CustomException("Plan not found", HttpStatus.BAD_REQUEST));
 
-        boolean monthly = request.getPlanId().toLowerCase().contains("monthly");
-        String priceId = monthly ? newPlan.getMonthlyPaddlePriceId() : newPlan.getYearlyPaddlePriceId();
+        boolean newMonthly = request.getPlanId().toLowerCase().contains("monthly");
+        String priceId = newMonthly ? newPlan.getMonthlyPaddlePriceId() : newPlan.getYearlyPaddlePriceId();
         int newQuantity = request.getQuantity();
 
         if (newPlan.getId().equals(savedSubscription.getSubscriptionPlan().getId()) &&
-                newQuantity == savedSubscription.getUsersCount() && savedSubscription.isMonthly() == monthly) {
+                newQuantity == savedSubscription.getUsersCount() && savedSubscription.isMonthly() == newMonthly) {
             throw new CustomException("There is no change in the plan or users count", HttpStatus.NOT_ACCEPTABLE);
         }
 
-        String prorationMode = inferProrationBillingMode(savedSubscription, newPlan, newQuantity, monthly);
+        String prorationMode = inferProrationBillingMode(savedSubscription, newPlan, newQuantity, newMonthly);
 
         SubscriptionItemUpdate item = new SubscriptionItemUpdate();
         item.setPriceId(priceId);
