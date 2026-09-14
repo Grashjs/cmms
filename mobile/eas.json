@@ -24,14 +24,7 @@
       "ios": {
         "resourceClass": "m1-medium"
       },
-      "autoIncrement": true,
-      "hooks": {
-        "postBuild": [
-          {
-            "file": "node_modules/@sentry/react-native/scripts/expo-upload-sourcemaps.js"
-          }
-        ]
-      }
+      "autoIncrement": true
     },
     "previewAndroid": {
       "android": {

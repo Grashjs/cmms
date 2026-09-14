@@ -10,7 +10,9 @@
     "prebuild": "expo prebuild",
     "bump-version": "node scripts/bump-version.mjs",
     "format": "prettier --write \"./**/*.{ts,tsx,js,jsx,json}\" --config ./.prettierrc",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "eas-build-on-success": "sentry-eas-build-on-success",
+    "eas-build-on-error": "sentry-eas-build-on-error"
   },
   "jest": {
     "preset": "jest-expo"
