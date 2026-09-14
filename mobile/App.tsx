@@ -15,6 +15,17 @@ import 'text-encoding';
 
 import Constants from 'expo-constants';
 
+import * as Sentry from '@sentry/react-native';
+
+const sentryDsn = Constants.expoConfig?.extra?.SENTRY_DSN;
+const sentryEnvironment = Constants.expoConfig?.extra?.SENTRY_ENVIRONMENT;
+
+Sentry.init({
+  dsn: sentryDsn,
+  environment: sentryEnvironment,
+  tracesSampleRate: 0.1
+});
+
 import {
   MD3LightTheme as DefaultTheme,
   Provider as PaperProvider,
@@ -45,7 +56,7 @@ Notifications.setNotificationHandler({
   })
 });
 
-export default function App() {
+export default Sentry.wrap(function App() {
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
   const [notification, setNotification] =
@@ -154,4 +165,4 @@ export default function App() {
       </SafeAreaProvider>
     );
   }
-}
+});
