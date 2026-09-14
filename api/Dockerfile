@@ -11,6 +11,9 @@ FROM eclipse-temurin:17-jre
 # Set the working directory in the container
 WORKDIR /app
 
+ARG SENTRY_RELEASE
+ENV SENTRY_RELEASE=$SENTRY_RELEASE
+
 # Copy the compiled Spring Boot application JAR file into the container at /app
 COPY --from=build /app/target/*.jar my-spring-boot-app.jar
 

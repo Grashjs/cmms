@@ -6,6 +6,9 @@ on:
     paths:
       - 'mobile/**'
 
+env:
+  GIT_SHA: ${{ github.sha }}
+
 jobs:
   update:
     name: EAS Update
@@ -43,5 +46,6 @@ jobs:
           API_URL=${{secrets.API_URL}} \
           CLARITY_ID=${{secrets.CLARITY_ID}} \
           GOOGLE_SERVICES_BASE64=${{secrets.GOOGLE_SERVICES_BASE64}} \
+          SENTRY_RELEASE=${{ env.GIT_SHA }} \
           eas update --channel production --message "${{ github.event.head_commit.message }}"
         working-directory: mobile

@@ -8,6 +8,7 @@ const clarityId = process.env.CLARITY_ID;
 const googleServicesPlist = process.env.GOOGLE_SERVICES_PLIST;
 const sentryDsn = process.env.SENTRY_DSN;
 const sentryEnvironment = process.env.SENTRY_ENVIRONMENT || 'production';
+const sentryRelease = process.env.SENTRY_RELEASE;
 
 const androidGoogleServicesPath = path.resolve(
   __dirname,
@@ -114,6 +115,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     CLARITY_ID: clarityId,
     SENTRY_DSN: sentryDsn,
     SENTRY_ENVIRONMENT: sentryEnvironment,
+    SENTRY_RELEASE: sentryRelease,
     eas: {
       projectId: '803b5007-0c60-4030-ac3a-c7630b223b92'
     }

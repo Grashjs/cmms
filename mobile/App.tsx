@@ -19,10 +19,12 @@ import * as Sentry from '@sentry/react-native';
 
 const sentryDsn = Constants.expoConfig?.extra?.SENTRY_DSN;
 const sentryEnvironment = Constants.expoConfig?.extra?.SENTRY_ENVIRONMENT;
+const sentryRelease = Constants.expoConfig?.extra?.SENTRY_RELEASE;
 
 Sentry.init({
   dsn: sentryDsn,
   environment: sentryEnvironment,
+  release: sentryRelease,
   tracesSampleRate: 0.1,
   debug: true
 });

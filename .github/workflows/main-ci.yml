@@ -10,6 +10,9 @@ on:
 permissions:
   contents: write   # needed to push the deployed-backend / deployed-frontend tags
 
+env:
+  GIT_SHA: ${{ github.sha }}
+
 jobs:
   detect-changes:
     runs-on: ubuntu-latest
@@ -146,6 +149,8 @@ jobs:
           context: ./api
           push: true
           platforms: linux/amd64,linux/arm64
+          build-args: |
+            SENTRY_RELEASE=${{ env.GIT_SHA }}
           tags: |
             ${{ env.BACKEND_IMAGE }}:${{ steps.docker-tag.outputs.TAG }}
           cache-from: type=registry,ref=${{ env.BACKEND_IMAGE }}:buildcache
@@ -177,7 +182,7 @@ jobs:
           app-name: soviet-jennette
           service-name: atlas-api
           service-instance-type: medium
-          service-env: "PORT=8080"
+          service-env: "PORT=8080,SENTRY_RELEASE=${{ env.GIT_SHA }}"
           service-ports: "8080:http"
           service-routes: "/:8080"
           service-checks: "8080:http:/health-check"
@@ -287,7 +292,7 @@ jobs:
           REACT_APP_RECAPTCHA_SITE_KEY: ${{ secrets.REACT_APP_RECAPTCHA_SITE_KEY }}
           REACT_APP_SENTRY_DSN: ${{ secrets.REACT_APP_SENTRY_DSN }}
           REACT_APP_SENTRY_ENVIRONMENT: ${{ vars.SENTRY_ENVIRONMENT }}
-          REACT_APP_SENTRY_RELEASE: ${{ github.sha }}
+          REACT_APP_SENTRY_RELEASE: ${{ env.GIT_SHA }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ vars.SENTRY_ORG }}
           SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES: ${{ secrets.SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES }}

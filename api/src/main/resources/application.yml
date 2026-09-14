@@ -229,6 +229,7 @@ intercom:
 sentry:
   dsn: ${SENTRY_DSN:}
   environment: ${SENTRY_ENVIRONMENT:production}
+  release: ${SENTRY_RELEASE:}
   traces-sample-rate: ${SENTRY_TRACES_SAMPLE_RATE:0.1}
   send-default-pii: true
 springdoc:
