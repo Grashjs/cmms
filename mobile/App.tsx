@@ -25,8 +25,7 @@ Sentry.init({
   dsn: sentryDsn,
   environment: sentryEnvironment,
   release: sentryRelease,
-  tracesSampleRate: 0.1,
-  debug: true
+  tracesSampleRate: 0.1
 });
 
 import {
