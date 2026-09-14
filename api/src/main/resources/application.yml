@@ -226,6 +226,11 @@ sendgrid:
     email: ${SENDGRID_FROM_EMAIL:}
 intercom:
   token: ${INTERCOM_TOKEN:}
+sentry:
+  dsn: ${SENTRY_DSN:}
+  environment: ${SENTRY_ENVIRONMENT:production}
+  traces-sample-rate: ${SENTRY_TRACES_SAMPLE_RATE:0.1}
+  send-default-pii: true
 springdoc:
   api-docs:
     version: openapi_3_1

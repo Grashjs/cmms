@@ -12,9 +12,19 @@ import { TitleProvider } from 'src/contexts/TitleContext';
 import * as serviceWorker from 'src/serviceWorker';
 import { CompanySettingsProvider } from 'src/contexts/CompanySettingsContext';
 import { AuthProvider } from 'src/contexts/JWTAuthContext';
-import { zendeskKey } from './config';
+import { zendeskKey, sentryDsn, sentryEnvironment } from './config';
 import { ZendeskProvider } from 'react-use-zendesk';
 import i18n, { supportedLanguages } from 'src/i18n/i18n';
+import * as Sentry from '@sentry/react';
+
+Sentry.init({
+  dsn: sentryDsn,
+  environment: sentryEnvironment,
+  tracesSampleRate: 0.1,
+  integrations: [
+    Sentry.browserTracingIntegration()
+  ]
+});
 
 ReactDOM.render(
   <HelmetProvider>
@@ -28,7 +38,9 @@ ReactDOM.render(
             <ScrollTop />
             <ZendeskProvider apiKey={zendeskKey}>
               <AuthProvider>
-                <App />
+                <Sentry.ErrorBoundary fallback={<div>Something went wrong.</div>}>
+                  <App />
+                </Sentry.ErrorBoundary>
               </AuthProvider>
             </ZendeskProvider>
           </BrowserRouter>

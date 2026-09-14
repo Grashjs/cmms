@@ -1,6 +1,6 @@
 {
   "name": "atlas-cmms",
-  "version": "1.0.47",
+  "version": "1.0.48",
   "scripts": {
     "start": "expo start --dev-client",
     "android": "expo run:android",
@@ -27,6 +27,7 @@
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/native-stack": "^6.11.0",
     "@reduxjs/toolkit": "^2.2.3",
+    "@sentry/react-native": "^8.26.0",
     "@stomp/stompjs": "^7.0.0",
     "base-64": "^1.0.0",
     "dotenv": "^16.4.5",
