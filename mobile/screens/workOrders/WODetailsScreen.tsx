@@ -1040,6 +1040,7 @@ export default function WODetailsScreen({
                             onPress={() =>
                               navigation.navigate('SelectParts', {
                                 onChange: (selectedParts) => {
+                                  // throw new Error('nuuur');
                                   dispatch(
                                     editWOPartQuantities(
                                       id,

@@ -23,7 +23,8 @@ const sentryEnvironment = Constants.expoConfig?.extra?.SENTRY_ENVIRONMENT;
 Sentry.init({
   dsn: sentryDsn,
   environment: sentryEnvironment,
-  tracesSampleRate: 0.1
+  tracesSampleRate: 0.1,
+  debug: true
 });
 
 import {

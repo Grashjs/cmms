@@ -2,13 +2,12 @@ package com.grash.exception;
 
 import com.grash.advancedsearch.InvalidSearchFieldException;
 import com.grash.dto.SuccessResponse;
+import io.sentry.Sentry;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
-import org.springframework.dao.InvalidDataAccessApiUsageException;
-import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -30,7 +29,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
-public class GlobalExceptionHandlerController {
+public class RestExceptionHandlerController {
 
     @Bean
     public ErrorAttributes errorAttributes() {
@@ -103,6 +102,7 @@ public class GlobalExceptionHandlerController {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<SuccessResponse> handleException(HttpServletResponse res, Exception ex) {
         ex.printStackTrace();
+        Sentry.captureException(ex);
         return new ResponseEntity<>(new SuccessResponse(false, ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

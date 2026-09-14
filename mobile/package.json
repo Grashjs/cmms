@@ -1,6 +1,6 @@
 {
   "name": "atlas-cmms",
-  "version": "1.0.47",
+  "version": "1.0.48",
   "scripts": {
     "start": "expo start --dev-client",
     "android": "expo run:android",

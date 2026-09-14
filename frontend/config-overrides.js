@@ -17,7 +17,7 @@ module.exports = {
       config.plugins.push(
         sentryWebpackPlugin({
           org: process.env.SENTRY_ORG,
-          project: process.env.SENTRY_PROJECT,
+          project: 'frontend',
           authToken: process.env.SENTRY_AUTH_TOKEN
         })
       );

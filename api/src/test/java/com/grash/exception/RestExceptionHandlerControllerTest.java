@@ -10,7 +10,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -21,16 +20,16 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class GlobalExceptionHandlerControllerTest {
+class RestExceptionHandlerControllerTest {
 
     @Mock
     private HttpServletResponse response;
 
-    private GlobalExceptionHandlerController handler;
+    private RestExceptionHandlerController handler;
 
     @BeforeEach
     void setUp() {
-        handler = new GlobalExceptionHandlerController();
+        handler = new RestExceptionHandlerController();
     }
 
     @Test

@@ -1,7 +1,10 @@
 package com.grash.configuration;
 
 import com.grash.job.DeleteDemoCompaniesJob;
+import io.sentry.Sentry;
 import org.quartz.*;
+import org.quartz.listeners.JobListenerSupport;
+import org.springframework.boot.autoconfigure.quartz.SchedulerFactoryBeanCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,6 +18,7 @@ public class QuartzConfig {
                 .storeDurably()
                 .build();
     }
+
     @Bean
     public Trigger deleteDemoCompaniesTrigger() {
         return TriggerBuilder.newTrigger()
@@ -24,5 +28,25 @@ public class QuartzConfig {
                         .withIntervalInHours(1)
                         .repeatForever())
                 .build();
+    }
+
+    @Bean
+    public SchedulerFactoryBeanCustomizer sentryQuartzSchedulerCustomizer() {
+        return schedulerFactoryBean -> schedulerFactoryBean.setGlobalJobListeners(new SentryJobListener());
+    }
+
+    static class SentryJobListener extends JobListenerSupport {
+
+        @Override
+        public String getName() {
+            return "SentryJobListener";
+        }
+
+        @Override
+        public void jobWasExecuted(JobExecutionContext context, JobExecutionException jobException) {
+            if (jobException != null) {
+                Sentry.captureException(jobException);
+            }
+        }
     }
 }

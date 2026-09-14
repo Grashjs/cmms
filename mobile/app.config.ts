@@ -9,9 +9,16 @@ const googleServicesPlist = process.env.GOOGLE_SERVICES_PLIST;
 const sentryDsn = process.env.SENTRY_DSN;
 const sentryEnvironment = process.env.SENTRY_ENVIRONMENT || 'production';
 
-const androidGoogleServicesPath = path.resolve(__dirname, 'android/app/google-services.json');
+console.warn('KHHI - ', process.env);
+const androidGoogleServicesPath = path.resolve(
+  __dirname,
+  'android/app/google-services.json'
+);
 if (process.env.GOOGLE_SERVICES_BASE64) {
-  fs.writeFileSync(androidGoogleServicesPath, Buffer.from(process.env.GOOGLE_SERVICES_BASE64, 'base64').toString('utf-8'));
+  fs.writeFileSync(
+    androidGoogleServicesPath,
+    Buffer.from(process.env.GOOGLE_SERVICES_BASE64, 'base64').toString('utf-8')
+  );
 }
 
 const plugins: ExpoConfig['plugins'] = [
@@ -46,8 +53,9 @@ if (process.env.SENTRY_AUTH_TOKEN) {
   plugins.push([
     '@sentry/react-native/expo',
     {
+      url: 'https://sentry.io/',
       organization: process.env.SENTRY_ORG,
-      project: process.env.SENTRY_PROJECT,
+      project: 'mobile',
       authToken: process.env.SENTRY_AUTH_TOKEN
     }
   ]);
@@ -57,7 +65,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'Atlas CMMS',
   slug: 'atlas-cmms',
-  version: '1.0.47',
+  version: '1.0.48',
   orientation: 'portrait',
   icon: './assets/images/icon.png',
   scheme: 'atlascmms',
@@ -81,7 +89,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     buildNumber: '2',
     jsEngine: 'hermes',
     supportsTablet: false,
-    runtimeVersion: '1.0.47',
+    runtimeVersion: 'appVersion',
     googleServicesFile: googleServicesPlist ?? './GoogleService-Info.plist',
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false
@@ -97,7 +105,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     jsEngine: 'hermes',
     edgeToEdgeEnabled: true,
     googleServicesFile: androidGoogleServicesPath,
-    runtimeVersion: '1.0.47' // Changed from policy object to fixed string
+    runtimeVersion: 'appVersion' // Changed from policy object to fixed string
   },
   web: {
     favicon: './assets/images/favicon.png'
