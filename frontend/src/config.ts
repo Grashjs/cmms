@@ -96,4 +96,11 @@ export const intercomId = getRuntimeValue('INTERCOM_ID');
 export const ldapEnabled = getRuntimeValue('LDAP_ENABLED') === 'true';
 
 export const sentryDsn = getRuntimeValue('SENTRY_DSN');
-export const sentryEnvironment = getRuntimeValue('SENTRY_ENVIRONMENT', 'production');
+export const sentryEnvironment = getRuntimeValue(
+  'SENTRY_ENVIRONMENT',
+  'production'
+);
+export const sentryRelease = getRuntimeValue(
+  'SENTRY_RELEASE',
+  'atlas-frontend'
+);

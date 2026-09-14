@@ -10,20 +10,22 @@ import App from 'src/App';
 import { SidebarProvider } from 'src/contexts/SidebarContext';
 import { TitleProvider } from 'src/contexts/TitleContext';
 import * as serviceWorker from 'src/serviceWorker';
-import { CompanySettingsProvider } from 'src/contexts/CompanySettingsContext';
 import { AuthProvider } from 'src/contexts/JWTAuthContext';
-import { zendeskKey, sentryDsn, sentryEnvironment } from './config';
+import {
+  sentryDsn,
+  sentryEnvironment,
+  sentryRelease,
+  zendeskKey
+} from './config';
 import { ZendeskProvider } from 'react-use-zendesk';
-import i18n, { supportedLanguages } from 'src/i18n/i18n';
 import * as Sentry from '@sentry/react';
 
 Sentry.init({
   dsn: sentryDsn,
   environment: sentryEnvironment,
+  release: sentryRelease,
   tracesSampleRate: 0.1,
-  integrations: [
-    Sentry.browserTracingIntegration()
-  ]
+  integrations: [Sentry.browserTracingIntegration()]
 });
 
 ReactDOM.render(
@@ -38,7 +40,9 @@ ReactDOM.render(
             <ScrollTop />
             <ZendeskProvider apiKey={zendeskKey}>
               <AuthProvider>
-                <Sentry.ErrorBoundary fallback={<div>Something went wrong.</div>}>
+                <Sentry.ErrorBoundary
+                  fallback={<div>Something went wrong.</div>}
+                >
                   <App />
                 </Sentry.ErrorBoundary>
               </AuthProvider>

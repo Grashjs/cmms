@@ -18,7 +18,12 @@ module.exports = {
         sentryWebpackPlugin({
           org: process.env.SENTRY_ORG,
           project: 'frontend',
-          authToken: process.env.SENTRY_AUTH_TOKEN
+          authToken: process.env.SENTRY_AUTH_TOKEN,
+          release: {
+            name:
+              process.env.REACT_APP_SENTRY_RELEASE || 'atlas-frontend',
+            create: true
+          }
         })
       );
     }

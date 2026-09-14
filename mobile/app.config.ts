@@ -9,7 +9,6 @@ const googleServicesPlist = process.env.GOOGLE_SERVICES_PLIST;
 const sentryDsn = process.env.SENTRY_DSN;
 const sentryEnvironment = process.env.SENTRY_ENVIRONMENT || 'production';
 
-console.warn('KHHI - ', process.env);
 const androidGoogleServicesPath = path.resolve(
   __dirname,
   'android/app/google-services.json'
