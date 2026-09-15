@@ -96,6 +96,11 @@ public class AssetService {
             asset.setBarCode(UUID.randomUUID().toString());
         }
         Sanitizer.sanitizeAsset(asset);
+        if (asset.getParentAsset() != null && asset.getLocation() == null) {
+            asset.setLocation(assetRepository.findById(asset.getParentAsset().getId())
+                    .orElseThrow(() -> new CustomException("Parent asset not found", HttpStatus.NOT_FOUND))
+                    .getLocation());
+        }
         Asset savedAsset = assetRepository.saveAndFlush(asset);
         em.refresh(savedAsset);
         Map<String, Object> webhookPayload = new HashMap<>();
