@@ -276,9 +276,12 @@ class AssetServiceTest {
         @Test
         void withParentAndHierarchyEntitlement_savesChild() {
             Asset asset = buildAsset(1L);
-            asset.setParentAsset(buildAsset(2L));
+            Asset parent = buildAsset(2L);
+            asset.setParentAsset(parent);
+            asset.setLocation(null);
             stubAssetLimit(false, false);
             when(licenseService.hasEntitlement(LicenseEntitlement.ASSET_HIERARCHY)).thenReturn(true);
+            when(assetRepository.findById(2L)).thenReturn(Optional.of(parent));
             stubCreatePipeline(7L);
 
             Asset result = assetService.create(asset, user);
@@ -346,6 +349,63 @@ class AssetServiceTest {
             assetService.create(dto, user);
 
             verify(customFieldValueService, never()).setCustomFields(any(), any(), any(), any(), any(), any());
+        }
+
+        @Test
+        void withParentAndNullLocation_copiesLocationFromParent() {
+            Asset asset = buildAsset(1L);
+            Asset parent = buildAsset(2L);
+            Location parentLocation = new Location();
+            parentLocation.setId(10L);
+            parent.setLocation(parentLocation);
+            asset.setParentAsset(parent);
+            asset.setLocation(null);
+            stubAssetLimit(false, false);
+            when(licenseService.hasEntitlement(LicenseEntitlement.ASSET_HIERARCHY)).thenReturn(true);
+            when(assetRepository.findById(2L)).thenReturn(Optional.of(parent));
+            stubCreatePipeline(1L);
+
+            Asset result = assetService.create(asset, user);
+
+            assertSame(parentLocation, result.getLocation());
+            verify(assetRepository).findById(2L);
+        }
+
+        @Test
+        void withParentAndExistingLocation_doesNotOverwriteLocation() {
+            Asset asset = buildAsset(1L);
+            Asset parent = buildAsset(2L);
+            Location existingLocation = new Location();
+            existingLocation.setId(20L);
+            Location parentLocation = new Location();
+            parentLocation.setId(30L);
+            parent.setLocation(parentLocation);
+            asset.setParentAsset(parent);
+            asset.setLocation(existingLocation);
+            stubAssetLimit(false, false);
+            when(licenseService.hasEntitlement(LicenseEntitlement.ASSET_HIERARCHY)).thenReturn(true);
+            stubCreatePipeline(1L);
+
+            Asset result = assetService.create(asset, user);
+
+            assertSame(existingLocation, result.getLocation());
+            verify(assetRepository, never()).findById(2L);
+        }
+
+        @Test
+        void withParentNotFoundInRepository_throwsNotFound() {
+            Asset asset = buildAsset(1L);
+            Asset parent = buildAsset(2L);
+            asset.setParentAsset(parent);
+            asset.setLocation(null);
+            stubAssetLimit(false, false);
+            when(licenseService.hasEntitlement(LicenseEntitlement.ASSET_HIERARCHY)).thenReturn(true);
+            when(assetRepository.findById(2L)).thenReturn(Optional.empty());
+
+            CustomException ex = assertThrows(CustomException.class, () -> assetService.create(asset, user));
+
+            assertEquals(HttpStatus.NOT_FOUND, ex.getHttpStatus());
+            verify(assetRepository, never()).saveAndFlush(any());
         }
 
         @Test
