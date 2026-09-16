@@ -113,6 +113,8 @@ services:
       PADDLE_ENVIRONMENT: ${PADDLE_ENVIRONMENT:-sandbox}
       RECAPTCHA_SITE_KEY: ${RECAPTCHA_SITE_KEY:- }
       LDAP_ENABLED: ${LDAP_ENABLED:-false}
+      SENTRY_DSN: ${SENTRY_DSN:- }
+      SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT:- }
     expose:
       - "3000"
     depends_on:
