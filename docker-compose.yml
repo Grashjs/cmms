@@ -88,7 +88,7 @@ services:
       LDAP_SYNC_CREATE: ${LDAP_SYNC_CREATE:-false}
       LDAP_SYNC_UPDATE: ${LDAP_SYNC_UPDATE:-false}
       LDAP_SYNC_DISABLE: ${LDAP_SYNC_DISABLE:-false}
-      LDAP_SYNC_CRON: ${LDAP_SYNC_CRON}
+      LDAP_SYNC_CRON: ${LDAP_SYNC_CRON:-}
     expose:
       - "8080"
 
@@ -116,6 +116,7 @@ services:
       SENTRY_DSN: ${SENTRY_DSN:- }
       SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT:- }
       SENTRY_RELEASE: ${SENTRY_RELEASE:- }
+      CLARITY_ID: ${CLARITY_ID:- }
     expose:
       - "3000"
     depends_on:
