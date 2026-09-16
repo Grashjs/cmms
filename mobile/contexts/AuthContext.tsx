@@ -48,6 +48,7 @@ import { UiConfiguration } from '../models/uiConfiguration';
 import Constants from 'expo-constants';
 import moment from 'moment-timezone';
 import { getCustomFields } from '../slices/customField';
+import * as Sentry from '@sentry/react-native';
 import {
   initialize as initClarity,
   setCustomUserId
@@ -720,6 +721,11 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
           });
           setCustomUserId(user.email);
         }
+        Sentry.setUser({
+          id: user.id,
+          email: user.email,
+          username: user.firstName + ' ' + user.lastName
+        });
       }
     });
     try {
@@ -845,6 +851,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       // Always clear the local session, even when the server is unreachable
       // (offline / dead zone) — otherwise the user is stuck logged in.
       setSession(null, null);
+      Sentry.setUser(null);
       dispatch({ type: 'LOGOUT' });
     }
   };
