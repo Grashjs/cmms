@@ -115,6 +115,7 @@ services:
       LDAP_ENABLED: ${LDAP_ENABLED:-false}
       SENTRY_DSN: ${SENTRY_DSN:- }
       SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT:- }
+      SENTRY_RELEASE: ${SENTRY_RELEASE:- }
     expose:
       - "3000"
     depends_on:
