@@ -108,6 +108,79 @@ jobs:
         run: mvn test -DargLine="--add-opens java.base/java.lang=ALL-UNNAMED"
         working-directory: ./api
 
+  selfhost-smoke-test:
+    needs: detect-changes
+    timeout-minutes: 35
+    if: >-
+      ${{
+        vars.SKIP_TESTS != 'true' &&
+        (needs.detect-changes.outputs.backend == 'true' ||
+         needs.detect-changes.outputs.frontend == 'true')
+      }}
+    runs-on: ubuntu-latest
+    concurrency:
+      group: selfhost-smoke-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build backend image from source
+        run: docker build -t intelloop/atlas-cmms-backend:latest ./api
+
+      - name: Build frontend image from source
+        run: docker build -t intelloop/atlas-cmms-frontend:latest ./frontend
+
+      - name: Prepare self-host directory with bare .env
+        run: |
+          mkdir -p /tmp/selfhost/logo /tmp/selfhost/config
+          cp .env.example /tmp/selfhost/.env
+          cp docker-compose.yml /tmp/selfhost/docker-compose.yml
+          cp nginx.conf /tmp/selfhost/nginx.conf
+
+      - name: Start self-host stack
+        run: docker compose up -d --wait
+        working-directory: /tmp/selfhost
+
+      - name: Wait for backend health-check via nginx
+        run: |
+          for i in $(seq 1 60); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/health-check || true)
+            if [ "$code" = "200" ]; then
+              echo "backend health-check OK (attempt $i)"
+              exit 0
+            fi
+            echo "waiting for backend... attempt $i (http $code)"
+            sleep 10
+          done
+          echo "Backend health-check did not succeed in time" >&2
+          exit 1
+
+      - name: Check /health-check on api container
+        run: |
+          NET=$(docker network ls --filter "name=atlas-cmms" --format "{{.Name}}" | head -n1)
+          docker run --rm --network "$NET" curlimages/curl:8.8.0 -fsS http://api:8080/health-check
+          echo "backend /health-check OK"
+
+      - name: Check frontend is served
+        run: |
+          body=$(curl -fsS http://localhost:3000/)
+          echo "$body" | grep -q 'Atlas CMMS'
+          echo "$body" | grep -q '<div id="root">'
+          echo "frontend OK"
+
+      - name: Show stack status on failure
+        if: failure()
+        run: |
+          docker compose ps || true
+          docker compose logs || true
+        working-directory: /tmp/selfhost
+
+      - name: Clean up stack
+        if: always()
+        run: docker compose down -v
+        working-directory: /tmp/selfhost
+
   push-backend-docker:
     needs: [detect-changes, test]
     if: >-
