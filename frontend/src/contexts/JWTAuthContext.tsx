@@ -32,9 +32,7 @@ import Asset, { AssetDTO } from '../models/owns/asset';
 import Location from '../models/owns/location';
 import { useZendesk } from 'react-use-zendesk';
 import { UiConfiguration } from 'src/models/owns/uiConfiguration';
-import { googleTrackingId, IS_LOCALHOST } from '../config';
-import ReactGA from 'react-ga4';
-import { getLicenseValidity } from '../slices/license';
+import * as Sentry from '@sentry/react';
 import { fireGa4Event } from '../utils/overall';
 import { useUtmTracker } from '@nik0di3m/utm-tracker-hook';
 import { addDays } from 'date-fns';
@@ -549,6 +547,11 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         user.language?.toLowerCase() ||
         companySettings.generalPreferences.language.toLowerCase()
     });
+    Sentry.setUser({
+      id: user.id,
+      email: user.email,
+      username: user.firstName + ' ' + user.lastName
+    });
   };
   const getInfos = async (): Promise<void> => {
     try {
@@ -671,6 +674,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     }
     await api.post('auth/logout', {});
     setSession(null, null);
+    Sentry.setUser(null);
     dispatch({ type: 'LOGOUT' });
   };
 
