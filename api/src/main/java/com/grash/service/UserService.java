@@ -173,7 +173,8 @@ public class UserService {
                 throw new CustomException("You are not invited to this organization for this role",
                         HttpStatus.NOT_ACCEPTABLE);
             }
-            if (!enableInvitationViaEmail && role.getRoleType().equals(RoleType.ROLE_SUPER_ADMIN))
+            if (!enableInvitationViaEmail && role.getRoleType().equals(RoleType.ROLE_SUPER_ADMIN)
+                    && userInvitations.isEmpty())
                 throw new CustomException("You should enable invitation via email to signup as superadmin",
                         HttpStatus.FORBIDDEN);
             userInvitations.sort(Comparator.comparing(UserInvitation::getCreatedAt).reversed());
