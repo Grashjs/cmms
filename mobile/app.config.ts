@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { ExpoConfig, ConfigContext } from 'expo/config';
+import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 
@@ -8,7 +9,8 @@ const clarityId = process.env.CLARITY_ID;
 const googleServicesPlist = process.env.GOOGLE_SERVICES_PLIST;
 const sentryDsn = process.env.SENTRY_DSN;
 const sentryEnvironment = process.env.SENTRY_ENVIRONMENT || 'production';
-const sentryRelease = process.env.SENTRY_RELEASE;
+const gitHash = execSync('git rev-parse --short HEAD').toString().trim();
+const sentryRelease = process.env.SENTRY_RELEASE || gitHash;
 
 const androidGoogleServicesPath = path.resolve(
   __dirname,

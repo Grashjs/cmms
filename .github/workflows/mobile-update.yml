@@ -44,7 +44,11 @@ jobs:
       - name: Publish update
         run: |
           API_URL=${{secrets.API_URL}} \
-          CLARITY_ID=${{secrets.CLARITY_ID}} \
+          CLARITY_ID=${{secrets.MOBILE_CLARITY_ID}} \
+          SENTRY_DSN=${{secrets.MOBILE_SENTRY_DSN}} \
+          SENTRY_AUTH_TOKEN=${{secrets.MOBILE_SENTRY_AUTH_TOKEN}} \
+          SENTRY_ORG=atlas-cmms \
+          SENTRY_ENVIRONMENT=production \
           GOOGLE_SERVICES_BASE64=${{secrets.GOOGLE_SERVICES_BASE64}} \
           SENTRY_RELEASE=${{ env.GIT_SHA }} \
           eas update --channel production --message "${{ github.event.head_commit.message }}"
