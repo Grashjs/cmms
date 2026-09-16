@@ -18,7 +18,6 @@ import { useEffect } from 'react';
 import { getUrgentWorkOrdersCount } from '../../../../slices/workOrder';
 import { useDispatch, useSelector } from '../../../../store';
 import { getPendingRequestsCount } from '../../../../slices/request';
-import { PermissionEntity } from '../../../../models/owns/role';
 import dayjs from 'dayjs';
 import { isCloudVersion } from 'src/config';
 import { getLocalizedHomeUrl } from '../../../../utils/urlPaths';
