@@ -38,7 +38,7 @@ import { useUtmTracker } from '@nik0di3m/utm-tracker-hook';
 import { addDays } from 'date-fns';
 import { shutdown } from '@intercom/messenger-js-sdk';
 import Clarity from '@microsoft/clarity';
-import { clarityId } from '../config';
+import { clarityId, IS_LOCALHOST } from '../config';
 
 interface AuthState {
   isInitialized: boolean;
@@ -680,6 +680,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     await api.post('auth/logout', {});
     setSession(null, null);
     Sentry.setUser(null);
+    if (clarityId && !IS_LOCALHOST) Clarity.identify(null);
     dispatch({ type: 'LOGOUT' });
   };
 
