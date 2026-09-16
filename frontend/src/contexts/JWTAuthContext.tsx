@@ -680,7 +680,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     await api.post('auth/logout', {});
     setSession(null, null);
     Sentry.setUser(null);
-    if (clarityId && !IS_LOCALHOST) Clarity.identify(null);
+    if (clarityId && !IS_LOCALHOST) Clarity.identify('');
     dispatch({ type: 'LOGOUT' });
   };
 
