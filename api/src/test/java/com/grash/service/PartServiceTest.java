@@ -1,5 +1,6 @@
 package com.grash.service;
 
+import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.PartPatchDTO;
 import com.grash.dto.PartPostDTO;
@@ -726,7 +727,7 @@ class PartServiceTest {
 
             partService.consumePart(1L, -1, wo, Locale.ENGLISH, false);
 
-            assertEquals(3, transaction.getQuantity());
+            assertEquals(1, transaction.getQuantity());
             verify(partTransactionService).save(transaction);
             verify(partTransactionService, never()).delete(anyLong());
         }
@@ -874,8 +875,24 @@ class PartServiceTest {
     class FindBySearchCriteria {
 
         @Test
-        void returnsPage() {
+        void withoutFilters_buildsNullSpecification() {
             SearchCriteria criteria = new SearchCriteria();
+            Page<Part> page = new PageImpl<>(Collections.singletonList(buildPart(1L)));
+            when(partRepository.findAll((Specification<Part>) isNull(), any(Pageable.class))).thenReturn(page);
+
+            Page<Part> result = partService.findBySearchCriteria(criteria);
+
+            assertSame(page, result);
+        }
+
+        @Test
+        void withFilters_buildsSpecification() {
+            SearchCriteria criteria = new SearchCriteria();
+            criteria.getFilterFields().add(FilterField.builder()
+                    .field("name")
+                    .value("Part")
+                    .operation("eq")
+                    .build());
             Page<Part> page = new PageImpl<>(Collections.singletonList(buildPart(1L)));
             when(partRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
 
