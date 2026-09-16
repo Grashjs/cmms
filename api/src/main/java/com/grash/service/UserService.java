@@ -17,6 +17,7 @@ import com.grash.mapper.UserMapper;
 import com.grash.model.*;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.RoleCode;
+import com.grash.model.enums.RoleType;
 import com.grash.repository.UserRepository;
 import com.grash.repository.VerificationTokenRepository;
 import com.grash.security.CustomUserDetail;
@@ -172,6 +173,9 @@ public class UserService {
                 throw new CustomException("You are not invited to this organization for this role",
                         HttpStatus.NOT_ACCEPTABLE);
             }
+            if (!enableInvitationViaEmail && role.getRoleType().equals(RoleType.ROLE_SUPER_ADMIN))
+                throw new CustomException("You should enable invitation via email to signup as superadmin",
+                        HttpStatus.FORBIDDEN);
             userInvitations.sort(Comparator.comparing(UserInvitation::getCreatedAt).reversed());
             user.setRole(role);
             if (role.getCompanySettings() == null) {
