@@ -14,6 +14,7 @@ import AppInit from './components/AppInit';
 import { CustomSnackBarProvider } from './contexts/CustomSnackBarContext';
 import ReactGA from 'react-ga4';
 import {
+  clarityId,
   customLogoPaths,
   googleTrackingId,
   IS_LOCALHOST,
@@ -22,6 +23,7 @@ import {
   PADDLE_SECRET_TOKEN,
   paddleEnvironment
 } from './config';
+import Clarity from '@microsoft/clarity';
 import { useEffect, useState } from 'react';
 import { CompanySettingsProvider } from './contexts/CompanySettingsContext';
 import { getLicenseValidity } from './slices/license';
@@ -39,6 +41,8 @@ if (!IS_LOCALHOST && googleTrackingId)
   ReactGA.initialize(googleTrackingId, {
     gaOptions: { allowAdPersonalizationSignals: false }
   });
+
+if (!IS_LOCALHOST && clarityId) Clarity.init(clarityId);
 
 const DemoAlert = () => {
   const [show, setShow] = useState<boolean>(true);

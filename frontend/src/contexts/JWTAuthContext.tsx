@@ -37,6 +37,8 @@ import { fireGa4Event } from '../utils/overall';
 import { useUtmTracker } from '@nik0di3m/utm-tracker-hook';
 import { addDays } from 'date-fns';
 import { shutdown } from '@intercom/messenger-js-sdk';
+import Clarity from '@microsoft/clarity';
+import { clarityId } from '../config';
 
 interface AuthState {
   isInitialized: boolean;
@@ -532,10 +534,6 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   const updateUserInfos = async () => {
     const user = await getUserInfos();
     setCompanyId(user.companyId);
-    const clarity = (window as any).clarity;
-    if (typeof clarity === 'function') {
-      clarity('identify', user.email);
-    }
     return user;
   };
   const setupUser = async (
@@ -547,6 +545,13 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         user.language?.toLowerCase() ||
         companySettings.generalPreferences.language.toLowerCase()
     });
+    if (clarityId)
+      Clarity.identify(
+        user.email,
+        undefined,
+        undefined,
+        user.firstName + ' ' + user.lastName
+      );
     Sentry.setUser({
       id: user.id,
       email: user.email,
