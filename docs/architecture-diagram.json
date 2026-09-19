@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Atlas CMMS system architecture",
+    "quality_profile": "showcase",
+    "output": "architecture-diagram.html",
+    "repository": {
+      "url": "https://github.com/kight23/cmms",
+      "revision": "869d648f028057d637ccb66b740f4499a097c2fc"
+    },
+    "views": [
+      {
+        "id": "request-path",
+        "label": "Primary request path",
+        "focus": ["users", "nginx", "frontend", "api", "postgres"],
+        "note": "Follow browser and mobile requests through the public ingress to durable application state."
+      },
+      {
+        "id": "identity-storage",
+        "label": "Identity and storage",
+        "focus": ["frontend", "mobile", "api", "postgres", "object-storage", "mail"],
+        "note": "Isolate token refresh, persistence, object storage, and notification dependencies."
+      },
+      {
+        "id": "external-integrations",
+        "label": "External integrations",
+        "focus": ["api", "oauth", "mail"],
+        "note": "See optional identity, subscription, directory, and observability integrations."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "users",
+      "type": "external",
+      "label": "Users",
+      "sublabel": "Browser / Mobile",
+      "pos": [40, 300],
+      "size": [130, 64],
+      "sources": [
+        { "path": "README.MD", "label": "product entry points" }
+      ]
+    },
+    {
+      "id": "nginx",
+      "type": "cloud",
+      "label": "Nginx",
+      "sublabel": "single public ingress",
+      "pos": [230, 300],
+      "size": [140, 64],
+      "sources": [
+        { "path": "nginx.conf", "line": 1, "end_line": 72, "label": "routing" }
+      ]
+    },
+    {
+      "id": "frontend",
+      "type": "frontend",
+      "label": "Web frontend",
+      "sublabel": "React SPA",
+      "pos": [430, 190],
+      "size": [150, 64],
+      "sources": [
+        { "path": "frontend/package.json", "label": "React client" },
+        { "path": "frontend/src/config.ts", "label": "runtime config" }
+      ]
+    },
+    {
+      "id": "mobile",
+      "type": "frontend",
+      "label": "Mobile app",
+      "sublabel": "Expo / React Native",
+      "pos": [430, 410],
+      "size": [150, 64],
+      "sources": [
+        { "path": "mobile/package.json", "label": "mobile client" },
+        { "path": "mobile/config.ts", "label": "API selection" }
+      ]
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "CMMS API",
+      "sublabel": "Spring Boot REST",
+      "pos": [660, 300],
+      "size": [150, 64],
+      "sources": [
+        { "path": "api/src/main/java/com/grash/ApiApplication.java", "label": "service bootstrap" },
+        { "path": "api/src/main/java/com/grash/controller/WorkOrderController.java", "label": "REST boundary" }
+      ]
+    },
+    {
+      "id": "postgres",
+      "type": "database",
+      "label": "PostgreSQL",
+      "sublabel": "JPA + Liquibase",
+      "pos": [900, 190],
+      "size": [150, 64],
+      "sources": [
+        { "path": "api/src/main/resources/application.yml", "line": 2, "end_line": 28, "label": "database config" }
+      ]
+    },
+    {
+      "id": "quartz",
+      "type": "messagebus",
+      "label": "Quartz jobs",
+      "sublabel": "JDBC job store",
+      "pos": [900, 410],
+      "size": [150, 64],
+      "sources": [
+        { "path": "api/src/main/resources/application.yml", "line": 21, "end_line": 26, "label": "scheduled jobs" }
+      ]
+    },
+    {
+      "id": "object-storage",
+      "type": "cloud",
+      "label": "Object storage",
+      "sublabel": "MinIO or GCP",
+      "pos": [900, 300],
+      "size": [150, 64],
+      "sources": [
+        { "path": "api/src/main/resources/application.yml", "line": 146, "end_line": 160, "label": "storage options" }
+      ]
+    },
+    {
+      "id": "mail",
+      "type": "external",
+      "label": "Mail provider",
+      "sublabel": "SMTP / SendGrid",
+      "pos": [1110, 500],
+      "size": [150, 64],
+      "sources": [
+        { "path": "api/src/main/resources/application.yml", "line": 61, "end_line": 72, "label": "mail config" }
+      ]
+    },
+    {
+      "id": "oauth",
+      "type": "security",
+      "label": "OAuth / SSO",
+      "sublabel": "optional identity",
+      "pos": [660, 80],
+      "size": [150, 64],
+      "sources": [
+        { "path": "api/src/main/java/com/grash/configuration/WebSecurityConfig.java", "line": 98, "end_line": 103, "label": "SSO" }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Self-hosted Docker deployment",
+      "wraps": ["nginx", "frontend", "api", "postgres", "quartz", "object-storage"]
+    },
+    {
+      "kind": "security-group",
+      "label": "Authenticated application boundary",
+      "wraps": ["frontend", "mobile", "api", "postgres", "quartz", "object-storage", "mail"]
+    }
+  ],
+  "connections": [
+    { "id": "users-to-nginx", "from": "users", "to": "nginx", "label": "HTTP(S)", "variant": "emphasis" },
+    { "id": "nginx-to-frontend", "from": "nginx", "to": "frontend", "label": "web assets", "fromSide": "top", "toSide": "left" },
+    { "id": "nginx-to-api", "from": "nginx", "to": "api", "label": "/api/", "fromSide": "right", "toSide": "left" },
+    { "id": "frontend-to-api", "from": "frontend", "to": "api", "label": "REST + JWT", "variant": "security" },
+    { "id": "mobile-to-api", "from": "mobile", "to": "api", "variant": "security" },
+    { "id": "api-to-postgres", "from": "api", "to": "postgres", "label": "JPA / SQL" },
+    { "id": "api-to-quartz", "from": "api", "to": "quartz", "variant": "dashed" },
+    { "id": "api-to-storage", "from": "api", "to": "object-storage", "variant": "dashed" },
+    { "id": "api-to-mail", "from": "api", "to": "mail", "label": "notifications", "variant": "dashed", "fromSide": "bottom", "toSide": "top" },
+    { "id": "oauth-to-api", "from": "oauth", "to": "api", "variant": "security", "fromSide": "bottom", "toSide": "top" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Clients and ingress",
+      "items": ["React SPA and Expo mobile clients", "Nginx routes web, API, and storage paths"]
+    },
+    {
+      "dot": "emerald",
+      "title": "Core runtime",
+      "items": ["Spring Boot REST API owns CMMS behavior", "PostgreSQL stores business data and Quartz jobs"]
+    },
+    {
+      "dot": "violet",
+      "title": "Optional integrations",
+      "items": ["MinIO or GCP object storage", "SMTP/SendGrid, SSO, LDAP, billing, and Sentry"]
+    }
+  ]
+}
