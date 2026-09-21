@@ -3,6 +3,7 @@ package com.grash.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.grash.model.abstracts.Audit;
+import com.grash.model.abstracts.CompanyAudit;
 import com.grash.model.enums.Language;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.PlanFeatures;
@@ -23,7 +24,7 @@ import java.util.List;
 @NoArgsConstructor
 @Table(name = "own_user")
 @Schema(description = "User entity representing a user account in the CMMS system")
-public class User extends Audit {
+public class User extends CompanyAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Schema(description = "Unique identifier", accessMode = Schema.AccessMode.READ_ONLY)
@@ -77,9 +78,6 @@ public class User extends Audit {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Schema(description = "Whether the user is enabled in the subscription", accessMode = Schema.AccessMode.READ_ONLY)
     private boolean enabledInSubscription = true;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Company company;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Schema(description = "Whether the user owns the company", accessMode = Schema.AccessMode.READ_ONLY)
