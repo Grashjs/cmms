@@ -2165,4 +2165,40 @@ class UserServiceTest {
             verify(refreshTokenService).revokeAllForUser(targetUser);
         }
     }
+
+    @Nested
+    class FindCompanyOwner {
+
+        @Test
+        void ownerExists_returnsCompanyOwner() {
+            User owner = buildUser(2L, "owner@test.com");
+            owner.setOwnsCompany(true);
+            when(userRepository.findCompanyOwner(1L)).thenReturn(Optional.of(owner));
+
+            Optional<User> result = userService.findCompanyOwner(1L);
+
+            assertTrue(result.isPresent());
+            assertSame(owner, result.get());
+            verify(userRepository).findCompanyOwner(1L);
+        }
+
+        @Test
+        void noOwner_returnsEmpty() {
+            when(userRepository.findCompanyOwner(1L)).thenReturn(Optional.empty());
+
+            Optional<User> result = userService.findCompanyOwner(1L);
+
+            assertTrue(result.isEmpty());
+            verify(userRepository).findCompanyOwner(1L);
+        }
+
+        @Test
+        void delegatesToRepositoryWithCompanyId() {
+            when(userRepository.findCompanyOwner(42L)).thenReturn(Optional.empty());
+
+            userService.findCompanyOwner(42L);
+
+            verify(userRepository).findCompanyOwner(42L);
+        }
+    }
 }
