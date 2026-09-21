@@ -25,10 +25,6 @@ import java.util.List;
 @Table(name = "own_user")
 @Schema(description = "User entity representing a user account in the CMMS system")
 public class User extends CompanyAudit {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Schema(description = "Unique identifier", accessMode = Schema.AccessMode.READ_ONLY)
-    private Long id;
 
     @NotNull
     @Schema(description = "First name", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -142,7 +138,7 @@ public class User extends CompanyAudit {
 
 
     public int hashCode() {
-        return Math.toIntExact(id);
+        return Math.toIntExact(this.getId());
     }
 
     public boolean canSeeAnalytics() {
