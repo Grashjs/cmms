@@ -16,10 +16,14 @@ import java.util.List;
 @NoArgsConstructor
 @Schema(description = "DTO for patching an existing work order")
 public class WorkOrderPatchDTO extends WorkOrderBasePatchDTO {
-    @Schema(description = "User who completed the work order", implementation = IdDTO.class)
-    private User completedBy;
-    @Schema(description = "Date and time when the work order was completed")
-    private Date completedOn;
+    //    @Schema(description = "User who completed the work order", implementation = IdDTO.class)
+//    //TODO remove or implement user changing completion details in frontends
+//    @Deprecated
+//    private User completedBy;
+//    @Schema(description = "Date and time when the work order was completed")
+//    //TODO remove or implement user changing completion details in frontends
+//    @Deprecated
+//    private Date completedOn;
     @Schema(description = "Whether the work order is archived")
     private boolean archived;
     private List<CustomFieldValuePostDTO> customFields = new ArrayList<>();
