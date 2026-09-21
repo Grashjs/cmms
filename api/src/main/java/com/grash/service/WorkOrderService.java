@@ -127,6 +127,10 @@ public class WorkOrderService {
         }
         workOrder.setCustomId(getWorkOrderNumber(company));
         workOrder.setId(null);
+        workOrder.setCompletedBy(null);
+        workOrder.setCompletedOn(null);
+        workOrder.setSignature(null);
+        workOrder.setArchived(false);
         Sanitizer.sanitizeWorkOrder(workOrder);
 
         WorkOrder savedWorkOrder = workOrderRepository.saveAndFlush(workOrder);
