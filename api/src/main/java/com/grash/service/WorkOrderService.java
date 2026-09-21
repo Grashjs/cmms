@@ -1157,7 +1157,7 @@ public class WorkOrderService {
         String subject = messageSource.getMessage("workOrderReportSubject",
                 null, locale);
 
-        String customMessage = request.getMessage() != null ? request.getMessage() : "";
+        String customMessage = request.getMessage() != null ? Sanitizer.cleanText(request.getMessage()) : "";
         String messageBody = messageSource.getMessage("workOrderReportBody",
                 new Object[]{user.getFullName(), customMessage, savedWorkOrder.getTitle()},
                 locale);
