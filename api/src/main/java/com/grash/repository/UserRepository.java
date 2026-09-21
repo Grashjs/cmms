@@ -27,6 +27,9 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     Collection<User> findByCompany_Id(Long id);
 
+    @Query("select u from User u where u.company.id=:id and u.ownsCompany=true")
+    Optional<User> findCompanyOwner(@Param("id") Long id);
+
     Collection<User> findByLocation_Id(Long id);
 
     Optional<User> findByEmailIgnoreCaseAndCompany_Id(String email, Long companyId);

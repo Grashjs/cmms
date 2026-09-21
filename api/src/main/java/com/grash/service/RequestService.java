@@ -1,5 +1,6 @@
 package com.grash.service;
 
+import com.grash.aspect.TenantAspect;
 import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
@@ -34,6 +35,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -58,6 +61,7 @@ public class RequestService {
     private final MailServiceFactory mailServiceFactory;
     private final AssetService assetService;
     private final RequestPortalService requestPortalService;
+    private final TenantAspect tenantAspect;
     private WorkflowService workflowService;
 
     @Value("${frontend.url}")
@@ -327,13 +331,28 @@ public class RequestService {
         if (optionalRequestPortal.isEmpty()) {
             throw new CustomException("Request portal not found", HttpStatus.NOT_FOUND);
         }
+        requestReq.setId(null);
         RequestPortal requestPortal = optionalRequestPortal.get();
-        Request createdRequest = create(requestReq, requestPortal.getCompany(), requestPortal);
-        onRequestCreation(createdRequest, requestPortal.getCompany(),
+        Company company = requestPortal.getCompany();
+        validateRequestAgainstCompany(requestReq, company);
+        Request createdRequest = create(requestReq, company, requestPortal);
+        onRequestCreation(createdRequest, company,
                 requestReq.getContact() == null || requestReq.getContact().isBlank() ? messageSource.getMessage(
                         "someone", null
-                        , Helper.getLocale(requestPortal.getCompany())) : requestReq.getContact());
+                        , Helper.getLocale(company)) : requestReq.getContact());
         return createdRequest;
+    }
+
+    private void validateRequestAgainstCompany(Request request, Company company) {
+        User companyUser = userService.findCompanyOwner(company.getId()).orElseThrow(() -> new CustomException(
+                "Company owner not found", HttpStatus.NOT_FOUND));
+        Authentication previousAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        try {
+            Helper.setCurrentUser(companyUser);
+            tenantAspect.validateObject(request);
+        } finally {
+            SecurityContextHolder.getContext().setAuthentication(previousAuthentication);
+        }
     }
 
     @Transactional

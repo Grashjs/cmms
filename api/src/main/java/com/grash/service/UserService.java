@@ -392,6 +392,10 @@ public class UserService {
         return userRepository.findByCompany_Id(id);
     }
 
+    public Optional<User> findCompanyOwner(Long id) {
+        return userRepository.findCompanyOwner(id);
+    }
+
     public Collection<User> findWorkersByCompany(Long id) {
         return userRepository.findWorkersByCompany(id, Arrays.asList(RoleCode.REQUESTER, RoleCode.VIEW_ONLY));
     }

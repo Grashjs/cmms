@@ -55,7 +55,7 @@ public class TenantAspect {
         }
     }
 
-    private void validateObject(Object obj) {
+    public void validateObject(Object obj) {
         Field[] fields = getAllFields(obj.getClass());
         for (Field field : fields) {
             field.setAccessible(true);
