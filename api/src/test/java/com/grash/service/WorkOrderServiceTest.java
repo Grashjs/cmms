@@ -20,6 +20,7 @@ import com.grash.model.Currency;
 import com.grash.model.enums.*;
 import com.grash.model.enums.webhook.WOField;
 import com.grash.model.enums.webhook.WebhookEvent;
+import com.grash.repository.FileRepository;
 import com.grash.repository.WorkOrderRepository;
 import com.grash.utils.Consts;
 import com.grash.utils.PdfReportUtils;
@@ -130,6 +131,8 @@ class WorkOrderServiceTest {
     private WorkOrderHistoryService workOrderHistoryService;
     @Mock
     private org.springframework.core.env.Environment environment;
+    @Mock
+    private FileRepository fileRepository;
 
     private Company company;
     private User user;
@@ -2798,6 +2801,67 @@ class WorkOrderServiceTest {
             assertEquals("file.txt", result.get(0).getName());
             verify(workOrderRepository).save(wo);
         }
+
+        @Test
+        void fileNotViewable_throwsForbidden() {
+            WorkOrder wo = buildWorkOrder(1L);
+            wo.setCreatedBy(user.getId());
+            com.grash.model.File f = new com.grash.model.File();
+            f.setId(10L);
+            f.setName("private.txt");
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+            when(fileRepository.findByIdIn(List.of(10L))).thenReturn(List.of(f));
+
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> workOrderService.addFiles(1L, List.of(f), user));
+
+            assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
+            verify(workOrderRepository, never()).save(any());
+        }
+
+        @Test
+        void viewableFilesAreAddedAndSaved() {
+            WorkOrder wo = buildWorkOrder(1L);
+            wo.setCreatedBy(user.getId());
+            role.getViewPermissions().add(PermissionEntity.FILES);
+            role.getViewOtherPermissions().add(PermissionEntity.FILES);
+            com.grash.model.File f = new com.grash.model.File();
+            f.setId(10L);
+            f.setName("file.txt");
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+            when(fileRepository.findByIdIn(List.of(10L))).thenReturn(List.of(f));
+            when(workOrderRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+            List<com.grash.model.File> result = workOrderService.addFiles(1L, List.of(f), user);
+
+            assertEquals(1, result.size());
+            assertEquals("file.txt", result.get(0).getName());
+            verify(fileRepository).findByIdIn(List.of(10L));
+            verify(workOrderRepository).save(wo);
+        }
+
+        @Test
+        void oneFileNotViewable_throwsForbiddenAndNothingSaved() {
+            WorkOrder wo = buildWorkOrder(1L);
+            wo.setCreatedBy(user.getId());
+            role.getViewPermissions().add(PermissionEntity.FILES);
+            com.grash.model.File viewable = new com.grash.model.File();
+            viewable.setId(10L);
+            viewable.setName("viewable.txt");
+            viewable.setCreatedBy(user.getId());
+            com.grash.model.File hidden = new com.grash.model.File();
+            hidden.setId(11L);
+            hidden.setName("hidden.txt");
+            hidden.setCreatedBy(99L);
+            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+            when(fileRepository.findByIdIn(List.of(10L, 11L))).thenReturn(List.of(viewable, hidden));
+
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> workOrderService.addFiles(1L, List.of(viewable, hidden), user));
+
+            assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
+            verify(workOrderRepository, never()).save(any());
+        }
     }
 
     @Nested
@@ -3871,7 +3935,8 @@ class WorkOrderServiceTest {
         @Test
         void dataUriImage_fallsThroughToDefaultTagWorker() {
             when(userService.findById(user.getId())).thenReturn(Optional.of(user));
-            String tinyPng = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+            String tinyPng =
+                    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
             when(thymeleafTemplateEngine.process(eq("work-order-report.html"), any()))
                     .thenReturn("<html><body><img src=\"data:image/png;base64," + tinyPng + "\"/></body></html>");
 

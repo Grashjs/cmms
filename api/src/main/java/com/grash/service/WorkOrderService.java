@@ -24,6 +24,7 @@ import com.grash.model.enums.webhook.WOField;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.model.enums.workflow.WFMainCondition;
 
+import com.grash.repository.FileRepository;
 import com.grash.repository.WorkOrderRepository;
 import com.grash.utils.Helper;
 import com.grash.utils.MultipartFileImpl;
@@ -107,6 +108,7 @@ public class WorkOrderService {
     private ScheduleService scheduleService;
     private PreventiveMaintenanceService preventiveMaintenanceService;
     private PreventiveMaintenanceMapper preventiveMaintenanceMapper;
+    private final FileRepository fileRepository;
 
     @Transactional
     public WorkOrder create(WorkOrder workOrder, Company company) {
@@ -952,7 +954,7 @@ public class WorkOrderService {
                         Task::getId,
                         task -> task.getImages().stream()
                                 .map(PdfReportUtils::getImageReportStoragePath)
-                                .filter(java.util.Objects::nonNull)
+                                .filter(Objects::nonNull)
                                 .toArray(String[]::new)
                 ));
         Collection<PartQuantity> partQuantities = config.isCost() ?
@@ -1295,6 +1297,12 @@ public class WorkOrderService {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
             if (!savedWorkOrder.canBeEditedBy(user))
                 throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            List<File> existingFiles = fileRepository.findByIdIn(files.stream().map(File::getId).toList());
+            existingFiles.forEach(file -> {
+                if (!file.canBeViewedBy(user)) {
+                    throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+                }
+            });
             savedWorkOrder.getFiles().addAll(files);
             save(savedWorkOrder);
             return savedWorkOrder.getFiles();
