@@ -48,10 +48,10 @@ public class WebhookEndpointService {
     }
 
     public WebhookEndpoint update(Long id, WebhookEndpointPatchDTO webhookEndpointReq, User user) {
-        if (!(licenseService.hasEntitlement(LicenseEntitlement.WEBHOOK))
+        if (!(licenseService.hasEntitlement(LicenseEntitlement.WEBHOOK)
                 && user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
                 && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures()
-                .contains(PlanFeatures.WEBHOOK))
+                .contains(PlanFeatures.WEBHOOK)))
             throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
         WebhookEndpoint savedWebhookEndpoint = webhookEndpointRepository.findById(id).orElse(null);
         if (savedWebhookEndpoint != null) {
