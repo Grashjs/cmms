@@ -143,6 +143,7 @@ class UserIntegrationTest extends AbstractIntegrationTest {
 
     @AfterEach
     void tearDown() {
+        SecurityContextHolder.clearContext();
         userRepository.deleteAll();
         locationRepository.deleteAll();
         roleRepository.deleteAll();
@@ -151,7 +152,6 @@ class UserIntegrationTest extends AbstractIntegrationTest {
         companyRepository.deleteAll();
         subscriptionRepository.deleteAll();
         subscriptionPlanRepository.deleteAll();
-        SecurityContextHolder.clearContext();
     }
 
     // ===== FindTests =====
