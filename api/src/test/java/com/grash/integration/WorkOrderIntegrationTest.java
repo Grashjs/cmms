@@ -763,12 +763,14 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
         @Test
         void addFiles_persistsAndReturns() {
             WorkOrder wo = createFileWO();
+            adminRole.getViewPermissions().add(PermissionEntity.FILES);
             em.clear();
 
             com.grash.model.File file = new com.grash.model.File();
             file.setName("doc.pdf");
             file.setPath("/uploads/doc.pdf");
             file.setCompany(company);
+            file.setCreatedBy(user.getId());
             em.persist(file);
             em.flush();
 
@@ -825,18 +827,21 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
         @Test
         void addFiles_multipleFiles_persistsAll() {
             WorkOrder wo = createFileWO();
+            adminRole.getViewPermissions().add(PermissionEntity.FILES);
             em.clear();
 
             com.grash.model.File f1 = new com.grash.model.File();
             f1.setName("a.txt");
             f1.setPath("/a.txt");
             f1.setCompany(company);
+            f1.setCreatedBy(user.getId());
             em.persist(f1);
 
             com.grash.model.File f2 = new com.grash.model.File();
             f2.setName("b.txt");
             f2.setPath("/b.txt");
             f2.setCompany(company);
+            f2.setCreatedBy(user.getId());
             em.persist(f2);
             em.flush();
 
