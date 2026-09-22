@@ -123,7 +123,7 @@ services:
       - api
 
   minio:
-    image: alpine/minio:RELEASE.2025-10-15T17-29-55Z
+    image: pgsty/silo:RELEASE.2026-09-16T00-00-00Z
     container_name: atlas_minio
     user: "0:0"
     environment:
