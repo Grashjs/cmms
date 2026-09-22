@@ -197,8 +197,6 @@ class SubscriptionServiceTest {
 
         @Test
         void emptyUserIds_savesWithoutEnablingAnyone() {
-            stubEnabledUsers(owner);
-
             subscriptionService.upgrade(List.of(), owner);
 
             verify(userRepository, never()).saveAll(anyCollection());
