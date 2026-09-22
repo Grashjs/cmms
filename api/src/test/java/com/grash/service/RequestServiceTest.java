@@ -1,13 +1,12 @@
 package com.grash.service;
 
-import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
+import com.grash.aspect.TenantAspect;
 import com.grash.dto.RequestApproveDTO;
 import com.grash.dto.RequestPatchDTO;
 import com.grash.dto.RequestPostDTO;
 import com.grash.dto.RequestShowDTO;
 import com.grash.dto.license.LicenseEntitlement;
-import com.grash.dto.workOrder.WorkOrderPostDTO;
 import com.grash.exception.CustomException;
 import com.grash.factory.MailServiceFactory;
 import com.grash.mapper.RequestMapper;
@@ -15,12 +14,14 @@ import com.grash.model.*;
 import com.grash.model.enums.*;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.RequestRepository;
+import com.grash.security.CustomUserDetail;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
@@ -28,9 +29,13 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -72,6 +77,8 @@ class RequestServiceTest {
     private AssetService assetService;
     @Mock
     private RequestPortalService requestPortalService;
+    @Mock
+    private TenantAspect tenantAspect;
     @Mock
     private WorkflowService workflowService;
 
@@ -230,6 +237,159 @@ class RequestServiceTest {
             assertEquals("R000007", result.getCustomId());
             assertSame(portal, result.getRequestPortal());
             assertEquals(company, result.getCompany());
+        }
+    }
+
+    @Nested
+    class CreateFromPortalTests {
+
+        private RequestPortal buildPortal() {
+            RequestPortal portal = new RequestPortal();
+            portal.setId(10L);
+            portal.setUuid("portal-uuid");
+            portal.setCompany(company);
+            portal.setFields(new ArrayList<>());
+            return portal;
+        }
+
+        private void stubHappyPath(Request request, RequestPortal portal, User companyOwner) {
+            when(requestPortalService.findByUuidByUser("portal-uuid")).thenReturn(Optional.of(portal));
+            when(userService.findCompanyOwner(company.getId())).thenReturn(Optional.of(companyOwner));
+            when(customSequenceService.getNextRequestSequence(company)).thenReturn(1L);
+            stubSaveReturningSaved(request);
+            when(messageSource.getMessage(anyString(), any(), any())).thenReturn("t");
+            when(userService.findByCompany(company.getId())).thenReturn(new ArrayList<>());
+            when(workflowService.findByMainConditionAndCompany(any(), anyLong())).thenReturn(Collections.emptyList());
+            when(mailServiceFactory.getMailService()).thenReturn(mailService);
+        }
+
+        @Test
+        void createFromPortal_withValidRequest_createsAndValidatesAgainstCompany() {
+            Request request = buildRequest(1L);
+            request.setAudioDescription(null);
+            User owner = buildUser(2L);
+            RequestPortal portal = buildPortal();
+            stubHappyPath(request, portal, owner);
+
+            Request result = requestService.createFromPortal(request, "portal-uuid", "token");
+
+            assertNull(result.getId());
+            assertEquals("R000001", result.getCustomId());
+            assertSame(portal, result.getRequestPortal());
+            assertEquals(company, result.getCompany());
+            verify(tenantAspect).validateObject(request);
+            verify(requestRepository).saveAndFlush(request);
+        }
+
+        @Test
+        void createFromPortal_resetsProvidedIdToNull() {
+            Request request = buildRequest(99L);
+            request.setAudioDescription(null);
+            stubHappyPath(request, buildPortal(), buildUser(2L));
+
+            requestService.createFromPortal(request, "portal-uuid", "token");
+
+            assertNull(request.getId());
+        }
+
+        @Test
+        void createFromPortal_withMissingRecaptchaToken_throwsNotAcceptable() {
+            ReflectionTestUtils.setField(requestService, "recaptchaSecretKey", "secret");
+            try {
+                CustomException ex = assertThrows(CustomException.class,
+                        () -> requestService.createFromPortal(buildRequest(1L), "portal-uuid", null));
+
+                assertEquals(HttpStatus.NOT_ACCEPTABLE, ex.getHttpStatus());
+                verify(requestPortalService, never()).findByUuidByUser(anyString());
+            } finally {
+                ReflectionTestUtils.setField(requestService, "recaptchaSecretKey", null);
+            }
+        }
+
+        @Test
+        void createFromPortal_whenPortalNotFound_throwsNotFound() {
+            when(requestPortalService.findByUuidByUser("unknown")).thenReturn(Optional.empty());
+
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> requestService.createFromPortal(buildRequest(1L), "unknown", "token"));
+
+            assertEquals(HttpStatus.NOT_FOUND, ex.getHttpStatus());
+            verify(userService, never()).findCompanyOwner(anyLong());
+        }
+
+        @Test
+        void createFromPortal_whenCompanyOwnerNotFound_throwsNotFoundAndSkipsValidation() {
+            Request request = buildRequest(1L);
+            RequestPortal portal = buildPortal();
+            when(requestPortalService.findByUuidByUser("portal-uuid")).thenReturn(Optional.of(portal));
+            when(userService.findCompanyOwner(company.getId())).thenReturn(Optional.empty());
+
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> requestService.createFromPortal(request, "portal-uuid", "token"));
+
+            assertEquals(HttpStatus.NOT_FOUND, ex.getHttpStatus());
+            verify(tenantAspect, never()).validateObject(any());
+            verify(requestRepository, never()).saveAndFlush(any());
+        }
+
+        @Test
+        void createFromPortal_setsCompanyOwnerAsCurrentUserDuringValidation() {
+            Request request = buildRequest(1L);
+            request.setAudioDescription(null);
+            User owner = buildUser(2L);
+            RequestPortal portal = buildPortal();
+            stubHappyPath(request, portal, owner);
+
+            AtomicReference<User> validationUser = new AtomicReference<>();
+            doAnswer(invocation -> {
+                Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+                validationUser.set(((CustomUserDetail) auth.getPrincipal()).getUser());
+                return null;
+            }).when(tenantAspect).validateObject(request);
+
+            requestService.createFromPortal(request, "portal-uuid", "token");
+
+            assertSame(owner, validationUser.get());
+        }
+
+        @Test
+        void createFromPortal_restoresPreviousAuthenticationAfterValidation() {
+            Request request = buildRequest(1L);
+            request.setAudioDescription(null);
+            stubHappyPath(request, buildPortal(), buildUser(2L));
+
+            Authentication previous = new UsernamePasswordAuthenticationToken("previous", "credentials");
+            SecurityContextHolder.getContext().setAuthentication(previous);
+            try {
+                requestService.createFromPortal(request, "portal-uuid", "token");
+
+                assertSame(previous, SecurityContextHolder.getContext().getAuthentication());
+            } finally {
+                SecurityContextHolder.clearContext();
+            }
+        }
+
+        @Test
+        void createFromPortal_restoresPreviousAuthenticationWhenValidationFails() {
+            Request request = buildRequest(1L);
+            request.setAudioDescription(null);
+            User owner = buildUser(2L);
+            RequestPortal portal = buildPortal();
+            when(requestPortalService.findByUuidByUser("portal-uuid")).thenReturn(Optional.of(portal));
+            when(userService.findCompanyOwner(company.getId())).thenReturn(Optional.of(owner));
+            doThrow(new CustomException("Invalid", HttpStatus.BAD_REQUEST)).when(tenantAspect).validateObject(request);
+
+            Authentication previous = new UsernamePasswordAuthenticationToken("previous", "credentials");
+            SecurityContextHolder.getContext().setAuthentication(previous);
+            try {
+                CustomException ex = assertThrows(CustomException.class,
+                        () -> requestService.createFromPortal(request, "portal-uuid", "token"));
+
+                assertEquals(HttpStatus.BAD_REQUEST, ex.getHttpStatus());
+                assertSame(previous, SecurityContextHolder.getContext().getAuthentication());
+            } finally {
+                SecurityContextHolder.clearContext();
+            }
         }
     }
 
