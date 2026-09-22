@@ -141,6 +141,14 @@ public class User extends CompanyAudit {
         return Math.toIntExact(this.getId());
     }
 
+    @Override
+    protected boolean skipPostLoadCheck(User authUser) {
+        if (this.getId() == null || authUser.getId() == null) return false;
+        if (this.getId().equals(authUser.getId())) return true;
+        return authUser.getParentSuperAccount() != null
+                && authUser.getParentSuperAccount().getId().equals(this.getId());
+    }
+
     public boolean canSeeAnalytics() {
         return this.getRole().getViewPermissions().contains(PermissionEntity.ANALYTICS) && this.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.ANALYTICS);
     }

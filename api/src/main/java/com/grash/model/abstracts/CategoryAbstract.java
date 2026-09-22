@@ -69,12 +69,17 @@ public abstract class CategoryAbstract extends Audit {
     }
 
     private boolean makesException(User user) {
-        return user.getSuperAccountRelations().stream()
-                .anyMatch(relation -> relation.getChildUser().getCompany().getId().equals(this.companySettings.getCompany().getId()));
-//                    || (user.getParentSuperAccount() !=null && user.getParentSuperAccount().getSuperUser()
-//                    .getSuperAccountRelations().stream().anyMatch(sar->sar.getChildUser().getCompany().getId()
-//                    .equals(this.company.getId())))
-
+        Long targetCompanyId = this.getCompanySettings() == null || this.getCompanySettings().getCompany() == null
+                ? null : this.getCompanySettings().getCompany().getId();
+        if (targetCompanyId == null) return false;
+        boolean isChildCompany = user.getSuperAccountRelations().stream()
+                .anyMatch(relation -> relation.getChildUser().getCompany() != null
+                        && targetCompanyId.equals(relation.getChildUser().getCompany().getId()));
+        boolean isParentCompany = user.getParentSuperAccount() != null
+                && user.getParentSuperAccount().getSuperUser() != null
+                && user.getParentSuperAccount().getSuperUser().getCompany() != null
+                && targetCompanyId.equals(user.getParentSuperAccount().getSuperUser().getCompany().getId());
+        return isChildCompany || isParentCompany;
     }
 
     public boolean canBeEditedBy(User user) {
