@@ -38,6 +38,7 @@ public class SubscriptionService {
     private final ScheduleRepository scheduleRepository;
 
     public void upgrade(Collection<Long> usersIds, User user) {
+        if (usersIds.isEmpty()) return;
         if (user.isOwnsCompany()) {
             int enabledUsersCount =
                     (int) userRepository.findByCompany_Id(user.getCompany().getId()).stream().filter(User::isEnabledInSubscriptionAndPaid).count();
@@ -63,6 +64,7 @@ public class SubscriptionService {
     }
 
     public void downgrade(Collection<Long> usersIds, User user) {
+        if (usersIds.isEmpty()) return;
         if (user.isOwnsCompany()) {
             int enabledUsersCount =
                     (int) userRepository.findByCompany_Id(user.getCompany().getId()).stream().filter(User::isEnabledInSubscriptionAndPaid).count();
