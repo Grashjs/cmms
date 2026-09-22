@@ -44,7 +44,8 @@ public class CompanyAudit extends Audit {
         User user = ((CustomUserDetail) principal).getUser();
         Company userCompany = user.getCompany();
         // check if not authorized
-        if (!skipPostLoadCheck(user) && !user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN) &&
+        if (!user.getRole().getRoleType().equals(RoleType.ROLE_SUPER_ADMIN) &&
+                !skipPostLoadCheck(user) &&
                 !userCompany.getId().equals(this.getCompany().getId())
                 && !makesException(user)) {
             throw new CustomException("afterLoad:  the user (id=" + user.getId() + ")  is not authorized to load  " +

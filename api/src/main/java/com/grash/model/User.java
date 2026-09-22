@@ -145,8 +145,8 @@ public class User extends CompanyAudit {
     protected boolean skipPostLoadCheck(User authUser) {
         if (this.getId() == null || authUser.getId() == null) return false;
         if (this.getId().equals(authUser.getId())) return true;
-        return authUser.getParentSuperAccount() != null
-                && authUser.getParentSuperAccount().getId().equals(this.getId());
+        return (this.getParentSuperAccount() != null) || (
+                !this.getSuperAccountRelations().isEmpty());
     }
 
     public boolean canSeeAnalytics() {

@@ -65,7 +65,7 @@ public class UserController {
     @GetMapping("/invitations/last-week")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public Collection<UserInvitationMiniDTO> getLastWeekInvitations(@Parameter(hidden = true) @CurrentUser User user) {
-        if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
+        if (user.getRole().getViewPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS)) {
             return userInvitationService.getDistinctByCompanyInLastWeek(user.getCompany().getId());
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
