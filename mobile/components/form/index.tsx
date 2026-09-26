@@ -545,7 +545,6 @@ export default function Form(props: OwnProps) {
                         error={!!formik.errors[field.name] || field.error}
                         label={field.label}
                         defaultValue={formik.values[field.name]}
-                        key={formik.values[field.name]}
                         placeholder={field.placeholder ?? field.label}
                         onBlur={formik.handleBlur(field.name)}
                         onChangeText={(newValue) => {

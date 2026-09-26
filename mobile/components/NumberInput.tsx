@@ -15,7 +15,7 @@ export default function NumberInput(props: {
   multiline: boolean;
 }) {
   const [numberInputValue, setNumberInputValue] = useState<string>(
-    isNumeric(props.defaultValue) ? props.defaultValue : ''
+    isNumeric(props.defaultValue) ? props.defaultValue?.toString() || '' : ''
   );
 
   return (
