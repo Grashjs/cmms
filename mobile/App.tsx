@@ -21,11 +21,14 @@ const sentryDsn = Constants.expoConfig?.extra?.SENTRY_DSN;
 const sentryEnvironment = Constants.expoConfig?.extra?.SENTRY_ENVIRONMENT;
 const sentryRelease = Constants.expoConfig?.extra?.SENTRY_RELEASE;
 
-Sentry.init({
-  dsn: sentryDsn,
-  environment: sentryEnvironment,
-  release: sentryRelease,
-  tracesSampleRate: 0.1
+isCloudVersion().then((isCloud) => {
+  if (isCloud)
+    Sentry.init({
+      dsn: sentryDsn,
+      environment: sentryEnvironment,
+      release: sentryRelease,
+      tracesSampleRate: 0.1
+    });
 });
 
 import {
@@ -47,6 +50,7 @@ import { customTheme } from './custom-theme';
 import { RootLayout } from './components/RootLayout';
 import { ReviewModal } from './components/ReviewModal';
 import { Subscription } from 'expo-notifications';
+import { getApiUrl, isCloudVersion } from './config';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({

@@ -37,7 +37,7 @@ import { useTranslation } from 'react-i18next';
 import analytics from '@react-native-firebase/analytics';
 import { useDispatch } from '../store';
 import { revertAll } from '../utils/redux';
-import { getApiUrl } from '../config';
+import { getApiUrl, isCloudVersion } from '../config';
 import { newReceivedNotification } from '../slices/notification';
 import Notification from '../models/notification';
 import { getMobileOverviewStats } from '../slices/analytics/workOrder';
@@ -712,8 +712,8 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     });
     checkPushNotificationState();
     globalDispatch(getCustomFields());
-    getApiUrl().then((apiUrl) => {
-      if (apiUrl.toLowerCase().includes('api.atlas-cmms.com')) {
+    isCloudVersion().then((isCloud) => {
+      if (isCloud) {
         const clarityId = Constants.expoConfig.extra.CLARITY_ID;
         if (clarityId) {
           initClarity(clarityId, {
