@@ -21,6 +21,7 @@ export default function NumberInput(props: {
     <TextInput
       {...props}
       value={numberInputValue.toString()}
+      keyboardType="decimal-pad"
       onChangeText={(newValue) => {
         const formattedValue = Number(newValue.replace(/[^0-9]/g, ''));
         setNumberInputValue(formattedValue);
