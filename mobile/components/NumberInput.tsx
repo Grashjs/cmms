@@ -14,18 +14,28 @@ export default function NumberInput(props: {
   disabled: boolean;
   multiline: boolean;
 }) {
-  const [numberInputValue, setNumberInputValue] = useState<number>(
-    isNumeric(props.defaultValue) ? Number(props.defaultValue) : 0
+  const [numberInputValue, setNumberInputValue] = useState<string>(
+    isNumeric(props.defaultValue) ? props.defaultValue : ''
   );
+
   return (
     <TextInput
       {...props}
-      value={numberInputValue.toString()}
+      value={numberInputValue}
       keyboardType="decimal-pad"
       onChangeText={(newValue) => {
-        const formattedValue = Number(newValue.replace(/[^0-9]/g, ''));
-        setNumberInputValue(formattedValue);
-        props.onChangeText(formattedValue.toString());
+        // allow digits and a single decimal point
+        let formatted = newValue.replace(/[^0-9.]/g, '');
+        const firstDot = formatted.indexOf('.');
+        if (firstDot !== -1) {
+          formatted =
+            formatted.slice(0, firstDot + 1) +
+            formatted.slice(firstDot + 1).replace(/\./g, '');
+        }
+        setNumberInputValue(formatted);
+        props.onChangeText(
+          formatted === '' || formatted === '.' ? '0' : formatted
+        );
       }}
     />
   );
