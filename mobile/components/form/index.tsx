@@ -545,6 +545,7 @@ export default function Form(props: OwnProps) {
                         error={!!formik.errors[field.name] || field.error}
                         label={field.label}
                         defaultValue={formik.values[field.name]}
+                        key={formik.values[field.name]}
                         placeholder={field.placeholder ?? field.label}
                         onBlur={formik.handleBlur(field.name)}
                         onChangeText={(newValue) => {
@@ -616,7 +617,9 @@ export default function Form(props: OwnProps) {
                       </Text>
                     ) : field.type === 'dateRange' ? (
                       <View>
-                        <Text style={{ fontWeight: 'bold' }}>{field.label}</Text>
+                        <Text style={{ fontWeight: 'bold' }}>
+                          {field.label}
+                        </Text>
                         <DateRangePicker
                           value={formik.values[field.name] ?? [null, null]}
                           onChange={(newValue) => {
