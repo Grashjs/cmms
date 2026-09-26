@@ -171,6 +171,7 @@ export default function MeterDetails({
               label={t('reading')}
               value={editReadingValue}
               placeholder={t('meter_reading')}
+              keyboardType="decimal-pad"
               onChangeText={(newValue) => setEditReadingValue(newValue)}
               error={false}
               multiline={false}
