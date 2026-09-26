@@ -182,6 +182,7 @@ export default function SingleTask({
           label={t('value')}
           value={inputValue}
           mode={'outlined'}
+          keyboardType="decimal-pad"
           disabled={task.taskBase.user && task.taskBase.user.id !== user.id}
         />
       ) : (
