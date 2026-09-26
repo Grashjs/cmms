@@ -246,6 +246,7 @@ export default function MeterDetails({
                 setReadingValue(newValue);
               }}
               disabled={isSubmitting}
+              keyboardType="decimal-pad"
               error={false}
               onBlur={function (e: any): void {}}
               multiline={false}
