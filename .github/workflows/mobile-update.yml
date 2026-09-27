@@ -42,14 +42,16 @@ jobs:
         working-directory: mobile
 
       - name: Publish update
+        env:
+          API_URL: ${{secrets.API_URL}}
+          CLARITY_ID: ${{secrets.MOBILE_CLARITY_ID}}
+          SENTRY_DSN: ${{secrets.MOBILE_SENTRY_DSN}}
+          SENTRY_AUTH_TOKEN: ${{secrets.MOBILE_SENTRY_AUTH_TOKEN}}
+          SENTRY_ORG: atlas-cmms
+          SENTRY_ENVIRONMENT: production
+          GOOGLE_SERVICES_BASE64: ${{secrets.GOOGLE_SERVICES_BASE64}}
+          SENTRY_RELEASE: ${{ env.GIT_SHA }}
+          EAS_UPDATE_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
-          API_URL=${{secrets.API_URL}} \
-          CLARITY_ID=${{secrets.MOBILE_CLARITY_ID}} \
-          SENTRY_DSN=${{secrets.MOBILE_SENTRY_DSN}} \
-          SENTRY_AUTH_TOKEN=${{secrets.MOBILE_SENTRY_AUTH_TOKEN}} \
-          SENTRY_ORG=atlas-cmms \
-          SENTRY_ENVIRONMENT=production \
-          GOOGLE_SERVICES_BASE64=${{secrets.GOOGLE_SERVICES_BASE64}} \
-          SENTRY_RELEASE=${{ env.GIT_SHA }} \
-          eas update --channel production --message "${{ github.event.head_commit.message }}"
+          eas update --channel production --message "$EAS_UPDATE_MESSAGE"
         working-directory: mobile
