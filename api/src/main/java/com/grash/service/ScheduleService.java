@@ -209,8 +209,8 @@ public class ScheduleService {
                 }
 
             } catch (SchedulerException e) {
-                log.error("Error scheduling quartz job for schedule " + schedule.getId(), e);
-                // Depending on your error handling policy, you might want to throw a RuntimeException here
+                throw new CustomException("Error scheduling quartz job for schedule " + schedule.getId(),
+                        HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
     }
