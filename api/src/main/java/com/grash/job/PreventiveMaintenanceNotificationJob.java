@@ -44,10 +44,17 @@ public class PreventiveMaintenanceNotificationJob extends QuartzJobBean {
         Long scheduleId = context.getMergedJobDataMap().getLong("scheduleId");
 
         Schedule schedule = scheduleRepository.findById(scheduleId).orElse(null);
-        if (schedule == null || schedule.isDisabled()) {
+        if (schedule == null) {
+            log.warn("Skipping preventive maintenance notification, schedule {} no longer exists.", scheduleId);
+            return;
+        }
+        if (schedule.isDisabled()) {
+            log.info("Skipping preventive maintenance notification, schedule {} is disabled.", scheduleId);
             return;
         }
         if (!scheduleService.checkIfWeeklyShouldRun(schedule)) {
+            log.info("Skipping preventive maintenance notification, schedule {} is not on a valid week interval.",
+                    scheduleId);
             return;
         }
 

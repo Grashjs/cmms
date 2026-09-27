@@ -118,7 +118,7 @@ public class ScheduleService {
                             scheduleBuilder = SimpleScheduleBuilder.simpleSchedule()
                                     .withIntervalInHours(24 * schedule.getFrequency())
                                     .repeatForever()
-                                    .withMisfireHandlingInstructionNextWithRemainingCount();
+                                    .withMisfireHandlingInstructionFireNow();
                             break;
 
                         case WEEKLY:
@@ -135,7 +135,7 @@ public class ScheduleService {
 
                             String cronExpression = String.format("0 %d %d ? * %s", minute, hour, daysOfWeekCron);
                             scheduleBuilder = CronScheduleBuilder.cronSchedule(cronExpression)
-                                    .withMisfireHandlingInstructionDoNothing()
+                                    .withMisfireHandlingInstructionFireAndProceed()
                                     .inTimeZone(timeZone);
 
                             // Store the frequency in the job data so the job can handle it
@@ -145,14 +145,14 @@ public class ScheduleService {
                         case MONTHLY:
                             scheduleBuilder = CalendarIntervalScheduleBuilder.calendarIntervalSchedule()
                                     .withIntervalInMonths(schedule.getFrequency())
-                                    .withMisfireHandlingInstructionDoNothing()
+                                    .withMisfireHandlingInstructionFireAndProceed()
                                     .preserveHourOfDayAcrossDaylightSavings(true);
                             break;
 
                         case YEARLY:
                             scheduleBuilder = CalendarIntervalScheduleBuilder.calendarIntervalSchedule()
                                     .withIntervalInYears(schedule.getFrequency())
-                                    .withMisfireHandlingInstructionDoNothing()
+                                    .withMisfireHandlingInstructionFireAndProceed()
                                     .preserveHourOfDayAcrossDaylightSavings(true);
                             break;
 
@@ -296,7 +296,7 @@ public class ScheduleService {
 
             String cronExpression = String.format("0 %d %d ? * %s", notifMinute, notifHour, notifDaysOfWeekCron);
             notificationScheduleBuilder = CronScheduleBuilder.cronSchedule(cronExpression)
-                    .withMisfireHandlingInstructionDoNothing()
+                    .withMisfireHandlingInstructionFireAndProceed()
                     .inTimeZone(timeZone);
         } else {
             // For DAILY, MONTHLY, YEARLY: use the same recurrence pattern as the WO
@@ -325,7 +325,7 @@ public class ScheduleService {
 
     public void scheduleNextWorkOrderJobAfterCompletion(Long scheduleId, Date completedDate) {
         Optional<Schedule> scheduleOpt = scheduleRepository.findById(scheduleId);
-        if (!scheduleOpt.isPresent()) return;
+        if (scheduleOpt.isEmpty()) return;
 
         Schedule schedule = scheduleOpt.get();
         PreventiveMaintenance pm = schedule.getPreventiveMaintenance();
@@ -356,7 +356,7 @@ public class ScheduleService {
         Date nextRunDate = cal.getTime();
 
         // The one-shot schedule for the chained job
-        ScheduleBuilder oneShotSchedule = SimpleScheduleBuilder.simpleSchedule().withRepeatCount(0);
+        ScheduleBuilder<SimpleTrigger> oneShotSchedule = SimpleScheduleBuilder.simpleSchedule().withRepeatCount(0);
 
         // 2. Schedule a "One-Shot" Job for that date
         try {

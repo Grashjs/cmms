@@ -1,7 +1,9 @@
 package com.grash.job;
 
+import com.grash.exception.CustomException;
 import com.grash.model.PreventiveMaintenance;
 import com.grash.model.Schedule;
+import com.grash.model.WorkOrder;
 import com.grash.repository.ScheduleRepository;
 import com.grash.service.PreventiveMaintenanceService;
 import com.grash.service.ScheduleService;
@@ -13,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
+import org.springframework.http.HttpStatus;
 
 import java.util.Optional;
 
@@ -88,8 +91,24 @@ class WorkOrderCreationJobTest {
     void validSchedule_createsWorkOrderFromPreventiveMaintenance() {
         when(scheduleRepository.findById(1L)).thenReturn(Optional.of(schedule));
         when(scheduleService.checkIfWeeklyShouldRun(schedule)).thenReturn(true);
+        WorkOrder workOrder = new WorkOrder();
+        workOrder.setCustomId("WO000042");
+        when(preventiveMaintenanceService.createWorkOrderFromPreventiveMaintenance(any()))
+                .thenReturn(workOrder);
 
         assertDoesNotThrow(() -> workOrderCreationJob.executeInternal(contextWithScheduleId(1L)));
+
+        verify(preventiveMaintenanceService).createWorkOrderFromPreventiveMaintenance(schedule.getPreventiveMaintenance());
+    }
+
+    @Test
+    void workOrderCreationFails_rethrowsSoTheTransactionIsRolledBack() {
+        when(scheduleRepository.findById(1L)).thenReturn(Optional.of(schedule));
+        when(scheduleService.checkIfWeeklyShouldRun(schedule)).thenReturn(true);
+        when(preventiveMaintenanceService.createWorkOrderFromPreventiveMaintenance(any()))
+                .thenThrow(new CustomException("You need a license to add a new work order.", HttpStatus.FORBIDDEN));
+
+        assertThrows(CustomException.class, () -> workOrderCreationJob.executeInternal(contextWithScheduleId(1L)));
 
         verify(preventiveMaintenanceService).createWorkOrderFromPreventiveMaintenance(schedule.getPreventiveMaintenance());
     }

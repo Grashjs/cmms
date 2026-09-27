@@ -2,6 +2,7 @@ package com.grash.job;
 
 import com.grash.model.PreventiveMaintenance;
 import com.grash.model.Schedule;
+import com.grash.model.WorkOrder;
 import com.grash.repository.ScheduleRepository;
 import com.grash.service.PreventiveMaintenanceService;
 import com.grash.service.ScheduleService;
@@ -28,14 +29,30 @@ public class WorkOrderCreationJob extends QuartzJobBean {
         Long scheduleId = context.getMergedJobDataMap().getLong("scheduleId");
 
         Schedule schedule = scheduleRepository.findById(scheduleId).orElse(null);
-        if (schedule == null || schedule.isDisabled()) {
+        if (schedule == null) {
+            log.warn("Skipping work order creation, schedule {} no longer exists.", scheduleId);
+            return;
+        }
+        if (schedule.isDisabled()) {
+            log.info("Skipping work order creation, schedule {} is disabled.", scheduleId);
             return;
         }
         if (!scheduleService.checkIfWeeklyShouldRun(schedule)) {
+            log.info("Skipping work order creation, schedule {} is not on a valid week interval.", scheduleId);
             return;
         }
 
         PreventiveMaintenance preventiveMaintenance = schedule.getPreventiveMaintenance();
-        preventiveMaintenanceService.createWorkOrderFromPreventiveMaintenance(preventiveMaintenance);
+        Long pmId = preventiveMaintenance.getId();
+        try {
+            WorkOrder workOrder = preventiveMaintenanceService
+                    .createWorkOrderFromPreventiveMaintenance(preventiveMaintenance);
+            log.info("Work order {} generated for preventive maintenance {} (schedule {}).",
+                    workOrder == null ? null : workOrder.getCustomId(), pmId, scheduleId);
+        } catch (RuntimeException e) {
+            log.error("Failed to generate a work order for preventive maintenance " + pmId
+                    + " (schedule " + scheduleId + "), the transaction was rolled back.", e);
+            throw e;
+        }
     }
 }

@@ -21,12 +21,10 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             "           COUNT(*) as total, " +
             "           MAX(first_time_to_react) as last_react " +
             "    FROM (" +
-            "        SELECT parent_preventive_maintenance_id, first_time_to_react, " +
-            "               ROW_NUMBER() OVER (PARTITION BY parent_preventive_maintenance_id ORDER BY created_at " +
-            "DESC) as rn " +
+            "        SELECT parent_preventive_maintenance_id, first_time_to_react " +
             "        FROM work_order " +
-            "    ) ranked_wo " +
-            "    WHERE rn <= 10 " +
+            "        WHERE parent_preventive_maintenance_id IS NOT NULL " +
+            "    ) pm_work_orders " +
             "    GROUP BY parent_preventive_maintenance_id " +
             ") wo_stats ON s.preventive_maintenance_id = wo_stats.parent_preventive_maintenance_id " +
             "WHERE s.disabled = false " +
