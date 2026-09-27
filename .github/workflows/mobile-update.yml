@@ -5,6 +5,7 @@ on:
       - main
     paths:
       - 'mobile/**'
+      - '.github/workflows/mobile-update.yml'
 
 env:
   GIT_SHA: ${{ github.sha }}
