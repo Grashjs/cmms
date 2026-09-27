@@ -24,7 +24,3 @@ export const getApiUrl = async (): Promise<string> => {
     return rawApiUrl.endsWith('/') ? rawApiUrl : rawApiUrl + '/';
   }
 };
-
-export const isCloudVersion = async () => {
-  return (await getApiUrl()).includes('api.atlas-cmms.com');
-};
