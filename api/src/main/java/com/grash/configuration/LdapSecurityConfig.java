@@ -2,6 +2,7 @@ package com.grash.configuration;
 
 import com.grash.dto.license.LicenseEntitlement;
 import com.grash.service.LicenseService;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -182,7 +183,8 @@ public class LdapSecurityConfig {
         return provider;
     }
 
-    public class CustomLdapUserDetails extends org.springframework.security.core.userdetails.User {
+    @Getter
+    public static class CustomLdapUserDetails extends org.springframework.security.core.userdetails.User {
 
         private final String firstName;
         private final String lastName;
@@ -202,16 +204,5 @@ public class LdapSecurityConfig {
             this.email = email;
         }
 
-        public String getFirstName() {
-            return firstName;
-        }
-
-        public String getLastName() {
-            return lastName;
-        }
-
-        public String getEmail() {
-            return email;
-        }
     }
 }

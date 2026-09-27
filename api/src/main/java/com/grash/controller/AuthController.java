@@ -127,7 +127,7 @@ public class AuthController {
 //    }
 
     @GetMapping("/activate-account")
-    public void activateAcount(
+    public void activateAccount(
             @Parameter(description = "Account activation token") @RequestParam String token,
             HttpServletResponse httpServletResponse
     ) {
@@ -227,22 +227,23 @@ public class AuthController {
             @Parameter(description = "Target user ID to switch to") @RequestParam("id") Long id, @Parameter(hidden =
                     true) @CurrentUser User user
     ) {
+        CustomException accessDenied = new CustomException("Access denied", HttpStatus.FORBIDDEN);
         if (!user.getSuperAccountRelations().isEmpty()) {//user is superUser
             SuperAccountRelation superAccountRelation =
                     superAccountRelationRepository.findBySuperUser_IdAndChildUser_Id(user.getId(), id);
-            if (superAccountRelation == null) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            if (superAccountRelation == null) throw accessDenied;
             User childUser = userService.findById(id).get();
-            if (!childUser.isEnabled()) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            if (!childUser.isEnabled()) throw accessDenied;
             return AuthResponse.of(refreshTokenService.createTokenPair(childUser));
         } else if (user.getParentSuperAccount() != null) { //user is child
             SuperAccountRelation superAccountRelation =
                     superAccountRelationRepository.findBySuperUser_IdAndChildUser_Id(id, user.getId());
-            if (superAccountRelation == null) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            if (superAccountRelation == null) throw accessDenied;
             User superUser = userService.findById(id).get();
-            if (!superUser.isEnabled()) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            if (!superUser.isEnabled()) throw accessDenied;
             return AuthResponse.of(refreshTokenService.createTokenPair(superUser));
         }
-        throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        throw accessDenied;
     }
 
     @PreAuthorize("permitAll()")
