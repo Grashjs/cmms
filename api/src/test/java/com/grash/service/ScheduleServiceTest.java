@@ -490,12 +490,12 @@ class ScheduleServiceTest {
         }
 
         @Test
-        void schedulerException_isSwallowed() throws SchedulerException {
+        void schedulerException_isNotSwallowed() throws SchedulerException {
             Schedule schedule = buildSchedule();
             when(scheduler.scheduleJob(any(JobDetail.class), any(Trigger.class)))
                     .thenThrow(new SchedulerException("quartz down"));
 
-            assertDoesNotThrow(() -> scheduleService.scheduleWorkOrder(schedule));
+            assertThrows(CustomException.class, () -> scheduleService.scheduleWorkOrder(schedule));
 
             verify(scheduler, times(1)).scheduleJob(any(JobDetail.class), any(Trigger.class));
         }
