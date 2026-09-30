@@ -238,6 +238,11 @@ public class LocationService {
     public List<Location> findByIdsAndCompany(List<Long> ids, Long companyId) {
         return locationRepository.findByIdInAndCompany_Id(ids, companyId);
     }
+    
+    public List<Long> findDescendantIdsIncludingSelf(List<Long> rootIds, Long companyId) {
+        if (rootIds == null || rootIds.isEmpty()) return rootIds;
+        return locationRepository.findDescendantIdsIncludingSelf(rootIds, companyId);
+    }
 
     public Page<Location> findBySearchCriteria(SearchCriteria searchCriteria) {
         SpecificationBuilder<Location> builder = new SpecificationBuilder<>();
