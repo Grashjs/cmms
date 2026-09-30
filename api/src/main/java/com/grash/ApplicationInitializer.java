@@ -45,7 +45,7 @@ public class ApplicationInitializer implements SmartInitializingSingleton {
             log.info("Updating default roles...");
             roleService.updateDefaultRoles();
 
-            if (!cloudVersion) scheduleService.findActive().forEach(scheduleService::reScheduleWorkOrder);
+//            if (!cloudVersion) scheduleService.findActive().forEach(scheduleService::reScheduleWorkOrder);
 
             userService.checkUsageBasedLimit(0);
 
