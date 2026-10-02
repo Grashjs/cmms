@@ -160,6 +160,7 @@ export type RootStackParamList = {
   VendorsCustomers: undefined;
   Notifications: undefined;
   Settings: undefined;
+  MeshDiagnostics: undefined;
   WorkOrderFilters: {
     filterFields: FilterField[];
     onFilterChange: (filterFields: FilterField[]) => void;

@@ -108,6 +108,12 @@ export default function SettingsScreen({
         )}
         <List.Item
           style={{ paddingHorizontal: 20 }}
+          left={(props) => <IconButton icon={'bluetooth'} />}
+          title={t('mesh_diagnostics')}
+          onPress={() => navigation.navigate('MeshDiagnostics')}
+        />
+        <List.Item
+          style={{ paddingHorizontal: 20 }}
           left={(props) => (
             <IconButton iconColor={theme.colors.error} icon={'logout'} />
           )}

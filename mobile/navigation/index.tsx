@@ -88,6 +88,7 @@ import UserProfile from '../screens/peopleTeams/Profile';
 import InviteUserScreen from '../screens/peopleTeams/InviteUserScreen';
 import { navigationRef } from './RootNavigation';
 import SettingsScreen from '../screens/SettingsScreen';
+import MeshDiagnosticsScreen from '../screens/MeshDiagnosticsScreen';
 import WorkOrderFilters from '../screens/workOrders/WorkOrderFilters';
 import CreateAdditionalCost from '../screens/workOrders/CreateAdditionalCost';
 import EditAdditionalCost from '../screens/workOrders/EditAdditionalCost';
@@ -360,6 +361,11 @@ function RootNavigator() {
         name="Settings"
         component={SettingsScreen}
         options={{ title: t('settings') }}
+      />
+      <Stack.Screen
+        name="MeshDiagnostics"
+        component={MeshDiagnosticsScreen}
+        options={{ title: t('mesh_diagnostics') }}
       />
       <Stack.Screen
         name="WorkOrderFilters"

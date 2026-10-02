@@ -1503,6 +1503,7 @@ const locale = {
     'Discard unsaved changes?\nIf you leave now, you will lose unsaved changes',
   edit_reading: 'Edit reading',
   are_you_sure_delete_reading: 'Are you sure to delete this reading?',
-  conflict_retry: 'The resource was modified by another request. Please retry in 5 seconds.'
+  conflict_retry: 'The resource was modified by another request. Please retry in 5 seconds.',
+  mesh_diagnostics: 'Mesh diagnostics'
 };
 export default locale;
