@@ -28,7 +28,7 @@
         <key>CFBundleURLSchemes</key>
         <array>
           <string>atlascmms</string>
-          <string>com.cmms.atlas</string>
+          <string>com.offlineprotocol.atlasdemo</string>
         </array>
       </dict>
       <dict>
@@ -55,6 +55,8 @@
       <key>NSAllowsLocalNetworking</key>
       <true/>
     </dict>
+    <key>NSBluetoothAlwaysUsageDescription</key>
+    <string>Atlas uses Bluetooth to hand off work orders to nearby technicians when offline.</string>
     <key>NSCameraUsageDescription</key>
     <string>Allow Atlas to use the camera to scan.</string>
     <key>NSMicrophoneUsageDescription</key>
@@ -65,6 +67,11 @@
     <string>Allow Atlas to access your photo library to attach images to work orders and asset records.</string>
     <key>NSUserNotificationUsageDescription</key>
     <string>Allow notifications for work order updates.</string>
+    <key>UIBackgroundModes</key>
+    <array>
+      <string>bluetooth-central</string>
+      <string>bluetooth-peripheral</string>
+    </array>
     <key>UILaunchStoryboardName</key>
     <string>SplashScreen</string>
     <key>UIRequiredDeviceCapabilities</key>

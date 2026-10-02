@@ -30,6 +30,7 @@ const plugins: ExpoConfig['plugins'] = [
   '@react-native-community/datetimepicker',
   '@react-native-firebase/app',
   './plugins/ios/withFmtXcode26Fix',
+  './plugins/ios/withXcode27PodsDeploymentTarget',
   [
     'expo-camera',
     {
@@ -87,14 +88,20 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     assetPatternsToBeBundled: ['**/*']
   },
   ios: {
-    bundleIdentifier: 'com.cmms.atlas',
+    // Overridable so a local dev build can be signed by another Apple team
+    bundleIdentifier: process.env.IOS_BUNDLE_ID || 'com.cmms.atlas',
+    appleTeamId: process.env.APPLE_TEAM_ID,
     buildNumber: '2',
     jsEngine: 'hermes',
     supportsTablet: false,
     runtimeVersion: 'appVersion',
     googleServicesFile: googleServicesPlist ?? './GoogleService-Info.plist',
     infoPlist: {
-      ITSAppUsesNonExemptEncryption: false
+      ITSAppUsesNonExemptEncryption: false,
+      NSBluetoothAlwaysUsageDescription:
+        'Atlas uses Bluetooth to hand off work orders to nearby technicians when offline.',
+      // The SDK's iOS docs require these for reliable BLE scanning/advertising
+      UIBackgroundModes: ['bluetooth-central', 'bluetooth-peripheral']
     }
   },
   android: {

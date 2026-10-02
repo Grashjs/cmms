@@ -1,5 +1,6 @@
 PODS:
   - boost (1.84.0)
+  - Clarity (3.5.4)
   - DoubleConversion (1.1.6)
   - EASClient (0.14.4):
     - ExpoModulesCore
@@ -444,6 +445,8 @@ PODS:
   - hermes-engine (0.79.6):
     - hermes-engine/Pre-built (= 0.79.6)
   - hermes-engine/Pre-built (0.79.6)
+  - MeshSdk (0.27.0):
+    - React-Core
   - nanopb (3.30910.0):
     - nanopb/decode (= 3.30910.0)
     - nanopb/encode (= 3.30910.0)
@@ -1775,6 +1778,9 @@ PODS:
     - React-jsiexecutor
     - React-RCTFBReactNativeSpec
     - ReactCommon/turbomodule/core
+  - react-native-clarity (4.7.0):
+    - Clarity (= 3.5.4)
+    - React-Core
   - react-native-netinfo (11.4.1):
     - React-Core
   - react-native-pager-view (6.7.1):
@@ -2230,6 +2236,30 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
+  - RNSentry (8.26.0):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-hermes
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
   - SocketRocket (0.7.1)
   - Yoga (0.0.0)
   - ZXingObjC/Core (3.6.9)
@@ -2276,6 +2306,7 @@ DEPENDENCIES:
   - fmt (from `../node_modules/react-native/third-party-podspecs/fmt.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
+  - "MeshSdk (from `../node_modules/@offline-protocol/mesh-sdk`)"
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCT-Folly/Fabric (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTDeprecation (from `../node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation`)
@@ -2309,6 +2340,7 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
+  - "react-native-clarity (from `../node_modules/@microsoft/react-native-clarity`)"
   - "react-native-netinfo (from `../node_modules/@react-native-community/netinfo`)"
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -2349,10 +2381,12 @@ DEPENDENCIES:
   - "RNFBAnalytics (from `../node_modules/@react-native-firebase/analytics`)"
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
   - RNScreens (from `../node_modules/react-native-screens`)
+  - "RNSentry (from `../node_modules/@sentry/react-native`)"
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
   trunk:
+    - Clarity
     - Firebase
     - FirebaseAnalytics
     - FirebaseCore
@@ -2442,6 +2476,8 @@ EXTERNAL SOURCES:
   hermes-engine:
     :podspec: "../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec"
     :tag: hermes-2025-06-04-RNv0.79.3-7f9a871eefeb2c3852365ee80f0b6733ec12ac3b
+  MeshSdk:
+    :path: "../node_modules/@offline-protocol/mesh-sdk"
   RCT-Folly:
     :podspec: "../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
   RCTDeprecation:
@@ -2504,6 +2540,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   React-microtasksnativemodule:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/microtasks"
+  react-native-clarity:
+    :path: "../node_modules/@microsoft/react-native-clarity"
   react-native-netinfo:
     :path: "../node_modules/@react-native-community/netinfo"
   react-native-pager-view:
@@ -2584,11 +2622,14 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-firebase/app"
   RNScreens:
     :path: "../node_modules/react-native-screens"
+  RNSentry:
+    :path: "../node_modules/@sentry/react-native"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
+  Clarity: 6fa0a13088ed8494c1a2244def86cd2ba70ae7ed
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   EASClient: fe396f88189ce51edd819abe12df16c99e98bcd2
   EXApplication: 1e06972201838375ca1ec1ba34d586a98a5dc718
@@ -2632,6 +2673,7 @@ SPEC CHECKSUMS:
   GoogleAppMeasurement: 57270ccc2b77472d7e85c4cbe45972564eff78bb
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
   hermes-engine: 44bb6fe76a6eb400d3a992e2d0b21946ae999fa9
+  MeshSdk: 452ca2783136f11edf66e9a977ae2d86e6fde925
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   RCT-Folly: e78785aa9ba2ed998ea4151e314036f6c49e6d82
@@ -2666,6 +2708,7 @@ SPEC CHECKSUMS:
   React-logger: 1426d04b594a2e68b0ac2add21d45422d06397a3
   React-Mapbuffer: 28c35d4355981ed4a9da6b13bd7f38189533ae05
   React-microtasksnativemodule: e46cff912b07dc383f04715b4225ca131b325a4a
+  react-native-clarity: d4d36dc786b7e06403f13f6cddea40d158e0fc3a
   react-native-netinfo: cec9c4e86083cb5b6aba0e0711f563e2fbbff187
   react-native-pager-view: 5d74caaf2930623b258e3e8ee3e4692f5f4ae846
   react-native-safe-area-context: 9d72abf6d8473da73033b597090a80b709c0b2f1
@@ -2706,10 +2749,11 @@ SPEC CHECKSUMS:
   RNFBAnalytics: 034e06c3cc9fa4a541ea4d12c5de0e1f2cb85d96
   RNFBApp: f3f2c77d907bb853abdfc8b02533b339c70feef6
   RNScreens: 7f9d84a9901679dbb435592612d5ac57a044adce
+  RNSentry: 08b00ebdb5f346b0394eaf988ffc602eb37e0a20
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: b37eeaa6148984cac70ecaf8022bb209e03296cb
   ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
 
-PODFILE CHECKSUM: 1ff7016db2116d072793b8f71df4e611acf27d19
+PODFILE CHECKSUM: 2f382b748862d26c5b02f4f0858828dcd801f0eb
 
-COCOAPODS: 1.16.2
+COCOAPODS: 1.17.0
