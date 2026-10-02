@@ -1,0 +1,5 @@
+# Offline handoff demo: build the API from local source instead of the published image.
+services:
+  api:
+    build: ./api
+    image: atlas-api-local
