@@ -69,7 +69,8 @@ Read these before writing code, in this order:
 - Linked as `file:../../offline-protocol-sdk/bindings/react-native` (D6). Metro is configured to watch it.
 - After changing the SDK's TypeScript, run `npm run build` in `bindings/react-native`.
 - After changing its Rust, run `npm run build:uniffi:ios` / `build:uniffi:android`, then rebuild the app.
-- SDK fixes are committed in the SDK repo on branch `atlas-demo`, and noted in `CODEBASE_MAP.md` §4.
+- SDK fixes are committed in the SDK repo on branch `fix/ble-reliability`, and noted in `CODEBASE_MAP.md` §4.
+- Nothing in the SDK repo mentions Atlas: branch names, commit messages, code and comments stay product-neutral.
 
 ## Commands
 

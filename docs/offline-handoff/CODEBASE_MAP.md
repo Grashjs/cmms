@@ -150,11 +150,11 @@ Append entries as `- [Phase N] fact. Consequence and what we did.`
 - [Phase 0] Two SDK apps on one phone publish the same GATT service UUID on the same radio. A peer connecting to
   that phone can read the other app's identity characteristic and bind the link to the wrong `off1…` address, which
   stalls delivery and causes neighbour flapping. Uninstall other SDK apps from demo phones (runbook).
-- [Phase 0] SDK fix (`atlas-demo` a54b383d): after an iOS Bluetooth off/on, the iPhone advertised with no GATT
+- [Phase 0] SDK fix (`fix/ble-reliability` a54b383d): after an iOS Bluetooth off/on, the iPhone advertised with no GATT
   service behind it (stale `isGattServiceReady`), and it never reported `bleStatusChanged(true)` because power-on
   only left the `.starting` state, not `.unavailable`. The result was that the iPhone received but never sent.
   Both are fixed in `ios/BleManager.swift`. Still open: `stop()` returns early in `.unavailable`.
-- [Phase 0] SDK fix (`atlas-demo` 36415b01): iOS gets a new random BLE address on every Bluetooth power-cycle.
+- [Phase 0] SDK fix (`fix/ble-reliability` 36415b01): iOS gets a new random BLE address on every Bluetooth power-cycle.
   Android kept redialling the old address. When it gave up, it reported the live peer lost and wiped the mapping
   the new link used. Fixed in `CentralGattClient.kt` and `MeshConnectionRegistry.kt`, with `StaleAddressRegistryTest`.
   SDK JVM tests: `cd bindings/react-native/android-ci-harness && JAVA_HOME=$(/usr/libexec/java_home -v 17)

@@ -19,7 +19,7 @@ reliably. If they can't, stop and fix the SDK before building anything else.
 ## Tasks
 
 ### 0.1 Branches
-- [x] Create branch `feat/offline-handoff` in `cmms`. SDK fixes go on branch `atlas-demo` in the SDK repo.
+- [x] Create branch `feat/offline-handoff` in `cmms`. SDK fixes go on branch `fix/ble-reliability` in the SDK repo.
 
 ### 0.2 Backend from local source
 - [x] Add `docker-compose.offline-demo.yml`, an override that builds `api` from `./api`:
@@ -98,12 +98,12 @@ Record results in the table below.
 | Discovery A→B / B→A | Android found iPhone in 6.2 s; iPhone found Android in 2.3 s | Clean run, after uninstalling the other SDK demo apps from both phones. With them installed: 4 s / 6.7 s. |
 | Delivery 20/20 each way | 20/20 Android→iOS and 20/20 iOS→Android, at 1 m and again at 5 m | All received with `encrypted: true`, 0 retries, 0 failures |
 | Latency median / p95 | Android→iOS 478 / 515 ms (1 m), 477 / 546 ms (5 m). iOS→Android 215 / 278 ms (both runs) | Send → SDK delivery ACK, measured on the sender, one message per second. An earlier run (other SDK apps present) had one ~5 s stall. |
-| Retry after BT off/on | Delivered after BT on: 3 retries, 43 s end to end | **Needed SDK fixes** on `atlas-demo` (a54b383d iOS, 36415b01 Android); see CODEBASE_MAP §4. Before them, the iPhone never sent again after a power-cycle. |
+| Retry after BT off/on | Delivered after BT on: 3 retries, 43 s end to end | **Needed SDK fixes** on `fix/ble-reliability` (a54b383d iOS, 36415b01 Android); see CODEBASE_MAP §4. Before them, the iPhone never sent again after a power-cycle. |
 | Delivery after sender restart | Delivered, no resend, both directions | Messages pending when the app was force-quit showed "delivered (from previous run)" within about 1 s of relaunch + Start |
 | 5 m, screens locked | 20/20 each way after 30 s locked, no neighbour loss | iOS's JS console detaches from Metro while locked; delivery confirmed from Android's logs and the iPhone's on-screen stats |
 
 **Result: GO.** Every criterion is met (≥ 19/20 each way, discovery < 15 s, retry and restart deliver, encrypted).
-Three SDK bugs found and fixed in the SDK repo on `atlas-demo`: iOS stale GATT service after power-off, iOS
+Three SDK bugs found and fixed in the SDK repo on `fix/ble-reliability`: iOS stale GATT service after power-off, iOS
 `bleStatusChanged` never re-sent after power-on, and Android false `neighbor_lost` on a rotated iOS address.
 
 Notes for later phases:
