@@ -292,7 +292,7 @@ const locale = {
   save: 'Mentés',
   customers: 'Vállalkozók',
   no_labor:
-    'Még nincsenek munkaerőköltségek hozzáadva. Itt fognak megjelenni, amikor egy felhasználó időt naplóz és órabére van mentve a {{brandName}}-ben.',
+    'Még nincsenek munkaerőköltségek hozzáadva. Itt fognak megjelenni, amikor egy felhasználó időt naplóz és órabére van mentve a {{shortBrandName}}-ben.',
   not_assigned: 'Nincs Hozzárendelve',
   no_additional_cost: 'Még nincsenek Extra költségek hozzáadva',
   parts: 'Alkatrészek',

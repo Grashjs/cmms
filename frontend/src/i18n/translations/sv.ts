@@ -435,7 +435,7 @@ const locale = {
   confirm_delete_part_asset:
     'Är du säker på att du vill ta bort den här delen från den här tillgången?',
   no_due_date: 'Inget förfallodatum',
-  due_at_date: 'Två {{datum}}',
+  due_at_date: 'Två {{date}}',
   no_primary_worker: 'Ingen primärarbetare',
   no_wo_linked_asset: 'Det finns ingen arbetsorder kopplad till denna tillgång',
   asset_remove_success: 'Resursen har raderats',
@@ -1119,7 +1119,7 @@ const locale = {
   required_match: '{{field}}-matchning krävs',
   archived: 'Arkiverad',
   import_wo_success:
-    '{{created}} Arbetsordrar har skapats och {{update}} har uppdaterats',
+    '{{created}} Arbetsordrar har skapats och {{updated}} har uppdaterats',
   to_export: 'Exportera',
   filters: 'Filter',
   more_filters: 'Fler filter',
@@ -1299,7 +1299,7 @@ const locale = {
   past_due: 'Förfallna',
   due_date_delay: 'Försening av förfallodatum',
   due_date_delay_description: 'Försening av förfallodatum i dagar',
-  days_count: '{{dagar}} dagar',
+  days_count: '{{days}} dagar',
   trigger_configuration: 'Triggerkonfiguration',
   WORK_ORDER_feature: 'Arbetsordrar',
   REQUEST_feature: 'Arbetsförfrågningar',

@@ -261,7 +261,7 @@ const locale = {
   save: '保存',
   customers: '承包商',
   no_labor:
-    '尚未添加劳动成本。当用户记录时间并在{{brandName}}中保存小时费率时，它们将出现在这里。',
+    '尚未添加劳动成本。当用户记录时间并在{{shortBrandName}}中保存小时费率时，它们将出现在这里。',
   not_assigned: '未分配',
   no_additional_cost: '尚未添加额外成本',
   parts: '零件',
