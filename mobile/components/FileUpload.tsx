@@ -216,7 +216,7 @@ export default function FileUpload({
             alignItems: 'center'
           }}
         >
-          <Text style={{ color: 'black' }}>{title}</Text>
+          <Text style={{ color: theme.colors.onSurface }}>{title}</Text>
           <IconButton iconColor={theme.colors.primary} icon={'plus-circle'} />
         </View>
       </TouchableOpacity>
@@ -252,7 +252,7 @@ export default function FileUpload({
                 paddingVertical: 1 // Optional: Add padding for separation
               }}
             >
-              <Text style={{ color: theme.colors.primary, flexShrink: 1 }}>
+              <Text style={{ color: theme.colors.onSurface, flexShrink: 1 }}>
                 {file.name}
               </Text>
               <IconButton

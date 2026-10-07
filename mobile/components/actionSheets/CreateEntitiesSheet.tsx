@@ -3,7 +3,7 @@ import ActionSheet, {
   SheetProps
 } from 'react-native-actions-sheet';
 import { View } from 'react-native';
-import { Divider, List, Text } from 'react-native-paper';
+import { Divider, List, Text, useTheme } from 'react-native-paper';
 import * as React from 'react';
 import { useContext, useRef } from 'react';
 import { RootStackParamList } from '../../types';
@@ -17,6 +17,7 @@ import { IconSource } from 'react-native-paper/lib/typescript/components/Icon';
 export default function CreateEntitiesSheet(
   props: SheetProps<{ navigation: any }>
 ) {
+  const theme = useTheme();
   const { t } = useTranslation();
   const { hasCreatePermission } = useAuth();
   const netInfo = useNetInfo();
@@ -72,9 +73,22 @@ export default function CreateEntitiesSheet(
     }
   ];
   return (
-    <ActionSheet ref={actionSheetRef}>
-      <View style={{ paddingHorizontal: 5, paddingVertical: 15 }}>
-        <Text style={{ paddingHorizontal: 15 }} variant="headlineSmall">
+    <ActionSheet
+      ref={actionSheetRef}
+      containerStyle={{ backgroundColor: theme.colors.surface }}
+      indicatorStyle={{ backgroundColor: theme.colors.onSurfaceVariant }}
+    >
+      <View
+        style={{
+          paddingHorizontal: 5,
+          paddingVertical: 15,
+          backgroundColor: theme.colors.surface
+        }}
+      >
+        <Text
+          style={{ paddingHorizontal: 15, color: theme.colors.onSurface }}
+          variant="headlineSmall"
+        >
           {t('create')}
         </Text>
         <Divider />
@@ -85,9 +99,15 @@ export default function CreateEntitiesSheet(
               .map((entity, index) => (
                 <List.Item
                   key={index}
-                  style={{ paddingHorizontal: 15 }}
+                  style={{
+                    paddingHorizontal: 15,
+                    backgroundColor: theme.colors.surface
+                  }}
+                  titleStyle={{ color: theme.colors.onSurface }}
                   title={entity.title}
-                  left={() => <List.Icon icon={entity.icon} />}
+                  left={() => (
+                    <List.Icon icon={entity.icon} color={theme.colors.onSurface} />
+                  )}
                   onPress={() => {
                     props.payload.navigation.navigate(entity.goTo);
                     actionSheetRef.current.hide();
@@ -96,7 +116,7 @@ export default function CreateEntitiesSheet(
               ))}
           </List.Section>
         ) : (
-          <Text style={{ padding: 20 }} variant={'bodyLarge'}>
+          <Text style={{ padding: 20, color: theme.colors.onSurface }} variant={'bodyLarge'}>
             {t('no_internet_connection')}
           </Text>
         )}

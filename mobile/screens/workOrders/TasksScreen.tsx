@@ -6,6 +6,7 @@ import { useDispatch } from '../../store';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import { ScrollView, StyleSheet } from 'react-native';
 import SingleTask from '../../components/SingleTask';
+import { useAppTheme } from '../../custom-theme';
 import { RootStackScreenProps } from '../../types';
 import { addFiles } from '../../slices/file';
 import * as ImagePicker from 'expo-image-picker';
@@ -132,8 +133,10 @@ export default function TasksScreen({
         .catch(onImageUploadFailure);
     }
   };
+  const theme = useAppTheme();
+
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <InAppCamera
         visible={cameraTaskId !== null}
         onCapture={handleInAppCapture}
@@ -171,7 +174,6 @@ export default function TasksScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 20,
-    backgroundColor: 'white'
+    paddingHorizontal: 20
   }
 });

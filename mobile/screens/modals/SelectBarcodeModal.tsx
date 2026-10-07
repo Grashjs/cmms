@@ -4,6 +4,7 @@ import {
   TouchableOpacity,
   useWindowDimensions
 } from 'react-native';
+import { useTheme } from 'react-native-paper';
 
 import { View } from '../../components/Themed';
 import * as React from 'react';
@@ -20,6 +21,7 @@ export default function SelectBarcodeModal({
 }: RootStackScreenProps<'SelectBarcode'>) {
   const { onChange } = route.params;
   const { t } = useTranslation();
+  const theme = useTheme();
   const [scanned, setScanned] = useState<boolean>(false);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const layout = useWindowDimensions();
@@ -61,7 +63,7 @@ export default function SelectBarcodeModal({
     return (
       <View
         style={{
-          backgroundColor: 'white',
+          backgroundColor: theme.colors.surface,
           padding: 20,
           borderRadius: 10
         }}
