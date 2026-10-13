@@ -8,6 +8,8 @@ import com.grash.repository.CompanyRepository;
 import com.grash.utils.Sanitizer;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,8 +23,13 @@ public class CompanyService {
     private final CompanyRepository companyRepository;
     private final CompanyMapper companyMapper;
     private final EntityManager em;
-    private final PaddleService paddleService;
-//    private final RoleService roleService;
+    private PaddleService paddleService;
+    
+    @Autowired
+    public void setDeps(@Lazy PaddleService paddleService
+    ) {
+        this.paddleService = paddleService;
+    }
 
     public Company create(Company company) {
 //        company.getCompanySettings().setRoleList(roleService.findDefaultRoles());
