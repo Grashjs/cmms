@@ -1340,7 +1340,7 @@ const plJSON = {
   home: 'Dom',
   user: 'Użytkownik',
   start_work_order: 'Rozpocznij zlecenie robocze',
-  priority_label: '{{priorytet}} priorytet',
+  priority_label: '{{priority}} priorytet',
   stop_work_order: 'Zatrzymaj timer',
   required_files_on_completion:
     'Pliki są wymagane do ukończenia zlecenia roboczego',

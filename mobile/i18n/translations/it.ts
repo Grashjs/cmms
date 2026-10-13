@@ -331,7 +331,7 @@ const locale = {
   starts_on: 'Inizia su',
   ends_on: 'Termina il',
   frequency: 'Frequenza',
-  every_frequency_days: 'Ogni {{frequenza}} giorni',
+  every_frequency_days: 'Ogni {{frequency}} giorni',
   wo_details: "Dettagli dell'ordine di lavoro",
   confirm_delete_file: 'Sei sicuro di voler rimuovere questo file?',
   wo_schedule_success: 'Ordine di lavoro pianificato con successo',
@@ -1344,7 +1344,7 @@ const locale = {
   home: 'Casa',
   user: 'Utente',
   start_work_order: 'Avvia ordine di lavoro',
-  priority_label: '{{priorità}} priorità',
+  priority_label: '{{priority}} priorità',
   stop_work_order: 'Ferma il timer',
   required_files_on_completion:
     "I file sono richiesti al completamento dell'ordine di lavoro",
