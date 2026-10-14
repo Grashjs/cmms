@@ -127,7 +127,7 @@ export default function SingleTask({
               onChange={(event) =>
                 !preview && handleChange(event.target.value, task.id)
               }
-              sx={{ backgroundColor: 'white' }}
+              sx={{ backgroundColor: theme.palette.background.paper }}
               disabled={
                 (task.taskBase.user && task.taskBase.user.id !== user.id) ||
                 disabled
@@ -142,7 +142,7 @@ export default function SingleTask({
               )}
             </Select>
           ) : (
-            <Box sx={{ backgroundColor: 'white' }}>
+            <Box sx={{ backgroundColor: theme.palette.background.paper }}>
               <TextField
                 onChange={debouncedChangeHandler}
                 defaultValue={task.value}
@@ -243,7 +243,7 @@ export default function SingleTask({
         </Box>
       )}
       <Collapse sx={{ mt: 2 }} in={preview ? false : notes.get(task.id)}>
-        <Box sx={{ p: 1, backgroundColor: 'white' }}>
+        <Box sx={{ p: 1, backgroundColor: theme.palette.background.paper }}>
           <Field
             multiple={true}
             onChange={(event) =>

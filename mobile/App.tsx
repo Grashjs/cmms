@@ -2,7 +2,6 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { PersistGate } from 'redux-persist/integration/react';
 import useCachedResources from './hooks/useCachedResources';
-import useColorScheme from './hooks/useColorScheme';
 import Navigation from './navigation';
 import { Provider } from 'react-redux';
 import store, { persistor } from './store';
@@ -29,9 +28,7 @@ Sentry.init({
 });
 
 import {
-  MD3LightTheme as DefaultTheme,
-  Provider as PaperProvider,
-  useTheme
+  Provider as PaperProvider
 } from 'react-native-paper';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Linking, LogBox } from 'react-native';
@@ -43,10 +40,13 @@ import { NotificationType } from './models/notification';
 import { navigate } from './navigation/RootNavigation';
 import subscriptionPlan from './slices/subscriptionPlan';
 import { isNumeric } from './utils/validators';
-import { customTheme } from './custom-theme';
 import { RootLayout } from './components/RootLayout';
 import { ReviewModal } from './components/ReviewModal';
 import { Subscription } from 'expo-notifications';
+import {
+  ThemeModeProvider,
+  useThemeMode
+} from './theme';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -58,9 +58,8 @@ Notifications.setNotificationHandler({
   })
 });
 
-export default Sentry.wrap(function App() {
-  const isLoadingComplete = useCachedResources();
-  const colorScheme = useColorScheme();
+function AppContent() {
+  const { theme, resolvedScheme } = useThemeMode();
   const [notification, setNotification] =
     useState<Notifications.Notification>(null);
   const notificationListener = useRef<Subscription>(undefined);
@@ -136,35 +135,47 @@ export default Sentry.wrap(function App() {
     };
   }, []);
 
+  return (
+    <PaperProvider theme={theme}>
+      <CustomSnackbarProvider>
+        <SheetProvider>
+          <RootLayout>
+            <FlashMessage
+              position="top"
+              statusBarHeight={Constants.statusBarHeight}
+            />
+            <Navigation colorScheme={resolvedScheme} />
+            <ReviewModal />
+          </RootLayout>
+          <StatusBar />
+        </SheetProvider>
+      </CustomSnackbarProvider>
+    </PaperProvider>
+  );
+}
+
+function App() {
+  const isLoadingComplete = useCachedResources();
+
   if (!isLoadingComplete) {
     return null;
-  } else {
-    return (
-      <SafeAreaProvider>
-        <Provider store={store}>
-          <PersistGate loading={null} persistor={persistor}>
-            <AuthProvider>
-              <CompanySettingsProvider>
-                <PaperProvider theme={customTheme}>
-                  <CustomSnackbarProvider>
-                    <SheetProvider>
-                      <RootLayout>
-                        <FlashMessage
-                          position="top"
-                          statusBarHeight={Constants.statusBarHeight}
-                        />
-                        <Navigation colorScheme={colorScheme} />
-                        <ReviewModal />
-                      </RootLayout>
-                      <StatusBar />
-                    </SheetProvider>
-                  </CustomSnackbarProvider>
-                </PaperProvider>
-              </CompanySettingsProvider>
-            </AuthProvider>
-          </PersistGate>
-        </Provider>
-      </SafeAreaProvider>
-    );
   }
-});
+
+  return (
+    <SafeAreaProvider>
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <AuthProvider>
+            <CompanySettingsProvider>
+              <ThemeModeProvider>
+                <AppContent />
+              </ThemeModeProvider>
+            </CompanySettingsProvider>
+          </AuthProvider>
+        </PersistGate>
+      </Provider>
+    </SafeAreaProvider>
+  );
+}
+
+export default Sentry.wrap(App);
