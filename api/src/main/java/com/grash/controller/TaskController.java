@@ -71,13 +71,13 @@ public class TaskController {
 
     @GetMapping("/preventive-maintenance/{id}")
     @PreAuthorize("permitAll()")
-    public Collection<Task> getByPreventiveMaintenance(@PathVariable("id") Long id,
-                                                       @Parameter(hidden = true) @CurrentUser User user) {
+    public Collection<TaskShowDTO> getByPreventiveMaintenance(@PathVariable("id") Long id,
+                                                              @Parameter(hidden = true) @CurrentUser User user) {
         Optional<PreventiveMaintenance> optionalPreventiveMaintenance = preventiveMaintenanceService.findById(id);
         if (optionalPreventiveMaintenance.isPresent()) {
             if (!optionalPreventiveMaintenance.get().canBeViewedBy(user))
                 throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-            return taskService.findByPreventiveMaintenance(id);
+            return taskService.findByPreventiveMaintenance(id).stream().map(taskMapper::toShowDto).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
