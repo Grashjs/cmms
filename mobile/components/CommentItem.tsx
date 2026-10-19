@@ -309,9 +309,7 @@ export default function CommentItem({
             <Text
               style={{
                 marginTop: 4,
-                color: comment.system
-                  ? theme.colors.onSurfaceVariant
-                  : undefined
+                color: comment.system ? theme.colors.onSurfaceVariant : 'black'
               }}
             >
               {renderContentWithMentions(comment.content)}
