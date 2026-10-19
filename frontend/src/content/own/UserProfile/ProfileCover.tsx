@@ -50,7 +50,7 @@ const ButtonUploadWrapper = styled(Box)(
       width: ${theme.spacing(4)};
       height: ${theme.spacing(4)};
       padding: 0;
-  
+
       &:hover {
         background: ${theme.colors.primary.dark};
       }

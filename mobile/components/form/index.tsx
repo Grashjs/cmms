@@ -518,7 +518,7 @@ export default function Form(props: OwnProps) {
                     key={field.name}
                     style={{
                       width: '100%',
-                      backgroundColor: 'white',
+                      backgroundColor: theme.colors.surface,
                       paddingHorizontal: 10,
                       paddingVertical: 10
                     }}

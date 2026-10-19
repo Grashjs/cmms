@@ -18,7 +18,7 @@ export default function LoadingDialog({ visible }: { visible: boolean }) {
       <Portal>
         <Dialog
           visible={visible}
-          style={{ borderRadius: 5, backgroundColor: 'white' }}
+          style={{ borderRadius: 5, backgroundColor: theme.colors.surface }}
         >
           <Dialog.Title>{t('loading')}</Dialog.Title>
           <Dialog.Content>
