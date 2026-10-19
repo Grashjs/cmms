@@ -276,7 +276,8 @@ export default function CommentItem({
                     style={{
                       borderWidth: 1,
                       borderColor: '#ccc',
-                      borderRadius: 4
+                      borderRadius: 4,
+                      color: 'black'
                     }}
                     {...textInputProps}
                   />
