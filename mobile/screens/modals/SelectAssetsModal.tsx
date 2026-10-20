@@ -25,6 +25,7 @@ import {
 } from 'react-native-paper';
 import { useAppTheme } from '../../custom-theme';
 import { boolean, number } from 'yup';
+import { matchesSearch } from '../../utils/search';
 
 interface AssetHierarchyNode extends AssetMiniDTO {
   hasChildren: boolean;
@@ -280,7 +281,7 @@ export default function SelectAssetsModal({
   const filteredListAssets = useMemo(() => {
     if (!searchQuery) return assetsHierarchy;
     return assetsHierarchy.filter((asset) =>
-      asset.name.toLowerCase().includes(searchQuery.toLowerCase().trim())
+      matchesSearch(asset.name, searchQuery)
     );
   }, [assetsHierarchy, searchQuery]);
 

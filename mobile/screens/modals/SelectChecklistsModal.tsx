@@ -30,6 +30,7 @@ import { randomInt } from '../../utils/generators';
 import { getTaskFromTaskBase } from '../../utils/formatters';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
 import { getTaskTypes } from '../../utils/displayers';
+import { matchesSearch } from '../../utils/search';
 import { MeterMiniDTO } from '../../models/meter';
 import { getTeamsMini } from '../../slices/team';
 import { getChecklists } from '../../slices/checklist';
@@ -72,9 +73,7 @@ export default function SelectChecklistsModal({
         }
       >
         {checklists
-          .filter((mini) =>
-            mini.name.toLowerCase().includes(searchQuery.toLowerCase().trim())
-          )
+          .filter((mini) => matchesSearch(mini.name, searchQuery))
           .map((checklist) => (
             <TouchableOpacity
               onPress={() => {
