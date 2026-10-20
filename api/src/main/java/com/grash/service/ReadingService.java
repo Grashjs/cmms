@@ -119,8 +119,14 @@ public class ReadingService {
             Reading savedReading = optionalReading.get();
             if (!savedReading.getMeter().canBeViewedBy(user))
                 throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+            double previousValue = savedReading.getValue();
             Reading updated = readingRepository.save(readingMapper.updateReading(savedReading, reading));
-            processMeterTriggers(savedReading.getMeter(), updated.getValue(), user);
+            boolean valueChanged = Double.compare(previousValue, updated.getValue()) != 0;
+            boolean isLatestReading = findLastByMeter(updated.getMeter().getId())
+                    .map(lastReading -> lastReading.getId().equals(updated.getId()))
+                    .orElse(false);
+            if (valueChanged && isLatestReading)
+                processMeterTriggers(updated.getMeter(), updated.getValue(), user);
             return updated;
         } else throw new CustomException("Reading not found", HttpStatus.NOT_FOUND);
     }
@@ -167,11 +173,12 @@ public class ReadingService {
                 message.append(messageSource.getMessage("notification_reading_more_than", notificationArgs,
                         locale));
             }
-            if (error) {
+            if (error && !workOrderService.hasOpenWorkOrderFromMeterTrigger(meterTrigger.getId())) {
                 notificationService.createMultiple(meter.getUsers().stream().map(user1 ->
                         new Notification(message.toString(), user1, NotificationType.METER, meter.getId())
                 ).collect(Collectors.toList()), true, title);
                 WorkOrderPostDTO workOrder = workOrderService.getWorkOrderFromWorkOrderBase(meterTrigger);
+                workOrder.setParentMeterTrigger(meterTrigger);
                 WorkOrder createdWorkOrder = workOrderService.create(workOrder, user.getCompany());
 
                 Map<String, Object> webhookPayload = new HashMap<>();
