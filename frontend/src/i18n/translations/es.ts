@@ -1844,6 +1844,8 @@ const esJSON = {
   share: 'Compartir',
   delete: 'Eliminar',
   portal_not_found: 'Portal no encontrado',
+  wo_not_found_or_no_access:
+    'Esta orden de trabajo no existe o no tiene acceso a ella',
   request_submitted_success: 'Su solicitud ha sido enviada exitosamente',
   request_submit_failure:
     'Error al enviar la solicitud. Por favor, inténtelo de nuevo.',
