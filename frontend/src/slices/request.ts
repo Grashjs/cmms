@@ -91,15 +91,6 @@ const slice = createSlice({
         return request;
       });
     },
-    cancelRequest(state: RequestState, action: PayloadAction<{ id: number }>) {
-      const { id } = action.payload;
-      state.requests.content = state.requests.content.map((request) => {
-        if (request.id === id) {
-          return { ...request, cancelled: true };
-        }
-        return request;
-      });
-    },
     setLoadingGet(
       state: RequestState,
       action: PayloadAction<{ loading: boolean }>
@@ -193,11 +184,11 @@ export const approveRequest =
 export const cancelRequest =
   (id: number, reason: string): AppThunk =>
   async (dispatch) => {
-    const request = await api.patch<WorkOrder>(
-      `${basePath}/${id}/cancel?reason=${reason}`,
+    const request = await api.patch<Request>(
+      `${basePath}/${id}/cancel?reason=${encodeURIComponent(reason)}`,
       {}
     );
-    dispatch(slice.actions.cancelRequest({ id }));
+    dispatch(slice.actions.editRequest({ request }));
     dispatch(slice.actions.decrementPendingCount());
   };
 export const getPendingRequestsCount = (): AppThunk => async (dispatch) => {
