@@ -1510,6 +1510,7 @@ const locale = {
   no_sub_assets: 'Sin subactivos',
   no_assets_available: 'No hay activos disponibles',
   asset_not_found: 'Activo no encontrado',
+  part_not_found_or_no_access: 'Este repuesto no existe o no tiene acceso a él',
   comments: 'Comentarios',
   no_comments: 'Aún no hay comentarios. ¡Sé el primero en comentar!',
   post_comment: 'Publicar comentario',

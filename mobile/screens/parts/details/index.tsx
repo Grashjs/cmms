@@ -21,6 +21,7 @@ import PartDetails from './PartDetails';
 import { TabBar, TabView } from 'react-native-tab-view';
 import PartWorkOrders from './PartWorkOrders';
 import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
+import { isNetworkError } from '../../../utils/api';
 import PartAssets from './PartAssets';
 import PartFiles from './PartFiles';
 
@@ -68,7 +69,15 @@ export default function PartDetailsHome({
 
   useEffect(() => {
     if (!partProp)
-      dispatch(getPartDetails(id));
+      dispatch(getPartDetails(id)).catch((err) => {
+        showSnackBar(
+          isNetworkError(err)
+            ? t('server_not_reachable')
+            : t('part_not_found_or_no_access'),
+          'error'
+        );
+        navigation.goBack();
+      });
   }, [partProp]);
   useEffect(() => {
     navigation.setOptions({

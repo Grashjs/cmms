@@ -1476,6 +1476,8 @@ const locale = {
   no_assets_available: 'No assets available',
   you_need_a_license: 'You need a license to access this feature',
   asset_not_found: 'Asset not found',
+  part_not_found_or_no_access:
+    "This part doesn't exist or you don't have access to it",
   comments: 'Comments',
   no_comments: 'No comments yet. Be the first to comment!',
   post_comment: 'Post comment',
