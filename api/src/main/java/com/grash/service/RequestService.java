@@ -371,10 +371,10 @@ public class RequestService {
 
     @Transactional
     public WorkOrder approve(Long id, RequestApproveDTO requestApproveDTO, User user) {
-        Optional<Request> optionalRequest = requestRepository.findById(id);
         if (!(user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS) || user.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))) {
             throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         }
+        Optional<Request> optionalRequest = requestRepository.findByIdForUpdate(id);
         if (optionalRequest.isPresent()) {
             Request savedRequest = optionalRequest.get();
             if (savedRequest.getWorkOrder() != null) {
@@ -435,10 +435,10 @@ public class RequestService {
 
     @Transactional
     public Request cancel(Long id, String reason, User user) {
-        Optional<Request> optionalRequest = requestRepository.findById(id);
         if (!(user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS) || user.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))) {
             throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         }
+        Optional<Request> optionalRequest = requestRepository.findByIdForUpdate(id);
         if (optionalRequest.isPresent()) {
             Request savedRequest = optionalRequest.get();
             if (savedRequest.getWorkOrder() != null) {
