@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { TextField, Popover, useTheme } from '@mui/material';
 import { DateRange } from 'react-date-range';
+import { toFullDayRange } from '../../../../utils/dates';
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 import { useTranslation } from 'react-i18next';
@@ -47,7 +48,7 @@ export default function DateRangePicker({
 
   const handleSelect = (ranges: any) => {
     const selection = ranges.selection;
-    onChange([selection.startDate, selection.endDate]);
+    onChange(toFullDayRange(selection.startDate, selection.endDate));
 
     // Increment the click counter
     clickCount.current += 1;
