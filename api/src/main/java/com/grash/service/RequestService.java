@@ -380,6 +380,9 @@ public class RequestService {
             if (savedRequest.getWorkOrder() != null) {
                 throw new CustomException("Request is already approved", HttpStatus.NOT_ACCEPTABLE);
             }
+            if (savedRequest.isCancelled()) {
+                throw new CustomException("Request is cancelled", HttpStatus.NOT_ACCEPTABLE);
+            }
             Collection<Workflow> workflows =
                     workflowService.findByMainConditionAndCompany(WFMainCondition.REQUEST_APPROVED,
                             user.getCompany().getId());
@@ -443,6 +446,9 @@ public class RequestService {
             Request savedRequest = optionalRequest.get();
             if (savedRequest.getWorkOrder() != null) {
                 throw new CustomException("Request is already approved", HttpStatus.NOT_ACCEPTABLE);
+            }
+            if (savedRequest.isCancelled()) {
+                throw new CustomException("Request is already cancelled", HttpStatus.NOT_ACCEPTABLE);
             }
             if (reason == null || reason.trim().isEmpty())
                 throw new CustomException("Please give a reason", HttpStatus.NOT_ACCEPTABLE);
