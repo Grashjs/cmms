@@ -76,6 +76,7 @@ import Labor from '../../models/labor';
 import { AudioPlayer } from '../../components/AudioPlayer';
 import { Task } from '../../models/tasks';
 import { getErrorMessage } from '../../utils/api';
+import { matchesSearch } from '../../utils/search';
 import ImageView from 'react-native-image-viewing';
 import { getCustomFieldValuesForDetails } from '../../models/form';
 import CommentItem from '../../components/CommentItem';
@@ -579,9 +580,7 @@ export default function WODetailsScreen({
   const filteredUsers = (
     mentionKeyword
       ? usersMini.filter((user) =>
-          `${user.firstName} ${user.lastName}`
-            .toLowerCase()
-            .includes(mentionKeyword.toLowerCase())
+          matchesSearch(`${user.firstName} ${user.lastName}`, mentionKeyword)
         )
       : usersMini
   ).map((user) => ({

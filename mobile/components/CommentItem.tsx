@@ -22,6 +22,7 @@ import { useNavigation } from '@react-navigation/native';
 import Comment from '../models/comment';
 import ImageView from 'react-native-image-viewing';
 import { downloadFile } from '../utils/fileDownload';
+import { matchesSearch } from '../utils/search';
 import { useMentions } from 'react-native-controlled-mentions';
 import { TriggersConfig } from 'react-native-controlled-mentions/dist/types/types';
 
@@ -86,9 +87,7 @@ export default function CommentItem({
 
   const mentionKeyword = triggers?.mention?.keyword ?? null;
   const filteredUsers = mentionKeyword
-    ? users.filter((u) =>
-        u.name.toLowerCase().includes(mentionKeyword.toLowerCase())
-      )
+    ? users.filter((u) => matchesSearch(u.name, mentionKeyword))
     : users;
 
   const handleDelete = () => {

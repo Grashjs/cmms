@@ -25,6 +25,7 @@ import {
 import { CompanySettingsContext } from '../../contexts/CompanySettingsContext';
 import { getMultiPartsMini } from '../../slices/multipart';
 import SetType from '../../models/setType';
+import { matchesSearch } from '../../utils/search';
 
 const PartItem = React.memo(
   ({
@@ -157,10 +158,7 @@ const PartsRoute = React.memo(
     const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
 
     const filteredParts = useMemo(
-      () =>
-        partsMini.filter((part) =>
-          part.name.toLowerCase().includes(searchQuery.toLowerCase().trim())
-        ),
+      () => partsMini.filter((part) => matchesSearch(part.name, searchQuery)),
       [partsMini, searchQuery]
     );
 
@@ -246,10 +244,7 @@ const SetsRoute = React.memo(
     );
 
     const filteredMultiParts = useMemo(
-      () =>
-        multiParts.filter((mp) =>
-          mp.name.toLowerCase().includes(searchQuery.toLowerCase().trim())
-        ),
+      () => multiParts.filter((mp) => matchesSearch(mp.name, searchQuery)),
       [multiParts, searchQuery]
     );
 
