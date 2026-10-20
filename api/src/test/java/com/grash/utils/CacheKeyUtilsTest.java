@@ -1,10 +1,14 @@
 package com.grash.utils;
 
+import com.grash.advancedsearch.FilterField;
+import com.grash.dto.DateRange;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class CacheKeyUtilsTest {
 
@@ -52,5 +56,39 @@ class CacheKeyUtilsTest {
         String key2 = CacheKeyUtils.dateRangeKey(7L, new Date(base + INTERVAL_MS - 1000),
                 new Date(base + 3 * INTERVAL_MS - 1));
         assertEquals(key1, key2);
+    }
+
+    @Test
+    void analyticsKey_withoutDateRange_containsCompanyGenerationAndUser() {
+        assertEquals("c5_g0.3_u7", CacheKeyUtils.analyticsKey(5L, "0.3", 7L, null));
+    }
+
+    @Test
+    void analyticsKey_withDateRange_appendsRoundedDates() {
+        Date start = new Date(123456789L);
+        Date end = new Date(987654321L);
+        DateRange range = DateRange.builder().start(start).end(end).build();
+
+        assertEquals("c5_g0.0_u7_" + CacheKeyUtils.roundToNearest20Minutes(start) + "_"
+                + CacheKeyUtils.roundToNearest20Minutes(end), CacheKeyUtils.analyticsKey(5L, "0.0", 7L, range));
+    }
+
+    @Test
+    void analyticsKey_differentFilters_produceDifferentKeys() {
+        DateRange byLocation1 = rangeWithFilters(List.of(FilterField.builder().field("location").operation("in")
+                .values(List.of(1L)).build()));
+        DateRange byLocation2 = rangeWithFilters(List.of(FilterField.builder().field("location").operation("in")
+                .values(List.of(2L)).build()));
+        DateRange unfiltered = rangeWithFilters(List.of());
+
+        String key1 = CacheKeyUtils.analyticsKey(5L, "0.0", 7L, byLocation1);
+        assertNotEquals(key1, CacheKeyUtils.analyticsKey(5L, "0.0", 7L, byLocation2));
+        assertNotEquals(key1, CacheKeyUtils.analyticsKey(5L, "0.0", 7L, unfiltered));
+        assertEquals(key1, CacheKeyUtils.analyticsKey(5L, "0.0", 7L, rangeWithFilters(List.of(
+                FilterField.builder().field("location").operation("in").values(List.of(1L)).build()))));
+    }
+
+    private static DateRange rangeWithFilters(List<FilterField> filterFields) {
+        return DateRange.builder().start(new Date(0)).end(new Date(INTERVAL_MS)).filterFields(filterFields).build();
     }
 }

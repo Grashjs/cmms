@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from '../../../../../store';
 import { useEffect } from 'react';
 import { getOverviewStats } from '../../../../../slices/analytics/workOrder';
 import Loading from '../../Loading';
+import { roundDecimals } from '../../../../../utils/formatters';
 
 interface WOStatusNumbersProps {
   handleOpenModal: (
@@ -61,11 +62,11 @@ function Overview({ handleOpenModal, start, end, companyId }: WOStatusNumbersPro
     },
     {
       label: t('average_cycle_time_in_days'),
-      value: overview.avgCycleTime
+      value: roundDecimals(overview.avgCycleTime)
     },
     {
-      label: t('MTTA'),
-      value: overview.mtta
+      label: `${t('MTTA')} (h)`,
+      value: roundDecimals(overview.mtta)
     }
   ];
   return (

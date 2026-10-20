@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from '../../../../../store';
 import { useEffect } from 'react';
 import { getWOHours } from '../../../../../slices/analytics/workOrder';
 import Loading from '../../Loading';
+import { roundDecimals } from '../../../../../utils/formatters';
 
 interface HoursWorkedProps {
   handleOpenModal: (
@@ -29,15 +30,19 @@ function HoursWorked({ handleOpenModal, start, end, companyId }: HoursWorkedProp
 
   const columns = ['id'];
   const formattedData: { label: string; value: string | number; filters: Filter[] }[] = [
-    { label: t('estimated_hours'), value: hours.estimated, filters: [] },
+    {
+      label: t('estimated_hours'),
+      value: roundDecimals(hours.estimated),
+      filters: []
+    },
     {
       label: t('total_time_spent_in_hours'),
-      value: hours.actual,
+      value: roundDecimals(hours.actual),
       filters: []
     },
     {
       label: t('estimation_accuracy_ratio'),
-      value: (hours.estimated / hours.actual).toFixed(2),
+      value: hours.actual ? (hours.estimated / hours.actual).toFixed(2) : '-',
       filters: []
     }
   ];

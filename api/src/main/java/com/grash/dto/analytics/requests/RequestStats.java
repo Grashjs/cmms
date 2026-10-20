@@ -21,6 +21,6 @@ public class RequestStats {
     @Schema(description = "Number of cancelled requests")
     private int cancelled;
     
-    @Schema(description = "Average cycle time")
-    private long cycleTime;
+    @Schema(description = "Average cycle time, in days")
+    private double cycleTime;
 }

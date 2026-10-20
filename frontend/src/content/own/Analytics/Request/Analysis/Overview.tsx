@@ -5,6 +5,7 @@ import { Filter } from '../WOModal';
 import { useDispatch, useSelector } from '../../../../../store';
 import { useEffect } from 'react';
 import Loading from '../../Loading';
+import { roundDecimals } from '../../../../../utils/formatters';
 import { getRequestOverview } from '../../../../../slices/analytics/request';
 
 interface WOStatusNumbersProps {
@@ -62,7 +63,7 @@ function Overview({ handleOpenModal, start, end, companyId }: WOStatusNumbersPro
     },
     {
       label: t('average_cycle_time'),
-      value: overview.cycleTime,
+      value: roundDecimals(overview.cycleTime),
       config: {
         columns: ['id'],
         filters: [{ key: 'fs', value: false }]

@@ -46,8 +46,7 @@ public class RequestAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getRequestStats",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
+            key = "@analyticsCacheService.key(#user, #companyId, #dateRange)"
     )
     public ResponseEntity<RequestStats> getRequestStats(@Parameter(hidden = true) @CurrentUser User user,
                                                         @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange,
@@ -65,7 +64,7 @@ public class RequestAnalyticsController {
                     requests.stream().filter(request -> request.getWorkOrder() == null && !request.isCancelled()).collect(Collectors.toList());
             Collection<Request> completeRequests =
                     approvedRequests.stream().filter(request -> request.getWorkOrder().getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
-            long cycleTime =
+            double cycleTime =
                     WorkOrder.getAverageAge(completeRequests.stream().map(Request::getWorkOrder).collect(Collectors.toList()));
             return ResponseEntity.ok(RequestStats.builder()
                     .approved(approvedRequests.size())
@@ -80,8 +79,7 @@ public class RequestAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getRequestByPriority",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
+            key = "@analyticsCacheService.key(#user, #companyId, #dateRange)"
     )
     public ResponseEntity<RequestStatsByPriority> getByPriority(@Parameter(hidden = true) @CurrentUser User user,
                                                                 @Parameter(description = "Date range for filtering " +
@@ -119,8 +117,7 @@ public class RequestAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getCycleTimeByMonth",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
+            key = "@analyticsCacheService.key(#user, #companyId, #dateRange)"
     )
     public ResponseEntity<List<RequestsByMonth>> getCycleTimeByMonth(@Parameter(hidden = true) @CurrentUser User user,
                                                                      @Parameter(description = "Date range for " +
@@ -146,7 +143,7 @@ public class RequestAnalyticsController {
                                 Helper.localDateToDate(nextDate), resolvedCompanyId);
                 Collection<Request> completeRequests =
                         requests.stream().filter(request -> request.getWorkOrder() != null && request.getWorkOrder().getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
-                long cycleTime =
+                double cycleTime =
                         WorkOrder.getAverageAge(completeRequests.stream().map(Request::getWorkOrder).collect(Collectors.toList()));
                 result.add(RequestsByMonth.builder()
                         .cycleTime(cycleTime)
@@ -161,8 +158,7 @@ public class RequestAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getRequestCountsByCategory",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
+            key = "@analyticsCacheService.key(#user, #companyId, #dateRange)"
     )
     public ResponseEntity<Collection<CountByCategory>> getCountsByCategory(@Parameter(hidden = true) @CurrentUser User user,
                                                                            @Parameter(description = "Date range for " +
@@ -193,8 +189,7 @@ public class RequestAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getReceivedAndResolvedRequests",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
+            key = "@analyticsCacheService.key(#user, #companyId, #dateRange)"
     )
     public ResponseEntity<List<RequestsResolvedByDate>> getReceivedAndResolvedForDateRange(@Parameter(hidden = true) @CurrentUser User user,
                                                                                            @Parameter(description =
