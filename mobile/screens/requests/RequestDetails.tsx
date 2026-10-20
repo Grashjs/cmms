@@ -1,7 +1,7 @@
 import { Image, ScrollView, TouchableOpacity, Linking } from 'react-native';
 import LoadingDialog from '../../components/LoadingDialog';
 import * as React from 'react';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from '../../store';
 import { RootStackParamList, RootStackScreenProps } from '../../types';
 import {
@@ -31,6 +31,7 @@ import Request from '../../models/request';
 import Form from '../../components/form';
 import { AudioPlayer } from '../../components/AudioPlayer';
 import { getCustomFieldValuesForDetails } from '../../models/form';
+import { getErrorMessage } from '../../utils/api';
 
 export default function RequestDetails({
   navigation,
@@ -41,6 +42,7 @@ export default function RequestDetails({
   const request = requestInfos[id]?.request ?? requestProp;
   const theme = useTheme();
   const [approving, setApproving] = useState<boolean>(false);
+  const approvingRef = useRef<boolean>(false);
   const [cancelling, setCancelling] = useState<boolean>(false);
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const [openRejectModal, setOpenRejectModal] = useState<boolean>(false);
@@ -53,12 +55,20 @@ export default function RequestDetails({
   const dispatch = useDispatch();
   const [openDelete, setOpenDelete] = useState<boolean>(false);
   const onApprove = () => {
+    if (approvingRef.current) return;
+    approvingRef.current = true;
     setApproving(true);
     dispatch(approveRequest(request.id))
       .then((workOrderId: number) => {
         navigation.push('WODetails', { id: workOrderId });
       })
-      .finally(() => setApproving(false));
+      .catch((err) =>
+        showSnackBar(getErrorMessage(err, t('an_error_occured')), 'error')
+      )
+      .finally(() => {
+        approvingRef.current = false;
+        setApproving(false);
+      });
   };
 
   const getStatusMeta = (request: Request): [string, string] => {
@@ -289,6 +299,12 @@ export default function RequestDetails({
                 }
                 dispatch(cancelRequest(request.id, feedback))
                   .then(onReject)
+                  .catch((err) =>
+                    showSnackBar(
+                      getErrorMessage(err, t('an_error_occured')),
+                      'error'
+                    )
+                  )
                   .finally(() => setRejecting(false));
               }}
             >
