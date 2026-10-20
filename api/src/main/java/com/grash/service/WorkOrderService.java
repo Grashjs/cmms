@@ -204,6 +204,11 @@ public class WorkOrderService {
             WorkOrder savedWorkOrder = workOrderRepository.findById(id).get();
             if (savedWorkOrder.getFirstTimeToReact() == null) savedWorkOrder.setFirstTimeToReact(new Date());
 
+            List<File> patchedFiles = new ArrayList<>();
+            if (workOrder.getFiles() != null) patchedFiles.addAll(workOrder.getFiles());
+            if (workOrder.getImage() != null) patchedFiles.add(workOrder.getImage());
+            getAttachableNewFiles(savedWorkOrder, patchedFiles, user);
+
             Collection<WOField> changedFields = detectPatchDTOChangedFields(savedWorkOrder, workOrder);
             Long previousCategoryId = savedWorkOrder.getCategory() != null ? savedWorkOrder.getCategory().getId() :
                     null;
@@ -1301,16 +1306,36 @@ public class WorkOrderService {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
             if (!savedWorkOrder.canBeEditedBy(user))
                 throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-            List<File> existingFiles = fileRepository.findByIdIn(files.stream().map(File::getId).toList());
-            existingFiles.forEach(file -> {
-                if (!file.canBeViewedBy(user)) {
-                    throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-                }
-            });
-            savedWorkOrder.getFiles().addAll(files);
+            savedWorkOrder.getFiles().addAll(getAttachableNewFiles(savedWorkOrder, files, user));
             save(savedWorkOrder);
             return savedWorkOrder.getFiles();
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * Returns the files among {@code candidates} that are not attached to the work order yet, after
+     * checking that each of them exists, belongs to the user's company and is either viewable by the
+     * user or was uploaded by them (the default Technician role can create FILES but not view them).
+     * Files already attached are skipped, since clients send the full list back on every PATCH.
+     */
+    private List<File> getAttachableNewFiles(WorkOrder savedWorkOrder, Collection<File> candidates, User user) {
+        Set<Long> alreadyAttached = new HashSet<>();
+        if (savedWorkOrder.getFiles() != null)
+            savedWorkOrder.getFiles().forEach(file -> alreadyAttached.add(file.getId()));
+        if (savedWorkOrder.getImage() != null) alreadyAttached.add(savedWorkOrder.getImage().getId());
+
+        Set<Long> newIds = new LinkedHashSet<>();
+        if (candidates != null)
+            candidates.stream().filter(Objects::nonNull).map(File::getId).forEach(newIds::add);
+        newIds.remove(null);
+        newIds.removeAll(alreadyAttached);
+        if (newIds.isEmpty()) return new ArrayList<>();
+
+        List<File> found = fileRepository.findByIdInAndCompany_Id(newIds, user.getCompany().getId());
+        boolean allAllowed = found.size() == newIds.size() && found.stream().allMatch(file ->
+                file.canBeViewedBy(user) || user.getId().equals(file.getCreatedBy()));
+        if (!allAllowed) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        return found;
     }
 
     public List<File> removeFile(Long workOrderId, Long fileId, User user) {
