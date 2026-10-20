@@ -1903,6 +1903,8 @@ const locale = {
   hours_left: 'left',
   export_cost_and_time: 'Export cost and time',
   export_work_orders: 'Export work orders',
+  export_all_work_orders: 'Export all work orders',
+  export_filtered_work_orders: 'Export filtered work orders',
   copy_wo: 'Copy Work Order',
   copy_pm: 'Copy Preventive Maintenance',
   copy_pm_description:
