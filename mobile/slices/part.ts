@@ -117,14 +117,17 @@ export const getPartDetails =
   (id: number): AppThunk =>
   async (dispatch) => {
     dispatch(slice.actions.setLoadingGet({ loading: true }));
-    const part = await api.get<Part>(`${basePath}/${id}`);
-    dispatch(
-      slice.actions.getPartDetails({
-        id,
-        part
-      })
-    );
-    dispatch(slice.actions.setLoadingGet({ loading: false }));
+    try {
+      const part = await api.get<Part>(`${basePath}/${id}`);
+      dispatch(
+        slice.actions.getPartDetails({
+          id,
+          part
+        })
+      );
+    } finally {
+      dispatch(slice.actions.setLoadingGet({ loading: false }));
+    }
   };
 
 export const editPart =
