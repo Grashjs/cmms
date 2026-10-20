@@ -581,6 +581,11 @@ export default function Form(props: OwnProps) {
                     ) : field.type === 'date' ? (
                       <CustomDateTimePicker
                         label={field.label}
+                        error={
+                          !!field.error ||
+                          (!!formik.errors[field.name] &&
+                            formik.submitCount > 0)
+                        }
                         onChange={(date) =>
                           handleChange(formik, field.name, date)
                         }
