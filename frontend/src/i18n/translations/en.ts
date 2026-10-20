@@ -218,6 +218,7 @@ const locale = {
   feedback: 'Feedback',
   feedback_description: 'Give your feedback',
   required_feedback: 'Feedback is required',
+  rejection_reason: 'Rejection reason',
   signature: 'Signature',
   required_signature: 'Signature is required',
   close_wo: 'Close Work Order',
