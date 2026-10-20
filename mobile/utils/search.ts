@@ -1,4 +1,4 @@
-const DIACRITICS = /[̀-ͯ]/g;
+const DIACRITICS = /[\u0300-\u036f]/g;
 
 /**
  * Lowercases, trims and strips diacritics so that "Álamos" and "alamos"
