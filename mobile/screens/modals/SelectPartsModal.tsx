@@ -194,9 +194,6 @@ const PartsRoute = React.memo(
 
     const trimmedQuery = searchQuery.trim();
 
-    // When the search finds nothing, offer to create the part with the
-    // searched text as its name. This is the moment a user actually needs
-    // to add a new part to the catalog from this screen.
     const renderEmpty = useCallback(
       () =>
         !!trimmedQuery && !loading ? (
@@ -379,9 +376,6 @@ export default function SelectParts({
     navigation.goBack();
   }, [onChange, selectedParts, navigation]);
 
-  // Creating a part in the catalog is the secondary, occasional action,
-  // so it lives in the header. The primary action (adding the selected
-  // parts) is the full-width button at the bottom, within thumb reach.
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
