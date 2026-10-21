@@ -24,7 +24,19 @@ function LoginCover() {
         <title>{t('Login')}</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
-      <Content>
+      <Content
+        sx={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          py: 4,
+          background: (theme) =>
+            theme.palette.mode === 'dark'
+              ? 'linear-gradient(135deg, #0b1120 0%, #0f172a 100%)'
+              : 'linear-gradient(135deg, #f0f7fc 0%, #e8f2f9 50%, #f8fafc 100%)'
+        }}
+      >
         <Container
           sx={{
             display: 'flex',
@@ -35,26 +47,33 @@ function LoginCover() {
         >
           <Card
             sx={{
-              p: 4,
-              my: 4
+              p: { xs: 3.5, sm: 5 },
+              width: '100%',
+              borderRadius: 3,
+              boxShadow: '0 20px 45px -15px rgba(26, 135, 200, 0.15), 0 0 1px 1px rgba(0, 0, 0, 0.05)',
+              border: '1px solid rgba(226, 232, 240, 0.8)'
             }}
           >
-            <Box textAlign="center">
-              <Logo />
+            <Box textAlign="center" mb={2}>
+              <Logo height={42} sx={{ mb: 3 }} />
               <Typography
                 variant="h2"
                 sx={{
-                  mb: 1
+                  mb: 1,
+                  fontWeight: 700,
+                  letterSpacing: '-0.02em',
+                  fontSize: { xs: '1.5rem', sm: '1.75rem' }
                 }}
               >
                 {t('login')}
               </Typography>
               <Typography
-                variant="h4"
+                variant="body1"
                 color="text.secondary"
-                fontWeight="normal"
                 sx={{
-                  mb: 3
+                  mb: 3,
+                  fontSize: '0.9375rem',
+                  lineHeight: 1.5
                 }}
               >
                 {t('login_description')}
@@ -62,20 +81,26 @@ function LoginCover() {
             </Box>
             <JWTLogin />
             {!ldapEnabled && (
-              <Box my={4}>
+              <Box mt={3.5} pt={2.5} textAlign="center" borderTop="1px solid rgba(226, 232, 240, 0.6)">
                 <Typography
                   component="span"
-                  variant="subtitle2"
-                  color="text.primary"
-                  fontWeight="bold"
+                  variant="body2"
+                  color="text.secondary"
                 >
                   {t('no_account_yet')}
                 </Typography>{' '}
-                <Box display={{ xs: 'block', md: 'inline-block' }}>
-                  <Link component={RouterLink} to="/account/register">
-                    <b>{t('signup_here')}</b>
-                  </Link>
-                </Box>
+                <Link
+                  component={RouterLink}
+                  to="/account/register"
+                  sx={{
+                    fontWeight: 600,
+                    color: 'primary.main',
+                    textDecoration: 'none',
+                    '&:hover': { textDecoration: 'underline' }
+                  }}
+                >
+                  {t('signup_here')}
+                </Link>
               </Box>
             )}
           </Card>

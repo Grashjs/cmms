@@ -8,84 +8,12 @@ import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 
 const TabsContainerWrapper = styled(Box)(
   ({ theme }) => `
-      padding: 0 ${theme.spacing(8)};
-      margin-top: 2px;
-      position: relative;
-      bottom: -1px;
       max-width: 100%;
-
-      .MuiTabs-root {
-        height: 44px;
-        min-height: 44px;
-      }
+      min-width: 0;
+      flex: 1;
 
       .MuiTabs-scrollableX {
         overflow-x: auto !important;
-      }
-
-      .MuiTabs-indicator {
-          min-height: 4px;
-          height: 4px;
-          box-shadow: none;
-          bottom: -4px;
-          background: none;
-          border: 0;
-
-          &:after {
-            position: absolute;
-            left: 50%;
-            width: 28px;
-            content: ' ';
-            margin-left: -14px;
-            background: ${theme.colors.primary.main};
-            border-radius: inherit;
-            height: 100%;
-          }
-      }
-
-      .MuiTab-root {
-          &.MuiButtonBase-root {
-              height: 44px;
-              min-height: 44px;
-              background: ${theme.colors.alpha.white[50]};
-              border: 1px solid ${theme.colors.alpha.black[10]};
-              border-bottom: 0;
-              position: relative;
-              margin-right: ${theme.spacing(1)};
-              font-size: ${theme.typography.pxToRem(14)};
-              color: ${theme.colors.alpha.black[80]};
-              border-bottom-left-radius: 0;
-              border-bottom-right-radius: 0;
-
-              .MuiTouchRipple-root {
-                opacity: .1;
-              }
-
-              &:after {
-                position: absolute;
-                left: 0;
-                right: 0;
-                width: 100%;
-                bottom: 0;
-                height: 1px;
-                content: '';
-                background: ${theme.colors.alpha.black[10]};
-              }
-
-              &:hover {
-                color: ${theme.colors.alpha.black[100]};
-              }
-          }
-
-          &.Mui-selected {
-              color: ${theme.colors.alpha.black[100]};
-              background: ${theme.colors.alpha.white[100]};
-              border-bottom-color: ${theme.colors.alpha.white[100]};
-
-              &:after {
-                height: 0;
-              }
-          }
       }
   `
 );
@@ -131,11 +59,18 @@ function MultipleTabsLayout(props: SettingsLayoutProps) {
   };
 
   return (
-    <Box mt={1}>
+    <Box mt={1.5} px={{ xs: 2, md: 3, lg: 4 }}>
       <Helmet>
         <title>{title}</title>
       </Helmet>
-      <Box display="flex" justifyContent="space-between">
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        flexWrap="wrap"
+        gap={1}
+        sx={{ borderBottom: 1, borderColor: 'divider', mb: 2.5 }}
+      >
         <TabsContainerWrapper>
           <Tabs
             onChange={handleTabsChange}
@@ -151,7 +86,7 @@ function MultipleTabsLayout(props: SettingsLayoutProps) {
           </Tabs>
         </TabsContainerWrapper>
         {(action || secondAction || rawAction) && (
-          <Stack direction="row" spacing={1} sx={{ mr: 4, my: 1 }}>
+          <Stack direction="row" spacing={1} sx={{ py: 1 }}>
             {action && (
               <Button
                 startIcon={
@@ -179,14 +114,7 @@ function MultipleTabsLayout(props: SettingsLayoutProps) {
       {withoutCard ? (
         children
       ) : (
-        <Card
-          variant="outlined"
-          sx={{
-            mx: 4
-          }}
-        >
-          {children}
-        </Card>
+        <Card>{children}</Card>
       )}
     </Box>
   );

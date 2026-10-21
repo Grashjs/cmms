@@ -1,8 +1,8 @@
 import {
+  alpha,
   Alert,
   Avatar,
   Box,
-  Button,
   Divider,
   FormHelperText,
   List,
@@ -29,34 +29,26 @@ const WarningTwoToneIconWrapper = styled(WarningTwoToneIcon)(
 `
 );
 
-const ButtonContrast = styled(Button)(
-  ({ theme }) => `
-    background: ${theme.colors.alpha.trueWhite[10]};
-    color: ${theme.colors.alpha.trueWhite[100]};
-
-    &:hover {
-      background: ${theme.colors.alpha.trueWhite[30]};
-    }
-`
-);
-
 const BoxUploadWrapper = styled(Box)(
   ({ theme }) => `
     border-radius: ${theme.general.borderRadius};
-    padding: ${theme.spacing(2)};
-    margin-top: ${theme.spacing(2)};
-    background: ${theme.colors.alpha.trueWhite[10]};
-    border: 1px dashed ${theme.colors.alpha.trueWhite[30]};
+    padding: ${theme.spacing(3, 2)};
+    margin-top: ${theme.spacing(1.5)};
+    background: ${alpha(theme.colors.primary.main, 0.03)};
+    border: 1.5px dashed ${alpha(theme.colors.primary.main, 0.35)};
     outline: none;
+    cursor: pointer;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    transition: ${theme.transitions.create(['border', 'background'])};
+    text-align: center;
+    transition: ${theme.transitions.create(['border-color', 'background'])};
 
-    &:hover {
-      background: ${theme.colors.alpha.trueWhite[5]};
-      border-color: ${theme.colors.alpha.trueWhite[70]};
+    &:hover,
+    &:focus-visible {
+      background: ${alpha(theme.colors.primary.main, 0.07)};
+      border-color: ${theme.colors.primary.main};
     }
 `
 );
@@ -65,49 +57,45 @@ const UploadBox = styled(Box)(
   ({ theme }) => `
     border-radius: ${theme.general.borderRadius};
     padding: ${theme.spacing(2)};
-    background: ${theme.colors.alpha.black[100]};
+    background: ${theme.colors.alpha.white[100]};
+    border: 1px solid ${theme.palette.divider};
 `
 );
 
 const TypographyPrimary = styled(Typography)(
   ({ theme }) => `
-    color: ${theme.colors.alpha.trueWhite[100]};
+    color: ${theme.palette.text.primary};
   `
 );
 
 const TypographySecondary = styled(Typography)(
   ({ theme }) => `
-    color: ${theme.colors.alpha.trueWhite[70]};
-  `
-);
-
-const DividerContrast = styled(Divider)(
-  ({ theme }) => `
-    background: ${theme.colors.alpha.trueWhite[10]};
+    color: ${theme.palette.text.secondary};
   `
 );
 
 const AvatarWrapper = styled(Avatar)(
   ({ theme }) => `
-    background: ${theme.colors.alpha.trueWhite[10]};
-    width: ${theme.spacing(7)};
-    height: ${theme.spacing(7)};
+    background: ${alpha(theme.colors.primary.main, 0.1)};
+    color: ${theme.colors.primary.main};
+    width: ${theme.spacing(6)};
+    height: ${theme.spacing(6)};
 `
 );
 
 const AvatarSuccess = styled(Avatar)(
   ({ theme }) => `
-    background: ${theme.colors.success.light};
-    width: ${theme.spacing(7)};
-    height: ${theme.spacing(7)};
+    background: ${theme.colors.success.main};
+    width: ${theme.spacing(6)};
+    height: ${theme.spacing(6)};
 `
 );
 
 const AvatarDanger = styled(Avatar)(
   ({ theme }) => `
-    background: ${theme.colors.error.light};
-    width: ${theme.spacing(7)};
-    height: ${theme.spacing(7)};
+    background: ${theme.colors.error.main};
+    width: ${theme.spacing(6)};
+    height: ${theme.spacing(6)};
 `
 );
 
@@ -194,7 +182,7 @@ function FileUpload(props: FileUploadProps) {
       disableGutters
       component="div"
       key={index}
-      sx={{ color: theme.colors.alpha.trueWhite[100] }}
+      sx={{ color: theme.palette.text.primary }}
     >
       <ListItemText primary={file.name} />
       <IconButton
@@ -208,7 +196,7 @@ function FileUpload(props: FileUploadProps) {
       >
         <DeleteTwoToneIcon fontSize="small" />
       </IconButton>
-      <DividerContrast />
+      <Divider />
     </ListItem>
   ));
 
@@ -257,8 +245,9 @@ function FileUpload(props: FileUploadProps) {
               <CloudUploadTwoToneIcon />
             </AvatarWrapper>
             <TypographyPrimary
+              fontWeight={600}
               sx={{
-                mt: 2
+                mt: 1.5
               }}
             >
               {multiple ? t('drag_many_files') : t('drag_one_file')}
@@ -284,7 +273,7 @@ function FileUpload(props: FileUploadProps) {
               {t('you_have_uploaded')} <b>{files.length}</b> {t('files')}!
             </Alert>
           )}
-          <DividerContrast
+          <Divider
             sx={{
               mt: 2
             }}

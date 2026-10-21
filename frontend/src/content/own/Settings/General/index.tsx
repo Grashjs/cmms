@@ -116,7 +116,7 @@ function GeneralSettings() {
             <form onSubmit={handleSubmit}>
               <Grid container spacing={3}>
                 <Grid item xs={12}>
-                  <Grid container spacing={2}>
+                  <Grid container spacing={2.5} sx={{ maxWidth: 460 }}>
                     <Grid item xs={12}>
                       <Typography variant="h6" sx={{ mb: 0.5 }}>
                         {t('language')}
@@ -132,6 +132,7 @@ function GeneralSettings() {
                         }}
                         value={generalPreferences.language}
                         as={Select}
+                        fullWidth
                         name="language"
                       >
                         {supportedLanguages.map((language) => (
@@ -156,6 +157,7 @@ function GeneralSettings() {
                         }
                         value={generalPreferences.dateFormat}
                         as={Select}
+                        fullWidth
                         name="dateFormat"
                       >
                         <MenuItem value="MMDDYY">MM/DD/YY</MenuItem>
@@ -174,6 +176,7 @@ function GeneralSettings() {
                         }
                         value={generalPreferences.timeZone}
                         as={Select}
+                        fullWidth
                         name="timeZone"
                       >
                         {timezones.map((timezone) => (
@@ -198,6 +201,7 @@ function GeneralSettings() {
                         }
                         value={generalPreferences.currency?.id}
                         as={Select}
+                        fullWidth
                         name="currency"
                       >
                         {[...currencies]
@@ -221,6 +225,7 @@ function GeneralSettings() {
                           generalPreferences.daysBeforePrevMaintNotification
                         }
                         name="daysBeforePrevMaintNotification"
+                        fullWidth
                         InputProps={{
                           endAdornment: <Typography>{t('day')}</Typography>
                         }}
@@ -242,7 +247,7 @@ function GeneralSettings() {
                         type={'text'}
                         defaultValue={generalPreferences.csvSeparator}
                         name="csvSeparator"
-                        sx={{ maxWidth: '50px' }}
+                        sx={{ width: 120 }}
                       />
                     </Grid>
                     <Grid item xs={12}>
@@ -254,14 +259,15 @@ function GeneralSettings() {
                         type={'text'}
                         defaultValue={generalPreferences.color || ''}
                         name="color"
-                        placeholder="#1975ff"
+                        fullWidth
+                        placeholder="#1a87c8"
                         InputProps={{
                           startAdornment: (
                             <InputAdornment position="start">
                               <input
                                 type="color"
                                 defaultValue={
-                                  generalPreferences.color || '#5569ff'
+                                  generalPreferences.color || '#1a87c8'
                                 }
                                 onChange={debounce(
                                   (e) =>
@@ -301,6 +307,7 @@ function GeneralSettings() {
                           }
                           value={generalPreferences.businessType}
                           as={Select}
+                        fullWidth
                           name="businessType"
                         >
                           <MenuItem value="GENERAL_ASSET_MANAGEMENT">

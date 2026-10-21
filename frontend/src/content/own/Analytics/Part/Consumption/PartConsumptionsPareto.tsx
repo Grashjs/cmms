@@ -73,7 +73,7 @@ function PartConsumptionsPareto({ handleOpenModal, start, end, companyId }: Down
           <YAxis yAxisId="right-axis" orientation="right" type={'number'} unit={'%'} />
           <Tooltip />
           <Legend />
-          <Bar dataKey="cost" fill="#8884d8" name={t('cost')} yAxisId={'left-axis'}>
+          <Bar dataKey="cost" fill="#1a87c8" name={t('cost')} yAxisId={'left-axis'}>
             {formattedData.map((entry, index) => (
               <Cell
                 key={index}

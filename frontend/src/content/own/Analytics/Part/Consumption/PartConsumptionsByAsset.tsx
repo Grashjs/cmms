@@ -68,7 +68,7 @@ function PartConsumptionsByAsset({ handleOpenModal, start, end, companyId }: WOS
           <XAxis dataKey="label" />
           <YAxis yAxisId="left-axis" />
           <Tooltip />
-          <Bar dataKey="cost" fill="#8884d8" name={t('cost')} yAxisId="left-axis">
+          <Bar dataKey="cost" fill="#1a87c8" name={t('cost')} yAxisId="left-axis">
             {formattedData.map((entry, index) => (
               <Cell
                 key={index}

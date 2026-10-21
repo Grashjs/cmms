@@ -111,6 +111,7 @@ declare module '@mui/material/styles' {
       background: React.CSSProperties['color'];
       boxShadow: React.CSSProperties['color'];
       width: string;
+      collapsedWidth?: string;
       textColor: React.CSSProperties['color'];
       dividerBg: React.CSSProperties['color'];
       menuItemColor: React.CSSProperties['color'];
@@ -231,6 +232,7 @@ declare module '@mui/material/styles' {
       background: React.CSSProperties['color'];
       boxShadow: React.CSSProperties['color'];
       width: string;
+      collapsedWidth?: string;
       textColor: React.CSSProperties['color'];
       dividerBg: React.CSSProperties['color'];
       menuItemColor: React.CSSProperties['color'];

@@ -625,7 +625,7 @@ function Meters() {
           {renderAddModal()}
           {renderUpdateModal()}
           {renderMenu()}
-          <Box justifyContent="center" alignItems="stretch" paddingX={4}>
+          <Box justifyContent="center" alignItems="stretch" paddingX={{ xs: 2, md: 3, lg: 4 }}>
             <Stack
               my={1}
               direction="row"
@@ -660,13 +660,14 @@ function Meters() {
             <Card
               sx={{
                 py: 2,
+                px: { xs: 1.5, md: 2.5 },
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'space-between'
               }}
             >
-              <Box sx={{ width: '95%' }}>
+              <Box sx={{ width: '100%' }}>
                 <CustomDatagrid2
                   columns={columns}
                   data={meters.content}

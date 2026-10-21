@@ -58,7 +58,7 @@ function RequestByCategory({ handleOpenModal, start, end, companyId }: RequestBy
             cy="50%"
             outerRadius={100}
             innerRadius={50}
-            fill="#8884d8"
+            fill="#1a87c8"
           >
             {formattedData.map((entry, index) => (
               <Cell

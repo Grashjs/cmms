@@ -41,7 +41,7 @@ function EnumFilter({
       <Button
         onClick={handleOpenMenu}
         sx={{
-          '& .MuiButton-startIcon': { margin: '0px' },
+          '& .MuiButton-startIcon': { ml: 0, mr: 0.75 },
           minWidth: 0
         }}
         variant={'outlined'}

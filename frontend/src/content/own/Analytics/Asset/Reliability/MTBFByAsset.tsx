@@ -70,7 +70,7 @@ function MTBFByAsset({ handleOpenModal, start, end, assetColors, companyId }: WO
           <XAxis dataKey="label" hide />
           <YAxis yAxisId="left-axis" />
           <Tooltip />
-          <Bar dataKey="mtbf" fill="#8884d8" name={t('MTBF')} yAxisId="left-axis">
+          <Bar dataKey="mtbf" fill="#1a87c8" name={t('MTBF')} yAxisId="left-axis">
             {formattedData.map((entry, index) => (
               <Cell
                 key={index}

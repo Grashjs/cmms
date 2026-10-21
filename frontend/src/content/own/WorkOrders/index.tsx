@@ -1011,12 +1011,14 @@ function WorkOrders() {
       <Helmet>
         <title>{t('work_orders')}</title>
       </Helmet>
-      <Box justifyContent="center" alignItems="stretch" paddingX={4}>
+      <Box justifyContent="center" alignItems="stretch" paddingX={{ xs: 2, md: 3, lg: 4 }}>
         <Box
           my={1}
           display="flex"
           flexDirection="row"
           justifyContent="space-between"
+          flexWrap="wrap"
+          gap={1}
           alignItems="center"
         >
           <Tabs
@@ -1079,6 +1081,7 @@ function WorkOrders() {
         <Card
           sx={{
             py: 2,
+            px: { xs: 1.5, md: 2.5 },
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center'
@@ -1086,11 +1089,11 @@ function WorkOrders() {
         >
           {currentTab === 'list' && (
             <Stack
-              sx={{ ml: 1 }}
               direction="row"
-              spacing={1}
+              flexWrap="wrap"
+              sx={{ gap: 1 }}
               justifyContent={'flex-start'}
-              width={'95%'}
+              width={'100%'}
             >
               <Button
                 onClick={() => setOpenFilterDrawer(true)}
@@ -1134,7 +1137,7 @@ function WorkOrders() {
             </Stack>
           )}
           <Divider sx={{ mt: 1 }} />
-          <Box sx={{ width: '95%' }}>
+          <Box sx={{ width: '100%' }}>
             {currentTab === 'list' ? (
               <CustomDatagrid2
                 columns={columns}

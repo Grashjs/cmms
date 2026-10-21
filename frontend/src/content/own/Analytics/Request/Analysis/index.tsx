@@ -45,9 +45,16 @@ function RequestAnalysis({ handleOpenWOModal }: WOStatusStatsProps) {
         container
         justifyContent="center"
         alignItems="stretch"
-        spacing={1}
-        my={2}
-        paddingX={1}
+        spacing={2}
+        // Container spacing adds a left negative margin; offset it so both
+        // page gutters match the rest of the app.
+        sx={{
+          width: 'auto',
+          ml: { xs: 0, md: 1, lg: 2 },
+          mr: { xs: 2, md: 3, lg: 4 },
+          mt: 1,
+          mb: 3
+        }}
       >
         <Grid item xs={6}>
           <CustomDateRangePicker start={start} end={end} setStart={setStart} setEnd={setEnd} companyId={companyId} onCompanyChange={setCompanyId} />

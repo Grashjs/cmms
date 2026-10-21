@@ -70,7 +70,7 @@ function RepairTimeByAsset({ handleOpenModal, start, end, assetColors, companyId
           <Legend />
           <Bar
             dataKey="duration"
-            fill="#8884d8"
+            fill="#1a87c8"
             name={t('mean_time_to_repair_in_hours')}
           >
             {formattedData.map((entry, index) => (

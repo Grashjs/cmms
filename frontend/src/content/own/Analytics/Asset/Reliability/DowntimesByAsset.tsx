@@ -75,7 +75,7 @@ function DowntimesByAsset({ handleOpenModal, start, end, assetColors, companyId 
                  orientation="right" unit={'%'} />
           <Tooltip />
           <Legend />
-          <Bar dataKey="count" fill="#8884d8" name={t('downtime_events')} yAxisId="left-axis">
+          <Bar dataKey="count" fill="#1a87c8" name={t('downtime_events')} yAxisId="left-axis">
             {formattedData.map((entry, index) => (
               <Cell
                 key={index}

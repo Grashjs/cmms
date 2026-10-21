@@ -1014,12 +1014,14 @@ function Locations() {
         <Helmet>
           <title>{t('locations')}</title>
         </Helmet>
-        <Box justifyContent="center" alignItems="stretch" paddingX={4}>
+        <Box justifyContent="center" alignItems="stretch" paddingX={{ xs: 2, md: 3, lg: 4 }}>
           <Box
             my={1}
             display="flex"
             flexDirection="row"
             justifyContent="space-between"
+            flexWrap="wrap"
+            gap={1}
             alignItems="center"
           >
             {tabs.length > 1 ? (
@@ -1071,13 +1073,14 @@ function Locations() {
             <Card
               sx={{
                 py: 2,
+                px: { xs: 1.5, md: 2.5 },
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'space-between'
               }}
             >
-              <Box sx={{ width: '95%' }}>
+              <Box sx={{ width: '100%' }}>
                 <CustomDatagrid2
                   columns={isHierarchyView ? columns : columns.slice(1)}
                   data={filteredTableData}

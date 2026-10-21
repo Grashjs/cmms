@@ -23,17 +23,23 @@ export default function AnalyticsCard({
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        p: 2,
+        p: 2.5,
         height
       }}
     >
-      <Stack direction="row" spacing={1} alignItems="center">
-        <Typography variant="h4" textAlign="center">
-          {title}
-        </Typography>
+      <Stack
+        direction="row"
+        spacing={0.75}
+        alignItems="center"
+        sx={{ width: '100%', mb: 1.5 }}
+      >
+        <Typography variant="h4">{title}</Typography>
         {description && (
           <TooltipMUI title={t(description)}>
-            <InfoTwoToneIcon />
+            <InfoTwoToneIcon
+              fontSize="small"
+              sx={{ color: 'text.disabled', cursor: 'help' }}
+            />
           </TooltipMUI>
         )}
       </Stack>

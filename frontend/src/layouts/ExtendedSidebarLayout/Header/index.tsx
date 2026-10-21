@@ -5,7 +5,6 @@ import {
   Box,
   Divider,
   IconButton,
-  lighten,
   Stack,
   styled,
   Tooltip,
@@ -13,6 +12,7 @@ import {
   useTheme
 } from '@mui/material';
 import MenuTwoToneIcon from '@mui/icons-material/MenuTwoTone';
+import MenuOpenTwoToneIcon from '@mui/icons-material/MenuOpenTwoTone';
 import { SidebarContext } from 'src/contexts/SidebarContext';
 import ArrowBackTwoToneIcon from '@mui/icons-material/ArrowBackTwoTone';
 import CloseTwoToneIcon from '@mui/icons-material/CloseTwoTone';
@@ -27,23 +27,27 @@ const HeaderWrapper = styled(Box)(
   ({ theme }) => `
         height: ${theme.header.height};
         color: ${theme.header.textColor};
-        padding: ${theme.spacing(0, 2)};
         right: 0;
         z-index: 6;
-        background-color: ${alpha(theme.header.background, 0.95)};
-        backdrop-filter: blur(3px);
+        background-color: ${alpha(theme.header.background, 0.92)};
+        backdrop-filter: saturate(180%) blur(8px);
+        border-bottom: 1px solid ${theme.palette.divider};
         position: fixed;
         justify-content: space-between;
         width: 100%;
-        @media (min-width: ${theme.breakpoints.values.lg}px) {
-            left: ${theme.sidebar.width};
-            width: auto;
-        }
+        transition: ${theme.transitions.create('left', {
+          duration: theme.transitions.duration.shorter
+        })};
 `
 );
 
 function Header() {
-  const { sidebarToggle, toggleSidebar } = useContext(SidebarContext);
+  const {
+    sidebarToggle,
+    toggleSidebar,
+    sidebarCollapsed,
+    toggleSidebarCollapsed
+  } = useContext(SidebarContext);
   const { title } = useContext(TitleContext);
   const theme = useTheme();
   const { t }: { t: any } = useTranslation();
@@ -52,43 +56,77 @@ function Header() {
 
   return (
     <HeaderWrapper
+      component="header"
       display="flex"
       alignItems="center"
       sx={{
-        boxShadow:
-          theme.palette.mode === 'dark'
-            ? `0 1px 0 ${alpha(
-                lighten(theme.colors.primary.main, 0.7),
-                0.15
-              )}, 0px 2px 8px -3px rgba(0, 0, 0, 0.2), 0px 5px 22px -4px rgba(0, 0, 0, .1)`
-            : `0px 2px 8px -3px ${alpha(
-                theme.colors.alpha.black[100],
-                0.2
-              )}, 0px 5px 22px -4px ${alpha(
-                theme.colors.alpha.black[100],
-                0.1
-              )}`
+        px: { xs: 1.5, sm: 2, lg: 3 },
+        [theme.breakpoints.up('lg')]: {
+          left: sidebarCollapsed
+            ? theme.sidebar.collapsedWidth
+            : theme.sidebar.width,
+          width: 'auto'
+        }
       }}
     >
       <Stack
         direction="row"
-        divider={<Divider orientation="vertical" flexItem />}
+        divider={
+          <Divider orientation="vertical" flexItem sx={{ my: 1.25 }} />
+        }
         alignItems="center"
-        spacing={2}
+        spacing={1.5}
+        sx={{ minWidth: 0 }}
       >
-        <IconButton onClick={()=>navigate(-1)} disabled={location.key==='default'}>
-          <ArrowBackTwoToneIcon/>
+        <Stack direction="row" alignItems="center" spacing={0.5}>
+          <Tooltip
+            arrow
+            title={t(sidebarCollapsed ? 'expand_menu' : 'collapse_menu', {
+              defaultValue: sidebarCollapsed ? 'Expand menu' : 'Collapse menu'
+            })}
+          >
+            <IconButton
+              onClick={toggleSidebarCollapsed}
+              aria-label={sidebarCollapsed ? 'Expand menu' : 'Collapse menu'}
+              sx={{ display: { xs: 'none', lg: 'inline-flex' } }}
+            >
+              {sidebarCollapsed ? (
+                <MenuTwoToneIcon fontSize="small" />
+              ) : (
+                <MenuOpenTwoToneIcon fontSize="small" />
+              )}
+            </IconButton>
+          </Tooltip>
+          <IconButton
+            onClick={() => navigate(-1)}
+            disabled={location.key === 'default'}
+            aria-label={t('go_back', { defaultValue: 'Go back' })}
+          >
+            <ArrowBackTwoToneIcon fontSize="small" />
           </IconButton>
-        <Typography variant="h2">{title}</Typography>
+        </Stack>
+        <Typography
+          variant="h3"
+          component="h1"
+          noWrap
+          sx={{
+            fontWeight: 600,
+            fontSize: { xs: '1rem', sm: '1.125rem' },
+            letterSpacing: '-0.01em',
+            color: 'text.primary',
+            minWidth: 0
+          }}
+        >
+          {title}
+        </Typography>
       </Stack>
-      <Box display="flex" alignItems="center">
+      <Stack direction="row" alignItems="center" spacing={1}>
         <HeaderButtons />
         <HeaderUserbox />
         <Box
           component="span"
           sx={{
-            ml: 2,
-            display: { lg: 'none', xs: 'inline-block' }
+            display: { lg: 'none', xs: 'inline-flex' }
           }}
         >
           <Tooltip arrow title={t('toggle_menu')}>
@@ -101,7 +139,7 @@ function Header() {
             </IconButton>
           </Tooltip>
         </Box>
-      </Box>
+      </Stack>
     </HeaderWrapper>
   );
 }

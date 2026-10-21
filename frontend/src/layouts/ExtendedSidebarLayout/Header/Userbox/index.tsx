@@ -72,8 +72,8 @@ const MenuListWrapperPrimary = styled(MenuList)(
   padding: ${theme.spacing(2)};
 
   & .MuiMenuItem-root {
-      border-radius: 50px;
-      padding: ${theme.spacing(1, 1, 1, 2.5)};
+      border-radius: 6px;
+      padding: ${theme.spacing(1, 1.5)};
       min-width: 200px;
       margin-bottom: 2px;
       position: relative;

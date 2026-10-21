@@ -782,7 +782,7 @@ function PMs() {
           justifyContent="center"
           alignItems="stretch"
           spacing={1}
-          paddingX={4}
+          paddingX={{ xs: 2, md: 3, lg: 4 }}
         >
           <Stack direction={'row'} alignSelf={'flex-end'} spacing={1} mt={1}>
             <IconButton onClick={handleOpenMenu} color="primary">
@@ -813,6 +813,7 @@ function PMs() {
             <Card
               sx={{
                 py: 2,
+                px: { xs: 1.5, md: 2.5 },
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
@@ -820,11 +821,11 @@ function PMs() {
               }}
             >
               <Stack
-                sx={{ ml: 1, mb: 1 }}
                 direction="row"
-                spacing={1}
+                flexWrap="wrap"
+                sx={{ gap: 1, mb: 1 }}
                 justifyContent={'flex-start'}
-                width={'95%'}
+                width={'100%'}
               >
                 <EnumFilter
                   filterFields={criteria.filterFields}
@@ -843,7 +844,7 @@ function PMs() {
                 )}
                 <SearchInput onChange={debouncedQueryChange} />
               </Stack>
-              <Box sx={{ width: '95%' }}>
+              <Box sx={{ width: '100%' }}>
                 <CustomDatagrid2
                   columns={columns}
                   data={preventiveMaintenances.content}

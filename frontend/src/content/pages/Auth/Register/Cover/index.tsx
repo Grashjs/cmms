@@ -1,5 +1,6 @@
 import { Link as RouterLink, useSearchParams } from 'react-router-dom';
 import {
+  alpha,
   Box,
   Card,
   Container,
@@ -17,7 +18,6 @@ import { Helmet } from 'react-helmet-async';
 import JWTRegister from '../RegisterJWT';
 import { useTranslation } from 'react-i18next';
 import CheckCircleOutlineTwoToneIcon from '@mui/icons-material/CheckCircleOutlineTwoTone';
-import Scrollbar from 'src/components/Scrollbar';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Navigation, Pagination } from 'swiper';
 import 'swiper/css';
@@ -25,7 +25,8 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import ChevronRightTwoToneIcon from '@mui/icons-material/ChevronRightTwoTone';
 import ChevronLeftTwoToneIcon from '@mui/icons-material/ChevronLeftTwoTone';
-import { useBrand } from '../../../../../hooks/useBrand';
+import Logo, { WEBKORPS_ICON_WHITE } from 'src/components/LogoSign';
+import { brand, layout } from 'src/theme/tokens';
 import CompanyLogos from 'src/components/CompanyLogos';
 import { isCloudVersion } from '../../../../../config';
 
@@ -49,13 +50,19 @@ const MainContent = styled(Box)(
 );
 
 const SidebarWrapper = styled(Box)(
-  ({ theme }) => `
+  () => `
   position: fixed;
   left: 0;
   top: 0;
   height: 100%;
   width: 500px;
-  background: ${theme.colors.gradients.blue3};
+  overflow-y: auto;
+  background: radial-gradient(120% 80% at 100% 100%, ${alpha(
+    brand[500],
+    0.35
+  )} 0%, transparent 60%), linear-gradient(165deg, ${layout.sidebarBg} 0%, ${
+    brand[900]
+  } 100%);
 `
 );
 
@@ -63,21 +70,24 @@ const SidebarContent = styled(Box)(
   ({ theme }) => `
   display: flex;
   flex-direction: column;
-  padding: ${theme.spacing(2, 6)};
+  justify-content: center;
+  min-height: 100%;
+  padding: ${theme.spacing(10, 6, 6)};
 `
 );
 
-const CardImg = styled(Card)(
+const CardImg = styled(Box)(
   ({ theme }) => `
     border-radius: 100%;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     position: relative;
-    border: 11px solid ${theme.colors.alpha.trueWhite[10]};
-    transition: ${theme.transitions.create(['border'])};
-    width: ${theme.spacing(8)};
-    height: ${theme.spacing(8)};
+    background: ${alpha(brand[500], 0.25)};
+    box-shadow: 0 0 0 10px ${alpha(theme.colors.alpha.trueWhite[100], 0.05)};
+    width: ${theme.spacing(9)};
+    height: ${theme.spacing(9)};
+    margin-top: 12px;
     margin-bottom: ${theme.spacing(3)};
 `
 );
@@ -99,9 +109,9 @@ const SwipeIndicator = styled(IconButton)(
 
 const LogoWrapper = styled(Box)(
   ({ theme }) => `
-    position: fixed;
-    left: ${theme.spacing(4)};
-    top: ${theme.spacing(4)};
+    position: absolute;
+    left: ${theme.spacing(6)};
+    top: ${theme.spacing(5)};
 `
 );
 
@@ -156,38 +166,33 @@ const SwiperWrapper = styled(Box)(
 function RegisterCover() {
   const { t }: { t: any } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { logo } = useBrand();
-  const icons = {
-    Atlas: logo.dark,
-    JWT: '/static/images/logo/jwt.svg',
-    Amplify: '/static/images/logo/amplify.svg'
-  };
+  const slideIcon = WEBKORPS_ICON_WHITE;
 
   const sliders = [
     {
       title: 'request_system',
       description: 'work-requests.checks.0',
-      image: icons.Atlas
+      image: slideIcon
     },
     {
       title: 'eam.title',
       description: 'eam.description.short',
-      image: icons.Atlas
+      image: slideIcon
     },
     {
       title: 'preventive_maintenance',
       description: 'pm.descriptions.0',
-      image: icons.Atlas
+      image: slideIcon
     },
     {
       title: 'work_orders',
       description: 'work-orders.description.short',
-      image: icons.Atlas
+      image: slideIcon
     },
     {
       title: 'parts_inventory',
       description: 'part.description.short',
-      image: icons.Atlas
+      image: slideIcon
     }
   ];
   return (
@@ -202,8 +207,10 @@ function RegisterCover() {
             display: { xs: 'none', md: 'inline-block' }
           }}
         >
-          <Scrollbar>
-            <SidebarContent>
+          <LogoWrapper>
+            <Logo white height={30} />
+          </LogoWrapper>
+          <SidebarContent>
               <Box mb={2} display="flex" justifyContent="center">
                 <SwipeIndicator className="MuiSwipe-root MuiSwipe-left">
                   <ChevronLeftTwoToneIcon fontSize="large" />
@@ -217,7 +224,7 @@ function RegisterCover() {
                 variant="h3"
                 sx={{
                   mb: 4,
-                  px: 8
+                  px: 4
                 }}
               >
                 {t('perfect_tool')}
@@ -246,11 +253,7 @@ function RegisterCover() {
                     <SwiperSlide key={index}>
                       <Box textAlign="center">
                         <CardImg>
-                          <img
-                            height={40}
-                            alt="JSON Web Token"
-                            src={slider.image}
-                          />
+                          <img height={40} alt="" src={slider.image} />
                         </CardImg>
                         <TypographyPrimary
                           align="center"
@@ -312,8 +315,7 @@ function RegisterCover() {
                   <CompanyLogos white sx={{ mt: 2 }} compact />
                 </>
               )}
-            </SidebarContent>
-          </Scrollbar>
+          </SidebarContent>
         </SidebarWrapper>
         <MainContent>
           <Container maxWidth="sm">

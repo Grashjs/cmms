@@ -69,7 +69,7 @@ function PartConsumptionsByDate({ handleOpenModal, start, end, companyId }: Down
           <YAxis />
           <Tooltip />
           <Legend />
-          <Bar dataKey="cost" fill="#8884d8" name={t('cost')}>
+          <Bar dataKey="cost" fill="#1a87c8" name={t('cost')}>
             {formattedData.map((entry, index) => (
               <Cell
                 key={index}

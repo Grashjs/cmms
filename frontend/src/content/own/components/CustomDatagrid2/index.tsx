@@ -120,7 +120,8 @@ interface CustomDatagrid2Props<TData extends RowData> {
   getRowId?: (row: TData) => string;
 }
 
-const PINNED_BG = '#F2F5F9';
+// Matches the theme's table-head surface (grey[50]).
+const PINNED_BG = '#f8fafc';
 
 function CustomDatagrid2<TData extends RowData>({
   columns,
@@ -521,10 +522,8 @@ function CustomDatagrid2<TData extends RowData>({
               top: 0,
               zIndex: 2,
               '& .MuiTableCell-head': {
-                fontWeight: 'bold',
-                textTransform: 'uppercase',
                 borderBottom: `1px solid ${theme.palette.divider}`,
-                backgroundColor: '#E8EAEE',
+                backgroundColor: theme.palette.grey[50],
                 position: 'sticky',
                 top: 0,
                 zIndex: 3
@@ -564,7 +563,7 @@ function CustomDatagrid2<TData extends RowData>({
                         cursor: canDrag ? 'pointer' : 'default',
                         borderRight: isPinned
                           ? `2px solid ${theme.palette.divider}`
-                          : `1px solid #F2F5F9`,
+                          : `1px solid ${theme.palette.grey[100]}`,
                         boxShadow: isPinned
                           ? `2px 0 4px ${alpha(
                               theme.palette.common.black,
@@ -719,12 +718,11 @@ function CustomDatagrid2<TData extends RowData>({
               table.getRowModel().rows.map((row) => {
                 const rowDepth = (row.original as any)?.depth ?? 0;
                 const isNested = rowDepth > 0;
+                // Nested (hierarchy) rows get a subtle brand tint that deepens per level.
                 const backgroundColor = isNested
-                  ? rowDepth % 2 === 0
-                    ? theme.colors.primary.light
-                    : theme.palette.primary.main
+                  ? alpha(theme.palette.primary.main, Math.min(0.04 * rowDepth, 0.16))
                   : undefined;
-                const textColor = isNested ? 'white' : undefined;
+                const textColor = undefined;
 
                 return (
                   <TableRow
@@ -735,9 +733,10 @@ function CustomDatagrid2<TData extends RowData>({
                       backgroundColor,
                       color: textColor,
                       '&:hover': {
-                        backgroundColor: isNested
-                          ? theme.palette.primary.main
-                          : alpha(theme.palette.primary.main, 0.04)
+                        backgroundColor: alpha(
+                          theme.palette.primary.main,
+                          isNested ? Math.min(0.04 * rowDepth, 0.16) + 0.04 : 0.04
+                        )
                       }
                     }}
                   >

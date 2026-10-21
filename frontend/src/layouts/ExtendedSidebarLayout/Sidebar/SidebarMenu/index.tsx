@@ -22,23 +22,22 @@ import { PermissionEntity } from '../../../../models/owns/role';
 import dayjs from 'dayjs';
 import { isCloudVersion } from 'src/config';
 import { getLocalizedHomeUrl } from '../../../../utils/urlPaths';
+import { brand } from 'src/theme/tokens';
 
 const MenuWrapper = styled(Box)(
   ({ theme }) => `
-  .MuiList-root {
-    padding: ${theme.spacing(1)};
-
-    & > .MuiList-root {
-      padding: 0 ${theme.spacing(0)} ${theme.spacing(1)};
-    }
+  & > .MuiList-root {
+    padding: ${theme.spacing(0.5, 1.5)};
   }
 
     .MuiListSubheader-root {
       text-transform: uppercase;
-      font-weight: bold;
-      font-size: ${theme.typography.pxToRem(12)};
-      color: ${theme.colors.alpha.trueWhite[50]};
-      padding: ${theme.spacing(0, 2.5)};
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      font-size: ${theme.typography.pxToRem(11)};
+      color: ${alpha(theme.colors.alpha.trueWhite[100], 0.4)};
+      background: transparent;
+      padding: ${theme.spacing(2, 1.5, 1)};
       line-height: 1.4;
     }
 `
@@ -46,6 +45,10 @@ const MenuWrapper = styled(Box)(
 
 const SubMenuWrapper = styled(Box)(
   ({ theme }) => `
+    & > .MuiList-root {
+      padding: 0;
+    }
+
     .MuiList-root {
 
       .MuiListItem-root {
@@ -53,24 +56,37 @@ const SubMenuWrapper = styled(Box)(
 
         .MuiBadge-root {
           position: absolute;
-          right: ${theme.spacing(3.2)};
+          right: ${theme.spacing(1.5)};
 
           .MuiBadge-standard {
             background: ${theme.colors.primary.main};
             font-size: ${theme.typography.pxToRem(10)};
-            font-weight: bold;
-            text-transform: uppercase;
+            font-weight: 700;
             color: ${theme.palette.primary.contrastText};
           }
         }
-    
+
         .MuiButton-root {
           display: flex;
-          color: ${theme.colors.alpha.trueWhite[70]};
+          position: relative;
+          color: ${alpha(theme.colors.alpha.trueWhite[100], 0.72)};
           background-color: transparent;
           width: 100%;
+          min-height: 40px;
           justify-content: flex-start;
-          padding: ${theme.spacing(1.2, 3)};
+          font-weight: 500;
+          font-size: ${theme.typography.pxToRem(14)};
+          border-radius: ${theme.general.borderRadius};
+          padding: ${theme.spacing(1, 1.5)};
+          transition: ${theme.transitions.create(['background-color', 'color'], {
+            duration: theme.transitions.duration.shortest
+          })};
+
+          .sidebar-label {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
 
           .MuiButton-startIcon,
           .MuiButton-endIcon {
@@ -83,27 +99,55 @@ const SubMenuWrapper = styled(Box)(
           }
 
           .MuiButton-startIcon {
-            color: ${theme.colors.alpha.trueWhite[30]};
+            color: ${alpha(theme.colors.alpha.trueWhite[100], 0.45)};
             font-size: ${theme.typography.pxToRem(20)};
-            margin-right: ${theme.spacing(1)};
-          }
-          
-          .MuiButton-endIcon {
-            color: ${theme.colors.alpha.trueWhite[50]};
-            margin-left: auto;
-            opacity: .8;
-            font-size: ${theme.typography.pxToRem(20)};
+            margin-left: 0;
+            margin-right: ${theme.spacing(1.5)};
           }
 
-          &.active,
-          &:hover {
+          .MuiButton-endIcon {
+            color: ${alpha(theme.colors.alpha.trueWhite[100], 0.4)};
+            margin-left: auto;
+            margin-right: 0;
+            font-size: ${theme.typography.pxToRem(18)};
+          }
+
+          &.active {
+            background-color: ${alpha(theme.colors.primary.main, 0.2)};
+            color: ${theme.colors.alpha.trueWhite[100]};
+            font-weight: 600;
+
+            &:before {
+              content: '';
+              position: absolute;
+              left: -12px;
+              top: 8px;
+              bottom: 8px;
+              width: 3px;
+              border-radius: 0 3px 3px 0;
+              background: ${theme.colors.primary.main};
+            }
+
+            .MuiButton-startIcon {
+              color: ${brand[300]};
+            }
+            .MuiButton-endIcon {
+              color: ${theme.colors.alpha.trueWhite[100]};
+            }
+          }
+
+          &:hover:not(.active) {
             background-color: ${alpha(theme.colors.alpha.trueWhite[100], 0.06)};
             color: ${theme.colors.alpha.trueWhite[100]};
 
             .MuiButton-startIcon,
             .MuiButton-endIcon {
-              color: ${theme.colors.alpha.trueWhite[100]};
+              color: ${alpha(theme.colors.alpha.trueWhite[100], 0.85)};
             }
+          }
+
+          &.Mui-focusVisible {
+            box-shadow: 0 0 0 2px ${brand[400]};
           }
         }
 
@@ -112,7 +156,11 @@ const SubMenuWrapper = styled(Box)(
 
           .MuiBadge-root {
             position: absolute;
-            right: ${theme.spacing(7)};
+            right: ${theme.spacing(5)};
+          }
+
+          & > .MuiButton-root.active:before {
+            display: none;
           }
         }
 
@@ -120,40 +168,45 @@ const SubMenuWrapper = styled(Box)(
           width: 100%;
 
           .MuiList-root {
-            padding: ${theme.spacing(1, 0)};
+            padding: ${theme.spacing(0.5, 0)};
           }
 
           .MuiListItem-root {
             padding: 1px 0;
 
             .MuiButton-root {
-              padding: ${theme.spacing(0.8, 3)};
+              min-height: 36px;
+              font-size: ${theme.typography.pxToRem(13)};
+              padding: ${theme.spacing(0.75, 1.5, 0.75, 5.5)};
 
               .MuiBadge-root {
-                right: ${theme.spacing(3.2)};
+                right: ${theme.spacing(1.5)};
               }
 
               &:before {
                 content: ' ';
-                background: ${theme.colors.alpha.trueWhite[100]};
-                opacity: 0;
-                transition: ${theme.transitions.create([
-                  'transform',
-                  'opacity'
-                ])};
-                width: 6px;
-                height: 6px;
-                transform: scale(0);
-                transform-origin: center;
+                position: absolute;
+                left: ${theme.spacing(3)};
+                top: 50%;
+                background: currentColor;
+                opacity: 0.35;
+                transition: ${theme.transitions.create(['opacity'])};
+                width: 5px;
+                height: 5px;
+                margin-top: -2.5px;
                 border-radius: 20px;
-                margin-right: ${theme.spacing(1.8)};
+              }
+
+              &.active:before {
+                opacity: 1;
+                width: 5px;
+                bottom: auto;
+                background: ${brand[300]};
               }
 
               &.active,
               &:hover {
-
                 &:before {
-                  transform: scale(1);
                   opacity: 1;
                 }
               }
@@ -162,19 +215,47 @@ const SubMenuWrapper = styled(Box)(
         }
       }
     }
+
+    &.collapsed .MuiList-root .MuiListItem-root .MuiButton-root {
+      justify-content: center;
+      padding-left: 0;
+      padding-right: 0;
+
+      .MuiButton-startIcon {
+        margin: 0;
+      }
+      .sidebar-label {
+        display: none;
+      }
+      .MuiBadge-root {
+        right: 6px;
+        top: 8px;
+      }
+      .MuiBadge-standard {
+        min-width: 8px;
+        height: 8px;
+        padding: 0;
+        font-size: 0;
+      }
+    }
 `
 );
 
 const renderSidebarMenuItems = ({
   items,
-  path
+  path,
+  collapsed
 }: {
   items: MenuItem[];
   path: string;
+  collapsed?: boolean;
 }): JSX.Element => (
-  <SubMenuWrapper>
+  <SubMenuWrapper className={collapsed ? 'collapsed' : undefined}>
     <List component="div">
-      {items.reduce((ev, item) => reduceChildRoutes({ ev, item, path }), [])}
+      {items.reduce(
+        (ev, item) => reduceChildRoutes({ ev, item, path, collapsed }),
+        []
+      )}
     </List>
   </SubMenuWrapper>
 );
@@ -182,11 +263,13 @@ const renderSidebarMenuItems = ({
 const reduceChildRoutes = ({
   ev,
   path,
-  item
+  item,
+  collapsed
 }: {
   ev: JSX.Element[];
   path: string;
   item: MenuItem;
+  collapsed?: boolean;
 }): Array<JSX.Element> => {
   const key = item.name;
   const exactMatch = item.link
@@ -220,6 +303,7 @@ const reduceChildRoutes = ({
         link={item.link}
         badge={item.badge}
         badgeTooltip={item.badgeTooltip}
+        collapsed={collapsed}
       >
         {renderSidebarMenuItems({
           path,
@@ -237,6 +321,7 @@ const reduceChildRoutes = ({
         badge={item.badge}
         badgeTooltip={item.badgeTooltip}
         icon={item.icon}
+        collapsed={collapsed}
       />
     );
   }
@@ -244,7 +329,7 @@ const reduceChildRoutes = ({
   return ev;
 };
 
-function SidebarMenu() {
+function SidebarMenu({ collapsed = false }: { collapsed?: boolean }) {
   const location = useLocation();
   const { t, i18n }: { t: any; i18n: any } = useTranslation();
   const dispatch = useDispatch();
@@ -264,17 +349,19 @@ function SidebarMenu() {
   return (
     <>
       {isCloudVersion &&
+        !collapsed &&
         !company.demo &&
         user.ownsCompany &&
         !company.subscription.activated &&
         user.superAccountRelations.length === 0 && (
           <Stack
             sx={{
-              backgroundColor: 'rgb(51, 194, 255)',
+              backgroundColor: alpha(brand[500], 0.18),
+              border: `1px solid ${alpha(brand[400], 0.35)}`,
               p: 2,
-              mx: 2,
+              mx: 1.5,
               mt: 2,
-              borderRadius: 2
+              borderRadius: 1.5
             }}
             spacing={1}
           >
@@ -361,14 +448,17 @@ function SidebarMenu() {
               <List
                 component="div"
                 subheader={
-                  <ListSubheader component="div" disableSticky>
-                    {t(section.heading)}
-                  </ListSubheader>
+                  collapsed || !section.heading ? undefined : (
+                    <ListSubheader component="div" disableSticky>
+                      {t(section.heading)}
+                    </ListSubheader>
+                  )
                 }
               >
                 {renderSidebarMenuItems({
                   items: section.items,
-                  path: location.pathname
+                  path: location.pathname,
+                  collapsed
                 })}
               </List>
             </MenuWrapper>

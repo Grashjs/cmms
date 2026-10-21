@@ -539,7 +539,7 @@ function PurchaseOrders() {
           <Helmet>
             <title>{t('purchase_orders')}</title>
           </Helmet>
-          <Box justifyContent="center" alignItems="stretch" paddingX={4}>
+          <Box justifyContent="center" alignItems="stretch" paddingX={{ xs: 2, md: 3, lg: 4 }}>
             {hasCreatePermission(PermissionEntity.PURCHASE_ORDERS) && (
               <Stack
                 my={1}
@@ -560,13 +560,14 @@ function PurchaseOrders() {
             <Card
               sx={{
                 py: 2,
+                px: { xs: 1.5, md: 2.5 },
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'space-between'
               }}
             >
-              <Box sx={{ width: '95%' }}>
+              <Box sx={{ width: '100%' }}>
                 <CustomDataGrid
                   columns={columns}
                   pageSize={criteria.pageSize}

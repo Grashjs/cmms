@@ -1,9 +1,9 @@
-import { Box, Typography } from '@mui/material';
-
+import { Box, CircularProgress, Typography, useTheme } from '@mui/material';
 import Logo from 'src/components/LogoSign';
-import { isWhiteLabeled } from '../../config';
 
 function AppInit() {
+  const theme = useTheme();
+
   return (
     <Box
       sx={{
@@ -13,25 +13,43 @@ function AppInit() {
         bottom: 0,
         right: 0,
         width: '100%',
-        height: '100%'
+        height: '100%',
+        backgroundColor: theme.palette.background.default,
+        zIndex: 99999,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center'
       }}
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
     >
-      <Box>
-        <Logo />
-        {!isWhiteLabeled && (
-          <Typography
-            style={{ cursor: 'pointer' }}
-            fontSize={13}
-            onClick={() => {
-              window.open('https://www.intel-loop.com/', '_blank');
-            }}
-          >
-            Powered by Intelloop
-          </Typography>
-        )}
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 2.5
+        }}
+      >
+        <Logo height={44} />
+        <CircularProgress
+          size={28}
+          thickness={4}
+          sx={{
+            color: theme.palette.primary.main,
+            mt: 1
+          }}
+        />
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{
+            fontWeight: 500,
+            letterSpacing: '0.04em',
+            fontSize: '0.8125rem'
+          }}
+        >
+          Loading Webkorps CMMS...
+        </Typography>
       </Box>
     </Box>
   );

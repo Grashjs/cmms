@@ -93,7 +93,7 @@ function IncompleteWO({ handleOpenModal, start, end, companyId }: WOStatusIncomp
                  orientation="right" unit={t('hours')} />
           <Tooltip />
           <Legend />
-          <Bar dataKey="count" fill="#8884d8" name={t('work_orders')} yAxisId="left-axis">
+          <Bar dataKey="count" fill="#1a87c8" name={t('work_orders')} yAxisId="left-axis">
             {formattedData.map((entry, index) => (
               <Cell
                 key={index}

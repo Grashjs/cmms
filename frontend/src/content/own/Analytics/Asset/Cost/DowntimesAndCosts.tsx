@@ -75,7 +75,7 @@ function DowntimesAndCosts({ handleOpenModal, start, end, companyId }: WOByPrima
           <Legend />
           <Bar
             dataKey="duration"
-            fill="#8884d8"
+            fill="#1a87c8"
             name={t('total_downtime_in_hours')}
             yAxisId="left-axis"
           >

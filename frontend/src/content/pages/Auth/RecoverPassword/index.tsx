@@ -96,13 +96,36 @@ function RecoverPasswordBasic() {
       <Helmet>
         <title>{t('Recover Password')}</title>
       </Helmet>
-      <MainContent>
-        <Container maxWidth="sm">
-          <Logo />
+      <MainContent
+        sx={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          py: 4,
+          background: (theme) =>
+            theme.palette.mode === 'dark'
+              ? 'linear-gradient(135deg, #0b1120 0%, #0f172a 100%)'
+              : 'linear-gradient(135deg, #f0f7fc 0%, #e8f2f9 50%, #f8fafc 100%)'
+        }}
+      >
+        <Container
+          maxWidth="sm"
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+          }}
+        >
+          <Logo height={42} sx={{ mb: 1 }} />
           <Card
             sx={{
-              mt: 3,
-              p: 4
+              mt: 2.5,
+              p: { xs: 3.5, sm: 5 },
+              width: '100%',
+              borderRadius: 3,
+              boxShadow: '0 20px 45px -15px rgba(26, 135, 200, 0.12), 0 0 1px 1px rgba(0, 0, 0, 0.05)',
+              border: '1px solid rgba(226, 232, 240, 0.8)'
             }}
           >
             <Box>

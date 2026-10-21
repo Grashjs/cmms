@@ -74,7 +74,7 @@ function DowntimesByDate({ handleOpenModal, start, end, companyId }: DowntimesBy
                  orientation="right" unit={t('hours')} />
           <Tooltip />
           <Legend />
-          <Bar dataKey="cost" fill="#8884d8" name={t('total_maintenance_cost')} yAxisId="left-axis">
+          <Bar dataKey="cost" fill="#1a87c8" name={t('total_maintenance_cost')} yAxisId="left-axis">
             {formattedData.map((entry, index) => (
               <Cell
                 key={index}

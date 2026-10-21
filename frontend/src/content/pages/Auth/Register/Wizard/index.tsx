@@ -71,15 +71,22 @@ function RegisterWizard() {
       <MainContent>
         <Container
           sx={{
-            my: 4
+            my: 4,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
           }}
           maxWidth="md"
         >
-          <Logo />
+          <Logo height={42} sx={{ mb: 1 }} />
           <Card
             sx={{
-              mt: 3,
-              pt: 4
+              mt: 2.5,
+              pt: 4,
+              width: '100%',
+              borderRadius: 3,
+              boxShadow: '0 20px 45px -15px rgba(26, 135, 200, 0.12), 0 0 1px 1px rgba(0, 0, 0, 0.05)',
+              border: '1px solid rgba(226, 232, 240, 0.8)'
             }}
           >
             <Box px={4}>

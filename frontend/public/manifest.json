@@ -1,28 +1,28 @@
 {
-  "theme_color": "#1975ff",
-  "background_color": "#f2f5f9",
+  "theme_color": "#1a87c8",
+  "background_color": "#f8fafc",
   "display": "standalone",
   "start_url": ".",
-  "short_name": "Atlas",
-  "name": "Atlas CMMS",
+  "short_name": "Webkorps",
+  "name": "Webkorps CMMS",
   "icons": [
     {
-      "src": "/static/images/logo/logo.png",
+      "src": "/static/images/logo/webkorps-icon.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/static/images/logo/logo.png",
+      "src": "/static/images/logo/webkorps-icon.png",
       "sizes": "256x256",
       "type": "image/png"
     },
     {
-      "src": "/static/images/logo/logo.png",
+      "src": "/static/images/logo/webkorps-icon.png",
       "sizes": "384x384",
       "type": "image/png"
     },
     {
-      "src": "/static/images/logo/logo.png",
+      "src": "/static/images/logo/webkorps-icon.png",
       "sizes": "512x512",
       "type": "image/png"
     }

@@ -564,7 +564,7 @@ function Requests() {
         </Helmet>
         {renderAddModal()}
         {renderUpdateModal()}
-        <Box justifyContent="center" alignItems="stretch" paddingX={4}>
+        <Box justifyContent="center" alignItems="stretch" paddingX={{ xs: 2, md: 3, lg: 4 }}>
           {hasCreatePermission(PermissionEntity.REQUESTS) && (
             <Box
               display="flex"
@@ -585,17 +585,18 @@ function Requests() {
           <Card
             sx={{
               py: 2,
+              px: { xs: 1.5, md: 2.5 },
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center'
             }}
           >
             <Stack
-              sx={{ ml: 1 }}
               direction="row"
-              spacing={1}
+              flexWrap="wrap"
+              sx={{ gap: 1 }}
               justifyContent={'flex-start'}
-              width={'95%'}
+              width={'100%'}
             >
               <EnumFilter
                 filterFields={criteria.filterFields}
@@ -622,7 +623,7 @@ function Requests() {
               <SearchInput onChange={debouncedQueryChange} />
             </Stack>
             <Divider sx={{ mt: 1 }} />
-            <Box sx={{ width: '95%' }}>
+            <Box sx={{ width: '100%' }}>
               <CustomDatagrid2
                 columns={columns}
                 data={requests.content}
