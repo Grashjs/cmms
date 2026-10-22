@@ -41,6 +41,17 @@ public class RateLimitFilter extends OncePerRequestFilter {
         }
 
         // Get the current authentication
+        // Image grids use signed capabilities without a JWT; keep them out of the login/API quota.
+        if (request.getServletPath() != null && request.getServletPath().startsWith("/files/content/")
+                && ("GET".equals(request.getMethod()) || "HEAD".equals(request.getMethod()))) {
+            if (!rateLimiterService.resolveAttachmentBucket(clientIpResolver.resolve(request)).tryConsume(1)) {
+                setResponseTooManyRequests(response);
+                return;
+            }
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof CustomUserDetail userDetail) {

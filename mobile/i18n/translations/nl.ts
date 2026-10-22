@@ -1,4 +1,22 @@
 const locale = {
+  management_access_denied: "Actie geweigerd: controleer uw rechten, de doelrol en de accounteigenaar.",
+  no_assignable_roles: "Met uw huidige rechten kunt u geen rol toewijzen.",
+  invitation_created: 'Uitnodiging aangemaakt',
+  invitation_delivery_notice:
+    'Deel deze persoonlijke link met de uitgenodigde persoon. De link verloopt, kan maar één keer worden gebruikt en een nieuwe uitnodiging maakt de vorige link ongeldig. De links worden gewist wanneer u dit scherm verlaat.',
+  invitation_expires: 'Verloopt op: {{date}}',
+  invitation_copy: 'Link kopiëren',
+  invitation_share: 'Link delen',
+  invitation_copied: 'Link gekopieerd',
+  invitation_copy_failed:
+    'De link kon niet worden gekopieerd. Probeer het opnieuw.',
+  invitation_share_failed:
+    'De link kon niet worden gedeeld. Probeer het opnieuw.',
+  invitation_browser_acceptance:
+    'De uitgenodigde persoon voltooit de registratie in de webbrowser en meldt zich daarna aan in de mobiele app.',
+  invitation_send_email: 'Ook een uitnodiging per e-mail aanvragen',
+  invitation_email_optional:
+    'Er wordt alleen een e-mail aangevraagd als verzending op de server is ingeschakeld. Een aangemaakte uitnodiging bevestigt niet dat de e-mail is afgeleverd. U kunt de link altijd kopiëren of delen.',
   DUPLICATE_OF: 'Duplicaat van',
   DUPLICATED_BY: 'Gekopieerd door',
   RELATED_TO: 'Gerelateerd aan',

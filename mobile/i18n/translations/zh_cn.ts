@@ -1,4 +1,20 @@
 const locale = {
+  management_access_denied: "操作被拒绝：请检查您的权限、目标角色和账户所有者。",
+  no_assignable_roles: "您当前的权限无法分配任何角色。",
+  invitation_created: '邀请已创建',
+  invitation_delivery_notice:
+    '请将此专属链接分享给受邀人。链接有有效期且只能使用一次，新邀请会使之前的链接失效。离开此页面后，链接会被清除。',
+  invitation_expires: '到期时间：{{date}}',
+  invitation_copy: '复制链接',
+  invitation_share: '分享链接',
+  invitation_copied: '链接已复制',
+  invitation_copy_failed: '无法复制链接，请重试。',
+  invitation_share_failed: '无法分享链接，请重试。',
+  invitation_browser_acceptance:
+    '受邀人需先在网页浏览器中完成注册，然后登录移动应用。',
+  invitation_send_email: '同时请求发送邀请邮件',
+  invitation_email_optional:
+    '仅在服务器启用邮件发送时才会请求发送邮件。邀请已创建并不表示邮件已送达。您始终可以复制或分享链接。',
   DUPLICATE_OF: '重复于',
   DUPLICATED_BY: '被复制于',
   RELATED_TO: '关联于',

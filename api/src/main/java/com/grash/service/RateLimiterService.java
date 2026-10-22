@@ -14,6 +14,17 @@ import java.util.concurrent.ConcurrentMap;
 
 @Component
 public class RateLimiterService {
+    private final com.github.benmanes.caffeine.cache.Cache<String, Bucket> attachmentCache =
+            com.github.benmanes.caffeine.cache.Caffeine.newBuilder()
+                    .maximumSize(10000).expireAfterAccess(Duration.ofHours(1)).build();
+
+    @Value("${security.rate-limit.attachments.requests-per-minute:300}")
+    private int attachmentRequestsPerMinute;
+
+    public Bucket resolveAttachmentBucket(String ip) {
+        return attachmentCache.get(ip, key -> Bucket.builder().addLimit(Bandwidth.classic(
+                attachmentRequestsPerMinute, Refill.greedy(attachmentRequestsPerMinute, Duration.ofMinutes(1)))).build());
+    }
 
     private final ConcurrentMap<String, Bucket> demoCache = new ConcurrentHashMap<>();
     private final ConcurrentMap<String, Bucket> fileUploadCache = new ConcurrentHashMap<>();

@@ -1,5 +1,10 @@
-import { Link as RouterLink, useSearchParams } from 'react-router-dom';
 import {
+  Link as RouterLink,
+  useLocation,
+  useSearchParams
+} from 'react-router-dom';
+import {
+  Alert,
   Box,
   Card,
   Container,
@@ -28,6 +33,8 @@ import ChevronLeftTwoToneIcon from '@mui/icons-material/ChevronLeftTwoTone';
 import { useBrand } from '../../../../../hooks/useBrand';
 import CompanyLogos from 'src/components/CompanyLogos';
 import { isCloudVersion } from '../../../../../config';
+import InvitationRegistration from '../InvitationRegistration';
+import { getInvitationToken } from '../../../../../utils/invitation';
 
 const Content = styled(Box)(
   () => `
@@ -156,6 +163,10 @@ const SwiperWrapper = styled(Box)(
 function RegisterCover() {
   const { t }: { t: any } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { hash } = useLocation();
+  const invitationToken = getInvitationToken(hash);
+  const obsoleteInvitation =
+    searchParams.has('role') || searchParams.has('invitationToken');
   const { logo } = useBrand();
   const icons = {
     Atlas: logo.dark,
@@ -195,6 +206,9 @@ function RegisterCover() {
       <Helmet>
         <title>{t('register')}</title>
         <meta name="robots" content="noindex, nofollow" />
+        {invitationToken !== null && (
+          <meta name="referrer" content="no-referrer" />
+        )}
       </Helmet>
       <Content>
         <SidebarWrapper
@@ -343,11 +357,18 @@ function RegisterCover() {
                   {t('signup_description')}
                 </Typography>
               </Box>
-              <JWTRegister
-                email={searchParams.get('email')}
-                role={Number(searchParams.get('role'))}
-                subscriptionPlanId={searchParams.get('subscription-plan-id')}
-              />
+              {invitationToken !== null ? (
+                <InvitationRegistration
+                  key={invitationToken}
+                  token={invitationToken}
+                />
+              ) : obsoleteInvitation ? (
+                <Alert severity="error">{t('invitation_unavailable')}</Alert>
+              ) : (
+                <JWTRegister
+                  subscriptionPlanId={searchParams.get('subscription-plan-id')}
+                />
+              )}
               <Box mt={4}>
                 <Typography
                   component="span"

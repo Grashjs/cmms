@@ -1,4 +1,22 @@
 const locale = {
+  management_access_denied: "操作が拒否されました。権限、対象の役割、アカウント所有者を確認してください。",
+  no_assignable_roles: "現在の権限で割り当てられる役割はありません。",
+  invitation_created: '招待を作成しました',
+  invitation_delivery_notice:
+    'この個人用リンクを招待した相手に共有してください。リンクには有効期限があり、一度しか使用できません。新しい招待を作成すると、以前のリンクは無効になります。この画面を離れると、リンクは消去されます。',
+  invitation_expires: '有効期限：{{date}}',
+  invitation_copy: 'リンクをコピー',
+  invitation_share: 'リンクを共有',
+  invitation_copied: 'リンクをコピーしました',
+  invitation_copy_failed:
+    'リンクをコピーできませんでした。もう一度お試しください。',
+  invitation_share_failed:
+    'リンクを共有できませんでした。もう一度お試しください。',
+  invitation_browser_acceptance:
+    '招待された方はウェブブラウザで登録を完了してから、モバイルアプリにログインします。',
+  invitation_send_email: '招待メールの送信も依頼する',
+  invitation_email_optional:
+    'メールの送信は、サーバーで送信が有効な場合にのみ依頼されます。招待の作成は、メールの配信完了を意味しません。リンクはいつでもコピーまたは共有できます。',
   DUPLICATE_OF: '重複元',
   DUPLICATED_BY: '重複先',
   RELATED_TO: '関連先',

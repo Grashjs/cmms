@@ -59,6 +59,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/auth/signin").permitAll()
                         .requestMatchers("/auth/signin-ldap").permitAll()
                         .requestMatchers("/auth/signup").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/invitations/preview").permitAll()
                         .requestMatchers("/auth/refresh").permitAll()
                         .requestMatchers("/auth/sso/**").permitAll()
                         .requestMatchers("/auth/sendMail").permitAll()
@@ -72,6 +73,9 @@ public class WebSecurityConfig {
                         .requestMatchers("/instance-config").permitAll()
                         .requestMatchers("/subscription-plans").permitAll()
                         .requestMatchers("/files/download/tos", "/files/download/privacy-policy").permitAll()
+                        // The content route verifies its own short-lived, object-specific capability.
+                        .requestMatchers(HttpMethod.GET, "/files/content/{token}").permitAll()
+                        .requestMatchers(HttpMethod.HEAD, "/files/content/{token}").permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/newsLetters").permitAll()
                         .requestMatchers("/auth/activate-account**").permitAll()

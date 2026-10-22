@@ -1,3 +1,4 @@
+import { openAttachment } from 'src/utils/attachment';
 import { Box, Card, Grid } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import CustomDataGrid from '../../components/CustomDatagrid';
@@ -73,7 +74,7 @@ const AssetFiles = ({ asset }: PropsType) => {
                   Toolbar: GridToolbar
                 }}
                 onRowClick={(params: GridRowParams<FileMiniDTO>) =>
-                  window.open(params.row.url, '_blank')
+                  openAttachment(params.row.url)
                 }
                 initialState={{
                   columns: {

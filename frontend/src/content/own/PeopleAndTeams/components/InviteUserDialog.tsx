@@ -1,11 +1,13 @@
 import {
   Box,
   Button,
+  Checkbox,
   Chip,
   CircularProgress,
   Dialog,
   DialogContent,
   DialogTitle,
+  FormControlLabel,
   Grid,
   InputAdornment,
   Paper,
@@ -17,14 +19,18 @@ import UserRoleCardList from '../UserRoleCardList';
 import { EmailOutlined } from '@mui/icons-material';
 import { inviteUsers } from '../../../../slices/user';
 import * as React from 'react';
-import { useContext, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { emailRegExp } from '../../../../utils/validators';
 import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
 import { useDispatch, useSelector } from '../../../../store';
 import { isEmailVerificationEnabled } from '../../../../config';
-import CreateUser from './CreateUser';
-import { Simulate } from 'react-dom/test-utils';
+import {
+  InvitationDelivery,
+  InvitationResponse
+} from '../../../../models/owns/user';
+import InvitationLinks from './InvitationLinks';
+import { getErrorMessage } from '../../../../utils/api';
 
 export default function InviteUserDialog({
   open,
@@ -38,14 +44,49 @@ export default function InviteUserDialog({
   initialEmail?: string;
 }) {
   const [isInviteSubmitting, setIsInviteSubmitting] = useState(false);
+  const requestVersion = useRef(0);
+  const submitting = useRef(false);
+  const mounted = useRef(true);
   const [roleId, setRoleId] = useState<number>();
   const { t } = useTranslation();
   const [emails, setEmails] = useState<string[]>([]);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const [currentEmail, setCurrentEmail] = useState<string>(initialEmail);
+  const [currentEmail, setCurrentEmail] = useState<string>(initialEmail ?? '');
+  const [sendEmail, setSendEmail] = useState(isEmailVerificationEnabled);
+  const [issuedInvitations, setIssuedInvitations] = useState<
+    InvitationDelivery[]
+  >([]);
   const { showSnackBar } = useContext(CustomSnackBarContext);
-  const { users, loadingGet, singleUser } = useSelector((state) => state.users);
+  const { users } = useSelector((state) => state.users);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      requestVersion.current++;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!open) {
+      setIssuedInvitations([]);
+      setEmails([]);
+      setCurrentEmail(initialEmail ?? '');
+      setRoleId(undefined);
+      setSendEmail(isEmailVerificationEnabled);
+      setIsInviteSubmitting(submitting.current);
+    }
+    return () => {
+      requestVersion.current++;
+    };
+  }, [open, initialEmail]);
+
+  const handleClose = () => {
+    requestVersion.current++;
+    setIssuedInvitations([]);
+    onClose();
+  };
 
   const onRoleChange = (id: number) => {
     setRoleId(id);
@@ -72,7 +113,6 @@ export default function InviteUserDialog({
       } else error = 'You can invite a maximum of 20 users at once';
       if (error) {
         showSnackBar(t(error), 'error');
-        setIsInviteSubmitting(false);
         return false;
       }
     }
@@ -80,7 +120,7 @@ export default function InviteUserDialog({
   };
 
   return (
-    <Dialog fullWidth maxWidth="sm" open={open} onClose={onClose}>
+    <Dialog fullWidth maxWidth="sm" open={open} onClose={handleClose}>
       <DialogTitle
         sx={{
           p: 3
@@ -100,129 +140,152 @@ export default function InviteUserDialog({
         }}
       >
         <Box sx={{ width: '95%' }}>
-          <Paper
-            elevation={0}
-            sx={{
-              mb: 2,
-              p: 2,
-              textAlign: 'center',
-              background: grey[100]
-            }}
-          >
-            <Box
-              component="img"
-              sx={{
-                height: 50,
-                width: 50
-              }}
-              alt={
-                "<a href='https://www.flaticon.com/free-icons/team' title='team icons'>Team icons created by Freepik - Flaticon</a>"
-              }
-              src="/static/images/team.png"
-            />
-            <Typography variant="h5">{t('bring_people_team')}</Typography>
-          </Paper>
-          <Box pb={3}>
-            <UserRoleCardList onChange={onRoleChange} />
-          </Box>
-          {isEmailVerificationEnabled ? (
+          {issuedInvitations.length > 0 ? (
             <>
-              <Grid container spacing={1}>
-                {emails.map((email, index) => (
-                  <Grid item key={index}>
-                    <Chip
-                      label={email}
-                      onDelete={() => {
-                        const emailsClone = [...emails];
-                        emailsClone.splice(index, 1);
-                        setEmails(emailsClone);
-                      }}
-                    />
-                  </Grid>
-                ))}
-              </Grid>
-              <TextField
-                sx={{ my: 2 }}
-                fullWidth
-                helperText={t('add_20_users')}
-                label={t('enter_email')}
-                placeholder={t('example@email.com')}
-                name="email"
-                value={currentEmail}
-                onChange={(event) => {
-                  setCurrentEmail(event.target.value);
-                }}
-                onKeyDown={(event) => {
-                  if (['Enter', 'Tab'].includes(event.key)) {
-                    if (verifyCurrentEmail()) {
-                      const emailsClone = [...emails];
-                      emailsClone.push(currentEmail);
-                      setEmails(emailsClone);
-                      setCurrentEmail('');
-                    }
-                  }
-                }}
-                variant={'outlined'}
-                required
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <EmailOutlined />
-                    </InputAdornment>
-                  )
-                }}
-              />
-              <Button
-                fullWidth
-                sx={{ mb: 3 }}
-                onClick={async () => {
-                  setIsInviteSubmitting(true);
-                  const invite = (emails: string[]) =>
-                    dispatch(inviteUsers(roleId, emails, false))
-                      .then(() => {
-                        onClose();
-                        setEmails([]);
-                        setCurrentEmail('');
-                        showSnackBar(t('users_invite_success'), 'success');
-                      })
-                      .catch((err: { message: string }) => {
-                        showSnackBar(JSON.parse(err.message).message, 'error');
-                      })
-                      .finally(() => setIsInviteSubmitting(false));
-                  if (roleId) {
-                    if (emails.length || currentEmail) {
-                      if (currentEmail) {
-                        if (verifyCurrentEmail())
-                          invite([...emails, currentEmail]);
-                      } else {
-                        invite(emails);
-                      }
-                    } else {
-                      showSnackBar(t('please_type_emails'), 'error');
-                      setIsInviteSubmitting(false);
-                    }
-                  } else {
-                    showSnackBar(t('please_select_role'), 'error');
-                    setIsInviteSubmitting(false);
-                  }
-                }}
-                variant="contained"
-                startIcon={
-                  isInviteSubmitting ? <CircularProgress size="1rem" /> : null
-                }
-                disabled={isInviteSubmitting}
-              >
-                {t('invite')}
+              <InvitationLinks invitations={issuedInvitations} />
+              <Button fullWidth sx={{ mt: 2 }} onClick={handleClose}>
+                {t('close')}
               </Button>
             </>
           ) : (
-            roleId && (
-              <CreateUser
-                roleId={roleId}
-                onClose={onClose}
-                onRefreshUsers={onRefreshUsers}
-              />
-            )
+            <>
+              <Paper
+                elevation={0}
+                sx={{
+                  mb: 2,
+                  p: 2,
+                  textAlign: 'center',
+                  background: grey[100]
+                }}
+              >
+                <Box
+                  component="img"
+                  sx={{
+                    height: 50,
+                    width: 50
+                  }}
+                  alt={
+                    "<a href='https://www.flaticon.com/free-icons/team' title='team icons'>Team icons created by Freepik - Flaticon</a>"
+                  }
+                  src="/static/images/team.png"
+                />
+                <Typography variant="h5">{t('bring_people_team')}</Typography>
+              </Paper>
+              <Box pb={3}>
+                <UserRoleCardList onChange={onRoleChange} />
+              </Box>
+              <>
+                <Grid container spacing={1}>
+                  {emails.map((email, index) => (
+                    <Grid item key={index}>
+                      <Chip
+                        label={email}
+                        onDelete={() => {
+                          const emailsClone = [...emails];
+                          emailsClone.splice(index, 1);
+                          setEmails(emailsClone);
+                        }}
+                      />
+                    </Grid>
+                  ))}
+                </Grid>
+                <TextField
+                  sx={{ my: 2 }}
+                  fullWidth
+                  helperText={t('add_20_users')}
+                  label={t('enter_email')}
+                  placeholder={t('example@email.com')}
+                  name="email"
+                  value={currentEmail}
+                  onChange={(event) => {
+                    setCurrentEmail(event.target.value);
+                  }}
+                  onKeyDown={(event) => {
+                    if (['Enter', 'Tab'].includes(event.key)) {
+                      event.preventDefault();
+                      if (currentEmail && verifyCurrentEmail()) {
+                        const emailsClone = [...emails];
+                        emailsClone.push(currentEmail);
+                        setEmails(emailsClone);
+                        setCurrentEmail('');
+                      }
+                    }
+                  }}
+                  variant={'outlined'}
+                  required
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <EmailOutlined />
+                      </InputAdornment>
+                    )
+                  }}
+                />
+                {isEmailVerificationEnabled && (
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={sendEmail}
+                        onChange={(event) => setSendEmail(event.target.checked)}
+                      />
+                    }
+                    label={t('invitation_send_email')}
+                  />
+                )}
+                <Button
+                  fullWidth
+                  sx={{ mb: 3 }}
+                  onClick={async () => {
+                    if (submitting.current) return;
+                    if (!roleId) {
+                      showSnackBar(t('please_select_role'), 'error');
+                      return;
+                    }
+                    if (!emails.length && !currentEmail) {
+                      showSnackBar(t('please_type_emails'), 'error');
+                      return;
+                    }
+                    if (currentEmail && !verifyCurrentEmail()) return;
+                    submitting.current = true;
+                    setIsInviteSubmitting(true);
+                    const version = ++requestVersion.current;
+                    try {
+                      const response: InvitationResponse = await dispatch(
+                        inviteUsers(
+                          roleId,
+                          currentEmail ? [...emails, currentEmail] : emails,
+                          !sendEmail
+                        )
+                      );
+                      if (version !== requestVersion.current) return;
+                      setIssuedInvitations(response.invitations);
+                      setEmails([]);
+                      setCurrentEmail('');
+                      onRefreshUsers();
+                      showSnackBar(t('users_invite_success'), 'success');
+                    } catch (err) {
+                      if (version !== requestVersion.current) return;
+                      showSnackBar(
+                        err.status === 403
+                          ? t('management_access_denied')
+                          : getErrorMessage(err),
+                        'error'
+                      );
+                    } finally {
+                      submitting.current = false;
+                      if (mounted.current) setIsInviteSubmitting(false);
+                    }
+                  }}
+                  variant="contained"
+                  startIcon={
+                    isInviteSubmitting ? <CircularProgress size="1rem" /> : null
+                  }
+                  disabled={isInviteSubmitting}
+                >
+                  {t('invite')}
+                </Button>
+              </>
+            </>
           )}
           <Box ref={bottomRef} />
         </Box>

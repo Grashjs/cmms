@@ -24,7 +24,7 @@ class CustomUserDetailsServiceTest {
     void loadUserByUsername_returnsCustomUserDetailForUser() {
         User user = new User();
         user.setEmail("john@test.com");
-        when(userService.whoami("john@test.com", true)).thenReturn(user);
+        when(userService.whoami("john@test.com", false)).thenReturn(user);
 
         CustomUserDetail result = customUserDetailsService.loadUserByUsername("john@test.com");
 
@@ -37,10 +37,10 @@ class CustomUserDetailsServiceTest {
     void loadUserByUsername_callsWhoamiWithCorrectParameters() {
         User user = new User();
         user.setEmail("test@test.com");
-        when(userService.whoami("test@test.com", true)).thenReturn(user);
+        when(userService.whoami("test@test.com", false)).thenReturn(user);
 
         customUserDetailsService.loadUserByUsername("test@test.com");
 
-        verify(userService).whoami("test@test.com", true);
+        verify(userService).whoami("test@test.com", false);
     }
 }
