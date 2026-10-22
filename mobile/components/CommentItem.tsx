@@ -21,7 +21,7 @@ import useAuth from '../hooks/useAuth';
 import { useNavigation } from '@react-navigation/native';
 import Comment from '../models/comment';
 import ImageView from 'react-native-image-viewing';
-import { downloadFile } from '../utils/fileDownload';
+import { openAttachment } from '../utils/attachment';
 import { useMentions } from 'react-native-controlled-mentions';
 import { TriggersConfig } from 'react-native-controlled-mentions/dist/types/types';
 
@@ -351,7 +351,7 @@ export default function CommentItem({
                     borderRadius: 4,
                     marginBottom: 4
                   }}
-                  onPress={() => downloadFile(file.url, file.name)}
+                  onPress={() => openAttachment(file.url)}
                 >
                   <IconButton icon="file" size={20} />
                   <Text style={{ flex: 1 }} numberOfLines={1}>

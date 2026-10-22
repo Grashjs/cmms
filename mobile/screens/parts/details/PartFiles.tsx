@@ -1,3 +1,4 @@
+import { openAttachment } from '../../../utils/attachment';
 import * as React from 'react';
 import { useState } from 'react';
 import { useDispatch } from '../../../store';
@@ -5,12 +6,7 @@ import { useTranslation } from 'react-i18next';
 import Part from '../../../models/part';
 import { useNavigation } from '@react-navigation/native';
 import { editPart } from '../../../slices/part';
-import {
-  Linking,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity
-} from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import {
   Button,
   Dialog,
@@ -65,7 +61,7 @@ export default function PartFiles({ part }: { part: Part }) {
         <TouchableOpacity
           key={file.id}
           onPress={() => {
-            Linking.openURL(file.url);
+            openAttachment(file.url);
           }}
         >
           <View

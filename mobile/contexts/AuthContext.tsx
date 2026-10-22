@@ -1,3 +1,4 @@
+import { authenticate, AuthResponse } from '../utils/authenticate';
 import {
   createContext,
   FC,
@@ -68,13 +69,6 @@ interface AuthState {
 }
 
 export type FieldConfigurationsType = 'workOrder' | 'request';
-
-interface AuthResponse {
-  accessToken: string;
-  refreshToken: string;
-  tokenType: string;
-  expiresAt: string;
-}
 
 interface AuthContextValue extends AuthState {
   method: 'JWT';
@@ -823,20 +817,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     password: string,
     ldap?: boolean
   ): Promise<void> => {
-    const response = await api.post<AuthResponse>(
-      `auth/signin${ldap ? '-ldap' : ''}`,
-      ldap
-        ? {
-            username: email,
-            password
-          }
-        : {
-            email,
-            type: 'client',
-            password
-          },
-      { headers: await authHeader(true) }
-    );
+    const response = await authenticate(email, password, ldap);
     const { accessToken, refreshToken } = response;
     return loginInternal(accessToken, refreshToken);
   };

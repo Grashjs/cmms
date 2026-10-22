@@ -6,6 +6,27 @@ export interface UserInvitationMiniDTO {
   roleName: string;
 }
 
+export interface InvitationPreview {
+  email: string;
+  roleId: number;
+  roleName: string;
+  companyId: number;
+  companyName: string;
+  expiresAt: string;
+}
+
+export interface InvitationDelivery {
+  email: string;
+  invitationLink: string;
+  expiresAt: string;
+}
+
+export interface InvitationResponse {
+  success: boolean;
+  message: string;
+  invitations: InvitationDelivery[];
+}
+
 export default interface User {
   id: number;
   firstName: string;

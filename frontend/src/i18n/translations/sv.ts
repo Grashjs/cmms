@@ -1,4 +1,6 @@
 const locale = {
+  management_access_denied: "Åtgärden nekades: kontrollera dina behörigheter, målrollen och kontoägaren.",
+  no_assignable_roles: "Ingen roll kan tilldelas med dina nuvarande behörigheter.",
   DUPLICATE_OF: 'Duplikat av',
   DUPLICATED_BY: 'Duplicerad av',
   RELATED_TO: 'Relaterat till',
@@ -743,6 +745,14 @@ const locale = {
     "Du kan lägga till 20 användare åt gången genom att trycka på 'tabb' eller 'enter' efter varje e-postadress. Alla dubbletter och registrerade e-postadresser kommer att tas bort när de begärda användarna registreras.",
   enter_email: 'Ange e-postadress',
   users_invite_success: 'Användare har blivit inbjudna',
+  invitation_send_email: 'Skicka inbjudningar via e-post',
+  invitation_links_notice:
+    'Kopiera länkarna nu och skicka varje länk endast till den avsedda mottagaren. Länkarna har en giltighetstid och kan bara användas en gång. När en inbjudan förnyas blir den tidigare länken ogiltig.',
+  invitation_link: 'Inbjudningslänk',
+  invitation_expires: 'Giltig till: {{date}}',
+  invitation_unavailable:
+    'Den här inbjudan är ogiltig, har gått ut eller har redan använts. Be en behörig administratör om en ny inbjudningslänk. Äldre länkar som bara innehåller e-postadress och roll måste förnyas.',
+  invitation_join_details: 'Gå med i {{company}} som {{role}}',
   users_invite_failure:
     'Användare kan inte bjudas in. Kontrollera ditt nuvarande antal prenumerationsmedlemmar.',
   please_type_emails: 'Vänligen skriv in e-postadresserna för att bjuda in',

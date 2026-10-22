@@ -1,13 +1,11 @@
 package com.grash;
 
-import com.grash.dto.UserSignupRequest;
 import com.grash.model.*;
 import com.grash.model.enums.*;
 import com.grash.repository.GeneralPreferencesRepository;
 import com.grash.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -21,7 +19,7 @@ import java.util.*;
 public class ApplicationInitializer implements SmartInitializingSingleton {
 
     private final UserService userService;
-    private final UserInvitationService userInvitationService;
+    private final InternalUserBootstrapService internalUserBootstrapService;
     private final GeneralPreferencesRepository generalPreferencesRepository;
     private final RoleService roleService;
     private final CompanyService companyService;
@@ -63,7 +61,7 @@ public class ApplicationInitializer implements SmartInitializingSingleton {
                 .stream().findFirst().orElseGet(() -> {
                     log.info("Creating super admin role...");
                     Company company = companyService.create(new Company());
-                    return roleService.create(Role.builder()
+                    return internalUserBootstrapService.createPlatformRole(Role.builder()
                             .name("Super admin")
                             .companySettings(company.getCompanySettings())
                             .code(RoleCode.ADMIN)
@@ -73,9 +71,7 @@ public class ApplicationInitializer implements SmartInitializingSingleton {
 
         if (userService.findByCompany(savedSuperAdminRole.getCompanySettings().getCompany().getId()).isEmpty()) {
             log.info("Creating super admin user...");
-            UserSignupRequest signupRequest = getSuperAdminSignupRequest(savedSuperAdminRole);
-            userInvitationService.create(new UserInvitation(signupRequest.getEmail(), savedSuperAdminRole));
-            userService.signup(signupRequest);
+            internalUserBootstrapService.createSuperAdministrator(savedSuperAdminRole);
         } else {
             log.info("Super admin user already exists");
         }
@@ -141,18 +137,4 @@ public class ApplicationInitializer implements SmartInitializingSingleton {
     }
 
 
-    @NotNull
-    private static UserSignupRequest getSuperAdminSignupRequest(Role savedSuperAdminRole) {
-        UserSignupRequest signupRequest = new UserSignupRequest();
-        signupRequest.setRole(savedSuperAdminRole);
-        signupRequest.setEmail("superadmin@test.com");
-        signupRequest.setPassword("pls_change_me");
-        signupRequest.setFirstName("Super");
-        signupRequest.setLastName("Admin");
-        signupRequest.setPhone("");
-        signupRequest.setCompanyName("Super Admin");
-        signupRequest.setEmployeesCount(3);
-        signupRequest.setLanguage(Language.EN);
-        return signupRequest;
-    }
 }

@@ -241,4 +241,8 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_09_09_1788956680_user_settings_language.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_10_18_00000000001_secure_user_invitations.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2026_10_20_00000000001_invitation_authorization.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

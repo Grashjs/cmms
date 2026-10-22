@@ -1,3 +1,4 @@
+import { openAttachment } from '../../../utils/attachment';
 import * as React from 'react';
 import { useState } from 'react';
 import { useDispatch } from '../../../store';
@@ -5,12 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { AssetDTO } from '../../../models/asset';
 import { useNavigation } from '@react-navigation/native';
 import { editAsset } from '../../../slices/asset';
-import {
-  Linking,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity
-} from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import {
   Button,
   Dialog,
@@ -65,7 +61,7 @@ export default function AssetFiles({ asset }: { asset: AssetDTO }) {
         <TouchableOpacity
           key={file.id}
           onPress={async () => {
-            await Linking.openURL(file.url);
+            await openAttachment(file.url);
           }}
         >
           <View

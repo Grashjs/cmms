@@ -1,4 +1,8 @@
 import {
+  canManagePerson,
+  canChangeOtherPassword
+} from '../../../utils/managementAccess';
+import {
   Box,
   Button,
   debounce,
@@ -16,9 +20,12 @@ import CustomDatagrid2, {
   CustomDatagridColumn2
 } from '../components/CustomDatagrid2';
 import * as React from 'react';
-import { useContext, useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import UserDetailsDrawer from './UserDetailsDrawer';
-import User from '../../../models/owns/user';
+import User, {
+  InvitationDelivery,
+  InvitationResponse
+} from '../../../models/owns/user';
 import { useParams } from 'react-router-dom';
 import { isNumeric } from 'src/utils/validators';
 import { useDispatch, useSelector } from '../../../store';
@@ -55,6 +62,9 @@ import ShiftConfigurationModal from './components/ShiftConfigurationModal';
 import { isEmailVerificationEnabled } from '../../../config';
 import { createColumnHelper } from '@tanstack/react-table';
 import useTableState from '../../../hooks/useTableState';
+import InvitationLinks from './components/InvitationLinks';
+import api, { getErrorMessage } from '../../../utils/api';
+import { uniquePendingInvitations } from '../../../utils/invitation';
 
 const fieldMapping: Record<string, string> = {
   name: 'firstName',
@@ -76,12 +86,16 @@ interface PropsType {
 const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
+  const [assignableRoles, setAssignableRoles] = useState<Role[]>([]);
   const [currentUser, setCurrentUser] = useState<UserResponseDTO>();
   const [detailDrawerOpen, setDetailDrawerOpen] = useState(false);
   const [shiftModalUser, setShiftModalUser] = useState<UserResponseDTO>();
   const [shiftModalOpen, setShiftModalOpen] = useState(false);
   const { peopleId } = useParams();
   const { hasEditPermission, user } = useAuth();
+  const actor = user;
+  const canResetCurrentUserPassword =
+    !isEmailVerificationEnabled && canChangeOtherPassword(user, currentUser);
   const [enabledOnly, setEnabledOnly] = useState<boolean>(true);
   const { users, loadingGet, singleUser, lastWeekInvitations } = useSelector(
     (state) => state.users
@@ -127,6 +141,26 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
   const [openDisableModal, setOpenDisableModal] = useState<boolean>(false);
   const [openEnableModal, setOpenEnableModal] = useState<boolean>(false);
+  const [renewedInvitations, setRenewedInvitations] = useState<
+    InvitationDelivery[]
+  >([]);
+  const [renewingInvitations, setRenewingInvitations] = useState(false);
+  const renewalVersion = useRef(0);
+  const renewalPending = useRef(false);
+  const mounted = useRef(true);
+
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      renewalVersion.current++;
+    };
+  }, []);
+
+  const closeRenewedInvitations = () => {
+    renewalVersion.current++;
+    setRenewedInvitations([]);
+  };
 
   const onQueryChange = (event) => {
     onSearchQueryChange<User>(event, criteria, setCriteria, [
@@ -144,7 +178,12 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
     showSnackBar(t('changes_saved_success'), 'success');
   };
   const onEditFailure = (err) =>
-    showSnackBar(t("The User couldn't be edited"), 'error');
+    showSnackBar(
+      err?.status === 403
+        ? t('management_access_denied')
+        : getErrorMessage(err),
+      'error'
+    );
 
   const handleOpenDrawer = (user: UserResponseDTO) => {
     setCurrentUser(user);
@@ -187,44 +226,81 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
     setDetailDrawerOpen(false);
   };
 
-  const onResendInvites = () => {
-    lastWeekInvitations.forEach((invitation) => {
-      dispatch(inviteUsers(invitation.roleId, [invitation.email], false, true));
-    });
-    showSnackBar(t('users_invite_success'), 'success');
+  const onResendInvites = async () => {
+    if (renewalPending.current) return;
+    renewalPending.current = true;
+    const version = ++renewalVersion.current;
+    setRenewingInvitations(true);
+    setRenewedInvitations([]);
+    try {
+      for (const invitation of uniquePendingInvitations(lastWeekInvitations)) {
+        const response: InvitationResponse = await dispatch(
+          inviteUsers(
+            invitation.roleId,
+            [invitation.email],
+            !isEmailVerificationEnabled,
+            true
+          )
+        );
+        if (version !== renewalVersion.current) return;
+        setRenewedInvitations((previous) => [
+          ...previous,
+          ...response.invitations
+        ]);
+      }
+      showSnackBar(t('users_invite_success'), 'success');
+    } catch (error) {
+      if (version === renewalVersion.current) {
+        showSnackBar(getErrorMessage(error), 'error');
+      }
+    } finally {
+      renewalPending.current = false;
+      if (mounted.current) setRenewingInvitations(false);
+    }
   };
 
-  const defautfields: Array<IField> = [
-    {
-      name: 'rate',
-      type: 'number',
-      label: t('hourly_rate')
-    },
-    {
-      name: 'role',
-      type: 'select',
-      type2: 'role',
-      label: t('role')
-    },
-    ...(isEmailVerificationEnabled
-      ? []
-      : [
+  useEffect(() => {
+    let active = true;
+    setAssignableRoles([]);
+    if (openUpdateModal && canManagePerson(user, currentUser)) {
+      api
+        .get<Role[]>(`roles/assignable?operation=role&userId=${currentUser.id}`)
+        .then((roles) => active && setAssignableRoles(roles))
+        .catch(onEditFailure);
+    }
+    return () => {
+      active = false;
+    };
+  }, [openUpdateModal, currentUser?.id]);
+
+  const getFields = (): IField[] => [
+    { name: 'rate', type: 'number', label: t('hourly_rate') },
+    ...(canManagePerson(user, currentUser) && assignableRoles.length
+      ? [
+          {
+            name: 'role',
+            type: 'select',
+            label: t('role'),
+            items: assignableRoles.map((role) => ({
+              label:
+                role.code === 'USER_CREATED'
+                  ? role.name
+                  : t(`${role.code}_name`),
+              value: role.id
+            }))
+          } as IField
+        ]
+      : []),
+    ...(canResetCurrentUserPassword
+      ? [
           {
             name: 'password',
             type: 'text',
             label: t('password_leave_empty_if_you_dont_want_to_change')
           } as IField
-        ])
+        ]
+      : [])
   ];
-  const getFields = () => {
-    let fields = [...defautfields];
-    if (currentUser?.ownsCompany || currentUser?.id === user?.id) {
-      fields = fields.filter(
-        (field) => !['role', 'password'].includes(field.name)
-      );
-    }
-    return fields;
-  };
   const renderEditUserModal = () => (
     <Dialog
       fullWidth
@@ -276,11 +352,15 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
                 editUser(currentUser.id, {
                   ...currentUser,
                   rate: values.rate ?? currentUser.rate,
-                  newPassword: values.password ?? null
+                  ...(canResetCurrentUserPassword && values.password
+                    ? { newPassword: values.password }
+                    : {})
                 })
               )
                 .then(
                   () =>
+                    canManagePerson(user, currentUser) &&
+                    values.role &&
                     formatSelect(values.role).id !== currentUser.role.id &&
                     dispatch(
                       editUserRole(currentUser.id, formatSelect(values.role).id)
@@ -438,7 +518,7 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
                 setShiftModalOpen(true);
               }}
             />
-            {user.enabled && !user.ownsCompany && (
+            {user.enabled && canManagePerson(actor, user) && (
               <CancelIcon
                 fontSize="small"
                 color="error"
@@ -449,7 +529,7 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
                 }}
               />
             )}
-            {!user.enabled && (
+            {!user.enabled && canManagePerson(actor, user) && (
               <CheckCircleIcon
                 fontSize="small"
                 color="success"
@@ -533,6 +613,7 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
             </Typography>
             <Button
               onClick={onResendInvites}
+              disabled={renewingInvitations}
               variant="contained"
               color="secondary"
               size="small"
@@ -543,6 +624,20 @@ const People = ({ openModal, handleCloseModal, initialEmail }: PropsType) => {
         </Box>
       )}
       {RenderPeopleList()}
+      <Dialog
+        fullWidth
+        maxWidth="sm"
+        open={renewedInvitations.length > 0}
+        onClose={closeRenewedInvitations}
+      >
+        <DialogTitle>{t('invite_users')}</DialogTitle>
+        <DialogContent>
+          <InvitationLinks invitations={renewedInvitations} />
+          <Button onClick={closeRenewedInvitations}>
+            {t('close')}
+          </Button>
+        </DialogContent>
+      </Dialog>
 
       <Drawer
         variant="temporary"
