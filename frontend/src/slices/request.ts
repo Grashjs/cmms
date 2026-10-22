@@ -190,6 +190,17 @@ export const approveRequest =
     dispatch(slice.actions.decrementPendingCount());
     return workOrder.id;
   };
+export const linkRequestToWorkOrder =
+  (id: number, workOrderId: number): AppThunk =>
+  async (dispatch) => {
+    const request = await api.patch<Request>(
+      `${basePath}/${id}/link-work-order`,
+      { workOrderId }
+    );
+    dispatch(slice.actions.editRequest({ request }));
+    dispatch(slice.actions.decrementPendingCount());
+    return request;
+  };
 export const cancelRequest =
   (id: number, reason: string): AppThunk =>
   async (dispatch) => {
