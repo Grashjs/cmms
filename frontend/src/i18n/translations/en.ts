@@ -373,6 +373,12 @@ const locale = {
   cancelled: 'Cancelled',
   reject: 'Reject',
   approve: 'Approve',
+  request_link_wo: 'Link to existing WO',
+  request_link_wo_description:
+    'Use this when the request duplicates work that already has a work order (open or closed). No new work order is created.',
+  request_link_wo_confirm:
+    'The request will be marked as approved and linked to {{workOrder}}.',
+  request_link_wo_success: 'Request linked to the work order',
   request_create_success: 'Work Order successfully requested',
   request_create_failure: "The Work Request couldn't be created",
   request_edit_failure: "The Request couldn't be edited",
