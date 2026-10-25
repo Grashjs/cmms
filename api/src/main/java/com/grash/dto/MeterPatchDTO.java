@@ -27,6 +27,10 @@ public class MeterPatchDTO {
     @Schema(description = "The frequency at which the meter readings should be updated")
     private int updateFrequency;
 
+    @Schema(description = "Whether the meter accumulates, like an hour meter or an energy meter. Left unchanged when " +
+            "absent")
+    private Boolean cumulative;
+
     @Schema(description = "The category of the meter", implementation = IdDTO.class)
     private MeterCategory meterCategory;
 

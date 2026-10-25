@@ -1042,6 +1042,37 @@ const esJSON = {
   analytics_summary_never: 'Nunca',
   analytics_summary_weekly: 'Semanal (los lunes)',
   analytics_summary_monthly: 'Mensual (el día 1)',
+  meter_trends: 'Tendencias de medidores',
+  readings: 'Lecturas',
+  cumulative_meter: 'Medidor acumulativo',
+  cumulative_meter_description:
+    'Horómetros, medidores de energía... cuyo valor solo sube: las estadísticas muestran el consumo por período',
+  meter_readings_overview: 'Lecturas del período',
+  meter_readings_overview_description:
+    'Lecturas tomadas en el período, comparadas con el período anterior de igual duración. Fuera de rango: lecturas por debajo o por encima de los límites de los disparadores del medidor.',
+  last_reading_value: 'Última: {{value}} el {{date}}',
+  no_readings_period: 'Sin lecturas en este período',
+  out_of_range_readings: 'Fuera de rango',
+  of_readings: 'de {{count}} lecturas',
+  no_meter_thresholds: 'El medidor no tiene disparadores',
+  min_max_values: 'Mín {{min}} · Máx {{max}}',
+  consumption: 'Consumo',
+  counter_resets_one: 'El contador bajó una vez: se cuenta desde 0',
+  counter_resets: 'El contador bajó {{count}} veces: se cuenta desde 0',
+  consumption_between_failures: 'Entre fallas',
+  asset_downtimes_count_one: '1 parada de {{asset}}',
+  asset_downtimes_count: '{{count}} paradas de {{asset}}',
+  no_asset_downtimes: 'Sin paradas del activo en el período',
+  meter_trend: 'Tendencia',
+  meter_trend_description:
+    'Promedio, mínimo y máximo de cada intervalo (hora, día, semana o mes, según el período). Las líneas punteadas son los límites de los disparadores del medidor; los puntos rojos marcan intervalos con lecturas fuera de rango.',
+  meter_counter_trend_description:
+    'Valor del contador al final de cada intervalo. Las líneas punteadas son los límites de los disparadores del medidor.',
+  min_max: 'Mín – máx',
+  consumption_per_period: 'Consumo por período',
+  consumption_per_period_description:
+    'Aumento del contador en cada intervalo. Si el valor baja, se toma como un reinicio del contador y se cuenta desde 0. La primera lectura se cuenta desde la anterior al período.',
+  no_meters_analytics: 'Todavía no hay medidores',
   required_job_title: 'El campo título del puesto es obligatorio',
   required_old_password: 'Por favor proporcione la contraseña actual.',
   invalid_password:

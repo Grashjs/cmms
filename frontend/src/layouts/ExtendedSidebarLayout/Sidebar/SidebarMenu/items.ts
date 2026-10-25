@@ -132,6 +132,16 @@ const ownMenuItems: MenuItems[] = [
                 link: '/app/analytics/requests/analysis'
               }
             ]
+          },
+          {
+            name: 'meters',
+            icon: SpeedTwoToneIcon,
+            items: [
+              {
+                name: 'meter_trends',
+                link: '/app/analytics/meters/trends'
+              }
+            ]
           }
         ]
       },

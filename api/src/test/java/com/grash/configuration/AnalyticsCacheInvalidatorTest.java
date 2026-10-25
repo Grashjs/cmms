@@ -97,6 +97,17 @@ class AnalyticsCacheInvalidatorTest {
         }
 
         @Test
+        void meterTriggerChange_invalidatesItsCompany() {
+            // its value is a limit of the meter analytics
+            WorkOrderMeterTrigger trigger = new WorkOrderMeterTrigger();
+            trigger.setCompany(company(7L));
+
+            invalidator.onChange(trigger);
+
+            verify(analyticsCacheService).invalidateCompany(7L);
+        }
+
+        @Test
         void unknownCompany_fallsBackToTheAuthenticatedUsersCompany() {
             authenticateUserOf(company(6L));
             AdditionalCost cost = new AdditionalCost();

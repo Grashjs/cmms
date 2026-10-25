@@ -50,6 +50,8 @@ public class AnalyticsCacheInvalidator implements PostInsertEventListener, PostU
             AssetDowntime.class,
             Meter.class,
             Reading.class,
+            // their values are the limits of the meter analytics
+            WorkOrderMeterTrigger.class,
             WorkOrderCategory.class,
             // location filters include sub-locations, so moving a location changes filtered reports
             Location.class

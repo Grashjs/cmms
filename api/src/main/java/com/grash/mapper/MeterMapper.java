@@ -14,6 +14,7 @@ import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -25,6 +26,8 @@ import java.util.Optional;
 @Mapper(componentModel = "spring", uses = {LocationMapper.class, AssetMapper.class, UserMapper.class,
         FileMapper.class, CustomFieldValueMapper.class})
 public interface MeterMapper {
+    // clients that do not send it (older apps) keep the current value
+    @Mapping(target = "cumulative", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     Meter updateMeter(@MappingTarget Meter entity, MeterPatchDTO dto);
 
     MeterPatchDTO toPatchDto(Meter model);

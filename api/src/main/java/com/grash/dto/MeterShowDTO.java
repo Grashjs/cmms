@@ -23,6 +23,9 @@ public class MeterShowDTO extends AuditShowDTO {
     @Schema(description = "Update frequency")
     private int updateFrequency;
 
+    @Schema(description = "Whether the meter accumulates, like an hour meter or an energy meter")
+    private boolean cumulative;
+
     @Schema(description = "Meter category")
     private CategoryMiniDTO meterCategory;
 

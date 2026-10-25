@@ -25,7 +25,9 @@ export default function usePreviousPeriod<T>(
   start: Date,
   end: Date,
   companyId?: number,
-  filterFields?: FilterField[]
+  filterFields?: FilterField[],
+  // anything else the fetcher depends on, e.g. the selected meter
+  extraDependencies: unknown[] = []
 ): PreviousPeriod<T> {
   const period = getPreviousPeriod(start, end);
   const [data, setData] = useState<T | null>(null);
@@ -43,7 +45,7 @@ export default function usePreviousPeriod<T>(
     return () => {
       active = false;
     };
-  }, [start, end, companyId, filterFields]);
+  }, [start, end, companyId, filterFields, ...extraDependencies]);
 
   return { ...period, data };
 }

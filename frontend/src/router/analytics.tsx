@@ -21,6 +21,9 @@ const PartAnalytics = Loader(
 const RequestAnalytics = Loader(
   lazy(() => import('../content/own/Analytics/Request'))
 );
+const MeterAnalytics = Loader(
+  lazy(() => import('../content/own/Analytics/Meter'))
+);
 const analyticsRoutes = [
   {
     path: 'work-orders',
@@ -47,6 +50,10 @@ const analyticsRoutes = [
   {
     path: 'requests',
     children: [{ path: 'analysis', element: <RequestAnalytics /> }]
+  },
+  {
+    path: 'meters',
+    children: [{ path: 'trends', element: <MeterAnalytics /> }]
   }
 ];
 
