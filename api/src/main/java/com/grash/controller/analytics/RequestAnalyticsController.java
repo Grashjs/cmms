@@ -12,6 +12,7 @@ import com.grash.model.enums.Priority;
 import com.grash.model.enums.Status;
 import com.grash.security.CurrentUser;
 import com.grash.service.AnalyticsFilterService;
+import com.grash.service.AnalyticsSummaryService;
 import com.grash.service.CompanyService;
 import com.grash.service.RequestService;
 import com.grash.service.UserService;
@@ -60,22 +61,7 @@ public class RequestAnalyticsController {
             AnalyticsFilter filter = analyticsFilterService.resolve(resolvedCompanyId, dateRange);
             Collection<Request> requests = filter.apply(requestService.findByCreatedAtBetweenAndCompany(dateRange.getStart(),
                     dateRange.getEnd(), resolvedCompanyId));
-            Collection<Request> approvedRequests =
-                    requests.stream().filter(request -> request.getWorkOrder() != null).collect(Collectors.toList());
-            Collection<Request> cancelledRequests =
-                    requests.stream().filter(Request::isCancelled).collect(Collectors.toList());
-            Collection<Request> pendingRequests =
-                    requests.stream().filter(request -> request.getWorkOrder() == null && !request.isCancelled()).collect(Collectors.toList());
-            Collection<Request> completeRequests =
-                    approvedRequests.stream().filter(request -> request.getWorkOrder().getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
-            double cycleTime =
-                    WorkOrder.getAverageAge(completeRequests.stream().map(Request::getWorkOrder).collect(Collectors.toList()));
-            return ResponseEntity.ok(RequestStats.builder()
-                    .approved(approvedRequests.size())
-                    .pending(pendingRequests.size())
-                    .cancelled(cancelledRequests.size())
-                    .cycleTime(cycleTime)
-                    .build());
+            return ResponseEntity.ok(AnalyticsSummaryService.requestStats(requests));
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 

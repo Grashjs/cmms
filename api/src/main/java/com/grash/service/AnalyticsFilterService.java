@@ -72,7 +72,7 @@ public class AnalyticsFilterService {
         return new AnalyticsFilter(locationIds, assetCategoryIds, teamIds, categoryIds, priorities);
     }
 
-    private static List<Long> ids(FilterField filterField) {
+    static List<Long> ids(FilterField filterField) {
         return values(filterField).stream().map(value -> {
             try {
                 return Long.valueOf(value.toString());
@@ -83,7 +83,7 @@ public class AnalyticsFilterService {
         }).toList();
     }
 
-    private static Priority priority(Object value) {
+    static Priority priority(Object value) {
         try {
             return Priority.valueOf(value.toString().toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException e) {
@@ -94,7 +94,7 @@ public class AnalyticsFilterService {
     /**
      * @return the non-null values of the filter: {@code values} for {@code in}, or {@code value} for {@code eq}
      */
-    private static List<Object> values(FilterField filterField) {
+    static List<Object> values(FilterField filterField) {
         List<Object> values = new ArrayList<>();
         if (filterField.getValues() != null) values.addAll(filterField.getValues());
         if (values.isEmpty() && filterField.getValue() != null && !filterField.getValue().toString().isBlank()) {

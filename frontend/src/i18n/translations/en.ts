@@ -1129,6 +1129,10 @@ const locale = {
   availability: 'Availability',
   previous_period_value: 'Previous period ({{start}} – {{end}}): {{value}}',
   percentage_points_short: 'pts',
+  maintenance_summary: 'Summary PDF',
+  maintenance_summary_description:
+    'Download a PDF with the main figures of the period compared with the previous period, using the selected filters',
+  maintenance_summary_error: "The summary couldn't be generated",
   customer: 'Contractor',
   to: 'to',
   dates: 'Dates',

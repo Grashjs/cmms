@@ -66,24 +66,7 @@ public class WOAnalyticsController {
             Collection<WorkOrder> workOrders =
                     filter.apply(workOrderService.findByCompanyAndCreatedAtBetween(resolvedCompanyId, dateRange.getStart()
                             , dateRange.getEnd()));
-            Collection<WorkOrder> completedWO =
-                    workOrders.stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).toList();
-            Collection<WorkOrder> withFirstTimeToReactWO =
-                    workOrders.stream().filter(workOrder -> workOrder.getFirstTimeToReact() != null).toList();
-            int total = workOrders.size();
-            int complete = completedWO.size();
-            int compliant = (int) completedWO.stream().filter(WorkOrder::isCompliant).count();
-            // in fractional hours, averaged from minutes so that sub-hour responses are not counted as 0
-            double mtta = withFirstTimeToReactWO.stream().mapToLong(workOrder ->
-                            Helper.getDateDiff(workOrder.getCreatedAt(), workOrder.getFirstTimeToReact(),
-                                    TimeUnit.MINUTES))
-                    .average().orElse(0) / 60;
-            return ResponseEntity.ok(WOStats.builder()
-                    .total(total)
-                    .complete(complete)
-                    .compliant(compliant)
-                    .mtta(mtta)
-                    .avgCycleTime(WorkOrder.getAverageAge(completedWO)).build());
+            return ResponseEntity.ok(AnalyticsSummaryService.workOrderStats(workOrders));
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
@@ -561,20 +544,7 @@ public class WOAnalyticsController {
             AnalyticsFilter filter = analyticsFilterService.resolve(resolvedCompanyId, dateRange);
             Collection<WorkOrder> completeWorkOrders = filter.apply(workOrderService.findByCompanyAndCreatedAtBetween(
                     resolvedCompanyId, dateRange.getStart(), dateRange.getEnd())).stream().filter(workOrder -> workOrder.getStatus().equals(Status.COMPLETE)).toList();
-            double additionalCost = workOrderService.getAdditionalCost(completeWorkOrders);
-            long laborCost = workOrderService.getLaborCostAndTime(completeWorkOrders).getFirst();
-            long laborTime = workOrderService.getLaborCostAndTime(completeWorkOrders).getSecond();
-            double partCost = workOrderService.getPartCost(completeWorkOrders);
-            double total = laborCost + partCost + additionalCost;
-
-            return ResponseEntity.ok(WOCostsAndTime.builder()
-                    .total(total)
-                    .average(completeWorkOrders.size() == 0 ? 0 : total / completeWorkOrders.size())
-                    .additionalCost(additionalCost)
-                    .laborCost(laborCost)
-                    .partCost(partCost)
-                    .laborTime(laborTime)
-                    .build());
+            return ResponseEntity.ok(workOrderService.getCostsAndTime(completeWorkOrders));
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 

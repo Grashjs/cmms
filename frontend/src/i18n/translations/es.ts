@@ -1185,6 +1185,10 @@ const esJSON = {
   availability: 'Disponibilidad',
   previous_period_value: 'Período anterior ({{start}} – {{end}}): {{value}}',
   percentage_points_short: 'p. p.',
+  maintenance_summary: 'Resumen PDF',
+  maintenance_summary_description:
+    'Descarga un PDF con los principales indicadores del período comparados con el período anterior, con los filtros seleccionados',
+  maintenance_summary_error: 'No se pudo generar el resumen',
   customer: 'Contratista',
   to: 'a',
   dates: 'Fechas',

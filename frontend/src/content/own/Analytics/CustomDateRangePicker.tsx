@@ -1,14 +1,16 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useContext } from 'react';
 import {
   Box,
   Button,
   Card,
   Checkbox,
+  CircularProgress,
   FormControlLabel,
   Menu,
   MenuItem,
   Stack,
   TextField,
+  Tooltip,
   Popover,
   useTheme
 } from '@mui/material';
@@ -20,8 +22,11 @@ import { format } from 'date-fns';
 import en from 'date-fns/locale/en-US';
 import useAuth from '../../../hooks/useAuth';
 import BusinessTwoToneIcon from '@mui/icons-material/BusinessTwoTone';
+import PictureAsPdfTwoToneIcon from '@mui/icons-material/PictureAsPdfTwoTone';
 import { FilterField } from '../../../models/owns/page';
 import AnalyticsFilters from './AnalyticsFilters';
+import { downloadMaintenanceSummary } from '../../../slices/analytics/summary';
+import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
 
 interface OwnProps {
   start: Date;
@@ -52,6 +57,15 @@ export default function ({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const openMenu = Boolean(anchorEl);
   const theme = useTheme();
+  const { showSnackBar } = useContext(CustomSnackBarContext);
+  const [exporting, setExporting] = useState(false);
+
+  const handleExport = () => {
+    setExporting(true);
+    downloadMaintenanceSummary(start, end, companyId, filterFields ?? [])
+      .catch(() => showSnackBar(t('maintenance_summary_error'), 'error'))
+      .finally(() => setExporting(false));
+  };
 
   const [state, setState] = useState([
     {
@@ -115,9 +129,16 @@ export default function ({
   return (
     <>
       <Card sx={{ display: 'flex', p: 2, justifyContent: 'center' }}>
-        <Stack direction="row" spacing={1} alignItems="center">
+        {/* wraps on narrow screens: date, filters, PDF and company buttons */}
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="center"
+          flexWrap="wrap"
+          sx={{ gap: 1 }}
+        >
           <TextField
-            sx={{ width: 250 }}
+            sx={{ width: 250, maxWidth: '100%' }}
             value={`${displayStartDate} ${t('to')} ${displayEndDate}`}
             onClick={handleOpen}
             InputProps={{
@@ -131,6 +152,25 @@ export default function ({
               onChange={onFilterFieldsChange}
             />
           )}
+          <Tooltip title={t('maintenance_summary_description')}>
+            <span>
+              <Button
+                onClick={handleExport}
+                disabled={exporting || !start || !end}
+                variant="outlined"
+                size="large"
+                startIcon={
+                  exporting ? (
+                    <CircularProgress size={18} />
+                  ) : (
+                    <PictureAsPdfTwoToneIcon />
+                  )
+                }
+              >
+                {t('maintenance_summary')}
+              </Button>
+            </span>
+          </Tooltip>
           {isSuperUser && (
             <>
               <Button

@@ -6,6 +6,7 @@ import com.grash.dto.CalendarEvent;
 import com.grash.dto.DateRange;
 import com.grash.dto.analytics.AnalyticsFilter;
 import com.grash.dto.analytics.assets.AssetAvailability;
+import com.grash.dto.analytics.summary.AnalyticsSummary;
 import com.grash.dto.analytics.workOrders.MaintenanceKpis;
 import com.grash.dto.ReportConfig;
 import com.grash.dto.WorkOrderChangeStatusDTO;
@@ -18,11 +19,15 @@ import com.grash.model.enums.*;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.*;
 import com.grash.service.AnalyticsFilterService;
+import com.grash.service.AnalyticsSummaryService;
 import com.grash.service.MaintenanceKpiService;
 import com.grash.service.TeamService;
 import com.grash.service.WebhookDispatchService;
 import com.grash.service.WorkOrderService;
 import com.grash.utils.Helper;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfReader;
+import com.itextpdf.kernel.pdf.canvas.parser.PdfTextExtractor;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -35,6 +40,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -103,6 +111,8 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
     private AssetDowntimeRepository assetDowntimeRepository;
     @Autowired
     private MaintenanceKpiService maintenanceKpiService;
+    @Autowired
+    private AnalyticsSummaryService analyticsSummaryService;
 
     @MockitoBean
     private WebhookDispatchService webhookDispatchService;
@@ -2076,6 +2086,76 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
             downtime.setStartsOn(new Date(startsOn));
             downtime.setDuration(durationSeconds);
             assetDowntimeRepository.saveAndFlush(downtime);
+        }
+    }
+
+    @Nested
+    class AnalyticsSummaryTests {
+
+        private static final long DAY = 86_400_000L;
+
+        @Test
+        void renderPdf_summarizesTheFilteredPeriod() throws IOException {
+            long now = System.currentTimeMillis();
+            Team biomedical = new Team();
+            biomedical.setName("Biomedical");
+            biomedical.setCompany(company);
+            biomedical.setUsers(new ArrayList<>());
+            biomedical = teamRepository.saveAndFlush(biomedical);
+
+            WorkOrder biomedicalJob = workOrder("Biomedical job", Status.COMPLETE);
+            biomedicalJob.setTeam(biomedical);
+            biomedicalJob.setCompletedBy(user);
+            biomedicalJob.setCompletedOn(new Date(now));
+            workOrderRepository.saveAndFlush(biomedicalJob);
+            workOrder("Other job", Status.OPEN);
+            em.clear();
+
+            DateRange range = DateRange.builder()
+                    .start(new Date(now - DAY))
+                    .end(new Date(now + DAY))
+                    .filterFields(List.of(FilterField.builder().field("team").operation("in").value("")
+                            .values(new ArrayList<>(List.of(biomedical.getId()))).build()))
+                    .build();
+
+            AnalyticsSummary summary = analyticsSummaryService.build(company.getId(), range.getStart(),
+                    range.getEnd(), analyticsFilterService.resolve(company.getId(), range));
+            assertEquals(1, summary.current().workOrders().getTotal());
+            assertEquals(1, summary.current().workOrders().getComplete());
+            assertEquals(0, summary.previous().workOrders().getTotal());
+
+            byte[] pdf = analyticsSummaryService.renderPdf(user, company.getId(), range);
+
+            assertEquals("%PDF", new String(pdf, 0, 4, StandardCharsets.US_ASCII));
+            String text = text(pdf);
+            assertTrue(text.contains("Maintenance summary"), text);
+            assertTrue(text.contains("TestCompany"), text);
+            assertTrue(text.contains("Biomedical"), text);
+        }
+
+        private WorkOrder workOrder(String title, Status status) {
+            WorkOrder wo = new WorkOrder();
+            wo.setTitle(title);
+            wo.setStatus(status);
+            wo.setPriority(Priority.NONE);
+            wo.setEstimatedDuration(1.0);
+            wo.setCompany(company);
+            wo.setCreatedBy(user.getId());
+            wo.setAssignedTo(new ArrayList<>());
+            wo.setCustomers(new ArrayList<>());
+            wo.setFiles(new ArrayList<>());
+            wo.setCustomFieldValues(new ArrayList<>());
+            return workOrderRepository.saveAndFlush(wo);
+        }
+
+        private String text(byte[] pdf) throws IOException {
+            StringBuilder text = new StringBuilder();
+            try (PdfDocument document = new PdfDocument(new PdfReader(new ByteArrayInputStream(pdf)))) {
+                for (int page = 1; page <= document.getNumberOfPages(); page++) {
+                    text.append(PdfTextExtractor.getTextFromPage(document.getPage(page))).append('\n');
+                }
+            }
+            return text.toString();
         }
     }
 
