@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import Loading from '../../Loading';
 import { roundDecimals } from '../../../../../utils/formatters';
 import { getRequestOverview } from '../../../../../slices/analytics/request';
+import { FilterField } from '../../../../../models/owns/page';
 
 interface WOStatusNumbersProps {
   handleOpenModal: (
@@ -17,15 +18,16 @@ interface WOStatusNumbersProps {
   start: Date;
   end: Date;
   companyId?: number;
+  filterFields?: FilterField[];
 }
 
-function Overview({ handleOpenModal, start, end, companyId }: WOStatusNumbersProps) {
+function Overview({ handleOpenModal, start, end, companyId, filterFields }: WOStatusNumbersProps) {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const { overview, loading } = useSelector((state) => state.requestAnalytics);
   useEffect(() => {
-    dispatch(getRequestOverview(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getRequestOverview(start, end, companyId, filterFields));
+  }, [start, end, companyId, filterFields]);
 
   const totalCount = overview.approved + overview.pending + overview.cancelled;
 

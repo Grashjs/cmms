@@ -20,6 +20,7 @@ import Loading from '../../Loading';
 import { getRandomColor } from '../../../../../utils/overall';
 import { getRequestsResolvedByDate } from '../../../../../slices/analytics/request';
 import { getDayAndMonth } from '../../../../../utils/dates';
+import { FilterField } from '../../../../../models/owns/page';
 
 interface OwnProps {
   handleOpenModal: (
@@ -29,10 +30,11 @@ interface OwnProps {
   ) => void,
   start: Date,
   end: Date,
-  companyId?: number
+  companyId?: number;
+  filterFields?: FilterField[];
 }
 
-function RequestsResolution({ handleOpenModal, start, end, companyId }: OwnProps) {
+function RequestsResolution({ handleOpenModal, start, end, companyId, filterFields }: OwnProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const { requestsResolvedByDate, loading } = useSelector(
@@ -41,8 +43,8 @@ function RequestsResolution({ handleOpenModal, start, end, companyId }: OwnProps
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getRequestsResolvedByDate(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getRequestsResolvedByDate(start, end, companyId, filterFields));
+  }, [start, end, companyId, filterFields]);
 
   const columns: string[] = ['id'];
 

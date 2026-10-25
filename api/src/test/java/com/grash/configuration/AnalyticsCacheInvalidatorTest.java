@@ -55,12 +55,23 @@ class AnalyticsCacheInvalidatorTest {
 
         @Test
         void untrackedEntity_isIgnored() {
+            Vendor vendor = new Vendor();
+            vendor.setCompany(company(1L));
+
+            invalidator.onChange(vendor);
+
+            verifyNoInteractions(analyticsCacheService);
+        }
+
+        @Test
+        void locationChange_invalidatesItsCompany() {
+            // location filters include sub-locations
             Location location = new Location();
-            location.setCompany(company(1L));
+            location.setCompany(company(3L));
 
             invalidator.onChange(location);
 
-            verifyNoInteractions(analyticsCacheService);
+            verify(analyticsCacheService).invalidateCompany(3L);
         }
 
         @Test

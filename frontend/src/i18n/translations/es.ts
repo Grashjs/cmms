@@ -1152,6 +1152,8 @@ const esJSON = {
   to_export: 'Exportar',
   filters: 'Filtros',
   more_filters: 'Más filtros',
+  asset_category: 'Categoría de activo',
+  work_order_category: 'Categoría de orden de trabajo',
   customer: 'Contratista',
   to: 'a',
   dates: 'Fechas',

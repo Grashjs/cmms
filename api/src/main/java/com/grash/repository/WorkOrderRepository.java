@@ -15,6 +15,21 @@ import java.util.List;
 import java.util.Optional;
 
 public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>, JpaSpecificationExecutor<WorkOrder> {
+
+    /**
+     * Analytics filters for native queries on {@code work_order wo}. Each parameter holds the selected ids (priority
+     * ordinals for {@code priorities}), or only {@code AnalyticsFilter.NOT_FILTERED} (-1) when that dimension is not
+     * filtered, which also avoids an empty {@code IN ()}. Build them with {@code AnalyticsFilter#*Param()}.
+     */
+    String ANALYTICS_FILTER = """
+              AND (-1 IN (:locationIds) OR wo.location_id IN (:locationIds))
+              AND (-1 IN (:teamIds) OR wo.team_id IN (:teamIds))
+              AND (-1 IN (:categoryIds) OR wo.category_id IN (:categoryIds))
+              AND (-1 IN (:priorities) OR wo.priority IN (:priorities))
+              AND (-1 IN (:assetCategoryIds) OR EXISTS (
+                SELECT 1 FROM asset fa WHERE fa.id = wo.asset_id AND fa.category_id IN (:assetCategoryIds)))
+            """;
+
     Collection<WorkOrder> findByCompany_Id(Long id);
 
     @Query("SELECT w FROM WorkOrder w " +
@@ -86,6 +101,7 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>, Jpa
             WHERE wo.company_id = :companyId
               AND wo.created_at BETWEEN :start AND :end
               AND wo.status != 3
+            """ + ANALYTICS_FILTER + """
             GROUP BY a.id, a.name
             ORDER BY cnt DESC
             LIMIT :limit
@@ -93,7 +109,12 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>, Jpa
     List<Object[]> findTopNAssetsByIncompleteWO(@Param("companyId") Long companyId,
                                                 @Param("start") Date start,
                                                 @Param("end") Date end,
-                                                @Param("limit") int limit);
+                                                @Param("limit") int limit,
+                                                @Param("locationIds") Collection<Long> locationIds,
+                                                @Param("assetCategoryIds") Collection<Long> assetCategoryIds,
+                                                @Param("teamIds") Collection<Long> teamIds,
+                                                @Param("categoryIds") Collection<Long> categoryIds,
+                                                @Param("priorities") Collection<Integer> priorities);
 
     @Query(value = """
             WITH wo_agg AS (
@@ -125,6 +146,7 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>, Jpa
               WHERE wo.company_id = :companyId
                 AND wo.created_at BETWEEN :start AND :end
                 AND wo.status = 3
+            """ + ANALYTICS_FILTER + """
             )
             SELECT
               a.id,
@@ -145,7 +167,12 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>, Jpa
     List<Object[]> findTopNAssetsTimeCost(@Param("companyId") Long companyId,
                                           @Param("start") Date start,
                                           @Param("end") Date end,
-                                          @Param("limit") int limit);
+                                          @Param("limit") int limit,
+                                          @Param("locationIds") Collection<Long> locationIds,
+                                          @Param("assetCategoryIds") Collection<Long> assetCategoryIds,
+                                          @Param("teamIds") Collection<Long> teamIds,
+                                          @Param("categoryIds") Collection<Long> categoryIds,
+                                          @Param("priorities") Collection<Integer> priorities);
 
     @Query(value = """
             SELECT wo.id, wo.completed_on,
@@ -173,11 +200,17 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>, Jpa
             WHERE wo.company_id = :companyId
               AND wo.completed_on BETWEEN :start AND :end
               AND wo.status = 3
+            """ + ANALYTICS_FILTER + """
             ORDER BY wo.completed_on
             """, nativeQuery = true)
     List<Object[]> findWOCostsByDateRange(@Param("companyId") Long companyId,
                                           @Param("start") Date start,
-                                          @Param("end") Date end);
+                                          @Param("end") Date end,
+                                          @Param("locationIds") Collection<Long> locationIds,
+                                          @Param("assetCategoryIds") Collection<Long> assetCategoryIds,
+                                          @Param("teamIds") Collection<Long> teamIds,
+                                          @Param("categoryIds") Collection<Long> categoryIds,
+                                          @Param("priorities") Collection<Integer> priorities);
 
     @Query(value = """
             SELECT a.id, a.name,

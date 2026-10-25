@@ -7,6 +7,7 @@ import { useContext, useEffect } from 'react';
 import { getCompleteCosts } from '../../../../../slices/analytics/workOrder';
 import Loading from '../../Loading';
 import { CompanySettingsContext } from '../../../../../contexts/CompanySettingsContext';
+import { FilterField } from '../../../../../models/owns/page';
 
 interface WOStatusNumbersProps {
   handleOpenModal: (
@@ -17,17 +18,18 @@ interface WOStatusNumbersProps {
   start: Date;
   end: Date;
   companyId?: number;
+  filterFields?: FilterField[];
 }
 
-function Overview({ handleOpenModal, start, end, companyId }: WOStatusNumbersProps) {
+function Overview({ handleOpenModal, start, end, companyId, filterFields }: WOStatusNumbersProps) {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const { getFormattedCurrency } = useContext(CompanySettingsContext);
   const { completeCosts, loading } = useSelector((state) => state.woAnalytics);
 
   useEffect(() => {
-    dispatch(getCompleteCosts(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getCompleteCosts(start, end, companyId, filterFields));
+  }, [start, end, companyId, filterFields]);
 
   const formattedData: {
     label: string;

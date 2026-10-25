@@ -20,6 +20,8 @@ import { format } from 'date-fns';
 import en from 'date-fns/locale/en-US';
 import useAuth from '../../../hooks/useAuth';
 import BusinessTwoToneIcon from '@mui/icons-material/BusinessTwoTone';
+import { FilterField } from '../../../models/owns/page';
+import AnalyticsFilters from './AnalyticsFilters';
 
 interface OwnProps {
   start: Date;
@@ -28,6 +30,9 @@ interface OwnProps {
   setEnd: (date: Date) => void;
   companyId?: number;
   onCompanyChange?: (companyId: number | undefined) => void;
+  // shows the location / asset category / team / category / priority filters
+  filterFields?: FilterField[];
+  onFilterFieldsChange?: (filterFields: FilterField[]) => void;
 }
 
 export default function ({
@@ -36,7 +41,9 @@ export default function ({
   setEnd,
   setStart,
   companyId,
-  onCompanyChange
+  onCompanyChange,
+  filterFields,
+  onFilterFieldsChange
 }: OwnProps) {
   const { t }: { t: any } = useTranslation();
   const { user } = useAuth();
@@ -118,6 +125,12 @@ export default function ({
             }}
             ref={anchorRef}
           />
+          {onFilterFieldsChange && (
+            <AnalyticsFilters
+              filterFields={filterFields ?? []}
+              onChange={onFilterFieldsChange}
+            />
+          )}
           {isSuperUser && (
             <>
               <Button

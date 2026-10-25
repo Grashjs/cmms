@@ -1,6 +1,7 @@
 package com.grash.controller.analytics;
 
 import com.grash.dto.DateRange;
+import com.grash.dto.analytics.AnalyticsFilter;
 import com.grash.dto.analytics.requests.*;
 import com.grash.exception.CustomException;
 import com.grash.model.User;
@@ -10,6 +11,7 @@ import com.grash.model.WorkOrderCategory;
 import com.grash.model.enums.Priority;
 import com.grash.model.enums.Status;
 import com.grash.security.CurrentUser;
+import com.grash.service.AnalyticsFilterService;
 import com.grash.service.CompanyService;
 import com.grash.service.RequestService;
 import com.grash.service.UserService;
@@ -41,6 +43,7 @@ public class RequestAnalyticsController {
     private final WorkOrderCategoryService workOrderCategoryService;
     private final RequestService requestService;
     private final CompanyService companyService;
+    private final AnalyticsFilterService analyticsFilterService;
 
     @PostMapping("/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
@@ -54,8 +57,9 @@ public class RequestAnalyticsController {
                                                                 "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
             Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
-            Collection<Request> requests = requestService.findByCreatedAtBetweenAndCompany(dateRange.getStart(),
-                    dateRange.getEnd(), resolvedCompanyId);
+            AnalyticsFilter filter = analyticsFilterService.resolve(resolvedCompanyId, dateRange);
+            Collection<Request> requests = filter.apply(requestService.findByCreatedAtBetweenAndCompany(dateRange.getStart(),
+                    dateRange.getEnd(), resolvedCompanyId));
             Collection<Request> approvedRequests =
                     requests.stream().filter(request -> request.getWorkOrder() != null).collect(Collectors.toList());
             Collection<Request> cancelledRequests =
@@ -87,8 +91,9 @@ public class RequestAnalyticsController {
                                                                 @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
             Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
-            Collection<Request> requests = requestService.findByCreatedAtBetweenAndCompany(dateRange.getStart(),
-                    dateRange.getEnd(), resolvedCompanyId);
+            AnalyticsFilter filter = analyticsFilterService.resolve(resolvedCompanyId, dateRange);
+            Collection<Request> requests = filter.apply(requestService.findByCreatedAtBetweenAndCompany(dateRange.getStart(),
+                    dateRange.getEnd(), resolvedCompanyId));
 
             int highCounts = getCountsByPriority(Priority.HIGH, requests);
             int noneCounts = getCountsByPriority(Priority.NONE, requests);
@@ -125,6 +130,7 @@ public class RequestAnalyticsController {
                                                                      @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
             Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
+            AnalyticsFilter filter = analyticsFilterService.resolve(resolvedCompanyId, dateRange);
             List<RequestsByMonth> result = new ArrayList<>();
             LocalDate endDateLocale = Helper.dateToLocalDate(dateRange.getEnd());
             LocalDate currentDate = Helper.dateToLocalDate(dateRange.getStart());
@@ -139,8 +145,8 @@ public class RequestAnalyticsController {
                 // range
                 nextDate = nextDate.isAfter(endDateLocale) ? endDateLocale : nextDate; // Adjust for the end date
                 Collection<Request> requests =
-                        requestService.findByCreatedAtBetweenAndCompany(Helper.localDateToDate(currentDate),
-                                Helper.localDateToDate(nextDate), resolvedCompanyId);
+                        filter.apply(requestService.findByCreatedAtBetweenAndCompany(Helper.localDateToDate(currentDate),
+                                Helper.localDateToDate(nextDate), resolvedCompanyId));
                 Collection<Request> completeRequests =
                         requests.stream().filter(request -> request.getWorkOrder() != null && request.getWorkOrder().getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());
                 double cycleTime =
@@ -166,6 +172,7 @@ public class RequestAnalyticsController {
                                                                            @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
             Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
+            AnalyticsFilter filter = analyticsFilterService.resolve(resolvedCompanyId, dateRange);
             Collection<WorkOrderCategory> categories =
                     workOrderCategoryService.findByCompanySettings(
                             companyService.findById(resolvedCompanyId)
@@ -173,8 +180,8 @@ public class RequestAnalyticsController {
                                     .getCompanySettings().getId());
             Collection<CountByCategory> results = new ArrayList<>();
             categories.forEach(category -> {
-                int count = requestService.findByCategoryAndCreatedAtBetween(category.getId(), dateRange.getStart(),
-                        dateRange.getEnd()).size();
+                int count = filter.apply(requestService.findByCategoryAndCreatedAtBetween(category.getId(), dateRange.getStart(),
+                        dateRange.getEnd())).size();
                 results.add(CountByCategory.builder()
                         .name(category.getName())
                         .id(category.getId())
@@ -201,6 +208,7 @@ public class RequestAnalyticsController {
         LocalDate endDateLocale = Helper.dateToLocalDate(dateRange.getEnd());
         if (user.canSeeAnalytics()) {
             Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
+            AnalyticsFilter filter = analyticsFilterService.resolve(resolvedCompanyId, dateRange);
             List<RequestsResolvedByDate> result = new ArrayList<>();
             LocalDate currentDate = Helper.dateToLocalDate(dateRange.getStart());
             LocalDate endDateExclusive = Helper.dateToLocalDate(dateRange.getEnd()).plusDays(1); // Include end date
@@ -214,8 +222,8 @@ public class RequestAnalyticsController {
                 // range
                 nextDate = nextDate.isAfter(endDateLocale) ? endDateLocale : nextDate; // Adjust for the end date
                 Collection<Request> notCancelledRequests =
-                        requestService.findByCreatedAtBetweenAndCompany(Helper.localDateToDate(currentDate),
-                                        Helper.localDateToDate(nextDate), resolvedCompanyId)
+                        filter.apply(requestService.findByCreatedAtBetweenAndCompany(Helper.localDateToDate(currentDate),
+                                        Helper.localDateToDate(nextDate), resolvedCompanyId))
                                 .stream().filter(request -> !request.isCancelled()).collect(Collectors.toList());
                 Collection<Request> completeRequests =
                         notCancelledRequests.stream().filter(request -> request.getWorkOrder() != null && request.getWorkOrder().getStatus().equals(Status.COMPLETE)).collect(Collectors.toList());

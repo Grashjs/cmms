@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import { getOverviewStats } from '../../../../../slices/analytics/workOrder';
 import Loading from '../../Loading';
 import { roundDecimals } from '../../../../../utils/formatters';
+import { FilterField } from '../../../../../models/owns/page';
 
 interface WOStatusNumbersProps {
   handleOpenModal: (
@@ -17,16 +18,17 @@ interface WOStatusNumbersProps {
   start: Date;
   end: Date;
   companyId?: number;
+  filterFields?: FilterField[];
 }
 
-function Overview({ handleOpenModal, start, end, companyId }: WOStatusNumbersProps) {
+function Overview({ handleOpenModal, start, end, companyId, filterFields }: WOStatusNumbersProps) {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const { overview, loading } = useSelector((state) => state.woAnalytics);
 
   useEffect(() => {
-    dispatch(getOverviewStats(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getOverviewStats(start, end, companyId, filterFields));
+  }, [start, end, companyId, filterFields]);
 
   const datas: {
     label: string;

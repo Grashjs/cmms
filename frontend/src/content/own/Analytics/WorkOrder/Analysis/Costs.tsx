@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from '../../../../../store';
 import { useContext, useEffect } from 'react';
 import { getCompleteCosts } from '../../../../../slices/analytics/workOrder';
 import { CompanySettingsContext } from '../../../../../contexts/CompanySettingsContext';
+import { FilterField } from '../../../../../models/owns/page';
 
 interface HoursWorkedProps {
   handleOpenModal: (
@@ -16,16 +17,17 @@ interface HoursWorkedProps {
   start: Date;
   end: Date;
   companyId?: number;
+  filterFields?: FilterField[];
 }
 
-function Costs({ handleOpenModal, start, end, companyId }: HoursWorkedProps) {
+function Costs({ handleOpenModal, start, end, companyId, filterFields }: HoursWorkedProps) {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const { completeCosts, loading } = useSelector((state) => state.woAnalytics);
   const { getFormattedCurrency } = useContext(CompanySettingsContext);
   useEffect(() => {
-    dispatch(getCompleteCosts(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getCompleteCosts(start, end, companyId, filterFields));
+  }, [start, end, companyId, filterFields]);
 
   const columns = ['id'];
   const formattedData: { label: string; value: string; filters: Filter[] }[] = [

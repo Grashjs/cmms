@@ -18,6 +18,7 @@ import { useEffect } from 'react';
 import Loading from '../../Loading';
 import { getRandomColor } from '../../../../../utils/overall';
 import { getWOTimeCostByAsset } from '../../../../../slices/analytics/asset';
+import { FilterField } from '../../../../../models/owns/page';
 
 interface WOStatusIncompleteProps {
   handleOpenModal: (
@@ -28,9 +29,10 @@ interface WOStatusIncompleteProps {
   start: Date;
   end: Date;
   companyId?: number;
+  filterFields?: FilterField[];
 }
 
-function TimeCostByAsset({ handleOpenModal, start, end, companyId }: WOStatusIncompleteProps) {
+function TimeCostByAsset({ handleOpenModal, start, end, companyId, filterFields }: WOStatusIncompleteProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const { completeTimeCostByAsset, loading } = useSelector(
@@ -39,8 +41,8 @@ function TimeCostByAsset({ handleOpenModal, start, end, companyId }: WOStatusInc
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getWOTimeCostByAsset(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getWOTimeCostByAsset(start, end, companyId, filterFields));
+  }, [start, end, companyId, filterFields]);
 
   const columns: string[] = ['id'];
 

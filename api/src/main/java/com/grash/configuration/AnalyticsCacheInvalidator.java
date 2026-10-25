@@ -50,7 +50,9 @@ public class AnalyticsCacheInvalidator implements PostInsertEventListener, PostU
             AssetDowntime.class,
             Meter.class,
             Reading.class,
-            WorkOrderCategory.class
+            WorkOrderCategory.class,
+            // location filters include sub-locations, so moving a location changes filtered reports
+            Location.class
     );
 
     private final EntityManagerFactory entityManagerFactory;

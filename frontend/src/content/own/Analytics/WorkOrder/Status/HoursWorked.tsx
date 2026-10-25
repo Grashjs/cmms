@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import { getWOHours } from '../../../../../slices/analytics/workOrder';
 import Loading from '../../Loading';
 import { roundDecimals } from '../../../../../utils/formatters';
+import { FilterField } from '../../../../../models/owns/page';
 
 interface HoursWorkedProps {
   handleOpenModal: (
@@ -17,16 +18,17 @@ interface HoursWorkedProps {
   start: Date;
   end: Date;
   companyId?: number;
+  filterFields?: FilterField[];
 }
 
-function HoursWorked({ handleOpenModal, start, end, companyId }: HoursWorkedProps) {
+function HoursWorked({ handleOpenModal, start, end, companyId, filterFields }: HoursWorkedProps) {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const { hours, loading } = useSelector((state) => state.woAnalytics);
 
   useEffect(() => {
-    dispatch(getWOHours(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getWOHours(start, end, companyId, filterFields));
+  }, [start, end, companyId, filterFields]);
 
   const columns = ['id'];
   const formattedData: { label: string; value: string | number; filters: Filter[] }[] = [

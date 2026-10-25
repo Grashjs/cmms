@@ -4,6 +4,7 @@ import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.CalendarEvent;
 import com.grash.dto.DateRange;
+import com.grash.dto.analytics.AnalyticsFilter;
 import com.grash.dto.ReportConfig;
 import com.grash.dto.WorkOrderChangeStatusDTO;
 import com.grash.dto.license.LicenseEntitlement;
@@ -14,6 +15,7 @@ import com.grash.model.*;
 import com.grash.model.enums.*;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.*;
+import com.grash.service.AnalyticsFilterService;
 import com.grash.service.TeamService;
 import com.grash.service.WebhookDispatchService;
 import com.grash.service.WorkOrderService;
@@ -90,6 +92,10 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
     private TeamRepository teamRepository;
     @Autowired
     private PreventiveMaintenanceRepository preventiveMaintenanceRepository;
+    @Autowired
+    private AssetCategoryRepository assetCategoryRepository;
+    @Autowired
+    private AnalyticsFilterService analyticsFilterService;
 
     @MockitoBean
     private WebhookDispatchService webhookDispatchService;
@@ -1748,6 +1754,182 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
             Object[] row = result.get(0);
             assertEquals(150.0, ((Number) row[0]).doubleValue(), 0.001);
             assertEquals(300.0, ((Number) row[2]).doubleValue(), 0.001);
+        }
+    }
+
+    @Nested
+    class AnalyticsFilterTests {
+
+        private final Date start = new Date(0);
+        private final Date end = new Date(System.currentTimeMillis() + 86400000);
+        private Location building;
+        private Location room;
+        private Team team;
+        private WorkOrderCategory electrical;
+        private AssetCategory critical;
+        private Asset ventilator;
+        private Asset printer;
+
+        @BeforeEach
+        void setUpFilterTargets() {
+            building = location("Building", null);
+            room = location("ICU", building);
+
+            team = new Team();
+            team.setName("Biomedical");
+            team.setCompany(company);
+            team.setUsers(new ArrayList<>());
+            team = teamRepository.saveAndFlush(team);
+
+            electrical = new WorkOrderCategory();
+            electrical.setName("Electrical");
+            electrical.setCompanySettings(company.getCompanySettings());
+            electrical = workOrderCategoryRepository.saveAndFlush(electrical);
+
+            critical = new AssetCategory();
+            critical.setName("Critical");
+            critical.setCompanySettings(company.getCompanySettings());
+            critical = assetCategoryRepository.saveAndFlush(critical);
+
+            ventilator = asset("Ventilator", critical);
+            printer = asset("Printer", null);
+        }
+
+        @Test
+        void resolve_locationIncludesSubLocations() {
+            AnalyticsFilter filter = filter("location", building.getId());
+
+            assertTrue(filter.locationIds().containsAll(List.of(building.getId(), room.getId())));
+        }
+
+        @Test
+        void apply_filtersLoadedWorkOrdersByAssetCategory() {
+            WorkOrder onVentilator = workOrder("On ventilator", Status.OPEN, ventilator);
+            workOrder("On printer", Status.OPEN, printer);
+            em.clear();
+
+            List<WorkOrder> result = filter("asset.category", critical.getId())
+                    .apply(workOrderService.findByCompanyAndCreatedAtBetween(company.getId(), start, end));
+
+            assertEquals(List.of(onVentilator.getId()), result.stream().map(WorkOrder::getId).toList());
+        }
+
+        @Test
+        void findTopNAssetsByIncompleteWO_appliesEachFilter() {
+            WorkOrder matching = workOrder("Matching", Status.OPEN, ventilator);
+            matching.setLocation(room);
+            matching.setTeam(team);
+            matching.setCategory(electrical);
+            matching.setPriority(Priority.HIGH);
+            workOrderRepository.saveAndFlush(matching);
+            workOrder("Other", Status.OPEN, printer);
+            em.clear();
+
+            assertEquals(Set.of("Ventilator", "Printer"), incompleteAssetNames(AnalyticsFilter.NONE));
+            assertEquals(Set.of("Ventilator"), incompleteAssetNames(filter("location", building.getId())));
+            assertEquals(Set.of("Ventilator"), incompleteAssetNames(filter("asset.category", critical.getId())));
+            assertEquals(Set.of("Ventilator"), incompleteAssetNames(filter("team", team.getId())));
+            assertEquals(Set.of("Ventilator"), incompleteAssetNames(filter("category", electrical.getId())));
+            assertEquals(Set.of("Ventilator"), incompleteAssetNames(filter("priority", "HIGH")));
+            assertEquals(Set.of(), incompleteAssetNames(filter("priority", "LOW")));
+        }
+
+        @Test
+        void findTopNAssetsTimeCost_appliesFilters() {
+            WorkOrder biomedical = completedWithLabor("Biomedical job", ventilator);
+            biomedical.setTeam(team);
+            workOrderRepository.saveAndFlush(biomedical);
+            completedWithLabor("Other job", printer);
+            em.clear();
+
+            List<Object[]> rows = workOrderService.findTopNAssetsTimeCost(company.getId(), start, end, 5,
+                    filter("team", team.getId()));
+
+            assertEquals(List.of("Ventilator"), rows.stream().map(row -> (String) row[1]).toList());
+        }
+
+        @Test
+        void findWOCostsByDateRange_appliesFilters() {
+            WorkOrder electricalJob = completedWithLabor("Electrical job", null);
+            electricalJob.setCategory(electrical);
+            workOrderRepository.saveAndFlush(electricalJob);
+            completedWithLabor("Other job", null);
+            em.clear();
+
+            List<Object[]> rows = workOrderService.findWOCostsByDateRange(company.getId(), start, end,
+                    filter("category", electrical.getId()));
+
+            assertEquals(List.of(electricalJob.getId()), rows.stream().map(row -> ((Number) row[0]).longValue()).toList());
+        }
+
+        private AnalyticsFilter filter(String field, Object value) {
+            FilterField filterField = FilterField.builder()
+                    .field(field)
+                    .operation("in")
+                    .values(new ArrayList<>(List.of(value)))
+                    .build();
+            return analyticsFilterService.resolve(company.getId(),
+                    DateRange.builder().start(start).end(end).filterFields(List.of(filterField)).build());
+        }
+
+        private Set<String> incompleteAssetNames(AnalyticsFilter filter) {
+            return workOrderService.findTopNAssetsByIncompleteWO(company.getId(), start, end, 10, filter).stream()
+                    .map(row -> (String) row[1])
+                    .collect(java.util.stream.Collectors.toSet());
+        }
+
+        private Location location(String name, Location parent) {
+            Location location = new Location();
+            location.setName(name);
+            location.setCompany(company);
+            location.setParentLocation(parent);
+            return locationRepository.saveAndFlush(location);
+        }
+
+        private Asset asset(String name, AssetCategory category) {
+            Asset asset = new Asset();
+            asset.setName(name);
+            asset.setCompany(company);
+            asset.setStatus(AssetStatus.OPERATIONAL);
+            asset.setCategory(category);
+            asset.setFiles(new ArrayList<>());
+            asset.setCustomers(new ArrayList<>());
+            asset.setTeams(new ArrayList<>());
+            asset.setParts(new ArrayList<>());
+            asset.setCustomFieldValues(new ArrayList<>());
+            return assetRepository.saveAndFlush(asset);
+        }
+
+        private WorkOrder workOrder(String title, Status status, Asset asset) {
+            WorkOrder wo = new WorkOrder();
+            wo.setTitle(title);
+            wo.setStatus(status);
+            wo.setPriority(Priority.NONE);
+            wo.setEstimatedDuration(1.0);
+            wo.setCompany(company);
+            wo.setCreatedBy(user.getId());
+            wo.setAsset(asset);
+            wo.setAssignedTo(new ArrayList<>());
+            wo.setCustomers(new ArrayList<>());
+            wo.setFiles(new ArrayList<>());
+            wo.setCustomFieldValues(new ArrayList<>());
+            return workOrderRepository.saveAndFlush(wo);
+        }
+
+        private WorkOrder completedWithLabor(String title, Asset asset) {
+            WorkOrder wo = workOrder(title, Status.COMPLETE, asset);
+            wo.setCompletedBy(user);
+            wo.setCompletedOn(new Date());
+            wo = workOrderRepository.saveAndFlush(wo);
+
+            Labor labor = new Labor();
+            labor.setWorkOrder(wo);
+            labor.setCompany(company);
+            labor.setStartedAt(new Date());
+            labor.setDuration(3600L);
+            labor.setHourlyRate(50L);
+            laborRepository.saveAndFlush(labor);
+            return wo;
         }
     }
 

@@ -88,6 +88,14 @@ class CacheKeyUtilsTest {
                 FilterField.builder().field("location").operation("in").values(List.of(1L)).build()))));
     }
 
+    @Test
+    void analyticsKey_withFiltersButNoDates_onlyAppendsFilters() {
+        FilterField team = FilterField.builder().field("team").operation("in").values(List.of(3L)).build();
+        DateRange onlyFilters = DateRange.builder().filterFields(List.of(team)).build();
+
+        assertEquals("c5_g0.0_u7_f" + List.of(team), CacheKeyUtils.analyticsKey(5L, "0.0", 7L, onlyFilters));
+    }
+
     private static DateRange rangeWithFilters(List<FilterField> filterFields) {
         return DateRange.builder().start(new Date(0)).end(new Date(INTERVAL_MS)).filterFields(filterFields).build();
     }

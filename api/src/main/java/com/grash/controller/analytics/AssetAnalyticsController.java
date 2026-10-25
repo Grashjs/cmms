@@ -1,6 +1,7 @@
 package com.grash.controller.analytics;
 
 import com.grash.dto.DateRange;
+import com.grash.dto.analytics.AnalyticsFilter;
 import com.grash.dto.analytics.assets.*;
 import com.grash.exception.CustomException;
 import com.grash.model.Asset;
@@ -10,6 +11,7 @@ import com.grash.model.WorkOrder;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.Status;
 import com.grash.security.CurrentUser;
+import com.grash.service.AnalyticsFilterService;
 import com.grash.service.AssetDowntimeService;
 import com.grash.service.AssetService;
 import com.grash.service.UserService;
@@ -41,6 +43,7 @@ public class AssetAnalyticsController {
     private final UserService userService;
     private final AssetService assetService;
     private final AssetDowntimeService assetDowntimeService;
+    private final AnalyticsFilterService analyticsFilterService;
 
     @PostMapping("/time-cost")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
@@ -54,10 +57,12 @@ public class AssetAnalyticsController {
                                                                           @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
             Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
+            // shown on the work order "Time and cost" report, so it takes the work order analytics filters
+            AnalyticsFilter filter = analyticsFilterService.resolve(resolvedCompanyId, dateRange);
             boolean includeLaborCost =
                     user.getCompany().getCompanySettings().getGeneralPreferences().isLaborCostInTotalCost();
             List<Object[]> rows = workOrderService.findTopNAssetsTimeCost(
-                    resolvedCompanyId, dateRange.getStart(), dateRange.getEnd(), 10);
+                    resolvedCompanyId, dateRange.getStart(), dateRange.getEnd(), 10, filter);
             Collection<TimeCostByAsset> result = rows.stream()
                     .map(row -> {
                         long time = ((Number) row[2]).longValue();

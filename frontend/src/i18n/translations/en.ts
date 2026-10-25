@@ -1096,6 +1096,8 @@ const locale = {
   to_export: 'Export',
   filters: 'Filters',
   more_filters: 'More Filters',
+  asset_category: 'Asset category',
+  work_order_category: 'Work order category',
   customer: 'Contractor',
   to: 'to',
   dates: 'Dates',

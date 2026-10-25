@@ -18,7 +18,7 @@ public class CacheKeyUtils {
     }
 
     /**
-     * Key of an analytics cache entry: {@code c<companyId>_g<generation>_u<userId>[_<start>_<end>[_f<filters>]]}.
+     * Key of an analytics cache entry: {@code c<companyId>_g<generation>_u<userId>[_<start>_<end>][_f<filters>]}.
      * <p>
      * Dates are rounded to 20 minutes so that requests whose end is "now" can still hit the cache; freshness is
      * guaranteed by the generation, which changes whenever the company's data changes.
@@ -30,8 +30,11 @@ public class CacheKeyUtils {
                 .append("_g").append(generation)
                 .append("_u").append(userId);
         if (dateRange != null) {
-            key.append('_').append(roundToNearest20Minutes(dateRange.getStart()))
-                    .append('_').append(roundToNearest20Minutes(dateRange.getEnd()));
+            // endpoints with a fixed period (e.g. the last weeks) only send filter fields
+            if (dateRange.getStart() != null && dateRange.getEnd() != null) {
+                key.append('_').append(roundToNearest20Minutes(dateRange.getStart()))
+                        .append('_').append(roundToNearest20Minutes(dateRange.getEnd()));
+            }
             List<FilterField> filterFields = dateRange.getFilterFields();
             if (filterFields != null && !filterFields.isEmpty()) {
                 key.append("_f").append(filterFields);
