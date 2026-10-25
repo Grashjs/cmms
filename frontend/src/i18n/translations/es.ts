@@ -1036,6 +1036,12 @@ const esJSON = {
   email_updates_requests:
     'Actualizaciones por correo electrónico para órdenes de trabajo solicitadas',
   po_emails: 'Correos electrónicos de pedidos de compra',
+  analytics_summary_email: 'Resumen de mantenimiento por correo',
+  analytics_summary_email_description:
+    'Los principales indicadores de la empresa comparados con el período anterior, con el PDF adjunto. Se envía a las 7:00 (zona horaria de la empresa) si las notificaciones por correo están activadas.',
+  analytics_summary_never: 'Nunca',
+  analytics_summary_weekly: 'Semanal (los lunes)',
+  analytics_summary_monthly: 'Mensual (el día 1)',
   required_job_title: 'El campo título del puesto es obligatorio',
   required_old_password: 'Por favor proporcione la contraseña actual.',
   invalid_password:

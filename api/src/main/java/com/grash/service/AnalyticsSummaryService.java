@@ -9,6 +9,8 @@ import com.grash.dto.analytics.workOrders.WOStats;
 import com.grash.exception.CustomException;
 import com.grash.factory.StorageServiceFactory;
 import com.grash.model.*;
+// not java.util.Currency
+import com.grash.model.Currency;
 import com.grash.model.enums.Status;
 import com.grash.repository.AssetCategoryRepository;
 import com.grash.repository.TeamRepository;
@@ -72,11 +74,22 @@ public class AnalyticsSummaryService {
         return renderPdf(company, summary, describeFilters(company, dateRange.getFilterFields(), locale), locale);
     }
 
+    /**
+     * The summary of the period compared with the previous period of the same length, as on the web.
+     */
     public AnalyticsSummary build(Long companyId, Date start, Date end, AnalyticsFilter filter) {
         Date[] previous = previousPeriod(start, end);
+        return build(companyId, start, end, previous[0], previous[1], filter);
+    }
+
+    /**
+     * The summary of the period compared with another one, e.g. a month with the previous month.
+     */
+    public AnalyticsSummary build(Long companyId, Date start, Date end, Date previousStart, Date previousEnd,
+                                  AnalyticsFilter filter) {
         return new AnalyticsSummary(
                 collect(companyId, start, end, filter),
-                collect(companyId, previous[0], previous[1], filter),
+                collect(companyId, previousStart, previousEnd, filter),
                 maintenanceKpiService.getAvailabilityByAsset(companyId, start, end, filter).stream()
                         .limit(LOWEST_AVAILABILITY_ROWS)
                         .toList());
@@ -84,10 +97,7 @@ public class AnalyticsSummaryService {
 
     public byte[] renderPdf(Company company, AnalyticsSummary summary, List<String> filters, Locale locale) {
         GeneralPreferences preferences = company.getCompanySettings().getGeneralPreferences();
-        AnalyticsSummaryFormatter formatter = new AnalyticsSummaryFormatter(emailMessageSource, locale,
-                preferences.getCurrency() == null ? "" : preferences.getCurrency().getCode());
-        Function<Date, String> date = value -> Helper.getFormattedDate(value, preferences.getDateFormat(),
-                preferences.getTimeZone());
+        AnalyticsSummaryFormatter formatter = formatter(company, locale);
 
         Map<String, Object> variables = new HashMap<>();
         variables.put("companyName", company.getName());
@@ -96,11 +106,9 @@ public class AnalyticsSummaryService {
         variables.put("backgroundColor", PdfReportUtils.resolveReportColor(preferences.getColor(),
                 brandingService.getMailBackgroundColor()));
         variables.put("dir", Helper.isRtl(company) ? "rtl" : "ltr");
-        variables.put("period", date.apply(summary.current().start()) + " – "
-                + date.apply(summary.current().end()));
-        variables.put("previousPeriod", date.apply(summary.previous().start()) + " – "
-                + date.apply(summary.previous().end()));
-        variables.put("generatedOn", date.apply(new Date()));
+        variables.put("period", formatPeriod(company, summary.current().start(), summary.current().end()));
+        variables.put("previousPeriod", formatPeriod(company, summary.previous().start(), summary.previous().end()));
+        variables.put("generatedOn", formatDate(company, new Date()));
         variables.put("filters", filters);
         variables.put("sections", formatter.sections(summary));
         variables.put("responseTimes", formatter.responseTimes(summary.current().kpis().getByPriority()));
@@ -115,6 +123,26 @@ public class AnalyticsSummaryService {
         HtmlConverter.convertToPdf(html, pdf, PdfReportUtils.createReportConverterProperties(
                 storageServiceFactory.getStorageService()::download));
         return pdf.toByteArray();
+    }
+
+    /**
+     * Rows of the summary in the language of the reader and the currency of the company.
+     */
+    public AnalyticsSummaryFormatter formatter(Company company, Locale locale) {
+        Currency currency = company.getCompanySettings().getGeneralPreferences().getCurrency();
+        return new AnalyticsSummaryFormatter(emailMessageSource, locale, currency == null ? "" : currency.getCode());
+    }
+
+    /**
+     * "01/10/26 – 31/10/26", in the date format and time zone of the company.
+     */
+    public String formatPeriod(Company company, Date start, Date end) {
+        return formatDate(company, start) + " – " + formatDate(company, end);
+    }
+
+    private static String formatDate(Company company, Date date) {
+        GeneralPreferences preferences = company.getCompanySettings().getGeneralPreferences();
+        return Helper.getFormattedDate(date, preferences.getDateFormat(), preferences.getTimeZone());
     }
 
     AnalyticsSummary.Period collect(Long companyId, Date start, Date end, AnalyticsFilter filter) {

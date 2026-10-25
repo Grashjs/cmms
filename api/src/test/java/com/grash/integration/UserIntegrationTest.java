@@ -4,6 +4,7 @@ import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.UserPatchDTO;
 import com.grash.model.*;
+import com.grash.model.enums.AnalyticsSummaryFrequency;
 import com.grash.model.enums.RoleCode;
 import com.grash.model.enums.RoleType;
 import com.grash.repository.*;
@@ -579,6 +580,35 @@ class UserIntegrationTest extends AbstractIntegrationTest {
 
         assertTrue(found.isPresent());
         assertEquals("ldapuser", found.get().getUsername());
+    }
+
+    @Test
+    void findAnalyticsSummarySubscribers_returnsEnabledUsersWithTheFrequency() {
+        user.getUserSettings().setAnalyticsSummaryFrequency(AnalyticsSummaryFrequency.WEEKLY);
+        userRepository.save(user);
+        User disabled = new User();
+        disabled.setFirstName("Disabled");
+        disabled.setLastName("User");
+        disabled.setEmail("disabled-summary@test.com");
+        disabled.setUsername("disabledsummary");
+        disabled.setPassword("encoded");
+        disabled.setRole(adminRole);
+        disabled.setCompany(company);
+        disabled.setEnabled(false);
+        disabled.getUserSettings().setAnalyticsSummaryFrequency(AnalyticsSummaryFrequency.WEEKLY);
+        userRepository.save(disabled);
+
+        List<String> weekly = userRepository.findAnalyticsSummarySubscribers(
+                        List.of(AnalyticsSummaryFrequency.WEEKLY, AnalyticsSummaryFrequency.MONTHLY)).stream()
+                .filter(subscriber -> subscriber.getCompany().getId().equals(company.getId()))
+                .map(User::getEmail)
+                .toList();
+        List<User> monthly = userRepository.findAnalyticsSummarySubscribers(
+                List.of(AnalyticsSummaryFrequency.MONTHLY));
+
+        // jane keeps the default, NEVER
+        assertEquals(List.of("john@test.com"), weekly);
+        assertTrue(monthly.stream().noneMatch(subscriber -> subscriber.getEmail().equals("john@test.com")));
     }
 
     @Test

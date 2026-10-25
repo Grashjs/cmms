@@ -39,6 +39,8 @@ public class AnalyticsSummaryFormatter {
 
     @Value
     public static class Row {
+        // message key of the label, e.g. summary_backlog
+        String key;
         String label;
         String current;
         String previous;
@@ -176,7 +178,7 @@ public class AnalyticsSummaryFormatter {
             Double currentValue = current == null ? null : spec.value().apply(current);
             Double previousValue = previous == null ? null : spec.value().apply(previous);
             String[] change = change(currentValue, previousValue, spec.unit(), spec.higherIsBetter());
-            rows.add(new Row(message(spec.label()), format(currentValue, spec.unit()),
+            rows.add(new Row(spec.label(), message(spec.label()), format(currentValue, spec.unit()),
                     format(previousValue, spec.unit()), change[0], change[1]));
         }
         return new Section(message(title), rows);

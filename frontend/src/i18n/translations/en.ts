@@ -984,6 +984,12 @@ const locale = {
   email_updates_wo: 'Email Updates for Work Orders and Messages',
   email_updates_requests: 'Email Updates for Requested Work Orders',
   po_emails: 'Purchase Request Emails',
+  analytics_summary_email: 'Maintenance summary by email',
+  analytics_summary_email_description:
+    'The main figures of the company compared with the previous period, with the PDF attached. Sent at 7:00 (company time zone) when email notifications are on.',
+  analytics_summary_never: 'Never',
+  analytics_summary_weekly: 'Weekly (Mondays)',
+  analytics_summary_monthly: 'Monthly (on the 1st)',
   required_job_title: 'The Job title field is required',
   required_old_password: 'Please provide the current password.',
   invalid_password: 'Password is too short - should be 12 chars minimum.',
