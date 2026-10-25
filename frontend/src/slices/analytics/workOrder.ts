@@ -250,11 +250,17 @@ const slice = createSlice({
 
 export const reducer = slice.reducer;
 
+// the summary requests are also used to compare with the previous period (see usePreviousPeriod)
+export const fetchOverviewStats = (start: Date, end: Date, companyId?: number, filterFields: FilterField[] = []) =>
+  api.post<WoOverviewStats>(`${basePath}/complete/overview${companyQuery(companyId)}`, { start, end, filterFields });
+export const fetchWOHours = (start: Date, end: Date, companyId?: number, filterFields: FilterField[] = []) =>
+  api.post<WOHours>(`${basePath}/hours${companyQuery(companyId)}`, { start, end, filterFields });
+export const fetchCompleteCosts = (start: Date, end: Date, companyId?: number, filterFields: FilterField[] = []) =>
+  api.post<WOCostsAndTime>(`${basePath}/complete/costs-time${companyQuery(companyId)}`, { start, end, filterFields });
+
 export const getOverviewStats = (start: Date, end: Date, companyId?: number, filterFields: FilterField[] = []): AppThunk => async (dispatch) => {
   dispatch(slice.actions.setLoading({ operation: 'overview', loading: true }));
-  const overviewStats = await api.post<WoOverviewStats>(
-    `${basePath}/complete/overview${companyQuery(companyId)}`, { start, end, filterFields }
-  );
+  const overviewStats = await fetchOverviewStats(start, end, companyId, filterFields);
   dispatch(slice.actions.getStats({ overviewStats }));
   dispatch(slice.actions.setLoading({ operation: 'overview', loading: false }));
 };
@@ -309,7 +315,7 @@ export const getWOHours = (start: Date, end: Date, companyId?: number, filterFie
       loading: true
     })
   );
-  const stats = await api.post<WOHours>(`${basePath}/hours${companyQuery(companyId)}`, { start, end, filterFields });
+  const stats = await fetchWOHours(start, end, companyId, filterFields);
   dispatch(slice.actions.getWOHours({ stats }));
   dispatch(
     slice.actions.setLoading({
@@ -398,9 +404,7 @@ export const getCompleteCosts = (start: Date, end: Date, companyId?: number, fil
       loading: true
     })
   );
-  const stats = await api.post<WOCostsAndTime>(
-    `${basePath}/complete/costs-time${companyQuery(companyId)}`, { start, end, filterFields }
-  );
+  const stats = await fetchCompleteCosts(start, end, companyId, filterFields);
   dispatch(slice.actions.getCompleteCosts({ stats }));
   dispatch(
     slice.actions.setLoading({

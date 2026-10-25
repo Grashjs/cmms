@@ -1127,6 +1127,8 @@ const locale = {
   asset_availability_description:
     'The 50 assets with the lowest availability that match the location and asset category filters. Availability = time without downtime / time in service. Highlighted below 95%.',
   availability: 'Availability',
+  previous_period_value: 'Previous period ({{start}} – {{end}}): {{value}}',
+  percentage_points_short: 'pts',
   customer: 'Contractor',
   to: 'to',
   dates: 'Dates',

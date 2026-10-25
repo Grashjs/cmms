@@ -103,6 +103,10 @@ const slice = createSlice({
 
 export const reducer = slice.reducer;
 
+// also used to compare with the previous period (see usePreviousPeriod)
+export const fetchRequestOverview = (start: Date, end: Date, companyId?: number, filterFields: FilterField[] = []) =>
+  api.post<RequestStats>(`${basePath}/overview${companyQuery(companyId)}`, { start, end, filterFields });
+
 export const getRequestOverview = (start: Date, end: Date, companyId?: number, filterFields: FilterField[] = []): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
@@ -110,7 +114,7 @@ export const getRequestOverview = (start: Date, end: Date, companyId?: number, f
       loading: true
     })
   );
-  const stats = await api.post<RequestStats>(`${basePath}/overview${companyQuery(companyId)}`, { start, end, filterFields });
+  const stats = await fetchRequestOverview(start, end, companyId, filterFields);
   dispatch(slice.actions.getOverview({ stats }));
   dispatch(
     slice.actions.setLoading({

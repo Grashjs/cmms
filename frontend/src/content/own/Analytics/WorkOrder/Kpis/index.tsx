@@ -69,7 +69,12 @@ function MaintenanceKpis() {
           />
         </Grid>
         <Grid item xs={12}>
-          <Overview />
+          <Overview
+            start={start}
+            end={end}
+            companyId={companyId}
+            filterFields={filterFields}
+          />
         </Grid>
         <Grid item xs={12} md={6}>
           <BacklogTrend />

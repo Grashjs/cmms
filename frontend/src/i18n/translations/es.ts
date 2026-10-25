@@ -1183,6 +1183,8 @@ const esJSON = {
   asset_availability_description:
     'Los 50 activos con menor disponibilidad que cumplen los filtros de ubicación y categoría de activo. Disponibilidad = tiempo sin paradas / tiempo en servicio. Resaltados por debajo del 95 %.',
   availability: 'Disponibilidad',
+  previous_period_value: 'Período anterior ({{start}} – {{end}}): {{value}}',
+  percentage_points_short: 'p. p.',
   customer: 'Contratista',
   to: 'a',
   dates: 'Fechas',

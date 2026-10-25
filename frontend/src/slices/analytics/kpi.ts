@@ -74,6 +74,25 @@ const slice = createSlice({
 
 export const reducer = slice.reducer;
 
+const fetcher =
+  <T>(path: string) =>
+  (
+    start: Date,
+    end: Date,
+    companyId?: number,
+    filterFields: FilterField[] = []
+  ) =>
+    api.post<T>(`${path}${companyQuery(companyId)}`, {
+      start,
+      end,
+      filterFields
+    });
+
+// also used to compare with the previous period (see usePreviousPeriod)
+export const fetchMaintenanceKpis = fetcher<MaintenanceKpis>(
+  'analytics/work-orders/kpis'
+);
+
 const load =
   <T>(
     operation: Operation,
@@ -89,11 +108,12 @@ const load =
   async (dispatch) => {
     dispatch(slice.actions.setLoading({ operation, loading: true }));
     try {
-      const result = await api.post<T>(`${path}${companyQuery(companyId)}`, {
+      const result = await fetcher<T>(path)(
         start,
         end,
+        companyId,
         filterFields
-      });
+      );
       dispatch(setter(result));
     } finally {
       dispatch(slice.actions.setLoading({ operation, loading: false }));

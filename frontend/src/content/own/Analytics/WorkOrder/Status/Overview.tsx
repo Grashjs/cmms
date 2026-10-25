@@ -3,11 +3,16 @@ import { useTranslation } from 'react-i18next';
 import AnalyticsCard from '../../AnalyticsCard';
 import { Filter } from '../WOModal';
 import { useDispatch, useSelector } from '../../../../../store';
-import { useEffect } from 'react';
-import { getOverviewStats } from '../../../../../slices/analytics/workOrder';
+import { ReactNode, useEffect } from 'react';
+import {
+  fetchOverviewStats,
+  getOverviewStats
+} from '../../../../../slices/analytics/workOrder';
 import Loading from '../../Loading';
 import { roundDecimals } from '../../../../../utils/formatters';
 import { FilterField } from '../../../../../models/owns/page';
+import DeltaBadge from '../../DeltaBadge';
+import usePreviousPeriod from '../../usePreviousPeriod';
 
 interface WOStatusNumbersProps {
   handleOpenModal: (
@@ -29,10 +34,12 @@ function Overview({ handleOpenModal, start, end, companyId, filterFields }: WOSt
   useEffect(() => {
     dispatch(getOverviewStats(start, end, companyId, filterFields));
   }, [start, end, companyId, filterFields]);
+  const previous = usePreviousPeriod(fetchOverviewStats, start, end, companyId, filterFields);
 
   const datas: {
     label: string;
     value: number;
+    delta?: ReactNode;
     config?: {
       columns: string[];
       filters: Filter[];
@@ -41,6 +48,13 @@ function Overview({ handleOpenModal, start, end, companyId, filterFields }: WOSt
     {
       label: t('count'),
       value: overview.total,
+      delta: (
+        <DeltaBadge
+          current={overview.total}
+          previous={previous.data?.total}
+          previousPeriod={previous}
+        />
+      ),
       config: {
         columns: ['id'],
         filters: [{ key: 'fs', value: false }]
@@ -49,6 +63,14 @@ function Overview({ handleOpenModal, start, end, companyId, filterFields }: WOSt
     {
       label: t('complete'),
       value: overview.complete,
+      delta: (
+        <DeltaBadge
+          current={overview.complete}
+          previous={previous.data?.complete}
+          previousPeriod={previous}
+          higherIsBetter
+        />
+      ),
       config: {
         columns: ['id'],
         filters: [{ key: 'fs', value: false }]
@@ -57,6 +79,14 @@ function Overview({ handleOpenModal, start, end, companyId, filterFields }: WOSt
     {
       label: t('compliant'),
       value: overview.compliant,
+      delta: (
+        <DeltaBadge
+          current={overview.compliant}
+          previous={previous.data?.compliant}
+          previousPeriod={previous}
+          higherIsBetter
+        />
+      ),
       config: {
         columns: ['id'],
         filters: [{ key: 'fs', value: false }]
@@ -64,11 +94,29 @@ function Overview({ handleOpenModal, start, end, companyId, filterFields }: WOSt
     },
     {
       label: t('average_cycle_time_in_days'),
-      value: roundDecimals(overview.avgCycleTime)
+      value: roundDecimals(overview.avgCycleTime),
+      delta: (
+        <DeltaBadge
+          current={overview.avgCycleTime}
+          previous={previous.data?.avgCycleTime}
+          previousPeriod={previous}
+          higherIsBetter={false}
+          formatValue={roundDecimals}
+        />
+      )
     },
     {
       label: `${t('MTTA')} (h)`,
-      value: roundDecimals(overview.mtta)
+      value: roundDecimals(overview.mtta),
+      delta: (
+        <DeltaBadge
+          current={overview.mtta}
+          previous={previous.data?.mtta}
+          previousPeriod={previous}
+          higherIsBetter={false}
+          formatValue={roundDecimals}
+        />
+      )
     }
   ];
   return (
@@ -99,6 +147,7 @@ function Overview({ handleOpenModal, start, end, companyId, filterFields }: WOSt
                   {data.value}
                 </Typography>
                 <Typography>{data.label}</Typography>
+                {data.delta}
               </Stack>
             ))}
           </Stack>

@@ -3,11 +3,16 @@ import { useTranslation } from 'react-i18next';
 import AnalyticsCard from '../../AnalyticsCard';
 import { Filter } from '../WOModal';
 import { useDispatch, useSelector } from '../../../../../store';
-import { useContext, useEffect } from 'react';
-import { getCompleteCosts } from '../../../../../slices/analytics/workOrder';
+import { ReactNode, useContext, useEffect } from 'react';
+import {
+  fetchCompleteCosts,
+  getCompleteCosts
+} from '../../../../../slices/analytics/workOrder';
 import Loading from '../../Loading';
 import { CompanySettingsContext } from '../../../../../contexts/CompanySettingsContext';
 import { FilterField } from '../../../../../models/owns/page';
+import DeltaBadge from '../../DeltaBadge';
+import usePreviousPeriod from '../../usePreviousPeriod';
 
 interface WOStatusNumbersProps {
   handleOpenModal: (
@@ -30,10 +35,12 @@ function Overview({ handleOpenModal, start, end, companyId, filterFields }: WOSt
   useEffect(() => {
     dispatch(getCompleteCosts(start, end, companyId, filterFields));
   }, [start, end, companyId, filterFields]);
+  const previous = usePreviousPeriod(fetchCompleteCosts, start, end, companyId, filterFields);
 
   const formattedData: {
     label: string;
     value: number | string;
+    delta?: ReactNode;
     config?: {
       columns: string[];
       filters: Filter[];
@@ -42,6 +49,15 @@ function Overview({ handleOpenModal, start, end, companyId, filterFields }: WOSt
     {
       label: t('total_cost'),
       value: getFormattedCurrency(completeCosts.total.toFixed(2)),
+      delta: (
+        <DeltaBadge
+          current={completeCosts.total}
+          previous={previous.data?.total}
+          previousPeriod={previous}
+          higherIsBetter={false}
+          formatValue={(value) => getFormattedCurrency(value.toFixed(2))}
+        />
+      ),
       config: {
         columns: ['id'],
         filters: [{ key: 'fs', value: false }]
@@ -50,6 +66,15 @@ function Overview({ handleOpenModal, start, end, companyId, filterFields }: WOSt
     {
       label: t('part_costs'),
       value: getFormattedCurrency(completeCosts.partCost.toFixed(2)),
+      delta: (
+        <DeltaBadge
+          current={completeCosts.partCost}
+          previous={previous.data?.partCost}
+          previousPeriod={previous}
+          higherIsBetter={false}
+          formatValue={(value) => getFormattedCurrency(value.toFixed(2))}
+        />
+      ),
       config: {
         columns: ['id'],
         filters: [{ key: 'fs', value: false }]
@@ -58,6 +83,15 @@ function Overview({ handleOpenModal, start, end, companyId, filterFields }: WOSt
     {
       label: t('labor_costs'),
       value: getFormattedCurrency(completeCosts.laborCost.toFixed(2)),
+      delta: (
+        <DeltaBadge
+          current={completeCosts.laborCost}
+          previous={previous.data?.laborCost}
+          previousPeriod={previous}
+          higherIsBetter={false}
+          formatValue={(value) => getFormattedCurrency(value.toFixed(2))}
+        />
+      ),
       config: {
         columns: ['id'],
         filters: [{ key: 'fs', value: false }]
@@ -66,6 +100,15 @@ function Overview({ handleOpenModal, start, end, companyId, filterFields }: WOSt
     {
       label: t('additional_costs'),
       value: getFormattedCurrency(completeCosts.additionalCost.toFixed(2)),
+      delta: (
+        <DeltaBadge
+          current={completeCosts.additionalCost}
+          previous={previous.data?.additionalCost}
+          previousPeriod={previous}
+          higherIsBetter={false}
+          formatValue={(value) => getFormattedCurrency(value.toFixed(2))}
+        />
+      ),
       config: {
         columns: ['id'],
         filters: [{ key: 'fs', value: false }]
@@ -74,6 +117,14 @@ function Overview({ handleOpenModal, start, end, companyId, filterFields }: WOSt
     {
       label: t('hours_worked'),
       value: (completeCosts.laborTime / 3600).toFixed(2),
+      delta: (
+        <DeltaBadge
+          current={completeCosts.laborTime}
+          previous={previous.data?.laborTime}
+          previousPeriod={previous}
+          formatValue={(value) => (value / 3600).toFixed(2)}
+        />
+      ),
       config: {
         columns: ['id'],
         filters: [{ key: 'fs', value: false }]
@@ -108,6 +159,7 @@ function Overview({ handleOpenModal, start, end, companyId, filterFields }: WOSt
                   {data.value}
                 </Typography>
                 <Typography>{data.label}</Typography>
+                {data.delta}
               </Stack>
             ))}
           </Stack>
