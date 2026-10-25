@@ -5,6 +5,8 @@ import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.CalendarEvent;
 import com.grash.dto.DateRange;
 import com.grash.dto.analytics.AnalyticsFilter;
+import com.grash.dto.analytics.assets.AssetAvailability;
+import com.grash.dto.analytics.workOrders.MaintenanceKpis;
 import com.grash.dto.ReportConfig;
 import com.grash.dto.WorkOrderChangeStatusDTO;
 import com.grash.dto.license.LicenseEntitlement;
@@ -16,6 +18,7 @@ import com.grash.model.enums.*;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.*;
 import com.grash.service.AnalyticsFilterService;
+import com.grash.service.MaintenanceKpiService;
 import com.grash.service.TeamService;
 import com.grash.service.WebhookDispatchService;
 import com.grash.service.WorkOrderService;
@@ -96,6 +99,10 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
     private AssetCategoryRepository assetCategoryRepository;
     @Autowired
     private AnalyticsFilterService analyticsFilterService;
+    @Autowired
+    private AssetDowntimeRepository assetDowntimeRepository;
+    @Autowired
+    private MaintenanceKpiService maintenanceKpiService;
 
     @MockitoBean
     private WebhookDispatchService webhookDispatchService;
@@ -1930,6 +1937,145 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
             labor.setHourlyRate(50L);
             laborRepository.saveAndFlush(labor);
             return wo;
+        }
+    }
+
+    @Nested
+    class MaintenanceKpiTests {
+
+        private static final long HOUR = 3_600_000L;
+        private static final long DAY = 24 * HOUR;
+
+        @Test
+        void findOpenDuring_returnsTheBacklogCandidates() {
+            long now = System.currentTimeMillis();
+            WorkOrder open = workOrder("Open", Status.OPEN, null);
+            WorkOrder archived = workOrder("Archived", Status.OPEN, null);
+            archived.setArchived(true);
+            workOrderRepository.saveAndFlush(archived);
+            WorkOrder completedLongAgo = completed(workOrder("Completed long ago", Status.COMPLETE, null),
+                    new Date(now - 10 * DAY));
+            WorkOrder completedNow = completed(workOrder("Completed now", Status.COMPLETE, null), new Date(now));
+            em.clear();
+
+            Set<Long> ids = new HashSet<>();
+            workOrderRepository.findOpenDuring(company.getId(), new Date(now - 5 * DAY), new Date(now + DAY))
+                    .forEach(workOrder -> ids.add(workOrder.getId()));
+
+            assertTrue(ids.contains(open.getId()));
+            assertTrue(ids.contains(completedNow.getId()));
+            assertFalse(ids.contains(archived.getId()));
+            assertFalse(ids.contains(completedLongAgo.getId()));
+        }
+
+        @Test
+        void getKpis_measuresPreventiveComplianceAndBacklog() {
+            long now = System.currentTimeMillis();
+            PreventiveMaintenance pm = new PreventiveMaintenance();
+            pm.setName("Monthly check");
+            pm.setTitle("Monthly check");
+            pm.setCustomFieldValues(new ArrayList<>());
+            pm = preventiveMaintenanceRepository.saveAndFlush(pm);
+
+            WorkOrder onTime = completed(workOrder("On time", Status.COMPLETE, pm), new Date(now - 2 * HOUR));
+            onTime.setDueDate(new Date(now - HOUR));
+            workOrderRepository.saveAndFlush(onTime);
+            WorkOrder late = workOrder("Late", Status.OPEN, pm);
+            late.setDueDate(new Date(now - HOUR));
+            workOrderRepository.saveAndFlush(late);
+            WorkOrder notDueYet = workOrder("Not due yet", Status.OPEN, pm);
+            notDueYet.setDueDate(new Date(now + DAY / 2));
+            workOrderRepository.saveAndFlush(notDueYet);
+            workOrder("Corrective", Status.OPEN, null);
+            em.clear();
+
+            MaintenanceKpis kpis = maintenanceKpiService.getKpis(company.getId(), new Date(now - DAY),
+                    new Date(now + DAY), AnalyticsFilter.NONE);
+
+            assertEquals(2, kpis.getPmDue());
+            assertEquals(1, kpis.getPmCompletedOnTime());
+            assertEquals(50.0, kpis.getPmCompliance(), 1e-9);
+            assertEquals(3, kpis.getPlanned());
+            assertEquals(1, kpis.getReactive());
+            assertEquals(3, kpis.getBacklog());
+            assertEquals(1, kpis.getOverdue());
+        }
+
+        @Test
+        void getAvailabilityByAsset_clipsDowntimesAndCountsRunningOnes() {
+            long now = System.currentTimeMillis();
+            AssetCategory critical = new AssetCategory();
+            critical.setName("Critical");
+            critical.setCompanySettings(company.getCompanySettings());
+            critical = assetCategoryRepository.saveAndFlush(critical);
+
+            Asset withPastDowntime = asset("Past downtime", critical, AssetStatus.OPERATIONAL, now - 10 * DAY);
+            downtime(withPastDowntime, now - 3 * DAY, DAY / 1000);
+            Asset downNow = asset("Down now", critical, AssetStatus.DOWN, now - 10 * DAY);
+            downtime(downNow, now - 2 * DAY, 0);
+            Asset staleRunningDowntime = asset("Stale downtime", critical, AssetStatus.OPERATIONAL, now - 10 * DAY);
+            downtime(staleRunningDowntime, now - 5 * DAY, 0);
+            Asset otherCategory = asset("Other category", null, AssetStatus.OPERATIONAL, now - 10 * DAY);
+            downtime(otherCategory, now - 9 * DAY, 8 * DAY / 1000);
+            em.clear();
+
+            AnalyticsFilter criticalOnly = new AnalyticsFilter(Set.of(), Set.of(critical.getId()), Set.of(),
+                    Set.of(), Set.of());
+            List<AssetAvailability> result = maintenanceKpiService.getAvailabilityByAsset(company.getId(),
+                    new Date(now - 10 * DAY), new Date(now + DAY), criticalOnly);
+
+            assertEquals(List.of("Down now", "Past downtime", "Stale downtime"),
+                    result.stream().map(AssetAvailability::getName).toList());
+            assertEquals(80.0, result.get(0).getAvailability(), 0.1);
+            assertEquals(90.0, result.get(1).getAvailability(), 0.1);
+            assertEquals(100.0, result.get(2).getAvailability(), 1e-9);
+            assertEquals(1, result.get(1).getDowntimeEvents());
+        }
+
+        private WorkOrder workOrder(String title, Status status, PreventiveMaintenance pm) {
+            WorkOrder wo = new WorkOrder();
+            wo.setTitle(title);
+            wo.setStatus(status);
+            wo.setPriority(Priority.NONE);
+            wo.setEstimatedDuration(1.0);
+            wo.setCompany(company);
+            wo.setCreatedBy(user.getId());
+            wo.setParentPreventiveMaintenance(pm);
+            wo.setAssignedTo(new ArrayList<>());
+            wo.setCustomers(new ArrayList<>());
+            wo.setFiles(new ArrayList<>());
+            wo.setCustomFieldValues(new ArrayList<>());
+            return workOrderRepository.saveAndFlush(wo);
+        }
+
+        private WorkOrder completed(WorkOrder wo, Date completedOn) {
+            wo.setCompletedBy(user);
+            wo.setCompletedOn(completedOn);
+            return workOrderRepository.saveAndFlush(wo);
+        }
+
+        private Asset asset(String name, AssetCategory category, AssetStatus status, long inServiceSince) {
+            Asset asset = new Asset();
+            asset.setName(name);
+            asset.setCompany(company);
+            asset.setStatus(status);
+            asset.setCategory(category);
+            asset.setInServiceDate(new Date(inServiceSince));
+            asset.setFiles(new ArrayList<>());
+            asset.setCustomers(new ArrayList<>());
+            asset.setTeams(new ArrayList<>());
+            asset.setParts(new ArrayList<>());
+            asset.setCustomFieldValues(new ArrayList<>());
+            return assetRepository.saveAndFlush(asset);
+        }
+
+        private void downtime(Asset asset, long startsOn, long durationSeconds) {
+            AssetDowntime downtime = new AssetDowntime();
+            downtime.setAsset(asset);
+            downtime.setCompany(company);
+            downtime.setStartsOn(new Date(startsOn));
+            downtime.setDuration(durationSeconds);
+            assetDowntimeRepository.saveAndFlush(downtime);
         }
     }
 

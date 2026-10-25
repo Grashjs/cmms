@@ -48,6 +48,7 @@ public class WOAnalyticsController {
     private final AssetService assetService;
     private final CompanyService companyService;
     private final AnalyticsFilterService analyticsFilterService;
+    private final MaintenanceKpiService maintenanceKpiService;
 
     @PostMapping("/complete/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
@@ -627,6 +628,40 @@ public class WOAnalyticsController {
                 currentDate = nextDate;
             }
             return ResponseEntity.ok(result);
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @PostMapping("/kpis")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @Cacheable(
+            value = "getMaintenanceKpis",
+            key = "@analyticsCacheService.key(#user, #companyId, #dateRange)"
+    )
+    public ResponseEntity<MaintenanceKpis> getMaintenanceKpis(@Parameter(hidden = true) @CurrentUser User user,
+                                                              @Parameter(description = "Date range and analytics filters") @RequestBody DateRange dateRange,
+                                                              @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
+        if (user.canSeeAnalytics()) {
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
+            AnalyticsFilter filter = analyticsFilterService.resolve(resolvedCompanyId, dateRange);
+            return ResponseEntity.ok(maintenanceKpiService.getKpis(resolvedCompanyId, dateRange.getStart(),
+                    dateRange.getEnd(), filter));
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @PostMapping("/kpis/trend")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @Cacheable(
+            value = "getMaintenanceKpisTrend",
+            key = "@analyticsCacheService.key(#user, #companyId, #dateRange)"
+    )
+    public ResponseEntity<List<MaintenanceKpisByDate>> getMaintenanceKpisTrend(@Parameter(hidden = true) @CurrentUser User user,
+                                                                               @Parameter(description = "Date range and analytics filters") @RequestBody DateRange dateRange,
+                                                                               @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
+        if (user.canSeeAnalytics()) {
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
+            AnalyticsFilter filter = analyticsFilterService.resolve(resolvedCompanyId, dateRange);
+            return ResponseEntity.ok(maintenanceKpiService.getTrend(resolvedCompanyId, dateRange.getStart(),
+                    dateRange.getEnd(), filter));
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 

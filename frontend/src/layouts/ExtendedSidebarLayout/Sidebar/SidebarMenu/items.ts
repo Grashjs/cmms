@@ -88,6 +88,10 @@ const ownMenuItems: MenuItems[] = [
               {
                 name: 'time_and_cost',
                 link: '/app/analytics/work-orders/time-cost'
+              },
+              {
+                name: 'maintenance_kpis',
+                link: '/app/analytics/work-orders/kpis'
               }
             ]
           },

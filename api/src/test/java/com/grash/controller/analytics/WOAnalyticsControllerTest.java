@@ -3,6 +3,9 @@ package com.grash.controller.analytics;
 import com.grash.controller.AbstractControllerTest;
 import com.grash.dto.DateRange;
 import com.grash.dto.analytics.AnalyticsFilter;
+import com.grash.dto.analytics.workOrders.MaintenanceKpis;
+import com.grash.dto.analytics.workOrders.MaintenanceKpisByDate;
+import com.grash.dto.analytics.workOrders.PriorityResponseTimes;
 import com.grash.exception.CustomException;
 import com.grash.model.*;
 import com.grash.model.enums.*;
@@ -56,6 +59,8 @@ class WOAnalyticsControllerTest extends AbstractControllerTest {
     private CompanyService companyService;
     @MockitoBean
     private AnalyticsFilterService analyticsFilterService;
+    @MockitoBean
+    private MaintenanceKpiService maintenanceKpiService;
 
     @BeforeEach
     void setUp() {
@@ -148,6 +153,44 @@ class WOAnalyticsControllerTest extends AbstractControllerTest {
                                 "\"filterFields\":[{\"field\":\"primaryUser\",\"operation\":\"in\",\"value\":\"\"," +
                                 "\"values\":[1]}]}"))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void kpis_returnsTheKpisOfTheFilteredPeriod() throws Exception {
+        AnalyticsFilter teamOnly = new AnalyticsFilter(Set.of(), Set.of(), Set.of(7L), Set.of(), Set.of());
+        when(analyticsFilterService.resolve(eq(1L), any())).thenReturn(teamOnly);
+        when(maintenanceKpiService.getKpis(eq(1L), any(), any(), eq(teamOnly))).thenReturn(MaintenanceKpis.builder()
+                .pmDue(4)
+                .pmCompletedOnTime(3)
+                .pmCompliance(75.0)
+                .backlog(12)
+                .byPriority(List.of(PriorityResponseTimes.builder().priority(Priority.HIGH).count(2).mtta(1.5).build()))
+                .build());
+
+        mockMvc.perform(post("/analytics/work-orders/kpis")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"start\":\"2026-01-01T00:00:00.000Z\",\"end\":\"2026-02-01T00:00:00.000Z\"," +
+                                TEAM_FILTER.substring(1)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.pmCompliance").value(75.0))
+                .andExpect(jsonPath("$.backlog").value(12))
+                .andExpect(jsonPath("$.plannedRatio").doesNotExist())
+                .andExpect(jsonPath("$.byPriority[0].priority").value("HIGH"))
+                .andExpect(jsonPath("$.byPriority[0].mtta").value(1.5));
+    }
+
+    @Test
+    void kpisTrend_returnsOnePointPerSegment() throws Exception {
+        when(maintenanceKpiService.getTrend(eq(1L), any(), any(), any())).thenReturn(List.of(
+                MaintenanceKpisByDate.builder().backlog(3).overdue(1).build(),
+                MaintenanceKpisByDate.builder().backlog(2).overdue(0).build()));
+
+        mockMvc.perform(post("/analytics/work-orders/kpis/trend")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"start\":\"2026-01-01T00:00:00.000Z\",\"end\":\"2026-01-03T00:00:00.000Z\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].backlog").value(3));
     }
 
     private static WorkOrder complete(Priority priority) {

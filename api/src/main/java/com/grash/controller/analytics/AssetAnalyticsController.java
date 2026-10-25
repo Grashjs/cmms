@@ -12,6 +12,7 @@ import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.Status;
 import com.grash.security.CurrentUser;
 import com.grash.service.AnalyticsFilterService;
+import com.grash.service.MaintenanceKpiService;
 import com.grash.service.AssetDowntimeService;
 import com.grash.service.AssetService;
 import com.grash.service.UserService;
@@ -44,6 +45,7 @@ public class AssetAnalyticsController {
     private final AssetService assetService;
     private final AssetDowntimeService assetDowntimeService;
     private final AnalyticsFilterService analyticsFilterService;
+    private final MaintenanceKpiService maintenanceKpiService;
 
     @PostMapping("/time-cost")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
@@ -369,6 +371,23 @@ public class AssetAnalyticsController {
                 currentDate = nextDate;
             }
             return ResponseEntity.ok(result);
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @PostMapping("/availability")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @Cacheable(
+            value = "getAvailabilityByAsset",
+            key = "@analyticsCacheService.key(#user, #companyId, #dateRange)"
+    )
+    public ResponseEntity<List<AssetAvailability>> getAvailabilityByAsset(@Parameter(hidden = true) @CurrentUser User user,
+                                                                          @Parameter(description = "Date range and analytics filters (only location and asset category apply)") @RequestBody DateRange dateRange,
+                                                                          @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
+        if (user.canSeeAnalytics()) {
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
+            AnalyticsFilter filter = analyticsFilterService.resolve(resolvedCompanyId, dateRange);
+            return ResponseEntity.ok(maintenanceKpiService.getAvailabilityByAsset(resolvedCompanyId,
+                    dateRange.getStart(), dateRange.getEnd(), filter));
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 

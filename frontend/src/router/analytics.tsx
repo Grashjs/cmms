@@ -28,7 +28,8 @@ const analyticsRoutes = [
       { path: 'status', element: <WOAnalytics /> },
       { path: 'analysis', element: <WOAnalytics /> },
       { path: 'aging', element: <WOAnalytics /> },
-      { path: 'time-cost', element: <WOAnalytics /> }
+      { path: 'time-cost', element: <WOAnalytics /> },
+      { path: 'kpis', element: <WOAnalytics /> }
     ]
   },
   {

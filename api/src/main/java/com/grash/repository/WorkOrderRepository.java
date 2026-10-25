@@ -86,6 +86,21 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>, Jpa
 
     Collection<WorkOrder> findByCompany_IdAndCreatedAtBetween(Long id, Date start, Date end);
 
+    /**
+     * Work orders that may have been open at some point of [start, end]: created before the end and not completed
+     * before the start. Archived work orders are left out (they are not part of the backlog).
+     */
+    @Query("SELECT wo FROM WorkOrder wo WHERE wo.company.id = :companyId AND wo.archived = false " +
+            "AND wo.createdAt <= :end " +
+            "AND (wo.status <> com.grash.model.enums.Status.COMPLETE OR wo.completedOn >= :start)")
+    Collection<WorkOrder> findOpenDuring(@Param("companyId") Long companyId,
+                                         @Param("start") Date start,
+                                         @Param("end") Date end);
+
+    Collection<WorkOrder> findByCompany_IdAndParentPreventiveMaintenanceIsNotNullAndDueDateBetween(Long companyId,
+                                                                                                  Date start,
+                                                                                                  Date end);
+
     Collection<WorkOrder> findByPriorityAndCompany_IdAndCreatedAtBetween(Priority priority, Long companyId,
                                                                          Date start, Date end);
 
