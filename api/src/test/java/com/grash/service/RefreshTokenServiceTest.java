@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -101,6 +102,60 @@ class RefreshTokenServiceTest {
         refreshTokenService.revokeAllForUser(user);
 
         verify(refreshTokenRepository).revokeAllByUser(user.getId());
+    }
+
+    @Nested
+    class Revoke {
+
+        private RefreshToken storedFor(User owner, boolean revoked) {
+            return RefreshToken.builder()
+                    .tokenHash(refreshTokenService.hash("device-token"))
+                    .user(owner)
+                    .createdAt(new Date())
+                    .expiresAt(new Date(System.currentTimeMillis() + 60_000))
+                    .revoked(revoked)
+                    .build();
+        }
+
+        @Test
+        void revokesOnlyTheGivenToken() {
+            RefreshToken stored = storedFor(user, false);
+            when(refreshTokenRepository.findByTokenHash(refreshTokenService.hash("device-token")))
+                    .thenReturn(Optional.of(stored));
+
+            refreshTokenService.revoke("device-token", user);
+
+            assertTrue(stored.isRevoked());
+            verify(refreshTokenRepository).save(stored);
+            verify(refreshTokenRepository, never()).revokeAllByUser(any());
+        }
+
+        @Test
+        void tokenOfAnotherUser_isIgnored() {
+            User other = new User();
+            other.setId(2L);
+            RefreshToken stored = storedFor(other, false);
+            when(refreshTokenRepository.findByTokenHash(refreshTokenService.hash("device-token")))
+                    .thenReturn(Optional.of(stored));
+
+            refreshTokenService.revoke("device-token", user);
+
+            assertFalse(stored.isRevoked());
+            verify(refreshTokenRepository, never()).save(any());
+        }
+
+        @Test
+        void unknownOrAlreadyRevokedToken_isNoOp() {
+            when(refreshTokenRepository.findByTokenHash(anyString())).thenReturn(Optional.empty());
+            refreshTokenService.revoke("unknown", user);
+
+            RefreshToken revoked = storedFor(user, true);
+            when(refreshTokenRepository.findByTokenHash(refreshTokenService.hash("device-token")))
+                    .thenReturn(Optional.of(revoked));
+            refreshTokenService.revoke("device-token", user);
+
+            verify(refreshTokenRepository, never()).save(any());
+        }
     }
 
     @Nested
