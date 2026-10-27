@@ -8,7 +8,11 @@ import {
   useState
 } from 'react';
 import { OwnUser, UserResponseDTO } from '../models/user';
-import api, { authHeader, refreshAccessToken } from '../utils/api';
+import api, {
+  authHeader,
+  refreshAccessToken,
+  setSessionExpiredHandler
+} from '../utils/api';
 import { verify } from '../utils/jwt';
 import { Alert, AppState, Linking, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -1294,6 +1298,19 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   useEffect(() => {
     getInfos();
   }, []);
+
+  useEffect(
+    () =>
+      // The session was revoked or expired and could not be refreshed (e.g. the
+      // user signed out on another device): clear it locally and go to login
+      // instead of leaving the user on a page where every request fails.
+      setSessionExpiredHandler(() => {
+        setSession(null, null);
+        Sentry.setUser(null);
+        dispatch({ type: 'LOGOUT' });
+      }),
+    []
+  );
 
   return (
     <AuthContext.Provider
