@@ -1,4 +1,23 @@
 const locale = {
+  management_access_denied: "Acción denegada: compruebe sus permisos, el rol de destino y el propietario de la cuenta.",
+  no_assignable_roles: "No hay ningún rol que pueda asignar con sus permisos actuales.",
+  invitation_created: 'Invitación creada',
+  invitation_delivery_notice:
+    'Comparta este enlace personal con la persona invitada. Caduca, solo se puede usar una vez y una nueva invitación invalida el enlace anterior. Los enlaces se borran al salir de esta pantalla.',
+  invitation_expires: 'Caduca: {{date}}',
+  invitation_copy: 'Copiar enlace',
+  invitation_share: 'Compartir enlace',
+  invitation_copied: 'Enlace copiado',
+  invitation_copy_failed:
+    'No se ha podido copiar el enlace. Inténtelo de nuevo.',
+  invitation_share_failed:
+    'No se ha podido compartir el enlace. Inténtelo de nuevo.',
+  invitation_browser_acceptance:
+    'La persona invitada completa el registro en su navegador web y luego inicia sesión en la aplicación móvil.',
+  invitation_send_email:
+    'Solicitar también una invitación por correo electrónico',
+  invitation_email_optional:
+    'Solo se solicita un correo electrónico si el envío está activado en el servidor. Crear una invitación no confirma la entrega del correo. Siempre puede copiar o compartir el enlace.',
   DUPLICATE_OF: 'Duplicado de',
   DUPLICATED_BY: 'Duplicado por',
   RELATED_TO: 'Relacionado con',

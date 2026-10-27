@@ -50,7 +50,7 @@ public abstract class FileMapper {
 
     private String getSignedUrl(File file) {
         StorageService storageService = storageServiceFactory.getStorageService();
-        return storageService.generateSignedUrl(file.getPath(), expirationInMinutes);
+        return storageService.generateSignedUrl(file, expirationInMinutes);
     }
 
     @Named("toThumbnailDto")

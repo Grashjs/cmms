@@ -1,4 +1,20 @@
 const locale = {
+  management_access_denied: "Åtgärden nekades: kontrollera dina behörigheter, målrollen och kontoägaren.",
+  no_assignable_roles: "Ingen roll kan tilldelas med dina nuvarande behörigheter.",
+  invitation_created: 'Inbjudan skapad',
+  invitation_delivery_notice:
+    'Dela den här personliga länken med den inbjudna personen. Länken har en giltighetstid, kan bara användas en gång och en ny inbjudan gör den tidigare länken ogiltig. Länkarna rensas när du lämnar den här skärmen.',
+  invitation_expires: 'Giltig till: {{date}}',
+  invitation_copy: 'Kopiera länk',
+  invitation_share: 'Dela länk',
+  invitation_copied: 'Länk kopierad',
+  invitation_copy_failed: 'Det gick inte att kopiera länken. Försök igen.',
+  invitation_share_failed: 'Det gick inte att dela länken. Försök igen.',
+  invitation_browser_acceptance:
+    'Den inbjudna personen slutför registreringen i webbläsaren och loggar sedan in i mobilappen.',
+  invitation_send_email: 'Begär även en inbjudan via e-post',
+  invitation_email_optional:
+    'E-post begärs endast om utskick är aktiverade på servern. Att en inbjudan har skapats bekräftar inte att e-postmeddelandet har levererats. Du kan alltid kopiera eller dela länken.',
   DUPLICATE_OF: 'Duplikat av',
   DUPLICATED_BY: 'Duplicerad av',
   RELATED_TO: 'Relaterat till',

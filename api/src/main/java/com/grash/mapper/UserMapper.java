@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Lazy;
 
 @Mapper(componentModel = "spring", uses = {SuperAccountRelationMapper.class, FileMapper.class})
 public abstract class UserMapper {
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     public abstract User updateUser(@MappingTarget User entity, UserPatchDTO dto);
 
     @Lazy
@@ -46,7 +47,7 @@ public abstract class UserMapper {
         return target;
     }
 
-    @Mappings({})
+    @Mappings({@Mapping(target = "company", ignore = true), @Mapping(target = "role", ignore = true)})
     public abstract User toModel(UserSignupRequest dto);
 
     @AfterMapping

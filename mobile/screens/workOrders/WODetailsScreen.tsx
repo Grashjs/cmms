@@ -1,3 +1,4 @@
+import { openAttachment } from '../../utils/attachment';
 import {
   Alert,
   ActivityIndicator,
@@ -1131,7 +1132,7 @@ export default function WODetailsScreen({
                             titleStyle={{ color: theme.colors.primary }}
                             title={file.name}
                             onPress={() => {
-                              Linking.openURL(file.url);
+                              openAttachment(file.url);
                             }}
                           />
                         ))}

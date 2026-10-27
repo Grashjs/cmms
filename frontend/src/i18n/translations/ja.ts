@@ -1,4 +1,6 @@
 const locale = {
+  management_access_denied: "操作が拒否されました。権限、対象の役割、アカウント所有者を確認してください。",
+  no_assignable_roles: "現在の権限で割り当てられる役割はありません。",
   DUPLICATE_OF: '複製元',
   DUPLICATED_BY: '複製先',
   RELATED_TO: '関連先',
@@ -733,6 +735,14 @@ const locale = {
     '各メールアドレスを入力後、「tab」または「enter」を押すと、一度に20人のユーザーを追加できます。重複するメールアドレスや登録済みのメールアドレスは、要求されたユーザーの登録時に削除されます。',
   enter_email: 'メールアドレスを入力',
   users_invite_success: 'ユーザーが招待されました',
+  invitation_send_email: '招待メールを送信する',
+  invitation_links_notice:
+    '今すぐリンクをコピーし、各リンクを対象の受信者にのみ送信してください。リンクには有効期限があり、一度しか使用できません。招待を再発行すると、以前のリンクは無効になります。',
+  invitation_link: '招待リンク',
+  invitation_expires: '有効期限：{{date}}',
+  invitation_unavailable:
+    'この招待は無効、有効期限切れ、または使用済みです。権限を持つ管理者に新しい招待リンクを依頼してください。メールアドレスと役割のみを含む古いリンクは再発行が必要です。',
+  invitation_join_details: '{{role}} として {{company}} に参加する',
   users_invite_failure:
     'ユーザーを招待できません。現在のサブスクリプションメンバー数を確認してください',
   please_type_emails: '招待するメールアドレスを入力してください',

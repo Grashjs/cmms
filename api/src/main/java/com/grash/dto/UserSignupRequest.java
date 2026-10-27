@@ -28,6 +28,13 @@ public class UserSignupRequest {
     @Schema(implementation = IdDTO.class)
     private Role role;
 
+    @Schema(description = "Single-use token required to join an existing company")
+    @lombok.ToString.Exclude
+    private String invitationToken;
+
+    @Schema(description = "Optional assertion of the invited company; never used to select a company")
+    private Long companyId;
+
     @NotNull
     private String firstName;
 

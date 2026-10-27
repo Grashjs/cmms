@@ -1,3 +1,4 @@
+import { openAttachment } from 'src/utils/attachment';
 import {
   Box,
   Button,
@@ -333,7 +334,7 @@ export default function LocationDetails(props: LocationDetailsProps) {
                   <ListItemButton
                     key={file.id}
                     divider
-                    onClick={() => window.open(file.url, '_blank')}
+                    onClick={() => openAttachment(file.url)}
                   >
                     <ListItemText
                       primary={

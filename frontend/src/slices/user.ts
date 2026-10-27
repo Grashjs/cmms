@@ -3,11 +3,11 @@ import { createSlice } from '@reduxjs/toolkit';
 import { getInitialPage, Page, SearchCriteria } from 'src/models/owns/page';
 import type { AppThunk } from 'src/store';
 import { UserMiniDTO, UserResponseDTO } from '../models/user';
-import { UserInvitationMiniDTO } from '../models/owns/user';
+import { InvitationResponse, UserInvitationMiniDTO } from '../models/owns/user';
 import api from '../utils/api';
 import { revertAll } from 'src/utils/redux';
 import { UiConfiguration } from '../models/owns/uiConfiguration';
-import { isEmailVerificationEnabled } from '../config';
+import { uniquePendingInvitations } from '../utils/invitation';
 
 const basePath = 'users';
 interface UserState {
@@ -126,16 +126,16 @@ export const slice = createSlice({
       action: PayloadAction<{ invitations: UserInvitationMiniDTO[] }>
     ) {
       const { invitations } = action.payload;
-      state.lastWeekInvitations = invitations;
+      state.lastWeekInvitations = uniquePendingInvitations(invitations);
     },
     addLastWeekInvitations(
       state: UserState,
       action: PayloadAction<{ invitations: UserInvitationMiniDTO[] }>
     ) {
-      state.lastWeekInvitations = [
+      state.lastWeekInvitations = uniquePendingInvitations([
         ...action.payload.invitations,
         ...state.lastWeekInvitations
-      ];
+      ]);
     }
   }
 });
@@ -250,23 +250,25 @@ export const inviteUsers =
     isResend?: boolean
   ): AppThunk =>
   async (dispatch, getState) => {
-    const successResponse = await api.post<{ success: boolean }>(
-      'users/invite',
-      {
-        role: { id: roleId },
-        emails,
-        disableSendingEmail
-      }
-    );
-    if (isResend) return;
+    const response = await api.post<InvitationResponse>('users/invite', {
+      role: { id: roleId },
+      emails: Array.from(
+        new Set(emails.map((email) => email.trim().toLowerCase()))
+      ),
+      disableSendingEmail
+    });
+    if (isResend) return response;
     const role = getState().roles.roles.find((r) => r.id === roleId);
-    const invitations: UserInvitationMiniDTO[] = emails.map((email) => ({
-      email,
-      roleId,
-      roleName: role?.name ?? ''
-    }));
-    if (isEmailVerificationEnabled)
-      dispatch(slice.actions.addLastWeekInvitations({ invitations }));
+    const invitations: UserInvitationMiniDTO[] = response.invitations.map(
+      ({ email }) => ({
+        email,
+        roleId,
+        roleName: role?.name ?? ''
+      })
+    );
+    dispatch(slice.actions.addLastWeekInvitations({ invitations }));
+    // Delivery links are returned only to the caller and never persisted in Redux.
+    return response;
   };
 
 export const clearSingleUser = (): AppThunk => async (dispatch) => {

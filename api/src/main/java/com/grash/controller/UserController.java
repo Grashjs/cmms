@@ -57,7 +57,7 @@ public class UserController {
 
     @PostMapping("/invite")
     @PreAuthorize("permitAll()")
-    public SuccessResponse invite(@Parameter(description = "User invitation data") @RequestBody UserInvitationDTO invitation,
+    public InvitationResponse invite(@Parameter(description = "User invitation data") @RequestBody UserInvitationDTO invitation,
                                   @Parameter(hidden = true) @CurrentUser User user) {
         return userService.inviteUsers(invitation, user);
     }
@@ -95,20 +95,9 @@ public class UserController {
     public UserResponseDTO patch(@Parameter(description = "User fields to update") @Valid @RequestBody UserPatchDTO userReq,
                                  @Parameter(description = "User ID") @PathVariable("id") Long id,
                                  @Parameter(hidden = true) @CurrentUser User requester) {
-        Optional<User> optionalUser = userService.findByIdAndCompany(id, requester.getCompany().getId());
-
-        if (optionalUser.isPresent()) {
-            User savedUser = optionalUser.get();
-            if (savedUser.canBeEditedBy(requester)) {
-                return userMapper.toResponseDto(userService.update(id, userReq));
-            } else {
-                throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
-            }
-        } else {
-            throw new CustomException("Can't get someone else's user", HttpStatus.NOT_ACCEPTABLE);
-        }
-
+        return userMapper.toResponseDto(userService.update(id, userReq, requester));
     }
+
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
@@ -141,10 +130,7 @@ public class UserController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public UserResponseDTO enable(@PathVariable("id") Long id,
                                   @Parameter(hidden = true) @CurrentUser User requester) {
-        if (!requester.getRole().getEditOtherPermissions().contains(PermissionEntity.PEOPLE_AND_TEAMS))
-            throw new CustomException("You don't have permission", HttpStatus.NOT_ACCEPTABLE);
-        return userMapper.toResponseDto(userService.enableUser(userService.findByIdAndCompany(id,
-                requester.getCompany().getId()).get()));
+        return userMapper.toResponseDto(userService.enableUser(id, requester));
     }
 
     @PatchMapping("/soft-delete/{id}")

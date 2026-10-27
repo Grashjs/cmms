@@ -1,4 +1,6 @@
 const locale = {
+  management_access_denied: "Action denied: check your permissions, the target role and the account owner.",
+  no_assignable_roles: "No role is available for you to assign.",
   DUPLICATE_OF: 'Duplicate of',
   DUPLICATED_BY: 'Duplicated by',
   RELATED_TO: 'Related to',
@@ -731,6 +733,14 @@ const locale = {
     "You may add 20 users at a time by pressing 'tab' or 'enter' after each email entry. Any duplicate and registered emails will be removed while registering the requested users.",
   enter_email: 'Enter email address',
   users_invite_success: 'Users have been invited',
+  invitation_send_email: 'Send invitation emails',
+  invitation_links_notice:
+    'Copy these links now and send each link only to its intended recipient. Links expire and can be used once. Renewing an invitation invalidates its previous link.',
+  invitation_link: 'Invitation link',
+  invitation_expires: 'Expires: {{date}}',
+  invitation_unavailable:
+    'This invitation is invalid, expired or already used. Ask an authorized administrator for a new invitation link. Older email-and-role links must be renewed.',
+  invitation_join_details: 'Join {{company}} as {{role}}',
   users_invite_failure:
     "Users can't be invited. Check your current subscription members count",
   please_type_emails: 'Please type in emails to invite',

@@ -1,4 +1,20 @@
 const locale = {
+  management_access_denied: "Radnja je odbijena: provjerite svoja prava, ciljnu ulogu i vlasnika računa.",
+  no_assignable_roles: "Nema uloge koju možete dodijeliti sa svojim trenutnim pravima.",
+  invitation_created: 'Pozivnica kreirana',
+  invitation_delivery_notice:
+    'Podijelite ovaj lični link s pozvanom osobom. Link ima rok važenja, može se koristiti samo jednom, a nova pozivnica čini prethodni link nevažećim. Linkovi se brišu kada napustite ovaj ekran.',
+  invitation_expires: 'Važi do: {{date}}',
+  invitation_copy: 'Kopiraj link',
+  invitation_share: 'Podijeli link',
+  invitation_copied: 'Link kopiran',
+  invitation_copy_failed: 'Link nije moguće kopirati. Pokušajte ponovo.',
+  invitation_share_failed: 'Link nije moguće podijeliti. Pokušajte ponovo.',
+  invitation_browser_acceptance:
+    'Pozvana osoba završava registraciju u web pregledniku, a zatim se prijavljuje u mobilnu aplikaciju.',
+  invitation_send_email: 'Zatraži i slanje pozivnice e-poštom',
+  invitation_email_optional:
+    'Slanje e-pošte traži se samo ako je omogućeno na serveru. Kreiranje pozivnice ne potvrđuje isporuku e-pošte. Link uvijek možete kopirati ili podijeliti.',
   DUPLICATE_OF: 'Duplikat od',
   DUPLICATED_BY: 'Duplirano od strane',
   RELATED_TO: 'Povezano sa',
