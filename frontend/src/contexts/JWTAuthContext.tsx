@@ -677,7 +677,10 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     } catch (err) {
       console.error(err);
     }
-    await api.post('auth/logout', {});
+    // Send the refresh token so the server closes only this device's session.
+    await api.post('auth/logout', {
+      refreshToken: window.localStorage.getItem('refreshToken')
+    });
     setSession(null, null);
     Sentry.setUser(null);
     if (clarityId && !IS_LOCALHOST) Clarity.identify('');

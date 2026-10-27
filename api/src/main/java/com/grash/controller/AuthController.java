@@ -188,9 +188,25 @@ public class AuthController {
 
     @PostMapping("/logout")
     @PreAuthorize("permitAll()")
-    public SuccessResponse logout(@Parameter(hidden = true) @CurrentUser User user) {
-        userService.invalidateSessions(user);
+    public SuccessResponse logout(@Parameter(hidden = true) @CurrentUser User user,
+                                  @Parameter(description = "Refresh token of the session to close")
+                                  @RequestBody(required = false) LogoutRequest logoutRequest) {
+        String refreshToken = logoutRequest == null ? null : logoutRequest.getRefreshToken();
+        if (refreshToken != null && !refreshToken.isBlank()) {
+            // Only close the session of the calling device; other devices stay signed in.
+            refreshTokenService.revoke(refreshToken, user);
+        } else {
+            // Legacy clients that don't send their refresh token: revoke everything.
+            userService.invalidateSessions(user);
+        }
         return new SuccessResponse(true, "Logged out successfully");
+    }
+
+    @PostMapping("/logout-all")
+    @PreAuthorize("permitAll()")
+    public SuccessResponse logoutAll(@Parameter(hidden = true) @CurrentUser User user) {
+        userService.invalidateSessions(user);
+        return new SuccessResponse(true, "Logged out from all devices successfully");
     }
 
     @PreAuthorize("permitAll()")

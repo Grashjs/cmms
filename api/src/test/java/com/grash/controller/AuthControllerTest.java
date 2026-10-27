@@ -382,7 +382,35 @@ class AuthControllerTest extends AbstractControllerTest {
         }
 
         @Test
-        void logout_revokesSessionsAndReturnsSuccess() throws Exception {
+        void logout_withRefreshToken_revokesOnlyCurrentDevice() throws Exception {
+            setCurrentUser(clientUser);
+            when(userService.whoami(any())).thenReturn(clientUser);
+
+            mockMvc.perform(post("/auth/logout")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"refreshToken\":\"device-refresh-token\"}"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.success").value(true));
+
+            verify(refreshTokenService).revoke("device-refresh-token", clientUser);
+            verify(userService, never()).invalidateSessions(any());
+        }
+
+        @Test
+        void logoutAll_revokesEverySession() throws Exception {
+            setCurrentUser(clientUser);
+            when(userService.whoami(any())).thenReturn(clientUser);
+            when(userService.invalidateSessions(clientUser)).thenReturn(clientUser);
+
+            mockMvc.perform(post("/auth/logout-all"))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.success").value(true));
+
+            verify(userService).invalidateSessions(clientUser);
+        }
+
+        @Test
+        void logout_withoutRefreshToken_revokesSessionsAndReturnsSuccess() throws Exception {
             setCurrentUser(clientUser);
             when(userService.whoami(any())).thenReturn(clientUser);
             when(userService.invalidateSessions(clientUser)).thenReturn(clientUser);
