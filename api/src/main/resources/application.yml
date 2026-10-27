@@ -7,7 +7,7 @@ spring:
     driver-class-name: org.postgresql.Driver
     hikari:
       leak-detection-threshold: 60000
-      maximum-pool-size: 20
+      maximum-pool-size: 30
   #    init:
   #      data-locations: classpath:data-preprod.sql
   #    tomcat:
