@@ -462,6 +462,7 @@ function WorkOrders() {
     if (copyWorkOrderData) handleOpenDetails(newWorkOrder.id);
     setCopyWorkOrderData(null);
     setCalendarRefreshTrigger((trigger) => trigger + 1);
+    dispatch(getWorkOrders(criteria));
     showSnackBar(t('wo_create_success'), 'success');
   };
   const onCreationFailure = (err) =>
