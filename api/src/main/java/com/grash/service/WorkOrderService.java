@@ -382,10 +382,27 @@ public class WorkOrderService {
     }
 
     public Page<WorkOrder> findBySearchCriteriaWithEntityGraph(SearchCriteria searchCriteria) {
-        SpecificationBuilder<WorkOrder> builder = new SpecificationBuilder<>();
-        searchCriteria.getFilterFields().forEach(builder::with);
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(),
                 searchCriteria.getDirection(), searchCriteria.getSortField());
+        return findWithEntityGraph(searchCriteria, page);
+    }
+
+    /**
+     * Returns one page of the work orders matching the (already scoped) criteria, for exports.
+     * Keeps the list's sorting and adds the id as a tie-breaker so that rows can't be repeated
+     * or skipped between pages when the sort field has equal values.
+     */
+    public Page<WorkOrder> findBySearchCriteriaForExport(SearchCriteria searchCriteria, int pageNum, int pageSize) {
+        Sort sort = Sort.by(searchCriteria.getDirection(), searchCriteria.getSortField());
+        if (!"id".equals(searchCriteria.getSortField())) {
+            sort = sort.and(Sort.by(Sort.Direction.ASC, "id"));
+        }
+        return findWithEntityGraph(searchCriteria, PageRequest.of(pageNum, pageSize, sort));
+    }
+
+    private Page<WorkOrder> findWithEntityGraph(SearchCriteria searchCriteria, Pageable page) {
+        SpecificationBuilder<WorkOrder> builder = new SpecificationBuilder<>();
+        searchCriteria.getFilterFields().forEach(builder::with);
         Specification<WorkOrder> baseSpec = builder.build();
         Specification<WorkOrder> fetchSpec = (root, query, criteriaBuilder) -> {
             if (query.getResultType() != Long.class && query.getResultType() != long.class) {

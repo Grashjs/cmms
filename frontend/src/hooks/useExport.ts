@@ -4,14 +4,24 @@ import SockJS from 'sockjs-client';
 import { apiUrl } from 'src/config';
 import api from 'src/utils/api';
 import useAuth from './useAuth';
+import { SearchCriteria } from 'src/models/owns/page';
+
+interface ExportOptions {
+  /** Search criteria of the current list; when set, only matching rows are exported. */
+  criteria?: SearchCriteria;
+}
 
 interface UseExportReturn {
-  exportEntity: (entity: ExportEntityType) => Promise<void>;
+  exportEntity: (
+    entity: ExportEntityType,
+    options?: ExportOptions
+  ) => Promise<void>;
   loadingExport: Record<ExportEntityType, boolean>;
 }
 
 export type ExportEntityType =
   | 'work-orders'
+  | 'work-orders-filtered'
   | 'assets'
   | 'locations'
   | 'parts'
@@ -29,6 +39,7 @@ export const useExport = (): UseExportReturn => {
     Record<ExportEntityType, boolean>
   >({
     'work-orders': false,
+    'work-orders-filtered': false,
     assets: false,
     locations: false,
     parts: false,
@@ -55,7 +66,10 @@ export const useExport = (): UseExportReturn => {
   }, []);
 
   const exportEntity = useCallback(
-    async (entity: ExportEntityType): Promise<void> => {
+    async (
+      entity: ExportEntityType,
+      options?: ExportOptions
+    ): Promise<void> => {
       return new Promise((resolve, reject) => {
         // Check if stompClient is initialized
         if (!stompClient) {
@@ -94,15 +108,21 @@ export const useExport = (): UseExportReturn => {
 
         // Make request with UUID
         setLoadingExport((prev) => ({ ...prev, [entity]: true }));
-        api
-          .get<{ success: boolean; message: string }>(
-            `export/${entity}?uuid=${uuid}`
-          )
-          .catch((error) => {
-            subscription.unsubscribe();
-            setLoadingExport((prev) => ({ ...prev, [entity]: false }));
-            reject(error);
-          });
+        // 'work-orders-filtered' is served by POST export/work-orders/filtered
+        const filteredPath = entity.replace(/-filtered$/, '/filtered');
+        const request = options?.criteria
+          ? api.post<{ success: boolean; message: string }>(
+              `export/${filteredPath}?uuid=${uuid}`,
+              options.criteria
+            )
+          : api.get<{ success: boolean; message: string }>(
+              `export/${entity}?uuid=${uuid}`
+            );
+        request.catch((error) => {
+          subscription.unsubscribe();
+          setLoadingExport((prev) => ({ ...prev, [entity]: false }));
+          reject(error);
+        });
       });
     },
     [stompClient]
