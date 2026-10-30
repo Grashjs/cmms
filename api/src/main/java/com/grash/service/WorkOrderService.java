@@ -369,6 +369,11 @@ public class WorkOrderService {
                 Sort.by(Sort.Direction.DESC, "createdAt")));
     }
 
+    public boolean hasOpenWorkOrderFromMeterTrigger(Long meterTriggerId) {
+        return workOrderRepository.existsByParentMeterTrigger_IdAndStatusNotAndArchivedFalse(meterTriggerId,
+                Status.COMPLETE);
+    }
+
     public Collection<WorkOrder> findByLocation(Long id) {
         return workOrderRepository.findByLocation_Id(id);
     }
