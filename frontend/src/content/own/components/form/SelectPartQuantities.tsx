@@ -23,16 +23,17 @@ export default function SelectPartQuantities({
 
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
+  const updatePartQuantities = (newPartQuantities: PartQuantityMiniDTO[]) => {
+    setPartQuantities(newPartQuantities);
+    onChange(newPartQuantities);
+  };
+
   const onPartQuantityChange = (value: string, partQuantity) => {
-    let partQuantitiesClone = [...partQuantities];
-    partQuantitiesClone = partQuantitiesClone.map((pq) => {
-      if (pq.id === partQuantity.id) {
-        return { ...pq, quantity: Number(value) };
-      }
-      return pq;
-    });
-    setPartQuantities(partQuantitiesClone);
-    onChange(partQuantitiesClone);
+    updatePartQuantities(
+      partQuantities.map((pq) =>
+        pq.id === partQuantity.id ? { ...pq, quantity: Number(value) } : pq
+      )
+    );
   };
 
   useEffect(() => {
@@ -45,26 +46,28 @@ export default function SelectPartQuantities({
         onChange={onPartQuantityChange}
         disabled={false}
         onDelete={(partQuantity) =>
-          setPartQuantities((prevState) =>
-            prevState.filter((pq) => pq.id !== partQuantity.id)
+          updatePartQuantities(
+            partQuantities.filter((pq) => pq.id !== partQuantity.id)
           )
         }
       />
       <SelectParts
         selected={partQuantities.map((partQuantity) => partQuantity.part.id)}
         onChange={(newParts) => {
-          const newPartQuantities = newParts.map((part) => {
-            return {
-              part,
-              quantity: 0,
-              id: randomInt(),
-              createdAt: new Date().toDateString(),
-              createdBy: null,
-              updatedAt: null,
-              updatedBy: null
-            };
-          });
-          setPartQuantities(newPartQuantities);
+          updatePartQuantities(
+            newParts.map(
+              (part) =>
+                partQuantities.find((pq) => pq.part.id === part.id) ?? {
+                  part,
+                  quantity: 1,
+                  id: randomInt(),
+                  createdAt: new Date().toDateString(),
+                  createdBy: null,
+                  updatedAt: null,
+                  updatedBy: null
+                }
+            )
+          );
         }}
       />
     </>
