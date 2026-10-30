@@ -1,6 +1,7 @@
 package com.grash.repository;
 
 import com.grash.model.User;
+import com.grash.model.enums.AnalyticsSummaryFrequency;
 import com.grash.model.enums.RoleCode;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -53,4 +54,9 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     List<User> findByIdInAndCompany_Id(Collection<Long> longs, Long id);
 
     Optional<User> findBySsoProviderIdAndSsoProvider(String ldapId, String provider);
+
+    @Query("select u from User u join fetch u.userSettings settings join fetch u.company " +
+            "where u.enabled = true and settings.analyticsSummaryFrequency in :frequencies")
+    List<User> findAnalyticsSummarySubscribers(
+            @Param("frequencies") Collection<AnalyticsSummaryFrequency> frequencies);
 }

@@ -1,6 +1,7 @@
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
 import type { AppThunk } from 'src/store';
+import type { FilterField } from 'src/models/owns/page';
 import api from '../../utils/api';
 import {
   AssetOverview,
@@ -172,14 +173,14 @@ const slice = createSlice({
 
 export const reducer = slice.reducer;
 
-export const getWOTimeCostByAsset = (start: Date, end: Date, companyId?: number): AppThunk => async (dispatch) => {
+export const getWOTimeCostByAsset = (start: Date, end: Date, companyId?: number, filterFields: FilterField[] = []): AppThunk => async (dispatch) => {
   dispatch(
     slice.actions.setLoading({
       operation: 'completeTimeCostByAsset',
       loading: true
     })
   );
-  const stats = await api.post<TimeCostByAsset[]>(`${basePath}/time-cost${companyQuery(companyId)}`, { start, end });
+  const stats = await api.post<TimeCostByAsset[]>(`${basePath}/time-cost${companyQuery(companyId)}`, { start, end, filterFields });
   dispatch(slice.actions.getWOTimeCostByAsset({ stats }));
   dispatch(
     slice.actions.setLoading({

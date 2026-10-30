@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:attr="dir=${dir}">
+<head>
+    <meta charset="UTF-8"/>
+</head>
+<style>
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: 'Inter', Arial, sans-serif;
+        background: #fff;
+        color: #1C2B3A;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    .clearfix:after { content: ""; display: table; clear: both; }
+
+    .report-wrap {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 28px 32px 40px;
+    }
+
+    /* ── Header ── */
+    .report-header {
+        padding-bottom: 16px;
+        border-bottom: 2px solid #E4E8EE;
+        margin-bottom: 18px;
+    }
+
+    .header-brand { float: left; }
+    .header-title { float: right; text-align: right; }
+    [dir="rtl"] .header-brand { float: right; }
+    [dir="rtl"] .header-title { float: left; text-align: left; }
+
+    .company-name {
+        display: block;
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .company-logo {
+        display: block;
+        height: 36px;
+        margin-bottom: 4px;
+    }
+
+    .eyebrow {
+        display: block;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        color: #8A97A8;
+        margin-bottom: 2px;
+    }
+
+    .report-title {
+        display: block;
+        font-size: 22px;
+        font-weight: 700;
+    }
+
+    /* ── Meta bar ── */
+    .meta-bar {
+        width: 100%;
+        border-collapse: collapse;
+        background: #F7F8FA;
+        border: 1px solid #E4E8EE;
+        margin-bottom: 16px;
+    }
+
+    .meta-bar td {
+        padding: 10px 16px;
+        vertical-align: top;
+        border-right: 1px solid #E4E8EE;
+    }
+
+    .meta-bar td:last-child { border-right: none; }
+
+    .meta-label {
+        display: block;
+        font-size: 9px;
+        font-weight: 600;
+        letter-spacing: 0.9px;
+        text-transform: uppercase;
+        color: #8A97A8;
+        margin-bottom: 2px;
+    }
+
+    .meta-value {
+        display: block;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .filters {
+        font-size: 11px;
+        color: #5A6A7A;
+        margin-bottom: 16px;
+    }
+
+    /* ── Panels ── */
+    .panel {
+        border: 1px solid #E4E8EE;
+        margin-bottom: 14px;
+        page-break-inside: avoid;
+    }
+
+    .panel-header {
+        background: #F7F8FA;
+        border-bottom: 1px solid #E4E8EE;
+        padding: 8px 14px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .panel-accent {
+        display: inline-block;
+        width: 4px;
+        height: 12px;
+        margin-right: 8px;
+        vertical-align: middle;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .data-table th {
+        font-size: 9px;
+        font-weight: 600;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        color: #8A97A8;
+        text-align: right;
+        padding: 7px 14px;
+        border-bottom: 1px solid #E4E8EE;
+    }
+
+    .data-table td {
+        padding: 6px 14px;
+        border-bottom: 1px solid #F0F2F5;
+        text-align: right;
+    }
+
+    .data-table th.label, .data-table td.label { text-align: left; }
+
+    /* same columns in every comparison panel */
+    .compare th { width: 20%; }
+    .compare th.label { width: 40%; }
+    [dir="rtl"] .data-table th.label, [dir="rtl"] .data-table td.label { text-align: right; }
+
+    .data-table tr:last-child td { border-bottom: none; }
+
+    .current { font-weight: 700; }
+    .previous { color: #5A6A7A; }
+
+    .change { font-weight: 600; }
+    .good { color: #2E7D32; }
+    .bad { color: #C62828; }
+    .neutral { color: #8A97A8; }
+
+    .low { color: #C62828; font-weight: 700; }
+
+    .empty {
+        padding: 10px 14px;
+        color: #8A97A8;
+    }
+
+    /* ── Footer ── */
+    .report-footer {
+        margin-top: 24px;
+        padding-top: 12px;
+        border-top: 1px solid #E4E8EE;
+        text-align: center;
+        font-size: 10px;
+        color: #8A97A8;
+    }
+
+</style>
+<body>
+
+<!--/*@thymesVar id="companyName" type="java.lang.String"*/-->
+<!--/*@thymesVar id="companyLogo" type="java.lang.String"*/-->
+<!--/*@thymesVar id="backgroundColor" type="java.lang.String"*/-->
+<!--/*@thymesVar id="period" type="java.lang.String"*/-->
+<!--/*@thymesVar id="previousPeriod" type="java.lang.String"*/-->
+<!--/*@thymesVar id="generatedOn" type="java.lang.String"*/-->
+<!--/*@thymesVar id="filters" type="java.util.List<java.lang.String>"*/-->
+<!--/*@thymesVar id="sections" type="java.util.List<com.grash.service.AnalyticsSummaryFormatter.Section>"*/-->
+<!--/*@thymesVar id="responseTimes" type="java.util.List<com.grash.service.AnalyticsSummaryFormatter.PriorityRow>"*/-->
+<!--/*@thymesVar id="assets" type="java.util.List<com.grash.service.AnalyticsSummaryFormatter.AssetRow>"*/-->
+
+<div class="report-wrap">
+
+    <!-- ── Header ── -->
+    <div class="report-header clearfix">
+        <div class="header-brand">
+            <span class="company-name" th:text="${companyName}"></span>
+            <img th:if="${companyLogo != null}" th:attr="data-storage-path=${companyLogo}" class="company-logo"
+                 alt="logo"/>
+        </div>
+        <div class="header-title">
+            <span class="eyebrow" th:text="${period}"></span>
+            <span class="report-title" th:style="'color:' + ${backgroundColor}" th:text="#{summary_title}"></span>
+        </div>
+    </div>
+
+    <!-- ── Period ── -->
+    <table class="meta-bar">
+        <tr>
+            <td>
+                <span class="meta-label" th:text="#{summary_period}"></span>
+                <span class="meta-value" th:text="${period}"></span>
+            </td>
+            <td>
+                <span class="meta-label" th:text="#{summary_previous_period}"></span>
+                <span class="meta-value" th:text="${previousPeriod}"></span>
+            </td>
+            <td>
+                <span class="meta-label" th:text="#{summary_generated_on}"></span>
+                <span class="meta-value" th:text="${generatedOn}"></span>
+            </td>
+        </tr>
+    </table>
+
+    <div class="filters" th:if="${!filters.isEmpty()}">
+        <strong th:text="#{summary_filters} + ':'"></strong>
+        <span th:each="filter, status : ${filters}" th:text="${filter} + (${status.last} ? '' : ' · ')"></span>
+    </div>
+
+    <!-- ── Figures with the previous period ── -->
+    <div class="panel" th:each="section : ${sections}">
+        <div class="panel-header">
+            <span class="panel-accent" th:style="'background:' + ${backgroundColor}"></span>
+            <span th:text="${section.title}"></span>
+        </div>
+        <table class="data-table compare">
+            <tr>
+                <th class="label" th:text="#{summary_indicator}"></th>
+                <th th:text="#{summary_period}"></th>
+                <th th:text="#{summary_previous_period}"></th>
+                <th th:text="#{summary_change}"></th>
+            </tr>
+            <tr th:each="row : ${section.rows}">
+                <td class="label" th:text="${row.label}"></td>
+                <td class="current" th:text="${row.current}"></td>
+                <td class="previous" th:text="${row.previous}"></td>
+                <td class="change" th:classappend="${row.trend}" th:text="${row.change}"></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- ── Reactive work by priority ── -->
+    <div class="panel">
+        <div class="panel-header">
+            <span class="panel-accent" th:style="'background:' + ${backgroundColor}"></span>
+            <span th:text="#{summary_response_times}"></span>
+        </div>
+        <table class="data-table">
+            <tr>
+                <th class="label" th:text="#{priority}"></th>
+                <th th:text="#{summary_reactive_count}"></th>
+                <th th:text="#{summary_completed}"></th>
+                <th th:text="#{summary_response_time}"></th>
+                <th th:text="#{summary_resolution_time}"></th>
+            </tr>
+            <tr th:each="row : ${responseTimes}">
+                <td class="label" th:text="${row.priority}"></td>
+                <td th:text="${row.count}"></td>
+                <td th:text="${row.completed}"></td>
+                <td th:text="${row.responseTime}"></td>
+                <td th:text="${row.resolutionTime}"></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- ── Lowest availability ── -->
+    <div class="panel">
+        <div class="panel-header">
+            <span class="panel-accent" th:style="'background:' + ${backgroundColor}"></span>
+            <span th:text="#{summary_availability}"></span>
+        </div>
+        <div class="empty" th:if="${assets.isEmpty()}" th:text="#{summary_no_data}"></div>
+        <table class="data-table" th:if="${!assets.isEmpty()}">
+            <tr>
+                <th class="label" th:text="#{summary_asset}"></th>
+                <th th:text="#{summary_availability_value}"></th>
+                <th th:text="#{summary_downtime}"></th>
+                <th th:text="#{summary_downtime_events}"></th>
+            </tr>
+            <tr th:each="asset : ${assets}">
+                <td class="label" th:text="${asset.name}"></td>
+                <td th:classappend="${asset.low} ? 'low' : ''" th:text="${asset.availability}"></td>
+                <td th:text="${asset.downtime}"></td>
+                <td th:text="${asset.downtimeEvents}"></td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- ── Footer ── -->
+    <div class="report-footer" th:text="#{summary_footer}"></div>
+
+</div>
+</body>
+</html>

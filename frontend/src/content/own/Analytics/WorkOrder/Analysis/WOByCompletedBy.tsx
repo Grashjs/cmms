@@ -8,6 +8,7 @@ import { useEffect } from 'react';
 import { getCompleteByCompletedBy } from '../../../../../slices/analytics/workOrder';
 import { getRandomColor } from '../../../../../utils/overall';
 import Loading from '../../Loading';
+import { FilterField } from '../../../../../models/owns/page';
 
 interface WOByPrimaryUserProps {
   handleOpenModal: (
@@ -18,9 +19,10 @@ interface WOByPrimaryUserProps {
   start: Date;
   end: Date;
   companyId?: number;
+  filterFields?: FilterField[];
 }
 
-function WOByCompletedBy({ handleOpenModal, start, end, companyId }: WOByPrimaryUserProps) {
+function WOByCompletedBy({ handleOpenModal, start, end, companyId, filterFields }: WOByPrimaryUserProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -29,8 +31,8 @@ function WOByCompletedBy({ handleOpenModal, start, end, companyId }: WOByPrimary
   );
 
   useEffect(() => {
-    dispatch(getCompleteByCompletedBy(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getCompleteByCompletedBy(start, end, companyId, filterFields));
+  }, [start, end, companyId, filterFields]);
 
   const columns = ['id'];
 

@@ -115,3 +115,9 @@ export const formatCustomFields = (values: { [key: string]: any }) => {
   newValues.customFields = customFields;
   return newValues;
 };
+
+/**
+ * Rounds to at most `decimals` decimals, without trailing zeros (0.6666 -> 0.7, 2 -> 2).
+ */
+export const roundDecimals = (value: number, decimals = 1): number =>
+  Number((value ?? 0).toFixed(decimals));

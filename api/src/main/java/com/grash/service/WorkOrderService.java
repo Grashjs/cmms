@@ -4,6 +4,8 @@ import com.grash.advancedsearch.FilterField;
 import com.grash.advancedsearch.SearchCriteria;
 import com.grash.advancedsearch.SpecificationBuilder;
 import com.grash.dto.*;
+import com.grash.dto.analytics.AnalyticsFilter;
+import com.grash.dto.analytics.workOrders.WOCostsAndTime;
 import com.grash.dto.comment.CommentCriteria;
 import com.grash.dto.cutomField.CustomFieldValuePostDTO;
 import com.grash.dto.workOrder.WorkOrderPatchDTO;
@@ -538,6 +540,24 @@ public class WorkOrderService {
         return costs.stream().mapToDouble(value -> value).sum();
     }
 
+    /**
+     * Costs and labor time of completed work orders, as shown in the analytics. The total includes the labor cost.
+     */
+    public WOCostsAndTime getCostsAndTime(Collection<WorkOrder> completeWorkOrders) {
+        double additionalCost = getAdditionalCost(completeWorkOrders);
+        Pair<Long, Long> laborCostAndTime = getLaborCostAndTime(completeWorkOrders);
+        double partCost = getPartCost(completeWorkOrders);
+        double total = laborCostAndTime.getFirst() + partCost + additionalCost;
+        return WOCostsAndTime.builder()
+                .total(total)
+                .average(completeWorkOrders.isEmpty() ? 0 : total / completeWorkOrders.size())
+                .additionalCost(additionalCost)
+                .laborCost(laborCostAndTime.getFirst())
+                .partCost(partCost)
+                .laborTime(laborCostAndTime.getSecond())
+                .build();
+    }
+
     public double getAllCost(Collection<WorkOrder> workOrders, boolean includeLaborCost) {
         return getPartCost(workOrders) + getAdditionalCost(workOrders) + (includeLaborCost ?
                 getLaborCostAndTime(workOrders).getFirst() : 0);
@@ -685,15 +705,35 @@ public class WorkOrderService {
     }
 
     public List<Object[]> findTopNAssetsByIncompleteWO(Long companyId, Date start, Date end, int limit) {
-        return workOrderRepository.findTopNAssetsByIncompleteWO(companyId, start, end, limit);
+        return findTopNAssetsByIncompleteWO(companyId, start, end, limit, AnalyticsFilter.NONE);
+    }
+
+    public List<Object[]> findTopNAssetsByIncompleteWO(Long companyId, Date start, Date end, int limit,
+                                                       AnalyticsFilter filter) {
+        return workOrderRepository.findTopNAssetsByIncompleteWO(companyId, start, end, limit,
+                filter.locationIdsParam(), filter.assetCategoryIdsParam(), filter.teamIdsParam(),
+                filter.categoryIdsParam(), filter.prioritiesParam());
     }
 
     public List<Object[]> findTopNAssetsTimeCost(Long companyId, Date start, Date end, int limit) {
-        return workOrderRepository.findTopNAssetsTimeCost(companyId, start, end, limit);
+        return findTopNAssetsTimeCost(companyId, start, end, limit, AnalyticsFilter.NONE);
+    }
+
+    public List<Object[]> findTopNAssetsTimeCost(Long companyId, Date start, Date end, int limit,
+                                                 AnalyticsFilter filter) {
+        return workOrderRepository.findTopNAssetsTimeCost(companyId, start, end, limit,
+                filter.locationIdsParam(), filter.assetCategoryIdsParam(), filter.teamIdsParam(),
+                filter.categoryIdsParam(), filter.prioritiesParam());
     }
 
     public List<Object[]> findWOCostsByDateRange(Long companyId, Date start, Date end) {
-        return workOrderRepository.findWOCostsByDateRange(companyId, start, end);
+        return findWOCostsByDateRange(companyId, start, end, AnalyticsFilter.NONE);
+    }
+
+    public List<Object[]> findWOCostsByDateRange(Long companyId, Date start, Date end, AnalyticsFilter filter) {
+        return workOrderRepository.findWOCostsByDateRange(companyId, start, end,
+                filter.locationIdsParam(), filter.assetCategoryIdsParam(), filter.teamIdsParam(),
+                filter.categoryIdsParam(), filter.prioritiesParam());
     }
 
     public List<Object[]> findTopNAssetsRepairTime(Long companyId, Date start, Date end, int limit) {

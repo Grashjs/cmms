@@ -136,6 +136,10 @@ export default function MeterDetails(props: MeterDetailsProps) {
       value: t('every_frequency_days', { frequency: meter.updateFrequency })
     },
     {
+      label: t('cumulative_meter'),
+      value: meter.cumulative ? t('yes') : t('no')
+    },
+    {
       label: t('category'),
       value: meter.meterCategory?.name
     },

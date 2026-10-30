@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Date;
 
@@ -124,4 +125,49 @@ public interface AssetDowntimeRepository extends JpaRepository<AssetDowntime, Lo
                                                   @Param("end") Date end,
                                                   @Param("limit") int limit);
 
+    /**
+     * Downtime and availability of each asset over [start, end] (end must not be in the future), worst first.
+     * <p>
+     * Downtimes are clipped to the period. A running downtime (duration still 0 while the asset is in one of
+     * {@code downStatuses}) counts until the end. The living time starts at the in-service date (or the creation).
+     * Location and asset category ids follow {@code WorkOrderRepository.ANALYTICS_FILTER}: -1 means not filtered.
+     * Returns id, name, downtime events, downtime seconds, living seconds.
+     * <p>
+     * An asset without downtimes in the period gets one row of NULLs from the LEFT JOIN: it is counted as 0 explicitly,
+     * since LEAST and GREATEST skip NULLs and would count the whole period as downtime.
+     */
+    @Query(value = """
+            SELECT id, name, downtime_events, downtime, living_time FROM (
+              SELECT a.id, a.name,
+                COUNT(ad.id) AS downtime_events,
+                COALESCE(SUM(CASE WHEN ad.id IS NULL THEN 0 ELSE GREATEST(0, EXTRACT(EPOCH FROM (
+                  LEAST(CASE WHEN ad.duration = 0 AND a.status IN (:downStatuses) THEN :end
+                             ELSE ad.starts_on + (ad.duration * INTERVAL '1 second') END, :end)
+                  - GREATEST(ad.starts_on, :start)
+                ))) END), 0) AS downtime,
+                GREATEST(0, EXTRACT(EPOCH FROM (:end - GREATEST(COALESCE(a.in_service_date, a.created_at), :start))))
+                  AS living_time
+              FROM asset a
+              LEFT JOIN asset_downtime ad ON ad.asset_id = a.id
+                AND ad.starts_on <= :end
+                AND (ad.duration > 0 OR a.status IN (:downStatuses))
+                AND (ad.duration = 0 OR ad.starts_on + (ad.duration * INTERVAL '1 second') >= :start)
+              WHERE a.company_id = :companyId
+                AND a.archived = false
+                AND COALESCE(a.in_service_date, a.created_at) < :end
+                AND (-1 IN (:locationIds) OR a.location_id IN (:locationIds))
+                AND (-1 IN (:assetCategoryIds) OR a.category_id IN (:assetCategoryIds))
+              GROUP BY a.id, a.name, a.in_service_date, a.created_at
+            ) availability
+            ORDER BY CASE WHEN living_time > 0 THEN downtime / living_time ELSE 0 END DESC,
+                     downtime_events DESC, name
+            LIMIT :limit
+            """, nativeQuery = true)
+    List<Object[]> findAvailabilityByAsset(@Param("companyId") Long companyId,
+                                           @Param("start") Date start,
+                                           @Param("end") Date end,
+                                           @Param("downStatuses") Collection<Integer> downStatuses,
+                                           @Param("locationIds") Collection<Long> locationIds,
+                                           @Param("assetCategoryIds") Collection<Long> assetCategoryIds,
+                                           @Param("limit") int limit);
 }

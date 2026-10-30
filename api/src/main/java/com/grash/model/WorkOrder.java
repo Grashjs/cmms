@@ -124,16 +124,17 @@ public class WorkOrder extends WorkOrderBase {
                 || (this.getCreatedBy() != null && this.getCreatedBy().equals(user.getId()));
     }
 
-    //in days
+    /**
+     * Average time from creation (of the parent request, if any) to completion, in fractional days.
+     * Computed from milliseconds so that work orders completed in less than a day are not counted as 0.
+     */
     @JsonIgnore
-    public static long getAverageAge(Collection<WorkOrder> completeWorkOrders) {
-        List<Long> completionTimes = completeWorkOrders.stream()
-                .filter(workOrder -> workOrder.getCompletedOn() != null).map(workOrder ->
-                        Helper.getDateDiff(workOrder.getParentRequest() == null ? workOrder.getCreatedAt() :
-                                workOrder.getParentRequest().getCreatedAt(), workOrder.getCompletedOn(), TimeUnit.DAYS))
-                .collect(Collectors.toList());
-        return completionTimes.isEmpty() ? 0 :
-                completionTimes.stream().mapToLong(value -> value).sum() / completionTimes.size();
+    public static double getAverageAge(Collection<WorkOrder> completeWorkOrders) {
+        return completeWorkOrders.stream()
+                .filter(workOrder -> workOrder.getCompletedOn() != null)
+                .mapToLong(workOrder -> workOrder.getCompletedOn().getTime() - workOrder.getRealCreatedAt().getTime())
+                .average()
+                .orElse(0) / TimeUnit.DAYS.toMillis(1);
     }
 
     public boolean canBeViewedBy(User user) {
