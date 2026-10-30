@@ -257,10 +257,8 @@ export const getWorkOrdersMini =
 export const getSingleWorkOrder =
   (id: number): AppThunk =>
   async (dispatch) => {
-    dispatch(slice.actions.setLoadingGet({ loading: true }));
     const workOrder = await api.get<WorkOrder>(`${basePath}/${id}`);
     dispatch(slice.actions.getSingleWorkOrder({ workOrder }));
-    dispatch(slice.actions.setLoadingGet({ loading: false }));
   };
 export const addWorkOrder =
   (workOrder): AppThunk =>
@@ -449,19 +447,22 @@ export const getWorkOrderEvents =
   ): AppThunk =>
   async (dispatch) => {
     dispatch(slice.actions.setLoadingGet({ loading: true }));
-    const response = await api.post<
-      CalendarEvent<WorkOrder | PreventiveMaintenance>[]
-    >(`${basePath}/events?companyId=${companyId || ''}`, {
-      start,
-      end,
-      filterFields
-    });
-    dispatch(
-      slice.actions.getEvents({
-        events: response
-      })
-    );
-    dispatch(slice.actions.setLoadingGet({ loading: false }));
+    try {
+      const response = await api.post<
+        CalendarEvent<WorkOrder | PreventiveMaintenance>[]
+      >(`${basePath}/events?companyId=${companyId || ''}`, {
+        start,
+        end,
+        filterFields
+      });
+      dispatch(
+        slice.actions.getEvents({
+          events: response
+        })
+      );
+    } finally {
+      dispatch(slice.actions.setLoadingGet({ loading: false }));
+    }
   };
 export const getUrgentWorkOrdersCount = (): AppThunk => async (dispatch) => {
   const response = await api.get<{ success: boolean; message: string }>(

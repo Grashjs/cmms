@@ -1706,6 +1706,8 @@ const locale = {
   share: 'Share',
   delete: 'Delete',
   portal_not_found: 'Portal not found',
+  wo_not_found_or_no_access:
+    "This work order doesn't exist or you don't have access to it",
   request_submitted_success: 'Your request has been submitted successfully',
   request_submit_failure: 'Failed to submit request. Please try again.',
   required_description: 'Description is required',
