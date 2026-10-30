@@ -371,14 +371,17 @@ public class RequestService {
 
     @Transactional
     public WorkOrder approve(Long id, RequestApproveDTO requestApproveDTO, User user) {
-        Optional<Request> optionalRequest = requestRepository.findById(id);
         if (!(user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS) || user.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))) {
             throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         }
+        Optional<Request> optionalRequest = requestRepository.findByIdForUpdate(id);
         if (optionalRequest.isPresent()) {
             Request savedRequest = optionalRequest.get();
             if (savedRequest.getWorkOrder() != null) {
                 throw new CustomException("Request is already approved", HttpStatus.NOT_ACCEPTABLE);
+            }
+            if (savedRequest.isCancelled()) {
+                throw new CustomException("Request is cancelled", HttpStatus.NOT_ACCEPTABLE);
             }
             Collection<Workflow> workflows =
                     workflowService.findByMainConditionAndCompany(WFMainCondition.REQUEST_APPROVED,
@@ -435,14 +438,17 @@ public class RequestService {
 
     @Transactional
     public Request cancel(Long id, String reason, User user) {
-        Optional<Request> optionalRequest = requestRepository.findById(id);
         if (!(user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS) || user.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))) {
             throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         }
+        Optional<Request> optionalRequest = requestRepository.findByIdForUpdate(id);
         if (optionalRequest.isPresent()) {
             Request savedRequest = optionalRequest.get();
             if (savedRequest.getWorkOrder() != null) {
                 throw new CustomException("Request is already approved", HttpStatus.NOT_ACCEPTABLE);
+            }
+            if (savedRequest.isCancelled()) {
+                throw new CustomException("Request is already cancelled", HttpStatus.NOT_ACCEPTABLE);
             }
             if (reason == null || reason.trim().isEmpty())
                 throw new CustomException("Please give a reason", HttpStatus.NOT_ACCEPTABLE);
