@@ -1,4 +1,86 @@
 const locale = {
+  offline_prepare: 'Op dit apparaat voorbereiden',
+  offline_available: 'Offline beschikbaar',
+  offline_prepared_at: 'Volledige kopie opgeslagen: {{date}}',
+  offline_preparing: 'Voorbereiden…',
+  offline_sync: 'Synchroniseren',
+  offline_syncing: 'Bezig met synchroniseren…',
+  offline_saving: 'Opslaan…',
+  offline_draft_saved: 'Concept opgeslagen op dit apparaat',
+  offline_save_failed:
+    'Deze tekst kon niet worden opgeslagen. Kopieer de tekst voordat u de app opnieuw opent. Het laatst opgeslagen concept blijft behouden.',
+  offline_submit: 'Antwoord opslaan',
+  offline_queued: 'Opgeslagen op dit apparaat — wacht op verzending',
+  offline_unknown: 'Resultaat moet worden gecontroleerd',
+  offline_applied: 'Verzonden',
+  offline_conflict: 'Elders gewijzigd — uw antwoord blijft behouden',
+  offline_rejected: 'Antwoord geweigerd — uw werk blijft behouden',
+  offline_wait_previous:
+    'Wacht op het vorige resultaat voordat u dit concept indient.',
+  offline_server_value: 'Huidige waarde op de server',
+  offline_keep_draft: 'Mijn antwoord controleren en indienen',
+  offline_use_server: 'Serverwaarde gebruiken',
+  offline_discard: 'Dit lokale werk verwijderen',
+  offline_discard_confirm:
+    'Deze versie definitief verwijderen? Een nieuwer concept blijft behouden.',
+  offline_remove: 'Voorbereiding verwijderen',
+  offline_remove_confirm: 'De gedownloade kopie van dit apparaat verwijderen?',
+  offline_pending: 'Lokaal werk',
+  offline_orphan:
+    'Het doel is niet meer beschikbaar. Uw lokale werk blijft behouden.',
+  offline_unavailable:
+    'Deze werkorder is niet meer toegankelijk. Het lokale werk blijft behouden.',
+  offline_task_deleted:
+    'Deze taak is verwijderd. Het lokale werk blijft afzonderlijk bewaard.',
+  offline_connected_required: 'Voor deze actie is een verbinding vereist',
+  offline_files_not_downloaded: 'Bestanden niet gedownload',
+  offline_disabled: 'Offlinemodus opgeschort. Het lokale werk blijft behouden.',
+  offline_reconnect:
+    'Maak opnieuw verbinding met dit account om wachtende verzendingen te controleren.',
+  offline_expired:
+    'Maak verbinding om de lokale toegang te vernieuwen. Uw werk blijft behouden.',
+  offline_load_error:
+    'De lokale opslag kon niet worden geopend. Uw bestanden blijven behouden.',
+  offline_limit:
+    'Deze voorbereiding overschrijdt de offlinelimieten. De vorige volledige kopie blijft behouden.',
+  offline_prepare_failed:
+    'Voorbereiden mislukt. Een eerdere volledige kopie blijft behouden, indien aanwezig.',
+  offline_changed_revision:
+    'Het concept is gewijzigd. Controleer de laatste versie voordat u het verwijdert.',
+  offline_leave_context:
+    'Lokale concepten en wachtende verzendingen blijven voor dit account en deze server op dit apparaat staan. Ze worden niet vanuit een ander account verzonden.',
+  offline_not_prepared: 'Deze werkorder is niet voorbereid op dit apparaat.',
+  offline_storage_busy: 'Lokale gegevens worden nog opgeslagen.',
+  offline_count: '{{count}} werkorders voorbereid op dit apparaat',
+  offline_resume_after_conflict:
+    'De taak is gewijzigd op de server. Vergelijk beide waarden voordat u opnieuw indient.',
+  offline_abandoned: 'Lokaal werk verwijderd',
+  offline_max_text: 'Maximaal 255 tekens',
+  offline_received_without_access:
+    'Resultaat gecontroleerd. De taak is niet meer toegankelijk.',
+  offline_no_local_work: 'Geen lokaal werk meer over',
+  offline_read_only:
+    'Lokale toegang is alleen-lezen totdat dit account opnieuw wordt geautoriseerd.',
+  offline_action_failed:
+    'Actie mislukt. Uw opgeslagen lokale werk blijft behouden.',
+  offline_network_unavailable:
+    'Server niet beschikbaar. Uw werk blijft op dit apparaat.',
+  offline_invalid_response:
+    'Het serverantwoord is onvolledig of ongeldig. De vorige volledige kopie blijft behouden.',
+  offline_context_changed:
+    'Het account of de server is gewijzigd. Keer terug naar het oorspronkelijke account om verder te gaan.',
+  offline_https_required:
+    'Een HTTPS-server is vereist om werk offline voor te bereiden.',
+  offline_native_required:
+    'Offlineopslag vereist een appversie met de native modules.',
+  offline_work_pending:
+    'Handel het resterende lokale werk af voordat u deze voorbereiding verwijdert.',
+  offline_removal_pending:
+    'Maak opnieuw verbinding om de vorige voorbereiding volledig te verwijderen voordat u opnieuw voorbereidt.',
+  offline_unsupported_task:
+    'In deze stap kunnen alleen waarden van taken van het type TEXT offline worden ingediend.',
+  offline_result_changed:
+    'Deze verzending is al afgehandeld. Vernieuw de weergave om het resultaat te zien.',
   DUPLICATE_OF: 'Duplicaat van',
   DUPLICATED_BY: 'Gekopieerd door',
   RELATED_TO: 'Gerelateerd aan',

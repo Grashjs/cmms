@@ -1,4 +1,8 @@
 const trJSON = {
+  task_save_review: "Girdiğiniz bilgiler korunuyor. Kaydetme duraklatıldı; gösterilen değişiklikleri göndermeden önce sunucudaki verilerle karşılaştırın.",
+  task_server_value: "Sunucudaki mevcut değer",
+  task_review_submit: "Gösterilen değişiklikleri incele ve gönder",
+  task_review_discard: "Yerel değişiklikleri at ve sunucu sürümünü kullan",
   DUPLICATE_OF: 'Kopyası',
   DUPLICATED_BY: 'Tarafından çoğaltıldı',
   RELATED_TO: 'İle ilgili',

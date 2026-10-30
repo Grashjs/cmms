@@ -1,4 +1,8 @@
 const esJSON = {
+  task_save_review: "Se conserva lo que ha escrito. El guardado está en pausa; compárelo con los datos del servidor antes de enviar los cambios mostrados.",
+  task_server_value: "Valor actual en el servidor",
+  task_review_submit: "Revisar y enviar los cambios mostrados",
+  task_review_discard: "Descartar los cambios locales y usar la versión del servidor",
   DUPLICATE_OF: 'Duplicado de',
   DUPLICATED_BY: 'Duplicado por',
   RELATED_TO: 'Relacionado a',

@@ -1,4 +1,84 @@
 ﻿const trJSON = {
+  offline_prepare: 'Bu cihazda hazırla',
+  offline_available: 'Çevrimdışı kullanılabilir',
+  offline_prepared_at: 'Tam kopya kaydedildi: {{date}}',
+  offline_preparing: 'Hazırlanıyor…',
+  offline_sync: 'Eşitle',
+  offline_syncing: 'Eşitleniyor…',
+  offline_saving: 'Kaydediliyor…',
+  offline_draft_saved: 'Taslak bu cihaza kaydedildi',
+  offline_save_failed:
+    'Bu metin kaydedilemedi. Uygulamayı yeniden açmadan önce metni kopyalayın. Son kaydedilen taslak korunuyor.',
+  offline_submit: 'Yanıtı kaydet',
+  offline_queued: 'Bu cihaza kaydedildi — gönderilmeyi bekliyor',
+  offline_unknown: 'Sonuç doğrulanmalı',
+  offline_applied: 'Gönderildi',
+  offline_conflict: 'Başka bir yerde değiştirildi — yanıtınız korunuyor',
+  offline_rejected: 'Yanıt reddedildi — çalışmanız korunuyor',
+  offline_wait_previous:
+    'Bu taslağı göndermeden önce önceki yanıtın sonucunu bekleyin.',
+  offline_server_value: 'Sunucudaki mevcut değer',
+  offline_keep_draft: 'Yanıtımı incele ve gönder',
+  offline_use_server: 'Sunucudaki değeri kullan',
+  offline_discard: 'Bu yerel çalışmayı sil',
+  offline_discard_confirm:
+    'Bu sürüm kalıcı olarak silinsin mi? Daha yeni bir taslak korunacaktır.',
+  offline_remove: 'Hazırlığı kaldır',
+  offline_remove_confirm: 'İndirilen kopya bu cihazdan kaldırılsın mı?',
+  offline_pending: 'Yerel çalışma',
+  offline_orphan: 'Hedef artık kullanılamıyor. Yerel çalışmanız korunuyor.',
+  offline_unavailable:
+    'Bu iş emrine artık erişilemiyor. Yerel çalışma korunuyor.',
+  offline_task_deleted:
+    'Bu görev kaldırıldı. Göreve ait yerel çalışma ayrı tutuluyor.',
+  offline_connected_required: 'Bu işlem için bağlantı gerekiyor',
+  offline_files_not_downloaded: 'Dosyalar indirilmedi',
+  offline_disabled: 'Çevrimdışı mod askıya alındı. Yerel çalışma korunuyor.',
+  offline_reconnect:
+    'Bekleyen gönderimleri doğrulamak için bu hesapla yeniden bağlanın.',
+  offline_expired:
+    'Yerel erişimi yenilemek için bağlanın. Çalışmanız korunuyor.',
+  offline_load_error: 'Yerel depolama açılamadı. Dosyalarınız korunuyor.',
+  offline_limit:
+    'Bu hazırlık çevrimdışı sınırları aşıyor. Önceki tam kopya korunuyor.',
+  offline_prepare_failed:
+    'Hazırlık başarısız oldu. Varsa önceki tam kopya korunuyor.',
+  offline_changed_revision:
+    'Taslak değişti. Silmeden önce en son sürümü inceleyin.',
+  offline_leave_context:
+    'Yerel taslaklar ve bekleyen gönderimler bu hesap ve sunucu için bu cihazda kalacaktır. Başka bir hesaptan gönderilmeyecektir.',
+  offline_not_prepared: 'Bu iş emri bu cihazda hazırlanmadı.',
+  offline_storage_busy: 'Yerel veriler hâlâ kaydediliyor.',
+  offline_count: 'Bu cihazda hazırlanan iş emri sayısı: {{count}}',
+  offline_resume_after_conflict:
+    'Görev sunucuda değişti. Yeni bir gönderim oluşturmadan önce iki değeri de inceleyin.',
+  offline_abandoned: 'Yerel çalışma silindi',
+  offline_max_text: 'En fazla 255 karakter',
+  offline_received_without_access:
+    'Sonuç doğrulandı. Göreve artık erişilemiyor.',
+  offline_no_local_work: 'Kalan yerel çalışma yok',
+  offline_read_only:
+    'Bu hesap yeniden yetkilendirilene kadar yerel erişim salt okunurdur.',
+  offline_action_failed:
+    'İşlem başarısız oldu. Kaydedilmiş yerel çalışmanız korunuyor.',
+  offline_network_unavailable:
+    'Sunucu kullanılamıyor. Çalışmanız bu cihazda kalıyor.',
+  offline_invalid_response:
+    'Sunucu yanıtı eksik veya geçersiz. Önceki tam kopya korunuyor.',
+  offline_context_changed:
+    'Hesap veya sunucu değişti. Devam etmek için asıl hesaba dönün.',
+  offline_https_required:
+    'Çalışmayı çevrimdışı hazırlamak için bir HTTPS sunucusu gerekiyor.',
+  offline_native_required:
+    'Çevrimdışı depolama, yerel modülleri içeren bir uygulama sürümü gerektirir.',
+  offline_work_pending:
+    'Bu hazırlığı kaldırmadan önce kalan yerel çalışmayı sonuçlandırın.',
+  offline_removal_pending:
+    'Yeniden hazırlamadan önce önceki hazırlığın kaldırılmasını tamamlamak için tekrar bağlanın.',
+  offline_unsupported_task:
+    'Bu aşamada yalnızca TEXT türündeki görevlerin değerleri çevrimdışı gönderilebilir.',
+  offline_result_changed:
+    'Bu gönderim zaten sonuçlandı. Sonucunu görmek için yenileyin.',
   DUPLICATE_OF: 'Kopyası',
   DUPLICATED_BY: 'Tarafından çoğaltıldı',
   RELATED_TO: 'İle ilgili',

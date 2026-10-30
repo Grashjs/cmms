@@ -1,4 +1,8 @@
 const ptBRJSON = {
+  task_save_review: "Os dados digitados foram mantidos. O salvamento está pausado; compare-os com os dados do servidor antes de enviar as alterações exibidas.",
+  task_server_value: "Valor atual no servidor",
+  task_review_submit: "Revisar e enviar as alterações exibidas",
+  task_review_discard: "Descartar as alterações locais e usar a versão do servidor",
   DUPLICATE_OF: 'Duplicado de',
   DUPLICATED_BY: 'Duplicado por',
   RELATED_TO: 'Relacionado a',

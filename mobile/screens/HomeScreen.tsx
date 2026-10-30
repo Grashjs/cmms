@@ -6,7 +6,14 @@ import {
 } from 'react-native';
 import { View } from '../components/Themed';
 import { RootTabScreenProps } from '../types';
-import { Badge, IconButton, Switch, Text, useTheme } from 'react-native-paper';
+import {
+  Badge,
+  Button,
+  IconButton,
+  Switch,
+  Text,
+  useTheme
+} from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { ExtendedWorkOrderStatus, getStatusColor } from '../utils/overall';
 import { FilterField, SearchCriteria } from '../models/page';
@@ -20,9 +27,13 @@ import { useNetInfo } from '@react-native-community/netinfo';
 import { CustomSnackBarContext } from '../contexts/CustomSnackBarContext';
 import { PermissionEntity } from '../models/role';
 import { useAppTheme } from '../custom-theme';
+import { useOffline } from '../offline/OfflineProvider';
+import { OfflineStatus } from '../offline/components/OfflineWorkPanel';
 
 export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
   const theme = useAppTheme();
+  const offline = useOffline();
+  const localOnly = offline.enabled && !offline.networkAvailable;
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const netInfo = useNetInfo();
@@ -59,16 +70,17 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
   };
 
   useEffect(() => {
-    fetchUserSettings();
-    dispatch(getNotifications(notificationsCriteria));
-  }, []);
+    if (localOnly) return;
+    void fetchUserSettings().catch(() => {});
+    void dispatch(getNotifications(notificationsCriteria)).catch(() => {});
+  }, [localOnly]);
 
   useEffect(() => {
-    if (userSettings?.statsForAssignedWorkOrders !== undefined) {
+    if (!localOnly && userSettings?.statsForAssignedWorkOrders !== undefined) {
       dispatch(getMobileOverviewStats(userSettings.statsForAssignedWorkOrders));
       setAssignedToMe(userSettings.statsForAssignedWorkOrders);
     }
-  }, [userSettings]);
+  }, [userSettings, localOnly]);
 
   const onRefresh = () => {
     if (userSettings)
@@ -172,6 +184,20 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
       ]
     }
   ];
+  if (localOnly)
+    return (
+      <View style={{ padding: 20 }}>
+        <OfflineStatus />
+        <Text>{t('offline_connected_required')}</Text>
+        <Button
+          onPress={() =>
+            navigation.navigate('WorkOrders', { filterFields: [] })
+          }
+        >
+          {t('offline_available')}
+        </Button>
+      </View>
+    );
   return (
     <ScrollView
       contentContainerStyle={{ paddingBottom: 100 }}

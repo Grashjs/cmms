@@ -1,4 +1,8 @@
 const locale = {
+  task_save_review: "Det du har skrivit finns kvar. Sparandet är pausat; jämför med uppgifterna på servern innan du skickar de visade ändringarna.",
+  task_server_value: "Aktuellt värde på servern",
+  task_review_submit: "Granska och skicka visade ändringar",
+  task_review_discard: "Kasta lokala ändringar och använd serverversionen",
   DUPLICATE_OF: 'Duplikat av',
   DUPLICATED_BY: 'Duplicerad av',
   RELATED_TO: 'Relaterat till',

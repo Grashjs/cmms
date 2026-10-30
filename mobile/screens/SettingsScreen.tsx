@@ -20,6 +20,7 @@ import { RootStackScreenProps } from '../types';
 import Constants from 'expo-constants';
 import * as Updates from 'expo-updates';
 import { CustomSnackBarContext } from '../contexts/CustomSnackBarContext';
+import { getErrorMessage } from '../utils/api';
 
 export default function SettingsScreen({
   navigation
@@ -52,7 +53,15 @@ export default function SettingsScreen({
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setOpenLogout(false)}>{t('cancel')}</Button>
-            <Button onPress={logout}>{t('Sign out')}</Button>
+            <Button
+              onPress={() =>
+                logout().catch((error) =>
+                  showSnackBar(getErrorMessage(error), 'error')
+                )
+              }
+            >
+              {t('Sign out')}
+            </Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
@@ -100,9 +109,9 @@ export default function SettingsScreen({
             right={(props) => switchingAccount && <ActivityIndicator />}
             onPress={() => {
               setSwitchingAccount(true);
-              switchAccount(user.parentSuperAccount.superUserId).finally(() =>
-                setSwitchingAccount(false)
-              );
+              switchAccount(user.parentSuperAccount.superUserId)
+                .catch((error) => showSnackBar(getErrorMessage(error), 'error'))
+                .finally(() => setSwitchingAccount(false));
             }}
           />
         )}

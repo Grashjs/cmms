@@ -26,6 +26,7 @@ import { useMentions } from 'react-native-controlled-mentions';
 import { TriggersConfig } from 'react-native-controlled-mentions/dist/types/types';
 
 interface CommentItemProps {
+  connectedDisabled?: boolean;
   comment: Comment;
   workOrderId: number;
   highlighted?: boolean;
@@ -55,6 +56,7 @@ const isImage = (file: File) => mime.getType(file.name)?.startsWith('image/');
 
 export default function CommentItem({
   comment,
+  connectedDisabled = false,
   workOrderId,
   highlighted = false,
   users = []
@@ -145,6 +147,7 @@ export default function CommentItem({
           key={`mention-${match.index}`}
           style={{ color: theme.colors.primary, fontWeight: '600' }}
           onPress={() =>
+            !connectedDisabled &&
             navigation.navigate('UserDetails', { id: Number(userId) })
           }
         >
@@ -174,11 +177,12 @@ export default function CommentItem({
     >
       <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
         <TouchableOpacity
+          disabled={connectedDisabled}
           onPress={() =>
             navigation.navigate('UserDetails', { id: comment.user?.id })
           }
         >
-          {comment.user.image ? (
+          {comment.user?.image && !connectedDisabled ? (
             <Avatar.Image size={40} source={{ uri: comment.user.image.url }} />
           ) : (
             <Avatar.Text
@@ -200,6 +204,7 @@ export default function CommentItem({
           >
             <View style={{ flex: 1, marginRight: 8 }}>
               <TouchableOpacity
+                disabled={connectedDisabled}
                 onPress={() =>
                   navigation.navigate('UserDetails', { id: comment.user?.id })
                 }
@@ -220,7 +225,7 @@ export default function CommentItem({
                 {getFormattedDate(comment.updatedAt || comment.createdAt)}
               </Text>
             </View>
-            {!isSystem && isOwner && !isEditing && (
+            {!connectedDisabled && !isSystem && isOwner && !isEditing && (
               <View style={{ flexDirection: 'row' }}>
                 <IconButton
                   icon="pencil"
@@ -316,7 +321,10 @@ export default function CommentItem({
             </Text>
           )}
 
-          {comment.files?.length > 0 && !isEditing && (
+          {connectedDisabled && !!comment.files?.length && (
+            <Text>{t('offline_files_not_downloaded')}</Text>
+          )}
+          {!connectedDisabled && comment.files?.length > 0 && !isEditing && (
             <View style={{ marginTop: 8 }}>
               {imageFiles.length > 0 && (
                 <ScrollView

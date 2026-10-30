@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+  <exclude domain="database" path="." />
+  <exclude domain="file" path="atlas-offline/" />
+  <exclude domain="sharedpref" path="SecureStore" />
+</full-backup-content>

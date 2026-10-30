@@ -44,7 +44,7 @@ export const getInstanceConfig = (): AppThunk => async (dispatch) => {
     const response = await api.get<{ ldapEnabled: boolean }>(
       'instance-config',
       {
-        headers: await authHeader(true)
+        publicRoute: true, headers: await authHeader(true)
       }
     );
     dispatch(

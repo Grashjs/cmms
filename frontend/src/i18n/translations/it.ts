@@ -1,4 +1,8 @@
 const locale = {
+  task_save_review: "I dati inseriti vengono conservati. Il salvataggio è sospeso: confrontali con i dati del server prima di inviare le modifiche visualizzate.",
+  task_server_value: "Valore attuale sul server",
+  task_review_submit: "Verifica e invia le modifiche visualizzate",
+  task_review_discard: "Scarta le modifiche locali e usa la versione del server",
   DUPLICATE_OF: 'Duplicato di',
   DUPLICATED_BY: 'Duplicato da',
   RELATED_TO: 'Correlato a',

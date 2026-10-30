@@ -1,4 +1,84 @@
 const locale = {
+  offline_prepare: 'Prepare on this device',
+  offline_available: 'Available offline',
+  offline_prepared_at: 'Complete copy saved: {{date}}',
+  offline_preparing: 'Preparing…',
+  offline_sync: 'Synchronize',
+  offline_syncing: 'Synchronizing…',
+  offline_saving: 'Saving…',
+  offline_draft_saved: 'Draft saved on this device',
+  offline_save_failed:
+    'This text could not be saved. Copy it before reopening the app. The last saved draft is preserved.',
+  offline_submit: 'Save response',
+  offline_queued: 'Saved on this device — waiting to send',
+  offline_unknown: 'Result to verify',
+  offline_applied: 'Sent',
+  offline_conflict: 'Changed elsewhere — your response is preserved',
+  offline_rejected: 'Response refused — your work is preserved',
+  offline_wait_previous:
+    'Wait for the previous response before submitting this draft.',
+  offline_server_value: 'Current server value',
+  offline_keep_draft: 'Review and submit my response',
+  offline_use_server: 'Use the server value',
+  offline_discard: 'Discard this local work',
+  offline_discard_confirm:
+    'Permanently discard this revision? A newer draft will be preserved.',
+  offline_remove: 'Remove preparation',
+  offline_remove_confirm: 'Remove the downloaded copy from this device?',
+  offline_pending: 'Local work',
+  offline_orphan:
+    'The target is no longer available. Your local work is preserved.',
+  offline_unavailable:
+    'This intervention is no longer accessible. Local work is preserved.',
+  offline_task_deleted:
+    'This task was removed. Its local work remains separate.',
+  offline_connected_required: 'Connection required for this action',
+  offline_files_not_downloaded: 'Files not downloaded',
+  offline_disabled: 'Offline mode suspended. Local work is preserved.',
+  offline_reconnect: 'Reconnect this account to verify pending sends.',
+  offline_expired: 'Connect to renew local access. Your work is preserved.',
+  offline_load_error:
+    'Local storage could not be opened. Your files have been preserved.',
+  offline_limit:
+    'This preparation exceeds the offline limits. The previous complete copy is preserved.',
+  offline_prepare_failed:
+    'Preparation failed. Any previous complete copy is preserved.',
+  offline_changed_revision:
+    'The draft changed. Review the latest revision before discarding it.',
+  offline_leave_context:
+    'Local drafts and pending sends will remain on this device for this account and server. They will not be sent from another account.',
+  offline_not_prepared:
+    'This intervention has not been prepared on this device.',
+  offline_storage_busy: 'Local writes are still being saved.',
+  offline_count: '{{count}} interventions prepared on this device',
+  offline_resume_after_conflict:
+    'The server changed this task. Review both values before creating a new submission.',
+  offline_abandoned: 'Local work discarded',
+  offline_max_text: 'Maximum 255 characters',
+  offline_received_without_access:
+    'Result verified. The task is no longer accessible.',
+  offline_no_local_work: 'No remaining local work',
+  offline_read_only:
+    'Local access is read only until this account is authorized again.',
+  offline_action_failed: 'Action failed. Your saved local work is preserved.',
+  offline_network_unavailable:
+    'Server unavailable. Your work remains on this device.',
+  offline_invalid_response:
+    'The server response is incomplete or invalid. The previous complete copy is preserved.',
+  offline_context_changed:
+    'The account or server changed. Return to the original account to continue.',
+  offline_https_required:
+    'An HTTPS server is required to prepare work offline.',
+  offline_native_required:
+    'Offline storage requires an app version that includes the native modules.',
+  offline_work_pending:
+    'Resolve remaining local work before removing this preparation.',
+  offline_removal_pending:
+    'Reconnect to finish removing the previous preparation before preparing it again.',
+  offline_unsupported_task:
+    'Only TEXT task values can be submitted offline at this step.',
+  offline_result_changed:
+    'This send has already been resolved. Refresh to see its result.',
   DUPLICATE_OF: 'Duplicate of',
   DUPLICATED_BY: 'Duplicated by',
   RELATED_TO: 'Related to',

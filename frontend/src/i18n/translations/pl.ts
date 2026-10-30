@@ -1,4 +1,8 @@
 const plJSON = {
+  task_save_review: "Wprowadzone dane zostały zachowane. Zapisywanie jest wstrzymane; porównaj dane z wersją na serwerze przed wysłaniem wyświetlanych zmian.",
+  task_server_value: "Aktualna wartość na serwerze",
+  task_review_submit: "Sprawdź i wyślij wyświetlane zmiany",
+  task_review_discard: "Odrzuć lokalne zmiany i użyj wersji z serwera",
   DUPLICATE_OF: 'Duplikat',
   DUPLICATED_BY: 'Zduplikowany przez',
   RELATED_TO: 'Powiązany z',

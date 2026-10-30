@@ -1,4 +1,8 @@
 const locale = {
+  task_save_review: "A beírt adatok megmaradnak. A mentés szünetel; a megjelenített módosítások elküldése előtt hasonlítsa össze őket a szerver adataival.",
+  task_server_value: "A szerveren tárolt jelenlegi érték",
+  task_review_submit: "A megjelenített módosítások ellenőrzése és elküldése",
+  task_review_discard: "Helyi módosítások elvetése és a szerver verziójának használata",
   DUPLICATE_OF: 'Másolata ennek',
   DUPLICATED_BY: 'Másolva általa',
   RELATED_TO: 'Kapcsolódik ehhez',

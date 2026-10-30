@@ -22,7 +22,9 @@ import {
   Text,
   useTheme,
   Avatar,
-  TouchableRipple
+  TouchableRipple,
+  Chip,
+  Button
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import WorkOrder from '../../models/workOrder';
@@ -43,19 +45,60 @@ import QuickFilter from './components/QuickFilter';
 import { useAppTheme } from '../../custom-theme';
 import { getUserInitials } from '../../utils/displayers';
 import { UserMiniDTO } from '../../models/user';
+import { useOffline } from '../../offline/OfflineProvider';
+import {
+  OfflineStatus,
+  OfflineWorkPanel
+} from '../../offline/components/OfflineWorkPanel';
 
 export default function WorkOrdersScreen({
   navigation,
   route
 }: RootTabScreenProps<'WorkOrders'>) {
   const { t } = useTranslation();
+  const offline = useOffline();
+  const [offlineFilter, setOfflineFilter] = useState(false);
+  const onlyOffline =
+    offline.enabled && (offlineFilter || !offline.networkAvailable);
+  const preparedIdsInPage = useSelector(
+    (state) => state.workOrders.preparedIdsInPage ?? []
+  );
+  const orderedIdsInPage = useSelector(
+    (state) => state.workOrders.orderedIdsInPage ?? []
+  );
   const [startedSearch, setStartedSearch] = useState<boolean>(false);
   const { workOrders, loadingGet, currentPageNum, lastPage } = useSelector(
     (state) => state.workOrders
   );
+  const [searchQuery, setSearchQuery] = useState('');
+  const visiblePrepared = offline.readable
+    ? offline.prepared.filter((item) => item.available && item.workOrder)
+    : [];
+  const localMatches = visiblePrepared.filter(
+    ({ workOrder }) =>
+      !searchQuery ||
+      `${workOrder.title} ${workOrder.description || ''} ${
+        workOrder.customId || ''
+      }`
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase())
+  );
+  const connectedWorkOrders = [
+    ...workOrders.content,
+    ...visiblePrepared
+      .filter((item) => preparedIdsInPage.includes(item.id))
+      .map((item) => item.workOrder)
+  ];
+  const connectedById = new Map(
+    connectedWorkOrders.map((item) => [item.id, item])
+  );
+  const listedWorkOrders = onlyOffline
+    ? localMatches.map((item) => item.workOrder)
+    : orderedIdsInPage.length
+    ? orderedIdsInPage.map((id) => connectedById.get(id)).filter(Boolean)
+    : connectedWorkOrders;
   const theme = useAppTheme();
   const dispatch = useDispatch();
-  const [searchQuery, setSearchQuery] = useState('');
   const fromHomeInit = useRef<boolean>(false);
   const { getFormattedDate, getUserNameById } = useContext(
     CompanySettingsContext
@@ -105,6 +148,7 @@ export default function WorkOrdersScreen({
     getCriteriaFromFilterFields([])
   );
   useEffect(() => {
+    if (!offline.initialized || onlyOffline) return;
     if (route.params?.fromHome && !fromHomeInit.current) {
       fromHomeInit.current = true;
       return;
@@ -116,9 +160,9 @@ export default function WorkOrdersScreen({
         pageNum: 0,
         direction: 'DESC'
       })
-    );
+    ).catch(offline.reportError);
     fromHomeInit.current = true;
-  }, [criteria]);
+  }, [criteria, onlyOffline, offline.initialized]);
 
   useEffect(() => {
     const filterFields = route.params?.filterFields ?? [];
@@ -127,6 +171,10 @@ export default function WorkOrdersScreen({
   }, [route]);
 
   const onRefresh = () => {
+    if (onlyOffline) {
+      void offline.sync();
+      return;
+    }
     setCriteria(getCriteriaFromFilterFields(route.params?.filterFields ?? []));
   };
   const onFilterChange = (newFilters: FilterField[]) => {
@@ -144,7 +192,13 @@ export default function WorkOrdersScreen({
       criteria,
       setCriteria,
       setSearchQuery,
-      ['title', 'description', 'feedback', 'customId', 'customFieldValues.value']
+      [
+        'title',
+        'description',
+        'feedback',
+        'customId',
+        'customFieldValues.value'
+      ]
     );
   };
   useDebouncedEffect(
@@ -154,11 +208,23 @@ export default function WorkOrdersScreen({
     [searchQuery],
     1000
   );
+  if (!offline.initialized) return <Text>{t('offline_preparing')}</Text>;
   return (
     <View
       style={{ ...styles.container, backgroundColor: theme.colors.background }}
     >
       <Fragment>
+        <OfflineStatus />
+        {offline.enabled && (
+          <Chip
+            selected={onlyOffline}
+            onPress={() => setOfflineFilter(!offlineFilter)}
+            style={{ marginHorizontal: 10 }}
+            icon="download"
+          >
+            {t('offline_available')}
+          </Chip>
+        )}
         <Searchbar
           placeholder={t('search')}
           onFocus={() => setStartedSearch(true)}
@@ -171,95 +237,112 @@ export default function WorkOrdersScreen({
           style={styles.scrollView}
           onScroll={({ nativeEvent }) => {
             if (isCloseToBottom(nativeEvent)) {
-              if (!loadingGet && !lastPage)
-                dispatch(getMoreWorkOrders(criteria, currentPageNum + 1));
+              if (!onlyOffline && !loadingGet && !lastPage)
+                dispatch(getMoreWorkOrders(criteria, currentPageNum + 1)).catch(
+                  offline.reportError
+                );
             }
           }}
           refreshControl={
             <RefreshControl
-              refreshing={loadingGet}
+              refreshing={onlyOffline ? offline.syncing : loadingGet}
               onRefresh={onRefresh}
               colors={[theme.colors.primary]}
             />
           }
           scrollEventThrottle={400}
         >
-          <ScrollView
-            horizontal
-            style={{
-              backgroundColor: 'white',
-              borderRadius: 5,
-              marginBottom: 2
-            }}
-            showsHorizontalScrollIndicator={false}
-          >
-            <IconButton
-              icon={
-                _.isEqual(criteria.filterFields, defaultFilterFields)
-                  ? 'filter-outline'
-                  : 'filter-check'
-              }
-              iconColor={
-                _.isEqual(criteria.filterFields, defaultFilterFields)
-                  ? undefined
-                  : 'white'
-              }
+          {!onlyOffline && (
+            <ScrollView
+              horizontal
               style={{
-                backgroundColor: _.isEqual(
-                  criteria.filterFields,
-                  defaultFilterFields
-                )
-                  ? theme.colors.background
-                  : theme.colors.primary
+                backgroundColor: 'white',
+                borderRadius: 5,
+                marginBottom: 2
               }}
-              onPress={() =>
-                navigation.navigate('WorkOrderFilters', {
-                  filterFields: criteria.filterFields,
-                  onFilterChange,
-                  onReset: onResetFilters
-                })
-              }
-            />
-            {hasViewOtherPermission(PermissionEntity.WORK_ORDERS) && (
-              <QuickFilter
-                filterFields={criteria.filterFields}
-                activeFilterField={{
-                  field: 'assignedToUser',
-                  operation: 'eq',
-                  value: user.id
-                }}
-                onChange={onFilterChange}
-              />
-            )}
-            <EnumFilter
-              filterFields={criteria.filterFields}
-              onChange={onFilterChange}
-              completeOptions={['NONE', 'LOW', 'MEDIUM', 'HIGH']}
-              initialOptions={['NONE', 'LOW', 'MEDIUM', 'HIGH']}
-              fieldName="priority"
-              icon="signal"
-            />
-            <EnumFilter
-              filterFields={criteria.filterFields}
-              onChange={onFilterChange}
-              completeOptions={['OPEN', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETE']}
-              initialOptions={['OPEN', 'IN_PROGRESS', 'ON_HOLD']}
-              fieldName="status"
-              icon="circle-double"
-            />
-            {!_.isEqual(criteria.filterFields, defaultFilterFields) && (
+              showsHorizontalScrollIndicator={false}
+            >
               <IconButton
-                icon={'close'}
-                iconColor={theme.colors.error}
+                icon={
+                  _.isEqual(criteria.filterFields, defaultFilterFields)
+                    ? 'filter-outline'
+                    : 'filter-check'
+                }
+                iconColor={
+                  _.isEqual(criteria.filterFields, defaultFilterFields)
+                    ? undefined
+                    : 'white'
+                }
                 style={{
-                  backgroundColor: theme.colors.background
+                  backgroundColor: _.isEqual(
+                    criteria.filterFields,
+                    defaultFilterFields
+                  )
+                    ? theme.colors.background
+                    : theme.colors.primary
                 }}
-                onPress={() => onFilterChange(defaultFilterFields)}
+                onPress={() =>
+                  navigation.navigate('WorkOrderFilters', {
+                    filterFields: criteria.filterFields,
+                    onFilterChange,
+                    onReset: onResetFilters
+                  })
+                }
               />
-            )}
-          </ScrollView>
-          {!!workOrders.content.length ? (
-            workOrders.content.map((workOrder) => {
+              {hasViewOtherPermission(PermissionEntity.WORK_ORDERS) && (
+                <QuickFilter
+                  filterFields={criteria.filterFields}
+                  activeFilterField={{
+                    field: 'assignedToUser',
+                    operation: 'eq',
+                    value: user.id
+                  }}
+                  onChange={onFilterChange}
+                />
+              )}
+              <EnumFilter
+                filterFields={criteria.filterFields}
+                onChange={onFilterChange}
+                completeOptions={['NONE', 'LOW', 'MEDIUM', 'HIGH']}
+                initialOptions={['NONE', 'LOW', 'MEDIUM', 'HIGH']}
+                fieldName="priority"
+                icon="signal"
+              />
+              <EnumFilter
+                filterFields={criteria.filterFields}
+                onChange={onFilterChange}
+                completeOptions={['OPEN', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETE']}
+                initialOptions={['OPEN', 'IN_PROGRESS', 'ON_HOLD']}
+                fieldName="status"
+                icon="circle-double"
+              />
+              {!_.isEqual(criteria.filterFields, defaultFilterFields) && (
+                <IconButton
+                  icon={'close'}
+                  iconColor={theme.colors.error}
+                  style={{
+                    backgroundColor: theme.colors.background
+                  }}
+                  onPress={() => onFilterChange(defaultFilterFields)}
+                />
+              )}
+            </ScrollView>
+          )}
+          <OfflineWorkPanel />
+          {offline.prepared
+            .filter((item) => !item.available || !offline.readable)
+            .map((item) => (
+              <Button
+                key={`unavailable:${item.id}`}
+                onPress={() =>
+                  navigation.navigate('WODetails', { id: item.id })
+                }
+              >
+                {t('offline_unavailable')} #{item.id}
+              </Button>
+            ))}
+          {!!listedWorkOrders.length ? (
+            listedWorkOrders.map((workOrder) => {
               // Combine primaryUser and assignedTo without duplicates
               const allUsers: UserMiniDTO[] = [];
               const userIds = new Set();
@@ -283,7 +366,10 @@ export default function WorkOrdersScreen({
                   onPress={() =>
                     navigation.push('WODetails', {
                       id: workOrder.id,
-                      workOrderProp: workOrder
+                      ...(offline.enabled &&
+                      visiblePrepared.some((item) => item.id === workOrder.id)
+                        ? {}
+                        : { workOrderProp: workOrder })
                     })
                   }
                   key={workOrder.id}
@@ -297,7 +383,8 @@ export default function WorkOrdersScreen({
                         gap: 6
                       }}
                     >
-                      {workOrder.image ? (
+                      {workOrder.image &&
+                      (!offline.enabled || offline.networkAvailable) ? (
                         <Avatar.Image
                           size={50}
                           source={{ uri: workOrder.image?.url }}
@@ -390,7 +477,9 @@ export default function WorkOrdersScreen({
                                   key={user.id}
                                   style={{ marginLeft: index > 0 ? -8 : 0 }}
                                 >
-                                  {user.image ? (
+                                  {user.image &&
+                                  (!offline.enabled ||
+                                    offline.networkAvailable) ? (
                                     <Avatar.Image
                                       source={{ uri: user.image.url }}
                                       size={24}

@@ -1,4 +1,8 @@
 const locale = {
+  task_save_review: "Uw invoer blijft behouden. Het opslaan is gepauzeerd; vergelijk uw invoer met de servergegevens voordat u de getoonde wijzigingen verstuurt.",
+  task_server_value: "Huidige waarde op de server",
+  task_review_submit: "Getoonde wijzigingen controleren en versturen",
+  task_review_discard: "Lokale wijzigingen verwerpen en de serverversie gebruiken",
   DUPLICATE_OF: 'Duplicaat van',
   DUPLICATED_BY: 'Gedupliceerd door',
   RELATED_TO: 'Gerelateerd aan',

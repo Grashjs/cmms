@@ -1,4 +1,90 @@
 const deJSON = {
+  offline_prepare: 'Auf diesem Gerät vorbereiten',
+  offline_available: 'Offline verfügbar',
+  offline_prepared_at: 'Vollständige Kopie gespeichert: {{date}}',
+  offline_preparing: 'Wird vorbereitet…',
+  offline_sync: 'Synchronisieren',
+  offline_syncing: 'Wird synchronisiert…',
+  offline_saving: 'Wird gespeichert…',
+  offline_draft_saved: 'Entwurf auf diesem Gerät gespeichert',
+  offline_save_failed:
+    'Dieser Text konnte nicht gespeichert werden. Kopieren Sie ihn, bevor Sie die App erneut öffnen. Der zuletzt gespeicherte Entwurf bleibt erhalten.',
+  offline_submit: 'Antwort speichern',
+  offline_queued: 'Auf diesem Gerät gespeichert — wartet auf Übertragung',
+  offline_unknown: 'Ergebnis muss geprüft werden',
+  offline_applied: 'Übertragen',
+  offline_conflict: 'Andernorts geändert — Ihre Antwort bleibt erhalten',
+  offline_rejected: 'Antwort abgelehnt — Ihre Arbeit bleibt erhalten',
+  offline_wait_previous:
+    'Warten Sie auf das vorherige Ergebnis, bevor Sie diesen Entwurf übermitteln.',
+  offline_server_value: 'Aktueller Wert auf dem Server',
+  offline_keep_draft: 'Meine Antwort prüfen und übermitteln',
+  offline_use_server: 'Serverwert verwenden',
+  offline_discard: 'Diese lokale Arbeit verwerfen',
+  offline_discard_confirm:
+    'Diese Fassung endgültig verwerfen? Ein neuerer Entwurf bleibt erhalten.',
+  offline_remove: 'Vorbereitung entfernen',
+  offline_remove_confirm:
+    'Die heruntergeladene Kopie von diesem Gerät entfernen?',
+  offline_pending: 'Lokale Arbeit',
+  offline_orphan:
+    'Das Ziel ist nicht mehr verfügbar. Ihre lokale Arbeit bleibt erhalten.',
+  offline_unavailable:
+    'Dieser Arbeitsauftrag ist nicht mehr zugänglich. Die lokale Arbeit bleibt erhalten.',
+  offline_task_deleted:
+    'Diese Aufgabe wurde entfernt. Ihre lokale Arbeit wird weiterhin separat aufbewahrt.',
+  offline_connected_required:
+    'Für diese Aktion ist eine Verbindung erforderlich',
+  offline_files_not_downloaded: 'Dateien nicht heruntergeladen',
+  offline_disabled:
+    'Offline-Modus ausgesetzt. Die lokale Arbeit bleibt erhalten.',
+  offline_reconnect:
+    'Verbinden Sie dieses Konto erneut, um ausstehende Übertragungen zu prüfen.',
+  offline_expired:
+    'Stellen Sie eine Verbindung her, um den lokalen Zugriff zu erneuern. Ihre Arbeit bleibt erhalten.',
+  offline_load_error:
+    'Der lokale Speicher konnte nicht geöffnet werden. Ihre Dateien bleiben erhalten.',
+  offline_limit:
+    'Diese Vorbereitung überschreitet die Offline-Grenzen. Die vorherige vollständige Kopie bleibt erhalten.',
+  offline_prepare_failed:
+    'Vorbereitung fehlgeschlagen. Eine vorhandene vollständige Kopie bleibt erhalten.',
+  offline_changed_revision:
+    'Der Entwurf wurde geändert. Prüfen Sie die neueste Fassung, bevor Sie ihn verwerfen.',
+  offline_leave_context:
+    'Lokale Entwürfe und ausstehende Übertragungen bleiben für dieses Konto und diesen Server auf diesem Gerät. Sie werden nicht über ein anderes Konto gesendet.',
+  offline_not_prepared:
+    'Dieser Arbeitsauftrag wurde auf diesem Gerät nicht vorbereitet.',
+  offline_storage_busy: 'Lokale Daten werden noch gespeichert.',
+  offline_count: '{{count}} Arbeitsaufträge auf diesem Gerät vorbereitet',
+  offline_resume_after_conflict:
+    'Die Aufgabe wurde auf dem Server geändert. Vergleichen Sie beide Werte, bevor Sie eine neue Übermittlung erstellen.',
+  offline_abandoned: 'Lokale Arbeit verworfen',
+  offline_max_text: 'Höchstens 255 Zeichen',
+  offline_received_without_access:
+    'Ergebnis geprüft. Die Aufgabe ist nicht mehr zugänglich.',
+  offline_no_local_work: 'Keine lokale Arbeit mehr vorhanden',
+  offline_read_only:
+    'Lokaler Zugriff ist nur lesend möglich, bis dieses Konto erneut autorisiert wird.',
+  offline_action_failed:
+    'Aktion fehlgeschlagen. Ihre gespeicherte lokale Arbeit bleibt erhalten.',
+  offline_network_unavailable:
+    'Server nicht verfügbar. Ihre Arbeit bleibt auf diesem Gerät.',
+  offline_invalid_response:
+    'Die Serverantwort ist unvollständig oder ungültig. Die vorherige vollständige Kopie bleibt erhalten.',
+  offline_context_changed:
+    'Das Konto oder der Server wurde gewechselt. Kehren Sie zum ursprünglichen Konto zurück, um fortzufahren.',
+  offline_https_required:
+    'Ein HTTPS-Server ist erforderlich, um Arbeit offline vorzubereiten.',
+  offline_native_required:
+    'Der Offline-Speicher erfordert eine App-Version mit den nativen Modulen.',
+  offline_work_pending:
+    'Klären Sie die verbleibende lokale Arbeit, bevor Sie diese Vorbereitung entfernen.',
+  offline_removal_pending:
+    'Stellen Sie erneut eine Verbindung her, um die vorherige Vorbereitung vollständig zu entfernen, bevor Sie sie erneut vorbereiten.',
+  offline_unsupported_task:
+    'In diesem Schritt können nur Werte von Aufgaben des Typs TEXT offline übermittelt werden.',
+  offline_result_changed:
+    'Diese Übertragung wurde bereits abschließend bearbeitet. Aktualisieren Sie die Ansicht, um das Ergebnis zu sehen.',
   DUPLICATE_OF: 'Duplikat von ',
   DUPLICATED_BY: 'Dupliziert von ',
   RELATED_TO: 'Verwandt mit ',

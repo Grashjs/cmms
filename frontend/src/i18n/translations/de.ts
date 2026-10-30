@@ -1,4 +1,8 @@
 const deJSON = {
+  task_save_review: "Ihre Eingaben bleiben erhalten. Das Speichern ist angehalten. Vergleichen Sie Ihre Eingaben mit den Serverdaten, bevor Sie die angezeigten Änderungen senden.",
+  task_server_value: "Aktueller Wert auf dem Server",
+  task_review_submit: "Angezeigte Änderungen prüfen und senden",
+  task_review_discard: "Lokale Änderungen verwerfen und Serverversion verwenden",
   DUPLICATE_OF: 'Duplikat von',
   DUPLICATED_BY: 'Dupliziert von',
   RELATED_TO: 'Verwandt mit',

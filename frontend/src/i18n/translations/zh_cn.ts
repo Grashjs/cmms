@@ -1,4 +1,8 @@
 const locale = {
+  task_save_review: "您输入的内容已保留。保存已暂停；请先与服务器数据进行比较，再提交显示的更改。",
+  task_server_value: "服务器上的当前值",
+  task_review_submit: "检查并提交显示的更改",
+  task_review_discard: "放弃本地更改并使用服务器版本",
   DUPLICATE_OF: '复制自',
   DUPLICATED_BY: '被复制',
   RELATED_TO: '相关于',

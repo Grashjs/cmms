@@ -1,4 +1,72 @@
 const locale = {
+  offline_prepare: 'تحضير على هذا الجهاز',
+  offline_available: 'متاح دون اتصال',
+  offline_prepared_at: 'تم حفظ نسخة كاملة: {{date}}',
+  offline_preparing: 'جارٍ التحضير…',
+  offline_sync: 'مزامنة',
+  offline_syncing: 'جارٍ المزامنة…',
+  offline_saving: 'جارٍ الحفظ…',
+  offline_draft_saved: 'تم حفظ المسودة على هذا الجهاز',
+  offline_save_failed:
+    'تعذّر حفظ هذا النص. انسخه قبل إعادة فتح التطبيق. تم الاحتفاظ بآخر مسودة محفوظة.',
+  offline_submit: 'حفظ الإجابة',
+  offline_queued: 'تم الحفظ على هذا الجهاز — في انتظار الإرسال',
+  offline_unknown: 'نتيجة تحتاج إلى التحقق',
+  offline_applied: 'تم الإرسال',
+  offline_conflict: 'تم التعديل من مكان آخر — تم الاحتفاظ بإجابتك',
+  offline_rejected: 'رُفضت الإجابة — تم الاحتفاظ بعملك',
+  offline_wait_previous: 'انتظر نتيجة الإجابة السابقة قبل إرسال هذه المسودة.',
+  offline_server_value: 'القيمة الحالية على الخادم',
+  offline_keep_draft: 'مراجعة إجابتي وإرسالها',
+  offline_use_server: 'استخدام قيمة الخادم',
+  offline_discard: 'تجاهل هذا العمل المحلي',
+  offline_discard_confirm:
+    'هل تريد تجاهل هذه المراجعة نهائيًا؟ سيتم الاحتفاظ بأي مسودة أحدث.',
+  offline_remove: 'إزالة التحضير',
+  offline_remove_confirm: 'هل تريد إزالة النسخة المنزّلة من هذا الجهاز؟',
+  offline_pending: 'العمل المحلي',
+  offline_orphan: 'لم يعد العنصر المستهدف متاحًا. تم الاحتفاظ بعملك المحلي.',
+  offline_unavailable:
+    'لم يعد أمر العمل هذا متاحًا. تم الاحتفاظ بالعمل المحلي.',
+  offline_task_deleted:
+    'تم حذف هذه المهمة. يبقى عملها المحلي محفوظًا بشكل منفصل.',
+  offline_connected_required: 'يلزم الاتصال لتنفيذ هذا الإجراء',
+  offline_files_not_downloaded: 'لم يتم تنزيل الملفات',
+  offline_disabled: 'تم تعليق الوضع دون اتصال. تم الاحتفاظ بالعمل المحلي.',
+  offline_reconnect: 'أعد اتصال هذا الحساب للتحقق من عمليات الإرسال المعلّقة.',
+  offline_expired: 'اتصل لتجديد صلاحية الوصول المحلي. تم الاحتفاظ بعملك.',
+  offline_load_error: 'تعذّر فتح التخزين المحلي. تم الاحتفاظ بملفاتك.',
+  offline_limit:
+    'يتجاوز هذا التحضير حدود الوضع دون اتصال. تم الاحتفاظ بالنسخة الكاملة السابقة.',
+  offline_prepare_failed: 'فشل التحضير. تم الاحتفاظ بأي نسخة كاملة سابقة.',
+  offline_changed_revision: 'تغيّرت المسودة. راجع آخر مراجعة قبل تجاهلها.',
+  offline_leave_context:
+    'ستبقى المسودات المحلية وعمليات الإرسال المعلّقة على هذا الجهاز لهذا الحساب وهذا الخادم. ولن تُرسل من حساب آخر.',
+  offline_not_prepared: 'لم يتم تحضير أمر العمل هذا على هذا الجهاز.',
+  offline_storage_busy: 'لا يزال حفظ البيانات المحلية جاريًا.',
+  offline_count: 'أوامر العمل المحضّرة على هذا الجهاز: {{count}}',
+  offline_resume_after_conflict:
+    'تغيّرت هذه المهمة على الخادم. راجع القيمتين قبل إنشاء إرسال جديد.',
+  offline_abandoned: 'تم تجاهل العمل المحلي',
+  offline_max_text: '255 حرفًا كحد أقصى',
+  offline_received_without_access: 'تم التحقق من النتيجة. لم تعد المهمة متاحة.',
+  offline_no_local_work: 'لا يوجد عمل محلي متبقٍ',
+  offline_read_only: 'الوصول المحلي للقراءة فقط حتى يُصرّح لهذا الحساب مجددًا.',
+  offline_action_failed: 'فشل الإجراء. تم الاحتفاظ بعملك المحلي المحفوظ.',
+  offline_network_unavailable: 'الخادم غير متاح. يبقى عملك على هذا الجهاز.',
+  offline_invalid_response:
+    'استجابة الخادم غير مكتملة أو غير صالحة. تم الاحتفاظ بالنسخة الكاملة السابقة.',
+  offline_context_changed:
+    'تغيّر الحساب أو الخادم. عُد إلى الحساب الأصلي للمتابعة.',
+  offline_https_required: 'يلزم خادم يستخدم HTTPS لتحضير العمل دون اتصال.',
+  offline_native_required:
+    'يتطلب التخزين دون اتصال إصدارًا من التطبيق يتضمن الوحدات الأصلية.',
+  offline_work_pending: 'عالج العمل المحلي المتبقي قبل إزالة هذا التحضير.',
+  offline_removal_pending:
+    'أعد الاتصال لإنهاء إزالة التحضير السابق قبل تحضيره مجددًا.',
+  offline_unsupported_task:
+    'في هذه المرحلة، يمكن إرسال قيم المهام من النوع TEXT فقط دون اتصال.',
+  offline_result_changed: 'تم حسم نتيجة هذا الإرسال بالفعل. حدّث لعرض النتيجة.',
   DUPLICATE_OF: 'نسخة مكررة من',
   DUPLICATED_BY: 'تم تكراره بواسطة',
   RELATED_TO: 'ذات صلة ب',

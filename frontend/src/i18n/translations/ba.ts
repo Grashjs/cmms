@@ -1,4 +1,8 @@
 const locale = {
+  task_save_review: "Vaš unos je sačuvan. Spremanje je pauzirano; uporedite unos s podacima na serveru prije slanja prikazanih izmjena.",
+  task_server_value: "Trenutna vrijednost na serveru",
+  task_review_submit: "Pregledaj i pošalji prikazane izmjene",
+  task_review_discard: "Odbaci lokalne izmjene i koristi verziju sa servera",
   DUPLICATE_OF: 'Duplikat od',
   DUPLICATED_BY: 'Duplicirano od',
   RELATED_TO: 'Povezano sa',

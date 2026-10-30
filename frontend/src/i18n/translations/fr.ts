@@ -1,4 +1,8 @@
 const frJSON = {
+  task_save_review: 'Votre saisie est conservée. Enregistrement suspendu : comparez-la au serveur avant d’envoyer les modifications affichées.',
+  task_server_value: 'Valeur actuelle sur le serveur',
+  task_review_submit: 'Vérifier et envoyer les modifications affichées',
+  task_review_discard: 'Abandonner la saisie et reprendre la version serveur',
   Blueprints: 'Plans',
   'Extended Sidebar': 'Barre latérale étendue',
   'Accent Sidebar': "Barre latérale d'accentuation",

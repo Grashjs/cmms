@@ -4,6 +4,12 @@ import Comment, { CommentPostDTO, CommentPatchDTO } from '../models/comment';
 import api, { authHeader } from '../utils/api';
 import { AppThunk } from '../store';
 import { revertAll } from '../utils/redux';
+import { getPreparedRuntime } from '../offline/runtime';
+import {
+  assertSessionGeneration,
+  sessionGeneration,
+  sessionChangeInProgress
+} from '../offline/sessionBridge';
 
 const basePath = 'comments';
 
@@ -30,6 +36,12 @@ const slice = createSlice({
   initialState,
   extraReducers: (builder) => builder.addCase(revertAll, () => initialState),
   reducers: {
+    removePreparedComments(state, action: PayloadAction<number[]>) {
+      action.payload.forEach((id) => {
+        delete state.commentsByWorkOrder[id];
+        delete state.commentsCountByWorkOrder[id];
+      });
+    },
     getComments(
       state: CommentState,
       action: PayloadAction<{ workOrderId: number; comments: Comment[] }>
@@ -117,24 +129,40 @@ export const reducer = slice.reducer;
 export const getCommentsByWorkOrder =
   (workOrderId: number): AppThunk =>
   async (dispatch) => {
+    const generation = sessionGeneration();
+    assertSessionGeneration(generation);
+    const prepared = getPreparedRuntime(workOrderId);
+    if (prepared) return prepared.refresh(workOrderId);
     try {
       dispatch(slice.actions.setLoadingComments({ loading: true }));
       const comments = await api.post<Comment[]>(
         `${basePath}/search/${workOrderId}`,
         {}
       );
+      assertSessionGeneration(generation);
+      const nowPrepared = getPreparedRuntime(workOrderId);
+      if (nowPrepared) return nowPrepared.refresh(workOrderId);
       dispatch(slice.actions.getComments({ workOrderId, comments }));
     } finally {
-      dispatch(slice.actions.setLoadingComments({ loading: false }));
+      if (generation === sessionGeneration() && !sessionChangeInProgress())
+        dispatch(slice.actions.setLoadingComments({ loading: false }));
     }
   };
 
 export const createComment =
   (comment: CommentPostDTO): AppThunk =>
   async (dispatch) => {
+    const generation = sessionGeneration();
+    assertSessionGeneration(generation);
     try {
       dispatch(slice.actions.setLoadingCreate({ loading: true }));
       const newComment = await api.post<Comment>(basePath, comment);
+      assertSessionGeneration(generation);
+      const prepared = getPreparedRuntime(comment.workOrder.id);
+      if (prepared) {
+        await prepared.ingestComment(comment.workOrder.id, newComment);
+        return newComment;
+      }
       dispatch(
         slice.actions.addComment({
           workOrderId: comment.workOrder.id,
@@ -143,49 +171,73 @@ export const createComment =
       );
       return newComment;
     } finally {
-      dispatch(slice.actions.setLoadingCreate({ loading: false }));
+      if (generation === sessionGeneration() && !sessionChangeInProgress())
+        dispatch(slice.actions.setLoadingCreate({ loading: false }));
     }
   };
 
 export const updateComment =
   (id: number, comment: CommentPatchDTO, workOrderId: number): AppThunk =>
   async (dispatch) => {
+    const generation = sessionGeneration();
+    assertSessionGeneration(generation);
     try {
       dispatch(slice.actions.setLoadingUpdate({ loading: true }));
       const updatedComment = await api.patch<Comment>(
         `${basePath}/${id}`,
         comment
       );
+      assertSessionGeneration(generation);
+      const prepared = getPreparedRuntime(workOrderId);
+      if (prepared) {
+        await prepared.ingestComment(workOrderId, updatedComment);
+        return updatedComment;
+      }
       dispatch(
         slice.actions.updateComment({ workOrderId, comment: updatedComment })
       );
       return updatedComment;
     } finally {
-      dispatch(slice.actions.setLoadingUpdate({ loading: false }));
+      if (generation === sessionGeneration() && !sessionChangeInProgress())
+        dispatch(slice.actions.setLoadingUpdate({ loading: false }));
     }
   };
 
 export const deleteComment =
   (id: number, workOrderId: number): AppThunk =>
   async (dispatch) => {
+    const generation = sessionGeneration();
+    assertSessionGeneration(generation);
     try {
       dispatch(slice.actions.setLoadingDelete({ loading: true }));
       await api.deletes<{ success: boolean; message: string }>(
         `${basePath}/${id}`
       );
+      assertSessionGeneration(generation);
+      const prepared = getPreparedRuntime(workOrderId);
+      if (prepared) {
+        await prepared.removeComment(workOrderId, id);
+        return;
+      }
       dispatch(slice.actions.deleteComment({ workOrderId, commentId: id }));
     } finally {
-      dispatch(slice.actions.setLoadingDelete({ loading: false }));
+      if (generation === sessionGeneration() && !sessionChangeInProgress())
+        dispatch(slice.actions.setLoadingDelete({ loading: false }));
     }
   };
 
 export const getCommentsCountByWorkOrder =
   (workOrderId: number): AppThunk =>
   async (dispatch) => {
+    const generation = sessionGeneration();
+    assertSessionGeneration(generation);
+    if (getPreparedRuntime(workOrderId)) return;
     try {
       const response = await api.get<{ success: boolean; message: string }>(
         `${basePath}/count/${workOrderId}`
       );
+      assertSessionGeneration(generation);
+      if (getPreparedRuntime(workOrderId)) return;
       const count = parseInt(response.message, 10);
       dispatch(slice.actions.setCommentsCount({ workOrderId, count }));
     } catch (error) {
@@ -193,4 +245,5 @@ export const getCommentsCountByWorkOrder =
     }
   };
 
+export const removePreparedComments = slice.actions.removePreparedComments;
 export default slice;

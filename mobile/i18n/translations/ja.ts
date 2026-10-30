@@ -1,4 +1,87 @@
 const locale = {
+  offline_prepare: 'この端末に準備する',
+  offline_available: 'オフラインで利用可能',
+  offline_prepared_at: '完全なコピーの保存日時：{{date}}',
+  offline_preparing: '準備中…',
+  offline_sync: '同期',
+  offline_syncing: '同期中…',
+  offline_saving: '保存中…',
+  offline_draft_saved: '下書きをこの端末に保存しました',
+  offline_save_failed:
+    'このテキストを保存できませんでした。アプリを開き直す前にコピーしてください。最後に保存した下書きは保持されています。',
+  offline_submit: '回答を保存',
+  offline_queued: 'この端末に保存済み — 送信待ち',
+  offline_unknown: '結果の確認が必要',
+  offline_applied: '送信済み',
+  offline_conflict: '別の場所で変更されました — 回答は保持されています',
+  offline_rejected: '回答が拒否されました — 作業内容は保持されています',
+  offline_wait_previous:
+    '前の回答の結果を待ってから、この下書きを送信してください。',
+  offline_server_value: '現在のサーバーの値',
+  offline_keep_draft: '自分の回答を確認して送信',
+  offline_use_server: 'サーバーの値を使用',
+  offline_discard: 'この端末内の作業内容を破棄',
+  offline_discard_confirm:
+    'この版を完全に破棄しますか？より新しい下書きは保持されます。',
+  offline_remove: '準備を解除',
+  offline_remove_confirm: 'ダウンロードしたコピーをこの端末から削除しますか？',
+  offline_pending: '端末内の作業内容',
+  offline_orphan:
+    '対象は利用できなくなりました。端末内の作業内容は保持されています。',
+  offline_unavailable:
+    'この作業指示書にはアクセスできなくなりました。端末内の作業内容は保持されています。',
+  offline_task_deleted:
+    'このタスクは削除されました。端末内の作業内容は別に保持されています。',
+  offline_connected_required: 'この操作には接続が必要です',
+  offline_files_not_downloaded: 'ファイルはダウンロードされていません',
+  offline_disabled:
+    'オフラインモードは停止中です。端末内の作業内容は保持されています。',
+  offline_reconnect:
+    'このアカウントで再接続して、保留中の送信を確認してください。',
+  offline_expired:
+    '接続して端末内のアクセス権を更新してください。作業内容は保持されています。',
+  offline_load_error:
+    '端末内のストレージを開けませんでした。ファイルは保持されています。',
+  offline_limit:
+    'この準備はオフラインの上限を超えています。前回の完全なコピーは保持されています。',
+  offline_prepare_failed:
+    '準備に失敗しました。以前の完全なコピーがあれば保持されています。',
+  offline_changed_revision:
+    '下書きが変更されました。破棄する前に最新の版を確認してください。',
+  offline_leave_context:
+    '端末内の下書きと保留中の送信は、このアカウントとサーバーに紐づけてこの端末に保持されます。別のアカウントから送信されることはありません。',
+  offline_not_prepared: 'この作業指示書はこの端末に準備されていません。',
+  offline_storage_busy: '端末内のデータを保存中です。',
+  offline_count: 'この端末に準備済みの作業指示書：{{count}}件',
+  offline_resume_after_conflict:
+    'サーバー上でこのタスクが変更されました。新たに送信する前に、両方の値を確認してください。',
+  offline_abandoned: '端末内の作業内容を破棄しました',
+  offline_max_text: '最大255文字',
+  offline_received_without_access:
+    '結果を確認しました。タスクにはアクセスできなくなりました。',
+  offline_no_local_work: '端末内に残っている作業内容はありません',
+  offline_read_only:
+    'このアカウントが再度許可されるまで、端末内のアクセスは読み取り専用です。',
+  offline_action_failed:
+    '操作に失敗しました。保存済みの端末内の作業内容は保持されています。',
+  offline_network_unavailable:
+    'サーバーを利用できません。作業内容はこの端末に保持されています。',
+  offline_invalid_response:
+    'サーバーの応答が不完全か無効です。前回の完全なコピーは保持されています。',
+  offline_context_changed:
+    'アカウントまたはサーバーが変更されました。続行するには元のアカウントに戻ってください。',
+  offline_https_required:
+    'オフライン作業を準備するにはHTTPSサーバーが必要です。',
+  offline_native_required:
+    'オフラインストレージには、ネイティブモジュールを含むバージョンのアプリが必要です。',
+  offline_work_pending:
+    '準備を解除する前に、端末内に残っている作業内容を解決してください。',
+  offline_removal_pending:
+    '再接続して以前の準備の解除を完了してから、もう一度準備してください。',
+  offline_unsupported_task:
+    'この段階では、TEXT型タスクの値のみオフラインで送信できます。',
+  offline_result_changed:
+    'この送信の結果はすでに確定しています。更新して結果を確認してください。',
   DUPLICATE_OF: '重複元',
   DUPLICATED_BY: '重複先',
   RELATED_TO: '関連先',

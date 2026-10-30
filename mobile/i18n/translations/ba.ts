@@ -1,4 +1,86 @@
 const locale = {
+  offline_prepare: 'Pripremi na ovom uređaju',
+  offline_available: 'Dostupno bez interneta',
+  offline_prepared_at: 'Potpuna kopija sačuvana: {{date}}',
+  offline_preparing: 'Priprema…',
+  offline_sync: 'Sinhronizuj',
+  offline_syncing: 'Sinhronizacija…',
+  offline_saving: 'Čuvanje…',
+  offline_draft_saved: 'Nacrt je sačuvan na ovom uređaju',
+  offline_save_failed:
+    'Ovaj tekst nije sačuvan. Kopirajte ga prije ponovnog otvaranja aplikacije. Posljednji sačuvani nacrt je zadržan.',
+  offline_submit: 'Sačuvaj odgovor',
+  offline_queued: 'Sačuvano na ovom uređaju — čeka slanje',
+  offline_unknown: 'Rezultat treba provjeriti',
+  offline_applied: 'Poslano',
+  offline_conflict: 'Izmijenjeno na drugom mjestu — vaš odgovor je sačuvan',
+  offline_rejected: 'Odgovor je odbijen — vaš rad je sačuvan',
+  offline_wait_previous:
+    'Sačekajte rezultat prethodnog odgovora prije slanja ovog nacrta.',
+  offline_server_value: 'Trenutna vrijednost na serveru',
+  offline_keep_draft: 'Pregledaj i pošalji moj odgovor',
+  offline_use_server: 'Koristi vrijednost sa servera',
+  offline_discard: 'Odbaci ovaj lokalni rad',
+  offline_discard_confirm:
+    'Trajno odbaciti ovu verziju? Noviji nacrt će biti sačuvan.',
+  offline_remove: 'Ukloni pripremu',
+  offline_remove_confirm: 'Ukloniti preuzetu kopiju s ovog uređaja?',
+  offline_pending: 'Lokalni rad',
+  offline_orphan:
+    'Ciljna stavka više nije dostupna. Vaš lokalni rad je sačuvan.',
+  offline_unavailable:
+    'Ovaj radni nalog više nije dostupan. Lokalni rad je sačuvan.',
+  offline_task_deleted:
+    'Ovaj zadatak je uklonjen. Njegov lokalni rad ostaje odvojen.',
+  offline_connected_required: 'Za ovu radnju potrebna je internetska veza',
+  offline_files_not_downloaded: 'Datoteke nisu preuzete',
+  offline_disabled: 'Rad bez interneta je obustavljen. Lokalni rad je sačuvan.',
+  offline_reconnect:
+    'Ponovo povežite ovaj račun da provjerite slanja na čekanju.',
+  offline_expired:
+    'Povežite se da obnovite lokalni pristup. Vaš rad je sačuvan.',
+  offline_load_error:
+    'Lokalna pohrana se ne može otvoriti. Vaše datoteke su sačuvane.',
+  offline_limit:
+    'Ova priprema premašuje ograničenja rada bez interneta. Prethodna potpuna kopija je sačuvana.',
+  offline_prepare_failed:
+    'Priprema nije uspjela. Prethodna potpuna kopija, ako postoji, sačuvana je.',
+  offline_changed_revision:
+    'Nacrt je izmijenjen. Pregledajte najnoviju verziju prije odbacivanja.',
+  offline_leave_context:
+    'Lokalni nacrti i slanja na čekanju ostat će na ovom uređaju za ovaj račun i server. Neće biti poslani s drugog računa.',
+  offline_not_prepared: 'Ovaj radni nalog nije pripremljen na ovom uređaju.',
+  offline_storage_busy: 'Lokalni podaci se još čuvaju.',
+  offline_count: 'Radni nalozi pripremljeni na ovom uređaju: {{count}}',
+  offline_resume_after_conflict:
+    'Zadatak je izmijenjen na serveru. Pregledajte obje vrijednosti prije novog slanja.',
+  offline_abandoned: 'Lokalni rad je odbačen',
+  offline_max_text: 'Najviše 255 znakova',
+  offline_received_without_access:
+    'Rezultat je provjeren. Zadatak više nije dostupan.',
+  offline_no_local_work: 'Nema preostalog lokalnog rada',
+  offline_read_only:
+    'Lokalni pristup je samo za čitanje dok ovaj račun ponovo ne dobije odobrenje.',
+  offline_action_failed:
+    'Radnja nije uspjela. Vaš sačuvani lokalni rad je zadržan.',
+  offline_network_unavailable:
+    'Server nije dostupan. Vaš rad ostaje na ovom uređaju.',
+  offline_invalid_response:
+    'Odgovor servera je nepotpun ili nevažeći. Prethodna potpuna kopija je sačuvana.',
+  offline_context_changed:
+    'Račun ili server je promijenjen. Vratite se na izvorni račun da nastavite.',
+  offline_https_required:
+    'Za pripremu rada bez interneta potreban je HTTPS server.',
+  offline_native_required:
+    'Pohrana za rad bez interneta zahtijeva verziju aplikacije koja uključuje nativne module.',
+  offline_work_pending:
+    'Razriješite preostali lokalni rad prije uklanjanja ove pripreme.',
+  offline_removal_pending:
+    'Ponovo se povežite da završite uklanjanje prethodne pripreme prije nove pripreme.',
+  offline_unsupported_task:
+    'U ovoj fazi mogu se slati bez interneta samo vrijednosti zadataka vrste TEXT.',
+  offline_result_changed:
+    'Ovo slanje je već razriješeno. Osvježite prikaz da vidite rezultat.',
   DUPLICATE_OF: 'Duplikat od',
   DUPLICATED_BY: 'Duplirano od strane',
   RELATED_TO: 'Povezano sa',

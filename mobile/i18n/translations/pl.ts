@@ -1,4 +1,89 @@
 const plJSON = {
+  offline_prepare: 'Przygotuj na tym urządzeniu',
+  offline_available: 'Dostępne offline',
+  offline_prepared_at: 'Pełna kopia zapisana: {{date}}',
+  offline_preparing: 'Przygotowywanie…',
+  offline_sync: 'Synchronizuj',
+  offline_syncing: 'Synchronizowanie…',
+  offline_saving: 'Zapisywanie…',
+  offline_draft_saved: 'Wersja robocza zapisana na tym urządzeniu',
+  offline_save_failed:
+    'Nie udało się zapisać tego tekstu. Skopiuj go przed ponownym otwarciem aplikacji. Ostatnia zapisana wersja robocza została zachowana.',
+  offline_submit: 'Zapisz odpowiedź',
+  offline_queued: 'Zapisano na tym urządzeniu — oczekuje na wysłanie',
+  offline_unknown: 'Wynik do sprawdzenia',
+  offline_applied: 'Wysłano',
+  offline_conflict:
+    'Zmieniono w innym miejscu — Twoja odpowiedź została zachowana',
+  offline_rejected: 'Odpowiedź odrzucona — Twoja praca została zachowana',
+  offline_wait_previous:
+    'Poczekaj na wynik poprzedniej odpowiedzi przed przesłaniem tej wersji roboczej.',
+  offline_server_value: 'Aktualna wartość na serwerze',
+  offline_keep_draft: 'Sprawdź i prześlij moją odpowiedź',
+  offline_use_server: 'Użyj wartości z serwera',
+  offline_discard: 'Odrzuć tę lokalną pracę',
+  offline_discard_confirm:
+    'Trwale odrzucić tę wersję? Nowsza wersja robocza zostanie zachowana.',
+  offline_remove: 'Usuń przygotowanie',
+  offline_remove_confirm: 'Usunąć pobraną kopię z tego urządzenia?',
+  offline_pending: 'Praca lokalna',
+  offline_orphan:
+    'Element docelowy nie jest już dostępny. Twoja lokalna praca została zachowana.',
+  offline_unavailable:
+    'To zlecenie pracy nie jest już dostępne. Lokalna praca została zachowana.',
+  offline_task_deleted:
+    'To zadanie zostało usunięte. Jego lokalna praca pozostaje zachowana oddzielnie.',
+  offline_connected_required: 'Ta czynność wymaga połączenia',
+  offline_files_not_downloaded: 'Pliki nie zostały pobrane',
+  offline_disabled:
+    'Tryb offline został wstrzymany. Lokalna praca została zachowana.',
+  offline_reconnect:
+    'Połącz ponownie to konto, aby sprawdzić oczekujące wysyłki.',
+  offline_expired:
+    'Połącz się, aby odnowić dostęp lokalny. Twoja praca została zachowana.',
+  offline_load_error:
+    'Nie udało się otworzyć pamięci lokalnej. Twoje pliki zostały zachowane.',
+  offline_limit:
+    'To przygotowanie przekracza limity trybu offline. Poprzednia pełna kopia została zachowana.',
+  offline_prepare_failed:
+    'Przygotowanie nie powiodło się. Poprzednia pełna kopia, jeśli istnieje, została zachowana.',
+  offline_changed_revision:
+    'Wersja robocza uległa zmianie. Sprawdź najnowszą wersję przed odrzuceniem.',
+  offline_leave_context:
+    'Lokalne wersje robocze i oczekujące wysyłki pozostaną na tym urządzeniu dla tego konta i serwera. Nie zostaną wysłane z innego konta.',
+  offline_not_prepared:
+    'To zlecenie pracy nie zostało przygotowane na tym urządzeniu.',
+  offline_storage_busy: 'Zapisywanie danych lokalnych nadal trwa.',
+  offline_count: 'Zlecenia pracy przygotowane na tym urządzeniu: {{count}}',
+  offline_resume_after_conflict:
+    'Zadanie uległo zmianie na serwerze. Porównaj obie wartości przed utworzeniem nowego zgłoszenia.',
+  offline_abandoned: 'Lokalna praca została odrzucona',
+  offline_max_text: 'Maksymalnie 255 znaków',
+  offline_received_without_access:
+    'Wynik został sprawdzony. Zadanie nie jest już dostępne.',
+  offline_no_local_work: 'Brak pozostałej pracy lokalnej',
+  offline_read_only:
+    'Dostęp lokalny jest tylko do odczytu do czasu ponownego przyznania uprawnień temu kontu.',
+  offline_action_failed:
+    'Czynność nie powiodła się. Twoja zapisana lokalna praca została zachowana.',
+  offline_network_unavailable:
+    'Serwer jest niedostępny. Twoja praca pozostaje na tym urządzeniu.',
+  offline_invalid_response:
+    'Odpowiedź serwera jest niepełna lub nieprawidłowa. Poprzednia pełna kopia została zachowana.',
+  offline_context_changed:
+    'Konto lub serwer uległy zmianie. Wróć do pierwotnego konta, aby kontynuować.',
+  offline_https_required:
+    'Do przygotowania pracy offline wymagany jest serwer HTTPS.',
+  offline_native_required:
+    'Przechowywanie offline wymaga wersji aplikacji zawierającej moduły natywne.',
+  offline_work_pending:
+    'Rozstrzygnij pozostałą pracę lokalną przed usunięciem tego przygotowania.',
+  offline_removal_pending:
+    'Połącz się ponownie, aby dokończyć usuwanie poprzedniego przygotowania przed ponownym przygotowaniem.',
+  offline_unsupported_task:
+    'Na tym etapie można przesyłać offline tylko wartości zadań typu TEXT.',
+  offline_result_changed:
+    'Ta wysyłka została już rozstrzygnięta. Odśwież widok, aby zobaczyć wynik.',
   DUPLICATE_OF: 'Duplikat',
   DUPLICATED_BY: 'Duplikowane przez',
   RELATED_TO: 'Powiązane z',

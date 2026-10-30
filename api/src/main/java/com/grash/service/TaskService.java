@@ -4,6 +4,8 @@ import com.grash.dto.TaskPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.TaskMapper;
 import com.grash.model.Task;
+import com.grash.model.User;
+import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.repository.TaskRepository;
 import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,7 @@ public class TaskService {
     private final FileService fileService;
     private final TaskMapper taskMapper;
     private final EntityManager em;
+    private final WorkflowService workflowService;
 
     @Transactional
     public Task create(Task Task) {
@@ -35,15 +38,41 @@ public class TaskService {
     }
 
     @Transactional
-    public Task update(Long id, TaskPatchDTO task) {
-        if (taskRepository.existsById(id)) {
-            Task savedTask = taskRepository.findById(id).get();
-            Task updatedTask = taskMapper.updateTask(savedTask, task);
-            Sanitizer.sanitizeTask(updatedTask);
-            updatedTask = taskRepository.saveAndFlush(updatedTask);
-            em.refresh(updatedTask);
-            return updatedTask;
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    public Task update(Long id, TaskPatchDTO patch, User user) {
+        Task task = taskRepository.findForUpdate(id, user.getCompany().getId())
+                .orElseThrow(() -> new CustomException("Task not found", HttpStatus.NOT_FOUND));
+        return applyPatch(task, patch, user);
+    }
+
+    /** Shared by connected PATCH and the offline transaction; absent fields are never changed. */
+    @Transactional
+    public Task applyPatch(Task task, TaskPatchDTO patch, User user) {
+        checkEditAccess(task, user, patch.hasValue());
+        if (patch.getVersion() != null && patch.getVersion() != task.getVersion()) {
+            throw new CustomException("Task changed. Refresh and review your changes before retrying.", HttpStatus.CONFLICT);
+        }
+        if (patch.hasValue() && patch.getValue() != null && patch.getValue().length() > 255) {
+            throw new CustomException("Task value must contain at most 255 characters", HttpStatus.BAD_REQUEST);
+        }
+        taskMapper.updateTask(task, patch);
+        if (patch.hasNotes()) task.setNotes(Sanitizer.cleanText(task.getNotes()));
+        Task updated = taskRepository.saveAndFlush(task);
+        workflowService.findByMainConditionAndCompany(WFMainCondition.TASK_UPDATED, user.getCompany().getId())
+                .forEach(workflow -> workflowService.runTask(workflow, updated));
+        em.flush();
+        em.refresh(updated);
+        return updated;
+    }
+
+    public void checkEditAccess(Task task, User user, boolean changesValue) {
+        boolean sameCompany = task.getCompany().getId().equals(user.getCompany().getId());
+        boolean editable = task.getWorkOrder() != null ? task.getWorkOrder().canBeEditedBy(user)
+                : task.getPreventiveMaintenance() != null && task.getPreventiveMaintenance().canBeEditedBy(user);
+        boolean assignedToOther = changesValue && task.getTaskBase().getUser() != null
+                && !task.getTaskBase().getUser().getId().equals(user.getId());
+        if (!sameCompany || !editable || assignedToOther) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        }
     }
 
     public Collection<Task> getAll() {

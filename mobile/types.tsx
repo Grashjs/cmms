@@ -90,7 +90,7 @@ export type RootStackParamList = {
   VendorDetails: { id: number; vendorProp?: Vendor };
   Modal: undefined;
   Tasks: {
-    tasksProps: Task[];
+    tasksProps?: Task[];
     workOrderId: number;
   };
   SelectParts: { onChange: (parts: PartMiniDTO[]) => void; selected: number[] };

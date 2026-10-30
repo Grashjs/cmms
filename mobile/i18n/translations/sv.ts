@@ -1,4 +1,87 @@
 const locale = {
+  offline_prepare: 'Förbered på den här enheten',
+  offline_available: 'Tillgänglig offline',
+  offline_prepared_at: 'Fullständig kopia sparad: {{date}}',
+  offline_preparing: 'Förbereder…',
+  offline_sync: 'Synkronisera',
+  offline_syncing: 'Synkroniserar…',
+  offline_saving: 'Sparar…',
+  offline_draft_saved: 'Utkast sparat på den här enheten',
+  offline_save_failed:
+    'Texten kunde inte sparas. Kopiera den innan du öppnar appen igen. Det senast sparade utkastet finns kvar.',
+  offline_submit: 'Spara svar',
+  offline_queued: 'Sparat på den här enheten — väntar på att skickas',
+  offline_unknown: 'Resultatet behöver kontrolleras',
+  offline_applied: 'Skickat',
+  offline_conflict: 'Ändrat på annat håll — ditt svar finns kvar',
+  offline_rejected: 'Svaret avvisades — ditt arbete finns kvar',
+  offline_wait_previous:
+    'Vänta på det föregående resultatet innan du skickar in det här utkastet.',
+  offline_server_value: 'Nuvarande värde på servern',
+  offline_keep_draft: 'Granska och skicka in mitt svar',
+  offline_use_server: 'Använd serverns värde',
+  offline_discard: 'Kasta det här lokala arbetet',
+  offline_discard_confirm:
+    'Kasta den här versionen permanent? Ett nyare utkast behålls.',
+  offline_remove: 'Ta bort förberedelsen',
+  offline_remove_confirm: 'Ta bort den nedladdade kopian från den här enheten?',
+  offline_pending: 'Lokalt arbete',
+  offline_orphan:
+    'Målobjektet är inte längre tillgängligt. Ditt lokala arbete finns kvar.',
+  offline_unavailable:
+    'Den här arbetsordern är inte längre tillgänglig. Det lokala arbetet finns kvar.',
+  offline_task_deleted:
+    'Den här uppgiften har tagits bort. Dess lokala arbete sparas separat.',
+  offline_connected_required: 'En anslutning krävs för den här åtgärden',
+  offline_files_not_downloaded: 'Filerna har inte laddats ned',
+  offline_disabled: 'Offlineläget är pausat. Det lokala arbetet finns kvar.',
+  offline_reconnect:
+    'Anslut det här kontot igen för att kontrollera väntande sändningar.',
+  offline_expired:
+    'Anslut för att förnya den lokala åtkomsten. Ditt arbete finns kvar.',
+  offline_load_error:
+    'Den lokala lagringen kunde inte öppnas. Dina filer finns kvar.',
+  offline_limit:
+    'Den här förberedelsen överskrider offlinegränserna. Den föregående fullständiga kopian finns kvar.',
+  offline_prepare_failed:
+    'Förberedelsen misslyckades. En tidigare fullständig kopia behålls om den finns.',
+  offline_changed_revision:
+    'Utkastet har ändrats. Granska den senaste versionen innan du kastar det.',
+  offline_leave_context:
+    'Lokala utkast och väntande sändningar stannar på den här enheten för det här kontot och den här servern. De skickas inte från ett annat konto.',
+  offline_not_prepared:
+    'Den här arbetsordern har inte förberetts på den här enheten.',
+  offline_storage_busy: 'Lokala data håller fortfarande på att sparas.',
+  offline_count: '{{count}} arbetsorder förberedda på den här enheten',
+  offline_resume_after_conflict:
+    'Uppgiften har ändrats på servern. Jämför båda värdena innan du skickar in ett nytt svar.',
+  offline_abandoned: 'Lokalt arbete kastat',
+  offline_max_text: 'Högst 255 tecken',
+  offline_received_without_access:
+    'Resultatet har kontrollerats. Uppgiften är inte längre tillgänglig.',
+  offline_no_local_work: 'Inget lokalt arbete återstår',
+  offline_read_only:
+    'Lokal åtkomst är skrivskyddad tills det här kontot får behörighet igen.',
+  offline_action_failed:
+    'Åtgärden misslyckades. Ditt sparade lokala arbete finns kvar.',
+  offline_network_unavailable:
+    'Servern är inte tillgänglig. Ditt arbete finns kvar på den här enheten.',
+  offline_invalid_response:
+    'Serverns svar är ofullständigt eller ogiltigt. Den föregående fullständiga kopian finns kvar.',
+  offline_context_changed:
+    'Kontot eller servern har ändrats. Gå tillbaka till det ursprungliga kontot för att fortsätta.',
+  offline_https_required:
+    'En HTTPS-server krävs för att förbereda arbete offline.',
+  offline_native_required:
+    'Offlinelagring kräver en appversion som innehåller de inbyggda modulerna.',
+  offline_work_pending:
+    'Hantera återstående lokalt arbete innan du tar bort den här förberedelsen.',
+  offline_removal_pending:
+    'Anslut igen för att slutföra borttagningen av den föregående förberedelsen innan du förbereder på nytt.',
+  offline_unsupported_task:
+    'I det här steget kan endast värden för uppgifter av typen TEXT skickas in offline.',
+  offline_result_changed:
+    'Den här sändningen har redan fått ett slutligt resultat. Uppdatera för att se resultatet.',
   DUPLICATE_OF: 'Duplikat av',
   DUPLICATED_BY: 'Duplicerad av',
   RELATED_TO: 'Relaterat till',

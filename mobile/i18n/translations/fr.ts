@@ -1,4 +1,87 @@
 const frJSON = {
+  offline_prepare: 'Préparer sur cet appareil',
+  offline_available: 'Disponible hors ligne',
+  offline_prepared_at: 'Copie complète enregistrée : {{date}}',
+  offline_preparing: 'Préparation…',
+  offline_sync: 'Synchroniser',
+  offline_syncing: 'Synchronisation…',
+  offline_saving: 'Enregistrement…',
+  offline_draft_saved: 'Brouillon enregistré sur cet appareil',
+  offline_save_failed:
+    'Ce texte n’a pas pu être enregistré. Copiez-le avant de rouvrir l’application. Le dernier brouillon enregistré est conservé.',
+  offline_submit: 'Enregistrer la réponse',
+  offline_queued: 'Enregistré sur cet appareil — en attente d’envoi',
+  offline_unknown: 'Résultat à vérifier',
+  offline_applied: 'Transmis',
+  offline_conflict: 'Modification concurrente — votre saisie est conservée',
+  offline_rejected: 'Réponse refusée — votre travail est conservé',
+  offline_wait_previous:
+    'Attendez le résultat précédent pour soumettre ce brouillon.',
+  offline_server_value: 'Valeur actuelle sur le serveur',
+  offline_keep_draft: 'Revoir et soumettre ma saisie',
+  offline_use_server: 'Utiliser la valeur serveur',
+  offline_discard: 'Abandonner ce travail local',
+  offline_discard_confirm:
+    'Abandonner définitivement cette révision ? Une saisie plus récente sera conservée.',
+  offline_remove: 'Retirer la préparation',
+  offline_remove_confirm: 'Retirer la copie téléchargée de cet appareil ?',
+  offline_pending: 'Travail local',
+  offline_orphan:
+    'La cible n’est plus disponible. Votre travail local est conservé.',
+  offline_unavailable:
+    'Cette intervention n’est plus accessible. Le travail local est conservé.',
+  offline_task_deleted:
+    'Cette tâche a été supprimée. Son travail local reste séparé.',
+  offline_connected_required: 'Connexion nécessaire pour cette action',
+  offline_files_not_downloaded: 'Fichiers non téléchargés',
+  offline_disabled: 'Mode hors ligne suspendu. Le travail local est conservé.',
+  offline_reconnect:
+    'Reconnectez ce compte pour vérifier les envois en attente.',
+  offline_expired:
+    'Connectez-vous pour renouveler l’accès local. Vos saisies sont conservées.',
+  offline_load_error:
+    'Impossible d’ouvrir le stockage local. Vos fichiers sont conservés.',
+  offline_limit:
+    'Cette préparation dépasse les limites hors ligne. L’ancienne copie complète est conservée.',
+  offline_prepare_failed:
+    'Échec de la préparation. L’ancienne copie complète éventuelle est conservée.',
+  offline_changed_revision:
+    'Le brouillon a changé. Vérifiez la dernière révision avant de l’abandonner.',
+  offline_leave_context:
+    'Les brouillons et envois en attente resteront sur cet appareil pour ce compte et ce serveur. Ils ne seront pas transmis depuis un autre compte.',
+  offline_not_prepared:
+    'Cette intervention n’a pas été préparée sur cet appareil.',
+  offline_storage_busy: 'Les écritures locales sont encore en cours.',
+  offline_count: '{{count}} interventions préparées sur cet appareil',
+  offline_resume_after_conflict:
+    'La tâche a changé sur le serveur. Comparez les valeurs avant de créer une nouvelle soumission.',
+  offline_abandoned: 'Travail local abandonné',
+  offline_max_text: '255 caractères maximum',
+  offline_received_without_access:
+    'Résultat vérifié. La tâche n’est plus accessible.',
+  offline_no_local_work: 'Aucun travail local restant',
+  offline_read_only:
+    'Accès local en lecture seule jusqu’à la nouvelle autorisation de ce compte.',
+  offline_action_failed:
+    'L’action a échoué. Votre travail local enregistré est conservé.',
+  offline_network_unavailable:
+    'Serveur indisponible. Votre travail reste sur cet appareil.',
+  offline_invalid_response:
+    'La réponse du serveur est incomplète ou invalide. L’ancienne copie complète est conservée.',
+  offline_context_changed:
+    'Le compte ou le serveur a changé. Revenez au compte initial pour continuer.',
+  offline_https_required:
+    'Un serveur HTTPS est nécessaire pour préparer le travail hors ligne.',
+  offline_native_required:
+    'Le stockage hors ligne nécessite une version de l’application incluant les modules natifs.',
+  offline_work_pending:
+    'Résolvez le travail local restant avant de retirer cette préparation.',
+  offline_removal_pending:
+    'Reconnectez-vous pour terminer le retrait de l’ancienne préparation avant de la préparer à nouveau.',
+  offline_unsupported_task:
+    'Seules les valeurs des tâches TEXT peuvent être soumises hors ligne à cette étape.',
+  offline_result_changed:
+    'Cet envoi a déjà été résolu. Actualisez pour consulter son résultat.',
   Blueprints: 'Plans',
   'Extended Sidebar': 'Barre latérale étendue',
   'Accent Sidebar': "Barre latérale d'accentuation",

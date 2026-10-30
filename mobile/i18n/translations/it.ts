@@ -1,4 +1,88 @@
 const locale = {
+  offline_prepare: 'Prepara su questo dispositivo',
+  offline_available: 'Disponibile offline',
+  offline_prepared_at: 'Copia completa salvata: {{date}}',
+  offline_preparing: 'Preparazione…',
+  offline_sync: 'Sincronizza',
+  offline_syncing: 'Sincronizzazione…',
+  offline_saving: 'Salvataggio…',
+  offline_draft_saved: 'Bozza salvata su questo dispositivo',
+  offline_save_failed:
+    'Impossibile salvare questo testo. Copialo prima di riaprire l’app. L’ultima bozza salvata viene conservata.',
+  offline_submit: 'Salva risposta',
+  offline_queued: 'Salvato su questo dispositivo — in attesa di invio',
+  offline_unknown: 'Risultato da verificare',
+  offline_applied: 'Inviato',
+  offline_conflict: 'Modificato altrove — la tua risposta viene conservata',
+  offline_rejected: 'Risposta rifiutata — il tuo lavoro viene conservato',
+  offline_wait_previous:
+    'Attendi il risultato precedente prima di inviare questa bozza.',
+  offline_server_value: 'Valore attuale sul server',
+  offline_keep_draft: 'Rivedi e invia la mia risposta',
+  offline_use_server: 'Usa il valore del server',
+  offline_discard: 'Scarta questo lavoro locale',
+  offline_discard_confirm:
+    'Scartare definitivamente questa revisione? Le bozze più recenti verranno conservate.',
+  offline_remove: 'Rimuovi preparazione',
+  offline_remove_confirm: 'Rimuovere la copia scaricata da questo dispositivo?',
+  offline_pending: 'Lavoro locale',
+  offline_orphan:
+    'L’elemento di destinazione non è più disponibile. Il tuo lavoro locale viene conservato.',
+  offline_unavailable:
+    'Questo ordine di lavoro non è più accessibile. Il lavoro locale viene conservato.',
+  offline_task_deleted:
+    'Questa attività è stata rimossa. Il relativo lavoro locale resta separato.',
+  offline_connected_required: 'Connessione necessaria per questa azione',
+  offline_files_not_downloaded: 'File non scaricati',
+  offline_disabled:
+    'Modalità offline sospesa. Il lavoro locale viene conservato.',
+  offline_reconnect:
+    'Riconnetti questo account per verificare gli invii in attesa.',
+  offline_expired:
+    'Connettiti per rinnovare l’accesso locale. Il tuo lavoro viene conservato.',
+  offline_load_error:
+    'Impossibile aprire l’archivio locale. I tuoi file vengono conservati.',
+  offline_limit:
+    'Questa preparazione supera i limiti offline. La copia completa precedente viene conservata.',
+  offline_prepare_failed:
+    'Preparazione non riuscita. L’eventuale copia completa precedente viene conservata.',
+  offline_changed_revision:
+    'La bozza è cambiata. Controlla l’ultima revisione prima di scartarla.',
+  offline_leave_context:
+    'Le bozze locali e gli invii in attesa resteranno su questo dispositivo per questo account e questo server. Non verranno inviati da un altro account.',
+  offline_not_prepared:
+    'Questo ordine di lavoro non è stato preparato su questo dispositivo.',
+  offline_storage_busy: 'Il salvataggio dei dati locali è ancora in corso.',
+  offline_count: '{{count}} ordini di lavoro preparati su questo dispositivo',
+  offline_resume_after_conflict:
+    'L’attività è cambiata sul server. Confronta entrambi i valori prima di creare un nuovo invio.',
+  offline_abandoned: 'Lavoro locale scartato',
+  offline_max_text: 'Massimo 255 caratteri',
+  offline_received_without_access:
+    'Risultato verificato. L’attività non è più accessibile.',
+  offline_no_local_work: 'Nessun lavoro locale rimanente',
+  offline_read_only:
+    'L’accesso locale è in sola lettura finché questo account non viene nuovamente autorizzato.',
+  offline_action_failed:
+    'Azione non riuscita. Il tuo lavoro locale salvato viene conservato.',
+  offline_network_unavailable:
+    'Server non disponibile. Il tuo lavoro resta su questo dispositivo.',
+  offline_invalid_response:
+    'La risposta del server è incompleta o non valida. La copia completa precedente viene conservata.',
+  offline_context_changed:
+    'L’account o il server è cambiato. Torna all’account originale per continuare.',
+  offline_https_required:
+    'È necessario un server HTTPS per preparare il lavoro offline.',
+  offline_native_required:
+    'L’archiviazione offline richiede una versione dell’app che includa i moduli nativi.',
+  offline_work_pending:
+    'Risolvi il lavoro locale rimanente prima di rimuovere questa preparazione.',
+  offline_removal_pending:
+    'Riconnettiti per completare la rimozione della preparazione precedente prima di prepararla di nuovo.',
+  offline_unsupported_task:
+    'In questa fase è possibile inviare offline solo i valori delle attività di tipo TEXT.',
+  offline_result_changed:
+    'Questo invio è già stato risolto. Aggiorna per visualizzarne il risultato.',
   DUPLICATE_OF: 'Duplicato di',
   DUPLICATED_BY: 'Duplicato da',
   RELATED_TO: 'Correlato a',

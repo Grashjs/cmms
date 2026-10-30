@@ -1,4 +1,88 @@
 const locale = {
+  offline_prepare: 'Preparar en este dispositivo',
+  offline_available: 'Disponible sin conexión',
+  offline_prepared_at: 'Copia completa guardada: {{date}}',
+  offline_preparing: 'Preparando…',
+  offline_sync: 'Sincronizar',
+  offline_syncing: 'Sincronizando…',
+  offline_saving: 'Guardando…',
+  offline_draft_saved: 'Borrador guardado en este dispositivo',
+  offline_save_failed:
+    'No se pudo guardar este texto. Cópielo antes de volver a abrir la aplicación. Se conserva el último borrador guardado.',
+  offline_submit: 'Guardar respuesta',
+  offline_queued: 'Guardado en este dispositivo — pendiente de envío',
+  offline_unknown: 'Resultado pendiente de verificar',
+  offline_applied: 'Enviado',
+  offline_conflict: 'Modificado en otro lugar — se conserva su respuesta',
+  offline_rejected: 'Respuesta rechazada — se conserva su trabajo',
+  offline_wait_previous:
+    'Espere el resultado anterior antes de enviar este borrador.',
+  offline_server_value: 'Valor actual en el servidor',
+  offline_keep_draft: 'Revisar y enviar mi respuesta',
+  offline_use_server: 'Usar el valor del servidor',
+  offline_discard: 'Descartar este trabajo local',
+  offline_discard_confirm:
+    '¿Descartar definitivamente esta revisión? Se conservará cualquier borrador más reciente.',
+  offline_remove: 'Eliminar preparación',
+  offline_remove_confirm: '¿Eliminar la copia descargada de este dispositivo?',
+  offline_pending: 'Trabajo local',
+  offline_orphan:
+    'El elemento de destino ya no está disponible. Se conserva su trabajo local.',
+  offline_unavailable:
+    'Ya no se puede acceder a esta orden de trabajo. Se conserva el trabajo local.',
+  offline_task_deleted:
+    'Esta tarea se ha eliminado. Su trabajo local se conserva por separado.',
+  offline_connected_required: 'Se necesita conexión para esta acción',
+  offline_files_not_downloaded: 'Archivos no descargados',
+  offline_disabled:
+    'Modo sin conexión suspendido. Se conserva el trabajo local.',
+  offline_reconnect:
+    'Vuelva a conectar esta cuenta para verificar los envíos pendientes.',
+  offline_expired:
+    'Conéctese para renovar el acceso local. Se conserva su trabajo.',
+  offline_load_error:
+    'No se pudo abrir el almacenamiento local. Sus archivos se conservan.',
+  offline_limit:
+    'Esta preparación supera los límites del modo sin conexión. Se conserva la copia completa anterior.',
+  offline_prepare_failed:
+    'La preparación ha fallado. Se conserva cualquier copia completa anterior.',
+  offline_changed_revision:
+    'El borrador ha cambiado. Revise la última versión antes de descartarlo.',
+  offline_leave_context:
+    'Los borradores locales y los envíos pendientes permanecerán en este dispositivo para esta cuenta y este servidor. No se enviarán desde otra cuenta.',
+  offline_not_prepared:
+    'Esta orden de trabajo no se ha preparado en este dispositivo.',
+  offline_storage_busy: 'Aún se están guardando los datos locales.',
+  offline_count: '{{count}} órdenes de trabajo preparadas en este dispositivo',
+  offline_resume_after_conflict:
+    'La tarea ha cambiado en el servidor. Compare ambos valores antes de crear un nuevo envío.',
+  offline_abandoned: 'Trabajo local descartado',
+  offline_max_text: 'Máximo de 255 caracteres',
+  offline_received_without_access:
+    'Resultado verificado. Ya no se puede acceder a la tarea.',
+  offline_no_local_work: 'No queda trabajo local',
+  offline_read_only:
+    'El acceso local es de solo lectura hasta que esta cuenta vuelva a estar autorizada.',
+  offline_action_failed:
+    'La acción ha fallado. Se conserva su trabajo local guardado.',
+  offline_network_unavailable:
+    'Servidor no disponible. Su trabajo permanece en este dispositivo.',
+  offline_invalid_response:
+    'La respuesta del servidor está incompleta o no es válida. Se conserva la copia completa anterior.',
+  offline_context_changed:
+    'La cuenta o el servidor ha cambiado. Vuelva a la cuenta original para continuar.',
+  offline_https_required:
+    'Se necesita un servidor HTTPS para preparar el trabajo sin conexión.',
+  offline_native_required:
+    'El almacenamiento sin conexión requiere una versión de la aplicación que incluya los módulos nativos.',
+  offline_work_pending:
+    'Resuelva el trabajo local restante antes de eliminar esta preparación.',
+  offline_removal_pending:
+    'Vuelva a conectarse para terminar de eliminar la preparación anterior antes de prepararla de nuevo.',
+  offline_unsupported_task:
+    'En esta etapa, solo se pueden enviar sin conexión los valores de las tareas de tipo TEXT.',
+  offline_result_changed:
+    'Este envío ya se ha resuelto. Actualice para ver su resultado.',
   DUPLICATE_OF: 'Duplicado de',
   DUPLICATED_BY: 'Duplicado por',
   RELATED_TO: 'Relacionado con',

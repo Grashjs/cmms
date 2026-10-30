@@ -1,4 +1,87 @@
 const locale = {
+  offline_prepare: 'Előkészítés ezen az eszközön',
+  offline_available: 'Offline elérhető',
+  offline_prepared_at: 'Teljes másolat mentve: {{date}}',
+  offline_preparing: 'Előkészítés…',
+  offline_sync: 'Szinkronizálás',
+  offline_syncing: 'Szinkronizálás folyamatban…',
+  offline_saving: 'Mentés…',
+  offline_draft_saved: 'Piszkozat mentve ezen az eszközön',
+  offline_save_failed:
+    'A szöveget nem sikerült menteni. Másolja ki az alkalmazás újbóli megnyitása előtt. Az utolsó mentett piszkozat megmarad.',
+  offline_submit: 'Válasz mentése',
+  offline_queued: 'Mentve ezen az eszközön — küldésre vár',
+  offline_unknown: 'Ellenőrizendő eredmény',
+  offline_applied: 'Elküldve',
+  offline_conflict: 'Máshol módosították — a válasza megmarad',
+  offline_rejected: 'A választ elutasították — a munkája megmarad',
+  offline_wait_previous:
+    'A piszkozat beküldése előtt várja meg az előző válasz eredményét.',
+  offline_server_value: 'Jelenlegi érték a szerveren',
+  offline_keep_draft: 'Válaszom áttekintése és beküldése',
+  offline_use_server: 'A szerver értékének használata',
+  offline_discard: 'A helyi munka elvetése',
+  offline_discard_confirm:
+    'Végleg elveti ezt a változatot? Az újabb piszkozat megmarad.',
+  offline_remove: 'Előkészítés eltávolítása',
+  offline_remove_confirm:
+    'Eltávolítja a letöltött másolatot erről az eszközről?',
+  offline_pending: 'Helyi munka',
+  offline_orphan: 'A célelem már nem érhető el. A helyi munkája megmarad.',
+  offline_unavailable:
+    'Ez a munkalap már nem érhető el. A helyi munka megmarad.',
+  offline_task_deleted:
+    'Ezt a feladatot eltávolították. A hozzá tartozó helyi munka külön megmarad.',
+  offline_connected_required: 'Ehhez a művelethez kapcsolat szükséges',
+  offline_files_not_downloaded: 'A fájlok nincsenek letöltve',
+  offline_disabled:
+    'Az offline mód fel van függesztve. A helyi munka megmarad.',
+  offline_reconnect:
+    'Csatlakozzon újra ezzel a fiókkal a függőben lévő küldések ellenőrzéséhez.',
+  offline_expired:
+    'Csatlakozzon a helyi hozzáférés megújításához. A munkája megmarad.',
+  offline_load_error:
+    'A helyi tárhelyet nem sikerült megnyitni. A fájljai megmaradnak.',
+  offline_limit:
+    'Ez az előkészítés túllépi az offline korlátokat. Az előző teljes másolat megmarad.',
+  offline_prepare_failed:
+    'Az előkészítés sikertelen. A korábbi teljes másolat, ha van, megmarad.',
+  offline_changed_revision:
+    'A piszkozat megváltozott. Elvetés előtt ellenőrizze a legújabb változatot.',
+  offline_leave_context:
+    'A helyi piszkozatok és függőben lévő küldések ezen az eszközön maradnak, ehhez a fiókhoz és szerverhez kapcsolva. Másik fiókból nem kerülnek elküldésre.',
+  offline_not_prepared: 'Ez a munkalap nincs előkészítve ezen az eszközön.',
+  offline_storage_busy: 'A helyi adatok mentése még folyamatban van.',
+  offline_count: '{{count}} munkalap előkészítve ezen az eszközön',
+  offline_resume_after_conflict:
+    'A feladat megváltozott a szerveren. Új beküldés előtt hasonlítsa össze a két értéket.',
+  offline_abandoned: 'Helyi munka elvetve',
+  offline_max_text: 'Legfeljebb 255 karakter',
+  offline_received_without_access:
+    'Eredmény ellenőrizve. A feladat már nem érhető el.',
+  offline_no_local_work: 'Nincs fennmaradó helyi munka',
+  offline_read_only:
+    'A helyi hozzáférés csak olvasást enged, amíg ezt a fiókot újra nem engedélyezik.',
+  offline_action_failed:
+    'A művelet sikertelen. A mentett helyi munkája megmarad.',
+  offline_network_unavailable:
+    'A szerver nem érhető el. A munkája ezen az eszközön marad.',
+  offline_invalid_response:
+    'A szerver válasza hiányos vagy érvénytelen. Az előző teljes másolat megmarad.',
+  offline_context_changed:
+    'A fiók vagy a szerver megváltozott. A folytatáshoz térjen vissza az eredeti fiókhoz.',
+  offline_https_required:
+    'A munka offline előkészítéséhez HTTPS-szerver szükséges.',
+  offline_native_required:
+    'Az offline tároláshoz a natív modulokat tartalmazó alkalmazásverzió szükséges.',
+  offline_work_pending:
+    'Az előkészítés eltávolítása előtt rendezze a fennmaradó helyi munkát.',
+  offline_removal_pending:
+    'Csatlakozzon újra a korábbi előkészítés eltávolításának befejezéséhez, mielőtt újra előkészíti.',
+  offline_unsupported_task:
+    'Ebben a lépésben csak TEXT típusú feladatok értékei küldhetők be offline.',
+  offline_result_changed:
+    'Ennek a küldésnek az eredménye már végleges. Frissítse a nézetet az eredmény megtekintéséhez.',
   DUPLICATE_OF: 'Másolata',
   DUPLICATED_BY: 'Másolta',
   RELATED_TO: 'Kapcsolódik',

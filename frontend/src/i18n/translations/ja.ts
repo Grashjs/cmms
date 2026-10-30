@@ -1,4 +1,8 @@
 const locale = {
+  task_save_review: "入力内容は保持されています。保存を一時停止しています。表示されている変更を送信する前に、サーバーの内容と比較してください。",
+  task_server_value: "サーバー上の現在の値",
+  task_review_submit: "表示されている変更を確認して送信",
+  task_review_discard: "ローカルの変更を破棄してサーバーの内容を使用",
   DUPLICATE_OF: '複製元',
   DUPLICATED_BY: '複製先',
   RELATED_TO: '関連先',
