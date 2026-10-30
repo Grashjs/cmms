@@ -40,6 +40,7 @@ import { LocationMiniDTO } from '../../../../models/owns/location';
 import { AssetMiniDTO } from '../../../../models/owns/asset';
 import { PermissionEntity } from '../../../../models/owns/role';
 import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
+import { matchesSearch } from '../../../../utils/search';
 
 interface OptionType {
   label: string;
@@ -267,11 +268,9 @@ export const CustomSelect = ({
             key={field.name}
             freeSolo
             filterOptions={(options, params) => {
-              const filtered = options.filter((option) => {
-                const inputValue = params.inputValue.toLowerCase();
-                const optionLabel = option.label.toLowerCase();
-                return optionLabel.includes(inputValue);
-              });
+              const filtered = options.filter((option) =>
+                matchesSearch(option.label, params.inputValue)
+              );
 
               const { inputValue } = params;
 
@@ -427,15 +426,13 @@ export const CustomSelect = ({
             key={field.name}
             freeSolo
             filterOptions={(options, params) => {
-              const filtered = options.filter((option) => {
-                const inputValue = params.inputValue.toLowerCase();
-                const optionLabel = option.label.toLowerCase();
-                return optionLabel.includes(inputValue);
-              });
+              const filtered = options.filter((option) =>
+                matchesSearch(option.label, params.inputValue)
+              );
 
               const { inputValue } = params;
               const isExisting = options.some((option) =>
-                option.label.toLowerCase().includes(inputValue.toLowerCase())
+                matchesSearch(option.label, inputValue)
               );
 
               if (
@@ -603,15 +600,13 @@ export const CustomSelect = ({
             key={field.name}
             freeSolo
             filterOptions={(options, params) => {
-              const filtered = options.filter((option) => {
-                const inputValue = params.inputValue.toLowerCase();
-                const optionLabel = option.label.toLowerCase();
-                return optionLabel.includes(inputValue);
-              });
+              const filtered = options.filter((option) =>
+                matchesSearch(option.label, params.inputValue)
+              );
 
               const { inputValue } = params;
               const isExisting = options.some((option) =>
-                option.label.toLowerCase().includes(inputValue.toLowerCase())
+                matchesSearch(option.label, inputValue)
               );
 
               if (
@@ -796,11 +791,9 @@ export const CustomSelect = ({
             key={field.name}
             freeSolo
             filterOptions={(options, params) => {
-              const filtered = options.filter((option) => {
-                const inputValue = params.inputValue.toLowerCase();
-                const optionLabel = option.label.toLowerCase();
-                return optionLabel.includes(inputValue);
-              });
+              const filtered = options.filter((option) =>
+                matchesSearch(option.label, params.inputValue)
+              );
 
               const { inputValue } = params;
 
