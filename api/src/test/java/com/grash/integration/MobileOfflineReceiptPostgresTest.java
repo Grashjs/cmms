@@ -33,8 +33,14 @@ class MobileOfflineReceiptPostgresTest {
     @BeforeAll static void schema() throws Exception {
         datasource = new DriverManagerDataSource(postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword());
         new JdbcTemplate(datasource).execute("create table task (id bigint primary key, value varchar(255), notes text)");
+        new JdbcTemplate(datasource).execute("create table comment (id bigint primary key, company_id bigint not null, user_id bigint not null, content text not null)");
         try (var connection = datasource.getConnection();
              var liquibase = new Liquibase("db/changelog/2026_11_03_00000000001_mobile_offline_foundation.xml",
+                     new ClassLoaderResourceAccessor(), new JdbcConnection(connection))) {
+            liquibase.update("");
+        }
+        try (var connection = datasource.getConnection();
+             var liquibase = new Liquibase("db/changelog/2026_11_04_00000000001_mobile_offline_comments.xml",
                      new ClassLoaderResourceAccessor(), new JdbcConnection(connection))) {
             liquibase.update("");
         }
@@ -47,6 +53,7 @@ class MobileOfflineReceiptPostgresTest {
         jdbc.update("delete from mobile_offline_preparation");
         jdbc.update("delete from mobile_offline_device");
         jdbc.update("delete from task");
+        jdbc.update("delete from comment");
         jdbc.update("insert into task(id,value,notes) values (7,'A','notes')");
     }
 
@@ -79,6 +86,33 @@ class MobileOfflineReceiptPostgresTest {
             assertTrue(repository.reserveOperation(52, 34, id, 10, "hash", Instant.now()));
             repository.finishOperation(52, 34, id, "{\"status\":\"APPLIED\"}");
         });
+    }
+
+    @Test void commentAndReceiptCommitTogetherAndLostResponseNeverCreatesADuplicate() {
+        UUID id = UUID.randomUUID();
+        assertThrows(IllegalStateException.class, () -> transaction.executeWithoutResult(status -> {
+            repository.reserveOperation(52, 34, id, 10, "hash", Instant.now());
+            jdbc.update("insert into comment(id,company_id,user_id,content,source_operation_id) values (1,52,34,'field comment',?)", id);
+            repository.finishOperation(52, 34, id, "{\"status\":\"APPLIED\",\"commentId\":1}");
+            throw new IllegalStateException("rollback before receipt commit");
+        }));
+        assertEquals(0L, jdbc.queryForObject("select count(*) from comment", Long.class));
+        assertTrue(repository.receipt(52, 34, id).isEmpty());
+        transaction.executeWithoutResult(status -> {
+            assertTrue(repository.reserveOperation(52, 34, id, 10, "hash", Instant.now()));
+            jdbc.update("insert into comment(id,company_id,user_id,content,source_operation_id) values (1,52,34,'field comment',?)", id);
+            repository.finishOperation(52, 34, id, "{\"status\":\"APPLIED\",\"commentId\":1}");
+        });
+        var reopened = new MobileOfflineRepository(new JdbcTemplate(new DriverManagerDataSource(
+                postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword())));
+        assertTrue(reopened.receipt(52, 34, id).isPresent());
+        transaction.executeWithoutResult(status -> assertFalse(reopened.reserveOperation(52, 34, id, 10, "hash", Instant.now())));
+        assertEquals(1L, jdbc.queryForObject("select count(*) from comment", Long.class));
+        assertThrows(org.springframework.dao.DataIntegrityViolationException.class, () ->
+                jdbc.update("insert into comment(id,company_id,user_id,content,source_operation_id) values (2,52,34,'duplicate',?)", id));
+        jdbc.update("insert into comment(id,company_id,user_id,content,source_operation_id) values (3,52,35,'other author',?)", id);
+        jdbc.update("insert into comment(id,company_id,user_id,content) values (4,52,34,'connected'), (5,52,34,'connected again')");
+        assertEquals(4L, jdbc.queryForObject("select count(*) from comment", Long.class));
     }
 
     @Test void simultaneousSubmissionsSerializeOnUniqueOperationId() throws Exception {

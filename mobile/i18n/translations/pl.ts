@@ -1,4 +1,29 @@
 const plJSON = {
+  offline_comment_saved_refresh_pending:
+    'Zmiana komentarza została potwierdzona na serwerze; lokalna kopia wymaga jeszcze odświeżenia.',
+  offline_comment_published_cleanup_pending:
+    'Komentarz został opublikowany. Nie udało się usunąć jego wersji roboczej z tego urządzenia. Nie publikuj go ponownie; spróbuj ponownie usunąć lokalną wersję roboczą.',
+  offline_comment_attachment_pending:
+    'Załącznik był wcześniej wybrany. Wybierz go ponownie lub potwierdź publikację samego tekstu.',
+  offline_comment_text_only: 'Opublikuj tylko tekst',
+  offline_comment_clear_confirmed:
+    'Usuń wersję roboczą opublikowanego komentarza',
+  offline_refresh_pending: 'Oczekiwanie na lokalne odświeżenie',
+  offline_sending: 'Wysyłanie w toku',
+  offline_request_too_large:
+    'Wysyłana treść jest zbyt duża. Skróć tekst przed ponowną próbą. Wersja robocza została zachowana.',
+  offline_comment_refresh_pending:
+    'Wysłano — oczekiwanie na odświeżenie kopii lokalnej',
+  offline_invalid_choice: 'Wybierz opcję, która jest nadal dostępna.',
+  offline_comment_empty: 'Wpisz komentarz, który nie jest pusty.',
+  offline_max_notes: 'Notatki mogą zawierać maksymalnie 255 znaków.',
+  offline_submit_notes: 'Zapisz notatki',
+  offline_submission: 'Wysyłanie',
+  offline_comment_pending: 'Oczekujący komentarz',
+  offline_comment_unavailable:
+    'Komentarz został wysłany. Nie jest już dostępny w kopii lokalnej.',
+  offline_invalid_number:
+    'Przed zapisaniem odpowiedzi wprowadź prawidłową liczbę.',
   offline_prepare: 'Przygotuj na tym urządzeniu',
   offline_available: 'Dostępne offline',
   offline_prepared_at: 'Pełna kopia zapisana: {{date}}',
@@ -15,7 +40,7 @@ const plJSON = {
   offline_applied: 'Wysłano',
   offline_conflict:
     'Zmieniono w innym miejscu — Twoja odpowiedź została zachowana',
-  offline_rejected: 'Odpowiedź odrzucona — Twoja praca została zachowana',
+  offline_rejected: 'Wysyłanie odrzucone — Twoja praca została zachowana',
   offline_wait_previous:
     'Poczekaj na wynik poprzedniej odpowiedzi przed przesłaniem tej wersji roboczej.',
   offline_server_value: 'Aktualna wartość na serwerze',
@@ -81,7 +106,7 @@ const plJSON = {
   offline_removal_pending:
     'Połącz się ponownie, aby dokończyć usuwanie poprzedniego przygotowania przed ponownym przygotowaniem.',
   offline_unsupported_task:
-    'Na tym etapie można przesyłać offline tylko wartości zadań typu TEXT.',
+    'Ten typ zadania należy wypełnić przy połączeniu z internetem.',
   offline_result_changed:
     'Ta wysyłka została już rozstrzygnięta. Odśwież widok, aby zobaczyć wynik.',
   DUPLICATE_OF: 'Duplikat',

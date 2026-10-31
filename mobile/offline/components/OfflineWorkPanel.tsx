@@ -9,6 +9,8 @@ import { usePendingWork } from '../hooks';
 export function OfflineWorkPanel({ workOrderId }: { workOrderId?: number }) {
   const offline = useOffline();
   const items = usePendingWork(workOrderId);
+  const pending = items.filter((item) => item.status !== 'APPLIED');
+  const refreshes = items.filter((item) => item.status === 'APPLIED');
   const { t } = useTranslation();
   const [busy, setBusy] = useState(false);
   const run = async (action: () => Promise<unknown>) => {
@@ -26,16 +28,41 @@ export function OfflineWorkPanel({ workOrderId }: { workOrderId?: number }) {
   return (
     <Card style={{ marginVertical: 10 }}>
       <Card.Content>
-        <Text variant="titleMedium">{t('offline_pending')}</Text>
+        <Text variant="titleMedium">
+          {t(
+            items.length && !pending.length
+              ? 'offline_refresh_pending'
+              : 'offline_pending'
+          )}
+        </Text>
         {!items.length && <Text>{t('offline_no_local_work')}</Text>}
-        {items.map((item) => (
+        {[...pending, ...refreshes].map((item, index) => (
           <View key={`${item.kind}:${item.id}`} style={{ marginTop: 8 }}>
-            <Text>{item.label || t('offline_orphan')}</Text>
+            {!!pending.length && index === pending.length && (
+              <Text variant="titleMedium">{t('offline_refresh_pending')}</Text>
+            )}
+            <Text>
+              {item.label ||
+                t(
+                  item.targetAvailable && item.field === 'comment'
+                    ? 'comments'
+                    : 'offline_orphan'
+                )}
+            </Text>
+            {item.targetAvailable && (
+              <Text>
+                {t(item.field === 'comment' ? 'comments' : item.field)}
+              </Text>
+            )}
             <Text>
               {t(
                 item.kind === 'DRAFT'
                   ? 'offline_draft_saved'
-                  : item.status === 'UNKNOWN' || item.status === 'SENDING'
+                  : item.status === 'APPLIED'
+                  ? 'offline_comment_refresh_pending'
+                  : item.status === 'SENDING'
+                  ? 'offline_sending'
+                  : item.status === 'UNKNOWN'
                   ? 'offline_unknown'
                   : item.status === 'CONFLICT'
                   ? 'offline_conflict'
@@ -59,10 +86,16 @@ export function OfflineWorkPanel({ workOrderId }: { workOrderId?: number }) {
                         onPress: () =>
                           run(() =>
                             item.kind === 'DRAFT'
-                              ? offline.repository.abandonDraft(
-                                  item.taskId,
-                                  item.draftRevision
-                                )
+                              ? item.field === 'comment'
+                                ? offline.abandonCommentDraft(
+                                    item.workOrderId,
+                                    item.draftRevision
+                                  )
+                                : offline.repository.abandonDraft(
+                                    item.taskId,
+                                    item.draftRevision,
+                                    item.field
+                                  )
                               : offline.repository.abandonOperation(item.id)
                           )
                       }
@@ -82,23 +115,24 @@ export function OfflineWorkPanel({ workOrderId }: { workOrderId?: number }) {
             )}
           </View>
         ))}
-        {workOrderId !== undefined && !items.length && (
-          <Button
-            disabled={busy}
-            onPress={() =>
-              Alert.alert(t('offline_remove'), t('offline_remove_confirm'), [
-                { text: t('cancel'), style: 'cancel' },
-                {
-                  text: t('offline_remove'),
-                  onPress: () =>
-                    run(() => offline.removePreparation(workOrderId))
-                }
-              ])
-            }
-          >
-            {t('offline_remove')}
-          </Button>
-        )}
+        {workOrderId !== undefined &&
+          !pending.length && (
+            <Button
+              disabled={busy}
+              onPress={() =>
+                Alert.alert(t('offline_remove'), t('offline_remove_confirm'), [
+                  { text: t('cancel'), style: 'cancel' },
+                  {
+                    text: t('offline_remove'),
+                    onPress: () =>
+                      run(() => offline.removePreparation(workOrderId))
+                  }
+                ])
+              }
+            >
+              {t('offline_remove')}
+            </Button>
+          )}
       </Card.Content>
     </Card>
   );

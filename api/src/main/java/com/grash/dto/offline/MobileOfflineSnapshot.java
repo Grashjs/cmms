@@ -9,4 +9,4 @@ import java.util.List;
 
 public record MobileOfflineSnapshot(WorkOrderShowDTO workOrder, List<TaskShowDTO> tasks,
                                     List<CommentShowDTO> comments, List<WorkOrderHistoryShowDTO> history,
-                                    Instant preparedAt, boolean complete, boolean canEdit) {}
+                                    Instant preparedAt, boolean complete, boolean canEdit, boolean canComment) {}

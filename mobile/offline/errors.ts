@@ -46,11 +46,37 @@ const messageKeys: Record<string, string> = {
   UNSUPPORTED_TASK: 'offline_unsupported_task',
   TYPE_NOT_SUPPORTED: 'offline_unsupported_task',
   TEXT_TOO_LONG: 'offline_max_text',
-  INVALID_VALUE: 'offline_max_text'
+  VALUE_TOO_LONG: 'offline_max_text',
+  NOTES_TOO_LONG: 'offline_max_notes',
+  INVALID_NUMBER: 'offline_invalid_number',
+  INVALID_CHOICE: 'offline_invalid_choice',
+  INVALID_TASK_OPTION: 'offline_invalid_choice',
+  COMMENT_EMPTY: 'offline_comment_empty',
+  COMMENT_ATTACHMENT_PENDING: 'offline_comment_attachment_pending',
+  INVALID_COMMENT_CONTENT: 'offline_comment_empty',
+  REQUEST_TOO_LARGE: 'offline_request_too_large',
+  OPERATION_LIMIT_EXCEEDED: 'offline_request_too_large',
+  INVALID_PREDECESSOR: 'offline_resume_after_conflict',
+  PREDECESSOR_FAILED: 'offline_resume_after_conflict',
+  INVALID_VALUE: 'offline_action_failed'
 };
 
 export function offlineErrorKey(error: unknown): string {
-  const { code, status } = (error || {}) as { code?: string; status?: number };
+  let { code } = (error || {}) as { code?: string };
+  const { status, message } = (error || {}) as {
+    status?: number;
+    message?: string;
+  };
+  // The existing connected client wraps HTTP bodies in Error.message.
+  // Recognize domain codes without ever displaying raw server diagnostics.
+  if (!code && message) {
+    try {
+      const body = JSON.parse(message);
+      code = body?.code || body?.message;
+    } catch {
+      /* Network/native errors use the generic translated message. */
+    }
+  }
   if (code && Object.prototype.hasOwnProperty.call(messageKeys, code))
     return messageKeys[code];
   if (status === 401) return 'offline_reconnect';

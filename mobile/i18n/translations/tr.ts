@@ -1,4 +1,27 @@
 ﻿const trJSON = {
+  offline_comment_saved_refresh_pending:
+    'Yorumdaki değişiklik sunucuda onaylandı; yerel kopyanın hâlâ güncellenmesi gerekiyor.',
+  offline_comment_published_cleanup_pending:
+    'Yorum yayımlandı. Taslağı bu cihazdan kaldırılamadı. Yorumu tekrar yayımlamayın; yerel taslağı kaldırmayı yeniden deneyin.',
+  offline_comment_attachment_pending:
+    'Daha önce bir ek seçilmişti. Eki yeniden seçin veya yalnızca metni yayımlamayı onaylayın.',
+  offline_comment_text_only: 'Yalnızca metni yayımla',
+  offline_comment_clear_confirmed: 'Yayımlanan yorumun taslağını kaldır',
+  offline_refresh_pending: 'Yerel güncelleme bekleniyor',
+  offline_sending: 'Gönderiliyor',
+  offline_request_too_large:
+    'Gönderilecek içerik çok büyük. Yeniden denemeden önce metni kısaltın. Taslağınız korundu.',
+  offline_comment_refresh_pending:
+    'Gönderildi — yerel kopyanın yenilenmesi bekleniyor',
+  offline_invalid_choice: 'Hâlâ kullanılabilir olan bir seçenek belirleyin.',
+  offline_comment_empty: 'Boş olmayan bir yorum girin.',
+  offline_max_notes: 'Notlar en fazla 255 karakter içerebilir.',
+  offline_submit_notes: 'Notları kaydet',
+  offline_submission: 'Gönderim',
+  offline_comment_pending: 'Bekleyen yorum',
+  offline_comment_unavailable:
+    'Yorum gönderildi. Artık yerel kopyada mevcut değil.',
+  offline_invalid_number: 'Yanıtı kaydetmeden önce geçerli bir sayı girin.',
   offline_prepare: 'Bu cihazda hazırla',
   offline_available: 'Çevrimdışı kullanılabilir',
   offline_prepared_at: 'Tam kopya kaydedildi: {{date}}',
@@ -14,7 +37,7 @@
   offline_unknown: 'Sonuç doğrulanmalı',
   offline_applied: 'Gönderildi',
   offline_conflict: 'Başka bir yerde değiştirildi — yanıtınız korunuyor',
-  offline_rejected: 'Yanıt reddedildi — çalışmanız korunuyor',
+  offline_rejected: 'Gönderim reddedildi — çalışmanız korundu',
   offline_wait_previous:
     'Bu taslağı göndermeden önce önceki yanıtın sonucunu bekleyin.',
   offline_server_value: 'Sunucudaki mevcut değer',
@@ -75,8 +98,7 @@
     'Bu hazırlığı kaldırmadan önce kalan yerel çalışmayı sonuçlandırın.',
   offline_removal_pending:
     'Yeniden hazırlamadan önce önceki hazırlığın kaldırılmasını tamamlamak için tekrar bağlanın.',
-  offline_unsupported_task:
-    'Bu aşamada yalnızca TEXT türündeki görevlerin değerleri çevrimdışı gönderilebilir.',
+  offline_unsupported_task: 'Bu görev türü çevrimiçi olarak doldurulmalıdır.',
   offline_result_changed:
     'Bu gönderim zaten sonuçlandı. Sonucunu görmek için yenileyin.',
   DUPLICATE_OF: 'Kopyası',

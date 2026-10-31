@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useOffline } from './OfflineProvider';
-import type { PreparedWorkOrderView, TaskView, PendingWork } from './types';
+import type {
+  PreparedWorkOrderView,
+  TaskView,
+  PendingWork,
+  TaskField
+} from './types';
 import type WorkOrder from '../models/workOrder';
 
 /** Related connected lists retain IDs; prepared entities are projected from SQLite. */
@@ -41,6 +46,10 @@ export function useOfflineWorkOrder(id: number) {
       workOrder: null,
       tasks: [],
       comments: [],
+      commentDraft: null,
+      commentOperations: [],
+      canEdit: false,
+      canComment: false,
       history: [],
       unavailableReason: 'OFFLINE_DISABLED'
     };
@@ -48,18 +57,18 @@ export function useOfflineWorkOrder(id: number) {
   return value;
 }
 
-export function useOfflineTask(id: number) {
+export function useOfflineTask(id: number, field: TaskField = 'value') {
   const offline = useOffline();
   const [value, setValue] = useState<TaskView | null>(null);
   useEffect(() => {
     setValue(null);
     if (!offline.repository) return;
-    const subscription = offline.repository.observeTask(id).subscribe({
+    const subscription = offline.repository.observeTask(id, field).subscribe({
       next: setValue,
       error: () => setValue(null)
     });
     return () => subscription.unsubscribe();
-  }, [offline.repository, id]);
+  }, [offline.repository, id, field]);
   return offline.readable ? value : null;
 }
 

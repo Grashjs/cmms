@@ -1,4 +1,28 @@
 const locale = {
+  offline_comment_saved_refresh_pending:
+    'El cambio del comentario está confirmado en el servidor; la copia local aún debe actualizarse.',
+  offline_comment_published_cleanup_pending:
+    'Comentario publicado. No se pudo eliminar el borrador de este dispositivo. No lo publique de nuevo; vuelva a intentar eliminar el borrador local.',
+  offline_comment_attachment_pending:
+    'Se había seleccionado un archivo adjunto. Vuelva a seleccionarlo o confirme que desea publicar solo el texto.',
+  offline_comment_text_only: 'Publicar solo el texto',
+  offline_comment_clear_confirmed: 'Eliminar el borrador publicado',
+  offline_refresh_pending: 'Actualización local pendiente',
+  offline_sending: 'Enviando',
+  offline_request_too_large:
+    'Este envío es demasiado grande. Acorte el texto antes de volver a intentarlo. Su borrador se conserva.',
+  offline_comment_refresh_pending:
+    'Enviado — pendiente de actualizar la copia local',
+  offline_invalid_choice: 'Elija una opción que siga disponible.',
+  offline_comment_empty: 'Escriba un comentario que no esté vacío.',
+  offline_max_notes: 'Las notas pueden contener un máximo de 255 caracteres.',
+  offline_submit_notes: 'Guardar notas',
+  offline_submission: 'Envío',
+  offline_comment_pending: 'Comentario pendiente',
+  offline_comment_unavailable:
+    'Comentario enviado. Ya no está disponible en la copia local.',
+  offline_invalid_number:
+    'Introduzca un número válido antes de guardar la respuesta.',
   offline_prepare: 'Preparar en este dispositivo',
   offline_available: 'Disponible sin conexión',
   offline_prepared_at: 'Copia completa guardada: {{date}}',
@@ -14,7 +38,7 @@ const locale = {
   offline_unknown: 'Resultado pendiente de verificar',
   offline_applied: 'Enviado',
   offline_conflict: 'Modificado en otro lugar — se conserva su respuesta',
-  offline_rejected: 'Respuesta rechazada — se conserva su trabajo',
+  offline_rejected: 'Envío rechazado — su trabajo se conserva',
   offline_wait_previous:
     'Espere el resultado anterior antes de enviar este borrador.',
   offline_server_value: 'Valor actual en el servidor',
@@ -80,7 +104,7 @@ const locale = {
   offline_removal_pending:
     'Vuelva a conectarse para terminar de eliminar la preparación anterior antes de prepararla de nuevo.',
   offline_unsupported_task:
-    'En esta etapa, solo se pueden enviar sin conexión los valores de las tareas de tipo TEXT.',
+    'Este tipo de tarea debe completarse con conexión a Internet.',
   offline_result_changed:
     'Este envío ya se ha resuelto. Actualice para ver su resultado.',
   DUPLICATE_OF: 'Duplicado de',

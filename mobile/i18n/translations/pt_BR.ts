@@ -1,4 +1,27 @@
 const ptBRJSON = {
+  offline_comment_saved_refresh_pending:
+    'A alteração do comentário foi confirmada no servidor; a cópia local ainda precisa ser atualizada.',
+  offline_comment_published_cleanup_pending:
+    'Comentário publicado. Não foi possível remover o rascunho deste dispositivo. Não o publique novamente; tente remover o rascunho local mais uma vez.',
+  offline_comment_attachment_pending:
+    'Um anexo havia sido selecionado. Selecione-o novamente ou confirme a publicação apenas do texto.',
+  offline_comment_text_only: 'Publicar apenas o texto',
+  offline_comment_clear_confirmed: 'Remover o rascunho publicado',
+  offline_refresh_pending: 'Atualização local pendente',
+  offline_sending: 'Enviando',
+  offline_request_too_large:
+    'Este envio é grande demais. Encurte o texto antes de tentar novamente. Seu rascunho foi preservado.',
+  offline_comment_refresh_pending:
+    'Enviado — aguardando atualização da cópia local',
+  offline_invalid_choice: 'Escolha uma opção que ainda esteja disponível.',
+  offline_comment_empty: 'Digite um comentário que não esteja vazio.',
+  offline_max_notes: 'As notas podem conter no máximo 255 caracteres.',
+  offline_submit_notes: 'Salvar notas',
+  offline_submission: 'Envio',
+  offline_comment_pending: 'Comentário pendente',
+  offline_comment_unavailable:
+    'Comentário enviado. Ele não está mais disponível na cópia local.',
+  offline_invalid_number: 'Digite um número válido antes de salvar a resposta.',
   offline_prepare: 'Preparar neste dispositivo',
   offline_available: 'Disponível offline',
   offline_prepared_at: 'Cópia completa salva: {{date}}',
@@ -14,7 +37,7 @@ const ptBRJSON = {
   offline_unknown: 'Resultado a verificar',
   offline_applied: 'Enviado',
   offline_conflict: 'Alterado em outro lugar — sua resposta foi preservada',
-  offline_rejected: 'Resposta recusada — seu trabalho foi preservado',
+  offline_rejected: 'Envio recusado — seu trabalho foi preservado',
   offline_wait_previous:
     'Aguarde o resultado anterior antes de enviar este rascunho.',
   offline_server_value: 'Valor atual no servidor',
@@ -78,7 +101,7 @@ const ptBRJSON = {
   offline_removal_pending:
     'Reconecte-se para concluir a remoção da preparação anterior antes de prepará-la novamente.',
   offline_unsupported_task:
-    'Nesta etapa, somente os valores de tarefas do tipo TEXT podem ser enviados offline.',
+    'Este tipo de tarefa deve ser preenchido com conexão à internet.',
   offline_result_changed:
     'Este envio já foi resolvido. Atualize para consultar o resultado.',
   DUPLICATE_OF: 'Duplicado de',

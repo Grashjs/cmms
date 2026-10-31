@@ -1,4 +1,26 @@
 const locale = {
+  offline_comment_saved_refresh_pending:
+    'Promjena komentara je potvrđena na serveru; lokalnu kopiju još treba osvježiti.',
+  offline_comment_published_cleanup_pending:
+    'Komentar je objavljen. Nacrt nije mogao biti uklonjen s ovog uređaja. Nemojte ga ponovo objavljivati; pokušajte ponovo ukloniti lokalni nacrt.',
+  offline_comment_attachment_pending:
+    'Prilog je bio odabran. Odaberite ga ponovo ili potvrdite objavljivanje samo teksta.',
+  offline_comment_text_only: 'Objavi samo tekst',
+  offline_comment_clear_confirmed: 'Ukloni nacrt objavljenog komentara',
+  offline_refresh_pending: 'Lokalno osvježavanje na čekanju',
+  offline_sending: 'Slanje je u toku',
+  offline_request_too_large:
+    'Ovaj unos je prevelik za slanje. Skratite tekst prije ponovnog pokušaja. Vaš nacrt je sačuvan.',
+  offline_comment_refresh_pending: 'Poslano — čeka osvježavanje lokalne kopije',
+  offline_invalid_choice: 'Odaberite opciju koja je još dostupna.',
+  offline_comment_empty: 'Unesite komentar koji nije prazan.',
+  offline_max_notes: 'Napomene mogu sadržavati najviše 255 znakova.',
+  offline_submit_notes: 'Sačuvaj napomene',
+  offline_submission: 'Slanje',
+  offline_comment_pending: 'Komentar na čekanju',
+  offline_comment_unavailable:
+    'Komentar je poslan. Više nije dostupan u lokalnoj kopiji.',
+  offline_invalid_number: 'Unesite ispravan broj prije čuvanja odgovora.',
   offline_prepare: 'Pripremi na ovom uređaju',
   offline_available: 'Dostupno bez interneta',
   offline_prepared_at: 'Potpuna kopija sačuvana: {{date}}',
@@ -14,7 +36,7 @@ const locale = {
   offline_unknown: 'Rezultat treba provjeriti',
   offline_applied: 'Poslano',
   offline_conflict: 'Izmijenjeno na drugom mjestu — vaš odgovor je sačuvan',
-  offline_rejected: 'Odgovor je odbijen — vaš rad je sačuvan',
+  offline_rejected: 'Slanje je odbijeno — vaš rad je sačuvan',
   offline_wait_previous:
     'Sačekajte rezultat prethodnog odgovora prije slanja ovog nacrta.',
   offline_server_value: 'Trenutna vrijednost na serveru',
@@ -78,7 +100,7 @@ const locale = {
   offline_removal_pending:
     'Ponovo se povežite da završite uklanjanje prethodne pripreme prije nove pripreme.',
   offline_unsupported_task:
-    'U ovoj fazi mogu se slati bez interneta samo vrijednosti zadataka vrste TEXT.',
+    'Ova vrsta zadatka mora se popuniti uz internetsku vezu.',
   offline_result_changed:
     'Ovo slanje je već razriješeno. Osvježite prikaz da vidite rezultat.',
   DUPLICATE_OF: 'Duplikat od',

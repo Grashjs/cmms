@@ -1,4 +1,28 @@
 const locale = {
+  offline_comment_saved_refresh_pending:
+    'De wijziging van de opmerking is bevestigd op de server; de lokale kopie moet nog worden bijgewerkt.',
+  offline_comment_published_cleanup_pending:
+    'De opmerking is geplaatst. Het concept kon niet van dit apparaat worden verwijderd. Plaats de opmerking niet opnieuw; probeer het lokale concept opnieuw te verwijderen.',
+  offline_comment_attachment_pending:
+    'Er was een bijlage geselecteerd. Selecteer deze opnieuw of bevestig dat u alleen de tekst wilt plaatsen.',
+  offline_comment_text_only: 'Alleen tekst plaatsen',
+  offline_comment_clear_confirmed: 'Concept van geplaatste opmerking verwijderen',
+  offline_refresh_pending: 'Lokale update in afwachting',
+  offline_sending: 'Wordt verzonden',
+  offline_request_too_large:
+    'Deze verzending is te groot. Kort de tekst in voordat u het opnieuw probeert. Uw concept blijft bewaard.',
+  offline_comment_refresh_pending:
+    'Verzonden — lokale kopie moet nog worden vernieuwd',
+  offline_invalid_choice: 'Kies een optie die nog beschikbaar is.',
+  offline_comment_empty: 'Voer een opmerking in die niet leeg is.',
+  offline_max_notes: 'Notities mogen maximaal 255 tekens bevatten.',
+  offline_submit_notes: 'Notities opslaan',
+  offline_submission: 'Verzending',
+  offline_comment_pending: 'Opmerking in afwachting',
+  offline_comment_unavailable:
+    'Opmerking verzonden. Deze is niet meer beschikbaar in de lokale kopie.',
+  offline_invalid_number:
+    'Voer een geldig getal in voordat u het antwoord opslaat.',
   offline_prepare: 'Op dit apparaat voorbereiden',
   offline_available: 'Offline beschikbaar',
   offline_prepared_at: 'Volledige kopie opgeslagen: {{date}}',
@@ -14,7 +38,7 @@ const locale = {
   offline_unknown: 'Resultaat moet worden gecontroleerd',
   offline_applied: 'Verzonden',
   offline_conflict: 'Elders gewijzigd — uw antwoord blijft behouden',
-  offline_rejected: 'Antwoord geweigerd — uw werk blijft behouden',
+  offline_rejected: 'Verzending geweigerd — uw werk blijft bewaard',
   offline_wait_previous:
     'Wacht op het vorige resultaat voordat u dit concept indient.',
   offline_server_value: 'Huidige waarde op de server',
@@ -77,8 +101,7 @@ const locale = {
     'Handel het resterende lokale werk af voordat u deze voorbereiding verwijdert.',
   offline_removal_pending:
     'Maak opnieuw verbinding om de vorige voorbereiding volledig te verwijderen voordat u opnieuw voorbereidt.',
-  offline_unsupported_task:
-    'In deze stap kunnen alleen waarden van taken van het type TEXT offline worden ingediend.',
+  offline_unsupported_task: 'Dit type taak moet online worden ingevuld.',
   offline_result_changed:
     'Deze verzending is al afgehandeld. Vernieuw de weergave om het resultaat te zien.',
   DUPLICATE_OF: 'Duplicaat van',

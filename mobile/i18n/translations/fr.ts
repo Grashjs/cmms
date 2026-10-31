@@ -1,4 +1,28 @@
 const frJSON = {
+  offline_comment_saved_refresh_pending:
+    'Modification du commentaire confirmée sur le serveur ; la copie locale reste à actualiser.',
+  offline_comment_published_cleanup_pending:
+    'Commentaire publié. Le brouillon n’a pas pu être retiré de cet appareil. Ne le republiez pas ; réessayez l’effacement local.',
+  offline_comment_attachment_pending:
+    'Une pièce jointe avait été sélectionnée. Resélectionnez-la ou confirmez l’envoi du texte seul.',
+  offline_comment_text_only: 'Publier le texte seul',
+  offline_comment_clear_confirmed: 'Retirer le brouillon publié',
+  offline_refresh_pending: 'Actualisation locale en attente',
+  offline_sending: 'Envoi en cours',
+  offline_request_too_large:
+    'Cet envoi est trop volumineux. Réduisez le texte avant de réessayer. Votre brouillon est conservé.',
+  offline_comment_refresh_pending:
+    'Transmis — actualisation de la copie en attente',
+  offline_invalid_choice: 'Choisissez une option encore disponible.',
+  offline_comment_empty: 'Saisissez un commentaire non vide.',
+  offline_max_notes: 'Les notes peuvent contenir au maximum 255 caractères.',
+  offline_submit_notes: 'Enregistrer les notes',
+  offline_submission: 'Envoi',
+  offline_comment_pending: 'Commentaire en attente',
+  offline_comment_unavailable:
+    'Commentaire transmis. Il n’est plus disponible dans la copie locale.',
+  offline_invalid_number:
+    'Saisissez un nombre valide avant d’enregistrer la réponse.',
   offline_prepare: 'Préparer sur cet appareil',
   offline_available: 'Disponible hors ligne',
   offline_prepared_at: 'Copie complète enregistrée : {{date}}',
@@ -14,7 +38,7 @@ const frJSON = {
   offline_unknown: 'Résultat à vérifier',
   offline_applied: 'Transmis',
   offline_conflict: 'Modification concurrente — votre saisie est conservée',
-  offline_rejected: 'Réponse refusée — votre travail est conservé',
+  offline_rejected: 'Envoi refusé — votre travail est conservé',
   offline_wait_previous:
     'Attendez le résultat précédent pour soumettre ce brouillon.',
   offline_server_value: 'Valeur actuelle sur le serveur',
@@ -78,8 +102,7 @@ const frJSON = {
     'Résolvez le travail local restant avant de retirer cette préparation.',
   offline_removal_pending:
     'Reconnectez-vous pour terminer le retrait de l’ancienne préparation avant de la préparer à nouveau.',
-  offline_unsupported_task:
-    'Seules les valeurs des tâches TEXT peuvent être soumises hors ligne à cette étape.',
+  offline_unsupported_task: 'Ce type de tâche doit être renseigné en ligne.',
   offline_result_changed:
     'Cet envoi a déjà été résolu. Actualisez pour consulter son résultat.',
   Blueprints: 'Plans',

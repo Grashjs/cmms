@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ReactNode } from 'react';
+import React, { useState, useEffect, ReactNode, useRef } from 'react';
 import {
   View,
   Text,
@@ -13,7 +13,11 @@ import {
 import { Avatar, IconButton, useTheme, Button } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from '../store';
-import { deleteComment, updateComment } from '../slices/comment';
+import {
+  deleteComment,
+  updateComment,
+  ConfirmedCommentMutation
+} from '../slices/comment';
 import File from '../models/file';
 import mime from 'mime';
 import { CompanySettingsContext } from '../contexts/CompanySettingsContext';
@@ -24,6 +28,8 @@ import ImageView from 'react-native-image-viewing';
 import { downloadFile } from '../utils/fileDownload';
 import { useMentions } from 'react-native-controlled-mentions';
 import { TriggersConfig } from 'react-native-controlled-mentions/dist/types/types';
+
+import { useOffline } from '../offline/OfflineProvider';
 
 interface CommentItemProps {
   connectedDisabled?: boolean;
@@ -74,6 +80,37 @@ export default function CommentItem({
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(comment.content);
   const [saving, setSaving] = useState(false);
+  const editRevision = useRef(0);
+  const [localUpdateFailed, setLocalUpdateFailed] = useState(false);
+  const expectedLocalComment = useRef<Comment | null>(null);
+  const [deletionConfirmed, setDeletionConfirmed] = useState(false);
+  const offline = useOffline();
+  const showLocalUpdateFailure = (result: ConfirmedCommentMutation) => {
+    if (result.localUpdateError) {
+      expectedLocalComment.current = result.comment ?? null;
+      setLocalUpdateFailed(true);
+      offline.reportError(result.localUpdateError);
+    } else {
+      expectedLocalComment.current = null;
+      setLocalUpdateFailed(false);
+    }
+  };
+
+  useEffect(() => {
+    const expected = expectedLocalComment.current;
+    if (
+      localUpdateFailed &&
+      expected &&
+      comment.id === expected.id &&
+      comment.updatedAt === expected.updatedAt &&
+      comment.content === expected.content &&
+      JSON.stringify(comment.files.map((file) => file.id)) ===
+        JSON.stringify(expected.files.map((file) => file.id))
+    ) {
+      expectedLocalComment.current = null;
+      setLocalUpdateFailed(false);
+    }
+  }, [comment, localUpdateFailed]);
 
   const isOwner = comment.user?.id === user?.id;
   const isSystem = comment.system;
@@ -82,7 +119,10 @@ export default function CommentItem({
 
   const { textInputProps, triggers } = useMentions({
     value: editContent,
-    onChange: setEditContent,
+    onChange: (content) => {
+      editRevision.current++;
+      setEditContent(content);
+    },
     triggersConfig
   });
 
@@ -99,13 +139,24 @@ export default function CommentItem({
       {
         text: t('to_delete'),
         style: 'destructive',
-        onPress: () => dispatch(deleteComment(comment.id, workOrderId))
+        onPress: () => {
+          if (deletionConfirmed) return;
+          setSaving(true);
+          void dispatch(deleteComment(comment.id, workOrderId))
+            .then((result: ConfirmedCommentMutation) => {
+              setDeletionConfirmed(true);
+              showLocalUpdateFailure(result);
+            })
+            .catch(offline.reportError)
+            .finally(() => setSaving(false));
+        }
       }
     ]);
   };
 
   const handleUpdate = () => {
-    if (editContent && editContent.trim()) {
+    if (editContent && editContent.trim() && !saving) {
+      const revision = editRevision.current;
       setSaving(true);
       dispatch(
         updateComment(
@@ -117,11 +168,12 @@ export default function CommentItem({
           workOrderId
         )
       )
-        .then(() => {
-          setIsEditing(false);
-          setSaving(false);
+        .then((result: ConfirmedCommentMutation) => {
+          if (editRevision.current === revision) setIsEditing(false);
+          showLocalUpdateFailure(result);
         })
-        .catch(() => setSaving(false));
+        .catch(offline.reportError)
+        .finally(() => setSaving(false));
     }
   };
 
@@ -225,18 +277,33 @@ export default function CommentItem({
                 {getFormattedDate(comment.updatedAt || comment.createdAt)}
               </Text>
             </View>
-            {!connectedDisabled && !isSystem && isOwner && !isEditing && (
-              <View style={{ flexDirection: 'row' }}>
-                <IconButton
-                  icon="pencil"
-                  size={20}
-                  onPress={() => setIsEditing(true)}
-                />
-                <IconButton icon="delete" size={20} onPress={handleDelete} />
-              </View>
-            )}
+            {!connectedDisabled &&
+              !isSystem &&
+              isOwner &&
+              !isEditing &&
+              !deletionConfirmed && (
+                <View style={{ flexDirection: 'row' }}>
+                  <IconButton
+                    icon="pencil"
+                    size={20}
+                    disabled={saving}
+                    onPress={() => setIsEditing(true)}
+                  />
+                  <IconButton
+                    icon="delete"
+                    size={20}
+                    disabled={saving}
+                    onPress={handleDelete}
+                  />
+                </View>
+              )}
           </View>
 
+          {localUpdateFailed && (
+            <Text accessibilityRole="alert">
+              {t('offline_comment_saved_refresh_pending')}
+            </Text>
+          )}
           {isEditing ? (
             <View>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>

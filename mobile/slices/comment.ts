@@ -13,6 +13,28 @@ import {
 
 const basePath = 'comments';
 
+// A successful mutation must not become retryable because the local projection failed.
+export interface ConfirmedCommentMutation {
+  comment?: Comment;
+  localUpdateError?: unknown;
+}
+
+async function updateConfirmedCommentLocally(
+  generation: number,
+  update: () => Promise<void>,
+  comment?: Comment
+): Promise<ConfirmedCommentMutation> {
+  try {
+    await update();
+    assertSessionGeneration(generation);
+    return { comment };
+  } catch (localUpdateError) {
+    // Do not let a response for another account affect this screen.
+    assertSessionGeneration(generation);
+    return { comment, localUpdateError };
+  }
+}
+
 interface CommentState {
   commentsByWorkOrder: { [key: number]: Comment[] };
   commentsCountByWorkOrder: { [key: number]: number };
@@ -156,20 +178,33 @@ export const createComment =
     assertSessionGeneration(generation);
     try {
       dispatch(slice.actions.setLoadingCreate({ loading: true }));
-      const newComment = await api.post<Comment>(basePath, comment);
-      assertSessionGeneration(generation);
-      const prepared = getPreparedRuntime(comment.workOrder.id);
-      if (prepared) {
-        await prepared.ingestComment(comment.workOrder.id, newComment);
-        return newComment;
-      }
-      dispatch(
-        slice.actions.addComment({
-          workOrderId: comment.workOrder.id,
-          comment: newComment
-        })
-      );
-      return newComment;
+      const initiallyPrepared = getPreparedRuntime(comment.workOrder.id);
+      const create = async () => {
+        assertSessionGeneration(generation);
+        const newComment = await api.post<Comment>(basePath, comment);
+        assertSessionGeneration(generation);
+        const prepared = getPreparedRuntime(comment.workOrder.id);
+        if (prepared) {
+          return updateConfirmedCommentLocally(
+            generation,
+            () =>
+              initiallyPrepared
+                ? prepared.ingestComment(comment.workOrder.id, newComment)
+                : prepared.refresh(comment.workOrder.id),
+            newComment
+          );
+        }
+        dispatch(
+          slice.actions.addComment({
+            workOrderId: comment.workOrder.id,
+            comment: newComment
+          })
+        );
+        return { comment: newComment } as ConfirmedCommentMutation;
+      };
+      return await (initiallyPrepared
+        ? initiallyPrepared.runConnectedComment(comment.workOrder.id, create)
+        : create());
     } finally {
       if (generation === sessionGeneration() && !sessionChangeInProgress())
         dispatch(slice.actions.setLoadingCreate({ loading: false }));
@@ -183,20 +218,33 @@ export const updateComment =
     assertSessionGeneration(generation);
     try {
       dispatch(slice.actions.setLoadingUpdate({ loading: true }));
-      const updatedComment = await api.patch<Comment>(
-        `${basePath}/${id}`,
-        comment
-      );
-      assertSessionGeneration(generation);
-      const prepared = getPreparedRuntime(workOrderId);
-      if (prepared) {
-        await prepared.ingestComment(workOrderId, updatedComment);
-        return updatedComment;
-      }
-      dispatch(
-        slice.actions.updateComment({ workOrderId, comment: updatedComment })
-      );
-      return updatedComment;
+      const initiallyPrepared = getPreparedRuntime(workOrderId);
+      const update = async () => {
+        assertSessionGeneration(generation);
+        const updatedComment = await api.patch<Comment>(
+          `${basePath}/${id}`,
+          comment
+        );
+        assertSessionGeneration(generation);
+        const prepared = getPreparedRuntime(workOrderId);
+        if (prepared) {
+          return updateConfirmedCommentLocally(
+            generation,
+            () =>
+              initiallyPrepared
+                ? prepared.ingestComment(workOrderId, updatedComment)
+                : prepared.refresh(workOrderId),
+            updatedComment
+          );
+        }
+        dispatch(
+          slice.actions.updateComment({ workOrderId, comment: updatedComment })
+        );
+        return { comment: updatedComment } as ConfirmedCommentMutation;
+      };
+      return await (initiallyPrepared
+        ? initiallyPrepared.runConnectedComment(workOrderId, update)
+        : update());
     } finally {
       if (generation === sessionGeneration() && !sessionChangeInProgress())
         dispatch(slice.actions.setLoadingUpdate({ loading: false }));
@@ -210,16 +258,27 @@ export const deleteComment =
     assertSessionGeneration(generation);
     try {
       dispatch(slice.actions.setLoadingDelete({ loading: true }));
-      await api.deletes<{ success: boolean; message: string }>(
-        `${basePath}/${id}`
-      );
-      assertSessionGeneration(generation);
-      const prepared = getPreparedRuntime(workOrderId);
-      if (prepared) {
-        await prepared.removeComment(workOrderId, id);
-        return;
-      }
-      dispatch(slice.actions.deleteComment({ workOrderId, commentId: id }));
+      const initiallyPrepared = getPreparedRuntime(workOrderId);
+      const remove = async () => {
+        assertSessionGeneration(generation);
+        await api.deletes<{ success: boolean; message: string }>(
+          `${basePath}/${id}`
+        );
+        assertSessionGeneration(generation);
+        const prepared = getPreparedRuntime(workOrderId);
+        if (prepared) {
+          return updateConfirmedCommentLocally(generation, () =>
+            initiallyPrepared
+              ? prepared.removeComment(workOrderId, id)
+              : prepared.refresh(workOrderId)
+          );
+        }
+        dispatch(slice.actions.deleteComment({ workOrderId, commentId: id }));
+        return {} as ConfirmedCommentMutation;
+      };
+      return await (initiallyPrepared
+        ? initiallyPrepared.runConnectedComment(workOrderId, remove)
+        : remove());
     } finally {
       if (generation === sessionGeneration() && !sessionChangeInProgress())
         dispatch(slice.actions.setLoadingDelete({ loading: false }));

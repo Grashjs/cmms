@@ -1,4 +1,26 @@
 const locale = {
+  offline_comment_saved_refresh_pending:
+    'The comment change is confirmed on the server; the local copy still needs to be refreshed.',
+  offline_comment_published_cleanup_pending:
+    'The comment is published. Its draft could not be removed from this device. Do not publish it again; retry removing the local draft.',
+  offline_comment_attachment_pending:
+    'An attachment was selected. Select it again or explicitly choose to publish the text only.',
+  offline_comment_text_only: 'Publish text only',
+  offline_comment_clear_confirmed: 'Remove published draft',
+  offline_refresh_pending: 'Local refresh pending',
+  offline_sending: 'Sending',
+  offline_request_too_large:
+    'This submission is too large. Shorten the text before trying again. Your draft is preserved.',
+  offline_comment_refresh_pending: 'Sent — waiting to refresh the local copy',
+  offline_invalid_choice: 'Choose an option that is still available.',
+  offline_comment_empty: 'Enter a comment that is not empty.',
+  offline_max_notes: 'Notes can contain a maximum of 255 characters.',
+  offline_submit_notes: 'Save notes',
+  offline_submission: 'Submission',
+  offline_comment_pending: 'Pending comment',
+  offline_comment_unavailable:
+    'Comment sent. It is no longer available in the local copy.',
+  offline_invalid_number: 'Enter a valid number before saving the response.',
   offline_prepare: 'Prepare on this device',
   offline_available: 'Available offline',
   offline_prepared_at: 'Complete copy saved: {{date}}',
@@ -14,7 +36,7 @@ const locale = {
   offline_unknown: 'Result to verify',
   offline_applied: 'Sent',
   offline_conflict: 'Changed elsewhere — your response is preserved',
-  offline_rejected: 'Response refused — your work is preserved',
+  offline_rejected: 'Submission refused — your work is preserved',
   offline_wait_previous:
     'Wait for the previous response before submitting this draft.',
   offline_server_value: 'Current server value',
@@ -75,8 +97,7 @@ const locale = {
     'Resolve remaining local work before removing this preparation.',
   offline_removal_pending:
     'Reconnect to finish removing the previous preparation before preparing it again.',
-  offline_unsupported_task:
-    'Only TEXT task values can be submitted offline at this step.',
+  offline_unsupported_task: 'This task type must be completed online.',
   offline_result_changed:
     'This send has already been resolved. Refresh to see its result.',
   DUPLICATE_OF: 'Duplicate of',

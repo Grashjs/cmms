@@ -18,6 +18,10 @@ interface PreparedRuntime {
   ingestWorkOrder: (workOrder: WorkOrder) => Promise<void>;
   ingestComment: (workOrderId: number, comment: Comment) => Promise<void>;
   removeComment: (workOrderId: number, commentId: number) => Promise<void>;
+  runConnectedComment: <T>(
+    workOrderId: number,
+    action: () => Promise<T>
+  ) => Promise<T>;
   markUnavailable: (workOrderId: number, reason: string) => Promise<void>;
 }
 

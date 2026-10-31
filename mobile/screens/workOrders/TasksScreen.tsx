@@ -18,7 +18,7 @@ import InAppCamera from '../../components/InAppCamera';
 import { taskPatch } from '../../offline/runtime';
 import { useOffline } from '../../offline/OfflineProvider';
 import { useOfflineWorkOrder } from '../../offline/hooks';
-import { OfflineTaskValue } from '../../offline/components/OfflineTaskValue';
+import { OfflineTaskField } from '../../offline/components/OfflineTaskField';
 import {
   OfflineWorkPanel,
   OfflineStatus
@@ -241,13 +241,23 @@ export default function TasksScreen({
           saving={!!savingTasks[task.id]}
           connectedDisabled={isPrepared && !offline.networkAvailable}
           valueEditor={
-            isPrepared && task.taskBase.taskType === 'TEXT' ? (
-              <OfflineTaskValue
+            isPrepared ? (
+              <OfflineTaskField
                 workOrderId={workOrderId}
                 taskId={task.id}
                 editable={
                   !task.taskBase.user || task.taskBase.user.id === offlineUserId
                 }
+              />
+            ) : undefined
+          }
+          notesEditor={
+            isPrepared ? (
+              <OfflineTaskField
+                workOrderId={workOrderId}
+                taskId={task.id}
+                field="notes"
+                editable
               />
             ) : undefined
           }

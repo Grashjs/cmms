@@ -34,7 +34,12 @@ import {
 } from './accessPolicy';
 import type { OfflineRepository } from './OfflineRepository';
 import type { SyncCoordinator } from './SyncCoordinator';
-import type { PreparedWorkOrderSummary, TaskDraft } from './types';
+import type {
+  CommentDraft,
+  PreparedWorkOrderSummary,
+  TaskDraft,
+  TaskField
+} from './types';
 import { OfflineError } from './types';
 import { offlineErrorKey } from './errors';
 
@@ -55,14 +60,40 @@ interface OfflineContextValue {
   saveDraft(
     workOrderId: number,
     taskId: number,
-    value: string
+    value: string,
+    field?: TaskField
   ): Promise<TaskDraft>;
-  submitDraft(taskId: number, revision: number): Promise<unknown>;
+  submitDraft(
+    taskId: number,
+    revision: number,
+    field?: TaskField
+  ): Promise<unknown>;
+  saveCommentDraft(
+    workOrderId: number,
+    content: string,
+    expectedRevision?: number | null,
+    attachmentPending?: boolean
+  ): Promise<CommentDraft>;
+  preserveConnectedCommentDraft(
+    workOrderId: number,
+    content: string,
+    attachmentPending?: boolean
+  ): Promise<CommentDraft>;
+  submitCommentDraft(workOrderId: number, revision: number): Promise<unknown>;
+  abandonCommentDraft(workOrderId: number, revision: number): Promise<void>;
   resolveConflict(
     taskId: number,
     draftRevision?: number,
-    serverVersion?: number
+    serverVersion?: number,
+    field?: TaskField
   ): Promise<unknown>;
+  discardTaskField(
+    taskId: number,
+    field: TaskField,
+    draftRevision: number | null,
+    operationId: string | null,
+    serverVersion: number
+  ): Promise<void>;
   reportError(error: unknown): void;
 }
 const noop = async () => {};
@@ -84,7 +115,16 @@ const OfflineContext = createContext<OfflineContextValue>({
     throw new OfflineError('OFFLINE_DISABLED');
   },
   submitDraft: noop,
+  saveCommentDraft: async () => {
+    throw new OfflineError('OFFLINE_DISABLED');
+  },
+  preserveConnectedCommentDraft: async () => {
+    throw new OfflineError('OFFLINE_DISABLED');
+  },
+  submitCommentDraft: noop,
+  abandonCommentDraft: noop,
   resolveConflict: noop,
+  discardTaskField: noop,
   reportError: () => {}
 });
 export const useOffline = () => useContext(OfflineContext);
@@ -109,7 +149,7 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
   const canWrite = useRef(false);
   const writes = useRef(new Set<Promise<unknown>>());
   const writeLane = useRef<Promise<unknown>>(Promise.resolve());
-  const failedWrites = useRef(new Set<number>());
+  const failedWrites = useRef(new Set<string>());
   const preparedIds = useRef(new Set<number>());
   const sequence = useRef(0);
   const checkAccess = useRef<() => Promise<boolean>>(async () => false);
@@ -337,6 +377,18 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
         removeComment: async (id, commentId) => {
           if (isCurrent()) await repo.removeServerComment(id, commentId);
         },
+        runConnectedComment: (workOrderId, action) =>
+          sync.runConnected(async () => {
+            if (
+              !isCurrent() ||
+              !(await checkAccess.current()) ||
+              !network.current
+            )
+              throw new OfflineError('NETWORK_UNAVAILABLE');
+            const target = await repo.getWorkOrderProjection(workOrderId);
+            if (!target?.available) throw new OfflineError('EDIT_FORBIDDEN');
+            return action();
+          }),
         markUnavailable: (id, reason) => repo.markUnavailable(id, reason),
         patchTask: async (workOrderId, taskId, patch) => {
           if (
@@ -421,24 +473,51 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
   const saveDraft = (
     workOrderId: number,
     taskId: number,
-    value: string
+    value: string,
+    field: TaskField = 'value'
   ): Promise<TaskDraft> => {
     if (sessionChangeInProgress())
       return Promise.reject(new OfflineError('CONTEXT_BUSY'));
     const writing = persist(async () => {
       if (!repository || !canWrite.current || !(await checkAccess.current()))
         throw new OfflineError('OFFLINE_DISABLED');
-      const task = await repository.getTask(taskId);
+      const task = await repository.getTask(taskId, field);
       if (
+        field === 'value' &&
         task.serverTask?.taskBase.user &&
         task.serverTask.taskBase.user.id !== auth.user?.id
       )
         throw new OfflineError('EDIT_FORBIDDEN');
-      return repository.saveDraft(workOrderId, taskId, value);
+      return repository.saveDraft(workOrderId, taskId, value, field);
     });
     void writing.then(
-      () => failedWrites.current.delete(taskId),
-      () => failedWrites.current.add(taskId)
+      () => failedWrites.current.delete(`${taskId}:${field}`),
+      () => failedWrites.current.add(`${taskId}:${field}`)
+    );
+    return writing;
+  };
+  const saveCommentDraft = (
+    workOrderId: number,
+    content: string,
+    expectedRevision?: number | null,
+    attachmentPending?: boolean
+  ): Promise<CommentDraft> => {
+    if (sessionChangeInProgress())
+      return Promise.reject(new OfflineError('CONTEXT_BUSY'));
+    const writing = persist(async () => {
+      if (!repository || !canWrite.current || !(await checkAccess.current()))
+        throw new OfflineError('OFFLINE_DISABLED');
+      return repository.saveCommentDraft(
+        workOrderId,
+        content,
+        expectedRevision,
+        attachmentPending
+      );
+    });
+    const key = `work-order:${workOrderId}:comment`;
+    void writing.then(
+      () => failedWrites.current.delete(key),
+      () => failedWrites.current.add(key)
     );
     return writing;
   };
@@ -474,19 +553,87 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
       if (coordinator.current) await coordinator.current.removePreparation(id);
     },
     saveDraft,
-    submitDraft: (taskId, revision) =>
+    saveCommentDraft,
+    preserveConnectedCommentDraft: (
+      workOrderId,
+      content,
+      attachmentPending = false
+    ) => {
+      if (sessionChangeInProgress())
+        return Promise.reject(new OfflineError('CONTEXT_BUSY'));
+      const key = `work-order:${workOrderId}:comment`;
+      const writing = persist(async () => {
+        if (!repository || !canWrite.current || !(await checkAccess.current()))
+          throw new OfflineError('OFFLINE_DISABLED');
+        const existing = await repository.getCommentDraft(workOrderId);
+        if (existing) {
+          if (
+            existing.content !== content ||
+            !!existing.attachmentPending !== attachmentPending
+          )
+            throw new OfflineError('DRAFT_CHANGED');
+          return existing;
+        }
+        return repository.saveCommentDraft(
+          workOrderId,
+          content,
+          null,
+          attachmentPending
+        );
+      });
+      void writing.then(
+        () => failedWrites.current.delete(key),
+        () => failedWrites.current.add(key)
+      );
+      return writing;
+    },
+    discardTaskField: (
+      taskId,
+      field,
+      draftRevision,
+      operationId,
+      serverVersion
+    ) =>
       persist(async () => {
         if (!repository || !canWrite.current || !(await checkAccess.current()))
           throw new OfflineError('OFFLINE_DISABLED');
-        const operation = await repository.submitDraft(taskId, revision);
+        await repository.discardTaskField(
+          taskId,
+          field,
+          draftRevision,
+          operationId,
+          serverVersion
+        );
+      }),
+    submitCommentDraft: (workOrderId, revision) =>
+      persist(async () => {
+        if (!repository || !canWrite.current || !(await checkAccess.current()))
+          throw new OfflineError('OFFLINE_DISABLED');
+        const operation = await repository.submitCommentDraft(
+          workOrderId,
+          revision
+        );
         void coordinator.current?.trigger('submission').catch(reportError);
         return operation;
       }),
-    resolveConflict: (taskId, revision, serverVersion) =>
+    abandonCommentDraft: (workOrderId, revision) =>
+      persist(async () => {
+        if (!repository) throw new OfflineError('OFFLINE_DISABLED');
+        await repository.abandonCommentDraft(workOrderId, revision);
+      }),
+    submitDraft: (taskId, revision, field = 'value') =>
       persist(async () => {
         if (!repository || !canWrite.current || !(await checkAccess.current()))
           throw new OfflineError('OFFLINE_DISABLED');
-        const current = await repository.getTask(taskId);
+        const operation = await repository.submitDraft(taskId, revision, field);
+        void coordinator.current?.trigger('submission').catch(reportError);
+        return operation;
+      }),
+    resolveConflict: (taskId, revision, serverVersion, field = 'value') =>
+      persist(async () => {
+        if (!repository || !canWrite.current || !(await checkAccess.current()))
+          throw new OfflineError('OFFLINE_DISABLED');
+        const current = await repository.getTask(taskId, field);
         if (
           (current.draft?.revision ?? null) !== (revision ?? null) ||
           current.serverTask?.version !== serverVersion
@@ -495,7 +642,10 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
         }
         if (
           current.operation &&
-          ['CONFLICT', 'REJECTED'].includes(current.operation.status)
+          (['CONFLICT', 'REJECTED'].includes(current.operation.status) ||
+            (current.operation.status === 'QUEUED' &&
+              current.operation.attemptCount === 0 &&
+              current.operation.blockedReason))
         ) {
           return repository.resolveOperationAgainstServer(
             current.operation.id,
@@ -507,7 +657,8 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
           return repository.resolveDraftAgainstServer(
             taskId,
             revision,
-            serverVersion
+            serverVersion,
+            field
           );
         throw new OfflineError('DRAFT_CHANGED');
       })

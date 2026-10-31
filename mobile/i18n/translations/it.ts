@@ -1,4 +1,28 @@
 const locale = {
+  offline_comment_saved_refresh_pending:
+    'La modifica del commento è confermata sul server; la copia locale deve ancora essere aggiornata.',
+  offline_comment_published_cleanup_pending:
+    'Commento pubblicato. Non è stato possibile rimuovere la bozza da questo dispositivo. Non pubblicarlo di nuovo; riprova a rimuovere la bozza locale.',
+  offline_comment_attachment_pending:
+    'Era stato selezionato un allegato. Selezionalo di nuovo o conferma la pubblicazione del solo testo.',
+  offline_comment_text_only: 'Pubblica solo il testo',
+  offline_comment_clear_confirmed: 'Rimuovi la bozza pubblicata',
+  offline_refresh_pending: 'Aggiornamento locale in attesa',
+  offline_sending: 'Invio in corso',
+  offline_request_too_large:
+    'Questo invio è troppo grande. Accorcia il testo prima di riprovare. La bozza è conservata.',
+  offline_comment_refresh_pending:
+    'Inviato — aggiornamento della copia locale in attesa',
+  offline_invalid_choice: 'Scegli un’opzione ancora disponibile.',
+  offline_comment_empty: 'Inserisci un commento non vuoto.',
+  offline_max_notes: 'Le note possono contenere al massimo 255 caratteri.',
+  offline_submit_notes: 'Salva note',
+  offline_submission: 'Invio',
+  offline_comment_pending: 'Commento in attesa',
+  offline_comment_unavailable:
+    'Commento inviato. Non è più disponibile nella copia locale.',
+  offline_invalid_number:
+    'Inserisci un numero valido prima di salvare la risposta.',
   offline_prepare: 'Prepara su questo dispositivo',
   offline_available: 'Disponibile offline',
   offline_prepared_at: 'Copia completa salvata: {{date}}',
@@ -14,7 +38,7 @@ const locale = {
   offline_unknown: 'Risultato da verificare',
   offline_applied: 'Inviato',
   offline_conflict: 'Modificato altrove — la tua risposta viene conservata',
-  offline_rejected: 'Risposta rifiutata — il tuo lavoro viene conservato',
+  offline_rejected: 'Invio rifiutato — il tuo lavoro è conservato',
   offline_wait_previous:
     'Attendi il risultato precedente prima di inviare questa bozza.',
   offline_server_value: 'Valore attuale sul server',
@@ -80,7 +104,7 @@ const locale = {
   offline_removal_pending:
     'Riconnettiti per completare la rimozione della preparazione precedente prima di prepararla di nuovo.',
   offline_unsupported_task:
-    'In questa fase è possibile inviare offline solo i valori delle attività di tipo TEXT.',
+    'Questo tipo di attività deve essere compilato online.',
   offline_result_changed:
     'Questo invio è già stato risolto. Aggiorna per visualizzarne il risultato.',
   DUPLICATE_OF: 'Duplicato di',

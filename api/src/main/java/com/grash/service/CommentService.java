@@ -20,14 +20,16 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -46,6 +48,7 @@ public class CommentService {
     private final MessageSource messageSource;
     private final MailServiceFactory mailServiceFactory;
     private final WebhookDispatchService webhookDispatchService;
+    private final ApplicationEventPublisher events;
 
     @Value("${frontend.url}")
     private String frontendUrl;
@@ -61,20 +64,33 @@ public class CommentService {
 
         Set<User> notifiedUsers = getNotifiedUsers(savedComment, workOrder, user);
         sendCommentNotifications(savedComment, workOrder, notifiedUsers, user, false);
-
-        Map<String, Object> webhookPayload = new HashMap<>();
-        webhookPayload.put("commentId", savedComment.getId());
-        webhookPayload.put("workOrderId", workOrder.getId());
-        webhookPayload.put("workOrderTitle", workOrder.getTitle());
-        webhookPayload.put("commentContent", savedComment.getFormattedContent());
-        webhookPayload.put("createdBy", user.getFullName());
-        CommentShowDTO serializedComment = commentMapper.toShowDto(savedComment);
-        webhookDispatchService.dispatchWebhook(user.getCompany(), WebhookEvent.NEW_COMMENT_ON_WORK_ORDER,
-                webhookPayload, "newComment", serializedComment, null, null, null, null, null);
+        CommentShowDTO serializedComment = sendCreationWebhook(savedComment, workOrder, user);
 
         return Pair.of(savedComment, serializedComment);
     }
 
+    /** Joins the synchronization transaction; delivery waits for both comment and receipt to commit. */
+    public Pair<Comment, CommentShowDTO> createOffline(CommentPostDTO commentReq, User user, UUID sourceOperationId) {
+        String content = cleanOfflineContent(commentReq.getContent());
+        WorkOrder workOrder = workOrderService.checkAccessToWorkOrderId(commentReq.getWorkOrder().getId(), user);
+        Comment comment = commentMapper.fromPostDto(commentReq);
+        comment.setContent(content);
+        comment.setWorkOrder(workOrder);
+        comment.setCompany(user.getCompany());
+        comment.setUser(user);
+        comment.setSourceOperationId(sourceOperationId);
+        Comment savedComment = commentRepository.saveAndFlush(comment);
+        em.refresh(savedComment);
+        events.publishEvent(new OfflineCommentCreated(savedComment.getId(), user.getCompany().getId(), user.getId()));
+        return Pair.of(savedComment, commentMapper.toShowDto(savedComment));
+    }
+
+    // Called before the transactional mutation as well, so invalid input can receive a REJECTED receipt.
+    public static String cleanOfflineContent(String content) {
+        String cleaned = Sanitizer.cleanText(content);
+        if (cleaned == null || cleaned.isBlank()) throw new CustomException("INVALID_COMMENT_CONTENT", HttpStatus.BAD_REQUEST);
+        return cleaned;
+    }
 
     public List<Comment> getAll() {
         return commentRepository.findAll();
@@ -123,6 +139,35 @@ public class CommentService {
     public long countByWorkOrderId(Long workOrderId, User user) {
         workOrderService.checkAccessToWorkOrderId(workOrderId, user);
         return commentRepository.countByWorkOrderId(workOrderId);
+    }
+
+    public record OfflineCommentCreated(long commentId, long companyId, long actorId) {}
+
+    /** Spring invokes this listener after commit; only identifiers cross the asynchronous boundary. */
+    @Async
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void afterOfflineCommentCommit(OfflineCommentCreated event) {
+        Comment comment = commentRepository.findByIdAndCompany_Id(event.commentId(), event.companyId()).orElse(null);
+        User actor = userRepository.findByIdAndCompany_Id(event.actorId(), event.companyId()).orElse(null);
+        if (comment == null || actor == null) return;
+        WorkOrder workOrder = comment.getWorkOrder();
+        Set<User> notifiedUsers = getNotifiedUsers(comment, workOrder, actor);
+        sendCommentNotifications(comment, workOrder, notifiedUsers, actor, false);
+        sendCreationWebhook(comment, workOrder, actor);
+    }
+
+    private CommentShowDTO sendCreationWebhook(Comment savedComment, WorkOrder workOrder, User user) {
+        Map<String, Object> webhookPayload = new HashMap<>();
+        webhookPayload.put("commentId", savedComment.getId());
+        webhookPayload.put("workOrderId", workOrder.getId());
+        webhookPayload.put("workOrderTitle", workOrder.getTitle());
+        webhookPayload.put("commentContent", savedComment.getFormattedContent());
+        webhookPayload.put("createdBy", user.getFullName());
+        CommentShowDTO serializedComment = commentMapper.toShowDto(savedComment);
+        webhookDispatchService.dispatchWebhook(user.getCompany(), WebhookEvent.NEW_COMMENT_ON_WORK_ORDER,
+                webhookPayload, "newComment", serializedComment, null, null, null, null, null);
+        return serializedComment;
     }
 
     private Set<User> getNotifiedUsers(Comment comment, WorkOrder workOrder, User user) {

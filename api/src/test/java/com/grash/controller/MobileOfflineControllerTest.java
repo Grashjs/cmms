@@ -78,4 +78,30 @@ class MobileOfflineControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk());
         verify(offline).removePreparation(10, device, user);
     }
+
+    @Test void notesAndCommentsUseTheSameContractWithCompactCommentReceipts() throws Exception {
+        UUID note = UUID.randomUUID(); UUID comment = UUID.randomUUID();
+        when(offline.submit(argThat(op -> op != null && op.type() == MobileOfflineOperation.Type.SET_TASK_NOTES), eq(user)))
+                .thenReturn(new MobileOfflineResult(note, MobileOfflineResult.Status.APPLIED, "APPLIED", null, Instant.now(), 3L, null, null));
+        when(offline.submit(argThat(op -> op != null && op.type() == MobileOfflineOperation.Type.CREATE_COMMENT), eq(user)))
+                .thenReturn(new MobileOfflineResult(comment, MobileOfflineResult.Status.APPLIED, "APPLIED", null, Instant.now(), null, 99L, MobileOfflineResult.Visibility.VISIBLE));
+        mvc.perform(post("/mobile-offline/operations").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"operationId\":\"" + note + "\",\"companyId\":52,\"userId\":34,\"workOrderId\":10,\"taskId\":7,\"type\":\"SET_TASK_NOTES\",\"baseVersion\":3,\"notes\":\"\",\"occurredAt\":\"2026-11-04T12:00:00Z\"}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.chainBaseVersion").value(3));
+        mvc.perform(post("/mobile-offline/operations").contentType(MediaType.APPLICATION_JSON)
+                .content("{\"operationId\":\"" + comment + "\",\"companyId\":52,\"userId\":34,\"workOrderId\":10,\"type\":\"CREATE_COMMENT\",\"content\":\"field comment\",\"occurredAt\":\"2026-11-04T12:00:00Z\"}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.commentId").value(99))
+                .andExpect(jsonPath("$.visibility").value("VISIBLE")).andExpect(jsonPath("$.content").doesNotExist());
+    }
+
+    @Test void ambiguousFieldsAndCommentDependenciesAreStructuralErrors() throws Exception {
+        String common = "{\"operationId\":\"" + UUID.randomUUID() + "\",\"companyId\":52,\"userId\":34,\"workOrderId\":10,\"occurredAt\":\"2026-11-04T12:00:00Z\",";
+        mvc.perform(post("/mobile-offline/operations").contentType(MediaType.APPLICATION_JSON)
+                .content(common + "\"taskId\":7,\"type\":\"SET_TASK_NOTES\",\"baseVersion\":3,\"notes\":\"notes\",\"value\":\"unsent value\"}"))
+                .andExpect(status().isBadRequest());
+        mvc.perform(post("/mobile-offline/operations").contentType(MediaType.APPLICATION_JSON)
+                .content(common + "\"type\":\"CREATE_COMMENT\",\"content\":\"comment\",\"predecessorOperationId\":\"" + UUID.randomUUID() + "\"}"))
+                .andExpect(status().isBadRequest());
+        verifyNoInteractions(offline);
+    }
 }

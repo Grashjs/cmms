@@ -4,6 +4,8 @@ import {
   OfflineEligibility,
   OfflineError,
   OfflineTask,
+  operationField,
+  TaskField,
   OFFLINE_LIMITS
 } from './types';
 
@@ -204,9 +206,12 @@ export class SyncCoordinator {
   }
 
   private async syncPass() {
-    const attempted = (await this.repository.getOperationsToSync()).filter(
-      (operation) => operation.attemptCount > 0
-    );
+    const attempted = [
+      ...(await this.repository.getOperationsToSync()).filter(
+        (operation) => operation.attemptCount > 0
+      ),
+      ...(await this.repository.getCommentReceiptsToRefresh())
+    ];
     // Receipts are read even while the feature is disabled. Missing is NOT an
     // assurance of non-application, and never makes an operation abandonable.
     for (
@@ -222,8 +227,15 @@ export class SyncCoordinator {
       if (!this.current()) return;
       for (const receipt of results.results)
         await this.repository.applyReceipt(receipt);
-      for (const id of results.missingOperationIds)
-        await this.repository.markUnknown(id);
+      for (const id of results.missingOperationIds) {
+        // Missing does not undo a durable success, nor permit its replay.
+        if (
+          batch.some(
+            (operation) => operation.id === id && operation.status !== 'APPLIED'
+          )
+        )
+          await this.repository.markUnknown(id);
+      }
     }
     await this.releases();
     if (!(await this.authorize())) return;
@@ -244,6 +256,7 @@ export class SyncCoordinator {
         // An oversized/inaccessible intervention must not block independent work.
       }
     }
+    const commentsToRefresh = new Set<number>();
     for (const operation of await this.repository.getOperationsToSync()) {
       if (
         !this.connected() ||
@@ -251,13 +264,33 @@ export class SyncCoordinator {
         !this.permissionConfirmed
       )
         return;
-      const target = await this.repository.getTask(operation.request.taskId);
+      const request = operation.request;
+      if (
+        request.type !== 'CREATE_COMMENT' &&
+        request.predecessorOperationId &&
+        operation.attemptCount === 0
+      ) {
+        const predecessor = await this.repository.getOperation(
+          request.predecessorOperationId
+        );
+        if (predecessor?.status !== 'APPLIED') continue;
+      }
+      const target =
+        request.type === 'CREATE_COMMENT'
+          ? await this.repository.getWorkOrderProjection(request.workOrderId)
+          : await this.repository.getTask(
+              request.taskId,
+              operationField(request) as TaskField
+            );
       // A missing receipt cannot prove that a previous attempt had no effect.
       // Replay that immutable request so current server rights can produce a
       // terminal receipt, even when the local target was removed or is read-only.
       if (
         operation.attemptCount === 0 &&
-        (!target.available || !target.canEdit)
+        (!target?.available ||
+          !(request.type === 'CREATE_COMMENT'
+            ? 'canComment' in target && target.canComment
+            : target.canEdit))
       )
         continue;
       const attempt = await this.repository.beginAttempt(operation.id);
@@ -265,6 +298,8 @@ export class SyncCoordinator {
         const result = await this.api.sendOperation(attempt.request);
         if (!this.current()) return; // reconciled through its receipt next login
         await this.repository.applyReceipt(result);
+        if (request.type === 'CREATE_COMMENT' && result.status === 'APPLIED')
+          commentsToRefresh.add(request.workOrderId);
       } catch (error) {
         await this.repository.markUnknown(operation.id);
         if (
@@ -273,6 +308,15 @@ export class SyncCoordinator {
         )
           await this.authorizationRevoked();
         throw error;
+      }
+    }
+    // A refresh failure must never turn a durable creation receipt into UNKNOWN.
+    for (const workOrderId of commentsToRefresh) {
+      if (!this.connected() || !this.policy.enabled()) return;
+      try {
+        await this.refreshOne(workOrderId);
+      } catch (error) {
+        firstRefreshError ||= error;
       }
     }
     if (firstRefreshError) throw firstRefreshError;
@@ -288,6 +332,13 @@ export class SyncCoordinator {
   }
   refresh(workOrderId: number): Promise<void> {
     return this.prepare(workOrderId);
+  }
+
+  runConnected<T>(action: () => Promise<T>): Promise<T> {
+    return this.enqueue(async () => {
+      this.assertConnected();
+      return action();
+    });
   }
 
   patchTask(

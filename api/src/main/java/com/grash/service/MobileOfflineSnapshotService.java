@@ -41,7 +41,7 @@ public class MobileOfflineSnapshotService {
         var snapshot = new MobileOfflineSnapshot(workOrderMapper.toShowDto(workOrder),
                 tasks.stream().map(taskMapper::toShowDto).toList(),
                 comments.stream().map(commentMapper::toShowDto).toList(),
-                history.stream().map(historyMapper::toShowDto).toList(), Instant.now(), true, access.canEdit(id, user));
+                history.stream().map(historyMapper::toShowDto).toList(), Instant.now(), true, access.canEdit(id, user), true);
         verifyEncodedSize(snapshot);
         return snapshot;
     }

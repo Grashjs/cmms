@@ -77,7 +77,9 @@ export const offlineSchema = appSchema({
         { name: 'attempt_count', type: 'number' },
         { name: 'receipt', type: 'string', isOptional: true },
         { name: 'created_at', type: 'number' },
-        { name: 'updated_at', type: 'number' }
+        { name: 'updated_at', type: 'number' },
+        { name: 'submitted_revision', type: 'number', isOptional: true },
+        { name: 'server_comment_id', type: 'number', isOptional: true }
       ]
     })
   ]
@@ -85,7 +87,6 @@ export const offlineSchema = appSchema({
 
 export const offlineMigrations = schemaMigrations({ migrations: [] });
 
-/** Also used by the real SQLite/Node integration tests, with a temporary path. */
 export async function createOfflineDatabase(
   dbName: string,
   contextKey: string

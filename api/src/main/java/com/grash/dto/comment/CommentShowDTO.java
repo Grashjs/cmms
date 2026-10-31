@@ -15,9 +15,12 @@ import com.grash.dto.AuditShowDTO;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 public class CommentShowDTO extends AuditShowDTO {
+
+    private UUID sourceOperationId;
 
     private UserMiniDTO user;
 

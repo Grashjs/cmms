@@ -21,6 +21,7 @@ export interface OfflineSnapshot {
   preparedAt: string;
   complete: true;
   canEdit: boolean;
+  canComment?: boolean;
 }
 
 export interface OfflineEligibility {
@@ -33,16 +34,40 @@ export interface OfflineEligibility {
   limits: typeof OFFLINE_LIMITS;
 }
 
-export interface OperationRequest {
+interface OperationIdentity {
   operationId: string;
   companyId: number;
   userId: number;
   workOrderId: number;
-  taskId: number;
-  type: 'SET_TASK_VALUE';
-  baseVersion: number;
-  value: string;
   occurredAt: string;
+}
+
+export type TaskField = 'value' | 'notes';
+type TaskOperationIdentity = OperationIdentity & {
+  taskId: number;
+  baseVersion: number;
+  predecessorOperationId?: string;
+};
+export type OperationRequest =
+  | (TaskOperationIdentity & { type: 'SET_TASK_VALUE'; value: string })
+  | (TaskOperationIdentity & { type: 'SET_TASK_NOTES'; notes: string })
+  | (OperationIdentity & { type: 'CREATE_COMMENT'; content: string });
+
+export function operationField(
+  request: OperationRequest
+): TaskField | 'comment' {
+  return request.type === 'CREATE_COMMENT'
+    ? 'comment'
+    : request.type === 'SET_TASK_NOTES'
+    ? 'notes'
+    : 'value';
+}
+export function operationText(request: OperationRequest): string {
+  return request.type === 'CREATE_COMMENT'
+    ? request.content
+    : request.type === 'SET_TASK_NOTES'
+    ? request.notes
+    : request.value;
 }
 
 export interface OperationReceipt {
@@ -50,6 +75,9 @@ export interface OperationReceipt {
   status: 'APPLIED' | 'CONFLICT' | 'REJECTED';
   code?: string;
   task?: OfflineTask;
+  chainBaseVersion?: number;
+  commentId?: number;
+  visibility?: 'VISIBLE' | 'COMMENT_DELETED' | 'WORK_ORDER_UNAVAILABLE';
   receivedAt: string;
 }
 
@@ -70,18 +98,34 @@ export interface LocalOperation {
   receipt: OperationReceipt | null;
   createdAt: number;
   updatedAt: number;
+  submittedRevision: number | null;
+  serverCommentId: number | null;
+  blockedReason?: string;
 }
 
 export interface TaskDraft {
   id: string;
   workOrderId: number;
   taskId: number;
+  field?: TaskField;
   revision: number;
   value: string;
   baseValue: string;
   baseVersion: number;
   basedOnOperationId?: string;
   blockedReason?: string;
+  updatedAt: number;
+}
+
+export interface CommentDraft {
+  id: string;
+  kind: 'COMMENT';
+  workOrderId: number;
+  revision: number;
+  content: string;
+  // The files themselves remain online-only until step 3. Never silently drop
+  // this intent when restoring or editing a durable text draft.
+  attachmentPending?: boolean;
   updatedAt: number;
 }
 
@@ -100,6 +144,10 @@ export interface PreparedWorkOrderView {
   workOrder: WorkOrder | null;
   tasks: OfflineTask[];
   comments: Comment[];
+  commentDraft: CommentDraft | null;
+  commentOperations: LocalOperation[];
+  canEdit: boolean;
+  canComment: boolean;
   history: unknown[];
   preparedAt: string;
   available: boolean;
@@ -108,14 +156,21 @@ export interface PreparedWorkOrderView {
 
 export type PreparedWorkOrderSummary = Omit<
   PreparedWorkOrderView,
-  'tasks' | 'comments' | 'history'
+  | 'tasks'
+  | 'comments'
+  | 'history'
+  | 'commentDraft'
+  | 'commentOperations'
+  | 'canEdit'
+  | 'canComment'
 >;
 
 export interface PendingWork {
   kind: 'DRAFT' | 'OPERATION';
   id: string;
   workOrderId: number;
-  taskId: number;
+  taskId?: number;
+  field: TaskField | 'comment';
   draftRevision?: number;
   status?: OperationStatus;
   attemptCount?: number;
@@ -192,6 +247,17 @@ export function assertSnapshot(snapshot: OfflineSnapshot): void {
       throw new OfflineError('INVALID_SNAPSHOT');
     }
     ids.add(task.id);
+  }
+  const commentIds = new Set<number>();
+  for (const comment of snapshot.comments) {
+    if (
+      !comment ||
+      !Number.isSafeInteger(comment.id) ||
+      comment.id <= 0 ||
+      commentIds.has(comment.id)
+    )
+      throw new OfflineError('INVALID_SNAPSHOT');
+    commentIds.add(comment.id);
   }
 }
 

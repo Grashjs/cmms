@@ -1,4 +1,29 @@
 const locale = {
+  offline_comment_saved_refresh_pending:
+    'Ändringen av kommentaren är bekräftad på servern; den lokala kopian behöver fortfarande uppdateras.',
+  offline_comment_published_cleanup_pending:
+    'Kommentaren har publicerats. Utkastet kunde inte tas bort från den här enheten. Publicera inte kommentaren igen; försök ta bort det lokala utkastet på nytt.',
+  offline_comment_attachment_pending:
+    'En bilaga hade valts. Välj den igen eller bekräfta att endast texten ska publiceras.',
+  offline_comment_text_only: 'Publicera endast texten',
+  offline_comment_clear_confirmed:
+    'Ta bort utkastet till den publicerade kommentaren',
+  offline_refresh_pending: 'Lokal uppdatering väntar',
+  offline_sending: 'Skickar',
+  offline_request_too_large:
+    'Det som ska skickas är för stort. Korta ned texten innan du försöker igen. Ditt utkast har sparats.',
+  offline_comment_refresh_pending:
+    'Skickat — väntar på uppdatering av den lokala kopian',
+  offline_invalid_choice:
+    'Välj ett alternativ som fortfarande är tillgängligt.',
+  offline_comment_empty: 'Skriv en kommentar som inte är tom.',
+  offline_max_notes: 'Anteckningar får innehålla högst 255 tecken.',
+  offline_submit_notes: 'Spara anteckningar',
+  offline_submission: 'Inskickning',
+  offline_comment_pending: 'Väntande kommentar',
+  offline_comment_unavailable:
+    'Kommentaren har skickats. Den är inte längre tillgänglig i den lokala kopian.',
+  offline_invalid_number: 'Ange ett giltigt tal innan du sparar svaret.',
   offline_prepare: 'Förbered på den här enheten',
   offline_available: 'Tillgänglig offline',
   offline_prepared_at: 'Fullständig kopia sparad: {{date}}',
@@ -14,7 +39,7 @@ const locale = {
   offline_unknown: 'Resultatet behöver kontrolleras',
   offline_applied: 'Skickat',
   offline_conflict: 'Ändrat på annat håll — ditt svar finns kvar',
-  offline_rejected: 'Svaret avvisades — ditt arbete finns kvar',
+  offline_rejected: 'Inskickningen avvisades — ditt arbete har sparats',
   offline_wait_previous:
     'Vänta på det föregående resultatet innan du skickar in det här utkastet.',
   offline_server_value: 'Nuvarande värde på servern',
@@ -79,7 +104,7 @@ const locale = {
   offline_removal_pending:
     'Anslut igen för att slutföra borttagningen av den föregående förberedelsen innan du förbereder på nytt.',
   offline_unsupported_task:
-    'I det här steget kan endast värden för uppgifter av typen TEXT skickas in offline.',
+    'Den här uppgiftstypen måste fyllas i med internetanslutning.',
   offline_result_changed:
     'Den här sändningen har redan fått ett slutligt resultat. Uppdatera för att se resultatet.',
   DUPLICATE_OF: 'Duplikat av',

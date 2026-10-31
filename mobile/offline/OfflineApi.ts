@@ -162,6 +162,10 @@ export class OfflineApi {
   }
 
   sendOperation(operation: OperationRequest): Promise<OperationReceipt> {
+    if (
+      utf8ByteLength(JSON.stringify(operation)) > OFFLINE_LIMITS.snapshotBytes
+    )
+      throw new OfflineApiError(413, 'REQUEST_TOO_LARGE');
     return this.request('/mobile-offline/operations', 'POST', operation);
   }
 

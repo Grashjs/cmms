@@ -17,7 +17,12 @@ import {
   PreparedWorkOrderSummary,
   PreparedWorkOrderView,
   TaskDraft,
-  TaskView
+  TaskView,
+  TaskField,
+  CommentDraft,
+  operationField,
+  operationText,
+  utf8ByteLength
 } from './types';
 
 const WORK_ORDERS = 'offline_work_orders';
@@ -36,7 +41,10 @@ const failedDatabases = new WeakSet<Database>();
 const raw = (row: Model, key: string) => row._getRaw(key);
 const json = <T>(row: Model, key = 'payload'): T =>
   JSON.parse(String(raw(row, key)));
-const draftId = (taskId: number) => `${taskId}:value`;
+const draftId = (taskId: number, field: TaskField = 'value') =>
+  `${taskId}:${field}`;
+const commentDraftId = (workOrderId: number) =>
+  `work-order:${workOrderId}:comment`;
 
 interface RepositoryOptions {
   uuid: () => string;
@@ -121,12 +129,14 @@ export class OfflineRepository {
       receipt: raw(row, 'receipt')
         ? json<OperationReceipt>(row, 'receipt')
         : null,
+      submittedRevision: raw(row, 'submitted_revision') as number | null,
+      serverCommentId: raw(row, 'server_comment_id') as number | null,
       createdAt: Number(raw(row, 'created_at')),
       updatedAt: Number(raw(row, 'updated_at'))
     };
   }
   private async unresolvedRows(taskId?: number, workOrderId?: number) {
-    return this.collection(OPERATIONS)
+    const rows = await this.collection(OPERATIONS)
       .query(
         Q.where('status', Q.oneOf(UNRESOLVED)),
         ...(taskId === undefined ? [] : [Q.where('task_id', String(taskId))]),
@@ -136,11 +146,19 @@ export class OfflineRepository {
         Q.sortBy('created_at', Q.asc)
       )
       .fetch();
+    return rows.sort((a, b) => {
+      const ar = raw(a, 'submitted_revision'),
+        br = raw(b, 'submitted_revision');
+      return ar != null && br != null
+        ? Number(ar) - Number(br)
+        : Number(raw(a, 'created_at')) - Number(raw(b, 'created_at'));
+    });
   }
   private async usableTask(
     workOrderId: number,
     taskId: number,
-    editing = false
+    editing = false,
+    field: TaskField = 'value'
   ) {
     const [workOrder, task] = await Promise.all([
       this.find(WORK_ORDERS, String(workOrderId)),
@@ -158,7 +176,15 @@ export class OfflineRepository {
     if (editing && json<OfflineSnapshot>(workOrder).canEdit !== true) {
       throw new OfflineError('EDIT_FORBIDDEN');
     }
-    return { workOrder, task, server: json<OfflineTask>(task) };
+    const server = json<OfflineTask>(task);
+    if (
+      editing &&
+      field === 'value' &&
+      server.taskBase.user &&
+      server.taskBase.user.id !== JSON.parse(this.contextKey)[2]
+    )
+      throw new OfflineError('EDIT_FORBIDDEN');
+    return { workOrder, task, server };
   }
 
   async getAvailabilityRevision(workOrderId: number): Promise<number> {
@@ -238,7 +264,34 @@ export class OfflineRepository {
           throw new OfflineError('TASK_IDENTITY');
         }
       }
+      const associations: { row: Model; commentId: number }[] = [];
+      const seenOperations = new Set<string>();
+      for (const comment of snapshot.comments) {
+        if (!comment.sourceOperationId) continue;
+        const sourceKey = `${comment.user?.id}:${comment.sourceOperationId}`;
+        if (seenOperations.has(sourceKey))
+          throw new OfflineError('INVALID_SNAPSHOT');
+        seenOperations.add(sourceKey);
+        const row = await this.find(OPERATIONS, comment.sourceOperationId);
+        if (!row) continue;
+        const operation = this.operation(row);
+        if (comment.user?.id !== operation.request.userId) continue;
+        if (
+          operation.request.type !== 'CREATE_COMMENT' ||
+          operation.request.workOrderId !== snapshot.workOrder.id ||
+          (operation.serverCommentId != null &&
+            operation.serverCommentId !== comment.id) ||
+          (operation.receipt?.commentId != null &&
+            operation.receipt.commentId !== comment.id)
+        )
+          throw new OfflineError('INVALID_SNAPSHOT');
+        if (operation.serverCommentId == null)
+          associations.push({ row, commentId: comment.id });
+      }
       const records: Model[] = [];
+      associations.forEach(({ row, commentId }) =>
+        records.push(this.change(row, { server_comment_id: commentId }))
+      );
       if (ownsIntent) records.push(cleanup!.prepareDestroyPermanently());
       // Tasks live in their own table; do not maintain a second mutable copy.
       const workOrderFields = {
@@ -397,38 +450,125 @@ export class OfflineRepository {
     }));
   }
 
+  private identity() {
+    const context = JSON.parse(this.contextKey);
+    if (
+      !Array.isArray(context) ||
+      !Number.isSafeInteger(context[1]) ||
+      !Number.isSafeInteger(context[2])
+    )
+      throw new OfflineError('INVALID_CONTEXT');
+    return { companyId: context[1] as number, userId: context[2] as number };
+  }
+
+  private validateTaskInput(
+    server: OfflineTask,
+    value: string,
+    field: TaskField
+  ) {
+    if (value.length > 255)
+      throw new OfflineError(
+        field === 'notes' ? 'NOTES_TOO_LONG' : 'TEXT_TOO_LONG'
+      );
+    if (field === 'notes') return;
+    switch (server.taskBase.taskType) {
+      case 'TEXT':
+        return;
+      case 'NUMBER':
+      case 'METER':
+        if (
+          !/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(value) ||
+          !Number.isFinite(Number(value))
+        )
+          throw new OfflineError('INVALID_NUMBER');
+        return;
+      case 'SUBTASK':
+        if (!['OPEN', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETE'].includes(value))
+          throw new OfflineError('INVALID_CHOICE');
+        return;
+      case 'INSPECTION':
+        if (!['PASS', 'FLAG', 'FAIL'].includes(value))
+          throw new OfflineError('INVALID_CHOICE');
+        return;
+      case 'MULTIPLE':
+        if (!server.taskBase.options?.some((option) => option.label === value))
+          throw new OfflineError('INVALID_CHOICE');
+        return;
+      default:
+        throw new OfflineError('UNSUPPORTED_TASK');
+    }
+  }
+
+  private async usableWorkOrder(workOrderId: number, editing = false) {
+    const row = await this.find(WORK_ORDERS, String(workOrderId));
+    if (!row || !raw(row, 'available'))
+      throw new OfflineError('TARGET_UNAVAILABLE');
+    if (editing && !json<OfflineSnapshot>(row).canEdit)
+      throw new OfflineError('EDIT_FORBIDDEN');
+    return row;
+  }
+
+  private createOperation(request: OperationRequest, revision: number) {
+    if (utf8ByteLength(JSON.stringify(request)) > OFFLINE_LIMITS.snapshotBytes)
+      throw new OfflineError('REQUEST_TOO_LARGE');
+    const now = this.now();
+    return this.create(OPERATIONS, request.operationId, {
+      work_order_id: String(request.workOrderId),
+      task_id: request.type === 'CREATE_COMMENT' ? '' : String(request.taskId),
+      request: JSON.stringify(request),
+      status: 'QUEUED',
+      attempt_count: 0,
+      receipt: null,
+      created_at: now,
+      updated_at: now,
+      submitted_revision: revision,
+      server_comment_id: null
+    });
+  }
+
   async saveDraft(
     workOrderId: number,
     taskId: number,
-    value: string
+    value: string,
+    field: TaskField = 'value'
   ): Promise<TaskDraft> {
     this.assertStorage();
     if (typeof value !== 'string') throw new OfflineError('INVALID_VALUE');
     return this.database.write(async () => {
-      const { server } = await this.usableTask(workOrderId, taskId, true);
-      if (server.taskBase.taskType !== 'TEXT')
-        throw new OfflineError('UNSUPPORTED_TASK');
-      const existing = await this.find(DRAFTS, draftId(taskId));
-      const original = existing ? json<TaskDraft>(existing) : null;
-      const operations = await this.unresolvedRows(taskId);
-      const predecessor = operations.length
-        ? this.operation(operations[operations.length - 1])
-        : null;
-      const clock = await this.nextDraftRevision();
-      const draft: TaskDraft = {
-        id: draftId(taskId),
+      const { server } = await this.usableTask(
         workOrderId,
         taskId,
+        true,
+        field
+      );
+      const existing = await this.find(DRAFTS, draftId(taskId, field));
+      const original = existing ? json<TaskDraft>(existing) : null;
+      const operations = (await this.unresolvedRows(taskId)).map((row) =>
+        this.operation(row)
+      );
+      const predecessor = operations[operations.length - 1];
+      const request = predecessor?.request;
+      const priorField = operations
+        .filter((op) => operationField(op.request) === field)
+        .pop();
+      const clock = await this.nextDraftRevision();
+      const draft: TaskDraft = {
+        id: draftId(taskId, field),
+        workOrderId,
+        taskId,
+        field,
         revision: clock.revision,
         value,
         baseVersion:
           original?.baseVersion ??
-          predecessor?.request.baseVersion ??
-          server.version,
+          (request && request.type !== 'CREATE_COMMENT'
+            ? request.baseVersion
+            : server.version),
         baseValue:
           original?.baseValue ??
-          predecessor?.request.value ??
-          String(server.value ?? ''),
+          (priorField
+            ? operationText(priorField.request)
+            : String(server[field] ?? '')),
         basedOnOperationId: original?.basedOnOperationId || predecessor?.id,
         blockedReason:
           original?.blockedReason ||
@@ -455,71 +595,192 @@ export class OfflineRepository {
 
   async submitDraft(
     taskId: number,
-    expectedDraftRevision: number
+    expectedDraftRevision: number,
+    field: TaskField = 'value'
   ): Promise<LocalOperation> {
     this.assertStorage();
     return this.database.write(async () => {
-      const row = await this.find(DRAFTS, draftId(taskId));
-      if (!row || Number(raw(row, 'revision')) !== expectedDraftRevision) {
+      const row = await this.find(DRAFTS, draftId(taskId, field));
+      if (!row || Number(raw(row, 'revision')) !== expectedDraftRevision)
         throw new OfflineError('DRAFT_CHANGED');
-      }
       const draft = json<TaskDraft>(row);
-      const { server } = await this.usableTask(draft.workOrderId, taskId, true);
-      if (server.taskBase.taskType !== 'TEXT')
-        throw new OfflineError('UNSUPPORTED_TASK');
-      if (draft.value.length > 255) throw new OfflineError('TEXT_TOO_LONG');
+      const { server } = await this.usableTask(
+        draft.workOrderId,
+        taskId,
+        true,
+        field
+      );
+      this.validateTaskInput(server, draft.value, field);
+      const unresolved = (await this.unresolvedRows(taskId)).map((item) =>
+        this.operation(item)
+      );
       if (
-        draft.basedOnOperationId ||
         draft.blockedReason ||
-        (await this.unresolvedRows(taskId)).length
-      ) {
+        unresolved.some(
+          (op) =>
+            operationField(op.request) === field || !ACTIVE.includes(op.status)
+        )
+      )
         throw new OfflineError('PREVIOUS_OPERATION');
-      }
-      const now = this.now();
-      const id = this.options.uuid();
-      const context = JSON.parse(this.contextKey);
+      const predecessor = unresolved[unresolved.length - 1];
       if (
-        !Array.isArray(context) ||
-        !Number.isSafeInteger(context[1]) ||
-        !Number.isSafeInteger(context[2])
-      ) {
-        throw new OfflineError('INVALID_CONTEXT');
-      }
-      const request: OperationRequest = {
-        companyId: context[1],
-        userId: context[2],
+        predecessor &&
+        (predecessor.submittedRevision == null ||
+          predecessor.request.type === 'CREATE_COMMENT' ||
+          predecessor.request.baseVersion !== draft.baseVersion)
+      )
+        throw new OfflineError('PREVIOUS_OPERATION');
+      if (!predecessor && draft.basedOnOperationId)
+        throw new OfflineError('PREVIOUS_OPERATION');
+      const id = this.options.uuid();
+      const common = {
+        ...this.identity(),
         operationId: id,
-        type: 'SET_TASK_VALUE',
         workOrderId: draft.workOrderId,
         taskId,
-        value: draft.value,
         baseVersion: draft.baseVersion,
-        occurredAt: new Date(now).toISOString()
+        occurredAt: new Date(this.now()).toISOString(),
+        ...(predecessor ? { predecessorOperationId: predecessor.id } : {})
       };
-      const operation = this.create(OPERATIONS, id, {
-        work_order_id: String(draft.workOrderId),
-        task_id: String(taskId),
-        request: JSON.stringify(request),
-        status: 'QUEUED',
-        attempt_count: 0,
-        receipt: null,
-        created_at: now,
-        updated_at: now
-      });
+      const request: OperationRequest =
+        field === 'notes'
+          ? { ...common, type: 'SET_TASK_NOTES', notes: draft.value }
+          : { ...common, type: 'SET_TASK_VALUE', value: draft.value };
+      const other = await this.find(
+        DRAFTS,
+        draftId(taskId, field === 'value' ? 'notes' : 'value')
+      );
+      const otherDraft = other ? json<TaskDraft>(other) : null;
+      // A field's own receipt is the only authority allowed to advance another local draft.
+      const binding =
+        otherDraft &&
+        !otherDraft.blockedReason &&
+        otherDraft.baseVersion === draft.baseVersion;
+      const clock = binding ? await this.nextDraftRevision() : null;
+      const operation = this.createOperation(request, draft.revision);
+      const records = [operation, row.prepareDestroyPermanently()];
+      if (binding)
+        records.push(
+          this.clockChange(clock!),
+          this.change(other!, {
+            payload: JSON.stringify({
+              ...otherDraft,
+              basedOnOperationId: id,
+              revision: clock!.revision
+            }),
+            revision: clock!.revision
+          })
+        );
+      await this.commit(records);
+      return this.operation(operation);
+    });
+  }
+
+  async saveCommentDraft(
+    workOrderId: number,
+    content: string,
+    expectedRevision?: number | null,
+    attachmentPending?: boolean
+  ): Promise<CommentDraft> {
+    this.assertStorage();
+    return this.database.write(async () => {
+      await this.usableWorkOrder(workOrderId, true);
+      const row = await this.find(DRAFTS, commentDraftId(workOrderId));
+      if (
+        expectedRevision !== undefined &&
+        (row ? Number(raw(row, 'revision')) : null) !== expectedRevision
+      )
+        throw new OfflineError('DRAFT_CHANGED');
+      const clock = await this.nextDraftRevision();
+      const draft: CommentDraft = {
+        id: commentDraftId(workOrderId),
+        kind: 'COMMENT',
+        workOrderId,
+        content,
+        attachmentPending:
+          attachmentPending ??
+          (row ? !!json<CommentDraft>(row).attachmentPending : false),
+        revision: clock.revision,
+        updatedAt: this.now()
+      };
+      const fields = {
+        work_order_id: String(workOrderId),
+        task_id: '',
+        payload: JSON.stringify(draft),
+        revision: draft.revision
+      };
+      await this.commit([
+        this.clockChange(clock),
+        row ? this.change(row, fields) : this.create(DRAFTS, draft.id, fields)
+      ]);
+      return draft;
+    });
+  }
+
+  async submitCommentDraft(
+    workOrderId: number,
+    expectedRevision: number
+  ): Promise<LocalOperation> {
+    this.assertStorage();
+    return this.database.write(async () => {
+      await this.usableWorkOrder(workOrderId, true);
+      const row = await this.find(DRAFTS, commentDraftId(workOrderId));
+      if (!row || Number(raw(row, 'revision')) !== expectedRevision)
+        throw new OfflineError('DRAFT_CHANGED');
+      const draft = json<CommentDraft>(row);
+      if (draft.attachmentPending)
+        throw new OfflineError('COMMENT_ATTACHMENT_PENDING');
+      if (!draft.content.trim()) throw new OfflineError('COMMENT_EMPTY');
+      const request: OperationRequest = {
+        ...this.identity(),
+        operationId: this.options.uuid(),
+        type: 'CREATE_COMMENT',
+        workOrderId,
+        content: draft.content,
+        occurredAt: new Date(this.now()).toISOString()
+      };
+      const operation = this.createOperation(request, draft.revision);
       await this.commit([operation, row.prepareDestroyPermanently()]);
       return this.operation(operation);
     });
   }
 
-  async abandonDraft(taskId: number, expectedRevision: number): Promise<void> {
+  private async abandonDraftRow(id: string, revision: number) {
     this.assertStorage();
     await this.database.write(async () => {
-      const row = await this.find(DRAFTS, draftId(taskId));
-      if (!row || Number(raw(row, 'revision')) !== expectedRevision) {
+      const row = await this.find(DRAFTS, id);
+      if (!row || Number(raw(row, 'revision')) !== revision)
         throw new OfflineError('DRAFT_CHANGED');
-      }
       await this.commit([row.prepareDestroyPermanently()]);
     });
+  }
+  abandonDraft(
+    taskId: number,
+    expectedRevision: number,
+    field: TaskField = 'value'
+  ): Promise<void> {
+    return this.abandonDraftRow(draftId(taskId, field), expectedRevision);
+  }
+  abandonCommentDraft(
+    workOrderId: number,
+    expectedRevision: number
+  ): Promise<void> {
+    return this.abandonDraftRow(commentDraftId(workOrderId), expectedRevision);
+  }
+
+  private async blockedReason(
+    operation: LocalOperation
+  ): Promise<string | undefined> {
+    const request = operation.request;
+    if (request.type === 'CREATE_COMMENT' || !request.predecessorOperationId)
+      return undefined;
+    const predecessor = await this.getOperation(request.predecessorOperationId);
+    if (
+      !predecessor ||
+      ['CONFLICT', 'REJECTED', 'ABANDONED'].includes(predecessor.status)
+    )
+      return 'PREDECESSOR_FAILED';
+    return undefined;
   }
 
   async abandonOperation(operationId: string): Promise<void> {
@@ -534,62 +795,125 @@ export class OfflineRepository {
           operation.status === 'REJECTED' ||
           operation.status === 'CONFLICT'
         )
-      ) {
+      )
         throw new OfflineError('RESULT_UNKNOWN');
-      }
-      const draftRow = await this.find(
-        DRAFTS,
-        draftId(operation.request.taskId)
-      );
-      const draft = draftRow ? json<TaskDraft>(draftRow) : null;
+      const drafts =
+        operation.request.type === 'CREATE_COMMENT'
+          ? []
+          : await this.collection(DRAFTS)
+              .query(Q.where('task_id', String(operation.request.taskId)))
+              .fetch();
       const records = [
         this.change(row, { status: 'ABANDONED', updated_at: this.now() })
       ];
-      if (draft?.basedOnOperationId === operationId) {
-        // The following draft was written on top of an unconfirmed value. It
-        // requires explicit review, even when its predecessor is abandoned.
-        records.push(
-          this.change(draftRow!, {
-            payload: JSON.stringify({
-              ...draft,
-              blockedReason: 'PREDECESSOR_ABANDONED'
+      for (const draftRow of drafts) {
+        const draft = json<TaskDraft>(draftRow);
+        if (draft.basedOnOperationId === operationId)
+          records.push(
+            this.change(draftRow, {
+              payload: JSON.stringify({
+                ...draft,
+                blockedReason: 'PREDECESSOR_ABANDONED'
+              })
             })
-          })
-        );
+          );
       }
       await this.commit(records);
     });
   }
 
-  /** Explicit user decision to keep the displayed draft against a reviewed server revision. */
+  async discardTaskField(
+    taskId: number,
+    field: TaskField,
+    expectedDraftRevision: number | null,
+    operationId: string | null,
+    expectedServerVersion: number
+  ): Promise<void> {
+    this.assertStorage();
+    await this.database.write(async () => {
+      const task = await this.find(TASKS, String(taskId));
+      if (!task) throw new OfflineError('TARGET_UNAVAILABLE');
+      const { server } = await this.usableTask(
+        Number(raw(task, 'work_order_id')),
+        taskId
+      );
+      if (server.version !== expectedServerVersion)
+        throw new OfflineError('SERVER_CHANGED');
+      const draftRow = await this.find(DRAFTS, draftId(taskId, field));
+      if (
+        (draftRow ? Number(raw(draftRow, 'revision')) : null) !==
+        expectedDraftRevision
+      )
+        throw new OfflineError('DRAFT_CHANGED');
+      const unresolved = (await this.unresolvedRows(taskId)).filter(
+        (row) => operationField(this.operation(row).request) === field
+      );
+      if (unresolved.some((row) => row.id !== operationId))
+        throw new OfflineError('DRAFT_CHANGED');
+      const records: Model[] = [];
+      for (const row of unresolved) {
+        const operation = this.operation(row);
+        if (
+          !['CONFLICT', 'REJECTED'].includes(operation.status) &&
+          !(operation.status === 'QUEUED' && operation.attemptCount === 0)
+        )
+          throw new OfflineError('RESULT_UNKNOWN');
+        records.push(
+          this.change(row, { status: 'ABANDONED', updated_at: this.now() })
+        );
+      }
+      if (draftRow) records.push(draftRow.prepareDestroyPermanently());
+      // Other-field drafts retain their predecessor and must explicitly review an abandoned chain.
+      const other = await this.find(
+        DRAFTS,
+        draftId(taskId, field === 'value' ? 'notes' : 'value')
+      );
+      if (other) {
+        const draft = json<TaskDraft>(other);
+        if (unresolved.some((row) => row.id === draft.basedOnOperationId))
+          records.push(
+            this.change(other, {
+              payload: JSON.stringify({
+                ...draft,
+                blockedReason: 'PREDECESSOR_ABANDONED'
+              })
+            })
+          );
+      }
+      if (records.length) await this.commit(records);
+    });
+  }
+
   async resolveDraftAgainstServer(
     taskId: number,
     expectedDraftRevision: number,
-    expectedServerVersion: number
+    expectedServerVersion: number,
+    field: TaskField = 'value'
   ): Promise<TaskDraft> {
     this.assertStorage();
     return this.database.write(async () => {
-      const row = await this.find(DRAFTS, draftId(taskId));
+      const row = await this.find(DRAFTS, draftId(taskId, field));
       if (!row || Number(raw(row, 'revision')) !== expectedDraftRevision)
         throw new OfflineError('DRAFT_CHANGED');
       const draft = json<TaskDraft>(row);
-      const { server } = await this.usableTask(draft.workOrderId, taskId, true);
+      const { server } = await this.usableTask(
+        draft.workOrderId,
+        taskId,
+        true,
+        field
+      );
       if (server.version !== expectedServerVersion)
         throw new OfflineError('SERVER_CHANGED');
-      const operations = await this.unresolvedRows(taskId);
-      if (
-        operations.some((operation) =>
-          ACTIVE.includes(this.operation(operation).status)
-        )
-      ) {
-        throw new OfflineError('RESULT_UNKNOWN');
-      }
+      const operations = (await this.unresolvedRows(taskId)).filter(
+        (row) => operationField(this.operation(row).request) === field
+      );
+      if (operations.length) throw new OfflineError('PREVIOUS_OPERATION');
       const clock = await this.nextDraftRevision();
-      const resolved: TaskDraft = {
+      const resolved = {
         ...draft,
         revision: clock.revision,
         baseVersion: server.version,
-        baseValue: String(server.value ?? ''),
+        baseValue: String(server[field] ?? ''),
         basedOnOperationId: undefined,
         blockedReason: undefined,
         updatedAt: this.now()
@@ -599,19 +923,12 @@ export class OfflineRepository {
         this.change(row, {
           payload: JSON.stringify(resolved),
           revision: resolved.revision
-        }),
-        ...operations.map((operation) =>
-          this.change(operation, {
-            status: 'ABANDONED',
-            updated_at: this.now()
-          })
-        )
+        })
       ]);
       return resolved;
     });
   }
 
-  /** Resolve a terminal operation, optionally with a newer draft explicitly reviewed by the user. */
   async resolveOperationAgainstServer(
     operationId: string,
     expectedDraftRevision: number | null,
@@ -619,32 +936,44 @@ export class OfflineRepository {
   ): Promise<TaskDraft> {
     this.assertStorage();
     return this.database.write(async () => {
-      const operationRow = await this.find(OPERATIONS, operationId);
-      if (!operationRow) throw new OfflineError('OPERATION_MISSING');
-      const operation = this.operation(operationRow);
-      if (operation.status !== 'CONFLICT' && operation.status !== 'REJECTED') {
+      const row = await this.find(OPERATIONS, operationId);
+      if (!row) throw new OfflineError('OPERATION_MISSING');
+      const operation = this.operation(row);
+      if (operation.request.type === 'CREATE_COMMENT')
+        throw new OfflineError('INVALID_VALUE');
+      if (
+        !['CONFLICT', 'REJECTED'].includes(operation.status) &&
+        !(
+          operation.status === 'QUEUED' &&
+          operation.attemptCount === 0 &&
+          (await this.blockedReason(operation))
+        )
+      )
         throw new OfflineError('RESULT_UNKNOWN');
-      }
       const { taskId, workOrderId } = operation.request;
-      const { server } = await this.usableTask(workOrderId, taskId, true);
+      const field = operationField(operation.request) as TaskField;
+      const { server } = await this.usableTask(
+        workOrderId,
+        taskId,
+        true,
+        field
+      );
       if (server.version !== expectedServerVersion)
         throw new OfflineError('SERVER_CHANGED');
-      const draftRow = await this.find(DRAFTS, draftId(taskId));
+      const draftRow = await this.find(DRAFTS, draftId(taskId, field));
       const draft = draftRow ? json<TaskDraft>(draftRow) : null;
       if ((draft?.revision ?? null) !== expectedDraftRevision)
         throw new OfflineError('DRAFT_CHANGED');
-      const operations = await this.unresolvedRows(taskId);
-      if (operations.some((row) => row.id !== operationId))
-        throw new OfflineError('PREVIOUS_OPERATION');
       const clock = await this.nextDraftRevision();
       const resolved: TaskDraft = {
-        id: draftId(taskId),
+        id: draftId(taskId, field),
         workOrderId,
         taskId,
+        field,
         revision: clock.revision,
-        value: draft?.value ?? operation.request.value,
+        value: draft?.value ?? operationText(operation.request),
         baseVersion: server.version,
-        baseValue: String(server.value ?? ''),
+        baseValue: String(server[field] ?? ''),
         updatedAt: this.now()
       };
       const fields = {
@@ -658,10 +987,7 @@ export class OfflineRepository {
         draftRow
           ? this.change(draftRow, fields)
           : this.create(DRAFTS, resolved.id, fields),
-        this.change(operationRow, {
-          status: 'ABANDONED',
-          updated_at: this.now()
-        })
+        this.change(row, { status: 'ABANDONED', updated_at: this.now() })
       ]);
       return resolved;
     });
@@ -673,30 +999,74 @@ export class OfflineRepository {
       throw new OfflineError('INVALID_RECEIPT');
     await this.database.write(async () => {
       const row = await this.find(OPERATIONS, receipt.operationId);
-      if (!row) return; // A response for another isolated context cannot create data.
+      if (!row) return;
       const operation = this.operation(row);
-      if (operation.receipt || operation.status === 'ABANDONED') return;
-      if (
-        receipt.task &&
-        (receipt.task.id !== operation.request.taskId ||
-          !Number.isSafeInteger(receipt.task.version))
-      ) {
-        throw new OfflineError('INVALID_RECEIPT');
+      if (operation.status === 'ABANDONED') return;
+      // The result is final, but the server re-evaluates comment visibility on
+      // receipt reads. This also resolves deletion before the first snapshot.
+      if (operation.receipt) {
+        if (
+          operation.request.type !== 'CREATE_COMMENT' ||
+          operation.status !== 'APPLIED'
+        )
+          return;
+        if (
+          receipt.status !== 'APPLIED' ||
+          receipt.commentId !== operation.receipt.commentId ||
+          receipt.receivedAt !== operation.receipt.receivedAt
+        )
+          throw new OfflineError('INVALID_RECEIPT');
+        if (
+          operation.receipt.visibility === 'COMMENT_DELETED' ||
+          operation.receipt.visibility === receipt.visibility
+        )
+          return;
+        // Retain the original result; only visibility is mutable.
+        receipt = { ...operation.receipt, visibility: receipt.visibility };
       }
-      const taskRow = await this.find(TASKS, String(operation.request.taskId));
-      const draftRow = await this.find(
-        DRAFTS,
-        draftId(operation.request.taskId)
-      );
-      const draft = draftRow ? json<TaskDraft>(draftRow) : null;
+      const request = operation.request;
       const workOrder = await this.find(
         WORK_ORDERS,
-        String(operation.request.workOrderId)
+        String(request.workOrderId)
       );
-      const clock =
-        draft && draft.basedOnOperationId === receipt.operationId
-          ? await this.nextDraftRevision()
-          : null;
+      const isComment = request.type === 'CREATE_COMMENT';
+      if (isComment && receipt.task) throw new OfflineError('INVALID_RECEIPT');
+      if (!isComment && receipt.commentId != null)
+        throw new OfflineError('INVALID_RECEIPT');
+      if (
+        isComment &&
+        receipt.status === 'APPLIED' &&
+        !['VISIBLE', 'COMMENT_DELETED', 'WORK_ORDER_UNAVAILABLE'].includes(
+          receipt.visibility || ''
+        )
+      )
+        throw new OfflineError('INVALID_RECEIPT');
+      if (
+        !isComment &&
+        receipt.chainBaseVersion != null &&
+        receipt.chainBaseVersion !== request.baseVersion
+      )
+        throw new OfflineError('INVALID_RECEIPT');
+      if (
+        isComment &&
+        receipt.status === 'APPLIED' &&
+        (!Number.isSafeInteger(receipt.commentId) || receipt.commentId! <= 0)
+      )
+        throw new OfflineError('INVALID_RECEIPT');
+      if (
+        isComment &&
+        operation.serverCommentId != null &&
+        receipt.commentId != null &&
+        operation.serverCommentId !== receipt.commentId
+      )
+        throw new OfflineError('INVALID_RECEIPT');
+      if (
+        !isComment &&
+        receipt.task &&
+        (receipt.task.id !== request.taskId ||
+          !Number.isSafeInteger(receipt.task.version))
+      )
+        throw new OfflineError('INVALID_RECEIPT');
       const records: Model[] = [
         this.change(row, {
           status: receipt.status,
@@ -704,66 +1074,109 @@ export class OfflineRepository {
           updated_at: this.now()
         })
       ];
-      if (taskRow) {
-        const fields: Record<string, string | boolean | null> = {};
-        if (
-          receipt.task &&
-          receipt.task.version >= json<OfflineTask>(taskRow).version
-        )
-          fields.payload = JSON.stringify(receipt.task);
-        if (receipt.code === 'TARGET_NOT_FOUND') {
-          fields.available = false;
-          fields.unavailable_reason = receipt.code;
-        }
-        if (Object.keys(fields).length)
-          records.push(this.change(taskRow, fields));
-      }
-      // Historical APPLIED/CONFLICT receipts lose their task payload when the
-      // server can no longer disclose it. Preserve the historical outcome, but
-      // hide the complete local target now, even if the next request loses the
-      // network. A later authorized complete preparation can restore access.
-      const withheldTask =
+      const withheld =
+        !isComment &&
         !receipt.task &&
-        (receipt.status === 'APPLIED' || receipt.status === 'CONFLICT');
-      if ((receipt.code === 'ACCESS_REVOKED' || withheldTask) && workOrder) {
+        ['APPLIED', 'CONFLICT'].includes(receipt.status);
+      if (
+        workOrder &&
+        (receipt.code === 'ACCESS_REVOKED' ||
+          (isComment && receipt.code === 'TARGET_NOT_FOUND') ||
+          withheld ||
+          receipt.visibility === 'WORK_ORDER_UNAVAILABLE')
+      ) {
         records.push(
           this.change(workOrder, {
             available: false,
-            unavailable_reason:
-              receipt.code === 'ACCESS_REVOKED'
-                ? 'ACCESS_REVOKED'
-                : 'RECEIPT_WITHOUT_TASK',
+            unavailable_reason: receipt.code || 'ACCESS_REVOKED',
             availability_revision:
               Number(raw(workOrder, 'availability_revision')) + 1
           })
         );
       }
-      if (draft && draft.basedOnOperationId === receipt.operationId) {
-        const next: TaskDraft =
-          receipt.status === 'APPLIED' && receipt.task
-            ? {
+      if (isComment && workOrder && receipt.visibility === 'COMMENT_DELETED') {
+        const snapshot = json<OfflineSnapshot>(workOrder);
+        records.push(
+          this.change(workOrder, {
+            payload: JSON.stringify({
+              ...snapshot,
+              comments: snapshot.comments.filter(
+                (comment) => comment.id !== receipt.commentId
+              )
+            })
+          })
+        );
+      }
+      if (!isComment) {
+        const taskRow = await this.find(TASKS, String(request.taskId));
+        if (taskRow) {
+          const fields: Record<string, string | boolean | null> = {};
+          if (
+            receipt.task &&
+            receipt.task.version >= json<OfflineTask>(taskRow).version
+          )
+            fields.payload = JSON.stringify(receipt.task);
+          if (receipt.code === 'TARGET_NOT_FOUND') {
+            fields.available = false;
+            fields.unavailable_reason = receipt.code;
+          }
+          if (Object.keys(fields).length)
+            records.push(this.change(taskRow, fields));
+        }
+        const drafts = await this.collection(DRAFTS)
+          .query(Q.where('task_id', String(request.taskId)))
+          .fetch();
+        const pending = (await this.unresolvedRows(request.taskId))
+          .map((item) => this.operation(item))
+          .filter((op) => op.id !== operation.id);
+        const tail = pending[pending.length - 1];
+        const updates: { row: Model; draft: TaskDraft }[] = [];
+        for (const draftRow of drafts) {
+          const draft = json<TaskDraft>(draftRow);
+          if (draft.basedOnOperationId !== operation.id) continue;
+          const field = draft.field || 'value';
+          let next: TaskDraft;
+          if (receipt.status === 'APPLIED' && receipt.task) {
+            if (
+              tail &&
+              tail.request.type !== 'CREATE_COMMENT' &&
+              tail.request.baseVersion === draft.baseVersion
+            ) {
+              next = { ...draft, basedOnOperationId: tail.id };
+            } else {
+              next = {
                 ...draft,
                 basedOnOperationId: undefined,
                 blockedReason: undefined,
                 baseVersion: receipt.task.version,
-                baseValue: String(receipt.task.value ?? ''),
-                revision: clock!.revision
-              }
-            : {
-                ...draft,
-                blockedReason: withheldTask
-                  ? 'RECEIPT_WITHOUT_TASK'
-                  : receipt.code || receipt.status,
-                revision: clock!.revision
+                baseValue: String(receipt.task[field] ?? '')
               };
-        records.push(this.clockChange(clock!));
-        records.push(
-          this.change(draftRow!, {
-            payload: JSON.stringify(next),
-            revision: next.revision
-          })
-        );
+            }
+          } else
+            next = {
+              ...draft,
+              blockedReason: withheld
+                ? 'RECEIPT_WITHOUT_TASK'
+                : receipt.code || receipt.status
+            };
+          updates.push({ row: draftRow, draft: next });
+        }
+        if (updates.length) {
+          const clock = await this.nextDraftRevision();
+          updates.forEach((update, index) => {
+            const revision = clock.revision + index;
+            records.push(
+              this.change(update.row, {
+                payload: JSON.stringify({ ...update.draft, revision }),
+                revision
+              })
+            );
+          });
+          clock.revision += updates.length - 1;
+          records.push(this.clockChange(clock));
+        }
       }
+      // Comment acknowledgements are compact. Only a complete snapshot changes the canonical thread.
       await this.commit(records);
     });
   }
@@ -810,6 +1223,24 @@ export class OfflineRepository {
     return (await this.unresolvedRows())
       .map((row) => this.operation(row))
       .filter((operation) => ACTIVE.includes(operation.status));
+  }
+
+  async getCommentReceiptsToRefresh(): Promise<LocalOperation[]> {
+    this.assertStorage();
+    const rows = await this.collection(OPERATIONS)
+      .query(Q.where('task_id', ''), Q.where('status', 'APPLIED'))
+      .fetch();
+    // An association means the comment was already seen in a complete copy.
+    // A confirmed publication with no association still needs either that copy
+    // or an authoritative deletion receipt, never another creation request.
+    return rows
+      .map((row) => this.operation(row))
+      .filter(
+        (operation) =>
+          operation.request.type === 'CREATE_COMMENT' &&
+          operation.serverCommentId == null &&
+          operation.receipt?.visibility === 'VISIBLE'
+      );
   }
 
   async hasUnresolved(workOrderId?: number): Promise<boolean> {
@@ -874,12 +1305,12 @@ export class OfflineRepository {
     });
   }
 
-  async getTask(taskId: number): Promise<TaskView> {
+  async getTask(taskId: number, field: TaskField = 'value'): Promise<TaskView> {
     this.assertStorage();
     return this.database.read(async () => {
-      const [taskRow, draftRow, operations] = await Promise.all([
+      const [taskRow, draftRow, allOperations] = await Promise.all([
         this.find(TASKS, String(taskId)),
-        this.find(DRAFTS, draftId(taskId)),
+        this.find(DRAFTS, draftId(taskId, field)),
         this.unresolvedRows(taskId)
       ]);
       const workOrder = taskRow
@@ -891,33 +1322,53 @@ export class OfflineRepository {
         taskRow &&
         raw(taskRow, 'available')
       );
-      const lastApplied = operations.length
-        ? []
-        : await this.collection(OPERATIONS)
-            .query(
-              Q.where('task_id', String(taskId)),
-              Q.where('status', 'APPLIED'),
-              Q.sortBy('updated_at', Q.desc),
-              Q.take(1)
-            )
-            .fetch();
-      const operation = operations.length
-        ? this.operation(operations[operations.length - 1])
-        : lastApplied.length
-        ? this.operation(lastApplied[0])
-        : null;
-      const draft = draftRow ? json<TaskDraft>(draftRow) : null;
+      const operations = allOperations
+        .map((row) => this.operation(row))
+        .filter((op) => operationField(op.request) === field);
+      let operation = operations[operations.length - 1] || null;
+      if (!operation) {
+        const applied = await this.collection(OPERATIONS)
+          .query(
+            Q.where('task_id', String(taskId)),
+            Q.where('status', 'APPLIED'),
+            Q.sortBy('updated_at', Q.desc)
+          )
+          .fetch();
+        operation =
+          applied
+            .map((row) => this.operation(row))
+            .find((op) => operationField(op.request) === field) || null;
+      }
+      if (operation)
+        operation = {
+          ...operation,
+          blockedReason: await this.blockedReason(operation)
+        };
+      let draft = draftRow ? json<TaskDraft>(draftRow) : null;
+      if (draft?.basedOnOperationId && !draft.blockedReason) {
+        const predecessor = await this.getOperation(draft.basedOnOperationId);
+        if (
+          !predecessor ||
+          ['CONFLICT', 'REJECTED', 'ABANDONED'].includes(predecessor.status)
+        )
+          draft = { ...draft, blockedReason: 'PREDECESSOR_FAILED' };
+        else {
+          const reason = await this.blockedReason(predecessor);
+          if (reason) draft = { ...draft, blockedReason: reason };
+        }
+      }
       const serverTask = available ? json<OfflineTask>(taskRow!) : null;
+      const userId = this.identity().userId;
       return {
         serverTask,
         task: serverTask
           ? {
               ...serverTask,
-              value:
+              [field]:
                 draft?.value ??
                 (operation && operation.status !== 'APPLIED'
-                  ? operation.request.value
-                  : serverTask.value)
+                  ? operationText(operation.request)
+                  : serverTask[field])
             }
           : null,
         draft: available ? draft : null,
@@ -930,9 +1381,46 @@ export class OfflineRepository {
                 (taskRow && raw(taskRow, 'unavailable_reason')) ||
                 'TARGET_UNAVAILABLE'
             ),
-        canEdit: !!(available && json<OfflineSnapshot>(workOrder!).canEdit)
+        canEdit: !!(
+          available &&
+          json<OfflineSnapshot>(workOrder!).canEdit &&
+          (field === 'notes' ||
+            !serverTask?.taskBase.user ||
+            serverTask.taskBase.user.id === userId)
+        )
       };
     });
+  }
+
+  async getCommentDraft(workOrderId: number): Promise<CommentDraft | null> {
+    this.assertStorage();
+    const workOrder = await this.find(WORK_ORDERS, String(workOrderId));
+    if (!workOrder || !raw(workOrder, 'available')) return null;
+    const row = await this.find(DRAFTS, commentDraftId(workOrderId));
+    return row ? json<CommentDraft>(row) : null;
+  }
+
+  async getCommentOperations(workOrderId: number): Promise<LocalOperation[]> {
+    this.assertStorage();
+    const workOrder = await this.find(WORK_ORDERS, String(workOrderId));
+    if (!workOrder || !raw(workOrder, 'available')) return [];
+    const rows = await this.collection(OPERATIONS)
+      .query(
+        Q.where('work_order_id', String(workOrderId)),
+        Q.where('task_id', ''),
+        Q.sortBy('created_at', Q.asc)
+      )
+      .fetch();
+    return rows
+      .map((row) => this.operation(row))
+      .filter(
+        (op) =>
+          op.status !== 'ABANDONED' &&
+          op.serverCommentId == null &&
+          (op.status !== 'APPLIED' ||
+            (op.serverCommentId == null &&
+              op.receipt?.visibility === 'VISIBLE'))
+      );
   }
 
   async getWorkOrderProjection(
@@ -959,26 +1447,35 @@ export class OfflineRepository {
           ])
         : [[], [], []];
       const drafts = new Map(
-        draftRows.map((draft) => [
-          String(raw(draft, 'task_id')),
-          json<TaskDraft>(draft)
-        ])
+        draftRows
+          .filter((row) => raw(row, 'task_id') !== '')
+          .map((row) => [row.id, json<TaskDraft>(row)])
       );
-      const operations = new Map(
-        operationRows.map((operation) => [
-          String(raw(operation, 'task_id')),
-          this.operation(operation)
-        ])
-      );
-      const projectedTasks = tasks.map((task) => {
-        const server = json<OfflineTask>(task);
-        return {
-          ...server,
-          value:
-            drafts.get(task.id)?.value ??
-            operations.get(task.id)?.request.value ??
-            server.value
-        };
+      const operations = new Map<string, LocalOperation>();
+      operationRows.forEach((row) => {
+        const operation = this.operation(row);
+        if (operation.request.type !== 'CREATE_COMMENT')
+          operations.set(
+            draftId(
+              operation.request.taskId,
+              operationField(operation.request) as TaskField
+            ),
+            operation
+          );
+      });
+      const projectedTasks = tasks.map((row) => {
+        const server = json<OfflineTask>(row);
+        const projected = { ...server };
+        for (const field of ['value', 'notes'] as TaskField[]) {
+          const id = draftId(server.id, field);
+          const operation = operations.get(id);
+          projected[field] =
+            drafts.get(id)?.value ??
+            (operation
+              ? operationText(operation.request)
+              : String(server[field] ?? ''));
+        }
+        return projected;
       });
       return {
         id: workOrderId,
@@ -986,6 +1483,14 @@ export class OfflineRepository {
         tasks: projectedTasks,
         comments: snapshot?.comments || [],
         history: snapshot?.history || [],
+        canEdit: !!snapshot?.canEdit,
+        canComment: !!(snapshot?.canComment ?? snapshot?.canEdit),
+        commentDraft: available
+          ? await this.getCommentDraft(workOrderId)
+          : null,
+        commentOperations: available
+          ? await this.getCommentOperations(workOrderId)
+          : [],
         preparedAt: String(raw(row, 'prepared_at')),
         available,
         unavailableReason: available
@@ -1034,54 +1539,93 @@ export class OfflineRepository {
 
   async getPendingWork(workOrderId?: number): Promise<PendingWork[]> {
     this.assertStorage();
-    const [drafts, operations] = await Promise.all([
+    const conditions =
+      workOrderId === undefined
+        ? []
+        : [Q.where('work_order_id', String(workOrderId))];
+    const [drafts, rows] = await Promise.all([
       this.collection(DRAFTS)
-        .query(
-          ...(workOrderId === undefined
-            ? []
-            : [Q.where('work_order_id', String(workOrderId))])
-        )
+        .query(...conditions)
         .fetch(),
-      this.unresolvedRows(undefined, workOrderId)
+      this.collection(OPERATIONS)
+        .query(...conditions, Q.sortBy('created_at', Q.asc))
+        .fetch()
     ]);
     const items: PendingWork[] = [];
     for (const row of drafts) {
-      const draft = json<TaskDraft>(row);
-      const target = await this.getTask(draft.taskId);
+      const draft = json<TaskDraft | CommentDraft>(row);
+      const comment = 'kind' in draft && draft.kind === 'COMMENT';
+      const field = comment ? 'comment' : (draft as TaskDraft).field || 'value';
+      const target = comment
+        ? await this.getWorkOrderProjection(draft.workOrderId)
+        : await this.getTask((draft as TaskDraft).taskId, field as TaskField);
       items.push({
         kind: 'DRAFT',
         id: draft.id,
         workOrderId: draft.workOrderId,
-        taskId: draft.taskId,
+        taskId: comment ? undefined : (draft as TaskDraft).taskId,
+        field,
         draftRevision: draft.revision,
-        targetAvailable: target.available,
-        reason: target.unavailableReason || draft.blockedReason || null,
+        targetAvailable: !!target?.available,
+        reason:
+          target?.unavailableReason ||
+          (!comment && (draft as TaskDraft).blockedReason) ||
+          null,
         canAbandon: true,
-        ...(target.available
-          ? { label: target.task?.taskBase.label, value: draft.value }
+        ...(target?.available
+          ? {
+              label: comment
+                ? undefined
+                : (target as TaskView).task?.taskBase.label,
+              value: comment
+                ? (draft as CommentDraft).content
+                : (draft as TaskDraft).value
+            }
           : {})
       });
     }
-    for (const row of operations) {
+    for (const row of rows) {
       const operation = this.operation(row);
-      const target = await this.getTask(operation.request.taskId);
+      const request = operation.request;
+      const comment = request.type === 'CREATE_COMMENT';
+      if (
+        !UNRESOLVED.includes(operation.status) &&
+        !(
+          comment &&
+          operation.status === 'APPLIED' &&
+          operation.serverCommentId == null &&
+          operation.receipt?.visibility === 'VISIBLE'
+        )
+      )
+        continue;
+      const field = operationField(request);
+      const target =
+        request.type === 'CREATE_COMMENT'
+          ? await this.getWorkOrderProjection(request.workOrderId)
+          : await this.getTask(request.taskId, field as TaskField);
       items.push({
         kind: 'OPERATION',
         id: operation.id,
-        workOrderId: operation.request.workOrderId,
-        taskId: operation.request.taskId,
+        workOrderId: request.workOrderId,
+        taskId: request.type === 'CREATE_COMMENT' ? undefined : request.taskId,
+        field,
         status: operation.status,
         attemptCount: operation.attemptCount,
-        targetAvailable: target.available,
-        reason: target.unavailableReason || operation.receipt?.code || null,
+        targetAvailable: !!target?.available,
+        reason:
+          target?.unavailableReason ||
+          (await this.blockedReason(operation)) ||
+          operation.receipt?.code ||
+          null,
         canAbandon:
           (operation.status === 'QUEUED' && operation.attemptCount === 0) ||
-          operation.status === 'REJECTED' ||
-          operation.status === 'CONFLICT',
-        ...(target.available
+          ['REJECTED', 'CONFLICT'].includes(operation.status),
+        ...(target?.available
           ? {
-              label: target.task?.taskBase.label,
-              value: operation.request.value
+              label: comment
+                ? undefined
+                : (target as TaskView).task?.taskBase.label,
+              value: operationText(request)
             }
           : {})
       });
@@ -1107,7 +1651,12 @@ export class OfflineRepository {
         .observeWithColumns(['payload', 'revision']),
       this.collection(OPERATIONS)
         .query()
-        .observeWithColumns(['status', 'attempt_count', 'receipt'])
+        .observeWithColumns([
+          'status',
+          'attempt_count',
+          'receipt',
+          'server_comment_id'
+        ])
     ]);
   }
   observeWorkOrder(workOrderId: number) {
@@ -1115,8 +1664,8 @@ export class OfflineRepository {
       switchMap(() => this.getWorkOrderProjection(workOrderId))
     );
   }
-  observeTask(taskId: number) {
-    return this.changes().pipe(switchMap(() => this.getTask(taskId)));
+  observeTask(taskId: number, field: TaskField = 'value') {
+    return this.changes().pipe(switchMap(() => this.getTask(taskId, field)));
   }
   observePendingWork(workOrderId?: number) {
     return this.changes().pipe(

@@ -1,4 +1,29 @@
 const locale = {
+  offline_comment_saved_refresh_pending:
+    'A hozzászólás módosítását a szerver visszaigazolta; a helyi másolat még frissítésre vár.',
+  offline_comment_published_cleanup_pending:
+    'A hozzászólás megjelent. A piszkozatot nem sikerült eltávolítani erről az eszközről. Ne tegye közzé újra; próbálja meg ismét eltávolítani a helyi piszkozatot.',
+  offline_comment_attachment_pending:
+    'Korábban kiválasztott egy mellékletet. Válassza ki újra, vagy erősítse meg, hogy csak a szöveget kívánja közzétenni.',
+  offline_comment_text_only: 'Csak a szöveg közzététele',
+  offline_comment_clear_confirmed:
+    'Közzétett hozzászólás piszkozatának eltávolítása',
+  offline_refresh_pending: 'Helyi frissítésre vár',
+  offline_sending: 'Küldés folyamatban',
+  offline_request_too_large:
+    'Ez a beküldés túl nagy. Rövidítse le a szöveget az újrapróbálkozás előtt. A piszkozat megmaradt.',
+  offline_comment_refresh_pending:
+    'Elküldve — a helyi másolat frissítésére vár',
+  offline_invalid_choice: 'Válasszon egy még elérhető lehetőséget.',
+  offline_comment_empty: 'Írjon be egy nem üres hozzászólást.',
+  offline_max_notes: 'A jegyzetek legfeljebb 255 karaktert tartalmazhatnak.',
+  offline_submit_notes: 'Jegyzetek mentése',
+  offline_submission: 'Beküldés',
+  offline_comment_pending: 'Függőben lévő hozzászólás',
+  offline_comment_unavailable:
+    'A hozzászólás elküldve. A helyi másolatban már nem érhető el.',
+  offline_invalid_number:
+    'A válasz mentése előtt adjon meg egy érvényes számot.',
   offline_prepare: 'Előkészítés ezen az eszközön',
   offline_available: 'Offline elérhető',
   offline_prepared_at: 'Teljes másolat mentve: {{date}}',
@@ -14,7 +39,7 @@ const locale = {
   offline_unknown: 'Ellenőrizendő eredmény',
   offline_applied: 'Elküldve',
   offline_conflict: 'Máshol módosították — a válasza megmarad',
-  offline_rejected: 'A választ elutasították — a munkája megmarad',
+  offline_rejected: 'A beküldés elutasítva — a munkája megmaradt',
   offline_wait_previous:
     'A piszkozat beküldése előtt várja meg az előző válasz eredményét.',
   offline_server_value: 'Jelenlegi érték a szerveren',
@@ -79,7 +104,7 @@ const locale = {
   offline_removal_pending:
     'Csatlakozzon újra a korábbi előkészítés eltávolításának befejezéséhez, mielőtt újra előkészíti.',
   offline_unsupported_task:
-    'Ebben a lépésben csak TEXT típusú feladatok értékei küldhetők be offline.',
+    'Ezt a feladattípust internetkapcsolattal kell kitölteni.',
   offline_result_changed:
     'Ennek a küldésnek az eredménye már végleges. Frissítse a nézetet az eredmény megtekintéséhez.',
   DUPLICATE_OF: 'Másolata',

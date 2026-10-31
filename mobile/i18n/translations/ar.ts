@@ -1,4 +1,27 @@
 const locale = {
+  offline_comment_saved_refresh_pending:
+    'تم تأكيد تغيير التعليق على الخادم؛ لا تزال النسخة المحلية بحاجة إلى تحديث.',
+  offline_comment_published_cleanup_pending:
+    'تم نشر التعليق. تعذّر حذف مسودته من هذا الجهاز. لا تنشره مرة أخرى؛ أعد محاولة حذف المسودة المحلية.',
+  offline_comment_attachment_pending:
+    'سبق تحديد مرفق. حدده مرة أخرى أو أكّد نشر النص فقط.',
+  offline_comment_text_only: 'نشر النص فقط',
+  offline_comment_clear_confirmed: 'حذف مسودة التعليق المنشور',
+  offline_refresh_pending: 'التحديث المحلي قيد الانتظار',
+  offline_sending: 'جارٍ الإرسال',
+  offline_request_too_large:
+    'حجم هذا الإرسال كبير جدًا. اختصر النص قبل إعادة المحاولة. تم الاحتفاظ بمسودتك.',
+  offline_comment_refresh_pending:
+    'تم الإرسال — في انتظار تحديث النسخة المحلية',
+  offline_invalid_choice: 'اختر خيارًا لا يزال متاحًا.',
+  offline_comment_empty: 'أدخل تعليقًا غير فارغ.',
+  offline_max_notes: 'يمكن أن تحتوي الملاحظات على 255 حرفًا كحد أقصى.',
+  offline_submit_notes: 'حفظ الملاحظات',
+  offline_submission: 'الإرسال',
+  offline_comment_pending: 'تعليق في انتظار الإرسال',
+  offline_comment_unavailable:
+    'تم إرسال التعليق. لم يعد متاحًا في النسخة المحلية.',
+  offline_invalid_number: 'أدخل رقمًا صالحًا قبل حفظ الإجابة.',
   offline_prepare: 'تحضير على هذا الجهاز',
   offline_available: 'متاح دون اتصال',
   offline_prepared_at: 'تم حفظ نسخة كاملة: {{date}}',
@@ -14,7 +37,7 @@ const locale = {
   offline_unknown: 'نتيجة تحتاج إلى التحقق',
   offline_applied: 'تم الإرسال',
   offline_conflict: 'تم التعديل من مكان آخر — تم الاحتفاظ بإجابتك',
-  offline_rejected: 'رُفضت الإجابة — تم الاحتفاظ بعملك',
+  offline_rejected: 'رُفض الإرسال — تم الاحتفاظ بعملك',
   offline_wait_previous: 'انتظر نتيجة الإجابة السابقة قبل إرسال هذه المسودة.',
   offline_server_value: 'القيمة الحالية على الخادم',
   offline_keep_draft: 'مراجعة إجابتي وإرسالها',
@@ -65,7 +88,7 @@ const locale = {
   offline_removal_pending:
     'أعد الاتصال لإنهاء إزالة التحضير السابق قبل تحضيره مجددًا.',
   offline_unsupported_task:
-    'في هذه المرحلة، يمكن إرسال قيم المهام من النوع TEXT فقط دون اتصال.',
+    'يجب تعبئة هذا النوع من المهام أثناء الاتصال بالإنترنت.',
   offline_result_changed: 'تم حسم نتيجة هذا الإرسال بالفعل. حدّث لعرض النتيجة.',
   DUPLICATE_OF: 'نسخة مكررة من',
   DUPLICATED_BY: 'تم تكراره بواسطة',

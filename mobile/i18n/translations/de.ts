@@ -1,4 +1,29 @@
 const deJSON = {
+  offline_comment_saved_refresh_pending:
+    'Die Änderung des Kommentars wurde auf dem Server bestätigt; die lokale Kopie muss noch aktualisiert werden.',
+  offline_comment_published_cleanup_pending:
+    'Der Kommentar wurde veröffentlicht. Der Entwurf konnte nicht von diesem Gerät entfernt werden. Veröffentlichen Sie ihn nicht erneut; versuchen Sie erneut, den lokalen Entwurf zu entfernen.',
+  offline_comment_attachment_pending:
+    'Ein Anhang war ausgewählt. Wählen Sie ihn erneut aus oder bestätigen Sie, dass nur der Text veröffentlicht werden soll.',
+  offline_comment_text_only: 'Nur Text veröffentlichen',
+  offline_comment_clear_confirmed:
+    'Entwurf des veröffentlichten Kommentars entfernen',
+  offline_refresh_pending: 'Lokale Aktualisierung ausstehend',
+  offline_sending: 'Wird übermittelt',
+  offline_request_too_large:
+    'Diese Übermittlung ist zu groß. Kürzen Sie den Text und versuchen Sie es erneut. Ihr Entwurf bleibt erhalten.',
+  offline_comment_refresh_pending:
+    'Übermittelt — Aktualisierung der lokalen Kopie ausstehend',
+  offline_invalid_choice: 'Wählen Sie eine noch verfügbare Option.',
+  offline_comment_empty: 'Geben Sie einen nicht leeren Kommentar ein.',
+  offline_max_notes: 'Notizen dürfen höchstens 255 Zeichen enthalten.',
+  offline_submit_notes: 'Notizen speichern',
+  offline_submission: 'Übermittlung',
+  offline_comment_pending: 'Ausstehender Kommentar',
+  offline_comment_unavailable:
+    'Kommentar übermittelt. Er ist in der lokalen Kopie nicht mehr verfügbar.',
+  offline_invalid_number:
+    'Geben Sie eine gültige Zahl ein, bevor Sie die Antwort speichern.',
   offline_prepare: 'Auf diesem Gerät vorbereiten',
   offline_available: 'Offline verfügbar',
   offline_prepared_at: 'Vollständige Kopie gespeichert: {{date}}',
@@ -14,7 +39,7 @@ const deJSON = {
   offline_unknown: 'Ergebnis muss geprüft werden',
   offline_applied: 'Übertragen',
   offline_conflict: 'Andernorts geändert — Ihre Antwort bleibt erhalten',
-  offline_rejected: 'Antwort abgelehnt — Ihre Arbeit bleibt erhalten',
+  offline_rejected: 'Übermittlung abgelehnt — Ihre Arbeit bleibt erhalten',
   offline_wait_previous:
     'Warten Sie auf das vorherige Ergebnis, bevor Sie diesen Entwurf übermitteln.',
   offline_server_value: 'Aktueller Wert auf dem Server',
@@ -81,8 +106,7 @@ const deJSON = {
     'Klären Sie die verbleibende lokale Arbeit, bevor Sie diese Vorbereitung entfernen.',
   offline_removal_pending:
     'Stellen Sie erneut eine Verbindung her, um die vorherige Vorbereitung vollständig zu entfernen, bevor Sie sie erneut vorbereiten.',
-  offline_unsupported_task:
-    'In diesem Schritt können nur Werte von Aufgaben des Typs TEXT offline übermittelt werden.',
+  offline_unsupported_task: 'Dieser Aufgabentyp muss online ausgefüllt werden.',
   offline_result_changed:
     'Diese Übertragung wurde bereits abschließend bearbeitet. Aktualisieren Sie die Ansicht, um das Ergebnis zu sehen.',
   DUPLICATE_OF: 'Duplikat von ',

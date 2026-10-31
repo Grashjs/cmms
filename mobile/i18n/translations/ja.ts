@@ -1,4 +1,24 @@
 const locale = {
+  offline_comment_saved_refresh_pending: 'コメントの変更はサーバーで確認済みです。ローカルコピーの更新がまだ必要です。',
+  offline_comment_published_cleanup_pending:
+    'コメントは公開済みです。この端末から下書きを削除できませんでした。再投稿せず、ローカルの下書きの削除をもう一度お試しください。',
+  offline_comment_attachment_pending:
+    '添付ファイルが選択されていました。もう一度選択するか、テキストのみを投稿することを確認してください。',
+  offline_comment_text_only: 'テキストのみ投稿',
+  offline_comment_clear_confirmed: '公開済みの下書きを削除',
+  offline_refresh_pending: 'ローカル更新待ち',
+  offline_sending: '送信中',
+  offline_request_too_large:
+    '送信するデータが大きすぎます。文章を短くしてから、もう一度お試しください。下書きは保持されています。',
+  offline_comment_refresh_pending: '送信済み — ローカルコピーの更新待ち',
+  offline_invalid_choice: '現在利用できる選択肢を選んでください。',
+  offline_comment_empty: '空ではないコメントを入力してください。',
+  offline_max_notes: 'メモは255文字以内で入力してください。',
+  offline_submit_notes: 'メモを保存',
+  offline_submission: '送信',
+  offline_comment_pending: '送信待ちのコメント',
+  offline_comment_unavailable: 'コメントは送信済みです。ローカルコピーでは利用できなくなりました。',
+  offline_invalid_number: '回答を保存する前に、有効な数値を入力してください。',
   offline_prepare: 'この端末に準備する',
   offline_available: 'オフラインで利用可能',
   offline_prepared_at: '完全なコピーの保存日時：{{date}}',
@@ -14,7 +34,7 @@ const locale = {
   offline_unknown: '結果の確認が必要',
   offline_applied: '送信済み',
   offline_conflict: '別の場所で変更されました — 回答は保持されています',
-  offline_rejected: '回答が拒否されました — 作業内容は保持されています',
+  offline_rejected: '送信が拒否されました — 作業内容は保持されています',
   offline_wait_previous:
     '前の回答の結果を待ってから、この下書きを送信してください。',
   offline_server_value: '現在のサーバーの値',
@@ -78,8 +98,7 @@ const locale = {
     '準備を解除する前に、端末内に残っている作業内容を解決してください。',
   offline_removal_pending:
     '再接続して以前の準備の解除を完了してから、もう一度準備してください。',
-  offline_unsupported_task:
-    'この段階では、TEXT型タスクの値のみオフラインで送信できます。',
+  offline_unsupported_task: 'この種類のタスクはオンラインで入力してください。',
   offline_result_changed:
     'この送信の結果はすでに確定しています。更新して結果を確認してください。',
   DUPLICATE_OF: '重複元',

@@ -20,6 +20,7 @@ import type { ReactNode } from 'react';
 interface SingleTaskProps {
   task: Task;
   valueEditor?: ReactNode;
+  notesEditor?: ReactNode;
   connectedDisabled?: boolean;
   saving?: boolean;
   preview?: boolean;
@@ -35,6 +36,7 @@ interface SingleTaskProps {
 export default function SingleTask({
   task,
   valueEditor,
+  notesEditor,
   connectedDisabled = false,
   saving = false,
   handleChange,
@@ -49,6 +51,11 @@ export default function SingleTask({
   const theme = useTheme();
   const { t }: { t: any } = useTranslation();
   const [savingNotes, setSavingNotes] = useState<boolean>(false);
+  const notesVisible = !!notes?.get(task.id);
+  const [notesVisited, setNotesVisited] = useState(notesVisible);
+  useEffect(() => {
+    if (notesVisible) setNotesVisited(true);
+  }, [notesVisible]);
   const { user, hasCreatePermission, hasFeature } = useAuth();
   const [inputValue, setInputValue] = useState<string>(
     task.value?.toString() || ''
@@ -260,32 +267,36 @@ export default function SingleTask({
           </TouchableOpacity>
         </View>
       )}
-      {notes?.get(task.id) && (
-        <View>
-          <TextInput
-            mode={'outlined'}
-            multiline
-            disabled={connectedDisabled}
-            value={task.notes}
-            label={t('notes')}
-            onChangeText={(value) =>
-              !preview && handleNoteChange(value, task.id)
-            }
-          />
-          <Button
-            style={{ marginTop: 10 }}
-            mode="contained"
-            loading={savingNotes}
-            disabled={savingNotes || saving || connectedDisabled}
-            onPress={() => {
-              setSavingNotes(true);
-              handleSaveNotes(task.notes, task.id).finally(() =>
-                setSavingNotes(false)
-              );
-            }}
-          >
-            {t('save')}
-          </Button>
+      {(notesEditor ? notesVisible || notesVisited : notesVisible) && (
+        <View style={{ display: notesVisible ? 'flex' : 'none' }}>
+          {notesEditor ?? (
+            <>
+              <TextInput
+                mode={'outlined'}
+                multiline
+                disabled={connectedDisabled}
+                value={task.notes}
+                label={t('notes')}
+                onChangeText={(value) =>
+                  !preview && handleNoteChange(value, task.id)
+                }
+              />
+              <Button
+                style={{ marginTop: 10 }}
+                mode="contained"
+                loading={savingNotes}
+                disabled={savingNotes || saving || connectedDisabled}
+                onPress={() => {
+                  setSavingNotes(true);
+                  handleSaveNotes(task.notes, task.id).finally(() =>
+                    setSavingNotes(false)
+                  );
+                }}
+              >
+                {t('save')}
+              </Button>
+            </>
+          )}
         </View>
       )}
       {connectedDisabled && !!task.images?.length && (

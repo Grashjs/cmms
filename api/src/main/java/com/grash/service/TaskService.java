@@ -8,6 +8,7 @@ import com.grash.model.User;
 import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.repository.TaskRepository;
 import com.grash.utils.Sanitizer;
+import com.grash.utils.TaskPatchValidation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -51,9 +52,8 @@ public class TaskService {
         if (patch.getVersion() != null && patch.getVersion() != task.getVersion()) {
             throw new CustomException("Task changed. Refresh and review your changes before retrying.", HttpStatus.CONFLICT);
         }
-        if (patch.hasValue() && patch.getValue() != null && patch.getValue().length() > 255) {
-            throw new CustomException("Task value must contain at most 255 characters", HttpStatus.BAD_REQUEST);
-        }
+        String validationError = TaskPatchValidation.error(task, patch);
+        if (validationError != null) throw new CustomException(validationError, HttpStatus.BAD_REQUEST);
         taskMapper.updateTask(task, patch);
         if (patch.hasNotes()) task.setNotes(Sanitizer.cleanText(task.getNotes()));
         Task updated = taskRepository.saveAndFlush(task);
