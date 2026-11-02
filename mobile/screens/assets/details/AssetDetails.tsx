@@ -19,19 +19,57 @@ import {
 import ListField from '../../../components/ListField';
 import BasicField from '../../../components/BasicField';
 import { getCustomFieldValuesForDetails } from '../../../models/form';
+import type { OfflineAsset } from '../../../offline/types';
 
 export default function AssetDetails({
   asset,
-  navigation
+  navigation,
+  offlineAsset
 }: {
-  asset: Asset;
+  asset?: Asset;
   navigation: any;
+  offlineAsset?: OfflineAsset;
 }) {
   const { getFormattedDate, getFormattedCurrency } = useContext(
     CompanySettingsContext
   );
   const { t } = useTranslation();
   const theme = useTheme();
+  if (offlineAsset) {
+    const fields = [
+      { label: t('name'), value: offlineAsset.name },
+      { label: t('id'), value: offlineAsset.customId },
+      { label: t('description'), value: offlineAsset.description },
+      { label: t('model'), value: offlineAsset.model },
+      { label: t('serial_number'), value: offlineAsset.serialNumber },
+      {
+        label: t('status'),
+        value: offlineAsset.status ? t(offlineAsset.status) : null
+      },
+      { label: t('manufacturer'), value: offlineAsset.manufacturer },
+      { label: t('power'), value: offlineAsset.power },
+      { label: t('area'), value: offlineAsset.area },
+      { label: t('barcode'), value: offlineAsset.barCode },
+      { label: t('nfc_tag'), value: offlineAsset.nfcId }
+    ];
+    return (
+      <ScrollView
+        style={{
+          ...styles.container,
+          backgroundColor: theme.colors.background
+        }}
+      >
+        <Text style={{ padding: 20 }}>{t('offline_asset_read_only')}</Text>
+        {fields.map((field) => (
+          <BasicField
+            key={field.label}
+            label={field.label}
+            value={field.value}
+          />
+        ))}
+      </ScrollView>
+    );
+  }
   const fieldsToRender: {
     label: string;
     value: string | number;

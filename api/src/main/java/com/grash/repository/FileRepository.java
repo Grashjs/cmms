@@ -8,6 +8,8 @@ import java.util.Collection;
 import java.util.List;
 
 public interface FileRepository extends JpaRepository<File, Long>, JpaSpecificationExecutor<File> {
+    java.util.Optional<File> findByIdAndCompany_Id(Long id, Long companyId);
+
     Collection<File> findByCompany_Id(Long id);
 
     List<File> findByIdIn(List<Long> ids);

@@ -2,7 +2,7 @@ import { View } from './Themed';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import * as React from 'react';
-import { useContext, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
 import * as FileSystem from 'expo-file-system';
 import { Alert, Image, ScrollView, Text, TouchableOpacity } from 'react-native';
 import { IconButton, useTheme } from 'react-native-paper';
@@ -17,6 +17,10 @@ import {
 } from 'expo-document-picker';
 import { openLibraryWithPermission } from '../utils/mediaPermissions';
 import InAppCamera from './InAppCamera';
+import {
+  assertSessionGeneration,
+  sessionGeneration
+} from '../offline/sessionBridge';
 
 interface OwnProps {
   title: string;
@@ -25,6 +29,9 @@ interface OwnProps {
   description: string;
   onChange: (files: IFile[]) => void;
   files?: IFile[];
+  disabled?: boolean;
+  selectionOnly?: boolean;
+  maxFileSize?: number;
 }
 
 export default function FileUpload({
@@ -32,17 +39,24 @@ export default function FileUpload({
   type,
   multiple,
   onChange,
-  files: defaultFiles
+  files: defaultFiles,
+  disabled = false,
+  selectionOnly = false,
+  maxFileSize = 7
 }: OwnProps) {
   const theme = useTheme();
   const [images, setImages] = useState<IFile[]>(defaultFiles || []);
   const [files, setFiles] = useState<IFile[]>(defaultFiles || []);
   const [inAppCameraVisible, setInAppCameraVisible] = useState(false);
+  const cameraGeneration = useRef(sessionGeneration());
   const { t } = useTranslation();
   const { showSnackBar } = useContext(CustomSnackBarContext);
-  const maxFileSize: number = 7;
 
   const onChangeInternal = (files: IFile[], type: 'file' | 'image') => {
+    if (selectionOnly) {
+      onChange(files);
+      return;
+    }
     if (type === 'file') {
       setFiles(files);
     } else {
@@ -58,12 +72,15 @@ export default function FileUpload({
     return fileSize / 1024 / 1024 > limit;
   };
   const takePhoto = () => {
+    cameraGeneration.current = sessionGeneration();
     setInAppCameraVisible(true);
   };
   const handleInAppCapture = async (uri: string) => {
     setInAppCameraVisible(false);
     try {
+      assertSessionGeneration(cameraGeneration.current);
       await checkSize(uri);
+      assertSessionGeneration(cameraGeneration.current);
       const fileName = uri.split('/').pop() || 'photo.jpg';
       onChangeInternal(
         [
@@ -77,6 +94,7 @@ export default function FileUpload({
     }
   };
   const pickImage = async () => {
+    const generation = sessionGeneration();
     console.warn('[ImageUpload] Tap -> library');
     try {
       const result = await openLibraryWithPermission('ImageUpload', {
@@ -92,7 +110,8 @@ export default function FileUpload({
         );
         return;
       }
-      await onImagePicked(result);
+      assertSessionGeneration(generation);
+      await onImagePicked(result, generation);
     } catch (error) {
       console.error('Error picking image:', error);
       Alert.alert('Error', 'Failed to pick image. Please try again.');
@@ -110,15 +129,19 @@ export default function FileUpload({
       throw new Error(t('max_file_size_error', { size: maxFileSize }));
     }
   };
-  const onImagePicked = async (result: ImagePicker.ImagePickerResult) => {
+  const onImagePicked = async (
+    result: ImagePicker.ImagePickerResult,
+    generation: number
+  ) => {
     if (!result.canceled) {
       for (const asset of result.assets) {
         const { uri } = asset;
         await checkSize(uri);
+        assertSessionGeneration(generation);
       }
       onChangeInternal(
         [
-          ...images,
+          ...(multiple ? images : []),
           ...result.assets.map((asset) => {
             const fileName =
               asset.uri.split('/')[asset.uri.split('/').length - 1];
@@ -134,6 +157,7 @@ export default function FileUpload({
     }
   };
   const pickFile = async () => {
+    const generation = sessionGeneration();
     try {
       // Pass the 'multiple' prop to enable multi-file selection if needed
       const options: DocumentPickerOptions = {
@@ -151,6 +175,7 @@ export default function FileUpload({
 
       const result: DocumentPickerResult =
         await DocumentPicker.getDocumentAsync(options);
+      assertSessionGeneration(generation);
       if (
         result.canceled === true ||
         !result.assets ||
@@ -167,6 +192,7 @@ export default function FileUpload({
       // Loop through selected assets to perform size checks
       for (const asset of selectedAssets) {
         await checkSize(asset.uri);
+        assertSessionGeneration(generation);
 
         filesToUpload.push({
           uri: asset.uri,
@@ -191,6 +217,7 @@ export default function FileUpload({
     }
   };
   const onPress = () => {
+    if (disabled) return;
     if (type === 'image')
       SheetManager.show('upload-file-sheet', {
         payload: {
@@ -208,7 +235,7 @@ export default function FileUpload({
         onCapture={handleInAppCapture}
         onClose={() => setInAppCameraVisible(false)}
       />
-      <TouchableOpacity onPress={onPress}>
+      <TouchableOpacity onPress={onPress} disabled={disabled}>
         <View
           style={{
             flexDirection: 'row',

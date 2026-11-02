@@ -1,4 +1,55 @@
 const locale = {
+  offline_refresh_copy: 'تحديث النسخة',
+  offline_remove_server_attachment: 'إزالة من أمر العمل',
+  offline_clear_server_image: 'إزالة الصورة الرئيسية',
+  offline_remove_server_attachment_confirm:
+    'هل تريد إزالة هذا الملف من أمر العمل على الخادم؟ ستبقى اختياراتك وعمليات الإرسال المعلّقة محفوظة.',
+  offline_clear_server_image_confirm:
+    'هل تريد إزالة الصورة الرئيسية على الخادم؟ ستبقى صورتك المختارة وعمليات الإرسال المعلّقة محفوظة.',
+  offline_server_removal_refresh_pending:
+    'تم تأكيد الإزالة — بانتظار تحديث النسخة المحلية',
+  offline_review_files: 'مراجعة التحديد',
+  offline_restore_files_draft:
+    'سيُعاد التحديد إلى مسودة. راجعه ثم احفظه صراحةً. لن تُستبدل أي مسودة أحدث.',
+  offline_keep_file_selection: 'الاحتفاظ بتحديدي',
+  offline_file_transfer_only:
+    'تم نقل الملف إلى الخادم؛ يُؤكَّد إرفاقه بشكل منفصل.',
+  offline_file_dependency_failed:
+    'ينتظر الإرفاق ملفًا رُفض نقله. تم الاحتفاظ بتحديدك.',
+  offline_retry_file_import: 'إعادة محاولة حفظ الملف',
+  offline_file_available: 'الملف متاح على هذا الجهاز',
+  offline_file_failed: 'الملف غير متاح على هذا الجهاز',
+  offline_open_file: 'فتح الملف',
+  offline_download_file: 'تنزيل على هذا الجهاز',
+  offline_remove_file_selection: 'إزالة من التحديد',
+  offline_remove_local_copy: 'حذف النسخة المحلية',
+  offline_save_files: 'حفظ الملفات',
+  offline_other_fields_read_only:
+    'يمكن تعديل الملفات فقط في هذا النموذج عند عدم الاتصال بالإنترنت.',
+  offline_save_other_changes: 'حفظ التغييرات الأخرى',
+  offline_scan_asset: 'مسح رمز معدّة مُجهّزة',
+  offline_scan_unavailable:
+    'يتطلب المسح دون اتصال تجهيزًا مصرحًا به وترخيص المسح.',
+  offline_scan_ambiguous:
+    'تطابق عدة معدّات مُجهّزة هذا الرمز. افتح أمر العمل الخاص بها.',
+  offline_asset_not_available:
+    'هذه المعدّة غير متاحة دون اتصال. جهّز أمر العمل الخاص بها أثناء الاتصال بالإنترنت.',
+  offline_asset_read_only:
+    'نسخة مُجهّزة للقراءة فقط. تتطلب المعلومات الأخرى اتصالًا بالإنترنت.',
+  offline_asset_prepared_work_orders: 'تُعرض أوامر العمل المُجهّزة فقط.',
+  offline_file_not_ready: 'انتظر حتى يكتمل نسخ الملف إلى هذا الجهاز.',
+  offline_file_limit: 'يتجاوز هذا الملف الحجم المسموح به.',
+  offline_storage_limit:
+    'مساحة التخزين غير كافية. احذف النسخ المحلية التي لم تعد بحاجة إليها.',
+  offline_transfer_failed:
+    'تم رفض نقل ملف. احتفظ بعملك، ثم ألغِ هذا الإرسال صراحةً وحدد الملفات مجددًا لتصحيحه.',
+  offline_file_in_use:
+    'لا يزال هذا الملف مستخدمًا في تجهيز أو عمل قيد الانتظار.',
+  offline_file_open_failed: 'تعذّر فتح هذا المستند على هذا الجهاز.',
+  offline_file_integrity: 'نسخة الملف غير مكتملة أو تغيّرت. حدده مجددًا.',
+  offline_attachments_conflict:
+    'تغيّرت المرفقات على الخادم. حدّث البيانات، ثم جهّز التغيير مجددًا.',
+  offline_file_copy_failed: 'فشل النسخ إلى هذا الجهاز. حدد الملف مجددًا.',
   offline_comment_saved_refresh_pending:
     'تم تأكيد تغيير التعليق على الخادم؛ لا تزال النسخة المحلية بحاجة إلى تحديث.',
   offline_comment_published_cleanup_pending:

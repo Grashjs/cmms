@@ -1,4 +1,60 @@
 const locale = {
+  offline_refresh_copy: 'Kopie vernieuwen',
+  offline_remove_server_attachment: 'Verwijderen uit werkorder',
+  offline_clear_server_image: 'Hoofdafbeelding verwijderen',
+  offline_remove_server_attachment_confirm:
+    'Dit bestand uit de werkorder op de server verwijderen? Uw selecties en wachtende verzendingen blijven behouden.',
+  offline_clear_server_image_confirm:
+    'De hoofdafbeelding op de server verwijderen? Uw geselecteerde afbeelding en wachtende verzendingen blijven behouden.',
+  offline_server_removal_refresh_pending:
+    'Verwijdering bevestigd — lokale vernieuwing in afwachting',
+  offline_review_files: 'Selectie bekijken',
+  offline_restore_files_draft:
+    'De selectie wordt teruggezet als concept. Controleer deze en sla deze vervolgens expliciet op. Een nieuwer concept wordt niet vervangen.',
+  offline_keep_file_selection: 'Mijn selectie behouden',
+  offline_file_transfer_only:
+    'Bestand overgedragen naar de server; de koppeling wordt afzonderlijk bevestigd.',
+  offline_file_dependency_failed:
+    'De koppeling wacht op een bestand waarvan de overdracht is geweigerd. Uw selectie blijft behouden.',
+  offline_retry_file_import: 'Bestand opnieuw proberen op te slaan',
+  offline_file_available: 'Bestand beschikbaar op dit apparaat',
+  offline_file_failed: 'Bestand niet beschikbaar op dit apparaat',
+  offline_open_file: 'Bestand openen',
+  offline_download_file: 'Downloaden naar dit apparaat',
+  offline_remove_file_selection: 'Uit selectie verwijderen',
+  offline_remove_local_copy: 'Lokale kopie verwijderen',
+  offline_save_files: 'Bestanden opslaan',
+  offline_other_fields_read_only:
+    'Zonder internetverbinding kunnen alleen bestanden in dit formulier worden gewijzigd.',
+  offline_save_other_changes: 'Andere wijzigingen opslaan',
+  offline_scan_asset: 'Een voorbereide installatie scannen',
+  offline_scan_unavailable:
+    'Offline scannen vereist een toegestane voorbereiding en een scanlicentie.',
+  offline_scan_ambiguous:
+    'Meerdere voorbereide installaties komen overeen met deze code. Open hun werkorder.',
+  offline_asset_not_available:
+    'Deze installatie is offline niet beschikbaar. Bereid de werkorder voor met een internetverbinding.',
+  offline_asset_read_only:
+    'Voorbereide kopie, alleen lezen. Voor andere informatie is een internetverbinding vereist.',
+  offline_asset_prepared_work_orders:
+    'Alleen voorbereide werkorders worden weergegeven.',
+  offline_file_not_ready:
+    'Wacht tot het bestand volledig naar dit apparaat is gekopieerd.',
+  offline_file_limit: 'Dit bestand overschrijdt de toegestane grootte.',
+  offline_storage_limit:
+    'Er is onvoldoende opslagruimte. Verwijder lokale kopieën die niet meer nodig zijn.',
+  offline_transfer_failed:
+    'Een overdracht is geweigerd. Bewaar uw werk, verwerp deze inzending vervolgens expliciet en selecteer de bestanden opnieuw om dit te corrigeren.',
+  offline_file_in_use:
+    'Dit bestand wordt nog gebruikt door een voorbereiding of werk dat in behandeling is.',
+  offline_file_open_failed:
+    'Dit document kan niet op dit apparaat worden geopend.',
+  offline_file_integrity:
+    'De bestandskopie is onvolledig of gewijzigd. Selecteer het bestand opnieuw.',
+  offline_attachments_conflict:
+    'De bijlagen zijn op de server gewijzigd. Vernieuw de gegevens en bereid de wijziging opnieuw voor.',
+  offline_file_copy_failed:
+    'Kopiëren naar dit apparaat is mislukt. Selecteer het bestand opnieuw.',
   offline_comment_saved_refresh_pending:
     'De wijziging van de opmerking is bevestigd op de server; de lokale kopie moet nog worden bijgewerkt.',
   offline_comment_published_cleanup_pending:

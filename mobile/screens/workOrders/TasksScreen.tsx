@@ -26,6 +26,9 @@ import {
 import { Text } from 'react-native-paper';
 import { useSelector } from '../../store';
 import useAuth from '../../hooks/useAuth';
+import { OfflineAttachmentEditor } from '../../offline/components/OfflineAttachmentEditor';
+import { PermissionEntity } from '../../models/role';
+import { PlanFeature } from '../../models/subscriptionPlan';
 
 const EMPTY_TASKS: Task[] = [];
 type TaskInput = { revision: number; value: string | number };
@@ -36,7 +39,7 @@ export default function TasksScreen({
   route
 }: RootStackScreenProps<'Tasks'>) {
   const { t }: { t: any } = useTranslation();
-  const { user: offlineUser } = useAuth();
+  const { user: offlineUser, hasCreatePermission, hasFeature } = useAuth();
   const offlineUserId = offlineUser?.id;
   const { tasksProps = EMPTY_TASKS, workOrderId } = route.params;
   const offline = useOffline();
@@ -239,6 +242,21 @@ export default function TasksScreen({
           key={task.id}
           task={task}
           saving={!!savingTasks[task.id]}
+          imagesEditor={
+            isPrepared ? (
+              <OfflineAttachmentEditor
+                workOrderId={workOrderId}
+                taskId={task.id}
+                files={task.images}
+                title={t('images')}
+                editable={
+                  !!prepared?.canEdit &&
+                  hasCreatePermission(PermissionEntity.FILES) &&
+                  hasFeature(PlanFeature.FILE)
+                }
+              />
+            ) : undefined
+          }
           connectedDisabled={isPrepared && !offline.networkAvailable}
           valueEditor={
             isPrepared ? (

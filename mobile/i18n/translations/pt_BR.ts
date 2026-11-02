@@ -1,4 +1,60 @@
 const ptBRJSON = {
+  offline_refresh_copy: 'Atualizar a cópia',
+  offline_remove_server_attachment: 'Remover da ordem de serviço',
+  offline_clear_server_image: 'Remover imagem principal',
+  offline_remove_server_attachment_confirm:
+    'Remover este arquivo da ordem de serviço no servidor? Suas seleções e os envios pendentes serão preservados.',
+  offline_clear_server_image_confirm:
+    'Remover a imagem principal no servidor? A imagem selecionada e os envios pendentes serão preservados.',
+  offline_server_removal_refresh_pending:
+    'Remoção confirmada — atualização local pendente',
+  offline_review_files: 'Revisar a seleção',
+  offline_restore_files_draft:
+    'A seleção voltará a ser um rascunho. Confira e salve explicitamente. Um rascunho mais recente não será substituído.',
+  offline_keep_file_selection: 'Manter minha seleção',
+  offline_file_transfer_only:
+    'Arquivo transferido para o servidor; a vinculação é confirmada separadamente.',
+  offline_file_dependency_failed:
+    'A vinculação aguarda um arquivo cuja transferência foi recusada. Sua seleção foi preservada.',
+  offline_retry_file_import: 'Tentar salvar o arquivo novamente',
+  offline_file_available: 'Arquivo disponível neste dispositivo',
+  offline_file_failed: 'Arquivo indisponível neste dispositivo',
+  offline_open_file: 'Abrir arquivo',
+  offline_download_file: 'Baixar neste dispositivo',
+  offline_remove_file_selection: 'Remover da seleção',
+  offline_remove_local_copy: 'Excluir cópia local',
+  offline_save_files: 'Salvar arquivos',
+  offline_other_fields_read_only:
+    'Sem conexão, apenas os arquivos podem ser alterados neste formulário.',
+  offline_save_other_changes: 'Salvar outras alterações',
+  offline_scan_asset: 'Escanear um ativo preparado',
+  offline_scan_unavailable:
+    'O escaneamento offline exige uma preparação autorizada e a licença de escaneamento.',
+  offline_scan_ambiguous:
+    'Vários ativos preparados correspondem a este código. Abra a ordem de serviço deles.',
+  offline_asset_not_available:
+    'Este ativo não está disponível offline. Prepare a ordem de serviço dele com uma conexão à Internet.',
+  offline_asset_read_only:
+    'Cópia preparada somente para leitura. As demais informações exigem conexão à Internet.',
+  offline_asset_prepared_work_orders:
+    'Apenas as ordens de serviço preparadas são exibidas.',
+  offline_file_not_ready:
+    'Aguarde a conclusão da cópia do arquivo neste dispositivo.',
+  offline_file_limit: 'Este arquivo excede o tamanho permitido.',
+  offline_storage_limit:
+    'Não há espaço de armazenamento suficiente. Remova as cópias locais que não são mais necessárias.',
+  offline_transfer_failed:
+    'Uma transferência foi recusada. Preserve seu trabalho, descarte explicitamente este envio e selecione os arquivos novamente para corrigi-lo.',
+  offline_file_in_use:
+    'Este arquivo ainda está sendo usado por uma preparação ou um trabalho pendente.',
+  offline_file_open_failed:
+    'Não é possível abrir este documento neste dispositivo.',
+  offline_file_integrity:
+    'A cópia do arquivo está incompleta ou foi alterada. Selecione-o novamente.',
+  offline_attachments_conflict:
+    'Os anexos foram alterados no servidor. Atualize os dados e prepare novamente a alteração.',
+  offline_file_copy_failed:
+    'A cópia neste dispositivo falhou. Selecione o arquivo novamente.',
   offline_comment_saved_refresh_pending:
     'A alteração do comentário foi confirmada no servidor; a cópia local ainda precisa ser atualizada.',
   offline_comment_published_cleanup_pending:

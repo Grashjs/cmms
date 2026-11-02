@@ -1,6 +1,7 @@
 import type WorkOrder from '../models/workOrder';
 import type { Task } from '../models/tasks';
 import type Comment from '../models/comment';
+import type { AssetDTO } from '../models/asset';
 
 export const OFFLINE_LIMITS = Object.freeze({
   preparedWorkOrders: 25,
@@ -9,10 +10,26 @@ export const OFFLINE_LIMITS = Object.freeze({
   history: 500,
   snapshotItems: 2000,
   snapshotBytes: 2 * 1024 * 1024,
-  receiptIds: 100
+  receiptIds: 100,
+  fileBytes: 35 * 1024 * 1024,
+  localFileBytes: 500 * 1024 * 1024,
+  freeDiskReserve: 100 * 1024 * 1024
 });
 
 export type OfflineTask = Task & { version: number };
+export type OfflineAsset = Pick<
+  AssetDTO,
+  | 'id'
+  | 'name'
+  | 'customId'
+  | 'description'
+  | 'status'
+  | 'model'
+  | 'serialNumber'
+  | 'manufacturer'
+  | 'power'
+  | 'area'
+> & { barCode?: string; nfcId?: string };
 export interface OfflineSnapshot {
   workOrder: WorkOrder;
   tasks: OfflineTask[];
@@ -22,6 +39,9 @@ export interface OfflineSnapshot {
   complete: true;
   canEdit: boolean;
   canComment?: boolean;
+  assets?: OfflineAsset[];
+  canScan?: boolean;
+  canReadAssets?: boolean;
 }
 
 export interface OfflineEligibility {
@@ -51,23 +71,72 @@ type TaskOperationIdentity = OperationIdentity & {
 export type OperationRequest =
   | (TaskOperationIdentity & { type: 'SET_TASK_VALUE'; value: string })
   | (TaskOperationIdentity & { type: 'SET_TASK_NOTES'; notes: string })
-  | (OperationIdentity & { type: 'CREATE_COMMENT'; content: string });
+  | (OperationIdentity & {
+      type: 'CREATE_COMMENT';
+      content: string;
+      fileTransferIds?: string[];
+    })
+  | (OperationIdentity & {
+      type: 'UPLOAD_FILE';
+      target: 'WORK_ORDER' | 'TASK' | 'COMMENT';
+      taskId?: number;
+      name: string;
+      mimeType: string;
+      size: number;
+      sha256: string;
+      fileType: 'IMAGE' | 'OTHER';
+    })
+  | (OperationIdentity & {
+      type: 'ADD_TASK_IMAGES';
+      taskId: number;
+      fileTransferIds: string[];
+    })
+  | (OperationIdentity & {
+      type: 'UPDATE_WORK_ORDER_ATTACHMENTS';
+      addTransferIds: string[];
+      imageChange?: { transferId: string; baseImageId: number | null };
+    });
+
+export function isTaskOperation(
+  request: OperationRequest
+): request is Extract<
+  OperationRequest,
+  { type: 'SET_TASK_VALUE' | 'SET_TASK_NOTES' }
+> {
+  return request.type === 'SET_TASK_VALUE' || request.type === 'SET_TASK_NOTES';
+}
+export function transferIds(request: OperationRequest): string[] {
+  if (request.type === 'CREATE_COMMENT' || request.type === 'ADD_TASK_IMAGES')
+    return request.fileTransferIds || [];
+  if (request.type === 'UPDATE_WORK_ORDER_ATTACHMENTS')
+    return [
+      ...request.addTransferIds,
+      ...(request.imageChange ? [request.imageChange.transferId] : [])
+    ];
+  return [];
+}
 
 export function operationField(
   request: OperationRequest
-): TaskField | 'comment' {
+): TaskField | 'comment' | 'attachments' {
   return request.type === 'CREATE_COMMENT'
     ? 'comment'
     : request.type === 'SET_TASK_NOTES'
     ? 'notes'
-    : 'value';
+    : request.type === 'SET_TASK_VALUE'
+    ? 'value'
+    : 'attachments';
 }
 export function operationText(request: OperationRequest): string {
   return request.type === 'CREATE_COMMENT'
     ? request.content
     : request.type === 'SET_TASK_NOTES'
     ? request.notes
-    : request.value;
+    : request.type === 'SET_TASK_VALUE'
+    ? request.value
+    : request.type === 'UPLOAD_FILE'
+    ? request.name
+    : '';
 }
 
 export interface OperationReceipt {
@@ -77,7 +146,15 @@ export interface OperationReceipt {
   task?: OfflineTask;
   chainBaseVersion?: number;
   commentId?: number;
-  visibility?: 'VISIBLE' | 'COMMENT_DELETED' | 'WORK_ORDER_UNAVAILABLE';
+  fileId?: number;
+  fileIds?: number[];
+  imageId?: number | null;
+  visibility?:
+    | 'VISIBLE'
+    | 'COMMENT_DELETED'
+    | 'WORK_ORDER_UNAVAILABLE'
+    | 'FILE_DELETED'
+    | 'TARGET_UNAVAILABLE';
   receivedAt: string;
 }
 
@@ -100,6 +177,7 @@ export interface LocalOperation {
   updatedAt: number;
   submittedRevision: number | null;
   serverCommentId: number | null;
+  snapshotConfirmed?: boolean;
   blockedReason?: string;
 }
 
@@ -123,10 +201,54 @@ export interface CommentDraft {
   workOrderId: number;
   revision: number;
   content: string;
-  // The files themselves remain online-only until step 3. Never silently drop
-  // this intent when restoring or editing a durable text draft.
+  fileIds?: string[];
+  // Retain legacy attachment intent until the user selects its actual files.
   attachmentPending?: boolean;
   updatedAt: number;
+}
+
+export interface FileTarget {
+  kind: 'COMMENT' | 'TASK' | 'WORK_ORDER';
+  taskId?: number;
+  image?: boolean;
+}
+export interface LocalFile {
+  id: string;
+  name: string;
+  mimeType: string;
+  uri: string;
+  size: number;
+  sha256: string;
+  status: 'IMPORTING' | 'READY' | 'ERROR' | 'DELETING';
+  error?: string;
+  serverFileId?: number;
+  transferStatus?: OperationStatus;
+  transferIds?: string[];
+  workOrderIds: number[];
+  // The import intent is durable before touching the filesystem. Its identity
+  // is never reused for another account, destination or byte content.
+  target?: FileTarget;
+  importWorkOrderId?: number;
+  sourceUri?: string;
+  temporaryUri?: string;
+}
+export interface AttachmentDraft {
+  id: string;
+  kind: 'ATTACHMENTS';
+  workOrderId: number;
+  taskId?: number;
+  revision: number;
+  fileIds: string[];
+  imageFileId?: string;
+  baseImageId: number | null;
+  updatedAt: number;
+}
+export interface DownloadDescriptor {
+  fileId: number;
+  name: string;
+  mimeType: string;
+  size: number;
+  url: string;
 }
 
 export interface TaskView {
@@ -166,11 +288,12 @@ export type PreparedWorkOrderSummary = Omit<
 >;
 
 export interface PendingWork {
+  operationType?: OperationRequest['type'];
   kind: 'DRAFT' | 'OPERATION';
   id: string;
   workOrderId: number;
   taskId?: number;
-  field: TaskField | 'comment';
+  field: TaskField | 'comment' | 'attachments';
   draftRevision?: number;
   status?: OperationStatus;
   attemptCount?: number;
@@ -270,6 +393,7 @@ export function snapshotItemCount(snapshot: OfflineSnapshot): number {
     snapshot.tasks.length * 2 +
     snapshot.comments.length +
     snapshot.history.length +
+    size(snapshot.assets) +
     size(workOrder.assignedTo) +
     size(workOrder.team?.userIds) +
     size(workOrder.customers) +

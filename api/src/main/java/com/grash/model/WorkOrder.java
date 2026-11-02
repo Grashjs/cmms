@@ -27,6 +27,8 @@ import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toCollection;
 
 @Entity
+// Editing another field must not rewrite a concurrently replaced primary image.
+@org.hibernate.annotations.DynamicUpdate
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

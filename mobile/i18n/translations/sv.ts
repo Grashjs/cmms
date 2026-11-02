@@ -1,4 +1,59 @@
 const locale = {
+  offline_refresh_copy: 'Uppdatera kopian',
+  offline_remove_server_attachment: 'Ta bort från arbetsordern',
+  offline_clear_server_image: 'Ta bort huvudbilden',
+  offline_remove_server_attachment_confirm:
+    'Ta bort den här filen från arbetsordern på servern? Dina val och väntande inskickningar bevaras.',
+  offline_clear_server_image_confirm:
+    'Ta bort huvudbilden på servern? Din valda bild och väntande inskickningar bevaras.',
+  offline_server_removal_refresh_pending:
+    'Borttagning bekräftad — lokal uppdatering väntar',
+  offline_review_files: 'Granska urvalet',
+  offline_restore_files_draft:
+    'Urvalet återställs som ett utkast. Granska det och spara det sedan uttryckligen. Ett nyare utkast ersätts inte.',
+  offline_keep_file_selection: 'Behåll mitt urval',
+  offline_file_transfer_only:
+    'Filen har överförts till servern; kopplingen bekräftas separat.',
+  offline_file_dependency_failed:
+    'Kopplingen väntar på en fil vars överföring nekades. Ditt urval finns kvar.',
+  offline_retry_file_import: 'Försök spara filen igen',
+  offline_file_available: 'Filen är tillgänglig på den här enheten',
+  offline_file_failed: 'Filen är inte tillgänglig på den här enheten',
+  offline_open_file: 'Öppna fil',
+  offline_download_file: 'Ladda ned till den här enheten',
+  offline_remove_file_selection: 'Ta bort från urvalet',
+  offline_remove_local_copy: 'Ta bort lokal kopia',
+  offline_save_files: 'Spara filer',
+  offline_other_fields_read_only:
+    'Utan internetanslutning kan endast filer ändras i det här formuläret.',
+  offline_save_other_changes: 'Spara övriga ändringar',
+  offline_scan_asset: 'Skanna en förberedd tillgång',
+  offline_scan_unavailable:
+    'Skanning offline kräver en godkänd förberedelse och en skanningslicens.',
+  offline_scan_ambiguous:
+    'Flera förberedda tillgångar matchar den här koden. Öppna deras arbetsorder.',
+  offline_asset_not_available:
+    'Den här tillgången är inte tillgänglig offline. Förbered dess arbetsorder med en internetanslutning.',
+  offline_asset_read_only:
+    'Förberedd kopia med endast läsbehörighet. Övrig information kräver internetanslutning.',
+  offline_asset_prepared_work_orders: 'Endast förberedda arbetsorder visas.',
+  offline_file_not_ready:
+    'Vänta tills filen har kopierats färdigt till den här enheten.',
+  offline_file_limit: 'Den här filen överskrider den tillåtna storleken.',
+  offline_storage_limit:
+    'Det finns inte tillräckligt med lagringsutrymme. Ta bort lokala kopior som inte längre behövs.',
+  offline_transfer_failed:
+    'En överföring nekades. Behåll ditt arbete, avbryt sedan uttryckligen den här insändningen och välj filerna igen för att rätta till den.',
+  offline_file_in_use:
+    'Den här filen används fortfarande av en förberedelse eller ett väntande arbete.',
+  offline_file_open_failed:
+    'Det går inte att öppna det här dokumentet på den här enheten.',
+  offline_file_integrity:
+    'Filkopian är ofullständig eller har ändrats. Välj filen igen.',
+  offline_attachments_conflict:
+    'Bilagorna har ändrats på servern. Uppdatera uppgifterna och förbered sedan ändringen igen.',
+  offline_file_copy_failed:
+    'Kopieringen till den här enheten misslyckades. Välj filen igen.',
   offline_comment_saved_refresh_pending:
     'Ändringen av kommentaren är bekräftad på servern; den lokala kopian behöver fortfarande uppdateras.',
   offline_comment_published_cleanup_pending:

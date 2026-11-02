@@ -1,4 +1,57 @@
 const locale = {
+  offline_refresh_copy: 'コピーを更新',
+  offline_remove_server_attachment: '作業指示から取り外す',
+  offline_clear_server_image: 'メイン画像を削除',
+  offline_remove_server_attachment_confirm:
+    'サーバー上の作業指示からこのファイルを取り外しますか？選択内容と送信待ちのデータは保持されます。',
+  offline_clear_server_image_confirm:
+    'サーバー上のメイン画像を削除しますか？選択した画像と送信待ちのデータは保持されます。',
+  offline_server_removal_refresh_pending: '削除確認済み — ローカル更新待ち',
+  offline_review_files: '選択内容を確認',
+  offline_restore_files_draft:
+    '選択内容を下書きに戻します。内容を確認し、保存ボタンで明示的に保存してください。より新しい下書きは上書きされません。',
+  offline_keep_file_selection: '選択内容を保持',
+  offline_file_transfer_only:
+    'ファイルはサーバーに転送されました。添付の確定は別途行われます。',
+  offline_file_dependency_failed:
+    '転送が拒否されたファイルのため、添付は待機中です。選択内容は保持されています。',
+  offline_retry_file_import: 'ファイルの保存を再試行',
+  offline_file_available: 'この端末で利用できるファイル',
+  offline_file_failed: 'この端末では利用できないファイル',
+  offline_open_file: 'ファイルを開く',
+  offline_download_file: 'この端末にダウンロード',
+  offline_remove_file_selection: '選択から外す',
+  offline_remove_local_copy: '端末上のコピーを削除',
+  offline_save_files: 'ファイルを保存',
+  offline_other_fields_read_only:
+    'オフラインでは、このフォームのファイルのみ変更できます。',
+  offline_save_other_changes: 'その他の変更を保存',
+  offline_scan_asset: '準備済みの設備をスキャン',
+  offline_scan_unavailable:
+    'オフラインでのスキャンには、許可された準備とスキャンのライセンスが必要です。',
+  offline_scan_ambiguous:
+    'このコードに一致する準備済みの設備が複数あります。対象の作業指示を開いてください。',
+  offline_asset_not_available:
+    'この設備はオフラインでは利用できません。インターネットに接続して対象の作業指示を準備してください。',
+  offline_asset_read_only:
+    '準備済みの読み取り専用コピーです。その他の情報にはインターネット接続が必要です。',
+  offline_asset_prepared_work_orders: '準備済みの作業指示のみ表示しています。',
+  offline_file_not_ready:
+    'この端末へのファイルのコピーが完了するまでお待ちください。',
+  offline_file_limit: 'このファイルは許容サイズを超えています。',
+  offline_storage_limit:
+    '保存領域が不足しています。不要になった端末上のコピーを削除してください。',
+  offline_transfer_failed:
+    '転送が拒否されました。作業内容を保持し、この送信を明示的に破棄してから、ファイルを選択し直して修正してください。',
+  offline_file_in_use:
+    'このファイルは準備済みデータまたは保留中の作業で使用されています。',
+  offline_file_open_failed: 'この端末ではこの文書を開けません。',
+  offline_file_integrity:
+    'ファイルのコピーが不完全であるか変更されています。もう一度選択してください。',
+  offline_attachments_conflict:
+    'サーバー上の添付ファイルが変更されました。データを更新してから、変更を準備し直してください。',
+  offline_file_copy_failed:
+    'この端末へのコピーに失敗しました。ファイルを選択し直してください。',
   offline_comment_saved_refresh_pending: 'コメントの変更はサーバーで確認済みです。ローカルコピーの更新がまだ必要です。',
   offline_comment_published_cleanup_pending:
     'コメントは公開済みです。この端末から下書きを削除できませんでした。再投稿せず、ローカルの下書きの削除をもう一度お試しください。',

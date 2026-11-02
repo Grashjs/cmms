@@ -30,6 +30,7 @@ import { useMentions } from 'react-native-controlled-mentions';
 import { TriggersConfig } from 'react-native-controlled-mentions/dist/types/types';
 
 import { useOffline } from '../offline/OfflineProvider';
+import { OfflineFileItem } from '../offline/components/OfflineFileItem';
 
 interface CommentItemProps {
   connectedDisabled?: boolean;
@@ -85,6 +86,8 @@ export default function CommentItem({
   const expectedLocalComment = useRef<Comment | null>(null);
   const [deletionConfirmed, setDeletionConfirmed] = useState(false);
   const offline = useOffline();
+  const isPrepared =
+    offline.enabled && offline.prepared.some((item) => item.id === workOrderId);
   const showLocalUpdateFailure = (result: ConfirmedCommentMutation) => {
     if (result.localUpdateError) {
       expectedLocalComment.current = result.comment ?? null;
@@ -388,58 +391,70 @@ export default function CommentItem({
             </Text>
           )}
 
-          {connectedDisabled && !!comment.files?.length && (
+          {isPrepared &&
+            !isEditing &&
+            comment.files?.map((file) => (
+              <OfflineFileItem
+                key={file.id}
+                workOrderId={workOrderId}
+                file={file}
+              />
+            ))}
+          {!isPrepared && connectedDisabled && !!comment.files?.length && (
             <Text>{t('offline_files_not_downloaded')}</Text>
           )}
-          {!connectedDisabled && comment.files?.length > 0 && !isEditing && (
-            <View style={{ marginTop: 8 }}>
-              {imageFiles.length > 0 && (
-                <ScrollView
-                  horizontal
-                  style={{ marginBottom: otherFiles.length > 0 ? 8 : 0 }}
-                >
-                  {imageFiles.map((file, index) => (
-                    <TouchableOpacity
-                      key={file.id}
-                      onPress={() => {
-                        setSelectedImageIndex(index);
-                        setImageViewerOpen(true);
-                      }}
-                    >
-                      <Image
-                        source={{ uri: file.url }}
-                        style={{
-                          width: 80,
-                          height: 80,
-                          borderRadius: 4,
-                          marginRight: 8
+          {!isPrepared &&
+            !connectedDisabled &&
+            comment.files?.length > 0 &&
+            !isEditing && (
+              <View style={{ marginTop: 8 }}>
+                {imageFiles.length > 0 && (
+                  <ScrollView
+                    horizontal
+                    style={{ marginBottom: otherFiles.length > 0 ? 8 : 0 }}
+                  >
+                    {imageFiles.map((file, index) => (
+                      <TouchableOpacity
+                        key={file.id}
+                        onPress={() => {
+                          setSelectedImageIndex(index);
+                          setImageViewerOpen(true);
                         }}
-                      />
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              )}
-              {otherFiles.map((file) => (
-                <TouchableOpacity
-                  key={file.id}
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    padding: 2,
-                    backgroundColor: theme.colors.background,
-                    borderRadius: 4,
-                    marginBottom: 4
-                  }}
-                  onPress={() => downloadFile(file.url, file.name)}
-                >
-                  <IconButton icon="file" size={20} />
-                  <Text style={{ flex: 1 }} numberOfLines={1}>
-                    {file.name}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
+                      >
+                        <Image
+                          source={{ uri: file.url }}
+                          style={{
+                            width: 80,
+                            height: 80,
+                            borderRadius: 4,
+                            marginRight: 8
+                          }}
+                        />
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                )}
+                {otherFiles.map((file) => (
+                  <TouchableOpacity
+                    key={file.id}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      padding: 2,
+                      backgroundColor: theme.colors.background,
+                      borderRadius: 4,
+                      marginBottom: 4
+                    }}
+                    onPress={() => downloadFile(file.url, file.name)}
+                  >
+                    <IconButton icon="file" size={20} />
+                    <Text style={{ flex: 1 }} numberOfLines={1}>
+                      {file.name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
           {imageViewerOpen && (
             <ImageView
               images={imageFiles.map((f) => ({ uri: f.url }))}

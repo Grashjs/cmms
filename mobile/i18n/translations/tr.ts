@@ -1,4 +1,58 @@
 ﻿const trJSON = {
+  offline_refresh_copy: 'Kopyayı güncelle',
+  offline_remove_server_attachment: 'İş emrinden kaldır',
+  offline_clear_server_image: 'Ana görseli kaldır',
+  offline_remove_server_attachment_confirm:
+    'Bu dosya sunucudaki iş emrinden kaldırılsın mı? Seçimleriniz ve bekleyen gönderimler korunacak.',
+  offline_clear_server_image_confirm:
+    'Sunucudaki ana görsel kaldırılsın mı? Seçtiğiniz görsel ve bekleyen gönderimler korunacak.',
+  offline_server_removal_refresh_pending:
+    'Kaldırma onaylandı — yerel güncelleme bekleniyor',
+  offline_review_files: 'Seçimi incele',
+  offline_restore_files_draft:
+    'Seçim taslağa geri alınacak. Kontrol edip açıkça kaydedin. Daha yeni bir taslak değiştirilmeyecek.',
+  offline_keep_file_selection: 'Seçimimi koru',
+  offline_file_transfer_only:
+    'Dosya sunucuya aktarıldı; ilişkilendirme ayrı olarak onaylanır.',
+  offline_file_dependency_failed:
+    'İlişkilendirme, aktarımı reddedilen bir dosyayı bekliyor. Seçiminiz korunuyor.',
+  offline_retry_file_import: 'Dosyayı kaydetmeyi yeniden dene',
+  offline_file_available: 'Dosya bu cihazda kullanılabilir',
+  offline_file_failed: 'Dosya bu cihazda kullanılamıyor',
+  offline_open_file: 'Dosyayı aç',
+  offline_download_file: 'Bu cihaza indir',
+  offline_remove_file_selection: 'Seçimden kaldır',
+  offline_remove_local_copy: 'Yerel kopyayı sil',
+  offline_save_files: 'Dosyaları kaydet',
+  offline_other_fields_read_only:
+    'Çevrimdışıyken bu formda yalnızca dosyalar değiştirilebilir.',
+  offline_save_other_changes: 'Diğer değişiklikleri kaydet',
+  offline_scan_asset: 'Hazırlanmış bir ekipmanı tara',
+  offline_scan_unavailable:
+    'Çevrimdışı tarama, yetkili bir hazırlık ve tarama lisansı gerektirir.',
+  offline_scan_ambiguous:
+    'Bu kodla eşleşen birden fazla hazırlanmış ekipman var. İlgili iş emrini açın.',
+  offline_asset_not_available:
+    'Bu ekipman çevrimdışı kullanılamıyor. İnternet bağlantısıyla iş emrini hazırlayın.',
+  offline_asset_read_only:
+    'Hazırlanmış salt okunur kopya. Diğer bilgiler için İnternet bağlantısı gerekir.',
+  offline_asset_prepared_work_orders:
+    'Yalnızca hazırlanmış iş emirleri gösterilir.',
+  offline_file_not_ready:
+    'Dosyanın bu cihaza kopyalanması tamamlanana kadar bekleyin.',
+  offline_file_limit: 'Bu dosya izin verilen boyutu aşıyor.',
+  offline_storage_limit:
+    'Yeterli depolama alanı yok. Artık gerekmeyen yerel kopyaları kaldırın.',
+  offline_transfer_failed:
+    'Bir aktarım reddedildi. Çalışmanızı koruyun, ardından bu gönderimi açıkça iptal edin ve düzeltmek için dosyaları yeniden seçin.',
+  offline_file_in_use:
+    'Bu dosya hâlâ bir hazırlık veya bekleyen çalışma tarafından kullanılıyor.',
+  offline_file_open_failed: 'Bu belge bu cihazda açılamıyor.',
+  offline_file_integrity: 'Dosya kopyası eksik veya değişmiş. Yeniden seçin.',
+  offline_attachments_conflict:
+    'Ekler sunucuda değişmiş. Verileri yenileyin, ardından değişikliği yeniden hazırlayın.',
+  offline_file_copy_failed:
+    'Bu cihaza kopyalama başarısız oldu. Dosyayı yeniden seçin.',
   offline_comment_saved_refresh_pending:
     'Yorumdaki değişiklik sunucuda onaylandı; yerel kopyanın hâlâ güncellenmesi gerekiyor.',
   offline_comment_published_cleanup_pending:

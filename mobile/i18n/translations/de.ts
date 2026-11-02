@@ -1,4 +1,60 @@
 const deJSON = {
+  offline_refresh_copy: 'Kopie aktualisieren',
+  offline_remove_server_attachment: 'Aus Arbeitsauftrag entfernen',
+  offline_clear_server_image: 'Hauptbild entfernen',
+  offline_remove_server_attachment_confirm:
+    'Diese Datei auf dem Server aus dem Arbeitsauftrag entfernen? Ihre Auswahl und ausstehenden Übermittlungen bleiben erhalten.',
+  offline_clear_server_image_confirm:
+    'Das Hauptbild auf dem Server entfernen? Ihr ausgewähltes Bild und ausstehende Übermittlungen bleiben erhalten.',
+  offline_server_removal_refresh_pending:
+    'Entfernung bestätigt — lokale Aktualisierung ausstehend',
+  offline_review_files: 'Auswahl prüfen',
+  offline_restore_files_draft:
+    'Die Auswahl wird als Entwurf wiederhergestellt. Prüfen Sie sie und speichern Sie sie anschließend ausdrücklich. Ein neuerer Entwurf wird nicht ersetzt.',
+  offline_keep_file_selection: 'Meine Auswahl behalten',
+  offline_file_transfer_only:
+    'Datei auf den Server übertragen; die Zuordnung wird separat bestätigt.',
+  offline_file_dependency_failed:
+    'Die Zuordnung wartet auf eine Datei, deren Übertragung abgelehnt wurde. Ihre Auswahl bleibt erhalten.',
+  offline_retry_file_import: 'Speichern der Datei erneut versuchen',
+  offline_file_available: 'Datei auf diesem Gerät verfügbar',
+  offline_file_failed: 'Datei auf diesem Gerät nicht verfügbar',
+  offline_open_file: 'Datei öffnen',
+  offline_download_file: 'Auf dieses Gerät herunterladen',
+  offline_remove_file_selection: 'Aus Auswahl entfernen',
+  offline_remove_local_copy: 'Lokale Kopie löschen',
+  offline_save_files: 'Dateien speichern',
+  offline_other_fields_read_only:
+    'Ohne Internetverbindung können in diesem Formular nur Dateien geändert werden.',
+  offline_save_other_changes: 'Andere Änderungen speichern',
+  offline_scan_asset: 'Vorbereitete Anlage scannen',
+  offline_scan_unavailable:
+    'Das Scannen ohne Internetverbindung erfordert eine autorisierte Vorbereitung und die Scanlizenz.',
+  offline_scan_ambiguous:
+    'Mehrere vorbereitete Anlagen stimmen mit diesem Code überein. Öffnen Sie deren Arbeitsauftrag.',
+  offline_asset_not_available:
+    'Diese Anlage ist offline nicht verfügbar. Bereiten Sie ihren Arbeitsauftrag mit Internetverbindung vor.',
+  offline_asset_read_only:
+    'Vorbereitete Kopie nur zum Lesen. Weitere Informationen erfordern eine Internetverbindung.',
+  offline_asset_prepared_work_orders:
+    'Es werden nur vorbereitete Arbeitsaufträge angezeigt.',
+  offline_file_not_ready:
+    'Warten Sie, bis die Datei vollständig auf dieses Gerät kopiert wurde.',
+  offline_file_limit: 'Diese Datei überschreitet die zulässige Größe.',
+  offline_storage_limit:
+    'Der Speicherplatz reicht nicht aus. Entfernen Sie nicht mehr benötigte lokale Kopien.',
+  offline_transfer_failed:
+    'Eine Übertragung wurde abgelehnt. Bewahren Sie Ihre Arbeit auf, verwerfen Sie diese Übermittlung anschließend ausdrücklich und wählen Sie die Dateien zur Korrektur erneut aus.',
+  offline_file_in_use:
+    'Diese Datei wird noch von einer Vorbereitung oder ausstehenden Arbeit verwendet.',
+  offline_file_open_failed:
+    'Dieses Dokument kann auf diesem Gerät nicht geöffnet werden.',
+  offline_file_integrity:
+    'Die Dateikopie ist unvollständig oder wurde geändert. Wählen Sie sie erneut aus.',
+  offline_attachments_conflict:
+    'Die Anhänge wurden auf dem Server geändert. Aktualisieren Sie die Daten und bereiten Sie die Änderung erneut vor.',
+  offline_file_copy_failed:
+    'Das Kopieren auf dieses Gerät ist fehlgeschlagen. Wählen Sie die Datei erneut aus.',
   offline_comment_saved_refresh_pending:
     'Die Änderung des Kommentars wurde auf dem Server bestätigt; die lokale Kopie muss noch aktualisiert werden.',
   offline_comment_published_cleanup_pending:

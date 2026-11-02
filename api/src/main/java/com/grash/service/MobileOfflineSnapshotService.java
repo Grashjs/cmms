@@ -3,6 +3,10 @@ package com.grash.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grash.dto.offline.MobileOfflineLimits;
 import com.grash.dto.offline.MobileOfflineSnapshot;
+import com.grash.dto.offline.MobileOfflineAsset;
+import com.grash.dto.license.LicenseEntitlement;
+import com.grash.model.enums.PermissionEntity;
+import java.util.LinkedHashMap;
 import com.grash.exception.CustomException;
 import com.grash.mapper.*;
 import com.grash.model.*;
@@ -26,11 +30,12 @@ public class MobileOfflineSnapshotService {
     private final WorkOrderHistoryMapper historyMapper;
     private final ObjectMapper json;
     private final MobileOfflineAccessService access;
+    private final LicenseService license;
 
     public MobileOfflineSnapshot build(long id, User user) {
         if (!access.existsInCompany(id, user)) throw new CustomException("TARGET_NOT_FOUND", HttpStatus.NOT_FOUND);
         if (!access.canView(id, user)) throw new CustomException("ACCESS_REVOKED", HttpStatus.FORBIDDEN);
-        verifyCounts(id);
+        long itemCount = verifyCounts(id);
         WorkOrder workOrder = em.find(WorkOrder.class, id);
         var tasks = em.createQuery("select t from Task t where t.workOrder.id = :id order by t.createdAt, t.id", Task.class)
                 .setParameter("id", id).setMaxResults(MobileOfflineLimits.PILOT.tasks() + 1).getResultList();
@@ -38,15 +43,29 @@ public class MobileOfflineSnapshotService {
                 .setParameter("id", id).setMaxResults(MobileOfflineLimits.PILOT.comments() + 1).getResultList();
         var history = em.createQuery("select h from WorkOrderHistory h where h.workOrder.id = :id order by h.createdAt, h.id", WorkOrderHistory.class)
                 .setParameter("id", id).setMaxResults(MobileOfflineLimits.PILOT.history() + 1).getResultList();
+        boolean canReadAssets = user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS);
+        boolean canScan = canReadAssets && license.hasEntitlement(LicenseEntitlement.NFC_BARCODE);
+        var availableAssets = new LinkedHashMap<Long, Asset>();
+        if (workOrder.getAsset() != null) availableAssets.put(workOrder.getAsset().getId(), workOrder.getAsset());
+        tasks.forEach(task -> {
+            Asset asset = task.getTaskBase().getAsset();
+            if (asset != null) availableAssets.put(asset.getId(), asset);
+        });
+        var assets = availableAssets.values().stream().filter(asset -> asset.getCompany().getId().equals(user.getCompany().getId())
+                && asset.canBeViewedBy(user)).map(asset -> new MobileOfflineAsset(asset.getId(), asset.getName(),
+                asset.getCustomId(), asset.getDescription(), canScan ? asset.getBarCode() : null,
+                canScan ? asset.getNfcId() : null, asset.getStatus() == null ? null : asset.getStatus().name(),
+                asset.getModel(), asset.getSerialNumber(), asset.getManufacturer(), asset.getPower(), asset.getArea())).toList();
+        if (itemCount + assets.size() > MobileOfflineLimits.PILOT.snapshotItems()) throw tooLarge();
         var snapshot = new MobileOfflineSnapshot(workOrderMapper.toShowDto(workOrder),
                 tasks.stream().map(taskMapper::toShowDto).toList(),
                 comments.stream().map(commentMapper::toShowDto).toList(),
-                history.stream().map(historyMapper::toShowDto).toList(), Instant.now(), true, access.canEdit(id, user), true);
+                history.stream().map(historyMapper::toShowDto).toList(), Instant.now(), true, access.canEdit(id, user), true, assets, canScan, canReadAssets);
         verifyEncodedSize(snapshot);
         return snapshot;
     }
 
-    void verifyCounts(long id) {
+    long verifyCounts(long id) {
         var limits = MobileOfflineLimits.PILOT;
         long tasks = count("select count(t) from Task t where t.workOrder.id = :id", id);
         long comments = count("select count(c) from Comment c where c.workOrder.id = :id", id);
@@ -68,6 +87,7 @@ public class MobileOfflineSnapshotService {
             total += count(query, id);
             if (total > limits.snapshotItems()) throw tooLarge();
         }
+        return total;
     }
 
     private long count(String query, long id) {

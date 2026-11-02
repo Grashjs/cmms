@@ -296,6 +296,31 @@ export const addWorkOrder =
     }
     return workOrderResponse;
   };
+/** Attachment intent is measured against the form's original copy. */
+export function workOrderAttachmentChanges(
+  values,
+  base: Pick<WorkOrder, 'image' | 'files'>
+) {
+  const result = { ...values };
+  const attachmentsBase: { imageId?: number | null; fileIds?: number[] } = {};
+  if ('image' in result) {
+    const imageId = base.image?.id ?? null;
+    if ((result.image?.id ?? null) === imageId) delete result.image;
+    else attachmentsBase.imageId = imageId;
+  }
+  if ('files' in result) {
+    const ids = (base.files ?? []).map((file) => file.id).sort((a, b) => a - b);
+    const next = (result.files ?? [])
+      .map((file) => file.id)
+      .sort((a, b) => a - b);
+    if (JSON.stringify(ids) === JSON.stringify(next)) delete result.files;
+    else attachmentsBase.fileIds = ids;
+  }
+  if (Object.keys(attachmentsBase).length)
+    result.attachmentsBase = attachmentsBase;
+  return result;
+}
+
 export const editWorkOrder =
   (id: number, workOrder): AppThunk =>
   async (dispatch, getState) => {

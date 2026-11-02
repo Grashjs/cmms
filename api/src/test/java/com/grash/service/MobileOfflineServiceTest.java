@@ -32,6 +32,9 @@ class MobileOfflineServiceTest {
     @Mock TaskService mutations;
     @Mock TaskMapper mapper;
     @Mock CommentService comments;
+    @Mock MobileOfflineFileService files;
+    @Mock WorkOrderService workOrders;
+    @Mock org.springframework.context.ApplicationEventPublisher events;
     @Mock com.grash.repository.CommentRepository commentRepository;
     ObjectMapper json = new ObjectMapper().findAndRegisterModules();
     MobileOfflineService service;
@@ -39,7 +42,7 @@ class MobileOfflineServiceTest {
     Task task;
 
     @BeforeEach void setup() {
-        service = new MobileOfflineService(properties, repository, snapshots, access, tasks, mutations, mapper, json, comments, commentRepository);
+        service = new MobileOfflineService(properties, repository, snapshots, access, tasks, mutations, mapper, json, comments, commentRepository, files, workOrders, events);
         Company company = new Company(); company.setId(52L);
         user = new User(); user.setId(34L); user.setCompany(company);
         WorkOrder wo = new WorkOrder(); wo.setId(10L); wo.setCompany(company);
@@ -363,4 +366,67 @@ class MobileOfflineServiceTest {
         assertEquals(413, error.getHttpStatus().value()); assertEquals("OPERATION_LIMIT_EXCEEDED", error.getMessage());
         verifyNoInteractions(repository, comments, tasks);
     }
+    @Test void taskPhotosUseTransferIdsWithoutReplayingValueWorkflowsOrTheAttachment() {
+        eligible(); writable(); ledger();
+        UUID transfer = UUID.randomUUID();
+        var photo = new com.grash.model.File(); photo.setId(123L);
+        var op = new MobileOfflineOperation(UUID.randomUUID(), 52L, 34L, 10L, 7L,
+                MobileOfflineOperation.Type.ADD_TASK_IMAGES, null, null, Instant.now(), null, null, null,
+                List.of(transfer), null, null);
+        when(files.resolve(List.of(transfer), MobileOfflineFileUpload.Target.TASK, 10, 7L, user))
+                .thenReturn(new MobileOfflineFileService.Resolution(List.of(photo), null));
+        when(files.visibility(any(), eq(10L), eq(user))).thenReturn(MobileOfflineResult.Visibility.VISIBLE);
+        var applied = service.submit(op, user); var replay = service.submit(op, user);
+        assertEquals(List.of(123L), applied.fileIds()); assertEquals(applied, replay);
+        verify(files, times(1)).attachTaskImages(task, List.of(photo));
+        verify(mutations, never()).applyPatch(any(), any(), any());
+        verifyNoInteractions(events);
+    }
+
+    @Test void anEmptyImageResolutionIsRejectedBeforeAccessOrWorkOrderMutation() {
+        eligible(); var records = ledger();
+        when(access.existsInCompany(10L, user)).thenReturn(true);
+        when(access.canView(10L, user)).thenReturn(true);
+        when(access.canEdit(10L, user)).thenReturn(true);
+        UUID transfer = UUID.randomUUID();
+        var op = new MobileOfflineOperation(UUID.randomUUID(), 52L, 34L, 10L, null,
+                MobileOfflineOperation.Type.UPDATE_WORK_ORDER_ATTACHMENTS, null, null, Instant.now(), null, null, null,
+                null, List.of(), new MobileOfflineOperation.ImageChange(transfer, null));
+        when(files.resolve(List.of(), MobileOfflineFileUpload.Target.WORK_ORDER, 10, null, user))
+                .thenReturn(new MobileOfflineFileService.Resolution(List.of(), null));
+        when(files.resolve(List.of(transfer), MobileOfflineFileUpload.Target.WORK_ORDER, 10, null, user))
+                .thenReturn(new MobileOfflineFileService.Resolution(List.of(), null));
+
+        assertEquals("FILE_NOT_FOUND", service.submit(op, user).code());
+        assertTrue(records.get(op.operationId()).resultJson().contains("REJECTED"));
+        verifyNoInteractions(workOrders, events);
+    }
+
+    @Test void aRefusedCommentTransferProducesADurableRefusalWithoutCreatingTheComment() {
+        eligible(); var ledger = ledger();
+        when(access.existsInCompany(10L, user)).thenReturn(true);
+        when(access.canView(10L, user)).thenReturn(true);
+        UUID transfer = UUID.randomUUID();
+        var op = new MobileOfflineOperation(UUID.randomUUID(), 52L, 34L, 10L, null,
+                MobileOfflineOperation.Type.CREATE_COMMENT, null, null, Instant.now(), null, "Field comment", null,
+                List.of(transfer), null, null);
+        when(files.resolve(List.of(transfer), MobileOfflineFileUpload.Target.COMMENT, 10, null, user))
+                .thenReturn(new MobileOfflineFileService.Resolution(List.of(), "TRANSFER_REJECTED"));
+        assertEquals("TRANSFER_REJECTED", service.submit(op, user).code());
+        assertTrue(ledger.get(op.operationId()).resultJson().contains("REJECTED"));
+        verifyNoInteractions(comments);
+    }
+
+    @Test void fileReferencesDoNotMakeAnEmptyCommentValidOrTriggerAttachmentMutation() {
+        eligible(); var records = ledger();
+        when(access.existsInCompany(10L, user)).thenReturn(true);
+        when(access.canView(10L, user)).thenReturn(true);
+        var op = new MobileOfflineOperation(UUID.randomUUID(), 52L, 34L, 10L, null,
+                MobileOfflineOperation.Type.CREATE_COMMENT, null, null, Instant.now(), null, "<p> </p>", null,
+                List.of(UUID.randomUUID()), null, null);
+        assertEquals("INVALID_COMMENT_CONTENT", service.submit(op, user).code());
+        assertTrue(records.get(op.operationId()).resultJson().contains("REJECTED"));
+        verifyNoInteractions(comments, files);
+    }
+
 }

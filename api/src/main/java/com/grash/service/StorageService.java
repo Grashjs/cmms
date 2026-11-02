@@ -50,4 +50,9 @@ public interface StorageService {
     void uploadAt(byte[] data, String filePath, String contentType);
 
     boolean exists(String filePath);
+
+    record Metadata(long size, String contentType) {}
+
+    /** Reads object metadata without allocating the file. Storage failures must remain failures. */
+    Metadata stat(String filePath);
 }

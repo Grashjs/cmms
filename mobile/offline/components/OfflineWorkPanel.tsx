@@ -4,6 +4,7 @@ import { Button, Card, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useOffline } from '../OfflineProvider';
 import { usePendingWork } from '../hooks';
+import { OfflineFileOperationReview } from './OfflineFileOperationReview';
 
 /** Metadata-only recovery stays reachable when the server withdrew the target. */
 export function OfflineWorkPanel({ workOrderId }: { workOrderId?: number }) {
@@ -43,15 +44,26 @@ export function OfflineWorkPanel({ workOrderId }: { workOrderId?: number }) {
             )}
             <Text>
               {item.label ||
+                (item.operationType === 'UPLOAD_FILE' && item.targetAvailable
+                  ? item.value
+                  : null) ||
                 t(
                   item.targetAvailable && item.field === 'comment'
                     ? 'comments'
+                    : item.targetAvailable && item.field === 'attachments'
+                    ? 'files'
                     : 'offline_orphan'
                 )}
             </Text>
             {item.targetAvailable && (
               <Text>
-                {t(item.field === 'comment' ? 'comments' : item.field)}
+                {t(
+                  item.field === 'comment'
+                    ? 'comments'
+                    : item.field === 'attachments'
+                    ? 'files'
+                    : item.field
+                )}
               </Text>
             )}
             <Text>
@@ -71,6 +83,15 @@ export function OfflineWorkPanel({ workOrderId }: { workOrderId?: number }) {
                   : 'offline_queued'
               )}
             </Text>
+            {item.reason === 'TRANSFER_FAILED' && (
+              <Text accessibilityRole="alert">
+                {t('offline_file_dependency_failed')}
+              </Text>
+            )}
+            {item.kind === 'OPERATION' &&
+              item.operationType !== 'UPLOAD_FILE' && (
+                <OfflineFileOperationReview item={item} />
+              )}
             {item.canAbandon ? (
               <Button
                 disabled={busy}
@@ -91,12 +112,18 @@ export function OfflineWorkPanel({ workOrderId }: { workOrderId?: number }) {
                                     item.workOrderId,
                                     item.draftRevision
                                   )
+                                : item.field === 'attachments'
+                                ? offline.abandonAttachmentDraft(
+                                    item.workOrderId,
+                                    item.draftRevision,
+                                    item.taskId
+                                  )
                                 : offline.repository.abandonDraft(
                                     item.taskId,
                                     item.draftRevision,
                                     item.field
                                   )
-                              : offline.repository.abandonOperation(item.id)
+                              : offline.abandonOperation(item.id)
                           )
                       }
                     ]
@@ -115,24 +142,23 @@ export function OfflineWorkPanel({ workOrderId }: { workOrderId?: number }) {
             )}
           </View>
         ))}
-        {workOrderId !== undefined &&
-          !pending.length && (
-            <Button
-              disabled={busy}
-              onPress={() =>
-                Alert.alert(t('offline_remove'), t('offline_remove_confirm'), [
-                  { text: t('cancel'), style: 'cancel' },
-                  {
-                    text: t('offline_remove'),
-                    onPress: () =>
-                      run(() => offline.removePreparation(workOrderId))
-                  }
-                ])
-              }
-            >
-              {t('offline_remove')}
-            </Button>
-          )}
+        {workOrderId !== undefined && !pending.length && (
+          <Button
+            disabled={busy}
+            onPress={() =>
+              Alert.alert(t('offline_remove'), t('offline_remove_confirm'), [
+                { text: t('cancel'), style: 'cancel' },
+                {
+                  text: t('offline_remove'),
+                  onPress: () =>
+                    run(() => offline.removePreparation(workOrderId))
+                }
+              ])
+            }
+          >
+            {t('offline_remove')}
+          </Button>
+        )}
       </Card.Content>
     </Card>
   );

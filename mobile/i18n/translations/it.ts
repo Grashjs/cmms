@@ -1,4 +1,60 @@
 const locale = {
+  offline_refresh_copy: 'Aggiorna la copia',
+  offline_remove_server_attachment: 'Rimuovi dall’ordine di lavoro',
+  offline_clear_server_image: 'Rimuovi l’immagine principale',
+  offline_remove_server_attachment_confirm:
+    'Rimuovere questo file dall’ordine di lavoro sul server? Le selezioni e gli invii in attesa verranno conservati.',
+  offline_clear_server_image_confirm:
+    'Rimuovere l’immagine principale sul server? L’immagine selezionata e gli invii in attesa verranno conservati.',
+  offline_server_removal_refresh_pending:
+    'Rimozione confermata — aggiornamento locale in attesa',
+  offline_review_files: 'Esamina la selezione',
+  offline_restore_files_draft:
+    'La selezione verrà ripristinata come bozza. Verificala, poi salvala esplicitamente. Una bozza più recente non verrà sostituita.',
+  offline_keep_file_selection: 'Mantieni la mia selezione',
+  offline_file_transfer_only:
+    'File trasferito al server; il collegamento viene confermato separatamente.',
+  offline_file_dependency_failed:
+    'Il collegamento è in attesa di un file il cui trasferimento è stato rifiutato. La selezione è conservata.',
+  offline_retry_file_import: 'Riprova a salvare il file',
+  offline_file_available: 'File disponibile su questo dispositivo',
+  offline_file_failed: 'File non disponibile su questo dispositivo',
+  offline_open_file: 'Apri file',
+  offline_download_file: 'Scarica su questo dispositivo',
+  offline_remove_file_selection: 'Rimuovi dalla selezione',
+  offline_remove_local_copy: 'Elimina copia locale',
+  offline_save_files: 'Salva file',
+  offline_other_fields_read_only:
+    'Senza connessione, in questo modulo è possibile modificare solo i file.',
+  offline_save_other_changes: 'Salva le altre modifiche',
+  offline_scan_asset: 'Scansiona un bene preparato',
+  offline_scan_unavailable:
+    'La scansione offline richiede una preparazione autorizzata e la licenza di scansione.',
+  offline_scan_ambiguous:
+    'Più beni preparati corrispondono a questo codice. Apri il relativo ordine di lavoro.',
+  offline_asset_not_available:
+    'Questo bene non è disponibile offline. Prepara il relativo ordine di lavoro con una connessione Internet.',
+  offline_asset_read_only:
+    'Copia preparata in sola lettura. Le altre informazioni richiedono una connessione Internet.',
+  offline_asset_prepared_work_orders:
+    'Vengono mostrati solo gli ordini di lavoro preparati.',
+  offline_file_not_ready:
+    'Attendi il completamento della copia del file su questo dispositivo.',
+  offline_file_limit: 'Questo file supera la dimensione consentita.',
+  offline_storage_limit:
+    'Lo spazio di archiviazione è insufficiente. Rimuovi le copie locali non più necessarie.',
+  offline_transfer_failed:
+    'Un trasferimento è stato rifiutato. Conserva il lavoro, poi annulla esplicitamente questo invio e seleziona di nuovo i file per correggerlo.',
+  offline_file_in_use:
+    'Questo file è ancora utilizzato da una preparazione o da un lavoro in attesa.',
+  offline_file_open_failed:
+    'Impossibile aprire questo documento su questo dispositivo.',
+  offline_file_integrity:
+    'La copia del file è incompleta o è cambiata. Selezionalo di nuovo.',
+  offline_attachments_conflict:
+    'Gli allegati sono cambiati sul server. Aggiorna i dati e prepara di nuovo la modifica.',
+  offline_file_copy_failed:
+    'La copia su questo dispositivo non è riuscita. Seleziona di nuovo il file.',
   offline_comment_saved_refresh_pending:
     'La modifica del commento è confermata sul server; la copia locale deve ancora essere aggiornata.',
   offline_comment_published_cleanup_pending:

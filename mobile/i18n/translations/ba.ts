@@ -1,4 +1,58 @@
 const locale = {
+  offline_refresh_copy: 'Osvježi kopiju',
+  offline_remove_server_attachment: 'Ukloni iz radnog naloga',
+  offline_clear_server_image: 'Ukloni glavnu sliku',
+  offline_remove_server_attachment_confirm:
+    'Ukloniti ovu datoteku iz radnog naloga na serveru? Vaši odabiri i slanja na čekanju bit će sačuvani.',
+  offline_clear_server_image_confirm:
+    'Ukloniti glavnu sliku na serveru? Vaša odabrana slika i slanja na čekanju bit će sačuvani.',
+  offline_server_removal_refresh_pending:
+    'Uklanjanje potvrđeno — čeka se ažuriranje lokalne kopije',
+  offline_review_files: 'Pregledaj odabir',
+  offline_restore_files_draft:
+    'Odabir će biti vraćen u nacrt. Provjerite ga, a zatim ga izričito sačuvajte. Noviji nacrt neće biti zamijenjen.',
+  offline_keep_file_selection: 'Zadrži moj odabir',
+  offline_file_transfer_only:
+    'Datoteka je prenesena na server; prilaganje se potvrđuje zasebno.',
+  offline_file_dependency_failed:
+    'Prilaganje čeka datoteku čiji je prijenos odbijen. Vaš odabir je sačuvan.',
+  offline_retry_file_import: 'Ponovo pokušaj sačuvati datoteku',
+  offline_file_available: 'Datoteka je dostupna na ovom uređaju',
+  offline_file_failed: 'Datoteka nije dostupna na ovom uređaju',
+  offline_open_file: 'Otvori datoteku',
+  offline_download_file: 'Preuzmi na ovaj uređaj',
+  offline_remove_file_selection: 'Ukloni iz odabira',
+  offline_remove_local_copy: 'Izbriši lokalnu kopiju',
+  offline_save_files: 'Sačuvaj datoteke',
+  offline_other_fields_read_only:
+    'Bez interneta u ovom obrascu možete mijenjati samo datoteke.',
+  offline_save_other_changes: 'Sačuvaj ostale promjene',
+  offline_scan_asset: 'Skeniraj pripremljenu opremu',
+  offline_scan_unavailable:
+    'Skeniranje bez interneta zahtijeva odobrenu pripremu i licencu za skeniranje.',
+  offline_scan_ambiguous:
+    'Više pripremljene opreme odgovara ovom kodu. Otvorite njihov radni nalog.',
+  offline_asset_not_available:
+    'Ova oprema nije dostupna bez interneta. Pripremite njen radni nalog dok ste povezani.',
+  offline_asset_read_only:
+    'Pripremljena kopija samo za čitanje. Ostale informacije zahtijevaju internetsku vezu.',
+  offline_asset_prepared_work_orders:
+    'Prikazani su samo pripremljeni radni nalozi.',
+  offline_file_not_ready: 'Sačekajte da se datoteka kopira na ovaj uređaj.',
+  offline_file_limit: 'Ova datoteka prelazi dozvoljenu veličinu.',
+  offline_storage_limit:
+    'Nema dovoljno prostora za pohranu. Uklonite lokalne kopije koje više nisu potrebne.',
+  offline_transfer_failed:
+    'Prijenos je odbijen. Sačuvajte svoj rad, zatim izričito odbacite ovo slanje i ponovo odaberite datoteke da ga ispravite.',
+  offline_file_in_use: 'Ovu datoteku još koristi priprema ili rad na čekanju.',
+  offline_file_open_failed:
+    'Ovaj dokument nije moguće otvoriti na ovom uređaju.',
+  offline_file_integrity:
+    'Kopija datoteke je nepotpuna ili je promijenjena. Ponovo je odaberite.',
+  offline_attachments_conflict:
+    'Prilozi su promijenjeni na serveru. Osvježite podatke pa ponovo pripremite promjenu.',
+  offline_file_copy_failed:
+    'Kopiranje na ovaj uređaj nije uspjelo. Ponovo odaberite datoteku.',
   offline_comment_saved_refresh_pending:
     'Promjena komentara je potvrđena na serveru; lokalnu kopiju još treba osvježiti.',
   offline_comment_published_cleanup_pending:

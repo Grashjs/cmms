@@ -56,6 +56,7 @@ import {
   addWorkOrder,
   deleteWorkOrder,
   editWorkOrder,
+  workOrderAttachmentChanges,
   getSingleWorkOrder,
   getWorkOrders
 } from '../../../slices/workOrder';
@@ -235,11 +236,13 @@ function WorkOrders() {
   const [openUpdateModal, setOpenUpdateModal] = useState<boolean>(false);
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
   const [openFilterDrawer, setOpenFilterDrawer] = useState<boolean>(false);
-  const [calendarRefreshTrigger, setCalendarRefreshTrigger] = useState<number>(0);
+  const [calendarRefreshTrigger, setCalendarRefreshTrigger] =
+    useState<number>(0);
   const { setTitle } = useContext(TitleContext);
   const { workOrderId } = useParams();
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const [currentWorkOrder, setCurrentWorkOrder] = useState<WorkOrder>();
+  const [editAttachmentBase, setEditAttachmentBase] = useState<WorkOrder>();
   const [openDelete, setOpenDelete] = useState<boolean>(false);
   const { tasksByWorkOrder } = useSelector((state) => state.tasks);
   const { locations, locationsHierarchy } = useSelector(
@@ -315,6 +318,11 @@ function WorkOrders() {
     setOpenAddModal(true);
   };
   const handleOpenUpdate = (id: number) => {
+    setEditAttachmentBase(
+      currentWorkOrder?.id === id
+        ? currentWorkOrder
+        : workOrders.content.find((item) => item.id === id)
+    );
     // important if there were actions like edit
     if (currentWorkOrder.id !== id) {
       setCurrentWorkOrder(
@@ -931,17 +939,25 @@ function WorkOrders() {
               try {
                 const imageAndFiles = await handleFileUpload(
                   {
-                    files: formattedValues.files,
+                    files: formattedValues.files.filter((file) => !file.id),
                     image: formattedValues.image
                   },
                   uploadFiles
                 );
 
-                formattedValues = {
-                  ...formattedValues,
-                  image: imageAndFiles.image,
-                  files: imageAndFiles.files
-                };
+                formattedValues = workOrderAttachmentChanges(
+                  {
+                    ...formattedValues,
+                    image: imageAndFiles.image,
+                    files: [
+                      ...formattedValues.files
+                        .filter((file) => file.id)
+                        .map((file) => ({ id: file.id })),
+                      ...imageAndFiles.files
+                    ]
+                  },
+                  editAttachmentBase ?? currentWorkOrder
+                );
 
                 await dispatch(
                   //TODO editTask

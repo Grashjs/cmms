@@ -1,4 +1,60 @@
 const locale = {
+  offline_refresh_copy: 'Actualizar la copia',
+  offline_remove_server_attachment: 'Retirar de la orden de trabajo',
+  offline_clear_server_image: 'Quitar la imagen principal',
+  offline_remove_server_attachment_confirm:
+    '¿Retirar este archivo de la orden de trabajo en el servidor? Se conservarán sus selecciones y los envíos pendientes.',
+  offline_clear_server_image_confirm:
+    '¿Quitar la imagen principal en el servidor? Se conservarán la imagen seleccionada y los envíos pendientes.',
+  offline_server_removal_refresh_pending:
+    'Retirada confirmada — actualización local pendiente',
+  offline_review_files: 'Revisar la selección',
+  offline_restore_files_draft:
+    'La selección volverá a ser un borrador. Revísela y guárdela explícitamente. No se sustituirá un borrador más reciente.',
+  offline_keep_file_selection: 'Conservar mi selección',
+  offline_file_transfer_only:
+    'Archivo transferido al servidor; su asociación se confirma por separado.',
+  offline_file_dependency_failed:
+    'La asociación espera un archivo cuya transferencia fue rechazada. Su selección se conserva.',
+  offline_retry_file_import: 'Volver a intentar guardar el archivo',
+  offline_file_available: 'Archivo disponible en este dispositivo',
+  offline_file_failed: 'Archivo no disponible en este dispositivo',
+  offline_open_file: 'Abrir archivo',
+  offline_download_file: 'Descargar en este dispositivo',
+  offline_remove_file_selection: 'Quitar de la selección',
+  offline_remove_local_copy: 'Eliminar copia local',
+  offline_save_files: 'Guardar archivos',
+  offline_other_fields_read_only:
+    'Sin conexión, solo se pueden modificar los archivos de este formulario.',
+  offline_save_other_changes: 'Guardar otros cambios',
+  offline_scan_asset: 'Escanear un activo preparado',
+  offline_scan_unavailable:
+    'El escaneo sin conexión requiere una preparación autorizada y la licencia de escaneo.',
+  offline_scan_ambiguous:
+    'Varios activos preparados coinciden con este código. Abra su orden de trabajo.',
+  offline_asset_not_available:
+    'Este activo no está disponible sin conexión. Prepare su orden de trabajo con conexión a Internet.',
+  offline_asset_read_only:
+    'Copia preparada de solo lectura. La información adicional requiere conexión a Internet.',
+  offline_asset_prepared_work_orders:
+    'Solo se muestran las órdenes de trabajo preparadas.',
+  offline_file_not_ready:
+    'Espere a que termine la copia del archivo en este dispositivo.',
+  offline_file_limit: 'Este archivo supera el tamaño permitido.',
+  offline_storage_limit:
+    'No hay suficiente espacio de almacenamiento. Elimine las copias locales que ya no necesite.',
+  offline_transfer_failed:
+    'Se rechazó una transferencia. Conserve su trabajo, descarte explícitamente este envío y vuelva a seleccionar los archivos para corregirlo.',
+  offline_file_in_use:
+    'Este archivo aún se utiliza en una preparación o en un trabajo pendiente.',
+  offline_file_open_failed:
+    'No se puede abrir este documento en este dispositivo.',
+  offline_file_integrity:
+    'La copia del archivo está incompleta o ha cambiado. Vuelva a seleccionarlo.',
+  offline_attachments_conflict:
+    'Los archivos adjuntos han cambiado en el servidor. Actualice los datos y prepare de nuevo el cambio.',
+  offline_file_copy_failed:
+    'La copia en este dispositivo falló. Vuelva a seleccionar el archivo.',
   offline_comment_saved_refresh_pending:
     'El cambio del comentario está confirmado en el servidor; la copia local aún debe actualizarse.',
   offline_comment_published_cleanup_pending:

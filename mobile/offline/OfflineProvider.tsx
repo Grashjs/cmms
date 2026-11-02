@@ -32,18 +32,59 @@ import {
   revokeLocalAccess,
   serverContextKey
 } from './accessPolicy';
+import type { IFile } from '../models/file';
+import type { OfflineFileStore } from './OfflineFileStore';
+import { closeOfflineDocument } from './documentViewer';
 import type { OfflineRepository } from './OfflineRepository';
 import type { SyncCoordinator } from './SyncCoordinator';
 import type {
   CommentDraft,
   PreparedWorkOrderSummary,
   TaskDraft,
-  TaskField
+  TaskField,
+  FileTarget
 } from './types';
 import { OfflineError } from './types';
 import { offlineErrorKey } from './errors';
 
 interface OfflineContextValue {
+  importFiles(
+    workOrderId: number,
+    target: FileTarget,
+    files: IFile[],
+    maxBytes?: number
+  ): Promise<void>;
+  retryFileImport(id: string): Promise<void>;
+  removeDraftFile(
+    workOrderId: number,
+    target: FileTarget,
+    id: string,
+    revision: number
+  ): Promise<void>;
+  submitAttachmentDraft(
+    workOrderId: number,
+    revision: number,
+    taskId?: number
+  ): Promise<unknown>;
+  abandonAttachmentDraft(
+    workOrderId: number,
+    revision: number,
+    taskId?: number
+  ): Promise<void>;
+  abandonOperation(operationId: string): Promise<void>;
+  restoreFileOperation(
+    operationId: string,
+    expectedDraftRevision: number | null,
+    expectedImageId?: number | null
+  ): Promise<void>;
+  downloadFile(workOrderId: number, fileId: number): Promise<void>;
+  openFile(localId: string): Promise<void>;
+  removeLocalCopy(localId: string): Promise<void>;
+  removeServerAttachment(
+    workOrderId: number,
+    fileId: number,
+    image: boolean
+  ): Promise<{ localUpdateError?: unknown }>;
   enabled: boolean;
   initialized: boolean;
   readable: boolean;
@@ -107,6 +148,19 @@ const OfflineContext = createContext<OfflineContextValue>({
   error: null,
   repository: null,
   prepared: [],
+  importFiles: noop,
+  retryFileImport: noop,
+  removeDraftFile: noop,
+  submitAttachmentDraft: noop,
+  abandonAttachmentDraft: noop,
+  abandonOperation: noop,
+  restoreFileOperation: noop,
+  downloadFile: noop,
+  openFile: noop,
+  removeLocalCopy: noop,
+  removeServerAttachment: async () => {
+    throw new OfflineError('OFFLINE_DISABLED');
+  },
   sync: noop,
   prepare: noop,
   refresh: noop,
@@ -144,6 +198,7 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
   const [transitioning, setTransitioning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const coordinator = useRef<SyncCoordinator | null>(null);
+  const fileStore = useRef<OfflineFileStore | null>(null);
   const network = useRef(false);
   const foreground = useRef(AppState.currentState === 'active');
   const canWrite = useRef(false);
@@ -163,6 +218,7 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
       canWrite.current = false;
       setReadable(false);
       void revokeAccess.current();
+      void closeOfflineDocument().catch(() => undefined);
     }
     setError(String(t(offlineErrorKey(failure))));
   };
@@ -183,6 +239,7 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const listener = AppState.addEventListener('change', (state) => {
       foreground.current = state === 'active';
+      if (!foreground.current) coordinator.current?.cancelTransfers();
       if (foreground.current) {
         canWrite.current = false;
         setReadable(false);
@@ -208,6 +265,8 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
     canWrite.current = false;
     preparedIds.current = new Set();
     coordinator.current?.suspend();
+    fileStore.current = null;
+    void closeOfflineDocument().catch(() => undefined);
     coordinator.current = null;
     setError(null);
     setTransitioning(false);
@@ -240,6 +299,7 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
             setReadable(false);
             canWrite.current = false;
             setError(t('offline_expired'));
+            void closeOfflineDocument().catch(() => undefined);
           }, Math.max(0, expires - Date.now()));
       };
       checkAccess.current = async () => {
@@ -255,6 +315,7 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
         if (contextIsCurrent()) {
           setReadable(allowed);
           canWrite.current = allowed;
+          if (!allowed) void closeOfflineDocument().catch(() => undefined);
         }
         return allowed;
       };
@@ -277,6 +338,17 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
       const database = await openOfflineDatabase(key);
       if (!isCurrent()) return;
       const repo = new Repository(database, key, { uuid: Crypto.randomUUID });
+      const { OfflineFileStore: FileStore } = await import(
+        './OfflineFileStore'
+      );
+      const files = new FileStore(repo, contextIsCurrent, async () => {
+        if (!isCurrent() || sessionChangeInProgress()) return false;
+        const allowed = await checkAccess.current();
+        return allowed && isCurrent() && !sessionChangeInProgress();
+      });
+      await files.recover();
+      if (!isCurrent()) return;
+      fileStore.current = files;
       let lastRefresh = 0;
       const client = new Api({
         ...context,
@@ -310,38 +382,45 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
       setReadable(localAllowed);
       canWrite.current = localAllowed && enabled;
       await scheduleExpiry();
-      const sync = new Coordinator(repo, client, {
-        enabled: () => enabled,
-        online: () => network.current && foreground.current,
-        sessionIsCurrent: isCurrent,
-        onEligibility: async (eligibility) => {
-          if (!isCurrent()) return;
-          if (
-            eligibility.companyId !== context.companyId ||
-            eligibility.userId !== context.userId
-          )
-            throw new OfflineError('OFFLINE_CONTEXT_MISMATCH');
-          if (enabled && eligibility.enabled && eligibility.eligible) {
-            await authorizeLocalAccess(context, eligibility, snapshot);
+      const sync = new Coordinator(
+        repo,
+        client,
+        {
+          enabled: () => enabled,
+          online: () => network.current && foreground.current,
+          sessionIsCurrent: isCurrent,
+          onEligibility: async (eligibility) => {
             if (!isCurrent()) return;
-            setReadable(true);
-            canWrite.current = true;
-            await scheduleExpiry();
-          } else {
-            await revokeLocalAccess(context);
+            if (
+              eligibility.companyId !== context.companyId ||
+              eligibility.userId !== context.userId
+            )
+              throw new OfflineError('OFFLINE_CONTEXT_MISMATCH');
+            if (enabled && eligibility.enabled && eligibility.eligible) {
+              await authorizeLocalAccess(context, eligibility, snapshot);
+              if (!isCurrent()) return;
+              setReadable(true);
+              canWrite.current = true;
+              await scheduleExpiry();
+            } else {
+              await revokeLocalAccess(context);
+              await closeOfflineDocument();
+              if (!isCurrent()) return;
+              setReadable(false);
+              canWrite.current = false;
+            }
+          },
+          onStateChanged: (state) => {
             if (!isCurrent()) return;
-            setReadable(false);
-            canWrite.current = false;
+            setSyncing(state.status === 'syncing');
+          },
+          onError: (failure) => {
+            if (isCurrent()) reportError(failure);
           }
         },
-        onStateChanged: (state) => {
-          if (!isCurrent()) return;
-          setSyncing(state.status === 'syncing');
-        },
-        onError: (failure) => {
-          if (isCurrent()) reportError(failure);
-        }
-      });
+        undefined,
+        files
+      );
       coordinator.current = sync;
       setRepository(repo);
       const acceptPrepared = (items: PreparedWorkOrderSummary[]) => {
@@ -403,6 +482,7 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
       unregister = registerOfflineLifecycle({
         beforeContextChange: async () => {
           setTransitioning(true);
+          sync.cancelTransfers();
           try {
             await Promise.all([...writes.current]);
             if (failedWrites.current.size)
@@ -412,6 +492,7 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
             throw failure;
           }
           sync.suspend();
+          await closeOfflineDocument();
           canWrite.current = false;
           await database.write(async () => {});
           if (await repo.hasUnresolved())
@@ -552,6 +633,101 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
     removePreparation: async (id) => {
       if (coordinator.current) await coordinator.current.removePreparation(id);
     },
+    removeServerAttachment: async (workOrderId, fileId, image) => {
+      const sync = coordinator.current;
+      const generation = sessionGeneration();
+      if (!sync || !canWrite.current || !(await checkAccess.current()))
+        throw new OfflineError('OFFLINE_DISABLED');
+      if (
+        sessionChangeInProgress() ||
+        generation !== sessionGeneration() ||
+        sync !== coordinator.current
+      )
+        throw new OfflineError('CONTEXT_CHANGED');
+      return sync.removeServerAttachment(workOrderId, fileId, image);
+    },
+    importFiles: (workOrderId, target, files, maxBytes) =>
+      persist(async () => {
+        if (
+          !fileStore.current ||
+          !canWrite.current ||
+          !(await checkAccess.current())
+        )
+          throw new OfflineError('OFFLINE_DISABLED');
+        await fileStore.current.importFiles(
+          workOrderId,
+          target,
+          files,
+          maxBytes
+        );
+      }),
+    retryFileImport: (id) =>
+      persist(async () => {
+        if (
+          !fileStore.current ||
+          !canWrite.current ||
+          !(await checkAccess.current())
+        )
+          throw new OfflineError('OFFLINE_DISABLED');
+        await fileStore.current.retryFileImport(id);
+      }),
+    removeDraftFile: (workOrderId, target, id, revision) =>
+      persist(async () => {
+        if (!repository || !canWrite.current || !(await checkAccess.current()))
+          throw new OfflineError('OFFLINE_DISABLED');
+        await repository.removeDraftFile(workOrderId, target, id, revision);
+        await fileStore.current?.cleanup();
+      }),
+    submitAttachmentDraft: (workOrderId, revision, taskId) =>
+      persist(async () => {
+        if (!repository || !canWrite.current || !(await checkAccess.current()))
+          throw new OfflineError('OFFLINE_DISABLED');
+        const operation = await repository.submitAttachmentDraft(
+          workOrderId,
+          revision,
+          taskId
+        );
+        void coordinator.current?.trigger('submission').catch(reportError);
+        return operation;
+      }),
+    abandonAttachmentDraft: (workOrderId, revision, taskId) =>
+      persist(async () => {
+        if (!repository) throw new OfflineError('OFFLINE_DISABLED');
+        await repository.abandonAttachmentDraft(workOrderId, revision, taskId);
+        await fileStore.current?.cleanup();
+      }),
+    restoreFileOperation: (id, revision, imageId) =>
+      persist(async () => {
+        if (!repository || !canWrite.current || !(await checkAccess.current()))
+          throw new OfflineError('OFFLINE_DISABLED');
+        await repository.restoreFileOperation(id, revision, imageId);
+      }),
+    abandonOperation: (id) =>
+      persist(async () => {
+        if (!repository) throw new OfflineError('OFFLINE_DISABLED');
+        await repository.abandonOperation(id);
+        await fileStore.current?.cleanup();
+      }),
+    downloadFile: async (workOrderId, id) => {
+      if (!coordinator.current || !(await checkAccess.current()))
+        throw new OfflineError('OFFLINE_DISABLED');
+      await coordinator.current.downloadFile(workOrderId, id);
+    },
+    openFile: async (id) => {
+      if (
+        !fileStore.current ||
+        !(await checkAccess.current()) ||
+        sessionChangeInProgress()
+      )
+        throw new OfflineError('OFFLINE_DISABLED');
+      await fileStore.current.openFile(id);
+    },
+    removeLocalCopy: (id) =>
+      persist(async () => {
+        if (!fileStore.current || !(await checkAccess.current()))
+          throw new OfflineError('OFFLINE_DISABLED');
+        await fileStore.current.removeLocalCopy(id);
+      }),
     saveDraft,
     saveCommentDraft,
     preserveConnectedCommentDraft: (
@@ -620,6 +796,7 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
       persist(async () => {
         if (!repository) throw new OfflineError('OFFLINE_DISABLED');
         await repository.abandonCommentDraft(workOrderId, revision);
+        await fileStore.current?.cleanup();
       }),
     submitDraft: (taskId, revision, field = 'value') =>
       persist(async () => {

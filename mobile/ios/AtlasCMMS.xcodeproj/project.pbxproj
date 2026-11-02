@@ -16,6 +16,7 @@
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		D45A08EC6F948EAF1C2AB08A /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = FD6FE522A91999C4DC4E893B /* PrivacyInfo.xcprivacy */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
+		40297FE231044416B4292618 /* QuickLook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C7ADD82BBF9244948803F78D /* QuickLook.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,6 +35,7 @@
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = AtlasCMMS/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* AtlasCMMS-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "AtlasCMMS-Bridging-Header.h"; path = "AtlasCMMS/AtlasCMMS-Bridging-Header.h"; sourceTree = "<group>"; };
 		FD6FE522A91999C4DC4E893B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = AtlasCMMS/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		C7ADD82BBF9244948803F78D /* QuickLook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickLook.framework; path = System/Library/Frameworks/QuickLook.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -42,6 +44,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D848CEB6BD0644CD40DF62A /* Pods_AtlasCMMS.framework in Frameworks */,
+				40297FE231044416B4292618 /* QuickLook.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -69,6 +72,7 @@
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				59FFC86802D8AC9B37D16793 /* Pods_AtlasCMMS.framework */,
+				C7ADD82BBF9244948803F78D /* QuickLook.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";

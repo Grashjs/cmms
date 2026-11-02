@@ -1,4 +1,60 @@
 const locale = {
+  offline_refresh_copy: 'Másolat frissítése',
+  offline_remove_server_attachment: 'Eltávolítás a munkalapról',
+  offline_clear_server_image: 'Főkép eltávolítása',
+  offline_remove_server_attachment_confirm:
+    'Eltávolítja ezt a fájlt a szerveren lévő munkalapról? A kijelölt elemek és a függőben lévő beküldések megmaradnak.',
+  offline_clear_server_image_confirm:
+    'Eltávolítja a főképet a szerveren? A kiválasztott kép és a függőben lévő beküldések megmaradnak.',
+  offline_server_removal_refresh_pending:
+    'Eltávolítás megerősítve — helyi frissítésre vár',
+  offline_review_files: 'Kijelölés áttekintése',
+  offline_restore_files_draft:
+    'A kijelölés visszakerül a piszkozatba. Ellenőrizze, majd mentse kifejezetten. Az újabb piszkozatot a rendszer nem írja felül.',
+  offline_keep_file_selection: 'Kijelölésem megtartása',
+  offline_file_transfer_only:
+    'A fájl átvitele a szerverre megtörtént; a csatolást külön erősíti meg a rendszer.',
+  offline_file_dependency_failed:
+    'A csatolás egy olyan fájlra vár, amelynek átvitelét elutasították. A kijelölése megmarad.',
+  offline_retry_file_import: 'Fájl mentésének újrapróbálása',
+  offline_file_available: 'A fájl elérhető ezen az eszközön',
+  offline_file_failed: 'A fájl nem érhető el ezen az eszközön',
+  offline_open_file: 'Fájl megnyitása',
+  offline_download_file: 'Letöltés erre az eszközre',
+  offline_remove_file_selection: 'Eltávolítás a kijelölésből',
+  offline_remove_local_copy: 'Helyi másolat törlése',
+  offline_save_files: 'Fájlok mentése',
+  offline_other_fields_read_only:
+    'Internetkapcsolat nélkül ezen az űrlapon csak a fájlok módosíthatók.',
+  offline_save_other_changes: 'Egyéb módosítások mentése',
+  offline_scan_asset: 'Előkészített berendezés beolvasása',
+  offline_scan_unavailable:
+    'Az offline beolvasáshoz engedélyezett előkészítés és beolvasási licenc szükséges.',
+  offline_scan_ambiguous:
+    'Több előkészített berendezéshez tartozik ez a kód. Nyissa meg a munkalapjukat.',
+  offline_asset_not_available:
+    'Ez a berendezés offline nem érhető el. Internetkapcsolattal készítse elő a munkalapját.',
+  offline_asset_read_only:
+    'Előkészített, csak olvasható másolat. A további információkhoz internetkapcsolat szükséges.',
+  offline_asset_prepared_work_orders:
+    'Csak az előkészített munkalapok jelennek meg.',
+  offline_file_not_ready:
+    'Várja meg, amíg a fájl másolása erre az eszközre befejeződik.',
+  offline_file_limit: 'Ez a fájl meghaladja az engedélyezett méretet.',
+  offline_storage_limit:
+    'Nincs elegendő tárhely. Távolítsa el a már nem szükséges helyi másolatokat.',
+  offline_transfer_failed:
+    'Egy átvitel elutasításra került. Őrizze meg a munkáját, majd kifejezetten vesse el ezt a beküldést, és a javításhoz válassza ki újra a fájlokat.',
+  offline_file_in_use:
+    'Ezt a fájlt még használja egy előkészítés vagy függőben lévő munka.',
+  offline_file_open_failed:
+    'Ez a dokumentum nem nyitható meg ezen az eszközön.',
+  offline_file_integrity:
+    'A fájl másolata hiányos vagy megváltozott. Válassza ki újra.',
+  offline_attachments_conflict:
+    'A mellékletek megváltoztak a szerveren. Frissítse az adatokat, majd készítse elő újra a módosítást.',
+  offline_file_copy_failed:
+    'A másolás erre az eszközre sikertelen. Válassza ki újra a fájlt.',
   offline_comment_saved_refresh_pending:
     'A hozzászólás módosítását a szerver visszaigazolta; a helyi másolat még frissítésre vár.',
   offline_comment_published_cleanup_pending:

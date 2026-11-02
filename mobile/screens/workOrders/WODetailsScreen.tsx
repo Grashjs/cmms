@@ -30,7 +30,6 @@ import {
   TextInput,
   useTheme
 } from 'react-native-paper';
-import * as DocumentPicker from 'expo-document-picker';
 import { useTranslation } from 'react-i18next';
 import * as React from 'react';
 import {
@@ -80,11 +79,7 @@ import ImageView from 'react-native-image-viewing';
 import { getCustomFieldValuesForDetails } from '../../models/form';
 import CommentItem from '../../components/CommentItem';
 import { downloadFile } from '../../utils/fileDownload';
-import {
-  getCommentsByWorkOrder,
-  createComment,
-  ConfirmedCommentMutation
-} from '../../slices/comment';
+import { getCommentsByWorkOrder } from '../../slices/comment';
 import { getUsersMini } from '../../slices/user';
 import { TriggersConfig } from 'react-native-controlled-mentions/dist/types/types';
 import { useHeaderHeight } from '@react-navigation/elements';
@@ -96,11 +91,10 @@ import {
   OfflineWorkPanel
 } from '../../offline/components/OfflineWorkPanel';
 import { OfflineCommentOperations } from '../../offline/components/OfflineCommentOperations';
-import { OfflineError } from '../../offline/types';
-import {
-  sessionGeneration,
-  assertSessionGeneration
-} from '../../offline/sessionBridge';
+import { useOfflineCommentComposer } from '../../offline/useOfflineCommentComposer';
+import { OfflineFileItem } from '../../offline/components/OfflineFileItem';
+import FileUpload from '../../components/FileUpload';
+import { sessionGeneration } from '../../offline/sessionBridge';
 
 const getRemainingTasksLength = (tasks: Task[]): number => {
   const SECONDS_MS = 5_000;
@@ -153,7 +147,6 @@ export default function WODetailsScreen({
   const connectedAvailable =
     (!offline.enabled || offline.networkAvailable) &&
     (!isPrepared || !!prepared?.available);
-  const [preparing, setPreparing] = useState(false);
   const { workOrderInfos, loadingGet } = useSelector(
     (state) => state.workOrders
   );
@@ -166,10 +159,10 @@ export default function WODetailsScreen({
     user,
     companySettings,
     hasFeature,
+    hasCreatePermission,
     hasViewPermission
   } = useAuth();
   const { showSnackBar } = useContext(CustomSnackBarContext);
-  const { uploadFiles } = useContext(CompanySettingsContext);
   const [runningTimerDuration, setRunningTimerDuration] = useState<string>();
   const { workOrderConfiguration, generalPreferences } = companySettings;
   const [loading, setLoading] = useState<boolean>(false);
@@ -207,31 +200,6 @@ export default function WODetailsScreen({
   const { getFormattedDate, getUserNameById, getFormattedCurrency } =
     useContext(CompanySettingsContext);
   const [isExtended, setIsExtended] = React.useState(true);
-  const [commentContent, setCommentContent] = useState('');
-  const commentContentRef = useRef('');
-  const [attachmentPending, setAttachmentPending] = useState(false);
-  const attachmentPendingRef = useRef(false);
-  const [confirmedDraftToClear, setConfirmedDraftToClear] = useState<
-    number | null
-  >(null);
-  const confirmedDraftToClearRef = useRef<number | null>(null);
-  const [commentRefreshPending, setCommentRefreshPending] = useState(false);
-  const commentAwaitingRefreshId = useRef<number | null>(null);
-  const commentSequence = useRef(0);
-  const commentSavedRevision = useRef<number | null>(null);
-  const commentSaving = useRef(false);
-  const commentSubmitting = useRef(false);
-  const transferringComment = useRef(false);
-  const [commentTransferConflict, setCommentTransferConflict] = useState(false);
-  const [savingCommentDraft, setSavingCommentDraft] = useState(false);
-  const [commentDraftError, setCommentDraftError] = useState(false);
-  const [submittingComment, setSubmittingComment] = useState(false);
-  const [commentFiles, setCommentFiles] = useState<
-    { uri: string; name: string; type: string }[]
-  >([]);
-  const commentFilesRevision = useRef(0);
-  const currentSessionGeneration = sessionGeneration();
-  const composerContext = useRef({ id, generation: currentSessionGeneration });
   const { commentsByWorkOrder, loadingComments, loadingCreate } = useSelector(
     (state) => state.comments
   );
@@ -244,230 +212,37 @@ export default function WODetailsScreen({
     : connectedAvailable &&
       hasEditPermission(PermissionEntity.WORK_ORDERS, workOrder);
 
-  useEffect(() => {
-    if (
-      composerContext.current.id === id &&
-      composerContext.current.generation === currentSessionGeneration
-    )
-      return;
-    composerContext.current = { id, generation: currentSessionGeneration };
-    commentSequence.current++;
-    commentFilesRevision.current++;
-    commentSavedRevision.current = null;
-    commentSaving.current = false;
-    commentSubmitting.current = false;
-    transferringComment.current = false;
-    setCommentTransferConflict(false);
-    setCommentContent('');
-    commentContentRef.current = '';
-    setAttachmentPending(false);
-    attachmentPendingRef.current = false;
-    confirmedDraftToClearRef.current = null;
-    setConfirmedDraftToClear(null);
-    setCommentRefreshPending(false);
-    commentAwaitingRefreshId.current = null;
-    setCommentFiles([]);
-    setSavingCommentDraft(false);
-    setCommentDraftError(false);
-    setSubmittingComment(false);
-    setPreparing(false);
-  }, [id, currentSessionGeneration]);
-
-  useEffect(() => {
-    if (
-      !isPrepared ||
-      !prepared?.available ||
-      transferringComment.current ||
-      commentSaving.current ||
-      commentSubmitting.current ||
-      commentDraftError
-    )
-      return;
-    // A failed local cleanup must not restore already published text as a new submission.
-    const draft = prepared?.commentDraft;
-    if (draft && draft.revision === confirmedDraftToClearRef.current) return;
-    setCommentContent(draft?.content ?? '');
-    commentContentRef.current = draft?.content ?? '';
-    setAttachmentPending(!!draft?.attachmentPending);
-    attachmentPendingRef.current = !!draft?.attachmentPending;
-    commentSavedRevision.current = draft?.revision ?? null;
-  }, [
+  const {
+    preparing,
+    commentContent,
+    attachmentPending,
+    confirmedDraftToClear,
+    commentRefreshPending,
+    commentTransferConflict,
+    savingCommentDraft,
+    commentDraftError,
+    submittingComment,
+    commentFiles,
+    changeCommentContent,
+    prepareWorkOrder,
+    resolveTransferredComment,
+    retryPublishedDraftCleanup,
+    handleCommentSubmit,
+    pickCommentFile,
+    removeCommentFile,
+    confirmCommentRefresh,
+    removeLocalCommentFile,
+    filesReady,
+    importingFiles,
+    importCommentFiles
+  } = useOfflineCommentComposer({
+    id,
     isPrepared,
-    prepared?.available,
-    prepared?.commentDraft?.revision,
-    offline.repository,
-    commentDraftError
-  ]);
+    prepared,
+    connectedAvailable,
+    canComposeComment
+  });
 
-  useEffect(() => {
-    if (
-      commentRefreshPending &&
-      prepared?.comments.some(
-        (comment) => comment.id === commentAwaitingRefreshId.current
-      )
-    ) {
-      commentAwaitingRefreshId.current = null;
-      setCommentRefreshPending(false);
-    }
-  }, [prepared?.comments, commentRefreshPending]);
-
-  const persistCommentComposer = (
-    content: string,
-    filesPending = attachmentPendingRef.current
-  ) => {
-    if (transferringComment.current) return;
-    setCommentContent(content);
-    commentContentRef.current = content;
-    setAttachmentPending(filesPending);
-    attachmentPendingRef.current = filesPending;
-    const sequence = ++commentSequence.current;
-    setCommentDraftError(false);
-    if (!isPrepared) return;
-    const generation = sessionGeneration();
-    commentSaving.current = true;
-    setSavingCommentDraft(true);
-    setCommentDraftError(false);
-    void offline
-      .saveCommentDraft(id, content, undefined, filesPending ? true : undefined)
-      .then((draft) => {
-        if (
-          generation !== sessionGeneration() ||
-          composerContext.current.id !== id ||
-          sequence !== commentSequence.current
-        )
-          return;
-        commentSavedRevision.current = draft.revision;
-        commentSaving.current = false;
-        setSavingCommentDraft(false);
-      })
-      .catch(() => {
-        if (
-          generation !== sessionGeneration() ||
-          composerContext.current.id !== id ||
-          sequence !== commentSequence.current
-        )
-          return;
-        commentSaving.current = false;
-        setSavingCommentDraft(false);
-        setCommentDraftError(true);
-      });
-  };
-  const changeCommentContent = (content: string) =>
-    persistCommentComposer(content);
-
-  const prepareWorkOrder = async () => {
-    if (preparing || commentSubmitting.current) return;
-    const generation = sessionGeneration();
-    const content = commentContent;
-    let copied = false;
-    transferringComment.current = true;
-    setPreparing(true);
-    try {
-      await offline.prepare(id);
-      assertSessionGeneration(generation);
-      copied = true;
-      if (content.length || attachmentPendingRef.current) {
-        const draft = await offline.preserveConnectedCommentDraft(
-          id,
-          content,
-          attachmentPendingRef.current
-        );
-        assertSessionGeneration(generation);
-        if (composerContext.current.id !== id) return;
-        commentSavedRevision.current = draft.revision;
-      } else {
-        const draft = await offline.repository.getCommentDraft(id);
-        assertSessionGeneration(generation);
-        if (composerContext.current.id !== id) return;
-        setCommentContent(draft?.content ?? '');
-        commentContentRef.current = draft?.content ?? '';
-        setAttachmentPending(!!draft?.attachmentPending);
-        attachmentPendingRef.current = !!draft?.attachmentPending;
-        commentSavedRevision.current = draft?.revision ?? null;
-      }
-      setCommentDraftError(false);
-      setCommentTransferConflict(false);
-      transferringComment.current = false;
-    } catch (failure) {
-      if (
-        generation !== sessionGeneration() ||
-        composerContext.current.id !== id
-      )
-        return;
-      if (copied && (content.length || attachmentPendingRef.current)) {
-        // Keep the connected text visible until the user explicitly resolves the other local draft.
-        setCommentDraftError(true);
-        setCommentTransferConflict(true);
-      } else transferringComment.current = false;
-      offline.reportError(failure);
-    } finally {
-      if (
-        generation === sessionGeneration() &&
-        composerContext.current.id === id
-      )
-        setPreparing(false);
-    }
-  };
-
-  const resolveTransferredComment = async (keepDisplayed: boolean) => {
-    const generation = sessionGeneration();
-    try {
-      const existing = await offline.repository.getCommentDraft(id);
-      assertSessionGeneration(generation);
-      if (composerContext.current.id !== id) return;
-      if (!keepDisplayed && !existing) throw new OfflineError('DRAFT_CHANGED');
-      const content = keepDisplayed ? commentContent : existing.content;
-      const expectedRevision = existing?.revision ?? null;
-      const filesPending = keepDisplayed
-        ? attachmentPendingRef.current
-        : !!existing?.attachmentPending;
-      Alert.alert(
-        t(keepDisplayed ? 'offline_keep_draft' : 'offline_draft_saved'),
-        t(
-          keepDisplayed ? 'offline_changed_revision' : 'offline_discard_confirm'
-        ),
-        [
-          { text: t('cancel'), style: 'cancel' },
-          {
-            text: t(keepDisplayed ? 'offline_keep_draft' : 'offline_discard'),
-            style: 'destructive',
-            onPress: async () => {
-              try {
-                assertSessionGeneration(generation);
-                if (composerContext.current.id !== id) return;
-                const saved = await offline.saveCommentDraft(
-                  id,
-                  content,
-                  expectedRevision,
-                  filesPending
-                );
-                assertSessionGeneration(generation);
-                if (composerContext.current.id !== id) return;
-                commentSavedRevision.current = saved.revision;
-                commentSequence.current++;
-                setCommentContent(saved.content);
-                commentContentRef.current = saved.content;
-                setAttachmentPending(!!saved.attachmentPending);
-                attachmentPendingRef.current = !!saved.attachmentPending;
-                if (!keepDisplayed) {
-                  commentFilesRevision.current++;
-                  setCommentFiles([]);
-                }
-                transferringComment.current = false;
-                setCommentTransferConflict(false);
-                setCommentDraftError(false);
-              } catch (failure) {
-                if (generation === sessionGeneration())
-                  offline.reportError(failure);
-              }
-            }
-          }
-        ]
-      );
-    } catch (failure) {
-      if (generation === sessionGeneration()) offline.reportError(failure);
-    }
-  };
   const statuses = ['OPEN', 'ON_HOLD', 'IN_PROGRESS', 'COMPLETE'].map(
     (status) => ({ value: status, label: t(status) })
   );
@@ -559,11 +334,7 @@ export default function WODetailsScreen({
       void offline
         .refresh(id)
         .then(() => {
-          if (
-            generation === sessionGeneration() &&
-            composerContext.current.id === id
-          )
-            setCommentRefreshPending(false);
+          confirmCommentRefresh(generation);
         })
         .catch(offline.reportError);
     } else if (!workOrderProp)
@@ -690,7 +461,8 @@ export default function WODetailsScreen({
     setOpenDelete(false);
   };
   const onArchive = () => {
-    dispatch(editWorkOrder(id, { ...workOrder, archived: true }))
+    const { image, files, ...values } = workOrder;
+    dispatch(editWorkOrder(id, { ...values, archived: true }))
       .then(onArchiveSuccess)
       .catch(onArchiveFailure);
   };
@@ -919,210 +691,6 @@ export default function WODetailsScreen({
     id: user.id.toString(),
     name: `${user.firstName} ${user.lastName}`
   }));
-
-  const clearPublishedCommentDraft = async (revision: number) => {
-    try {
-      await offline.abandonCommentDraft(id, revision);
-    } catch (failure) {
-      // A newer draft is not part of this confirmed publication.
-      if (
-        !(failure instanceof OfflineError) ||
-        failure.code !== 'DRAFT_CHANGED'
-      )
-        throw failure;
-    }
-  };
-
-  const retryPublishedDraftCleanup = async () => {
-    const revision = confirmedDraftToClearRef.current;
-    if (revision === null) return;
-    const generation = sessionGeneration();
-    try {
-      await clearPublishedCommentDraft(revision);
-      assertSessionGeneration(generation);
-      if (composerContext.current.id !== id) return;
-      confirmedDraftToClearRef.current = null;
-      setConfirmedDraftToClear(null);
-    } catch (failure) {
-      if (
-        generation === sessionGeneration() &&
-        composerContext.current.id === id
-      )
-        offline.reportError(failure);
-    }
-  };
-
-  const handleCommentSubmit = async (textOnlyApproval?: {
-    sequence: number;
-    revision: number;
-  }) => {
-    if (
-      !commentContentRef.current.trim() ||
-      commentSubmitting.current ||
-      transferringComment.current ||
-      confirmedDraftToClearRef.current !== null ||
-      !canComposeComment ||
-      (isPrepared && (commentSaving.current || commentDraftError))
-    )
-      return;
-    const sequence = commentSequence.current;
-    let revision =
-      commentSavedRevision.current ?? prepared?.commentDraft?.revision;
-    const content = commentContentRef.current.trim();
-    const files = commentFiles.slice();
-    const filesRevision = commentFilesRevision.current;
-    const generation = sessionGeneration();
-    if (attachmentPendingRef.current && !files.length && !textOnlyApproval) {
-      Alert.alert(
-        t('offline_comment_text_only'),
-        t('offline_comment_attachment_pending'),
-        [
-          { text: t('cancel'), style: 'cancel' },
-          {
-            text: t('offline_comment_text_only'),
-            onPress: () => {
-              if (
-                generation !== sessionGeneration() ||
-                composerContext.current.id !== id
-              )
-                return;
-              if (revision !== undefined && revision !== null)
-                void handleCommentSubmit({ sequence, revision });
-            }
-          }
-        ]
-      );
-      return;
-    }
-    if (
-      textOnlyApproval &&
-      (textOnlyApproval.sequence !== sequence ||
-        textOnlyApproval.revision !== revision)
-    ) {
-      offline.reportError(new OfflineError('DRAFT_CHANGED'));
-      return;
-    }
-    commentSubmitting.current = true;
-    setSubmittingComment(true);
-    let publicationConfirmed = false;
-    try {
-      if (textOnlyApproval) {
-        // Consent consumes the exact reviewed draft; typing never clears this marker.
-        const saved = await offline.saveCommentDraft(
-          id,
-          commentContentRef.current,
-          revision,
-          false
-        );
-        assertSessionGeneration(generation);
-        revision = saved.revision;
-        if (composerContext.current.id !== id) return;
-        if (commentSequence.current === sequence) {
-          commentSavedRevision.current = revision;
-          attachmentPendingRef.current = false;
-          setAttachmentPending(false);
-        }
-      }
-      if (isPrepared && !files.length) {
-        if (revision === undefined || revision === null)
-          throw new OfflineError('DRAFT_CHANGED');
-        await offline.submitCommentDraft(id, revision);
-        assertSessionGeneration(generation);
-        publicationConfirmed = true;
-      } else {
-        if (!connectedAvailable) throw new OfflineError('NETWORK_UNAVAILABLE');
-        let fileIds: { id: number }[] = [];
-        if (files.length > 0) {
-          const uploadedFiles = await uploadFiles(files, [], false);
-          assertSessionGeneration(generation);
-          fileIds = uploadedFiles.map((f) => ({ id: f.id }));
-        }
-        const result: ConfirmedCommentMutation = await dispatch(
-          createComment({ workOrder: { id }, content, files: fileIds })
-        );
-        assertSessionGeneration(generation);
-        publicationConfirmed = true;
-        if (composerContext.current.id !== id) return;
-        if (result.localUpdateError) {
-          commentAwaitingRefreshId.current = result.comment?.id ?? null;
-          setCommentRefreshPending(true);
-          offline.reportError(result.localUpdateError);
-        }
-        if (isPrepared && revision !== undefined && revision !== null) {
-          try {
-            await clearPublishedCommentDraft(revision);
-          } catch (failure) {
-            assertSessionGeneration(generation);
-            if (composerContext.current.id !== id) return;
-            confirmedDraftToClearRef.current = revision;
-            setConfirmedDraftToClear(revision);
-            offline.reportError(failure);
-          }
-        }
-      }
-    } catch (error) {
-      if (
-        generation === sessionGeneration() &&
-        composerContext.current.id === id
-      )
-        offline.reportError(error);
-    } finally {
-      if (
-        generation === sessionGeneration() &&
-        composerContext.current.id === id
-      ) {
-        if (publicationConfirmed) {
-          if (commentSequence.current === sequence) {
-            commentContentRef.current = '';
-            setCommentContent('');
-            commentSavedRevision.current = null;
-            attachmentPendingRef.current = false;
-            setAttachmentPending(false);
-          }
-          if (commentFilesRevision.current === filesRevision)
-            setCommentFiles([]);
-        }
-        commentSubmitting.current = false;
-        setSubmittingComment(false);
-      }
-    }
-  };
-
-  const pickCommentFile = async () => {
-    if (!connectedAvailable) return;
-    const generation = sessionGeneration();
-    try {
-      const result = await DocumentPicker.getDocumentAsync({
-        type: '*/*',
-        multiple: true,
-        copyToCacheDirectory: true
-      });
-      assertSessionGeneration(generation);
-      if (composerContext.current.id !== id) return;
-      if (!result.canceled && result.assets) {
-        const newFiles = result.assets.map((asset) => ({
-          uri: asset.uri,
-          name: asset.name,
-          type: asset.mimeType || 'application/octet-stream'
-        }));
-        commentFilesRevision.current++;
-        setCommentFiles((current) => [...current, ...newFiles]);
-        persistCommentComposer(commentContentRef.current, true);
-      }
-    } catch (error) {
-      console.error('Error picking document:', error);
-    }
-  };
-
-  const removeCommentFile = (index: number) => {
-    commentFilesRevision.current++;
-    setCommentFiles((current) => current.filter((_, i) => i !== index));
-    // Removing a selection does not silently consent to publishing text alone.
-    persistCommentComposer(
-      commentContentRef.current,
-      isPrepared ? attachmentPendingRef.current : commentFiles.length > 1
-    );
-  };
 
   function ObjectField({
     label,
@@ -1371,7 +939,10 @@ export default function WODetailsScreen({
                   />
                 )}
               </View>
-              {workOrder.image && connectedAvailable && (
+              {workOrder.image && isPrepared && (
+                <OfflineFileItem workOrderId={id} file={workOrder.image} />
+              )}
+              {workOrder.image && !isPrepared && connectedAvailable && (
                 <TouchableOpacity onPress={() => setIsImageViewerOpen(true)}>
                   <Image
                     style={{ height: 200, marginTop: 20 }}
@@ -1664,22 +1235,30 @@ export default function WODetailsScreen({
                         >
                           {t('files')}
                         </Text>
-                        {workOrder.files.map((file) => (
-                          <List.Item
-                            key={file.id}
-                            titleStyle={{ color: theme.colors.primary }}
-                            title={file.name}
-                            description={
-                              !connectedAvailable
-                                ? t('offline_files_not_downloaded')
-                                : undefined
-                            }
-                            disabled={!connectedAvailable}
-                            onPress={() => {
-                              Linking.openURL(file.url);
-                            }}
-                          />
-                        ))}
+                        {workOrder.files.map((file) =>
+                          isPrepared ? (
+                            <OfflineFileItem
+                              key={file.id}
+                              workOrderId={id}
+                              file={file}
+                            />
+                          ) : (
+                            <List.Item
+                              key={file.id}
+                              titleStyle={{ color: theme.colors.primary }}
+                              title={file.name}
+                              description={
+                                !connectedAvailable
+                                  ? t('offline_files_not_downloaded')
+                                  : undefined
+                              }
+                              disabled={!connectedAvailable}
+                              onPress={() => {
+                                Linking.openURL(file.url);
+                              }}
+                            />
+                          )
+                        )}
                       </View>
                     )}
                     {connectedAvailable &&
@@ -1856,13 +1435,49 @@ export default function WODetailsScreen({
                               icon="paperclip"
                               onPress={pickCommentFile}
                               disabled={
-                                !connectedAvailable ||
+                                (!isPrepared && !connectedAvailable) ||
+                                importingFiles ||
+                                (isPrepared &&
+                                  !(
+                                    hasCreatePermission(
+                                      PermissionEntity.FILES
+                                    ) && hasFeature(PlanFeature.FILE)
+                                  )) ||
                                 preparing ||
                                 commentTransferConflict
                               }
                               style={{ marginBottom: 8 }}
                             />
                           </View>
+                          {isPrepared &&
+                            hasCreatePermission(PermissionEntity.FILES) &&
+                            hasFeature(PlanFeature.FILE) && (
+                              <FileUpload
+                                title={t('images')}
+                                description={t('upload')}
+                                type="image"
+                                multiple
+                                selectionOnly
+                                maxFileSize={35}
+                                disabled={
+                                  importingFiles ||
+                                  preparing ||
+                                  commentTransferConflict
+                                }
+                                onChange={(files) =>
+                                  void importCommentFiles(files)
+                                }
+                              />
+                            )}
+                          {isPrepared &&
+                            prepared?.commentDraft?.fileIds?.map((localId) => (
+                              <OfflineFileItem
+                                key={localId}
+                                workOrderId={id}
+                                localId={localId}
+                                onRemove={() => removeLocalCommentFile(localId)}
+                              />
+                            ))}
                           {commentFiles.length > 0 && (
                             <View style={{ marginBottom: 8 }}>
                               {commentFiles.map((file, index) => (
@@ -1883,6 +1498,7 @@ export default function WODetailsScreen({
                                   <IconButton
                                     icon="close-circle"
                                     size={16}
+                                    disabled={importingFiles}
                                     onPress={() => removeCommentFile(index)}
                                   />
                                 </View>
@@ -1926,14 +1542,18 @@ export default function WODetailsScreen({
                               </Button>
                             </View>
                           )}
-                          {attachmentPending && !commentFiles.length && (
-                            <Text accessibilityRole="alert">
-                              {t('offline_comment_attachment_pending')}
-                            </Text>
-                          )}
-                          {!!commentFiles.length && !connectedAvailable && (
-                            <Text>{t('offline_connected_required')}</Text>
-                          )}
+                          {attachmentPending &&
+                            !commentFiles.length &&
+                            !prepared?.commentDraft?.fileIds?.length && (
+                              <Text accessibilityRole="alert">
+                                {t('offline_comment_attachment_pending')}
+                              </Text>
+                            )}
+                          {!isPrepared &&
+                            !!commentFiles.length &&
+                            !connectedAvailable && (
+                              <Text>{t('offline_connected_required')}</Text>
+                            )}
                           {commentTransferConflict && (
                             <View>
                               <Text>{t('offline_changed_revision')}</Text>
@@ -1964,8 +1584,12 @@ export default function WODetailsScreen({
                               submittingComment ||
                               confirmedDraftToClear !== null ||
                               (isPrepared &&
-                                (savingCommentDraft || commentDraftError)) ||
-                              (!!commentFiles.length && !connectedAvailable)
+                                (savingCommentDraft ||
+                                  commentDraftError ||
+                                  !filesReady)) ||
+                              (!isPrepared &&
+                                !!commentFiles.length &&
+                                !connectedAvailable)
                             }
                             loading={loadingCreate || submittingComment}
                           >
@@ -1980,7 +1604,7 @@ export default function WODetailsScreen({
               {hasStoredPreparation && <OfflineWorkPanel workOrderId={id} />}
             </ScrollView>
           </KeyboardAvoidingView>
-          {connectedAvailable &&
+          {(connectedAvailable || (isPrepared && offline.writable)) &&
             !generalPreferences.simplifiedWorkOrder &&
             hasEditPermission(PermissionEntity.WORK_ORDERS, workOrder) && (
               <FAB

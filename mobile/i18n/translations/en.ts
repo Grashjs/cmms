@@ -1,4 +1,58 @@
 const locale = {
+  offline_refresh_copy: 'Refresh copy',
+  offline_remove_server_attachment: 'Remove from work order',
+  offline_clear_server_image: 'Clear main image',
+  offline_remove_server_attachment_confirm:
+    'Remove this file from the work order on the server? Your selections and pending submissions will be preserved.',
+  offline_clear_server_image_confirm:
+    'Clear the main image on the server? Your selected image and pending submissions will be preserved.',
+  offline_server_removal_refresh_pending:
+    'Removal confirmed — local refresh pending',
+  offline_review_files: 'Review selection',
+  offline_restore_files_draft:
+    'The selection will be restored as a draft. Review it, then save it explicitly. A newer draft will not be replaced.',
+  offline_keep_file_selection: 'Keep my selection',
+  offline_file_transfer_only:
+    'File transferred to the server; attachment is confirmed separately.',
+  offline_file_dependency_failed:
+    'The attachment is waiting for a file whose transfer was rejected. Your selection is preserved.',
+  offline_retry_file_import: 'Retry saving the file',
+  offline_file_available: 'File available on this device',
+  offline_file_failed: 'File unavailable on this device',
+  offline_open_file: 'Open file',
+  offline_download_file: 'Download to this device',
+  offline_remove_file_selection: 'Remove from selection',
+  offline_remove_local_copy: 'Delete local copy',
+  offline_save_files: 'Save files',
+  offline_other_fields_read_only:
+    'Only files can be changed in this form while offline.',
+  offline_save_other_changes: 'Save other changes',
+  offline_scan_asset: 'Scan a prepared asset',
+  offline_scan_unavailable:
+    'Offline scanning requires an authorized preparation and the scanning license.',
+  offline_scan_ambiguous:
+    'Several prepared assets match this code. Open their work order.',
+  offline_asset_not_available:
+    'This asset is not available offline. Prepare its work order with an Internet connection.',
+  offline_asset_read_only:
+    'Read-only prepared copy. Other information requires an Internet connection.',
+  offline_asset_prepared_work_orders: 'Only prepared work orders are shown.',
+  offline_file_not_ready:
+    'Wait until the file has finished copying to this device.',
+  offline_file_limit: 'This file exceeds the allowed size.',
+  offline_storage_limit:
+    'There is not enough storage space. Remove local copies that are no longer needed.',
+  offline_transfer_failed:
+    'A transfer was rejected. Keep your work, then explicitly discard this submission and select the files again to correct it.',
+  offline_file_in_use:
+    'This file is still used by a preparation or pending work.',
+  offline_file_open_failed: 'This document cannot be opened on this device.',
+  offline_file_integrity:
+    'The file copy is incomplete or has changed. Select it again.',
+  offline_attachments_conflict:
+    'The attachments have changed on the server. Refresh, then prepare the change again.',
+  offline_file_copy_failed:
+    'Copying to this device failed. Select the file again.',
   offline_comment_saved_refresh_pending:
     'The comment change is confirmed on the server; the local copy still needs to be refreshed.',
   offline_comment_published_cleanup_pending:

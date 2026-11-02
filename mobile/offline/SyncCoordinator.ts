@@ -1,12 +1,15 @@
 import { OfflineApi, OfflineApiError } from './OfflineApi';
 import { OfflineRepository } from './OfflineRepository';
+import type { OfflineFileStore } from './OfflineFileStore';
 import {
   OfflineEligibility,
   OfflineError,
   OfflineTask,
   operationField,
   TaskField,
-  OFFLINE_LIMITS
+  OFFLINE_LIMITS,
+  isTaskOperation,
+  transferIds
 } from './types';
 
 interface SyncState {
@@ -44,7 +47,8 @@ export class SyncCoordinator {
     public readonly repository: OfflineRepository,
     public readonly api: OfflineApi,
     private readonly policy: SyncPolicy,
-    private readonly timers: CoordinatorTimers = { setTimeout, clearTimeout }
+    private readonly timers: CoordinatorTimers = { setTimeout, clearTimeout },
+    public readonly files?: OfflineFileStore
   ) {}
 
   private clearRetry() {
@@ -210,7 +214,8 @@ export class SyncCoordinator {
       ...(await this.repository.getOperationsToSync()).filter(
         (operation) => operation.attemptCount > 0
       ),
-      ...(await this.repository.getCommentReceiptsToRefresh())
+      ...(await this.repository.getCommentReceiptsToRefresh()),
+      ...(await this.repository.getFileReceiptsToRefresh())
     ];
     // Receipts are read even while the feature is disabled. Missing is NOT an
     // assurance of non-application, and never makes an operation abandonable.
@@ -266,7 +271,13 @@ export class SyncCoordinator {
         return;
       const request = operation.request;
       if (
-        request.type !== 'CREATE_COMMENT' &&
+        request.type === 'UPLOAD_FILE' &&
+        operation.attemptCount === 0 &&
+        !(await this.repository.uploadHasParent(operation.id))
+      )
+        continue;
+      if (
+        isTaskOperation(request) &&
         request.predecessorOperationId &&
         operation.attemptCount === 0
       ) {
@@ -275,8 +286,29 @@ export class SyncCoordinator {
         );
         if (predecessor?.status !== 'APPLIED') continue;
       }
+      if (
+        operation.attemptCount === 0 &&
+        (
+          await Promise.all(
+            transferIds(request).map((id) => this.repository.getOperation(id))
+          )
+        ).some(
+          (dependency) =>
+            dependency?.status !== 'APPLIED' ||
+            [
+              'FILE_DELETED',
+              'TARGET_UNAVAILABLE',
+              'WORK_ORDER_UNAVAILABLE'
+            ].includes(dependency.receipt?.visibility || '')
+        )
+      )
+        continue;
       const target =
-        request.type === 'CREATE_COMMENT'
+        !isTaskOperation(request) &&
+        'taskId' in request &&
+        request.taskId != null
+          ? await this.repository.getTask(request.taskId, 'notes')
+          : !isTaskOperation(request)
           ? await this.repository.getWorkOrderProjection(request.workOrderId)
           : await this.repository.getTask(
               request.taskId,
@@ -293,12 +325,40 @@ export class SyncCoordinator {
             : target.canEdit))
       )
         continue;
+      let localFile =
+        request.type === 'UPLOAD_FILE'
+          ? await this.repository.getTransferFile(operation.id)
+          : null;
+      if (request.type === 'UPLOAD_FILE') {
+        try {
+          if (!localFile || !this.files)
+            throw new OfflineError('FILE_NOT_READY');
+          await this.files.verify(localFile);
+        } catch (error) {
+          if (localFile)
+            await this.repository.putFile({
+              ...localFile,
+              status: 'ERROR',
+              error: 'FILE_INTEGRITY'
+            });
+          firstRefreshError ||= error;
+          continue;
+        }
+      }
+      if (!this.connected()) return;
       const attempt = await this.repository.beginAttempt(operation.id);
       try {
-        const result = await this.api.sendOperation(attempt.request);
+        const result =
+          attempt.request.type === 'UPLOAD_FILE'
+            ? await this.api.uploadFile(attempt.request, localFile!)
+            : await this.api.sendOperation(attempt.request);
         if (!this.current()) return; // reconciled through its receipt next login
         await this.repository.applyReceipt(result);
-        if (request.type === 'CREATE_COMMENT' && result.status === 'APPLIED')
+        if (
+          request.type !== 'UPLOAD_FILE' &&
+          !isTaskOperation(request) &&
+          result.status === 'APPLIED'
+        )
           commentsToRefresh.add(request.workOrderId);
       } catch (error) {
         await this.repository.markUnknown(operation.id);
@@ -319,6 +379,7 @@ export class SyncCoordinator {
         firstRefreshError ||= error;
       }
     }
+    await this.files?.cleanup();
     if (firstRefreshError) throw firstRefreshError;
   }
 
@@ -338,6 +399,40 @@ export class SyncCoordinator {
     return this.enqueue(async () => {
       this.assertConnected();
       return action();
+    });
+  }
+
+  removeServerAttachment(
+    workOrderId: number,
+    fileId: number,
+    image: boolean
+  ): Promise<{ localUpdateError?: unknown }> {
+    return this.enqueue(async () => {
+      this.assertConnected();
+      if (!this.policy.enabled()) throw new OfflineError('OFFLINE_DISABLED');
+      const view = await this.repository.getWorkOrderProjection(workOrderId);
+      if (!view?.available || !view.canEdit)
+        throw new OfflineError('EDIT_FORBIDDEN');
+      if (
+        image
+          ? view.workOrder?.image?.id !== fileId
+          : !view.workOrder?.files.some((file) => file.id === fileId)
+      )
+        throw new OfflineError('SERVER_CHANGED');
+      this.assertConnected();
+      await this.api.removeWorkOrderAttachment(workOrderId, fileId, image);
+      if (!this.current()) throw new OfflineError('CONTEXT_CHANGED');
+      // Server success is final. A failed snapshot can only be refreshed; it
+      // must not make this connected mutation look eligible for a retry.
+      try {
+        this.assertConnected();
+        await this.refreshOne(workOrderId);
+        if (!this.current()) throw new OfflineError('CONTEXT_CHANGED');
+        return {};
+      } catch (localUpdateError) {
+        if (!this.current()) throw new OfflineError('CONTEXT_CHANGED');
+        return { localUpdateError };
+      }
     });
   }
 
@@ -374,6 +469,7 @@ export class SyncCoordinator {
     return this.enqueue(async () => {
       if (!this.current()) throw new OfflineError('CONTEXT_CHANGED');
       await this.repository.removePreparation(workOrderId);
+      await this.files?.cleanup();
       // Release is a durable housekeeping action; its failure does not undo an
       // explicit, safe local withdrawal. It is retried before the next prepare.
       if (this.connected()) {
@@ -386,7 +482,26 @@ export class SyncCoordinator {
     });
   }
 
+  downloadFile(workOrderId: number, fileId: number): Promise<void> {
+    return this.enqueue(async () => {
+      this.assertConnected();
+      if (!(await this.authorize()) || !this.files)
+        throw new OfflineError('OFFLINE_DISABLED');
+      const descriptor = await this.api.fileDescriptor(workOrderId, fileId);
+      this.assertConnected();
+      if (descriptor.fileId !== fileId)
+        throw new OfflineError('TARGET_MISMATCH');
+      await this.files.downloadFile(workOrderId, descriptor);
+    });
+  }
+
+  cancelTransfers(): void {
+    this.api.cancelTransfers();
+    this.files?.cancelTransfers();
+  }
+
   suspend(): void {
+    this.cancelTransfers();
     this.clearRetry();
     this.suspended = true;
     this.requested = false;

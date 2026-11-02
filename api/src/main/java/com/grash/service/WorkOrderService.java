@@ -109,6 +109,7 @@ public class WorkOrderService {
     private PreventiveMaintenanceService preventiveMaintenanceService;
     private PreventiveMaintenanceMapper preventiveMaintenanceMapper;
     private final FileRepository fileRepository;
+    private final FileService fileService;
 
     @Transactional
     public WorkOrder create(WorkOrder workOrder, Company company) {
@@ -208,6 +209,7 @@ public class WorkOrderService {
             Long previousCategoryId = savedWorkOrder.getCategory() != null ? savedWorkOrder.getCategory().getId() :
                     null;
 
+            applyAttachmentPatch(savedWorkOrder, workOrder, user);
             WorkOrder newWorkOrder = workOrderMapper.updateWorkOrder(savedWorkOrder, workOrder);
             Sanitizer.sanitizeWorkOrder(newWorkOrder);
             if (!workOrder.getCustomFields().isEmpty()) {
@@ -245,12 +247,22 @@ public class WorkOrderService {
 
     @Transactional
     public WorkOrder patch(Long id, WorkOrderPatchDTO workOrder, User user) {
-        Optional<WorkOrder> optionalWorkOrder = findById(id);
+        return patch(id, workOrder, user, false);
+    }
+
+    @Transactional
+    public WorkOrder patch(Long id, WorkOrderPatchDTO workOrder, User user, boolean attachmentsOnly) {
+        Optional<WorkOrder> optionalWorkOrder = workOrderRepository.findForUpdate(id, user.getCompany().getId());
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
+            em.refresh(savedWorkOrder);
             if (savedWorkOrder.canBeEditedBy(user)) {
+                // The explicit attachment-only request inherits current business fields under this
+                // same lock, never stale form fields or the DTO's default/null values.
+                WorkOrderPatchDTO effectivePatch = attachmentsOnly
+                        ? attachmentOnlyPatch(savedWorkOrder, workOrder) : workOrder;
                 em.detach(savedWorkOrder);
-                WorkOrder patchedWorkOrder = update(id, workOrder, user);
+                WorkOrder patchedWorkOrder = update(id, effectivePatch, user);
 
                 if (patchedWorkOrder.isArchived() && !savedWorkOrder.isArchived()) {
                     Collection<Workflow> workflows =
@@ -1295,33 +1307,142 @@ public class WorkOrderService {
 
     }
 
-    public List<File> addFiles(Long workOrderId, List<File> files, User user) {
-        Optional<WorkOrder> optionalWorkOrder = findById(workOrderId);
-        if (optionalWorkOrder.isPresent()) {
-            WorkOrder savedWorkOrder = optionalWorkOrder.get();
-            if (!savedWorkOrder.canBeEditedBy(user))
-                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-            List<File> existingFiles = fileRepository.findByIdIn(files.stream().map(File::getId).toList());
-            existingFiles.forEach(file -> {
-                if (!file.canBeViewedBy(user)) {
-                    throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-                }
-            });
-            savedWorkOrder.getFiles().addAll(files);
-            save(savedWorkOrder);
-            return savedWorkOrder.getFiles();
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    private WorkOrderPatchDTO attachmentOnlyPatch(WorkOrder current, WorkOrderPatchDTO requested) {
+        if (!requested.isImagePresent() && !requested.isFilesPresent())
+            throw new CustomException("ATTACHMENTS_REQUIRED", HttpStatus.BAD_REQUEST);
+        WorkOrderPatchDTO effective = workOrderMapper.toPatchDto(current);
+        if (requested.isImagePresent()) effective.setImage(requested.getImage());
+        if (requested.isFilesPresent()) effective.setFiles(requested.getFiles());
+        // MapStruct calls the setters when copying the current model. Presence must
+        // describe the incoming mutation, not the complete business-field snapshot.
+        effective.setImagePresent(requested.isImagePresent());
+        effective.setFilesPresent(requested.isFilesPresent());
+        effective.setAttachmentsBase(requested.getAttachmentsBase());
+        effective.setCustomFields(Collections.emptyList());
+        return effective;
     }
 
+    /** All attachment writes share the work-order row lock, including ordinary connected edits. */
+    void applyAttachmentPatch(WorkOrder workOrder, WorkOrderPatchDTO patch, User user) {
+        var base = patch.getAttachmentsBase();
+        if (patch.isImagePresent()) {
+            Long current = workOrder.getImage() == null ? null : workOrder.getImage().getId();
+            Long requestedImage = patch.getImage() == null ? null : patch.getImage().getId();
+            if (base == null && !Objects.equals(current, requestedImage))
+                throw new CustomException("ATTACHMENTS_BASE_REQUIRED", HttpStatus.CONFLICT);
+            if (base != null && !Objects.equals(current, base.imageId()))
+                throw new CustomException("ATTACHMENTS_CONFLICT", HttpStatus.CONFLICT);
+            // Keeping the intervention's current image is not a catalogue lookup.
+            if (!Objects.equals(current, requestedImage))
+                workOrder.setImage(patch.getImage() == null ? null : checkedPatchAttachment(requestedImage, user));
+        }
+        if (patch.isFilesPresent()) {
+            List<File> requested = patch.getFiles() == null ? List.of() : patch.getFiles();
+            Set<Long> requestedIds = new LinkedHashSet<>();
+            for (File file : requested) {
+                if (file == null || file.getId() == null)
+                    throw new CustomException("FILE_NOT_FOUND", HttpStatus.BAD_REQUEST);
+                requestedIds.add(file.getId());
+            }
+            Set<Long> current = workOrder.getFiles().stream().map(File::getId).collect(Collectors.toSet());
+            if (base == null || base.fileIds() == null) {
+                if (!current.equals(requestedIds))
+                    throw new CustomException("ATTACHMENTS_BASE_REQUIRED", HttpStatus.CONFLICT);
+            } else {
+                Set<Long> initial = new HashSet<>(base.fileIds());
+                List<File> additions = new ArrayList<>();
+                for (Long id : requestedIds) {
+                    // Current associations need no catalogue permission. An old baseline
+                    // item removed elsewhere is not reattached by an unchanged form value.
+                    if (!initial.contains(id) && !current.contains(id)) additions.add(checkedPatchAttachment(id, user));
+                }
+                workOrder.getFiles().removeIf(file -> initial.contains(file.getId()) && !requestedIds.contains(file.getId()));
+                workOrder.getFiles().addAll(additions);
+            }
+        }
+    }
+
+    private File findAttachment(Long id, User user) {
+        if (id == null) throw new CustomException("FILE_NOT_FOUND", HttpStatus.BAD_REQUEST);
+        return fileRepository.findByIdAndCompany_Id(id, user.getCompany().getId())
+                .orElseThrow(() -> new CustomException("FILE_NOT_FOUND", HttpStatus.NOT_FOUND));
+    }
+
+    private File checkedPatchAttachment(Long id, User user) {
+        File file = findAttachment(id, user);
+        if (file.canBeViewedBy(user)) return file;
+        // Connected form uploads are identified by immutable server audit ownership,
+        // not the caller's File DTO or a guessable id. Keep the upload's current
+        // creation/license/plan checks without consuming another upload allowance.
+        if (file.getCreatedBy() == null || !file.getCreatedBy().equals(user.getId()))
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        fileService.checkUploadAccess(user, false);
+        return file;
+    }
+
+    private File checkedAttachment(Long id, User user) {
+        File file = findAttachment(id, user);
+        if (!file.canBeViewedBy(user)) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        return file;
+    }
+
+    public record OfflineAttachmentOutcome(WorkOrder workOrder, String error, boolean conflict) {}
+
+    @Transactional
+    public OfflineAttachmentOutcome applyOfflineAttachments(long id, List<File> additions, File image,
+                                                              Long baseImageId, boolean changesImage, User user) {
+        var found = workOrderRepository.findForUpdate(id, user.getCompany().getId());
+        if (found.isEmpty()) return new OfflineAttachmentOutcome(null, "TARGET_NOT_FOUND", false);
+        WorkOrder workOrder = found.get();
+        em.refresh(workOrder);
+        if (!workOrder.canBeEditedBy(user)) return new OfflineAttachmentOutcome(null, "ACCESS_REVOKED", false);
+        Long currentImage = workOrder.getImage() == null ? null : workOrder.getImage().getId();
+        if (changesImage && !Objects.equals(currentImage, baseImageId))
+            return new OfflineAttachmentOutcome(workOrder, "ATTACHMENTS_CONFLICT", true);
+        if (changesImage && (image == null || image.getType() != FileType.IMAGE))
+            return new OfflineAttachmentOutcome(workOrder, "INVALID_FILE_TARGET", false);
+        Set<Long> current = workOrder.getFiles().stream().map(File::getId).collect(Collectors.toSet());
+        additions.forEach(file -> { if (current.add(file.getId())) workOrder.getFiles().add(file); });
+        if (changesImage) workOrder.setImage(image);
+        workOrderRepository.saveAndFlush(workOrder);
+        return new OfflineAttachmentOutcome(workOrder, null, false);
+    }
+
+    public record OfflineAttachmentsChanged(long workOrderId, long companyId) {}
+
+    @org.springframework.transaction.event.TransactionalEventListener(phase = org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT)
+    @org.springframework.transaction.annotation.Transactional(propagation = org.springframework.transaction.annotation.Propagation.REQUIRES_NEW)
+    public void afterOfflineAttachmentsChanged(OfflineAttachmentsChanged event) {
+        workOrderRepository.findByIdAndCompany_Id(event.workOrderId(), event.companyId()).ifPresent(workOrder -> {
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("workOrderId", workOrder.getId());
+            payload.put("workOrderTitle", workOrder.getTitle());
+            webhookDispatchService.dispatchWebhook(workOrder.getCompany(), WebhookEvent.WORK_ORDER_CHANGE, payload,
+                    "changedWorkOrder", workOrderMapper.toShowDto(workOrder), List.of(), null, null, null, null);
+        });
+    }
+
+    @Transactional
+    public List<File> addFiles(Long workOrderId, List<File> files, User user) {
+        WorkOrder workOrder = workOrderRepository.findForUpdate(workOrderId, user.getCompany().getId())
+                .orElseThrow(() -> new CustomException("Not found", HttpStatus.NOT_FOUND));
+        em.refresh(workOrder);
+        if (!workOrder.canBeEditedBy(user)) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        List<File> checked = files.stream().map(file -> checkedAttachment(file.getId(), user)).toList();
+        Set<Long> current = workOrder.getFiles().stream().map(File::getId).collect(Collectors.toSet());
+        checked.forEach(file -> { if (current.add(file.getId())) workOrder.getFiles().add(file); });
+        save(workOrder);
+        return workOrder.getFiles();
+    }
+
+    @Transactional
     public List<File> removeFile(Long workOrderId, Long fileId, User user) {
-        Optional<WorkOrder> optionalWorkOrder = findById(workOrderId);
-        if (optionalWorkOrder.isPresent()) {
-            WorkOrder savedWorkOrder = optionalWorkOrder.get();
-            if (!savedWorkOrder.canBeEditedBy(user))
-                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-            savedWorkOrder.getFiles().removeIf(file -> file.getId().equals(fileId));
-            save(savedWorkOrder);
-            return savedWorkOrder.getFiles();
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+        WorkOrder workOrder = workOrderRepository.findForUpdate(workOrderId, user.getCompany().getId())
+                .orElseThrow(() -> new CustomException("Not found", HttpStatus.NOT_FOUND));
+        em.refresh(workOrder);
+        if (!workOrder.canBeEditedBy(user)) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        workOrder.getFiles().removeIf(file -> file.getId().equals(fileId));
+        save(workOrder);
+        return workOrder.getFiles();
     }
 }

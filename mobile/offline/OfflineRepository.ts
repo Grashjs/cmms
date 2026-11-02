@@ -22,13 +22,33 @@ import {
   CommentDraft,
   operationField,
   operationText,
-  utf8ByteLength
+  utf8ByteLength,
+  isTaskOperation,
+  transferIds,
+  AttachmentDraft,
+  FileTarget,
+  LocalFile,
+  OfflineAsset
 } from './types';
 
 const WORK_ORDERS = 'offline_work_orders';
 const TASKS = 'offline_tasks';
 const DRAFTS = 'offline_drafts';
 const OPERATIONS = 'offline_operations';
+const FILES = 'offline_files';
+const ASSETS = 'offline_assets';
+const attachmentDraftId = (workOrderId: number, taskId?: number) =>
+  taskId == null
+    ? `work-order:${workOrderId}:attachments`
+    : `task:${taskId}:attachments`;
+type AssetAccess = { observedAt: string; canRead: boolean; canScan: boolean };
+type AssetCopy = {
+  asset: OfflineAsset;
+  refs: number[];
+  observedAt: string;
+  available: boolean;
+};
+
 const UNRESOLVED: OperationStatus[] = [
   'QUEUED',
   'SENDING',
@@ -131,6 +151,7 @@ export class OfflineRepository {
         : null,
       submittedRevision: raw(row, 'submitted_revision') as number | null,
       serverCommentId: raw(row, 'server_comment_id') as number | null,
+      snapshotConfirmed: raw(row, 'snapshot_confirmed') === true,
       createdAt: Number(raw(row, 'created_at')),
       updatedAt: Number(raw(row, 'updated_at'))
     };
@@ -146,13 +167,18 @@ export class OfflineRepository {
         Q.sortBy('created_at', Q.asc)
       )
       .fetch();
-    return rows.sort((a, b) => {
-      const ar = raw(a, 'submitted_revision'),
-        br = raw(b, 'submitted_revision');
-      return ar != null && br != null
-        ? Number(ar) - Number(br)
-        : Number(raw(a, 'created_at')) - Number(raw(b, 'created_at'));
-    });
+    return rows
+      .filter(
+        (row) =>
+          taskId === undefined || isTaskOperation(this.operation(row).request)
+      )
+      .sort((a, b) => {
+        const ar = raw(a, 'submitted_revision'),
+          br = raw(b, 'submitted_revision');
+        return ar != null && br != null
+          ? Number(ar) - Number(br)
+          : Number(raw(a, 'created_at')) - Number(raw(b, 'created_at'));
+      });
   }
   private async usableTask(
     workOrderId: number,
@@ -288,14 +314,17 @@ export class OfflineRepository {
         if (operation.serverCommentId == null)
           associations.push({ row, commentId: comment.id });
       }
-      const records: Model[] = [];
+      const records: Model[] = [
+        ...(await this.snapshotFileChanges(snapshot)),
+        ...(await this.snapshotAssetChanges(snapshot))
+      ];
       associations.forEach(({ row, commentId }) =>
         records.push(this.change(row, { server_comment_id: commentId }))
       );
       if (ownsIntent) records.push(cleanup!.prepareDestroyPermanently());
       // Tasks live in their own table; do not maintain a second mutable copy.
       const workOrderFields = {
-        payload: JSON.stringify({ ...snapshot, tasks: [] }),
+        payload: JSON.stringify({ ...snapshot, tasks: [], assets: [] }),
         prepared_at: snapshot.preparedAt,
         available: true,
         unavailable_reason: null,
@@ -397,8 +426,17 @@ export class OfflineRepository {
           Q.where('available', true)
         )
         .fetch();
+      const assets = (
+        await this.collection(ASSETS)
+          .query(Q.where('id', Q.notEq('access')))
+          .fetch()
+      )
+        .map((asset) => json<AssetCopy>(asset))
+        .filter((copy) => copy.available && copy.refs.includes(workOrderId))
+        .map((copy) => copy.asset);
       const next = update({
         ...json<OfflineSnapshot>(row),
+        assets,
         tasks: tasks.map((task) => json<OfflineTask>(task))
       });
       if (!next) return;
@@ -406,7 +444,9 @@ export class OfflineRepository {
       // capacity. The caller must distinguish server success from local refresh.
       assertSnapshot(next);
       await this.commit([
-        this.change(row, { payload: JSON.stringify({ ...next, tasks: [] }) })
+        this.change(row, {
+          payload: JSON.stringify({ ...next, tasks: [], assets: [] })
+        })
       ]);
     });
   }
@@ -514,7 +554,10 @@ export class OfflineRepository {
     const now = this.now();
     return this.create(OPERATIONS, request.operationId, {
       work_order_id: String(request.workOrderId),
-      task_id: request.type === 'CREATE_COMMENT' ? '' : String(request.taskId),
+      task_id:
+        'taskId' in request && request.taskId != null
+          ? String(request.taskId)
+          : '',
       request: JSON.stringify(request),
       status: 'QUEUED',
       attempt_count: 0,
@@ -522,7 +565,8 @@ export class OfflineRepository {
       created_at: now,
       updated_at: now,
       submitted_revision: revision,
-      server_comment_id: null
+      server_comment_id: null,
+      snapshot_confirmed: false
     });
   }
 
@@ -561,7 +605,7 @@ export class OfflineRepository {
         value,
         baseVersion:
           original?.baseVersion ??
-          (request && request.type !== 'CREATE_COMMENT'
+          (request && isTaskOperation(request)
             ? request.baseVersion
             : server.version),
         baseValue:
@@ -626,7 +670,7 @@ export class OfflineRepository {
       if (
         predecessor &&
         (predecessor.submittedRevision == null ||
-          predecessor.request.type === 'CREATE_COMMENT' ||
+          !isTaskOperation(predecessor.request) ||
           predecessor.request.baseVersion !== draft.baseVersion)
       )
         throw new OfflineError('PREVIOUS_OPERATION');
@@ -697,6 +741,7 @@ export class OfflineRepository {
         kind: 'COMMENT',
         workOrderId,
         content,
+        fileIds: row ? json<CommentDraft>(row).fileIds || [] : [],
         attachmentPending:
           attachmentPending ??
           (row ? !!json<CommentDraft>(row).attachmentPending : false),
@@ -731,16 +776,27 @@ export class OfflineRepository {
       if (draft.attachmentPending)
         throw new OfflineError('COMMENT_ATTACHMENT_PENDING');
       if (!draft.content.trim()) throw new OfflineError('COMMENT_EMPTY');
+      const transfers = await this.prepareTransfers(
+        workOrderId,
+        { kind: 'COMMENT' },
+        draft.fileIds || [],
+        draft.revision
+      );
       const request: OperationRequest = {
         ...this.identity(),
         operationId: this.options.uuid(),
         type: 'CREATE_COMMENT',
         workOrderId,
         content: draft.content,
+        ...(transfers.ids.length ? { fileTransferIds: transfers.ids } : {}),
         occurredAt: new Date(this.now()).toISOString()
       };
       const operation = this.createOperation(request, draft.revision);
-      await this.commit([operation, row.prepareDestroyPermanently()]);
+      await this.commit([
+        ...transfers.records(),
+        operation,
+        row.prepareDestroyPermanently()
+      ]);
       return this.operation(operation);
     });
   }
@@ -772,7 +828,23 @@ export class OfflineRepository {
     operation: LocalOperation
   ): Promise<string | undefined> {
     const request = operation.request;
-    if (request.type === 'CREATE_COMMENT' || !request.predecessorOperationId)
+    for (const id of transferIds(request)) {
+      const dependency = await this.getOperation(id);
+      if (
+        !dependency ||
+        ['REJECTED', 'CONFLICT', 'ABANDONED'].includes(dependency.status) ||
+        dependency.receipt?.visibility === 'FILE_DELETED' ||
+        dependency.receipt?.visibility === 'TARGET_UNAVAILABLE'
+      )
+        return 'TRANSFER_FAILED';
+      if (
+        dependency.status === 'QUEUED' &&
+        dependency.attemptCount === 0 &&
+        (await this.getTransferFile(id))?.status === 'ERROR'
+      )
+        return 'TRANSFER_FAILED';
+    }
+    if (!isTaskOperation(request) || !request.predecessorOperationId)
       return undefined;
     const predecessor = await this.getOperation(request.predecessorOperationId);
     if (
@@ -797,15 +869,39 @@ export class OfflineRepository {
         )
       )
         throw new OfflineError('RESULT_UNKNOWN');
-      const drafts =
-        operation.request.type === 'CREATE_COMMENT'
-          ? []
-          : await this.collection(DRAFTS)
-              .query(Q.where('task_id', String(operation.request.taskId)))
-              .fetch();
+      const drafts = !isTaskOperation(operation.request)
+        ? []
+        : await this.collection(DRAFTS)
+            .query(Q.where('task_id', String(operation.request.taskId)))
+            .fetch();
       const records = [
         this.change(row, { status: 'ABANDONED', updated_at: this.now() })
       ];
+      const otherParents = (await this.unresolvedRows())
+        .map((item) => this.operation(item))
+        .filter((item) => item.id !== operationId);
+      for (const id of transferIds(operation.request)) {
+        if (
+          otherParents.some((parent) =>
+            transferIds(parent.request).includes(id)
+          )
+        )
+          continue;
+        const dependencyRow = await this.find(OPERATIONS, id);
+        if (!dependencyRow) continue;
+        const dependency = this.operation(dependencyRow);
+        if (
+          (dependency.status === 'QUEUED' && dependency.attemptCount === 0) ||
+          ['REJECTED', 'CONFLICT'].includes(dependency.status)
+        )
+          records.push(
+            this.change(dependencyRow, {
+              status: 'ABANDONED',
+              updated_at: this.now()
+            })
+          );
+      }
+
       for (const draftRow of drafts) {
         const draft = json<TaskDraft>(draftRow);
         if (draft.basedOnOperationId === operationId)
@@ -939,7 +1035,7 @@ export class OfflineRepository {
       const row = await this.find(OPERATIONS, operationId);
       if (!row) throw new OfflineError('OPERATION_MISSING');
       const operation = this.operation(row);
-      if (operation.request.type === 'CREATE_COMMENT')
+      if (!isTaskOperation(operation.request))
         throw new OfflineError('INVALID_VALUE');
       if (
         !['CONFLICT', 'REJECTED'].includes(operation.status) &&
@@ -1004,6 +1100,28 @@ export class OfflineRepository {
       if (operation.status === 'ABANDONED') return;
       // The result is final, but the server re-evaluates comment visibility on
       // receipt reads. This also resolves deletion before the first snapshot.
+      if (
+        operation.receipt &&
+        !isTaskOperation(operation.request) &&
+        operation.request.type !== 'CREATE_COMMENT'
+      ) {
+        if (
+          receipt.status !== operation.receipt.status ||
+          receipt.receivedAt !== operation.receipt.receivedAt ||
+          receipt.fileId !== operation.receipt.fileId
+        )
+          throw new OfflineError('INVALID_RECEIPT');
+        if (
+          operation.receipt.visibility === 'FILE_DELETED' ||
+          operation.receipt.visibility === receipt.visibility
+        )
+          return;
+        await this.applyFileReceipt(row, operation, {
+          ...operation.receipt,
+          visibility: receipt.visibility
+        });
+        return;
+      }
       if (operation.receipt) {
         if (
           operation.request.type !== 'CREATE_COMMENT' ||
@@ -1025,6 +1143,10 @@ export class OfflineRepository {
         receipt = { ...operation.receipt, visibility: receipt.visibility };
       }
       const request = operation.request;
+      if (!isTaskOperation(request) && request.type !== 'CREATE_COMMENT') {
+        await this.applyFileReceipt(row, operation, receipt);
+        return;
+      }
       const workOrder = await this.find(
         WORK_ORDERS,
         String(request.workOrderId)
@@ -1042,7 +1164,7 @@ export class OfflineRepository {
       )
         throw new OfflineError('INVALID_RECEIPT');
       if (
-        !isComment &&
+        isTaskOperation(request) &&
         receipt.chainBaseVersion != null &&
         receipt.chainBaseVersion !== request.baseVersion
       )
@@ -1061,7 +1183,7 @@ export class OfflineRepository {
       )
         throw new OfflineError('INVALID_RECEIPT');
       if (
-        !isComment &&
+        isTaskOperation(request) &&
         receipt.task &&
         (receipt.task.id !== request.taskId ||
           !Number.isSafeInteger(receipt.task.version))
@@ -1107,7 +1229,7 @@ export class OfflineRepository {
           })
         );
       }
-      if (!isComment) {
+      if (isTaskOperation(request)) {
         const taskRow = await this.find(TASKS, String(request.taskId));
         if (taskRow) {
           const fields: Record<string, string | boolean | null> = {};
@@ -1139,7 +1261,7 @@ export class OfflineRepository {
           if (receipt.status === 'APPLIED' && receipt.task) {
             if (
               tail &&
-              tail.request.type !== 'CREATE_COMMENT' &&
+              isTaskOperation(tail.request) &&
               tail.request.baseVersion === draft.baseVersion
             ) {
               next = { ...draft, basedOnOperationId: tail.id };
@@ -1174,6 +1296,23 @@ export class OfflineRepository {
           });
           clock.revision += updates.length - 1;
           records.push(this.clockChange(clock));
+        }
+      }
+      if (isComment && receipt.status === 'APPLIED') {
+        for (const id of transferIds(request)) {
+          const fileRow = await this.transferFileRow(id);
+          if (!fileRow) continue;
+          const file = json<LocalFile>(fileRow);
+          records.push(
+            this.change(fileRow, {
+              payload: JSON.stringify({
+                ...file,
+                workOrderIds: [
+                  ...new Set([...file.workOrderIds, request.workOrderId])
+                ]
+              })
+            })
+          );
         }
       }
       // Comment acknowledgements are compact. Only a complete snapshot changes the canonical thread.
@@ -1218,11 +1357,35 @@ export class OfflineRepository {
     return row ? this.operation(row) : null;
   }
 
+  async uploadHasParent(id: string): Promise<boolean> {
+    return (await this.unresolvedRows()).some((row) =>
+      transferIds(this.operation(row).request).includes(id)
+    );
+  }
+
   async getOperationsToSync(): Promise<LocalOperation[]> {
     this.assertStorage();
     return (await this.unresolvedRows())
       .map((row) => this.operation(row))
       .filter((operation) => ACTIVE.includes(operation.status));
+  }
+
+  async getFileReceiptsToRefresh(): Promise<LocalOperation[]> {
+    const ids = new Set(
+      (await this.unresolvedRows()).flatMap((row) =>
+        transferIds(this.operation(row).request)
+      )
+    );
+    const operations: LocalOperation[] = [];
+    for (const id of ids) {
+      const operation = await this.getOperation(id);
+      if (
+        operation?.status === 'APPLIED' &&
+        operation.receipt?.visibility !== 'FILE_DELETED'
+      )
+        operations.push(operation);
+    }
+    return operations;
   }
 
   async getCommentReceiptsToRefresh(): Promise<LocalOperation[]> {
@@ -1273,7 +1436,35 @@ export class OfflineRepository {
           .fetch()
       ]);
       const cleanup = await this.find('offline_cleanup', String(workOrderId));
+      const references: Model[] = [];
+      for (const row of await this.collection(FILES).query().fetch()) {
+        const file = json<LocalFile>(row);
+        if (file.workOrderIds.includes(workOrderId))
+          references.push(
+            this.change(row, {
+              payload: JSON.stringify({
+                ...file,
+                workOrderIds: file.workOrderIds.filter(
+                  (id) => id !== workOrderId
+                )
+              })
+            })
+          );
+      }
+      for (const row of await this.collection(ASSETS)
+        .query(Q.where('id', Q.notEq('access')))
+        .fetch()) {
+        const copy = json<AssetCopy>(row);
+        if (!copy.refs.includes(workOrderId)) continue;
+        const refs = copy.refs.filter((id) => id !== workOrderId);
+        references.push(
+          refs.length
+            ? this.change(row, { payload: JSON.stringify({ ...copy, refs }) })
+            : row.prepareDestroyPermanently()
+        );
+      }
       await this.commit([
+        ...references,
         ...[...(workOrder ? [workOrder] : []), ...tasks, ...operations].map(
           (row) => row.prepareDestroyPermanently()
         ),
@@ -1448,13 +1639,13 @@ export class OfflineRepository {
         : [[], [], []];
       const drafts = new Map(
         draftRows
-          .filter((row) => raw(row, 'task_id') !== '')
+          .filter((row) => raw(row, 'task_id') !== '' && !json<any>(row).kind)
           .map((row) => [row.id, json<TaskDraft>(row)])
       );
       const operations = new Map<string, LocalOperation>();
       operationRows.forEach((row) => {
         const operation = this.operation(row);
-        if (operation.request.type !== 'CREATE_COMMENT')
+        if (isTaskOperation(operation.request))
           operations.set(
             draftId(
               operation.request.taskId,
@@ -1553,12 +1744,20 @@ export class OfflineRepository {
     ]);
     const items: PendingWork[] = [];
     for (const row of drafts) {
-      const draft = json<TaskDraft | CommentDraft>(row);
+      const draft = json<TaskDraft | CommentDraft | AttachmentDraft>(row);
       const comment = 'kind' in draft && draft.kind === 'COMMENT';
-      const field = comment ? 'comment' : (draft as TaskDraft).field || 'value';
-      const target = comment
-        ? await this.getWorkOrderProjection(draft.workOrderId)
-        : await this.getTask((draft as TaskDraft).taskId, field as TaskField);
+      const attachments = 'kind' in draft && draft.kind === 'ATTACHMENTS';
+      const field = comment
+        ? 'comment'
+        : attachments
+        ? 'attachments'
+        : (draft as TaskDraft).field || 'value';
+      const target =
+        attachments && (draft as AttachmentDraft).taskId != null
+          ? await this.getTask((draft as AttachmentDraft).taskId!, 'notes')
+          : comment || attachments
+          ? await this.getWorkOrderProjection(draft.workOrderId)
+          : await this.getTask((draft as TaskDraft).taskId, field as TaskField);
       items.push({
         kind: 'DRAFT',
         id: draft.id,
@@ -1569,16 +1768,19 @@ export class OfflineRepository {
         targetAvailable: !!target?.available,
         reason:
           target?.unavailableReason ||
-          (!comment && (draft as TaskDraft).blockedReason) ||
+          (!comment && !attachments && (draft as TaskDraft).blockedReason) ||
           null,
         canAbandon: true,
         ...(target?.available
           ? {
-              label: comment
-                ? undefined
-                : (target as TaskView).task?.taskBase.label,
+              label:
+                comment || attachments
+                  ? undefined
+                  : (target as TaskView).task?.taskBase.label,
               value: comment
                 ? (draft as CommentDraft).content
+                : attachments
+                ? ''
                 : (draft as TaskDraft).value
             }
           : {})
@@ -1595,19 +1797,31 @@ export class OfflineRepository {
           operation.status === 'APPLIED' &&
           operation.serverCommentId == null &&
           operation.receipt?.visibility === 'VISIBLE'
+        ) &&
+        !(
+          operation.status === 'APPLIED' &&
+          ['ADD_TASK_IMAGES', 'UPDATE_WORK_ORDER_ATTACHMENTS'].includes(
+            request.type
+          ) &&
+          !operation.snapshotConfirmed
         )
       )
         continue;
       const field = operationField(request);
       const target =
-        request.type === 'CREATE_COMMENT'
+        !isTaskOperation(request) &&
+        'taskId' in request &&
+        request.taskId != null
+          ? await this.getTask(request.taskId, 'notes')
+          : !isTaskOperation(request)
           ? await this.getWorkOrderProjection(request.workOrderId)
           : await this.getTask(request.taskId, field as TaskField);
       items.push({
         kind: 'OPERATION',
+        operationType: request.type,
         id: operation.id,
         workOrderId: request.workOrderId,
-        taskId: request.type === 'CREATE_COMMENT' ? undefined : request.taskId,
+        taskId: 'taskId' in request ? request.taskId : undefined,
         field,
         status: operation.status,
         attemptCount: operation.attemptCount,
@@ -1622,7 +1836,7 @@ export class OfflineRepository {
           ['REJECTED', 'CONFLICT'].includes(operation.status),
         ...(target?.available
           ? {
-              label: comment
+              label: !isTaskOperation(request)
                 ? undefined
                 : (target as TaskView).task?.taskBase.label,
               value: operationText(request)
@@ -1633,8 +1847,892 @@ export class OfflineRepository {
     return items;
   }
 
+  /** Explicit review returns a resolved submission to a draft; never replays it. */
+  async restoreFileOperation(
+    operationId: string,
+    expectedDraftRevision: number | null,
+    expectedImageId?: number | null
+  ): Promise<void> {
+    this.assertStorage();
+    await this.database.write(async () => {
+      const row = await this.find(OPERATIONS, operationId);
+      if (!row) throw new OfflineError('OPERATION_MISSING');
+      const operation = this.operation(row),
+        request = operation.request;
+      if (
+        ![
+          'CREATE_COMMENT',
+          'ADD_TASK_IMAGES',
+          'UPDATE_WORK_ORDER_ATTACHMENTS'
+        ].includes(request.type)
+      )
+        throw new OfflineError('INVALID_VALUE');
+      if (
+        !['REJECTED', 'CONFLICT'].includes(operation.status) &&
+        !(
+          operation.status === 'QUEUED' &&
+          operation.attemptCount === 0 &&
+          (await this.blockedReason(operation))
+        )
+      )
+        throw new OfflineError('RESULT_UNKNOWN');
+      const taskId =
+        request.type === 'ADD_TASK_IMAGES' ? request.taskId : undefined;
+      const workOrder = await this.fileTarget(request.workOrderId, {
+        kind:
+          request.type === 'CREATE_COMMENT'
+            ? 'COMMENT'
+            : taskId
+            ? 'TASK'
+            : 'WORK_ORDER',
+        taskId
+      });
+      const id =
+        request.type === 'CREATE_COMMENT'
+          ? commentDraftId(request.workOrderId)
+          : attachmentDraftId(request.workOrderId, taskId);
+      const previous = await this.find(DRAFTS, id);
+      // A newer composition is never overwritten or silently combined.
+      if (
+        (previous ? Number(raw(previous, 'revision')) : null) !==
+          expectedDraftRevision ||
+        previous
+      )
+        throw new OfflineError('DRAFT_CHANGED');
+      const imageId =
+        json<OfflineSnapshot>(workOrder).workOrder.image?.id ?? null;
+      if (
+        request.type === 'UPDATE_WORK_ORDER_ATTACHMENTS' &&
+        request.imageChange &&
+        (expectedImageId === undefined || expectedImageId !== imageId)
+      )
+        throw new OfflineError('SERVER_CHANGED');
+      const fileIds: string[] = [],
+        dependencyRows: Model[] = [];
+      for (const transferId of transferIds(request)) {
+        const transfer = await this.find(OPERATIONS, transferId);
+        if (!transfer) throw new OfflineError('OPERATION_MISSING');
+        const dependency = this.operation(transfer);
+        if (
+          dependency.attemptCount > 0 &&
+          ['UNKNOWN', 'SENDING', 'QUEUED'].includes(dependency.status)
+        )
+          throw new OfflineError('RESULT_UNKNOWN');
+        const fileRow = await this.transferFileRow(transferId);
+        if (!fileRow || json<LocalFile>(fileRow).status === 'DELETING')
+          throw new OfflineError('FILE_NOT_READY');
+        fileIds.push(fileRow.id);
+        if (
+          dependency.status !== 'APPLIED' &&
+          dependency.status !== 'ABANDONED'
+        )
+          dependencyRows.push(
+            this.change(transfer, {
+              status: 'ABANDONED',
+              updated_at: this.now()
+            })
+          );
+      }
+      const clock = await this.nextDraftRevision();
+      const common = {
+        id,
+        workOrderId: request.workOrderId,
+        revision: clock.revision,
+        updatedAt: this.now()
+      };
+      const draft: CommentDraft | AttachmentDraft =
+        request.type === 'CREATE_COMMENT'
+          ? { ...common, kind: 'COMMENT', content: request.content, fileIds }
+          : {
+              ...common,
+              kind: 'ATTACHMENTS',
+              taskId,
+              fileIds:
+                request.type === 'UPDATE_WORK_ORDER_ATTACHMENTS' &&
+                request.imageChange
+                  ? fileIds.slice(0, -1)
+                  : fileIds,
+              ...(request.type === 'UPDATE_WORK_ORDER_ATTACHMENTS' &&
+              request.imageChange
+                ? { imageFileId: fileIds[fileIds.length - 1] }
+                : {}),
+              baseImageId: imageId
+            };
+      await this.commit([
+        this.clockChange(clock),
+        ...dependencyRows,
+        this.create(DRAFTS, id, {
+          work_order_id: String(request.workOrderId),
+          task_id: taskId ? String(taskId) : '',
+          payload: JSON.stringify(draft),
+          revision: clock.revision
+        }),
+        this.change(row, { status: 'ABANDONED', updated_at: this.now() })
+      ]);
+    });
+  }
+
+  private async fileTarget(workOrderId: number, target: FileTarget) {
+    const workOrder = await this.usableWorkOrder(workOrderId, true);
+    if (target.kind === 'TASK') {
+      if (!target.taskId) throw new OfflineError('TARGET_UNAVAILABLE');
+      await this.usableTask(workOrderId, target.taskId, true, 'notes');
+    }
+    return workOrder;
+  }
+
+  private fileDraftId(workOrderId: number, target: FileTarget) {
+    return target.kind === 'COMMENT'
+      ? commentDraftId(workOrderId)
+      : attachmentDraftId(workOrderId, target.taskId);
+  }
+
+  async getAttachmentDraft(
+    workOrderId: number,
+    taskId?: number
+  ): Promise<AttachmentDraft | null> {
+    this.assertStorage();
+    const workOrder = await this.find(WORK_ORDERS, String(workOrderId));
+    if (!workOrder || !raw(workOrder, 'available')) return null;
+    if (taskId != null) {
+      const task = await this.find(TASKS, String(taskId));
+      if (
+        !task ||
+        !raw(task, 'available') ||
+        raw(task, 'work_order_id') !== String(workOrderId)
+      )
+        return null;
+    }
+    const row = await this.find(DRAFTS, attachmentDraftId(workOrderId, taskId));
+    return row ? json<AttachmentDraft>(row) : null;
+  }
+
+  /** Reserve the selected file and its exact draft revision before copying bytes. */
+  async createFileSelection(
+    file: LocalFile,
+    workOrderId: number,
+    target: FileTarget
+  ): Promise<void> {
+    this.assertStorage();
+    await this.database.write(async () => {
+      const workOrder = await this.fileTarget(workOrderId, target);
+      if (await this.find(FILES, file.id))
+        throw new OfflineError('FILE_IDENTITY');
+      const id = this.fileDraftId(workOrderId, target);
+      const row = await this.find(DRAFTS, id);
+      const existing = row ? json<CommentDraft | AttachmentDraft>(row) : null;
+      const clock = await this.nextDraftRevision();
+      const common = {
+        id,
+        workOrderId,
+        revision: clock.revision,
+        updatedAt: this.now()
+      };
+      const draft: CommentDraft | AttachmentDraft =
+        target.kind === 'COMMENT'
+          ? {
+              ...common,
+              kind: 'COMMENT',
+              content: (existing as CommentDraft)?.content || '',
+              fileIds: [...(existing?.fileIds || []), file.id],
+              attachmentPending: false
+            }
+          : {
+              ...common,
+              kind: 'ATTACHMENTS',
+              taskId: target.taskId,
+              fileIds: target.image
+                ? existing?.fileIds || []
+                : [...(existing?.fileIds || []), file.id],
+              imageFileId: target.image
+                ? file.id
+                : (existing as AttachmentDraft)?.imageFileId,
+              baseImageId:
+                existing?.kind === 'ATTACHMENTS'
+                  ? existing.baseImageId
+                  : json<OfflineSnapshot>(workOrder).workOrder.image?.id ?? null
+            };
+      const fields = {
+        work_order_id: String(workOrderId),
+        task_id: target.taskId ? String(target.taskId) : '',
+        payload: JSON.stringify(draft),
+        revision: clock.revision
+      };
+      await this.commit([
+        this.clockChange(clock),
+        row ? this.change(row, fields) : this.create(DRAFTS, id, fields),
+        this.create(FILES, file.id, {
+          payload: JSON.stringify({
+            ...file,
+            target,
+            importWorkOrderId: workOrderId
+          }),
+          server_file_id: null
+        })
+      ]);
+    });
+  }
+
+  async putFile(file: LocalFile): Promise<void> {
+    this.assertStorage();
+    await this.database.write(async () => {
+      const row = await this.find(FILES, file.id);
+      if (row && json<LocalFile>(row).status === 'DELETING')
+        throw new OfflineError('FILE_REMOVED');
+      // Filesystem completions may be older than a snapshot/receipt update.
+      // Only the SQLite writer owns live references and transfer associations.
+      const current = row ? json<LocalFile>(row) : null;
+      const next = current
+        ? {
+            ...file,
+            workOrderIds: current.workOrderIds,
+            transferIds: current.transferIds,
+            serverFileId: current.serverFileId ?? file.serverFileId
+          }
+        : file;
+      const fields = {
+        payload: JSON.stringify(next),
+        server_file_id: next.serverFileId ?? null
+      };
+      await this.commit([
+        row ? this.change(row, fields) : this.create(FILES, file.id, fields)
+      ]);
+    });
+  }
+
+  async allFiles(): Promise<LocalFile[]> {
+    this.assertStorage();
+    return (await this.collection(FILES).query().fetch()).map((row) =>
+      json<LocalFile>(row)
+    );
+  }
+
+  private async fileVisible(file: LocalFile): Promise<boolean> {
+    if (file.target?.kind === 'TASK') {
+      const task = await this.find(TASKS, String(file.target.taskId));
+      if (!task || !raw(task, 'available')) return false;
+    }
+    const ids = new Set([
+      ...file.workOrderIds,
+      ...(file.importWorkOrderId ? [file.importWorkOrderId] : [])
+    ]);
+    for (const id of ids) {
+      const row = await this.find(WORK_ORDERS, String(id));
+      if (row && raw(row, 'available')) return true;
+    }
+    return false;
+  }
+
+  async getFiles(ids: string[]): Promise<LocalFile[]> {
+    this.assertStorage();
+    const files: LocalFile[] = [];
+    for (const id of ids) {
+      const row = await this.transferFileRow(id);
+      if (!row) continue;
+      const file = json<LocalFile>(row);
+      if (file.status === 'DELETING' || !(await this.fileVisible(file)))
+        continue;
+      const transfer = await this.getOperation(
+        file.transferIds?.[file.transferIds.length - 1] || id
+      );
+      files.push({ ...file, transferStatus: transfer?.status });
+    }
+    return files;
+  }
+
+  async getServerFile(
+    workOrderId: number,
+    serverFileId: number
+  ): Promise<LocalFile | null> {
+    const workOrder = await this.find(WORK_ORDERS, String(workOrderId));
+    if (!workOrder || !raw(workOrder, 'available')) return null;
+    const rows = await this.collection(FILES)
+      .query(Q.where('server_file_id', serverFileId))
+      .fetch();
+    return (
+      rows
+        .map((row) => json<LocalFile>(row))
+        .filter(
+          (file) =>
+            file.status !== 'DELETING' &&
+            file.workOrderIds.includes(workOrderId)
+        )
+        .sort(
+          (a, b) =>
+            (a.status === 'READY' ? 0 : a.status === 'IMPORTING' ? 1 : 2) -
+            (b.status === 'READY' ? 0 : b.status === 'IMPORTING' ? 1 : 2)
+        )[0] || null
+    );
+  }
+
+  async removeDraftFile(
+    workOrderId: number,
+    target: FileTarget,
+    fileId: string,
+    expectedRevision: number
+  ): Promise<void> {
+    this.assertStorage();
+    await this.database.write(async () => {
+      await this.fileTarget(workOrderId, target);
+      const row = await this.find(
+        DRAFTS,
+        this.fileDraftId(workOrderId, target)
+      );
+      if (!row || Number(raw(row, 'revision')) !== expectedRevision)
+        throw new OfflineError('DRAFT_CHANGED');
+      const draft = json<CommentDraft | AttachmentDraft>(row);
+      const clock = await this.nextDraftRevision();
+      const next = {
+        ...draft,
+        fileIds: (draft.fileIds || []).filter((id) => id !== fileId),
+        revision: clock.revision,
+        updatedAt: this.now(),
+        ...(draft.kind === 'ATTACHMENTS' && draft.imageFileId === fileId
+          ? { imageFileId: undefined }
+          : {})
+      };
+      const empty =
+        next.kind === 'ATTACHMENTS' &&
+        !next.fileIds.length &&
+        !next.imageFileId;
+      await this.commit([
+        this.clockChange(clock),
+        empty
+          ? row.prepareDestroyPermanently()
+          : this.change(row, {
+              payload: JSON.stringify(next),
+              revision: clock.revision
+            })
+      ]);
+    });
+  }
+
+  private async transferFileRow(id: string): Promise<Model | null> {
+    const direct = await this.find(FILES, id);
+    if (direct) return direct;
+    return (
+      (await this.collection(FILES).query().fetch()).find((row) =>
+        json<LocalFile>(row).transferIds?.includes(id)
+      ) || null
+    );
+  }
+  async getTransferFile(id: string): Promise<LocalFile | null> {
+    this.assertStorage();
+    const row = await this.transferFileRow(id);
+    return row ? json<LocalFile>(row) : null;
+  }
+
+  private async prepareTransfers(
+    workOrderId: number,
+    target: FileTarget,
+    ids: string[],
+    revision: number
+  ): Promise<{ records: () => Model[]; ids: string[] }> {
+    if (new Set(ids).size !== ids.length)
+      throw new OfflineError('FILE_IDENTITY');
+    const requests: OperationRequest[] = [],
+      files: { row: Model; file: LocalFile }[] = [],
+      transfers: string[] = [];
+    for (const id of ids) {
+      const row = await this.find(FILES, id);
+      const file = row ? json<LocalFile>(row) : null;
+      if (
+        !file ||
+        file.status !== 'READY' ||
+        !/^[a-f0-9]{64}$/.test(file.sha256)
+      )
+        throw new OfflineError('FILE_NOT_READY');
+      if (
+        file.importWorkOrderId !== workOrderId ||
+        file.target?.kind !== target.kind ||
+        file.target?.taskId !== target.taskId
+      )
+        throw new OfflineError('FILE_IDENTITY');
+      const previousId =
+        file.transferIds?.[file.transferIds.length - 1] || file.id;
+      const previous = await this.getOperation(previousId);
+      if (
+        previous?.status === 'APPLIED' &&
+        previous.receipt?.visibility !== 'FILE_DELETED'
+      ) {
+        transfers.push(previous.id);
+        continue;
+      }
+      if (
+        previous &&
+        !['REJECTED', 'ABANDONED', 'CONFLICT'].includes(previous.status) &&
+        previous.receipt?.visibility !== 'FILE_DELETED'
+      )
+        throw new OfflineError('RESULT_UNKNOWN');
+      const transferId = previous ? this.options.uuid() : file.id;
+      transfers.push(transferId);
+      requests.push({
+        ...this.identity(),
+        operationId: transferId,
+        workOrderId,
+        type: 'UPLOAD_FILE',
+        target: target.kind,
+        ...(target.taskId ? { taskId: target.taskId } : {}),
+        name: file.name,
+        mimeType: file.mimeType,
+        size: file.size,
+        sha256: file.sha256,
+        fileType: file.mimeType.startsWith('image/') ? 'IMAGE' : 'OTHER',
+        occurredAt: new Date(this.now()).toISOString()
+      });
+      files.push({
+        row: row!,
+        file: {
+          ...file,
+          transferIds: [...new Set([...(file.transferIds || []), transferId])]
+        }
+      });
+    }
+    return {
+      ids: transfers,
+      records: () => [
+        ...requests.map((request) => this.createOperation(request, revision)),
+        ...files.map(({ row, file }) =>
+          this.change(row, { payload: JSON.stringify(file) })
+        )
+      ]
+    };
+  }
+
+  async submitAttachmentDraft(
+    workOrderId: number,
+    expectedRevision: number,
+    taskId?: number
+  ): Promise<LocalOperation> {
+    this.assertStorage();
+    return this.database.write(async () => {
+      await this.fileTarget(workOrderId, {
+        kind: taskId ? 'TASK' : 'WORK_ORDER',
+        taskId
+      });
+      const row = await this.find(
+        DRAFTS,
+        attachmentDraftId(workOrderId, taskId)
+      );
+      if (!row || Number(raw(row, 'revision')) !== expectedRevision)
+        throw new OfflineError('DRAFT_CHANGED');
+      const draft = json<AttachmentDraft>(row);
+      const ids = [
+        ...draft.fileIds,
+        ...(draft.imageFileId ? [draft.imageFileId] : [])
+      ];
+      if (!ids.length) throw new OfflineError('FILE_NOT_READY');
+      const transfers = await this.prepareTransfers(
+        workOrderId,
+        { kind: taskId ? 'TASK' : 'WORK_ORDER', taskId },
+        ids,
+        expectedRevision
+      );
+      const common = {
+        ...this.identity(),
+        operationId: this.options.uuid(),
+        workOrderId,
+        occurredAt: new Date(this.now()).toISOString()
+      };
+      const request: OperationRequest = taskId
+        ? {
+            ...common,
+            type: 'ADD_TASK_IMAGES',
+            taskId,
+            fileTransferIds: transfers.ids
+          }
+        : {
+            ...common,
+            type: 'UPDATE_WORK_ORDER_ATTACHMENTS',
+            addTransferIds: transfers.ids.slice(0, draft.fileIds.length),
+            ...(draft.imageFileId
+              ? {
+                  imageChange: {
+                    transferId: transfers.ids[transfers.ids.length - 1],
+                    baseImageId: draft.baseImageId
+                  }
+                }
+              : {})
+          };
+      const operation = this.createOperation(request, expectedRevision);
+      await this.commit([
+        ...transfers.records(),
+        operation,
+        row.prepareDestroyPermanently()
+      ]);
+      return this.operation(operation);
+    });
+  }
+
+  abandonAttachmentDraft(
+    workOrderId: number,
+    expectedRevision: number,
+    taskId?: number
+  ): Promise<void> {
+    return this.abandonDraftRow(
+      attachmentDraftId(workOrderId, taskId),
+      expectedRevision
+    );
+  }
+
+  private async applyFileReceipt(
+    row: Model,
+    operation: LocalOperation,
+    receipt: OperationReceipt
+  ): Promise<void> {
+    const request = operation.request;
+    if (receipt.task || receipt.commentId != null)
+      throw new OfflineError('INVALID_RECEIPT');
+    if (
+      request.type === 'UPLOAD_FILE' &&
+      receipt.status === 'APPLIED' &&
+      (!Number.isSafeInteger(receipt.fileId) || receipt.fileId! <= 0)
+    )
+      throw new OfflineError('INVALID_RECEIPT');
+    const records: Model[] = [];
+    if (request.type === 'UPLOAD_FILE' && receipt.status === 'APPLIED') {
+      const fileRow = await this.transferFileRow(operation.id);
+      if (fileRow) {
+        const file = json<LocalFile>(fileRow);
+        records.push(
+          this.change(fileRow, {
+            payload: JSON.stringify({ ...file, serverFileId: receipt.fileId }),
+            server_file_id: receipt.fileId!
+          })
+        );
+      }
+    } else if (receipt.status === 'APPLIED') {
+      // Preserve the copy until the following complete snapshot acknowledges
+      // the relation, even if that refresh is too large or the response is lost.
+      for (const id of transferIds(request)) {
+        const fileRow = await this.transferFileRow(id);
+        if (!fileRow) continue;
+        const file = json<LocalFile>(fileRow);
+        records.push(
+          this.change(fileRow, {
+            payload: JSON.stringify({
+              ...file,
+              workOrderIds: [
+                ...new Set([...file.workOrderIds, request.workOrderId])
+              ]
+            })
+          })
+        );
+      }
+    }
+    const workOrder = await this.find(WORK_ORDERS, String(request.workOrderId));
+    if (
+      workOrder &&
+      (receipt.code === 'ACCESS_REVOKED' ||
+        receipt.visibility === 'WORK_ORDER_UNAVAILABLE')
+    )
+      records.push(
+        this.change(workOrder, {
+          available: false,
+          unavailable_reason: 'ACCESS_REVOKED',
+          availability_revision:
+            Number(raw(workOrder, 'availability_revision')) + 1
+        })
+      );
+    if (
+      'taskId' in request &&
+      request.taskId != null &&
+      (receipt.code === 'TARGET_NOT_FOUND' ||
+        receipt.visibility === 'TARGET_UNAVAILABLE')
+    ) {
+      const task = await this.find(TASKS, String(request.taskId));
+      if (task)
+        records.push(
+          this.change(task, {
+            available: false,
+            unavailable_reason: 'TARGET_NOT_FOUND'
+          })
+        );
+    }
+    records.push(
+      this.change(row, {
+        status: receipt.status,
+        receipt: JSON.stringify(receipt),
+        updated_at: this.now()
+      })
+    );
+    await this.commit(records);
+  }
+
+  private async retainedFileIds(): Promise<Set<string>> {
+    const retained = new Set<string>();
+    for (const row of await this.collection(DRAFTS).query().fetch()) {
+      const draft = json<CommentDraft | AttachmentDraft>(row);
+      (draft.fileIds || []).forEach((id) => retained.add(id));
+      if (draft.kind === 'ATTACHMENTS' && draft.imageFileId)
+        retained.add(draft.imageFileId);
+    }
+    for (const row of await this.unresolvedRows()) {
+      const operation = this.operation(row);
+      for (const id of operation.request.type === 'UPLOAD_FILE'
+        ? [operation.id]
+        : transferIds(operation.request)) {
+        const file = await this.transferFileRow(id);
+        if (file) retained.add(file.id);
+      }
+    }
+    return retained;
+  }
+
+  /** Deletion intent is durable and reference-checked in the same SQLite writer. */
+  async queueUnusedFiles(explicitId?: string): Promise<LocalFile[]> {
+    this.assertStorage();
+    return this.database.write(async () => {
+      const retained = await this.retainedFileIds();
+      const records: Model[] = [],
+        deleting: LocalFile[] = [];
+      for (const row of await this.collection(FILES).query().fetch()) {
+        const file = json<LocalFile>(row);
+        const explicit = row.id === explicitId;
+        if (explicit && (retained.has(row.id) || file.workOrderIds.length > 1))
+          throw new OfflineError('FILE_IN_USE');
+        if (
+          retained.has(row.id) ||
+          (file.status !== 'DELETING' && !explicit && file.workOrderIds.length)
+        )
+          continue;
+        const next: LocalFile = {
+          ...file,
+          status: 'DELETING',
+          workOrderIds: []
+        };
+        if (file.status !== 'DELETING')
+          records.push(this.change(row, { payload: JSON.stringify(next) }));
+        deleting.push(next);
+      }
+      if (records.length) await this.commit(records);
+      return deleting;
+    });
+  }
+
+  async acknowledgeFileDeletion(id: string): Promise<void> {
+    this.assertStorage();
+    await this.database.write(async () => {
+      const row = await this.find(FILES, id);
+      if (row && json<LocalFile>(row).status === 'DELETING')
+        await this.commit([row.prepareDestroyPermanently()]);
+    });
+  }
+
+  private snapshotFileIds(snapshot: OfflineSnapshot): Set<number> {
+    return new Set([
+      ...(snapshot.workOrder.image ? [snapshot.workOrder.image.id] : []),
+      ...(snapshot.workOrder.files || []).map((file) => file.id),
+      ...snapshot.tasks.flatMap((task) =>
+        (task.images || []).map((file) => file.id)
+      ),
+      ...snapshot.comments.flatMap((comment) =>
+        (comment.files || []).map((file) => file.id)
+      )
+    ]);
+  }
+
+  private async snapshotFileChanges(
+    snapshot: OfflineSnapshot
+  ): Promise<Model[]> {
+    const ids = this.snapshotFileIds(snapshot),
+      records: Model[] = [];
+    for (const row of await this.collection(FILES).query().fetch()) {
+      const file = json<LocalFile>(row);
+      if (file.status === 'DELETING') continue;
+      const refs = file.workOrderIds.filter(
+        (id) => id !== snapshot.workOrder.id
+      );
+      if (file.serverFileId && ids.has(file.serverFileId))
+        refs.push(snapshot.workOrder.id);
+      if (JSON.stringify(refs) !== JSON.stringify(file.workOrderIds))
+        records.push(
+          this.change(row, {
+            payload: JSON.stringify({ ...file, workOrderIds: refs })
+          })
+        );
+    }
+    for (const row of await this.collection(OPERATIONS)
+      .query(
+        Q.where('work_order_id', String(snapshot.workOrder.id)),
+        Q.where('status', 'APPLIED')
+      )
+      .fetch()) {
+      const operation = this.operation(row);
+      if (
+        !operation.snapshotConfirmed &&
+        ['ADD_TASK_IMAGES', 'UPDATE_WORK_ORDER_ATTACHMENTS'].includes(
+          operation.request.type
+        ) &&
+        operation.receipt &&
+        Date.parse(snapshot.preparedAt) >=
+          Date.parse(operation.receipt.receivedAt)
+      )
+        records.push(this.change(row, { snapshot_confirmed: true }));
+    }
+    return records;
+  }
+
+  private async snapshotAssetChanges(
+    snapshot: OfflineSnapshot
+  ): Promise<Model[]> {
+    const accessRow = await this.find(ASSETS, 'access');
+    const previousAccess = accessRow ? json<AssetAccess>(accessRow) : null;
+    const incoming = new Map(
+      (snapshot.assets || []).map((asset) => [String(asset.id), asset])
+    );
+    const rows = await this.collection(ASSETS)
+      .query(Q.where('id', Q.notEq('access')))
+      .fetch();
+    const records: Model[] = [];
+    if (
+      !previousAccess ||
+      Date.parse(snapshot.preparedAt) >= Date.parse(previousAccess.observedAt)
+    ) {
+      const fields = {
+        payload: JSON.stringify({
+          observedAt: snapshot.preparedAt,
+          canRead: snapshot.canReadAssets === true,
+          canScan: snapshot.canScan === true
+        } satisfies AssetAccess)
+      };
+      records.push(
+        accessRow
+          ? this.change(accessRow, fields)
+          : this.create(ASSETS, 'access', fields)
+      );
+    }
+    for (const row of rows) {
+      const copy = json<AssetCopy>(row),
+        asset = incoming.get(row.id);
+      const refs = copy.refs.filter((id) => id !== snapshot.workOrder.id);
+      if (asset) refs.push(snapshot.workOrder.id);
+      // A newer authoritative omission cannot be undone by an older snapshot
+      // stored for another preparation. Only a fresh server projection revives it.
+      const newer =
+        Date.parse(snapshot.preparedAt) >= Date.parse(copy.observedAt);
+      const wasReferenced = copy.refs.includes(snapshot.workOrder.id);
+      const next: AssetCopy = {
+        asset: asset && newer ? asset : copy.asset,
+        refs,
+        observedAt:
+          newer && (asset || wasReferenced)
+            ? snapshot.preparedAt
+            : copy.observedAt,
+        available: newer && (asset || wasReferenced) ? !!asset : copy.available
+      };
+      if (!refs.length) records.push(row.prepareDestroyPermanently());
+      else records.push(this.change(row, { payload: JSON.stringify(next) }));
+      incoming.delete(row.id);
+    }
+    for (const [id, asset] of incoming)
+      records.push(
+        this.create(ASSETS, id, {
+          payload: JSON.stringify({
+            asset,
+            refs: [snapshot.workOrder.id],
+            observedAt: snapshot.preparedAt,
+            available: true
+          } satisfies AssetCopy)
+        })
+      );
+    return records;
+  }
+
+  async getAsset(id: number): Promise<OfflineAsset | null> {
+    this.assertStorage();
+    const authorization = await this.find(ASSETS, 'access');
+    if (!authorization || !json<AssetAccess>(authorization).canRead)
+      return null;
+    const row = await this.find(ASSETS, String(id));
+    if (!row) return null;
+    const copy = json<AssetCopy>(row);
+    if (!copy.available) return null;
+    for (const ref of copy.refs) {
+      const workOrder = await this.find(WORK_ORDERS, String(ref));
+      if (workOrder && raw(workOrder, 'available')) return copy.asset;
+    }
+    return null;
+  }
+
+  async canScan(): Promise<boolean> {
+    this.assertStorage();
+    const authorization = await this.find(ASSETS, 'access');
+    return (
+      !!authorization &&
+      json<AssetAccess>(authorization).canRead &&
+      json<AssetAccess>(authorization).canScan &&
+      (await this.collection(WORK_ORDERS)
+        .query(Q.where('available', true))
+        .fetchCount()) > 0
+    );
+  }
+
+  async findAssetByScan(
+    value: string,
+    kind: 'barcode' | 'nfc'
+  ): Promise<OfflineAsset | null> {
+    if (!(await this.canScan())) throw new OfflineError('SCAN_FORBIDDEN');
+    const matches: OfflineAsset[] = [];
+    for (const row of await this.collection(ASSETS)
+      .query(Q.where('id', Q.notEq('access')))
+      .fetch()) {
+      const copy = json<AssetCopy>(row);
+      if (copy.asset[kind === 'barcode' ? 'barCode' : 'nfcId'] !== value)
+        continue;
+      const asset = await this.getAsset(Number(row.id));
+      if (!asset) continue;
+      for (const id of copy.refs) {
+        const workOrder = await this.find(WORK_ORDERS, String(id));
+        if (
+          workOrder &&
+          raw(workOrder, 'available') &&
+          json<OfflineSnapshot>(workOrder).canScan
+        ) {
+          matches.push(asset);
+          break;
+        }
+      }
+    }
+    if (matches.length > 1) throw new OfflineError('SCAN_AMBIGUOUS');
+    return matches[0] || null;
+  }
+
+  async getPreparedAssetWorkOrders(assetId: number): Promise<WorkOrder[]> {
+    if (!(await this.getAsset(assetId))) return [];
+    const row = await this.find(ASSETS, String(assetId));
+    const workOrders: WorkOrder[] = [];
+    for (const id of json<AssetCopy>(row!).refs) {
+      const workOrder = await this.find(WORK_ORDERS, String(id));
+      if (workOrder && raw(workOrder, 'available'))
+        workOrders.push(json<OfflineSnapshot>(workOrder).workOrder);
+    }
+    return workOrders;
+  }
+
+  observeAsset(id: number) {
+    return this.changes().pipe(switchMap(() => this.getAsset(id)));
+  }
+  observeAttachmentDraft(workOrderId: number, taskId?: number) {
+    return this.changes().pipe(
+      switchMap(() => this.getAttachmentDraft(workOrderId, taskId))
+    );
+  }
+  observeFiles(ids: string[]) {
+    return this.changes().pipe(switchMap(() => this.getFiles(ids)));
+  }
+  observeServerFile(workOrderId: number, serverFileId: number) {
+    return this.changes().pipe(
+      switchMap(() => this.getServerFile(workOrderId, serverFileId))
+    );
+  }
+
   private changes() {
     return combineLatest([
+      this.collection(FILES)
+        .query()
+        .observeWithColumns(['payload', 'server_file_id']),
+      this.collection(ASSETS).query().observeWithColumns(['payload']),
       this.collection(WORK_ORDERS)
         .query()
         .observeWithColumns([
@@ -1655,7 +2753,8 @@ export class OfflineRepository {
           'status',
           'attempt_count',
           'receipt',
-          'server_comment_id'
+          'server_comment_id',
+          'snapshot_confirmed'
         ])
     ]);
   }

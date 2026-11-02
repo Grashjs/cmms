@@ -104,4 +104,27 @@ class MobileOfflineControllerTest extends AbstractControllerTest {
                 .andExpect(status().isBadRequest());
         verifyNoInteractions(offline);
     }
+    @Test void binaryTransferAcceptsMobileMultipartStringMetadataAndReturnsCompactReceipt() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(offline.uploadFile(eq(id), any(), any(), eq(user))).thenReturn(new MobileOfflineResult(id,
+                MobileOfflineResult.Status.APPLIED, "APPLIED", null, Instant.now(), null, null,
+                MobileOfflineResult.Visibility.VISIBLE, 123L, null, null, null));
+        var file = new org.springframework.mock.web.MockMultipartFile("file", "field.pdf", "application/pdf", new byte[]{1, 2, 3});
+        mvc.perform(multipart("/mobile-offline/files/" + id).file(file).param("metadata",
+                "{\"operationId\":\"" + id + "\",\"companyId\":52,\"userId\":34,\"workOrderId\":10,"
+                        + "\"target\":\"WORK_ORDER\",\"name\":\"field.pdf\",\"mimeType\":\"application/pdf\","
+                        + "\"size\":3,\"sha256\":\"abc\",\"fileType\":\"OTHER\"}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.fileId").value(123))
+                .andExpect(jsonPath("$.content").doesNotExist());
+        verify(offline).uploadFile(eq(id), argThat(metadata -> metadata != null && metadata.workOrderId() == 10), any(), eq(user));
+    }
+
+    @Test void fileDownloadMetadataAlwaysChecksTheAuthenticatedWorkOrderContext() throws Exception {
+        when(offline.downloadFile(10, 123, user)).thenReturn(new MobileOfflineFileDownload(123, "doc.pdf",
+                "application/pdf", 12, "https://storage.test/signed"));
+        mvc.perform(get("/mobile-offline/preparations/10/files/123")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.size").value(12));
+        verify(offline).downloadFile(10, 123, user);
+    }
+
 }

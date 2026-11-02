@@ -1,4 +1,59 @@
 const frJSON = {
+  offline_refresh_copy: 'Actualiser la copie',
+  offline_remove_server_attachment: 'Retirer de l’intervention',
+  offline_clear_server_image: 'Effacer l’image principale',
+  offline_remove_server_attachment_confirm:
+    'Retirer ce fichier de l’intervention sur le serveur ? Vos sélections et envois en attente seront conservés.',
+  offline_clear_server_image_confirm:
+    'Effacer l’image principale sur le serveur ? Votre image sélectionnée et les envois en attente seront conservés.',
+  offline_server_removal_refresh_pending:
+    'Retrait confirmé — actualisation locale en attente',
+  offline_review_files: 'Examiner la sélection',
+  offline_restore_files_draft:
+    'La sélection sera remise en brouillon. Vérifiez-la puis enregistrez-la explicitement. Un brouillon plus récent ne sera pas remplacé.',
+  offline_keep_file_selection: 'Conserver ma sélection',
+  offline_file_transfer_only:
+    'Fichier transféré au serveur ; le rattachement est confirmé séparément.',
+  offline_file_dependency_failed:
+    'Le rattachement attend un fichier dont le transfert a été refusé. Votre sélection est conservée.',
+  offline_retry_file_import: 'Réessayer l’enregistrement du fichier',
+  offline_file_available: 'Fichier disponible sur cet appareil',
+  offline_file_failed: 'Fichier indisponible sur cet appareil',
+  offline_open_file: 'Ouvrir le fichier',
+  offline_download_file: 'Télécharger sur cet appareil',
+  offline_remove_file_selection: 'Retirer de la sélection',
+  offline_remove_local_copy: 'Supprimer la copie locale',
+  offline_save_files: 'Enregistrer les fichiers',
+  offline_other_fields_read_only:
+    'Hors ligne, seuls les fichiers peuvent être modifiés dans ce formulaire.',
+  offline_save_other_changes: 'Enregistrer les autres modifications',
+  offline_scan_asset: 'Scanner un équipement préparé',
+  offline_scan_unavailable:
+    'Le scan hors ligne nécessite une préparation autorisée et la licence de scan.',
+  offline_scan_ambiguous:
+    'Plusieurs équipements préparés correspondent à ce code. Ouvrez leur intervention.',
+  offline_asset_not_available:
+    'Cet équipement n’est pas disponible hors ligne. Préparez son intervention avec une connexion.',
+  offline_asset_read_only:
+    'Copie préparée en lecture seule. Les autres informations nécessitent une connexion.',
+  offline_asset_prepared_work_orders:
+    'Seules les interventions préparées sont affichées.',
+  offline_file_not_ready:
+    'Attendez la fin de la copie du fichier sur cet appareil.',
+  offline_file_limit: 'Ce fichier dépasse la taille autorisée.',
+  offline_storage_limit:
+    'L’espace disponible est insuffisant. Retirez des copies locales devenues inutiles.',
+  offline_transfer_failed:
+    'Un transfert a été refusé. Conservez le travail, puis abandonnez explicitement cet envoi et sélectionnez à nouveau les fichiers pour le corriger.',
+  offline_file_in_use:
+    'Ce fichier est encore utilisé par une préparation ou un travail en attente.',
+  offline_file_open_failed: 'Impossible d’ouvrir ce document sur cet appareil.',
+  offline_file_integrity:
+    'La copie du fichier est incomplète ou a changé. Sélectionnez-le à nouveau.',
+  offline_attachments_conflict:
+    'Les pièces jointes ont changé sur le serveur. Actualisez, puis préparez à nouveau la modification.',
+  offline_file_copy_failed:
+    'La copie sur cet appareil a échoué. Sélectionnez à nouveau le fichier.',
   offline_comment_saved_refresh_pending:
     'Modification du commentaire confirmée sur le serveur ; la copie locale reste à actualiser.',
   offline_comment_published_cleanup_pending:

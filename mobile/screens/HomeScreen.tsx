@@ -196,6 +196,11 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
         >
           {t('offline_available')}
         </Button>
+        {offline.readable && (
+          <Button icon="magnify-scan" onPress={() => navigation.navigate('ScanAsset')}>
+            {t('offline_scan_asset')}
+          </Button>
+        )}
       </View>
     );
   return (

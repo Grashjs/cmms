@@ -23,10 +23,32 @@ export class OfflineCleanupRecord extends Model {
 export class OfflineDraftClockRecord extends Model {
   static table = 'offline_draft_clock';
 }
+export class OfflineFileRecord extends Model {
+  static table = 'offline_files';
+}
+export class OfflineAssetRecord extends Model {
+  static table = 'offline_assets';
+}
 
 export const offlineSchema = appSchema({
   version: 1,
   tables: [
+    tableSchema({
+      name: 'offline_files',
+      columns: [
+        { name: 'payload', type: 'string' },
+        {
+          name: 'server_file_id',
+          type: 'number',
+          isOptional: true,
+          isIndexed: true
+        }
+      ]
+    }),
+    tableSchema({
+      name: 'offline_assets',
+      columns: [{ name: 'payload', type: 'string' }]
+    }),
     tableSchema({
       name: 'offline_draft_clock',
       columns: [{ name: 'revision', type: 'number' }]
@@ -79,7 +101,8 @@ export const offlineSchema = appSchema({
         { name: 'created_at', type: 'number' },
         { name: 'updated_at', type: 'number' },
         { name: 'submitted_revision', type: 'number', isOptional: true },
-        { name: 'server_comment_id', type: 'number', isOptional: true }
+        { name: 'server_comment_id', type: 'number', isOptional: true },
+        { name: 'snapshot_confirmed', type: 'boolean', isOptional: true }
       ]
     })
   ]
@@ -106,7 +129,9 @@ export async function createOfflineDatabase(
       OfflineDraftRecord,
       OfflineOperationRecord,
       OfflineCleanupRecord,
-      OfflineDraftClockRecord
+      OfflineDraftClockRecord,
+      OfflineFileRecord,
+      OfflineAssetRecord
     ]
   });
   const stored = await database.localStorage.get<string>(

@@ -21,6 +21,7 @@ interface SingleTaskProps {
   task: Task;
   valueEditor?: ReactNode;
   notesEditor?: ReactNode;
+  imagesEditor?: ReactNode;
   connectedDisabled?: boolean;
   saving?: boolean;
   preview?: boolean;
@@ -37,6 +38,7 @@ export default function SingleTask({
   task,
   valueEditor,
   notesEditor,
+  imagesEditor,
   connectedDisabled = false,
   saving = false,
   handleChange,
@@ -138,19 +140,21 @@ export default function SingleTask({
           {task.taskBase.label || `<${t('enter_task_name')}>`}
         </Text>
         <View style={{ display: 'flex', flexDirection: 'row' }}>
-          <IconButton
-            iconColor={theme.colors.primary}
-            icon={'image'}
-            onPress={() => handleSelectImages(task.id)}
-            disabled={
-              connectedDisabled ||
-              preview ||
-              !(
-                hasCreatePermission(PermissionEntity.FILES) &&
-                hasFeature(PlanFeature.FILE)
-              )
-            }
-          />
+          {!imagesEditor && (
+            <IconButton
+              iconColor={theme.colors.primary}
+              icon={'image'}
+              onPress={() => handleSelectImages(task.id)}
+              disabled={
+                connectedDisabled ||
+                preview ||
+                !(
+                  hasCreatePermission(PermissionEntity.FILES) &&
+                  hasFeature(PlanFeature.FILE)
+                )
+              }
+            />
+          )}
           <IconButton
             iconColor={theme.colors.primary}
             icon={'note-outline'}
@@ -299,10 +303,12 @@ export default function SingleTask({
           )}
         </View>
       )}
-      {connectedDisabled && !!task.images?.length && (
+      {imagesEditor}
+      {!imagesEditor && connectedDisabled && !!task.images?.length && (
         <Text>{t('offline_files_not_downloaded')}</Text>
       )}
-      {!connectedDisabled &&
+      {!imagesEditor &&
+        !connectedDisabled &&
         task.images?.map((image) => (
           <TouchableOpacity
             key={image.id}

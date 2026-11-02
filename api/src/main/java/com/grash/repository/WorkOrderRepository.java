@@ -15,6 +15,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>, JpaSpecificationExecutor<WorkOrder> {
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("select w from WorkOrder w where w.id = :id and w.company.id = :companyId")
+    Optional<WorkOrder> findForUpdate(@Param("id") Long id, @Param("companyId") Long companyId);
+
     Collection<WorkOrder> findByCompany_Id(Long id);
 
     @Query("SELECT w FROM WorkOrder w " +

@@ -1,4 +1,60 @@
 const plJSON = {
+  offline_refresh_copy: 'Odśwież kopię',
+  offline_remove_server_attachment: 'Usuń ze zlecenia pracy',
+  offline_clear_server_image: 'Usuń obraz główny',
+  offline_remove_server_attachment_confirm:
+    'Usunąć ten plik ze zlecenia pracy na serwerze? Wybrane elementy i oczekujące zgłoszenia zostaną zachowane.',
+  offline_clear_server_image_confirm:
+    'Usunąć obraz główny na serwerze? Wybrany obraz i oczekujące zgłoszenia zostaną zachowane.',
+  offline_server_removal_refresh_pending:
+    'Usunięcie potwierdzone — oczekiwanie na aktualizację lokalną',
+  offline_review_files: 'Sprawdź wybór',
+  offline_restore_files_draft:
+    'Wybór zostanie przywrócony jako wersja robocza. Sprawdź go, a następnie jawnie zapisz. Nowsza wersja robocza nie zostanie zastąpiona.',
+  offline_keep_file_selection: 'Zachowaj mój wybór',
+  offline_file_transfer_only:
+    'Plik przesłano na serwer; dołączenie jest potwierdzane oddzielnie.',
+  offline_file_dependency_failed:
+    'Dołączenie czeka na plik, którego transfer został odrzucony. Wybrane elementy zostają zachowane.',
+  offline_retry_file_import: 'Ponów zapis pliku',
+  offline_file_available: 'Plik dostępny na tym urządzeniu',
+  offline_file_failed: 'Plik niedostępny na tym urządzeniu',
+  offline_open_file: 'Otwórz plik',
+  offline_download_file: 'Pobierz na to urządzenie',
+  offline_remove_file_selection: 'Usuń z wyboru',
+  offline_remove_local_copy: 'Usuń lokalną kopię',
+  offline_save_files: 'Zapisz pliki',
+  offline_other_fields_read_only:
+    'Bez połączenia z Internetem w tym formularzu można zmieniać tylko pliki.',
+  offline_save_other_changes: 'Zapisz pozostałe zmiany',
+  offline_scan_asset: 'Skanuj przygotowane urządzenie',
+  offline_scan_unavailable:
+    'Skanowanie offline wymaga uprawnionej kopii przygotowanych danych i licencji na skanowanie.',
+  offline_scan_ambiguous:
+    'Kilka przygotowanych urządzeń pasuje do tego kodu. Otwórz ich zlecenie pracy.',
+  offline_asset_not_available:
+    'To urządzenie nie jest dostępne offline. Przygotuj jego zlecenie pracy, korzystając z połączenia z Internetem.',
+  offline_asset_read_only:
+    'Przygotowana kopia tylko do odczytu. Pozostałe informacje wymagają połączenia z Internetem.',
+  offline_asset_prepared_work_orders:
+    'Wyświetlane są tylko przygotowane zlecenia pracy.',
+  offline_file_not_ready:
+    'Poczekaj, aż plik zostanie w całości skopiowany na to urządzenie.',
+  offline_file_limit: 'Ten plik przekracza dozwolony rozmiar.',
+  offline_storage_limit:
+    'Brak wystarczającej ilości miejsca. Usuń lokalne kopie, które nie są już potrzebne.',
+  offline_transfer_failed:
+    'Transfer został odrzucony. Zachowaj swoją pracę, następnie jawnie odrzuć to zgłoszenie i ponownie wybierz pliki, aby je poprawić.',
+  offline_file_in_use:
+    'Ten plik jest nadal używany przez przygotowane dane lub oczekującą pracę.',
+  offline_file_open_failed:
+    'Nie można otworzyć tego dokumentu na tym urządzeniu.',
+  offline_file_integrity:
+    'Kopia pliku jest niekompletna lub została zmieniona. Wybierz go ponownie.',
+  offline_attachments_conflict:
+    'Załączniki na serwerze zostały zmienione. Odśwież dane i ponownie przygotuj zmianę.',
+  offline_file_copy_failed:
+    'Kopiowanie na to urządzenie nie powiodło się. Wybierz plik ponownie.',
   offline_comment_saved_refresh_pending:
     'Zmiana komentarza została potwierdzona na serwerze; lokalna kopia wymaga jeszcze odświeżenia.',
   offline_comment_published_cleanup_pending:

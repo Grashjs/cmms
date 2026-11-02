@@ -1,4 +1,4 @@
-const { withAndroidManifest, withDangerousMod, withXcodeProject, withAppDelegate, withPodfile } = require('@expo/config-plugins');
+const { withAndroidManifest, withDangerousMod, withXcodeProject, withAppDelegate, withPodfile, withMainApplication } = require('@expo/config-plugins');
 const fs = require('fs');
 const path = require('path');
 
@@ -52,8 +52,25 @@ module.exports = function withOfflineStorage(config) {
     fs.mkdirSync(xml, { recursive: true });
     fs.writeFileSync(path.join(xml, 'atlas_backup_rules.xml'), backupRules);
     fs.writeFileSync(path.join(xml, 'atlas_data_extraction_rules.xml'), extractionRules);
+    const java = path.join(current.modRequest.platformProjectRoot, 'app/src/main/java/com/atlas/offline');
+    fs.mkdirSync(java, { recursive: true });
+    for (const file of ['AtlasOfflineStorageModule.java', 'AtlasOfflineStoragePackage.java']) {
+      fs.copyFileSync(path.join(__dirname, 'native', file), path.join(java, file));
+    }
     return current;
   }]);
+  config = withMainApplication(config, current => {
+    const registration = 'packages.add(new com.atlas.offline.AtlasOfflineStoragePackage());';
+    const kotlinRegistration = 'packages.add(com.atlas.offline.AtlasOfflineStoragePackage())';
+    if (!current.modResults.contents.includes('com.atlas.offline.AtlasOfflineStoragePackage')) {
+      const marker = current.modResults.language === 'java' ? 'return packages;' : 'return packages';
+      if (!current.modResults.contents.includes(marker))
+        throw new Error('Unable to register AtlasOfflineStorage in MainApplication');
+      current.modResults.contents = current.modResults.contents.replace(marker,
+        `${current.modResults.language === 'java' ? registration : kotlinRegistration}\n            ${marker}`);
+    }
+    return current;
+  });
   config = withXcodeProject(config, current => {
     const projectName = current.modRequest.projectName;
     const nativeFile = 'AtlasOfflineStorage.m';
@@ -63,6 +80,9 @@ module.exports = function withOfflineStorage(config) {
     if (!project.hasFile(`${projectName}/${nativeFile}`)) {
       const group = project.findPBXGroupKey({ name: projectName });
       project.addSourceFile(`${projectName}/${nativeFile}`, { target: project.getFirstTarget().uuid }, group);
+    }
+    if (!project.hasFile('QuickLook.framework')) {
+      project.addFramework('QuickLook.framework', { target: project.getFirstTarget().uuid });
     }
     for (const reference of Object.values(project.pbxFileReferenceSection())) {
       if (reference && typeof reference === 'object' && reference.explicitFileType === undefined) {

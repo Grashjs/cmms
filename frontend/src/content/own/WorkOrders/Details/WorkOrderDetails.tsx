@@ -224,7 +224,8 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
   const onArchive = () => {
     handleCloseMenu();
     if (window.confirm(t('wo_archive_confirm') + workOrder.title + ' ?')) {
-      dispatch(editWorkOrder(workOrder?.id, { ...workOrder, archived: true }))
+      const { image, files, ...values } = workOrder;
+      dispatch(editWorkOrder(workOrder?.id, { ...values, archived: true }))
         .then(onArchiveSuccess)
         .catch(onArchiveFailure);
     }

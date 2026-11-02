@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useOffline } from '../OfflineProvider';
 import { operationText } from '../types';
 import type { LocalOperation } from '../types';
+import { OfflineFileItem } from './OfflineFileItem';
 
 /** Unsent text is local work; APPLIED rows only report a pending local refresh. */
 export function OfflineCommentOperations({
@@ -43,6 +44,15 @@ export function OfflineCommentOperations({
                 )}
               </Text>
             )}
+            {!applied &&
+              operation.request.type === 'CREATE_COMMENT' &&
+              operation.request.fileTransferIds?.map((localId) => (
+                <OfflineFileItem
+                  key={localId}
+                  workOrderId={operation.request.workOrderId}
+                  localId={localId}
+                />
+              ))}
             {(applied || operation.status === 'UNKNOWN') && (
               <Button
                 disabled={!offline.networkAvailable || offline.syncing}

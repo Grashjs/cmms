@@ -19,7 +19,7 @@ class MobileOfflineSnapshotServiceTest {
     MobileOfflineAccessService access = mock(MobileOfflineAccessService.class);
     MobileOfflineSnapshotService service = new MobileOfflineSnapshotService(em, mock(WorkOrderMapper.class),
             mock(TaskMapper.class), mock(CommentMapper.class), mock(WorkOrderHistoryMapper.class),
-            new ObjectMapper().findAndRegisterModules(), access);
+            new ObjectMapper().findAndRegisterModules(), access, mock(LicenseService.class));
 
     @SuppressWarnings("unchecked")
     private void counts(long tasks, long comments, long history, long nested) {

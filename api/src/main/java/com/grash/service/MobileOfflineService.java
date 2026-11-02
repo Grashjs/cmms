@@ -43,6 +43,9 @@ public class MobileOfflineService {
     private final ObjectMapper json;
     private final CommentService comments;
     private final CommentRepository commentRepository;
+    private final MobileOfflineFileService files;
+    private final WorkOrderService workOrders;
+    private final org.springframework.context.ApplicationEventPublisher events;
 
     public MobileOfflineEligibility eligibility(User user) {
         Instant now = Instant.now();
@@ -69,6 +72,48 @@ public class MobileOfflineService {
     public void removePreparation(long workOrderId, UUID deviceId, User user) {
         repository.lockDevice(user.getCompany().getId(), user.getId(), deviceId);
         repository.removePreparation(user.getCompany().getId(), user.getId(), deviceId, workOrderId);
+    }
+
+    @Transactional
+    public MobileOfflineResult uploadFile(UUID transferId, MobileOfflineFileUpload transfer,
+                                          org.springframework.web.multipart.MultipartFile upload, User user) {
+        if (transfer == null || !transferId.equals(transfer.operationId()) || transfer.workOrderId() == null || transfer.workOrderId() <= 0)
+            throw new CustomException("INVALID_OFFLINE_REQUEST", HttpStatus.BAD_REQUEST);
+        if (!Objects.equals(transfer.companyId(), user.getCompany().getId()) || !Objects.equals(transfer.userId(), user.getId()))
+            throw new CustomException("OFFLINE_CONTEXT_MISMATCH", HttpStatus.FORBIDDEN);
+        requireEligible(user);
+        byte[] bytes;
+        try (var input = upload.getInputStream()) {
+            bytes = input.readNBytes((int) MobileOfflineFileService.MAX_FILE_BYTES + 1);
+        } catch (IOException failure) { throw new CustomException("FILE_READ_FAILED", HttpStatus.SERVICE_UNAVAILABLE); }
+        String digest;
+        try { digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes)); }
+        catch (NoSuchAlgorithmException impossible) { throw new IllegalStateException(impossible); }
+        // Include actual byte identity even for a rejected malformed upload. No storage write precedes validation.
+        String hash = hash(new UploadFingerprint("UPLOAD_FILE", transfer, digest, bytes.length));
+        Instant now = Instant.now();
+        long company = user.getCompany().getId();
+        if (!repository.reserveOperation(company, user.getId(), transferId, transfer.workOrderId(), hash, now)) {
+            var previous = repository.receipt(company, user.getId(), transferId).orElseThrow();
+            if (!previous.payloadHash().equals(hash)) throw new CustomException("OPERATION_ID_REUSED", HttpStatus.CONFLICT);
+            return readable(previous, user);
+        }
+        String error = files.validationError(transfer, bytes, digest, user);
+        if (error == null) error = files.consumeUpload(user);
+        var stored = error == null ? files.store(transfer, bytes, user) : null;
+        var result = new MobileOfflineResult(transferId, error == null ? APPLIED : REJECTED,
+                error == null ? "APPLIED" : error, null, now, null, null, MobileOfflineResult.Visibility.VISIBLE,
+                stored == null ? null : stored.getId(), null, null, transfer);
+        repository.finishOperation(company, user.getId(), transferId, encode(result));
+        return result;
+    }
+
+    private record UploadFingerprint(String type, MobileOfflineFileUpload metadata, String actualSha256, int actualSize) {}
+
+    @Transactional(readOnly = true)
+    public MobileOfflineFileDownload downloadFile(long workOrderId, long fileId, User user) {
+        requireEligible(user);
+        return files.download(workOrderId, fileId, user);
     }
 
     @Transactional
@@ -101,6 +146,8 @@ public class MobileOfflineService {
         if (operation.type() == MobileOfflineOperation.Type.CREATE_COMMENT) return createComment(operation, user, now);
         if (!access.canEdit(operation.workOrderId(), user))
             return result(operation, REJECTED, "ACCESS_REVOKED", null, now);
+        if (operation.type() == MobileOfflineOperation.Type.UPDATE_WORK_ORDER_ATTACHMENTS)
+            return updateAttachments(operation, user, now);
         Optional<Task> found = taskRepository.findForUpdate(operation.taskId(), user.getCompany().getId());
         if (found.isEmpty() || found.get().getWorkOrder() == null
                 || !found.get().getWorkOrder().getId().equals(operation.workOrderId()))
@@ -110,6 +157,16 @@ public class MobileOfflineService {
             taskService.checkEditAccess(task, user, operation.type() == MobileOfflineOperation.Type.SET_TASK_VALUE);
         } catch (CustomException e) {
             return result(operation, REJECTED, "ACCESS_REVOKED", null, now);
+        }
+        if (operation.type() == MobileOfflineOperation.Type.ADD_TASK_IMAGES) {
+            var resolved = files.resolve(operation.fileTransferIds(), MobileOfflineFileUpload.Target.TASK,
+                    operation.workOrderId(), operation.taskId(), user);
+            if (resolved.error() != null) return result(operation, REJECTED, resolved.error(), null, now);
+            files.attachTaskImages(task, resolved.files());
+            // Like connected task-photo uploads, this association does not replay TASK_UPDATED value workflows.
+            return new MobileOfflineResult(operation.operationId(), APPLIED, "APPLIED", null, now,
+                    null, null, MobileOfflineResult.Visibility.VISIBLE, null,
+                    resolved.files().stream().map(com.grash.model.File::getId).toList(), null, null);
         }
         long expectedVersion = operation.baseVersion();
         if (operation.predecessorOperationId() != null) {
@@ -139,6 +196,29 @@ public class MobileOfflineService {
         return result(operation, APPLIED, "APPLIED", saved, now);
     }
 
+    private MobileOfflineResult updateAttachments(MobileOfflineOperation operation, User user, Instant now) {
+        var additions = files.resolve(operation.addTransferIds(), MobileOfflineFileUpload.Target.WORK_ORDER,
+                operation.workOrderId(), null, user);
+        if (additions.error() != null) return result(operation, REJECTED, additions.error(), null, now);
+        com.grash.model.File image = null;
+        if (operation.imageChange() != null) {
+            var resolved = files.resolve(List.of(operation.imageChange().transferId()), MobileOfflineFileUpload.Target.WORK_ORDER,
+                    operation.workOrderId(), null, user);
+            if (resolved.error() != null) return result(operation, REJECTED, resolved.error(), null, now);
+            if (resolved.files().isEmpty()) return result(operation, REJECTED, "FILE_NOT_FOUND", null, now);
+            image = resolved.files().get(0);
+        }
+        var outcome = workOrders.applyOfflineAttachments(operation.workOrderId(), additions.files(), image,
+                operation.imageChange() == null ? null : operation.imageChange().baseImageId(), operation.imageChange() != null, user);
+        if (outcome.error() != null) return result(operation, outcome.conflict() ? CONFLICT : REJECTED, outcome.error(), null, now);
+        if (operation.imageChange() != null)
+            events.publishEvent(new WorkOrderService.OfflineAttachmentsChanged(operation.workOrderId(), user.getCompany().getId()));
+        return new MobileOfflineResult(operation.operationId(), APPLIED, "APPLIED", null, now, null, null,
+                MobileOfflineResult.Visibility.VISIBLE, null,
+                outcome.workOrder().getFiles().stream().map(com.grash.model.File::getId).toList(),
+                outcome.workOrder().getImage() == null ? null : outcome.workOrder().getImage().getId(), null);
+    }
+
     private MobileOfflineResult createComment(MobileOfflineOperation operation, User user, Instant now) {
         String content;
         try {
@@ -146,10 +226,15 @@ public class MobileOfflineService {
         } catch (CustomException invalid) {
             return result(operation, REJECTED, "INVALID_COMMENT_CONTENT", null, now);
         }
+        var attachments = operation.fileTransferIds() == null || operation.fileTransferIds().isEmpty()
+                ? new MobileOfflineFileService.Resolution(List.of(), null)
+                : files.resolve(operation.fileTransferIds(), MobileOfflineFileUpload.Target.COMMENT, operation.workOrderId(), null, user);
+        if (attachments.error() != null) return result(operation, REJECTED, attachments.error(), null, now);
         CommentPostDTO request = new CommentPostDTO();
         WorkOrder target = new WorkOrder(); target.setId(operation.workOrderId());
         request.setWorkOrder(target);
         request.setContent(content);
+        request.setFiles(new ArrayList<>(attachments.files()));
         var saved = comments.createOffline(request, user, operation.operationId()).getFirst();
         return new MobileOfflineResult(operation.operationId(), APPLIED, "APPLIED", null, now,
                 null, saved.getId(), MobileOfflineResult.Visibility.VISIBLE);
@@ -179,6 +264,10 @@ public class MobileOfflineService {
     private MobileOfflineResult readable(MobileOfflineRepository.Receipt receipt, User user) {
         MobileOfflineResult result = decode(receipt);
         boolean workOrderVisible = access.canView(receipt.workOrderId(), user);
+        if (result.transfer() != null || result.fileIds() != null) {
+            return result.withVisibility(!workOrderVisible ? MobileOfflineResult.Visibility.WORK_ORDER_UNAVAILABLE
+                    : files.visibility(result, receipt.workOrderId(), user));
+        }
         if (result.commentId() != null) {
             var visibility = !workOrderVisible ? MobileOfflineResult.Visibility.WORK_ORDER_UNAVAILABLE
                     : commentRepository.existsByIdAndCompany_IdAndWorkOrder_Id(result.commentId(), user.getCompany().getId(), receipt.workOrderId())
@@ -198,7 +287,7 @@ public class MobileOfflineService {
         }
     }
 
-    private String hash(MobileOfflineOperation operation) {
+    private String hash(Object operation) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             // Bound Jackson's exact UTF-8 representation before reserving an operation; never truncate content.

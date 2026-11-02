@@ -25,13 +25,14 @@ import java.util.UUID;
 public class MobileOfflineController {
     private final MobileOfflineService offline;
     private final UserService users;
+    private final com.fasterxml.jackson.databind.ObjectMapper json;
 
     private User currentUser(HttpServletRequest request) {
         // Authorization changes must not wait for the normal whoami cache to expire.
         return users.whoami(request, false);
     }
 
-    @ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class})
+    @ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class, com.fasterxml.jackson.core.JsonProcessingException.class})
     public ResponseEntity<SuccessResponse> invalidRequest() {
         return ResponseEntity.badRequest().body(new SuccessResponse(false, "INVALID_OFFLINE_REQUEST"));
     }
@@ -58,6 +59,21 @@ public class MobileOfflineController {
     public SuccessResponse remove(@PathVariable long id, @RequestParam UUID deviceId, HttpServletRequest request) {
         offline.removePreparation(id, deviceId, currentUser(request));
         return new SuccessResponse(true, "Preparation removed");
+    }
+
+    @PostMapping(value = "/files/{transferId}", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    public MobileOfflineResult upload(@PathVariable UUID transferId, @RequestParam("metadata") String metadata,
+                                     @RequestPart("file") org.springframework.web.multipart.MultipartFile file,
+                                     HttpServletRequest request) throws com.fasterxml.jackson.core.JsonProcessingException {
+        if (metadata.getBytes(java.nio.charset.StandardCharsets.UTF_8).length > MobileOfflineLimits.PILOT.snapshotBytes())
+            throw new com.grash.exception.CustomException("OPERATION_LIMIT_EXCEEDED", HttpStatus.PAYLOAD_TOO_LARGE);
+        return offline.uploadFile(transferId, json.readValue(metadata, MobileOfflineFileUpload.class), file, currentUser(request));
+    }
+
+    @GetMapping("/preparations/{workOrderId}/files/{fileId}")
+    public MobileOfflineFileDownload download(@PathVariable long workOrderId, @PathVariable long fileId,
+                                             HttpServletRequest request) {
+        return offline.downloadFile(workOrderId, fileId, currentUser(request));
     }
 
     @PostMapping("/operations")

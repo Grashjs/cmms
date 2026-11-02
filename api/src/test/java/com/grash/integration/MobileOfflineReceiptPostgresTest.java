@@ -32,6 +32,7 @@ class MobileOfflineReceiptPostgresTest {
 
     @BeforeAll static void schema() throws Exception {
         datasource = new DriverManagerDataSource(postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword());
+        new JdbcTemplate(datasource).execute("create table file_transfer_fixture (id bigint primary key, path text not null)");
         new JdbcTemplate(datasource).execute("create table task (id bigint primary key, value varchar(255), notes text)");
         new JdbcTemplate(datasource).execute("create table comment (id bigint primary key, company_id bigint not null, user_id bigint not null, content text not null)");
         try (var connection = datasource.getConnection();
@@ -53,6 +54,7 @@ class MobileOfflineReceiptPostgresTest {
         jdbc.update("delete from mobile_offline_preparation");
         jdbc.update("delete from mobile_offline_device");
         jdbc.update("delete from task");
+        jdbc.update("delete from file_transfer_fixture");
         jdbc.update("delete from comment");
         jdbc.update("insert into task(id,value,notes) values (7,'A','notes')");
     }
@@ -141,6 +143,26 @@ class MobileOfflineReceiptPostgresTest {
             assertEquals(1L, jdbc.queryForObject("select version from task where id=7", Long.class));
             assertNotNull(repository.receipt(52, 34, id).orElseThrow().resultJson());
         } finally { releaseFirst.countDown(); pool.shutdownNow(); }
+    }
+
+    @Test void transferFileAndReceiptCommitOrRollbackTogether() {
+        UUID id = UUID.randomUUID();
+        assertThrows(IllegalStateException.class, () -> transaction.executeWithoutResult(status -> {
+            assertTrue(repository.reserveOperation(52, 34, id, 10, "binary-hash", Instant.now()));
+            jdbc.update("insert into file_transfer_fixture(id,path) values (123,'company/owner/uuid/sha256')");
+            repository.finishOperation(52, 34, id, "{\"status\":\"APPLIED\",\"fileId\":123}");
+            throw new IllegalStateException("SQL commit failed after object upload");
+        }));
+        assertTrue(repository.receipt(52, 34, id).isEmpty());
+        assertEquals(0L, jdbc.queryForObject("select count(*) from file_transfer_fixture", Long.class));
+        transaction.executeWithoutResult(status -> {
+            assertTrue(repository.reserveOperation(52, 34, id, 10, "binary-hash", Instant.now()));
+            jdbc.update("insert into file_transfer_fixture(id,path) values (123,'company/owner/uuid/sha256')");
+            repository.finishOperation(52, 34, id, "{\"status\":\"APPLIED\",\"fileId\":123}");
+        });
+        transaction.executeWithoutResult(status -> assertFalse(repository.reserveOperation(52, 34, id, 10, "binary-hash", Instant.now())));
+        assertEquals(1L, jdbc.queryForObject("select count(*) from file_transfer_fixture", Long.class));
+        assertTrue(repository.receipt(52, 34, id).orElseThrow().resultJson().contains("123"));
     }
 
     @Test void reservationReleaseAndOwnerIsolationAreDurable() {
