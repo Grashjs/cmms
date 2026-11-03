@@ -46,6 +46,8 @@ public class MobileOfflineService {
     private final MobileOfflineFileService files;
     private final WorkOrderService workOrders;
     private final org.springframework.context.ApplicationEventPublisher events;
+    private final LaborService labors;
+    private final com.grash.repository.LaborRepository laborRepository;
 
     public MobileOfflineEligibility eligibility(User user) {
         Instant now = Instant.now();
@@ -122,6 +124,8 @@ public class MobileOfflineService {
         if (!user.getCompany().getId().equals(operation.companyId()) || !user.getId().equals(operation.userId()))
             throw new CustomException("OFFLINE_CONTEXT_MISMATCH", HttpStatus.FORBIDDEN);
         requireEligible(user);
+        if (operation.type() == MobileOfflineOperation.Type.STOP_TIMER && operation.time().startOperation() != null)
+            return submitTimerStop(operation, user);
         long company = user.getCompany().getId();
         String hash = hash(operation);
         Instant receivedAt = Instant.now();
@@ -143,6 +147,7 @@ public class MobileOfflineService {
             return result(operation, REJECTED, "TARGET_NOT_FOUND", null, now);
         if (!access.canView(operation.workOrderId(), user))
             return result(operation, REJECTED, "ACCESS_REVOKED", null, now);
+        if (operation.isTimeOperation()) return applyTime(operation, user, now, null, false);
         if (operation.type() == MobileOfflineOperation.Type.CREATE_COMMENT) return createComment(operation, user, now);
         if (!access.canEdit(operation.workOrderId(), user))
             return result(operation, REJECTED, "ACCESS_REVOKED", null, now);
@@ -194,6 +199,78 @@ public class MobileOfflineService {
         if (validationError != null) return result(operation, REJECTED, validationError, task, now);
         Task saved = taskService.applyPatch(task, patch, user);
         return result(operation, APPLIED, "APPLIED", saved, now);
+    }
+
+    /** Resolve a closed local period before retrying its start in isolation. Ledger order is always start -> stop -> target. */
+    private MobileOfflineResult submitTimerStop(MobileOfflineOperation stop, User user) {
+        var start = stop.time().startOperation();
+        long company = user.getCompany().getId();
+        Instant now = Instant.now();
+        String startHash = hash(start);
+        boolean newStart = repository.reserveOperation(company, user.getId(), start.operationId(), start.workOrderId(), startHash, now);
+        MobileOfflineResult startResult = null;
+        if (!newStart) {
+            var saved = repository.receipt(company, user.getId(), start.operationId()).orElseThrow();
+            if (!saved.payloadHash().equals(startHash)) throw new CustomException("OPERATION_ID_REUSED", HttpStatus.CONFLICT);
+            startResult = decode(saved);
+        }
+        String stopHash = hash(stop);
+        boolean newStop = repository.reserveOperation(company, user.getId(), stop.operationId(), stop.workOrderId(), stopHash, now);
+        if (!newStop) {
+            // This state cannot arise from a committed causal stop. Never commit an empty start reservation.
+            if (newStart) throw new IllegalStateException("Timer stop receipt has no start receipt");
+            var saved = repository.receipt(company, user.getId(), stop.operationId()).orElseThrow();
+            if (!saved.payloadHash().equals(stopHash)) throw new CustomException("OPERATION_ID_REUSED", HttpStatus.CONFLICT);
+            return readable(saved, user);
+        }
+        MobileOfflineResult stopped;
+        if (!newStart && startResult.status() != APPLIED) {
+            stopped = result(stop, REJECTED, "TIMER_START_NOT_APPLIED", null, now);
+        } else if (!access.existsInCompany(stop.workOrderId(), user)) {
+            stopped = result(stop, REJECTED, "TARGET_NOT_FOUND", null, now);
+        } else if (!access.canView(stop.workOrderId(), user)) {
+            stopped = result(stop, REJECTED, "ACCESS_REVOKED", null, now);
+        } else {
+            stopped = applyTime(stop, user, now, startResult, newStart);
+        }
+        if (newStart) {
+            // A late original START sees this terminal receipt, even if the local closure was refused.
+            startResult = new MobileOfflineResult(start.operationId(), stopped.status(),
+                    stopped.status() == APPLIED ? "TIMER_START_FINALIZED" : "TIMER_START_CLOSED", null, now,
+                    null, null, stopped.visibility(), null, null, null, null, stopped.timeResult(), null);
+            repository.finishOperation(company, user.getId(), start.operationId(), encode(startResult));
+        }
+        stopped = stopped.withStartReceipt(startResult);
+        repository.finishOperation(company, user.getId(), stop.operationId(), encode(stopped));
+        // The causal start remains useful for local recovery, but its historical
+        // time details must not bypass a newly withdrawn work-order permission.
+        return access.canView(stop.workOrderId(), user) ? stopped : stopped.withoutTimeDetails();
+    }
+
+    private MobileOfflineResult applyTime(MobileOfflineOperation operation, User user, Instant now,
+                                          MobileOfflineResult acceptedStart, boolean closeWithoutStart) {
+        MobileOfflineOperation basis = closeWithoutStart ? operation.time().startOperation() : operation;
+        MobileOfflineResult predecessor = null;
+        if (acceptedStart == null && basis.predecessorOperationId() != null) {
+            if (basis.predecessorOperationId().equals(basis.operationId()))
+                return result(operation, REJECTED, "INVALID_PREDECESSOR", null, now);
+            var saved = repository.receipt(user.getCompany().getId(), user.getId(), basis.predecessorOperationId());
+            if (saved.isEmpty() || saved.get().resultJson() == null || saved.get().workOrderId() != operation.workOrderId())
+                return result(operation, REJECTED, "INVALID_PREDECESSOR", null, now);
+            predecessor = decode(saved.get());
+        }
+        var outcome = labors.applyOfflineTime(operation, user, predecessor, acceptedStart, closeWithoutStart, now);
+        if (outcome.error() != null)
+            return result(operation, outcome.conflict() ? CONFLICT : REJECTED, outcome.error(), null, now);
+        var labor = outcome.labor();
+        String code = operation.type() == MobileOfflineOperation.Type.START_TIMER ? "TIMER_STARTED"
+                : operation.type() == MobileOfflineOperation.Type.CREATE_MANUAL_TIME ? "MANUAL_TIME_CREATED"
+                : closeWithoutStart ? "TIMER_PERIOD_RECORDED" : "TIMER_STOPPED";
+        var details = new MobileOfflineTimeResult(operation.time().periodId(), labor.getId(), labor.getVersion(),
+                closeWithoutStart || operation.type() == MobileOfflineOperation.Type.CREATE_MANUAL_TIME ? null : labor.getTimerRunId(),
+                operation.time().startedAt(), operation.time().endedAt(), outcome.durationAdded(), outcome.closedWithoutActivation());
+        return new MobileOfflineResult(operation.operationId(), APPLIED, code, null, now, null, null,
+                MobileOfflineResult.Visibility.VISIBLE, null, null, null, null, details, null);
     }
 
     private MobileOfflineResult updateAttachments(MobileOfflineOperation operation, User user, Instant now) {
@@ -264,6 +341,14 @@ public class MobileOfflineService {
     private MobileOfflineResult readable(MobileOfflineRepository.Receipt receipt, User user) {
         MobileOfflineResult result = decode(receipt);
         boolean workOrderVisible = access.canView(receipt.workOrderId(), user);
+        if (result.timeResult() != null || result.startReceipt() != null) {
+            if (!workOrderVisible) return result.withoutTimeDetails();
+            boolean exists = result.timeResult() == null || laborRepository.existsByIdAndCompany_IdAndWorkOrder_Id(
+                    result.timeResult().laborId(), user.getCompany().getId(), receipt.workOrderId());
+            var visible = result.withVisibility(exists ? MobileOfflineResult.Visibility.VISIBLE : MobileOfflineResult.Visibility.LABOR_DELETED);
+            if (result.startReceipt() != null) visible = visible.withStartReceipt(result.startReceipt().withVisibility(visible.visibility()));
+            return visible;
+        }
         if (result.transfer() != null || result.fileIds() != null) {
             return result.withVisibility(!workOrderVisible ? MobileOfflineResult.Visibility.WORK_ORDER_UNAVAILABLE
                     : files.visibility(result, receipt.workOrderId(), user));

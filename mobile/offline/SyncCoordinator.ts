@@ -9,6 +9,7 @@ import {
   TaskField,
   OFFLINE_LIMITS,
   isTaskOperation,
+  isTimeOperation,
   transferIds
 } from './types';
 
@@ -215,7 +216,8 @@ export class SyncCoordinator {
         (operation) => operation.attemptCount > 0
       ),
       ...(await this.repository.getCommentReceiptsToRefresh()),
-      ...(await this.repository.getFileReceiptsToRefresh())
+      ...(await this.repository.getFileReceiptsToRefresh()),
+      ...(await this.repository.getTimeReceiptsToRefresh())
     ];
     // Receipts are read even while the feature is disabled. Missing is NOT an
     // assurance of non-application, and never makes an operation abandonable.
@@ -271,6 +273,11 @@ export class SyncCoordinator {
         return;
       const request = operation.request;
       if (
+        isTimeOperation(request) &&
+        !(await this.repository.canSendTimeOperation(operation))
+      )
+        continue;
+      if (
         request.type === 'UPLOAD_FILE' &&
         operation.attemptCount === 0 &&
         !(await this.repository.uploadHasParent(operation.id))
@@ -319,6 +326,7 @@ export class SyncCoordinator {
       // terminal receipt, even when the local target was removed or is read-only.
       if (
         operation.attemptCount === 0 &&
+        !isTimeOperation(request) &&
         (!target?.available ||
           !(request.type === 'CREATE_COMMENT'
             ? 'canComment' in target && target.canComment
@@ -346,7 +354,18 @@ export class SyncCoordinator {
         }
       }
       if (!this.connected()) return;
-      const attempt = await this.repository.beginAttempt(operation.id);
+      let attempt;
+      try {
+        attempt = await this.repository.beginAttempt(operation.id);
+      } catch (error) {
+        // A stop can commit after this pass selected its START candidate.
+        if (
+          error instanceof OfflineError &&
+          error.code === 'OPERATION_RESOLVED'
+        )
+          continue;
+        throw error;
+      }
       try {
         const result =
           attempt.request.type === 'UPLOAD_FILE'

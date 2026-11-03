@@ -1,4 +1,10 @@
 const ptBRJSON = {
+  labor_review_current: 'Revisar o tempo atual',
+  labor_review_confirm: 'Manter minha entrada nesta versão',
+  labor_changed_review:
+    'Este registro de tempo mudou. Revise a versão do servidor antes de salvar novamente.',
+  labor_server_duration: 'Duração atual no servidor',
+
   task_save_review: "Os dados digitados foram mantidos. O salvamento está pausado; compare-os com os dados do servidor antes de enviar as alterações exibidas.",
   task_server_value: "Valor atual no servidor",
   task_review_submit: "Revisar e enviar as alterações exibidas",

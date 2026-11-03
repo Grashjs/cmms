@@ -1,4 +1,35 @@
 const locale = {
+  offline_time_stopped: 'Cronómetro detenido',
+  labor_review_current: 'Revisar el tiempo actual',
+  labor_review_confirm: 'Conservar mi entrada sobre esta versión',
+  labor_changed_review:
+    'Este registro de tiempo ha cambiado. Revise la versión del servidor antes de guardar de nuevo.',
+  labor_server_duration: 'Duración actual en el servidor',
+  offline_time_start: 'Iniciar',
+  offline_time_stop: 'Detener y guardar',
+  offline_time_running_local: 'En curso en este dispositivo',
+  offline_time_start_pending: 'Inicio pendiente de confirmación',
+  offline_time_running_server: 'En curso — confirmado por el servidor',
+  offline_time_stop_pending: 'Parada guardada — pendiente de envío',
+  offline_time_save: 'Guardar tiempo',
+  offline_time_personal: 'Mi tiempo',
+  offline_time_connected_form: 'Formulario completo en línea',
+  offline_time_periods: 'Periodos en este dispositivo',
+  offline_time_server_total: 'Total del servidor',
+  offline_time_review: 'Revisar el periodo',
+  offline_time_preserve_status: 'Guardar manteniendo el estado actual',
+  offline_time_correct_connected: 'Corregir el total en línea',
+  offline_time_saved_refresh_pending:
+    'Tiempo confirmado — actualización local pendiente',
+  offline_time_invalid_range:
+    'Compruebe el inicio y el fin: la duración debe ser positiva y las horas no deben estar en el futuro.',
+  offline_time_run_changed:
+    'Este cronómetro se ha detenido o reiniciado desde otro lugar. Su periodo se conserva.',
+  offline_time_status_changed:
+    'El estado de la orden de trabajo ha cambiado. Revíselo antes de enviar este periodo.',
+  offline_time_not_allowed:
+    'Los permisos, la licencia o la suscripción actuales no permiten esta acción de tiempo.',
+
   offline_refresh_copy: 'Actualizar la copia',
   offline_remove_server_attachment: 'Retirar de la orden de trabajo',
   offline_clear_server_image: 'Quitar la imagen principal',

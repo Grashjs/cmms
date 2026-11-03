@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grash.dto.offline.MobileOfflineLimits;
 import com.grash.dto.offline.MobileOfflineSnapshot;
 import com.grash.dto.offline.MobileOfflineAsset;
+import com.grash.dto.offline.MobileOfflineTimePermissions;
+import com.grash.dto.offline.MobileOfflineLabor;
 import com.grash.dto.license.LicenseEntitlement;
 import com.grash.model.enums.PermissionEntity;
 import java.util.LinkedHashMap;
@@ -43,6 +45,12 @@ public class MobileOfflineSnapshotService {
                 .setParameter("id", id).setMaxResults(MobileOfflineLimits.PILOT.comments() + 1).getResultList();
         var history = em.createQuery("select h from WorkOrderHistory h where h.workOrder.id = :id order by h.createdAt, h.id", WorkOrderHistory.class)
                 .setParameter("id", id).setMaxResults(MobileOfflineLimits.PILOT.history() + 1).getResultList();
+        var labors = em.createQuery("select l from Labor l where l.workOrder.id = :id order by l.id", Labor.class)
+                .setParameter("id", id).setMaxResults(MobileOfflineLimits.PILOT.snapshotItems() + 1).getResultList();
+        boolean canEdit = access.canEdit(id, user);
+        boolean timeLicense = license.hasEntitlement(LicenseEntitlement.TIME_TRACKING);
+        var timePermissions = new MobileOfflineTimePermissions(canEdit && timeLicense, canEdit, canEdit,
+                canEdit && timeLicense && LaborService.hasManualRole(user) && LaborService.hasManualPlan(user));
         boolean canReadAssets = user.getRole().getViewPermissions().contains(PermissionEntity.ASSETS);
         boolean canScan = canReadAssets && license.hasEntitlement(LicenseEntitlement.NFC_BARCODE);
         var availableAssets = new LinkedHashMap<Long, Asset>();
@@ -60,7 +68,8 @@ public class MobileOfflineSnapshotService {
         var snapshot = new MobileOfflineSnapshot(workOrderMapper.toShowDto(workOrder),
                 tasks.stream().map(taskMapper::toShowDto).toList(),
                 comments.stream().map(commentMapper::toShowDto).toList(),
-                history.stream().map(historyMapper::toShowDto).toList(), Instant.now(), true, access.canEdit(id, user), true, assets, canScan, canReadAssets);
+                history.stream().map(historyMapper::toShowDto).toList(), Instant.now(), true, canEdit, true, assets, canScan, canReadAssets,
+                labors.stream().map(MobileOfflineLabor::from).toList(), timePermissions, workOrder.getTimerStatusRevision());
         verifyEncodedSize(snapshot);
         return snapshot;
     }
@@ -71,8 +80,9 @@ public class MobileOfflineSnapshotService {
         long comments = count("select count(c) from Comment c where c.workOrder.id = :id", id);
         long history = count("select count(h) from WorkOrderHistory h where h.workOrder.id = :id", id);
         if (tasks > limits.tasks() || comments > limits.comments() || history > limits.history()) throw tooLarge();
-        long total = 1 + 2 * tasks + comments + history; // Task + task definition both occupy snapshot items.
+        long total = 1 + 2 * tasks + comments + history + 2 * count("select count(l) from Labor l where l.workOrder.id = :id", id);
         String[] nestedCollections = {
+                "select count(l.timeCategory) from Labor l where l.workOrder.id = :id",
                 "select count(u) from WorkOrder w join w.assignedTo u where w.id = :id",
                 "select count(u) from WorkOrder w join w.team.users u where w.id = :id",
                 "select count(c) from WorkOrder w join w.customers c where w.id = :id",

@@ -1,4 +1,35 @@
 const deJSON = {
+  offline_time_stopped: 'Timer gestoppt',
+  labor_review_current: 'Aktuelle Zeit prüfen',
+  labor_review_confirm: 'Meine Eingabe für diese Version behalten',
+  labor_changed_review:
+    'Dieser Zeiteintrag wurde geändert. Prüfen Sie die Serverversion vor dem erneuten Speichern.',
+  labor_server_duration: 'Aktuelle Dauer auf dem Server',
+  offline_time_start: 'Starten',
+  offline_time_stop: 'Stoppen und speichern',
+  offline_time_running_local: 'Läuft auf diesem Gerät',
+  offline_time_start_pending: 'Start wartet auf Bestätigung',
+  offline_time_running_server: 'Läuft — vom Server bestätigt',
+  offline_time_stop_pending: 'Stopp gespeichert — wartet auf Übertragung',
+  offline_time_save: 'Zeit speichern',
+  offline_time_personal: 'Meine Zeit',
+  offline_time_connected_form: 'Vollständiges Onlineformular',
+  offline_time_periods: 'Zeiträume auf diesem Gerät',
+  offline_time_server_total: 'Serversumme',
+  offline_time_review: 'Zeitraum prüfen',
+  offline_time_preserve_status: 'Speichern und aktuellen Status beibehalten',
+  offline_time_correct_connected: 'Summe online korrigieren',
+  offline_time_saved_refresh_pending:
+    'Zeit bestätigt — lokale Aktualisierung ausstehend',
+  offline_time_invalid_range:
+    'Prüfen Sie Beginn und Ende: Die Dauer muss positiv sein und die Zeiten dürfen nicht in der Zukunft liegen.',
+  offline_time_run_changed:
+    'Dieser Timer wurde andernorts gestoppt oder neu gestartet. Ihr Zeitraum bleibt erhalten.',
+  offline_time_status_changed:
+    'Der Status des Arbeitsauftrags wurde geändert. Prüfen Sie ihn vor der Übertragung dieses Zeitraums.',
+  offline_time_not_allowed:
+    'Diese Zeitaktion ist mit den aktuellen Berechtigungen, der Lizenz oder dem Abonnement nicht erlaubt.',
+
   offline_refresh_copy: 'Kopie aktualisieren',
   offline_remove_server_attachment: 'Aus Arbeitsauftrag entfernen',
   offline_clear_server_image: 'Hauptbild entfernen',

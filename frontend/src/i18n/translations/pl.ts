@@ -1,4 +1,10 @@
 const plJSON = {
+  labor_review_current: 'Sprawdź aktualny czas',
+  labor_review_confirm: 'Zachowaj mój wpis dla tej wersji',
+  labor_changed_review:
+    'Ten wpis czasu został zmieniony. Przed ponownym zapisem sprawdź wersję na serwerze.',
+  labor_server_duration: 'Aktualny czas trwania na serwerze',
+
   task_save_review: "Wprowadzone dane zostały zachowane. Zapisywanie jest wstrzymane; porównaj dane z wersją na serwerze przed wysłaniem wyświetlanych zmian.",
   task_server_value: "Aktualna wartość na serwerze",
   task_review_submit: "Sprawdź i wyślij wyświetlane zmiany",

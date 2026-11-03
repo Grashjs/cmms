@@ -1,4 +1,34 @@
 const locale = {
+  offline_time_stopped: 'Timer stopped',
+  labor_review_current: 'Review current time',
+  labor_review_confirm: 'Keep my input on this version',
+  labor_changed_review:
+    'This time entry changed. Review the server version before saving again.',
+  labor_server_duration: 'Current server duration',
+  offline_time_start: 'Start',
+  offline_time_stop: 'Stop and save',
+  offline_time_running_local: 'Running on this device',
+  offline_time_start_pending: 'Start awaiting confirmation',
+  offline_time_running_server: 'Running — confirmed by the server',
+  offline_time_stop_pending: 'Stop saved — waiting to send',
+  offline_time_save: 'Save time',
+  offline_time_personal: 'My time',
+  offline_time_connected_form: 'Full online form',
+  offline_time_periods: 'Periods on this device',
+  offline_time_server_total: 'Server total',
+  offline_time_review: 'Review period',
+  offline_time_preserve_status: 'Save and keep the current status',
+  offline_time_correct_connected: 'Correct total online',
+  offline_time_saved_refresh_pending: 'Time confirmed — local refresh pending',
+  offline_time_invalid_range:
+    'Check the start and end: the duration must be positive and the times must not be in the future.',
+  offline_time_run_changed:
+    'This timer was stopped or restarted elsewhere. Your period is preserved.',
+  offline_time_status_changed:
+    'The work order status changed. Review it before sending this period.',
+  offline_time_not_allowed:
+    'This time action is not allowed with the current permissions, license or subscription.',
+
   offline_refresh_copy: 'Refresh copy',
   offline_remove_server_attachment: 'Remove from work order',
   offline_clear_server_image: 'Clear main image',

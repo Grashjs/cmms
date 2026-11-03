@@ -85,6 +85,8 @@ import { TriggersConfig } from 'react-native-controlled-mentions/dist/types/type
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useOffline } from '../../offline/OfflineProvider';
+import { useOfflineTime } from '../../offline/useOfflineTime';
+import { OfflineTimePanel } from '../../offline/components/OfflineTimePanel';
 import { useOfflineWorkOrder, usePendingWork } from '../../offline/hooks';
 import {
   OfflineStatus,
@@ -190,12 +192,17 @@ export default function WODetailsScreen({
   const { timesByWorkOrder, loadingLabors } = useSelector(
     (state) => state.labors
   );
-  const labors = timesByWorkOrder[id] ?? [];
+  const offlineTime = useOfflineTime(id, isPrepared);
+  const labors = isPrepared
+    ? offlineTime.view?.labors ?? []
+    : timesByWorkOrder[id] ?? [];
   const primaryTime = labors.find(
-    (labor) => labor.logged && labor.assignedTo.id === user.id
+    (labor) => labor.logged && labor.assignedTo?.id === user.id
   );
   const additionalCosts = costsByWorkOrder[id] ?? [];
-  const runningTimer = primaryTime?.status === 'RUNNING';
+  const runningTimer = isPrepared
+    ? offlineTime.running
+    : primaryTime?.status === 'RUNNING';
   const [controllingTime, setControllingTime] = useState<boolean>(false);
   const { getFormattedDate, getUserNameById, getFormattedCurrency } =
     useContext(CompanySettingsContext);
@@ -341,7 +348,7 @@ export default function WODetailsScreen({
       dispatch(getWorkOrderDetails(id)).catch(offline.reportError);
     if (!generalPreferences.simplifiedWorkOrder) {
       dispatch(getPartQuantitiesByWorkOrder(id));
-      dispatch(getLabors(id));
+      if (!isPrepared) dispatch(getLabors(id));
       dispatch(getAdditionalCosts(id));
       dispatch(getRelations(id));
     }
@@ -415,7 +422,7 @@ export default function WODetailsScreen({
     let intervalId;
 
     // Function to update timer duration every minute
-    if (primaryTime?.status === 'RUNNING') {
+    if (!isPrepared && primaryTime?.status === 'RUNNING') {
       const updateTimerDuration = () => {
         // Calculate new duration here
         const newDuration = getRunningTimerDuration(primaryTime);
@@ -430,7 +437,7 @@ export default function WODetailsScreen({
       if (intervalId) clearInterval(intervalId);
       setRunningTimerDuration('0:00');
     };
-  }, [primaryTime, runningTimer]); // Run effect whenever runningTimer changes
+  }, [primaryTime, runningTimer, isPrepared]); // Run effect whenever runningTimer changes
 
   const actualDownload = async (uri: string): Promise<void> => {
     const rawFileName = workOrder?.title ?? `work-order-${id}`;
@@ -1299,14 +1306,28 @@ export default function WODetailsScreen({
                           )}
                         </View>
                       )}
-                    {connectedAvailable && (
+                    {isPrepared && offlineTime.view && (
+                      <OfflineTimePanel
+                        key={`${offline.repository?.contextKey}:${id}`}
+                        workOrderId={id}
+                        view={offlineTime.view}
+                        navigation={navigation}
+                        statusKey={offlineTime.statusKey}
+                      />
+                    )}
+                    {(connectedAvailable || isPrepared) && (
                       <AdditionalTimesCard
                         labors={labors}
                         workOrder={workOrder}
                         navigation={navigation}
+                        connectedAvailable={connectedAvailable}
+                        prepared={isPrepared}
+                        canCreatePersonal={
+                          !!offlineTime.view?.permissions.createManualTime
+                        }
                       />
                     )}
-                    {!connectedAvailable && (
+                    {!connectedAvailable && !isPrepared && (
                       <Text>{t('offline_connected_required')}</Text>
                     )}
                     <View style={styles.shadowedCard}>
@@ -1610,17 +1631,43 @@ export default function WODetailsScreen({
               <FAB
                 icon={runningTimer ? 'stop' : 'play'}
                 label={
-                  runningTimer
+                  isPrepared
+                    ? `${t(
+                        runningTimer
+                          ? 'offline_time_stop'
+                          : 'offline_time_start'
+                      )} · ${durationToHours(
+                        runningTimer
+                          ? offlineTime.elapsedSeconds
+                          : primaryTime?.duration
+                      )}`
+                    : runningTimer
                     ? runningTimerDuration
                     : durationToHours(primaryTime?.duration)
                 }
-                disabled={controllingTime}
+                disabled={
+                  isPrepared
+                    ? offlineTime.busy ||
+                      !offlineTime.view?.available ||
+                      !!offlineTime.view?.activePeriod?.endedAt ||
+                      !(runningTimer
+                        ? offlineTime.view?.activePeriod ||
+                          offlineTime.view?.permissions.stopTimer
+                        : primaryTime || offlineTime.resumeWithoutSnapshot
+                        ? offlineTime.view?.permissions.resumeTimer
+                        : offlineTime.view?.permissions.createTimer)
+                    : controllingTime
+                }
                 theme={theme}
                 variant={runningTimer ? 'primary' : 'secondary'}
                 color="white"
                 onPress={() => {
+                  if (isPrepared) {
+                    void offlineTime.control();
+                    return;
+                  }
                   setControllingTime(true);
-                  dispatch(controlTimer(!runningTimer, id))
+                  dispatch(controlTimer(!runningTimer, id, primaryTime))
                     .catch((err) => showSnackBar(getErrorMessage(err), 'error'))
                     .finally(() => setControllingTime(false));
                 }}

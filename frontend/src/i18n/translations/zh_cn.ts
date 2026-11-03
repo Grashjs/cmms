@@ -1,4 +1,9 @@
 const locale = {
+  labor_review_current: '查看当前工时',
+  labor_review_confirm: '保留我的输入并使用此版本',
+  labor_changed_review: '此工时记录已更改。再次保存前请查看服务器版本。',
+  labor_server_duration: '服务器上的当前时长',
+
   task_save_review: "您输入的内容已保留。保存已暂停；请先与服务器数据进行比较，再提交显示的更改。",
   task_server_value: "服务器上的当前值",
   task_review_submit: "检查并提交显示的更改",

@@ -1,4 +1,10 @@
 const deJSON = {
+  labor_review_current: 'Aktuelle Zeit prüfen',
+  labor_review_confirm: 'Meine Eingabe für diese Version behalten',
+  labor_changed_review:
+    'Dieser Zeiteintrag wurde geändert. Prüfen Sie die Serverversion vor dem erneuten Speichern.',
+  labor_server_duration: 'Aktuelle Dauer auf dem Server',
+
   task_save_review: "Ihre Eingaben bleiben erhalten. Das Speichern ist angehalten. Vergleichen Sie Ihre Eingaben mit den Serverdaten, bevor Sie die angezeigten Änderungen senden.",
   task_server_value: "Aktueller Wert auf dem Server",
   task_review_submit: "Angezeigte Änderungen prüfen und senden",

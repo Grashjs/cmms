@@ -1,4 +1,35 @@
 const locale = {
+  offline_time_stopped: 'Tajmer zaustavljen',
+  labor_review_current: 'Pregledaj trenutno vrijeme',
+  labor_review_confirm: 'Zadrži moj unos za ovu verziju',
+  labor_changed_review:
+    'Ovaj unos vremena je promijenjen. Pregledajte verziju na serveru prije ponovnog čuvanja.',
+  labor_server_duration: 'Trenutno trajanje na serveru',
+  offline_time_start: 'Pokreni',
+  offline_time_stop: 'Zaustavi i sačuvaj',
+  offline_time_running_local: 'U toku na ovom uređaju',
+  offline_time_start_pending: 'Pokretanje čeka potvrdu',
+  offline_time_running_server: 'U toku — server je potvrdio',
+  offline_time_stop_pending: 'Zaustavljanje sačuvano — čeka slanje',
+  offline_time_save: 'Sačuvaj vrijeme',
+  offline_time_personal: 'Moje vrijeme',
+  offline_time_connected_form: 'Potpuni obrazac na mreži',
+  offline_time_periods: 'Periodi na ovom uređaju',
+  offline_time_server_total: 'Ukupno na serveru',
+  offline_time_review: 'Pregledaj period',
+  offline_time_preserve_status: 'Sačuvaj i zadrži trenutni status',
+  offline_time_correct_connected: 'Ispravi ukupan iznos na mreži',
+  offline_time_saved_refresh_pending:
+    'Vrijeme potvrđeno — lokalno osvježavanje na čekanju',
+  offline_time_invalid_range:
+    'Provjerite početak i kraj: trajanje mora biti pozitivno, a vremena ne smiju biti u budućnosti.',
+  offline_time_run_changed:
+    'Ovaj mjerač vremena je zaustavljen ili ponovo pokrenut drugdje. Vaš period je sačuvan.',
+  offline_time_status_changed:
+    'Status radnog naloga je promijenjen. Pregledajte ga prije slanja ovog perioda.',
+  offline_time_not_allowed:
+    'Trenutne dozvole, licenca ili pretplata ne dopuštaju ovu radnju s vremenom.',
+
   offline_refresh_copy: 'Osvježi kopiju',
   offline_remove_server_attachment: 'Ukloni iz radnog naloga',
   offline_clear_server_image: 'Ukloni glavnu sliku',

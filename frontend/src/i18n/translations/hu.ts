@@ -1,4 +1,10 @@
 const locale = {
+  labor_review_current: 'Jelenlegi idő ellenőrzése',
+  labor_review_confirm: 'Bevitelem megtartása ehhez a verzióhoz',
+  labor_changed_review:
+    'Ez az időbejegyzés megváltozott. Újabb mentés előtt ellenőrizze a szerver verzióját.',
+  labor_server_duration: 'Jelenlegi időtartam a szerveren',
+
   task_save_review: "A beírt adatok megmaradnak. A mentés szünetel; a megjelenített módosítások elküldése előtt hasonlítsa össze őket a szerver adataival.",
   task_server_value: "A szerveren tárolt jelenlegi érték",
   task_review_submit: "A megjelenített módosítások ellenőrzése és elküldése",

@@ -1,4 +1,10 @@
 const locale = {
+  labor_review_current: 'Huidige tijd bekijken',
+  labor_review_confirm: 'Mijn invoer voor deze versie behouden',
+  labor_changed_review:
+    'Deze tijdregistratie is gewijzigd. Bekijk de serverversie voordat u opnieuw opslaat.',
+  labor_server_duration: 'Huidige duur op de server',
+
   task_save_review: "Uw invoer blijft behouden. Het opslaan is gepauzeerd; vergelijk uw invoer met de servergegevens voordat u de getoonde wijzigingen verstuurt.",
   task_server_value: "Huidige waarde op de server",
   task_review_submit: "Getoonde wijzigingen controleren en versturen",

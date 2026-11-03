@@ -1,4 +1,10 @@
 const locale = {
+  labor_review_current: 'Pregledaj trenutno vrijeme',
+  labor_review_confirm: 'Zadrži moj unos za ovu verziju',
+  labor_changed_review:
+    'Ovaj unos vremena je promijenjen. Pregledajte verziju na serveru prije ponovnog čuvanja.',
+  labor_server_duration: 'Trenutno trajanje na serveru',
+
   task_save_review: "Vaš unos je sačuvan. Spremanje je pauzirano; uporedite unos s podacima na serveru prije slanja prikazanih izmjena.",
   task_server_value: "Trenutna vrijednost na serveru",
   task_review_submit: "Pregledaj i pošalji prikazane izmjene",

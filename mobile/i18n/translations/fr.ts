@@ -1,4 +1,35 @@
 const frJSON = {
+  offline_time_stopped: 'Chronomètre arrêté',
+  labor_review_current: 'Examiner le temps actuel',
+  labor_review_confirm: 'Conserver ma saisie sur cette version',
+  labor_changed_review:
+    'Ce temps a changé. Examinez la version serveur avant une nouvelle sauvegarde.',
+  labor_server_duration: 'Durée actuelle sur le serveur',
+  offline_time_start: 'Démarrer',
+  offline_time_stop: 'Arrêter et enregistrer',
+  offline_time_running_local: 'En cours sur cet appareil',
+  offline_time_start_pending: 'Démarrage à confirmer',
+  offline_time_running_server: 'En cours — confirmé par le serveur',
+  offline_time_stop_pending: 'Arrêt enregistré — en attente d’envoi',
+  offline_time_save: 'Enregistrer le temps',
+  offline_time_personal: 'Mon temps',
+  offline_time_connected_form: 'Saisie complète en ligne',
+  offline_time_periods: 'Périodes sur cet appareil',
+  offline_time_server_total: 'Cumul serveur',
+  offline_time_review: 'Examiner la période',
+  offline_time_preserve_status: 'Enregistrer en conservant le statut actuel',
+  offline_time_correct_connected: 'Corriger le cumul en ligne',
+  offline_time_saved_refresh_pending:
+    'Temps confirmé — actualisation locale en attente',
+  offline_time_invalid_range:
+    'Vérifiez le début et la fin : la durée doit être positive et les horaires ne doivent pas être dans le futur.',
+  offline_time_run_changed:
+    'Ce chronomètre a été arrêté ou relancé ailleurs. Votre période est conservée.',
+  offline_time_status_changed:
+    'Le statut de l’intervention a changé. Examinez-le avant de transmettre cette période.',
+  offline_time_not_allowed:
+    'Cette action sur le temps n’est pas autorisée avec les droits, la licence ou l’abonnement actuels.',
+
   offline_refresh_copy: 'Actualiser la copie',
   offline_remove_server_attachment: 'Retirer de l’intervention',
   offline_clear_server_image: 'Effacer l’image principale',

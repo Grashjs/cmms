@@ -87,6 +87,12 @@ public class WorkOrder extends WorkOrderBase {
     @NotAudited
     private Date firstTimeToReact;
 
+    /** Explicit status decisions only; labor writes must not advance this guard. */
+    @NotAudited
+    @JsonIgnore
+    @Column(nullable = false)
+    private long timerStatusRevision;
+
     @NotAudited
     @OneToMany(mappedBy = "workOrder", cascade = CascadeType.ALL, orphanRemoval = true)
     @ArraySchema(schema = @Schema(implementation = IdDTO.class))

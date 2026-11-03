@@ -1,4 +1,35 @@
 const locale = {
+  offline_time_stopped: 'Timer arrestato',
+  labor_review_current: 'Esamina il tempo attuale',
+  labor_review_confirm: 'Mantieni il mio inserimento su questa versione',
+  labor_changed_review:
+    'Questa registrazione del tempo è cambiata. Esamina la versione del server prima di salvare di nuovo.',
+  labor_server_duration: 'Durata attuale sul server',
+  offline_time_start: 'Avvia',
+  offline_time_stop: 'Arresta e salva',
+  offline_time_running_local: 'In corso su questo dispositivo',
+  offline_time_start_pending: 'Avvio in attesa di conferma',
+  offline_time_running_server: 'In corso — confermato dal server',
+  offline_time_stop_pending: 'Arresto salvato — in attesa di invio',
+  offline_time_save: 'Salva il tempo',
+  offline_time_personal: 'Il mio tempo',
+  offline_time_connected_form: 'Modulo completo online',
+  offline_time_periods: 'Periodi su questo dispositivo',
+  offline_time_server_total: 'Totale sul server',
+  offline_time_review: 'Esamina il periodo',
+  offline_time_preserve_status: 'Salva mantenendo lo stato attuale',
+  offline_time_correct_connected: 'Correggi il totale online',
+  offline_time_saved_refresh_pending:
+    'Tempo confermato — aggiornamento locale in attesa',
+  offline_time_invalid_range:
+    'Controlla inizio e fine: la durata deve essere positiva e gli orari non devono essere nel futuro.',
+  offline_time_run_changed:
+    'Questo cronometro è stato arrestato o riavviato altrove. Il tuo periodo è conservato.',
+  offline_time_status_changed:
+    'Lo stato dell’ordine di lavoro è cambiato. Esaminalo prima di inviare questo periodo.',
+  offline_time_not_allowed:
+    'Le autorizzazioni, la licenza o l’abbonamento attuali non consentono questa azione sul tempo.',
+
   offline_refresh_copy: 'Aggiorna la copia',
   offline_remove_server_attachment: 'Rimuovi dall’ordine di lavoro',
   offline_clear_server_image: 'Rimuovi l’immagine principale',

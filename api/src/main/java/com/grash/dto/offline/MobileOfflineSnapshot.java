@@ -10,7 +10,16 @@ import java.util.List;
 public record MobileOfflineSnapshot(WorkOrderShowDTO workOrder, List<TaskShowDTO> tasks,
                                     List<CommentShowDTO> comments, List<WorkOrderHistoryShowDTO> history,
                                     Instant preparedAt, boolean complete, boolean canEdit, boolean canComment,
-                                    List<MobileOfflineAsset> assets, boolean canScan, boolean canReadAssets) {
+                                    List<MobileOfflineAsset> assets, boolean canScan, boolean canReadAssets,
+                                    List<MobileOfflineLabor> labors, MobileOfflineTimePermissions timePermissions,
+                                    long timerStatusRevision) {
+    public MobileOfflineSnapshot(WorkOrderShowDTO workOrder, List<TaskShowDTO> tasks, List<CommentShowDTO> comments,
+                                 List<WorkOrderHistoryShowDTO> history, Instant preparedAt, boolean complete,
+                                 boolean canEdit, boolean canComment, List<MobileOfflineAsset> assets, boolean canScan,
+                                 boolean canReadAssets) {
+        this(workOrder, tasks, comments, history, preparedAt, complete, canEdit, canComment, assets, canScan,
+                canReadAssets, List.of(), new MobileOfflineTimePermissions(false, false, false, false), 0);
+    }
     public MobileOfflineSnapshot(WorkOrderShowDTO workOrder, List<TaskShowDTO> tasks, List<CommentShowDTO> comments,
                                  List<WorkOrderHistoryShowDTO> history, Instant preparedAt, boolean complete,
                                  boolean canEdit, boolean canComment, List<MobileOfflineAsset> assets, boolean canScan) {

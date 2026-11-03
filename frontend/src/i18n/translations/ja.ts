@@ -1,4 +1,10 @@
 const locale = {
+  labor_review_current: '現在の時間を確認',
+  labor_review_confirm: 'このバージョンに自分の入力を保持',
+  labor_changed_review:
+    'この時間記録は変更されています。再保存する前にサーバーのバージョンを確認してください。',
+  labor_server_duration: 'サーバー上の現在の時間',
+
   task_save_review: "入力内容は保持されています。保存を一時停止しています。表示されている変更を送信する前に、サーバーの内容と比較してください。",
   task_server_value: "サーバー上の現在の値",
   task_review_submit: "表示されている変更を確認して送信",

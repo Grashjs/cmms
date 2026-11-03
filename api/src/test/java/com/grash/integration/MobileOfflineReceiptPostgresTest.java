@@ -35,6 +35,10 @@ class MobileOfflineReceiptPostgresTest {
         new JdbcTemplate(datasource).execute("create table file_transfer_fixture (id bigint primary key, path text not null)");
         new JdbcTemplate(datasource).execute("create table task (id bigint primary key, value varchar(255), notes text)");
         new JdbcTemplate(datasource).execute("create table comment (id bigint primary key, company_id bigint not null, user_id bigint not null, content text not null)");
+        new JdbcTemplate(datasource).execute("create table work_order (id bigint primary key)");
+        new JdbcTemplate(datasource).execute("create table labor (id bigint primary key, duration bigint not null, status integer not null, started_at timestamp with time zone not null)");
+        new JdbcTemplate(datasource).execute("insert into work_order(id) values (10)");
+        new JdbcTemplate(datasource).execute("insert into labor(id,duration,status,started_at) values (1000,1800,1,'2026-11-01 10:00:00+00')");
         try (var connection = datasource.getConnection();
              var liquibase = new Liquibase("db/changelog/2026_11_03_00000000001_mobile_offline_foundation.xml",
                      new ClassLoaderResourceAccessor(), new JdbcConnection(connection))) {
@@ -42,6 +46,11 @@ class MobileOfflineReceiptPostgresTest {
         }
         try (var connection = datasource.getConnection();
              var liquibase = new Liquibase("db/changelog/2026_11_04_00000000001_mobile_offline_comments.xml",
+                     new ClassLoaderResourceAccessor(), new JdbcConnection(connection))) {
+            liquibase.update("");
+        }
+        try (var connection = datasource.getConnection();
+             var liquibase = new Liquibase("db/changelog/2026_11_05_00000000001_mobile_offline_time.xml",
                      new ClassLoaderResourceAccessor(), new JdbcConnection(connection))) {
             liquibase.update("");
         }
@@ -57,6 +66,8 @@ class MobileOfflineReceiptPostgresTest {
         jdbc.update("delete from file_transfer_fixture");
         jdbc.update("delete from comment");
         jdbc.update("insert into task(id,value,notes) values (7,'A','notes')");
+        jdbc.update("delete from labor where id<>1000");
+        jdbc.update("insert into labor(id,duration,status,started_at) values (100,1800,0,'2026-11-01 08:00:00+00')");
     }
 
     @Test void responseLostThenNewConnectionAndReplayDoNotApplyAgain() {
@@ -216,5 +227,72 @@ class MobileOfflineReceiptPostgresTest {
             assertTrue(first.get(10, TimeUnit.SECONDS)); assertFalse(second.get(10, TimeUnit.SECONDS));
             assertEquals(25, repository.preparedIds(52, 34, device).size());
         } finally { releaseFirst.countDown(); pool.shutdownNow(); }
+    }
+
+    @Test void timeMigrationIdentifiesLegacyRunningTimerWithoutChangingItsBusinessData() {
+        assertNotNull(jdbc.queryForObject("select timer_run_id from labor where id=1000", UUID.class));
+        assertEquals(0L, jdbc.queryForObject("select version from labor where id=1000", Long.class));
+        assertEquals(1800L, jdbc.queryForObject("select duration from labor where id=1000", Long.class));
+        assertEquals(1, jdbc.queryForObject("select status from labor where id=1000", Integer.class));
+        assertEquals(Instant.parse("2026-11-01T10:00:00Z"), jdbc.queryForObject(
+                "select started_at from labor where id=1000", java.sql.Timestamp.class).toInstant());
+        assertEquals(0L, jdbc.queryForObject("select timer_status_revision from work_order where id=10", Long.class));
+        assertNull(jdbc.queryForObject("select timer_run_id from labor where id=100", UUID.class));
+    }
+
+    private void applyClosedTime(UUID start, UUID stop) {
+        assertTrue(repository.reserveOperation(52, 34, start, 10, "immutable-start", Instant.now()));
+        assertTrue(repository.reserveOperation(52, 34, stop, 10, "immutable-stop", Instant.now()));
+        jdbc.queryForObject("select duration from labor where id=100 for update", Long.class);
+        jdbc.update("update labor set duration=duration+1800,version=version+1 where id=100");
+        repository.finishOperation(52, 34, start, "{\"status\":\"APPLIED\",\"code\":\"TIMER_START_FINALIZED\"}");
+        repository.finishOperation(52, 34, stop, "{\"status\":\"APPLIED\",\"code\":\"TIMER_PERIOD_RECORDED\"}");
+    }
+
+    @Test void closedTimeAndBothReceiptsRollbackTogetherThenReplayWithoutAnotherIncrement() {
+        UUID start = UUID.randomUUID(), stop = UUID.randomUUID();
+        assertThrows(IllegalStateException.class, () -> transaction.executeWithoutResult(status -> {
+            applyClosedTime(start, stop);
+            throw new IllegalStateException("crash before pair commit");
+        }));
+        assertTrue(repository.receipt(52, 34, start).isEmpty());
+        assertTrue(repository.receipt(52, 34, stop).isEmpty());
+        assertEquals(1800L, jdbc.queryForObject("select duration from labor where id=100", Long.class));
+        transaction.executeWithoutResult(status -> applyClosedTime(start, stop));
+        var reopened = new MobileOfflineRepository(new JdbcTemplate(new DriverManagerDataSource(
+                postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword())));
+        transaction.executeWithoutResult(status -> {
+            assertFalse(reopened.reserveOperation(52, 34, start, 10, "immutable-start", Instant.now()));
+            assertFalse(reopened.reserveOperation(52, 34, stop, 10, "immutable-stop", Instant.now()));
+        });
+        assertEquals(3600L, jdbc.queryForObject("select duration from labor where id=100", Long.class));
+        assertEquals(0, jdbc.queryForObject("select status from labor where id=100", Integer.class));
+        assertNotNull(reopened.receipt(52, 34, start).orElseThrow().resultJson());
+        assertNotNull(reopened.receipt(52, 34, stop).orElseThrow().resultJson());
+    }
+
+    @Test void delayedStartWaitsForTheFinalizationAndCannotActivateAfterItsReceipt() throws Exception {
+        UUID start = UUID.randomUUID(), stop = UUID.randomUUID();
+        CountDownLatch reserved = new CountDownLatch(1), release = new CountDownLatch(1);
+        ExecutorService pool = Executors.newFixedThreadPool(2);
+        try {
+            Future<?> finalization = pool.submit(() -> transaction.executeWithoutResult(status -> {
+                applyClosedTime(start, stop);
+                reserved.countDown();
+                try { assertTrue(release.await(10, TimeUnit.SECONDS)); }
+                catch (InterruptedException e) { Thread.currentThread().interrupt(); throw new IllegalStateException(e); }
+            }));
+            assertTrue(reserved.await(10, TimeUnit.SECONDS));
+            Future<Boolean> delayedStart = pool.submit(() -> transaction.execute(status -> {
+                boolean first = repository.reserveOperation(52, 34, start, 10, "immutable-start", Instant.now());
+                if (first) jdbc.update("update labor set status=1 where id=100");
+                return first;
+            }));
+            assertThrows(TimeoutException.class, () -> delayedStart.get(100, TimeUnit.MILLISECONDS));
+            release.countDown(); finalization.get(10, TimeUnit.SECONDS);
+            assertFalse(delayedStart.get(10, TimeUnit.SECONDS));
+            assertEquals(0, jdbc.queryForObject("select status from labor where id=100", Integer.class));
+            assertEquals(3600L, jdbc.queryForObject("select duration from labor where id=100", Long.class));
+        } finally { release.countDown(); pool.shutdownNow(); }
     }
 }

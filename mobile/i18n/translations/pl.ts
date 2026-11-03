@@ -1,4 +1,35 @@
 const plJSON = {
+  offline_time_stopped: 'Stoper zatrzymany',
+  labor_review_current: 'Sprawdź aktualny czas',
+  labor_review_confirm: 'Zachowaj mój wpis dla tej wersji',
+  labor_changed_review:
+    'Ten wpis czasu został zmieniony. Przed ponownym zapisem sprawdź wersję na serwerze.',
+  labor_server_duration: 'Aktualny czas trwania na serwerze',
+  offline_time_start: 'Rozpocznij',
+  offline_time_stop: 'Zatrzymaj i zapisz',
+  offline_time_running_local: 'W toku na tym urządzeniu',
+  offline_time_start_pending: 'Rozpoczęcie oczekuje na potwierdzenie',
+  offline_time_running_server: 'W toku — potwierdzone przez serwer',
+  offline_time_stop_pending: 'Zatrzymanie zapisane — oczekuje na wysłanie',
+  offline_time_save: 'Zapisz czas',
+  offline_time_personal: 'Mój czas',
+  offline_time_connected_form: 'Pełny formularz online',
+  offline_time_periods: 'Okresy na tym urządzeniu',
+  offline_time_server_total: 'Suma na serwerze',
+  offline_time_review: 'Sprawdź okres',
+  offline_time_preserve_status: 'Zapisz, zachowując aktualny status',
+  offline_time_correct_connected: 'Popraw sumę online',
+  offline_time_saved_refresh_pending:
+    'Czas potwierdzony — oczekuje na aktualizację lokalną',
+  offline_time_invalid_range:
+    'Sprawdź początek i koniec: czas trwania musi być dodatni, a daty nie mogą przypadać w przyszłości.',
+  offline_time_run_changed:
+    'Ten stoper został zatrzymany lub uruchomiony ponownie w innym miejscu. Twój okres został zachowany.',
+  offline_time_status_changed:
+    'Status zlecenia pracy został zmieniony. Sprawdź go przed wysłaniem tego okresu.',
+  offline_time_not_allowed:
+    'Aktualne uprawnienia, licencja lub subskrypcja nie pozwalają na tę operację czasu.',
+
   offline_refresh_copy: 'Odśwież kopię',
   offline_remove_server_attachment: 'Usuń ze zlecenia pracy',
   offline_clear_server_image: 'Usuń obraz główny',

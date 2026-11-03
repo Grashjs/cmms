@@ -54,7 +54,7 @@ class MobileOfflineFileServiceTest {
                 tasks, taskService, ledger, json, em);
         offline = new MobileOfflineService(properties, ledger, mock(MobileOfflineSnapshotService.class), access,
                 tasks, taskService, mock(TaskMapper.class), json, mock(CommentService.class), mock(CommentRepository.class),
-                files, mock(WorkOrderService.class), mock(ApplicationEventPublisher.class));
+                files, mock(WorkOrderService.class), mock(ApplicationEventPublisher.class), mock(LaborService.class), mock(LaborRepository.class));
         receipts = new HashMap<>();
         lenient().when(properties.isEligible(user)).thenReturn(true);
         lenient().when(access.existsInCompany(10, user)).thenReturn(true);

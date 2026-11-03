@@ -1,4 +1,10 @@
 const frJSON = {
+  labor_review_current: 'Examiner le temps actuel',
+  labor_review_confirm: 'Conserver ma saisie sur cette version',
+  labor_changed_review:
+    'Ce temps a changé. Examinez la version serveur avant une nouvelle sauvegarde.',
+  labor_server_duration: 'Durée actuelle sur le serveur',
+
   task_save_review: 'Votre saisie est conservée. Enregistrement suspendu : comparez-la au serveur avant d’envoyer les modifications affichées.',
   task_server_value: 'Valeur actuelle sur le serveur',
   task_review_submit: 'Vérifier et envoyer les modifications affichées',

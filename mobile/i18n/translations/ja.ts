@@ -1,4 +1,34 @@
 const locale = {
+  offline_time_stopped: 'タイマー停止',
+  labor_review_current: '現在の時間を確認',
+  labor_review_confirm: 'このバージョンに自分の入力を保持',
+  labor_changed_review:
+    'この時間記録は変更されています。再保存する前にサーバーのバージョンを確認してください。',
+  labor_server_duration: 'サーバー上の現在の時間',
+  offline_time_start: '開始',
+  offline_time_stop: '停止して保存',
+  offline_time_running_local: 'この端末で計測中',
+  offline_time_start_pending: '開始の確認待ち',
+  offline_time_running_server: '計測中 — サーバー確認済み',
+  offline_time_stop_pending: '停止を保存済み — 送信待ち',
+  offline_time_save: '時間を保存',
+  offline_time_personal: '自分の時間',
+  offline_time_connected_form: 'オンラインの完全なフォーム',
+  offline_time_periods: 'この端末の計測期間',
+  offline_time_server_total: 'サーバーの合計',
+  offline_time_review: '期間を確認',
+  offline_time_preserve_status: '現在のステータスを維持して保存',
+  offline_time_correct_connected: 'オンラインで合計を修正',
+  offline_time_saved_refresh_pending: '時間は確認済み — ローカル更新待ち',
+  offline_time_invalid_range:
+    '開始と終了を確認してください。時間は正の値で、日時は未来でない必要があります。',
+  offline_time_run_changed:
+    'このタイマーは別の場所で停止または再開されました。計測期間は保持されています。',
+  offline_time_status_changed:
+    '作業指示のステータスが変更されました。この期間を送信する前に確認してください。',
+  offline_time_not_allowed:
+    '現在の権限、ライセンスまたは契約では、この時間操作は許可されていません。',
+
   offline_refresh_copy: 'コピーを更新',
   offline_remove_server_attachment: '作業指示から取り外す',
   offline_clear_server_image: 'メイン画像を削除',

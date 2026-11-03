@@ -1,4 +1,35 @@
 const locale = {
+  offline_time_stopped: 'Timer gestopt',
+  labor_review_current: 'Huidige tijd bekijken',
+  labor_review_confirm: 'Mijn invoer voor deze versie behouden',
+  labor_changed_review:
+    'Deze tijdregistratie is gewijzigd. Bekijk de serverversie voordat u opnieuw opslaat.',
+  labor_server_duration: 'Huidige duur op de server',
+  offline_time_start: 'Starten',
+  offline_time_stop: 'Stoppen en opslaan',
+  offline_time_running_local: 'Actief op dit apparaat',
+  offline_time_start_pending: 'Start wacht op bevestiging',
+  offline_time_running_server: 'Actief — bevestigd door de server',
+  offline_time_stop_pending: 'Stop opgeslagen — wacht op verzending',
+  offline_time_save: 'Tijd opslaan',
+  offline_time_personal: 'Mijn tijd',
+  offline_time_connected_form: 'Volledig onlineformulier',
+  offline_time_periods: 'Perioden op dit apparaat',
+  offline_time_server_total: 'Servertotaal',
+  offline_time_review: 'Periode bekijken',
+  offline_time_preserve_status: 'Opslaan en huidige status behouden',
+  offline_time_correct_connected: 'Totaal online corrigeren',
+  offline_time_saved_refresh_pending:
+    'Tijd bevestigd — lokale verversing in afwachting',
+  offline_time_invalid_range:
+    'Controleer begin en einde: de duur moet positief zijn en de tijdstippen mogen niet in de toekomst liggen.',
+  offline_time_run_changed:
+    'Deze timer is elders gestopt of opnieuw gestart. Uw periode blijft bewaard.',
+  offline_time_status_changed:
+    'De status van de werkorder is gewijzigd. Bekijk deze voordat u deze periode verzendt.',
+  offline_time_not_allowed:
+    'De huidige rechten, licentie of het abonnement staan deze tijdactie niet toe.',
+
   offline_refresh_copy: 'Kopie vernieuwen',
   offline_remove_server_attachment: 'Verwijderen uit werkorder',
   offline_clear_server_image: 'Hoofdafbeelding verwijderen',

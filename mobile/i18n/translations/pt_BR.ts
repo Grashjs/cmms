@@ -1,4 +1,35 @@
 const ptBRJSON = {
+  offline_time_stopped: 'Cronômetro parado',
+  labor_review_current: 'Revisar o tempo atual',
+  labor_review_confirm: 'Manter minha entrada nesta versão',
+  labor_changed_review:
+    'Este registro de tempo mudou. Revise a versão do servidor antes de salvar novamente.',
+  labor_server_duration: 'Duração atual no servidor',
+  offline_time_start: 'Iniciar',
+  offline_time_stop: 'Parar e salvar',
+  offline_time_running_local: 'Em andamento neste dispositivo',
+  offline_time_start_pending: 'Início aguardando confirmação',
+  offline_time_running_server: 'Em andamento — confirmado pelo servidor',
+  offline_time_stop_pending: 'Parada salva — aguardando envio',
+  offline_time_save: 'Salvar tempo',
+  offline_time_personal: 'Meu tempo',
+  offline_time_connected_form: 'Formulário completo online',
+  offline_time_periods: 'Períodos neste dispositivo',
+  offline_time_server_total: 'Total no servidor',
+  offline_time_review: 'Revisar período',
+  offline_time_preserve_status: 'Salvar mantendo o status atual',
+  offline_time_correct_connected: 'Corrigir o total online',
+  offline_time_saved_refresh_pending:
+    'Tempo confirmado — atualização local pendente',
+  offline_time_invalid_range:
+    'Verifique o início e o fim: a duração deve ser positiva e os horários não podem estar no futuro.',
+  offline_time_run_changed:
+    'Este cronômetro foi parado ou reiniciado em outro lugar. Seu período foi preservado.',
+  offline_time_status_changed:
+    'O status da ordem de serviço mudou. Revise-o antes de enviar este período.',
+  offline_time_not_allowed:
+    'As permissões, a licença ou a assinatura atuais não permitem esta ação de tempo.',
+
   offline_refresh_copy: 'Atualizar a cópia',
   offline_remove_server_attachment: 'Remover da ordem de serviço',
   offline_clear_server_image: 'Remover imagem principal',

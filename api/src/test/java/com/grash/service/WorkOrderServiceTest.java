@@ -1100,6 +1100,7 @@ class WorkOrderServiceTest {
 
             dto = new WorkOrderChangeStatusDTO();
             dto.setStatus(Status.IN_PROGRESS);
+            lenient().when(workOrderRepository.findForUpdate(1L, company.getId())).thenReturn(Optional.of(wo));
         }
 
         private void stubBasic() {
@@ -1110,6 +1111,21 @@ class WorkOrderServiceTest {
             lenient().when(laborService.findByWorkOrder(1L)).thenReturn(Collections.emptyList());
             lenient().when(licenseService.hasEntitlement(LicenseEntitlement.SIGNATURE_CAPTURE)).thenReturn(true);
             lenient().when(workflowService.findByMainConditionAndCompany(any(), anyLong())).thenReturn(Collections.emptyList());
+        }
+
+        @Test
+        void reaffirmedPauseAdvancesTheExplicitDecisionRevision() {
+            wo.setStatus(Status.ON_HOLD);
+            wo.setTimerStatusRevision(4);
+            dto.setStatus(Status.ON_HOLD);
+            stubBasic();
+
+            workOrderService.changeStatus(dto, 1L, user, "web");
+
+            assertEquals(Status.ON_HOLD, wo.getStatus());
+            assertEquals(5, wo.getTimerStatusRevision());
+            assertNull(wo.getFirstTimeToReact());
+            verify(workOrderRepository).saveAndFlush(argThat(saved -> saved.getTimerStatusRevision() == 5));
         }
 
         @Test
@@ -3295,6 +3311,7 @@ class WorkOrderServiceTest {
             dto.setStatus(Status.COMPLETE);
 
             when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+            when(workOrderRepository.findForUpdate(1L, user.getCompany().getId())).thenReturn(Optional.of(wo));
             when(workOrderRepository.saveAndFlush(any())).thenAnswer(inv -> {
                 WorkOrder saved = inv.getArgument(0);
                 saved.setId(1L);
@@ -3331,6 +3348,7 @@ class WorkOrderServiceTest {
             dto.setStatus(Status.COMPLETE);
 
             when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+            when(workOrderRepository.findForUpdate(1L, user.getCompany().getId())).thenReturn(Optional.of(wo));
             when(workOrderRepository.saveAndFlush(any())).thenAnswer(inv -> {
                 WorkOrder saved = inv.getArgument(0);
                 saved.setId(1L);

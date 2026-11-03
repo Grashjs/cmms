@@ -15,6 +15,7 @@ import { getCredentials } from '../utils/credentialStore';
 import { refreshAccessToken } from '../utils/api';
 import { useDispatch } from '../store';
 import { removePreparedTasks } from '../slices/task';
+import { removePreparedLabors } from '../slices/labor';
 import { removePreparedComments } from '../slices/comment';
 import { removePreparedWorkOrders } from '../slices/workOrder';
 import { setPreparedRuntime } from './runtime';
@@ -42,12 +43,49 @@ import type {
   PreparedWorkOrderSummary,
   TaskDraft,
   TaskField,
-  FileTarget
+  FileTarget,
+  TimerDraft,
+  ManualTimeDraft,
+  ManualTimeInput,
+  LocalOperation,
+  ObservedServerTimer
 } from './types';
 import { OfflineError } from './types';
 import { offlineErrorKey } from './errors';
 
 interface OfflineContextValue {
+  startTimer(workOrderId: number): Promise<TimerDraft>;
+  stopTimer(
+    workOrderId: number,
+    expectedRevision?: number,
+    expectedServerTimer?: ObservedServerTimer
+  ): Promise<LocalOperation>;
+  saveManualTimeDraft(
+    workOrderId: number,
+    input: ManualTimeInput,
+    expectedRevision?: number | null
+  ): Promise<ManualTimeDraft>;
+  submitManualTimeDraft(
+    workOrderId: number,
+    revision: number
+  ): Promise<LocalOperation>;
+  abandonManualTimeDraft(workOrderId: number, revision: number): Promise<void>;
+  reviewTimeOperation(
+    operationId: string,
+    expectedLaborVersion: number | null,
+    preserveStatus?: boolean,
+    expectedTimerStatusRevision?: number
+  ): Promise<TimerDraft | ManualTimeDraft>;
+  saveTimerReview(
+    workOrderId: number,
+    input: { startedAt: string; endedAt: string },
+    revision: number
+  ): Promise<TimerDraft>;
+  submitReviewedTimer(
+    workOrderId: number,
+    revision: number
+  ): Promise<LocalOperation>;
+  abandonTimeDraft(workOrderId: number, revision: number): Promise<void>;
   importFiles(
     workOrderId: number,
     target: FileTarget,
@@ -139,6 +177,29 @@ interface OfflineContextValue {
 }
 const noop = async () => {};
 const OfflineContext = createContext<OfflineContextValue>({
+  startTimer: async () => {
+    throw new OfflineError('OFFLINE_DISABLED');
+  },
+  stopTimer: async () => {
+    throw new OfflineError('OFFLINE_DISABLED');
+  },
+  saveManualTimeDraft: async () => {
+    throw new OfflineError('OFFLINE_DISABLED');
+  },
+  submitManualTimeDraft: async () => {
+    throw new OfflineError('OFFLINE_DISABLED');
+  },
+  abandonManualTimeDraft: noop,
+  reviewTimeOperation: async () => {
+    throw new OfflineError('OFFLINE_DISABLED');
+  },
+  saveTimerReview: async () => {
+    throw new OfflineError('OFFLINE_DISABLED');
+  },
+  submitReviewedTimer: async () => {
+    throw new OfflineError('OFFLINE_DISABLED');
+  },
+  abandonTimeDraft: noop,
   enabled: false,
   initialized: true,
   readable: false,
@@ -430,6 +491,7 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
         const ids = items.map((item) => item.id);
         if (enabled) {
           dispatch(removePreparedTasks(ids));
+          dispatch(removePreparedLabors(ids));
           dispatch(removePreparedWorkOrders(ids));
           dispatch(removePreparedComments(ids));
         }
@@ -466,6 +528,19 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
               throw new OfflineError('NETWORK_UNAVAILABLE');
             const target = await repo.getWorkOrderProjection(workOrderId);
             if (!target?.available) throw new OfflineError('EDIT_FORBIDDEN');
+            return action();
+          }),
+        runConnectedLabor: (workOrderId, action) =>
+          sync.runConnected(async () => {
+            if (
+              !isCurrent() ||
+              !(await checkAccess.current()) ||
+              !network.current
+            )
+              throw new OfflineError('NETWORK_UNAVAILABLE');
+            const target = await repo.getWorkOrderProjection(workOrderId);
+            if (!target?.available || !target.canEdit)
+              throw new OfflineError('EDIT_FORBIDDEN');
             return action();
           }),
         markUnavailable: (id, reason) => repo.markUnavailable(id, reason),
@@ -602,7 +677,66 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
     );
     return writing;
   };
+  const persistTime = <T,>(
+    action: (repo: OfflineRepository) => Promise<T>,
+    submit = false
+  ): Promise<T> =>
+    persist(async () => {
+      if (!repository || !canWrite.current || !(await checkAccess.current()))
+        throw new OfflineError('OFFLINE_DISABLED');
+      const result = await action(repository);
+      if (submit)
+        void coordinator.current?.trigger('submission').catch(reportError);
+      return result;
+    });
+  const saveManualTimeDraft = (
+    workOrderId: number,
+    input: ManualTimeInput,
+    revision?: number | null
+  ) => {
+    const key = `work-order:${workOrderId}:manual-time`;
+    const writing = persistTime((repo) =>
+      repo.saveManualTimeDraft(workOrderId, input, revision)
+    );
+    void writing.then(
+      () => failedWrites.current.delete(key),
+      () => failedWrites.current.add(key)
+    );
+    return writing;
+  };
   const value: OfflineContextValue = {
+    startTimer: (id) => persistTime((repo) => repo.startTimer(id), true),
+    stopTimer: (id, revision, expectedServerTimer) =>
+      persistTime(
+        (repo) => repo.stopTimer(id, revision, expectedServerTimer),
+        true
+      ),
+    saveManualTimeDraft,
+    submitManualTimeDraft: (id, revision) =>
+      persistTime((repo) => {
+        if (failedWrites.current.has(`work-order:${id}:manual-time`))
+          throw new OfflineError('STORAGE_FAILED');
+        return repo.submitManualTimeDraft(id, revision);
+      }, true),
+    abandonManualTimeDraft: (id, revision) =>
+      persist(async () => {
+        if (!repository) throw new OfflineError('OFFLINE_DISABLED');
+        await repository.abandonManualTimeDraft(id, revision);
+        failedWrites.current.delete(`work-order:${id}:manual-time`);
+      }),
+    reviewTimeOperation: (id, version, preserve, statusRevision) =>
+      persistTime((repo) =>
+        repo.reviewTimeOperation(id, version, preserve, statusRevision)
+      ),
+    saveTimerReview: (id, input, revision) =>
+      persistTime((repo) => repo.saveTimerReview(id, input, revision)),
+    submitReviewedTimer: (id, revision) =>
+      persistTime((repo) => repo.submitReviewedTimer(id, revision), true),
+    abandonTimeDraft: (id, revision) =>
+      persist(async () => {
+        if (!repository) throw new OfflineError('OFFLINE_DISABLED');
+        await repository.abandonTimeDraft(id, revision);
+      }),
     enabled,
     initialized,
     readable,

@@ -1,4 +1,10 @@
 const locale = {
+  labor_review_current: 'Granska aktuell tid',
+  labor_review_confirm: 'Behåll min inmatning för den här versionen',
+  labor_changed_review:
+    'Den här tidsposten har ändrats. Granska serverversionen innan du sparar igen.',
+  labor_server_duration: 'Aktuell varaktighet på servern',
+
   task_save_review: "Det du har skrivit finns kvar. Sparandet är pausat; jämför med uppgifterna på servern innan du skickar de visade ändringarna.",
   task_server_value: "Aktuellt värde på servern",
   task_review_submit: "Granska och skicka visade ändringar",

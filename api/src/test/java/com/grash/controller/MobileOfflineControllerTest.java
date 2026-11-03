@@ -127,4 +127,34 @@ class MobileOfflineControllerTest extends AbstractControllerTest {
         verify(offline).downloadFile(10, 123, user);
     }
 
+    @Test void timerStopCarriesItsExactOriginalStartThroughTheExistingContract() throws Exception {
+        UUID startId = UUID.randomUUID(); UUID period = UUID.randomUUID(); UUID stopId = UUID.randomUUID();
+        String start = "{\"operationId\":\"" + startId + "\",\"companyId\":52,\"userId\":34,\"workOrderId\":10,"
+                + "\"type\":\"START_TIMER\",\"occurredAt\":\"2026-11-05T10:00:00Z\",\"time\":{\"periodId\":\"" + period
+                + "\",\"startedAt\":\"2026-11-05T10:00:00Z\",\"timerStatusRevision\":0}}";
+        String stop = "{\"operationId\":\"" + stopId + "\",\"companyId\":52,\"userId\":34,\"workOrderId\":10,"
+                + "\"type\":\"STOP_TIMER\",\"occurredAt\":\"2026-11-05T10:30:00Z\",\"time\":{\"periodId\":\"" + period
+                + "\",\"startedAt\":\"2026-11-05T10:00:00Z\",\"endedAt\":\"2026-11-05T10:30:00Z\",\"startOperation\":" + start + "}}";
+        when(offline.submit(any(), eq(user))).thenReturn(new MobileOfflineResult(stopId, MobileOfflineResult.Status.APPLIED,
+                "TIMER_PERIOD_RECORDED", null, Instant.now()));
+        mvc.perform(post("/mobile-offline/operations").contentType(MediaType.APPLICATION_JSON).content(stop))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.code").value("TIMER_PERIOD_RECORDED"));
+        verify(offline).submit(argThat(op -> op != null && op.type() == MobileOfflineOperation.Type.STOP_TIMER
+                && op.time().startOperation().operationId().equals(startId) && op.time().periodId().equals(period)), eq(user));
+        clearInvocations(offline);
+        mvc.perform(post("/mobile-offline/operations").contentType(MediaType.APPLICATION_JSON)
+                        .content(stop.replace("\"startOperation\":" + start, "\"startOperation\":" + start.replace("\"userId\":34", "\"userId\":35"))))
+                .andExpect(status().isBadRequest());
+        verifyNoInteractions(offline);
+    }
+
+    @Test void manualTimeCannotSubmitAClientCumulativeTargetOrAStartDependency() throws Exception {
+        String common = "{\"operationId\":\"" + UUID.randomUUID() + "\",\"companyId\":52,\"userId\":34,\"workOrderId\":10,"
+                + "\"type\":\"CREATE_MANUAL_TIME\",\"occurredAt\":\"2026-11-05T12:00:00Z\",\"time\":{\"periodId\":\"" + UUID.randomUUID()
+                + "\",\"startedAt\":\"2026-11-05T10:00:00Z\",\"endedAt\":\"2026-11-05T10:30:00Z\",\"laborId\":100}}";
+        mvc.perform(post("/mobile-offline/operations").contentType(MediaType.APPLICATION_JSON).content(common))
+                .andExpect(status().isBadRequest());
+        verifyNoInteractions(offline);
+    }
+
 }

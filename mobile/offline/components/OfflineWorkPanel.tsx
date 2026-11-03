@@ -48,7 +48,9 @@ export function OfflineWorkPanel({ workOrderId }: { workOrderId?: number }) {
                   ? item.value
                   : null) ||
                 t(
-                  item.targetAvailable && item.field === 'comment'
+                  item.targetAvailable && item.field === 'time'
+                    ? 'time'
+                    : item.targetAvailable && item.field === 'comment'
                     ? 'comments'
                     : item.targetAvailable && item.field === 'attachments'
                     ? 'files'
@@ -71,7 +73,9 @@ export function OfflineWorkPanel({ workOrderId }: { workOrderId?: number }) {
                 item.kind === 'DRAFT'
                   ? 'offline_draft_saved'
                   : item.status === 'APPLIED'
-                  ? 'offline_comment_refresh_pending'
+                  ? item.field === 'time'
+                    ? 'offline_time_saved_refresh_pending'
+                    : 'offline_comment_refresh_pending'
                   : item.status === 'SENDING'
                   ? 'offline_sending'
                   : item.status === 'UNKNOWN'
@@ -89,7 +93,8 @@ export function OfflineWorkPanel({ workOrderId }: { workOrderId?: number }) {
               </Text>
             )}
             {item.kind === 'OPERATION' &&
-              item.operationType !== 'UPLOAD_FILE' && (
+              item.operationType !== 'UPLOAD_FILE' &&
+              item.field !== 'time' && (
                 <OfflineFileOperationReview item={item} />
               )}
             {item.canAbandon ? (
@@ -107,7 +112,17 @@ export function OfflineWorkPanel({ workOrderId }: { workOrderId?: number }) {
                         onPress: () =>
                           run(() =>
                             item.kind === 'DRAFT'
-                              ? item.field === 'comment'
+                              ? item.field === 'time'
+                                ? item.id.endsWith(':manual-time')
+                                  ? offline.abandonManualTimeDraft(
+                                      item.workOrderId,
+                                      item.draftRevision
+                                    )
+                                  : offline.abandonTimeDraft(
+                                      item.workOrderId,
+                                      item.draftRevision
+                                    )
+                                : item.field === 'comment'
                                 ? offline.abandonCommentDraft(
                                     item.workOrderId,
                                     item.draftRevision

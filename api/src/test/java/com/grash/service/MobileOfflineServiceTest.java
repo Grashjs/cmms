@@ -36,13 +36,15 @@ class MobileOfflineServiceTest {
     @Mock WorkOrderService workOrders;
     @Mock org.springframework.context.ApplicationEventPublisher events;
     @Mock com.grash.repository.CommentRepository commentRepository;
+    @Mock LaborService labors;
+    @Mock LaborRepository laborRepository;
     ObjectMapper json = new ObjectMapper().findAndRegisterModules();
     MobileOfflineService service;
     User user;
     Task task;
 
     @BeforeEach void setup() {
-        service = new MobileOfflineService(properties, repository, snapshots, access, tasks, mutations, mapper, json, comments, commentRepository, files, workOrders, events);
+        service = new MobileOfflineService(properties, repository, snapshots, access, tasks, mutations, mapper, json, comments, commentRepository, files, workOrders, events, labors, laborRepository);
         Company company = new Company(); company.setId(52L);
         user = new User(); user.setId(34L); user.setCompany(company);
         WorkOrder wo = new WorkOrder(); wo.setId(10L); wo.setCompany(company);
@@ -427,6 +429,98 @@ class MobileOfflineServiceTest {
         assertEquals("INVALID_COMMENT_CONTENT", service.submit(op, user).code());
         assertTrue(records.get(op.operationId()).resultJson().contains("REJECTED"));
         verifyNoInteractions(comments, files);
+    }
+
+    MobileOfflineOperation timerStart() {
+        Instant begin = Instant.parse("2026-11-05T10:00:00Z");
+        return new MobileOfflineOperation(UUID.randomUUID(), 52L, 34L, 10L, null,
+                MobileOfflineOperation.Type.START_TIMER, null, null, begin, null, null, null, null, null, null,
+                new MobileOfflineTime(UUID.randomUUID(), begin, null, 100L, 4L, null, 0L, null, null));
+    }
+
+    MobileOfflineOperation timerStop(MobileOfflineOperation start) {
+        Instant end = start.time().startedAt().plusSeconds(1800);
+        return new MobileOfflineOperation(UUID.randomUUID(), 52L, 34L, 10L, null,
+                MobileOfflineOperation.Type.STOP_TIMER, null, null, end, null, null, start.operationId(), null, null, null,
+                new MobileOfflineTime(start.time().periodId(), start.time().startedAt(), end,
+                        null, null, null, null, null, start));
+    }
+
+    Labor timerLabor() {
+        Labor labor = new Labor(); labor.setId(100L); labor.setVersion(5); labor.setTimerRunId(UUID.randomUUID());
+        return labor;
+    }
+
+    void timeAccessible() {
+        when(access.existsInCompany(10L, user)).thenReturn(true);
+        when(access.canView(10L, user)).thenReturn(true);
+    }
+
+    @Test void closedPeriodCompletesBothReceiptsAndLostResponseCannotLaterStartOrAddAgain() {
+        eligible(); var records = ledger(); timeAccessible();
+        var start = timerStart(); var stop = timerStop(start);
+        when(labors.applyOfflineTime(eq(stop), eq(user), isNull(), isNull(), eq(true), any()))
+                .thenReturn(new LaborService.TimeOutcome(timerLabor(), null, false, 1800, true));
+        when(laborRepository.existsByIdAndCompany_IdAndWorkOrder_Id(100L, 52L, 10L)).thenReturn(true);
+        var applied = service.submit(stop, user);
+        assertEquals(APPLIED, applied.status()); assertEquals("TIMER_PERIOD_RECORDED", applied.code());
+        assertEquals(1800, applied.timeResult().durationAdded());
+        assertTrue(applied.timeResult().closedWithoutActivation());
+        assertEquals("TIMER_START_FINALIZED", applied.startReceipt().code());
+        assertTrue(records.values().stream().allMatch(receipt -> receipt.resultJson() != null));
+        assertEquals(applied, service.submit(stop, user));
+        assertEquals(applied.startReceipt(), service.submit(start, user));
+        verify(labors, times(1)).applyOfflineTime(any(), any(), any(), any(), anyBoolean(), any());
+        InOrder order = inOrder(repository);
+        order.verify(repository).reserveOperation(eq(52L), eq(34L), eq(start.operationId()), eq(10L), anyString(), any());
+        order.verify(repository).reserveOperation(eq(52L), eq(34L), eq(stop.operationId()), eq(10L), anyString(), any());
+    }
+
+    @Test void refusedFinalizationTerminalizesTheUnknownStartWithoutActivation() {
+        eligible(); var records = ledger(); timeAccessible();
+        var start = timerStart(); var stop = timerStop(start);
+        when(labors.applyOfflineTime(eq(stop), eq(user), isNull(), isNull(), eq(true), any()))
+                .thenReturn(LaborService.TimeOutcome.conflict("LABOR_VERSION_CONFLICT"));
+        var refusal = service.submit(stop, user);
+        assertEquals(CONFLICT, refusal.status()); assertEquals(CONFLICT, refusal.startReceipt().status());
+        assertEquals("TIMER_START_CLOSED", service.submit(start, user).code());
+        assertTrue(records.values().stream().allMatch(receipt -> receipt.resultJson() != null));
+        verify(labors, times(1)).applyOfflineTime(any(), any(), any(), any(), anyBoolean(), any());
+    }
+
+    @Test void acceptedStartIsProvidedToItsStopAndImmutableStartCannotBeRewritten() {
+        eligible(); ledger(); timeAccessible();
+        var start = timerStart(); var stop = timerStop(start); var labor = timerLabor();
+        when(labors.applyOfflineTime(eq(start), eq(user), isNull(), isNull(), eq(false), any()))
+                .thenReturn(new LaborService.TimeOutcome(labor, null, false, 0, false));
+        var running = service.submit(start, user);
+        when(labors.applyOfflineTime(eq(stop), eq(user), isNull(), eq(running), eq(false), any()))
+                .thenReturn(new LaborService.TimeOutcome(labor, null, false, 1800, false));
+        var stopped = service.submit(stop, user);
+        assertEquals(running, stopped.startReceipt()); assertEquals("TIMER_STOPPED", stopped.code());
+        var changed = new MobileOfflineOperation(start.operationId(), 52L, 34L, 10L, null,
+                start.type(), null, null, start.occurredAt(), null, null, null, null, null, null,
+                new MobileOfflineTime(start.time().periodId(), start.time().startedAt(), null, 100L, 5L, null, 0L, null, null));
+        assertEquals("OPERATION_ID_REUSED", assertThrows(CustomException.class,
+                () -> service.submit(timerStop(changed), user)).getMessage());
+        verify(labors, times(2)).applyOfflineTime(any(), any(), any(), any(), anyBoolean(), any());
+    }
+
+    @Test void acceptedTimeReceiptRemainsTerminalAfterDeletionAndRevocation() throws Exception {
+        var start = timerStart(); var labor = timerLabor();
+        var result = new MobileOfflineResult(start.operationId(), APPLIED, "TIMER_STARTED", null, Instant.now(),
+                null, null, MobileOfflineResult.Visibility.VISIBLE, null, null, null, null,
+                new MobileOfflineTimeResult(start.time().periodId(), 100L, 5L, labor.getTimerRunId(), start.time().startedAt(), null, 0, false), null);
+        when(repository.receipt(52L, 34L, start.operationId())).thenReturn(Optional.of(
+                new MobileOfflineRepository.Receipt(start.operationId(), 10L, "hash", json.writeValueAsString(result))));
+        when(access.canView(10L, user)).thenReturn(true);
+        var deleted = service.receipts(List.of(start.operationId()), user).results().get(0);
+        assertEquals(APPLIED, deleted.status()); assertEquals(MobileOfflineResult.Visibility.LABOR_DELETED, deleted.visibility());
+        when(access.canView(10L, user)).thenReturn(false);
+        var hidden = service.receipts(List.of(start.operationId()), user).results().get(0);
+        assertEquals(APPLIED, hidden.status()); assertNull(hidden.timeResult());
+        assertEquals(MobileOfflineResult.Visibility.WORK_ORDER_UNAVAILABLE, hidden.visibility());
+        verifyNoInteractions(labors, properties);
     }
 
 }

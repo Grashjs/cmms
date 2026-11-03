@@ -1,4 +1,10 @@
 const locale = {
+  labor_review_current: 'Esamina il tempo attuale',
+  labor_review_confirm: 'Mantieni il mio inserimento su questa versione',
+  labor_changed_review:
+    'Questa registrazione del tempo è cambiata. Esamina la versione del server prima di salvare di nuovo.',
+  labor_server_duration: 'Durata attuale sul server',
+
   task_save_review: "I dati inseriti vengono conservati. Il salvataggio è sospeso: confrontali con i dati del server prima di inviare le modifiche visualizzate.",
   task_server_value: "Valore attuale sul server",
   task_review_submit: "Verifica e invia le modifiche visualizzate",

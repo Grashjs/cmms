@@ -1,4 +1,35 @@
 const locale = {
+  offline_time_stopped: 'Tidtagningen stoppad',
+  labor_review_current: 'Granska aktuell tid',
+  labor_review_confirm: 'Behåll min inmatning för den här versionen',
+  labor_changed_review:
+    'Den här tidsposten har ändrats. Granska serverversionen innan du sparar igen.',
+  labor_server_duration: 'Aktuell varaktighet på servern',
+  offline_time_start: 'Starta',
+  offline_time_stop: 'Stoppa och spara',
+  offline_time_running_local: 'Pågår på den här enheten',
+  offline_time_start_pending: 'Start väntar på bekräftelse',
+  offline_time_running_server: 'Pågår — bekräftat av servern',
+  offline_time_stop_pending: 'Stopp sparat — väntar på att skickas',
+  offline_time_save: 'Spara tid',
+  offline_time_personal: 'Min tid',
+  offline_time_connected_form: 'Fullständigt onlineformulär',
+  offline_time_periods: 'Perioder på den här enheten',
+  offline_time_server_total: 'Serversumma',
+  offline_time_review: 'Granska perioden',
+  offline_time_preserve_status: 'Spara och behåll aktuell status',
+  offline_time_correct_connected: 'Korrigera summan online',
+  offline_time_saved_refresh_pending:
+    'Tid bekräftad — lokal uppdatering väntar',
+  offline_time_invalid_range:
+    'Kontrollera start och slut: varaktigheten måste vara positiv och tidpunkterna får inte ligga i framtiden.',
+  offline_time_run_changed:
+    'Den här tidtagaren har stoppats eller startats om någon annanstans. Din period är sparad.',
+  offline_time_status_changed:
+    'Arbetsorderns status har ändrats. Granska den innan du skickar perioden.',
+  offline_time_not_allowed:
+    'Nuvarande behörigheter, licens eller abonnemang tillåter inte den här tidsåtgärden.',
+
   offline_refresh_copy: 'Uppdatera kopian',
   offline_remove_server_attachment: 'Ta bort från arbetsordern',
   offline_clear_server_image: 'Ta bort huvudbilden',

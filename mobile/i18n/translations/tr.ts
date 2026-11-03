@@ -1,4 +1,35 @@
 ﻿const trJSON = {
+  offline_time_stopped: 'Zamanlayıcı durduruldu',
+  labor_review_current: 'Geçerli süreyi incele',
+  labor_review_confirm: 'Girdimi bu sürümde koru',
+  labor_changed_review:
+    'Bu süre kaydı değişti. Yeniden kaydetmeden önce sunucu sürümünü inceleyin.',
+  labor_server_duration: 'Sunucudaki geçerli süre',
+  offline_time_start: 'Başlat',
+  offline_time_stop: 'Durdur ve kaydet',
+  offline_time_running_local: 'Bu cihazda çalışıyor',
+  offline_time_start_pending: 'Başlatma onay bekliyor',
+  offline_time_running_server: 'Çalışıyor — sunucu tarafından onaylandı',
+  offline_time_stop_pending: 'Durdurma kaydedildi — gönderim bekliyor',
+  offline_time_save: 'Süreyi kaydet',
+  offline_time_personal: 'Sürem',
+  offline_time_connected_form: 'Tam çevrimiçi form',
+  offline_time_periods: 'Bu cihazdaki dönemler',
+  offline_time_server_total: 'Sunucu toplamı',
+  offline_time_review: 'Dönemi incele',
+  offline_time_preserve_status: 'Geçerli durumu koruyarak kaydet',
+  offline_time_correct_connected: 'Toplamı çevrimiçi düzelt',
+  offline_time_saved_refresh_pending:
+    'Süre onaylandı — yerel yenileme bekliyor',
+  offline_time_invalid_range:
+    'Başlangıcı ve bitişi kontrol edin: süre pozitif olmalı ve zamanlar gelecekte olmamalıdır.',
+  offline_time_run_changed:
+    'Bu zamanlayıcı başka bir yerde durduruldu veya yeniden başlatıldı. Döneminiz korundu.',
+  offline_time_status_changed:
+    'İş emrinin durumu değişti. Bu dönemi göndermeden önce inceleyin.',
+  offline_time_not_allowed:
+    'Geçerli izinler, lisans veya abonelik bu süre işlemine izin vermiyor.',
+
   offline_refresh_copy: 'Kopyayı güncelle',
   offline_remove_server_attachment: 'İş emrinden kaldır',
   offline_clear_server_image: 'Ana görseli kaldır',

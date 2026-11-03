@@ -13,9 +13,18 @@ public record MobileOfflineResult(UUID operationId, Status status, String code, 
                                   @JsonInclude(JsonInclude.Include.NON_NULL) Long fileId,
                                   @JsonInclude(JsonInclude.Include.NON_NULL) List<Long> fileIds,
                                   @JsonInclude(JsonInclude.Include.NON_NULL) Long imageId,
-                                  @JsonInclude(JsonInclude.Include.NON_NULL) MobileOfflineFileUpload transfer) {
+                                  @JsonInclude(JsonInclude.Include.NON_NULL) MobileOfflineFileUpload transfer,
+                                  @JsonInclude(JsonInclude.Include.NON_NULL) MobileOfflineTimeResult timeResult,
+                                  @JsonInclude(JsonInclude.Include.NON_NULL) MobileOfflineResult startReceipt) {
     public enum Status { APPLIED, CONFLICT, REJECTED }
-    public enum Visibility { VISIBLE, COMMENT_DELETED, WORK_ORDER_UNAVAILABLE, FILE_DELETED, TARGET_UNAVAILABLE }
+    public enum Visibility { VISIBLE, COMMENT_DELETED, WORK_ORDER_UNAVAILABLE, FILE_DELETED, TARGET_UNAVAILABLE, LABOR_DELETED }
+
+    public MobileOfflineResult(UUID operationId, Status status, String code, TaskShowDTO task, Instant receivedAt,
+                               Long chainBaseVersion, Long commentId, Visibility visibility, Long fileId,
+                               List<Long> fileIds, Long imageId, MobileOfflineFileUpload transfer) {
+        this(operationId, status, code, task, receivedAt, chainBaseVersion, commentId, visibility,
+                fileId, fileIds, imageId, transfer, null, null);
+    }
 
     public MobileOfflineResult(UUID operationId, Status status, String code, TaskShowDTO task, Instant receivedAt,
                                Long chainBaseVersion, Long commentId, Visibility visibility) {
@@ -27,10 +36,21 @@ public record MobileOfflineResult(UUID operationId, Status status, String code, 
     }
 
     public MobileOfflineResult withoutTask() {
-        return new MobileOfflineResult(operationId, status, code, null, receivedAt, chainBaseVersion, commentId, visibility, fileId, fileIds, imageId, transfer);
+        return new MobileOfflineResult(operationId, status, code, null, receivedAt, chainBaseVersion, commentId, visibility, fileId, fileIds, imageId, transfer, timeResult, startReceipt);
     }
 
     public MobileOfflineResult withVisibility(Visibility current) {
-        return new MobileOfflineResult(operationId, status, code, task, receivedAt, chainBaseVersion, commentId, current, fileId, fileIds, imageId, transfer);
+        return new MobileOfflineResult(operationId, status, code, task, receivedAt, chainBaseVersion, commentId, current, fileId, fileIds, imageId, transfer, timeResult, startReceipt);
+    }
+
+    public MobileOfflineResult withStartReceipt(MobileOfflineResult start) {
+        return new MobileOfflineResult(operationId, status, code, task, receivedAt, chainBaseVersion, commentId,
+                visibility, fileId, fileIds, imageId, transfer, timeResult, start);
+    }
+
+    public MobileOfflineResult withoutTimeDetails() {
+        return new MobileOfflineResult(operationId, status, code, task, receivedAt, chainBaseVersion, commentId,
+                Visibility.WORK_ORDER_UNAVAILABLE, fileId, fileIds, imageId, transfer, null,
+                startReceipt == null ? null : startReceipt.withoutTimeDetails());
     }
 }

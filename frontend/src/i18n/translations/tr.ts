@@ -1,4 +1,10 @@
 const trJSON = {
+  labor_review_current: 'Geçerli süreyi incele',
+  labor_review_confirm: 'Girdimi bu sürümde koru',
+  labor_changed_review:
+    'Bu süre kaydı değişti. Yeniden kaydetmeden önce sunucu sürümünü inceleyin.',
+  labor_server_duration: 'Sunucudaki geçerli süre',
+
   task_save_review: "Girdiğiniz bilgiler korunuyor. Kaydetme duraklatıldı; gösterilen değişiklikleri göndermeden önce sunucudaki verilerle karşılaştırın.",
   task_server_value: "Sunucudaki mevcut değer",
   task_review_submit: "Gösterilen değişiklikleri incele ve gönder",

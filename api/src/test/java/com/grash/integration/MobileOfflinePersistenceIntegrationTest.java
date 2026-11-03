@@ -2,6 +2,10 @@ package com.grash.integration;
 
 import com.grash.dto.TaskPatchDTO;
 import com.grash.dto.offline.MobileOfflineOperation;
+import com.grash.dto.offline.MobileOfflineTime;
+import com.grash.dto.LaborPatchDTO;
+import com.grash.dto.WorkOrderChangeStatusDTO;
+import com.grash.exception.CustomException;
 import com.grash.model.*;
 import com.grash.model.enums.*;
 import com.grash.model.enums.workflow.TaskAction;
@@ -26,7 +30,8 @@ import static com.grash.utils.Helper.setCurrentUser;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Testcontainers(disabledWithoutDocker = true)
-@TestPropertySource(properties = {"mobile-offline.enabled=true", "mobile-offline.allowed-accounts=*:*"})
+@TestPropertySource(properties = {"mobile-offline.enabled=true", "mobile-offline.allowed-accounts=*:*",
+        "license-key=", "license-file-path="})
 @RecordApplicationEvents
 @Transactional
 class MobileOfflinePersistenceIntegrationTest extends AbstractIntegrationTest {
@@ -37,6 +42,8 @@ class MobileOfflinePersistenceIntegrationTest extends AbstractIntegrationTest {
     @Autowired MobileOfflineRepository receipts;
     @Autowired ApplicationEvents events;
     @Autowired PlatformTransactionManager transactions;
+    @Autowired LaborService laborService;
+    @Autowired WorkOrderService workOrderService;
     User user;
     WorkOrder workOrder;
     Task task;
@@ -222,5 +229,189 @@ class MobileOfflinePersistenceIntegrationTest extends AbstractIntegrationTest {
         assertEquals(APPLIED, offline.submit(operation, user).status());
         em.clear();
         assertEquals(AssetStatus.OPERATIONAL, em.find(Asset.class, asset.getId()).getStatus());
+    }
+
+    private Labor timer(User owner, long seconds) {
+        Labor labor = new Labor(owner, 120, Date.from(Instant.now().minusSeconds(18000)), workOrder,
+                true, TimeStatus.STOPPED);
+        labor.setCompany(owner.getCompany()); labor.setDuration(seconds);
+        em.persist(labor); em.flush();
+        return labor;
+    }
+
+    private MobileOfflineOperation timeOperation(MobileOfflineOperation.Type type, MobileOfflineTime time,
+                                                  UUID predecessor) {
+        return new MobileOfflineOperation(UUID.randomUUID(), user.getCompany().getId(), user.getId(),
+                workOrder.getId(), null, type, null, null, Instant.now(), null, null, predecessor,
+                null, null, null, time);
+    }
+
+    private MobileOfflineOperation start(Labor labor, Instant at, UUID predecessor) {
+        return timeOperation(MobileOfflineOperation.Type.START_TIMER,
+                new MobileOfflineTime(UUID.randomUUID(), at, null, labor.getId(), labor.getVersion(), null,
+                        workOrder.getTimerStatusRevision(), false, null), predecessor);
+    }
+
+    private MobileOfflineOperation stop(MobileOfflineOperation start, Instant at) {
+        return timeOperation(MobileOfflineOperation.Type.STOP_TIMER,
+                new MobileOfflineTime(start.time().periodId(), start.time().startedAt(), at,
+                        null, null, null, start.time().timerStatusRevision(), false, start), start.operationId());
+    }
+
+    private void reattachTimeContext() {
+        em.flush(); em.clear();
+        user = em.find(User.class, user.getId()); setCurrentUser(user);
+        workOrder = em.find(WorkOrder.class, workOrder.getId());
+    }
+
+    @Test void closedPeriodsPersistActualVersionsAndReachEightyMinutesWithoutReplayingStarts() {
+        Labor labor = timer(user, 1800);
+        long laborId = labor.getId(), originalVersion = labor.getVersion();
+        Instant firstAt = Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MILLIS).minusSeconds(14400);
+        var firstStart = start(labor, firstAt, null);
+        var firstStop = stop(firstStart, firstAt.plusSeconds(1800));
+        // This next period was also captured before any network response existed.
+        var secondStart = start(labor, firstAt.plusSeconds(3600), firstStop.operationId());
+        var secondStop = stop(secondStart, firstAt.plusSeconds(4800));
+
+        var first = offline.submit(firstStop, user);
+        assertEquals(APPLIED, first.status(), first.code());
+        assertEquals(APPLIED, first.startReceipt().status());
+        assertTrue(first.timeResult().closedWithoutActivation());
+        assertEquals(1800L, first.timeResult().durationAdded());
+        assertTrue(first.timeResult().laborVersion() > originalVersion);
+        var second = offline.submit(secondStop, user);
+        assertEquals(APPLIED, second.status(), second.code());
+        assertEquals(1200L, second.timeResult().durationAdded());
+        reattachTimeContext();
+        Labor persisted = em.find(Labor.class, laborId);
+        assertEquals(4800L, persisted.getDuration());
+        assertEquals(TimeStatus.STOPPED, persisted.getStatus());
+        assertEquals(160L, persisted.getCost());
+        assertEquals(second.timeResult().laborVersion(), persisted.getVersion());
+        assertEquals(first.startReceipt(), offline.submit(firstStart, user));
+        assertEquals(second.startReceipt(), offline.submit(secondStart, user));
+        assertEquals(second, offline.submit(secondStop, user));
+        assertEquals(first, offline.submit(firstStop, user));
+        assertEquals(4800L, em.find(Labor.class, laborId).getDuration());
+        var snapshot = offline.prepare(workOrder.getId(), UUID.randomUUID(), user);
+        assertEquals(4800L, snapshot.labors().get(0).getDuration());
+        assertEquals(second.timeResult().laborVersion(), snapshot.labors().get(0).getVersion());
+    }
+
+    @Test void connectedStartThenOfflineStopUsesFieldEndAndSurvivesLostResponses() {
+        Labor labor = timer(user, 1800);
+        long laborId = labor.getId();
+        Instant at = Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MILLIS).minusSeconds(10800);
+        var start = start(labor, at, null);
+        var started = offline.submit(start, user);
+        assertEquals(APPLIED, started.status(), started.code());
+        UUID run = started.timeResult().timerRunId();
+        assertNotNull(run);
+        reattachTimeContext();
+        assertEquals(TimeStatus.RUNNING, em.find(Labor.class, laborId).getStatus());
+        assertEquals(Date.from(at), em.find(Labor.class, laborId).getStartedAt());
+        assertEquals(Status.IN_PROGRESS, workOrder.getStatus());
+        var stop = stop(start, at.plusSeconds(1800));
+        var stopped = offline.submit(stop, user);
+        assertEquals(APPLIED, stopped.status(), stopped.code());
+        assertEquals(1800L, stopped.timeResult().durationAdded());
+        reattachTimeContext();
+        Labor stored = em.find(Labor.class, laborId);
+        assertEquals(3600L, stored.getDuration());
+        assertEquals(TimeStatus.STOPPED, stored.getStatus());
+        assertEquals(run, stored.getTimerRunId());
+        assertEquals(started, offline.submit(start, user));
+        assertEquals(stopped, offline.submit(stop, user));
+        assertEquals(3600L, em.find(Labor.class, laborId).getDuration());
+    }
+
+    @Test void aRemoteRestartCannotBeStoppedByTheOldOfflinePeriod() {
+        Labor labor = timer(user, 1800);
+        Instant at = Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MILLIS).minusSeconds(7200);
+        var start = start(labor, at, null);
+        var started = offline.submit(start, user);
+        assertEquals(APPLIED, started.status(), started.code());
+        Labor current = em.find(Labor.class, labor.getId());
+        current.setStatus(TimeStatus.STOPPED); current.setDuration(2400); em.flush();
+        UUID replacement = UUID.randomUUID();
+        current.setStatus(TimeStatus.RUNNING); current.setTimerRunId(replacement);
+        current.setStartedAt(Date.from(at.plusSeconds(3600))); em.flush();
+
+        var refused = offline.submit(stop(start, at.plusSeconds(1800)), user);
+        assertEquals(CONFLICT, refused.status(), refused.code());
+        reattachTimeContext();
+        current = em.find(Labor.class, labor.getId());
+        assertEquals(replacement, current.getTimerRunId());
+        assertEquals(TimeStatus.RUNNING, current.getStatus());
+        assertEquals(2400L, current.getDuration());
+    }
+
+    @Test void anOldConnectedCorrectionOrDeletionCannotEraseAnAcceptedPeriod() {
+        Labor labor = timer(user, 1800);
+        long version = labor.getVersion();
+        Instant at = Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MILLIS).minusSeconds(7200);
+        var start = start(labor, at, null);
+        assertEquals(APPLIED, offline.submit(stop(start, at.plusSeconds(1800)), user).status());
+        LaborPatchDTO old = new LaborPatchDTO(); old.setVersion(version); old.setDuration(60);
+        assertThrows(CustomException.class, () -> laborService.update(labor.getId(), old, user));
+        assertThrows(CustomException.class, () -> laborService.delete(labor.getId(), version, user));
+        assertEquals(3600L, em.find(Labor.class, labor.getId()).getDuration());
+    }
+
+    @Test void anotherTechniciansTimeAndOverlappingHoursDoNotInvalidateTheFirstLine() {
+        Labor first = timer(user, 1800);
+        User firstUser = user;
+        Instant at = Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MILLIS).minusSeconds(7200);
+        var firstStart = start(first, at, null);
+        var firstStop = stop(firstStart, at.plusSeconds(1800));
+        User other = new User(); other.setFirstName("Second"); other.setLastName("Worker");
+        other.setEmail(UUID.randomUUID() + "@offline.test"); other.setUsername(other.getEmail());
+        other.setPassword("test-only"); other.setCompany(user.getCompany()); other.setRole(user.getRole());
+        other.setEnabled(true); em.persist(other); em.flush();
+        user = other; setCurrentUser(other);
+        Labor second = timer(other, 600);
+        var secondStart = start(second, at, null);
+        assertEquals(APPLIED, offline.submit(stop(secondStart, at.plusSeconds(1200)), user).status());
+        user = firstUser; setCurrentUser(firstUser);
+        assertEquals(APPLIED, offline.submit(firstStop, user).status());
+        assertEquals(3600L, em.find(Labor.class, first.getId()).getDuration());
+        assertEquals(1800L, em.find(Labor.class, second.getId()).getDuration());
+        assertEquals(0L, workOrder.getTimerStatusRevision());
+    }
+
+    @Test void observedLegacyTimerStopsByItsOwnRunWithoutInventingAStartReceipt() {
+        Labor labor = timer(user, 1800);
+        Instant at = Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MILLIS).minusSeconds(7200);
+        UUID run = UUID.randomUUID();
+        labor.setStatus(TimeStatus.RUNNING); labor.setTimerRunId(run); labor.setStartedAt(Date.from(at)); em.flush();
+        var stop = timeOperation(MobileOfflineOperation.Type.STOP_TIMER,
+                new MobileOfflineTime(UUID.randomUUID(), at, at.plusSeconds(1800), labor.getId(),
+                        labor.getVersion(), run, workOrder.getTimerStatusRevision(), null, null), null);
+        var result = offline.submit(stop, user);
+        assertEquals(APPLIED, result.status(), result.code()); assertNull(result.startReceipt());
+        reattachTimeContext();
+        Labor stored = em.find(Labor.class, labor.getId());
+        assertEquals(3600L, stored.getDuration()); assertEquals(TimeStatus.STOPPED, stored.getStatus());
+        assertEquals(run, stored.getTimerRunId());
+        assertEquals(result, offline.submit(stop, user));
+        assertEquals(3600L, stored.getDuration());
+    }
+
+    @Test void connectedPauseStopsTheRunAndCannotBeUndoneByItsLateOfflineStop() {
+        Labor labor = timer(user, 1800);
+        Instant at = Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MILLIS).minusSeconds(7200);
+        var begin = start(labor, at, null);
+        assertEquals(APPLIED, offline.submit(begin, user).status());
+        WorkOrderChangeStatusDTO pause = new WorkOrderChangeStatusDTO(); pause.setStatus(Status.ON_HOLD);
+        workOrderService.changeStatus(pause, workOrder.getId(), user, "web");
+        reattachTimeContext();
+        Labor stopped = em.find(Labor.class, labor.getId());
+        long counted = stopped.getDuration();
+        assertTrue(counted >= 9000); assertEquals(TimeStatus.STOPPED, stopped.getStatus());
+        assertEquals(Status.ON_HOLD, workOrder.getStatus()); assertEquals(1L, workOrder.getTimerStatusRevision());
+        var late = offline.submit(stop(begin, at.plusSeconds(1800)), user);
+        assertEquals(CONFLICT, late.status(), late.code());
+        assertEquals(counted, stopped.getDuration()); assertEquals(Status.ON_HOLD, workOrder.getStatus());
     }
 }

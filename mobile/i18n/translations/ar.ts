@@ -1,4 +1,34 @@
 const locale = {
+  offline_time_stopped: 'تم إيقاف المؤقت',
+  labor_review_current: 'مراجعة الوقت الحالي',
+  labor_review_confirm: 'الاحتفاظ بإدخالي على هذه النسخة',
+  labor_changed_review: 'تغيّر سجل الوقت. راجع نسخة الخادم قبل الحفظ مجددًا.',
+  labor_server_duration: 'المدة الحالية على الخادم',
+  offline_time_start: 'بدء',
+  offline_time_stop: 'إيقاف وحفظ',
+  offline_time_running_local: 'قيد التشغيل على هذا الجهاز',
+  offline_time_start_pending: 'البدء بانتظار التأكيد',
+  offline_time_running_server: 'قيد التشغيل — مؤكّد من الخادم',
+  offline_time_stop_pending: 'تم حفظ الإيقاف — بانتظار الإرسال',
+  offline_time_save: 'حفظ الوقت',
+  offline_time_personal: 'وقتي',
+  offline_time_connected_form: 'النموذج الكامل عبر الإنترنت',
+  offline_time_periods: 'الفترات على هذا الجهاز',
+  offline_time_server_total: 'إجمالي الخادم',
+  offline_time_review: 'مراجعة الفترة',
+  offline_time_preserve_status: 'الحفظ مع إبقاء الحالة الحالية',
+  offline_time_correct_connected: 'تصحيح الإجمالي عبر الإنترنت',
+  offline_time_saved_refresh_pending:
+    'تم تأكيد الوقت — بانتظار تحديث النسخة المحلية',
+  offline_time_invalid_range:
+    'تحقّق من البداية والنهاية: يجب أن تكون المدة موجبة وألا تكون الأوقات في المستقبل.',
+  offline_time_run_changed:
+    'تم إيقاف هذا المؤقّت أو إعادة تشغيله من مكان آخر. تم الاحتفاظ بفترتك.',
+  offline_time_status_changed:
+    'تغيّرت حالة أمر العمل. راجعها قبل إرسال هذه الفترة.',
+  offline_time_not_allowed:
+    'لا تسمح الصلاحيات أو الترخيص أو الاشتراك الحالي بهذا الإجراء على الوقت.',
+
   offline_refresh_copy: 'تحديث النسخة',
   offline_remove_server_attachment: 'إزالة من أمر العمل',
   offline_clear_server_image: 'إزالة الصورة الرئيسية',

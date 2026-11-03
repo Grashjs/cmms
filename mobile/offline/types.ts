@@ -2,6 +2,7 @@ import type WorkOrder from '../models/workOrder';
 import type { Task } from '../models/tasks';
 import type Comment from '../models/comment';
 import type { AssetDTO } from '../models/asset';
+import type Labor from '../models/labor';
 
 export const OFFLINE_LIMITS = Object.freeze({
   preparedWorkOrders: 25,
@@ -30,6 +31,22 @@ export type OfflineAsset = Pick<
   | 'power'
   | 'area'
 > & { barCode?: string; nfcId?: string };
+export type OfflineLabor = Labor & {
+  version: number;
+  timerRunId?: string | null;
+};
+export interface TimePermissions {
+  createTimer: boolean;
+  resumeTimer: boolean;
+  stopTimer: boolean;
+  createManualTime: boolean;
+}
+export const NO_TIME_PERMISSIONS: TimePermissions = Object.freeze({
+  createTimer: false,
+  resumeTimer: false,
+  stopTimer: false,
+  createManualTime: false
+});
 export interface OfflineSnapshot {
   workOrder: WorkOrder;
   tasks: OfflineTask[];
@@ -42,6 +59,9 @@ export interface OfflineSnapshot {
   assets?: OfflineAsset[];
   canScan?: boolean;
   canReadAssets?: boolean;
+  labors?: OfflineLabor[];
+  timePermissions?: TimePermissions;
+  timerStatusRevision?: number;
 }
 
 export interface OfflineEligibility {
@@ -68,7 +88,31 @@ type TaskOperationIdentity = OperationIdentity & {
   baseVersion: number;
   predecessorOperationId?: string;
 };
+export interface TimePayload {
+  periodId: string;
+  startedAt: string;
+  endedAt?: string;
+  laborId?: number;
+  laborVersion?: number;
+  timerRunId?: string;
+  timerStatusRevision?: number;
+  preserveStatus?: boolean;
+  startOperation?: TimerStartOperation;
+}
+export type TimerStartOperation = OperationIdentity & {
+  type: 'START_TIMER';
+  time: TimePayload;
+  predecessorOperationId?: string;
+};
+export type TimeOperation =
+  | TimerStartOperation
+  | (OperationIdentity & {
+      type: 'STOP_TIMER' | 'CREATE_MANUAL_TIME';
+      time: TimePayload;
+      predecessorOperationId?: string;
+    });
 export type OperationRequest =
+  | TimeOperation
   | (TaskOperationIdentity & { type: 'SET_TASK_VALUE'; value: string })
   | (TaskOperationIdentity & { type: 'SET_TASK_NOTES'; notes: string })
   | (OperationIdentity & {
@@ -105,6 +149,13 @@ export function isTaskOperation(
 > {
   return request.type === 'SET_TASK_VALUE' || request.type === 'SET_TASK_NOTES';
 }
+export function isTimeOperation(
+  request: OperationRequest
+): request is TimeOperation {
+  return ['START_TIMER', 'STOP_TIMER', 'CREATE_MANUAL_TIME'].includes(
+    request.type
+  );
+}
 export function transferIds(request: OperationRequest): string[] {
   if (request.type === 'CREATE_COMMENT' || request.type === 'ADD_TASK_IMAGES')
     return request.fileTransferIds || [];
@@ -118,8 +169,10 @@ export function transferIds(request: OperationRequest): string[] {
 
 export function operationField(
   request: OperationRequest
-): TaskField | 'comment' | 'attachments' {
-  return request.type === 'CREATE_COMMENT'
+): TaskField | 'comment' | 'attachments' | 'time' {
+  return isTimeOperation(request)
+    ? 'time'
+    : request.type === 'CREATE_COMMENT'
     ? 'comment'
     : request.type === 'SET_TASK_NOTES'
     ? 'notes'
@@ -128,7 +181,9 @@ export function operationField(
     : 'attachments';
 }
 export function operationText(request: OperationRequest): string {
-  return request.type === 'CREATE_COMMENT'
+  return isTimeOperation(request)
+    ? [request.time.startedAt, request.time.endedAt].filter(Boolean).join(' – ')
+    : request.type === 'CREATE_COMMENT'
     ? request.content
     : request.type === 'SET_TASK_NOTES'
     ? request.notes
@@ -139,6 +194,16 @@ export function operationText(request: OperationRequest): string {
     : '';
 }
 
+export interface TimeResult {
+  periodId: string;
+  laborId: number;
+  laborVersion: number;
+  timerRunId?: string | null;
+  startedAt: string;
+  endedAt?: string;
+  durationAdded: number;
+  closedWithoutActivation?: boolean;
+}
 export interface OperationReceipt {
   operationId: string;
   status: 'APPLIED' | 'CONFLICT' | 'REJECTED';
@@ -149,11 +214,14 @@ export interface OperationReceipt {
   fileId?: number;
   fileIds?: number[];
   imageId?: number | null;
+  timeResult?: TimeResult;
+  startReceipt?: OperationReceipt;
   visibility?:
     | 'VISIBLE'
     | 'COMMENT_DELETED'
     | 'WORK_ORDER_UNAVAILABLE'
     | 'FILE_DELETED'
+    | 'LABOR_DELETED'
     | 'TARGET_UNAVAILABLE';
   receivedAt: string;
 }
@@ -179,6 +247,8 @@ export interface LocalOperation {
   serverCommentId: number | null;
   snapshotConfirmed?: boolean;
   blockedReason?: string;
+  // Read-only projection; never persisted in the immutable request.
+  canReviewTime?: boolean;
 }
 
 export interface TaskDraft {
@@ -205,6 +275,57 @@ export interface CommentDraft {
   // Retain legacy attachment intent until the user selects its actual files.
   attachmentPending?: boolean;
   updatedAt: number;
+}
+
+export interface ObservedServerTimer {
+  laborId: number;
+  laborVersion: number;
+  timerRunId: string;
+  startedAt: string;
+}
+
+export interface TimerDraft {
+  id: string;
+  kind: 'TIMER';
+  workOrderId: number;
+  periodId: string;
+  revision: number;
+  startedAt: string;
+  endedAt?: string;
+  startOperationId?: string;
+  laborId?: number;
+  laborVersion?: number;
+  timerRunId?: string;
+  updatedAt: number;
+  reviewOperationId?: string;
+  predecessorOperationId?: string;
+  timerStatusRevision?: number;
+  preserveStatus?: boolean;
+}
+export interface ManualTimeDraft {
+  id: string;
+  kind: 'MANUAL_TIME';
+  periodId: string;
+  workOrderId: number;
+  revision: number;
+  startedAt: string;
+  hours: string;
+  minutes: string;
+  updatedAt: number;
+}
+export type ManualTimeInput = Pick<
+  ManualTimeDraft,
+  'startedAt' | 'hours' | 'minutes'
+>;
+export interface OfflineTimeView {
+  available: boolean;
+  labors: OfflineLabor[];
+  permissions: TimePermissions;
+  timerStatusRevision: number;
+  activePeriod: TimerDraft | null;
+  serverTimer: OfflineLabor | null;
+  manualDraft: ManualTimeDraft | null;
+  operations: LocalOperation[];
 }
 
 export interface FileTarget {
@@ -270,6 +391,9 @@ export interface PreparedWorkOrderView {
   commentOperations: LocalOperation[];
   canEdit: boolean;
   canComment: boolean;
+  labors: OfflineLabor[];
+  timePermissions: TimePermissions;
+  timerStatusRevision: number;
   history: unknown[];
   preparedAt: string;
   available: boolean;
@@ -285,6 +409,9 @@ export type PreparedWorkOrderSummary = Omit<
   | 'commentOperations'
   | 'canEdit'
   | 'canComment'
+  | 'labors'
+  | 'timePermissions'
+  | 'timerStatusRevision'
 >;
 
 export interface PendingWork {
@@ -293,7 +420,7 @@ export interface PendingWork {
   id: string;
   workOrderId: number;
   taskId?: number;
-  field: TaskField | 'comment' | 'attachments';
+  field: TaskField | 'comment' | 'attachments' | 'time';
   draftRevision?: number;
   status?: OperationStatus;
   attemptCount?: number;
@@ -371,6 +498,37 @@ export function assertSnapshot(snapshot: OfflineSnapshot): void {
     }
     ids.add(task.id);
   }
+  if (snapshot.labors !== undefined) {
+    if (
+      !Array.isArray(snapshot.labors) ||
+      !Number.isSafeInteger(snapshot.timerStatusRevision) ||
+      snapshot.timerStatusRevision! < 0 ||
+      !snapshot.timePermissions
+    )
+      throw new OfflineError('INVALID_SNAPSHOT');
+    const laborIds = new Set<number>();
+    for (const labor of snapshot.labors) {
+      if (
+        !labor ||
+        !Number.isSafeInteger(labor.id) ||
+        labor.id <= 0 ||
+        laborIds.has(labor.id) ||
+        !Number.isSafeInteger(labor.version) ||
+        labor.version < 0 ||
+        !Number.isFinite(labor.duration) ||
+        !Number.isFinite(Date.parse(labor.startedAt)) ||
+        (labor.status === 'RUNNING' && !labor.timerRunId)
+      )
+        throw new OfflineError('INVALID_SNAPSHOT');
+      laborIds.add(labor.id);
+    }
+    if (
+      Object.keys(NO_TIME_PERMISSIONS).some(
+        (key) => typeof snapshot.timePermissions![key] !== 'boolean'
+      )
+    )
+      throw new OfflineError('INVALID_SNAPSHOT');
+  }
   const commentIds = new Set<number>();
   for (const comment of snapshot.comments) {
     if (
@@ -394,6 +552,8 @@ export function snapshotItemCount(snapshot: OfflineSnapshot): number {
     snapshot.comments.length +
     snapshot.history.length +
     size(snapshot.assets) +
+    2 * size(snapshot.labors) +
+    (snapshot.labors || []).filter((labor) => !!labor.timeCategory).length +
     size(workOrder.assignedTo) +
     size(workOrder.team?.userIds) +
     size(workOrder.customers) +

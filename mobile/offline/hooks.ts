@@ -6,6 +6,7 @@ import type {
   PendingWork,
   TaskField
 } from './types';
+import { NO_TIME_PERMISSIONS } from './types';
 import type WorkOrder from '../models/workOrder';
 
 /** Related connected lists retain IDs; prepared entities are projected from SQLite. */
@@ -46,6 +47,9 @@ export function useOfflineWorkOrder(id: number) {
       workOrder: null,
       tasks: [],
       comments: [],
+      labors: [],
+      timePermissions: NO_TIME_PERMISSIONS,
+      timerStatusRevision: 0,
       commentDraft: null,
       commentOperations: [],
       canEdit: false,

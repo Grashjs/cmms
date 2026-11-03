@@ -1,4 +1,35 @@
 const ruJSON = {
+  offline_time_stopped: 'Таймер остановлен',
+  labor_review_current: 'Проверить текущее время',
+  labor_review_confirm: 'Сохранить мой ввод для этой версии',
+  labor_changed_review:
+    'Эта запись времени изменилась. Перед повторным сохранением проверьте версию на сервере.',
+  labor_server_duration: 'Текущая длительность на сервере',
+  offline_time_start: 'Начать',
+  offline_time_stop: 'Остановить и сохранить',
+  offline_time_running_local: 'Идёт на этом устройстве',
+  offline_time_start_pending: 'Запуск ожидает подтверждения',
+  offline_time_running_server: 'Идёт — подтверждено сервером',
+  offline_time_stop_pending: 'Остановка сохранена — ожидает отправки',
+  offline_time_save: 'Сохранить время',
+  offline_time_personal: 'Моё время',
+  offline_time_connected_form: 'Полная онлайн-форма',
+  offline_time_periods: 'Периоды на этом устройстве',
+  offline_time_server_total: 'Итого на сервере',
+  offline_time_review: 'Проверить период',
+  offline_time_preserve_status: 'Сохранить с текущим статусом',
+  offline_time_correct_connected: 'Исправить итог онлайн',
+  offline_time_saved_refresh_pending:
+    'Время подтверждено — ожидается локальное обновление',
+  offline_time_invalid_range:
+    'Проверьте начало и конец: длительность должна быть положительной, а время не должно быть в будущем.',
+  offline_time_run_changed:
+    'Этот таймер был остановлен или перезапущен в другом месте. Ваш период сохранён.',
+  offline_time_status_changed:
+    'Статус наряда изменился. Проверьте его перед отправкой этого периода.',
+  offline_time_not_allowed:
+    'Текущие права, лицензия или подписка не разрешают это действие со временем.',
+
   offline_refresh_copy: 'Обновить копию',
   offline_remove_server_attachment: 'Удалить из наряда',
   offline_clear_server_image: 'Убрать основное изображение',

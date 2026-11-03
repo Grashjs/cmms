@@ -322,6 +322,16 @@ public class WorkOrderService {
         return workOrderRepository.findByIdInAndCompany_Id(ids, companyId);
     }
 
+    /** Import already owns a transaction; lock in ID order before changing shared status decisions. */
+    public Collection<WorkOrder> findByIdsAndCompanyForUpdate(List<Long> ids, Long companyId) {
+        List<WorkOrder> result = new ArrayList<>();
+        ids.stream().distinct().sorted().forEach(id -> workOrderRepository.findForUpdate(id, companyId).ifPresent(wo -> {
+            em.refresh(wo);
+            result.add(wo);
+        }));
+        return result;
+    }
+
     public Collection<WorkOrder> findByCompany(Long id) {
         return workOrderRepository.findByCompany_Id(id);
     }
@@ -577,7 +587,10 @@ public class WorkOrderService {
         optionalCompletedBy.ifPresent(workOrder::setCompletedBy);
         workOrder.setCompletedOn(dto.getCompletedOn() == null ? null : Helper.addSeconds(new Date(), 60 * 10));
         workOrder.setArchived(Helper.getBooleanFromString(dto.getArchived()));
-        workOrder.setStatus(Status.getStatusFromString(dto.getStatus()));
+        Status importedStatus = Status.getStatusFromString(dto.getStatus());
+        if (workOrder.getId() != null && workOrder.getStatus() != importedStatus)
+            workOrder.setTimerStatusRevision(Math.addExact(workOrder.getTimerStatusRevision(), 1));
+        workOrder.setStatus(importedStatus);
         workOrder.setFeedback(dto.getFeedback());
         List<Customer> customers = new ArrayList<>();
         dto.getCustomersNames().forEach(name -> {
@@ -843,8 +856,9 @@ public class WorkOrderService {
 
     @Transactional
     public WorkOrder changeStatus(WorkOrderChangeStatusDTO dto, Long id, User user, String platform) {
-        Optional<WorkOrder> optionalWorkOrder = findById(id);
+        Optional<WorkOrder> optionalWorkOrder = workOrderRepository.findForUpdate(id, user.getCompany().getId());
         WorkOrder savedWorkOrder = optionalWorkOrder.get();
+        em.refresh(savedWorkOrder);
         em.detach(savedWorkOrder); // detach FIRST
         WorkOrder originalWorkOrder = savedWorkOrder;
         WorkOrder mutableWO = findById(id).get(); // fresh managed copy
@@ -874,6 +888,8 @@ public class WorkOrderService {
         }
         if (mutableWO.canBeEditedBy(user) && (dto.getSignature() == null ||
                 user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.SIGNATURE))) {
+            // Reaffirming a pause is still an explicit decision that a delayed start must respect.
+            mutableWO.setTimerStatusRevision(Math.addExact(mutableWO.getTimerStatusRevision(), 1));
             if (!dto.getStatus().equals(Status.IN_PROGRESS)) {
                 if (dto.getStatus().equals(Status.COMPLETE)) {
                     mutableWO.setCompletedBy(user);

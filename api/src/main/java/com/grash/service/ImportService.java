@@ -34,7 +34,7 @@ public class ImportService {
 
         Map<Long, WorkOrder> existingWorkOrders = new java.util.HashMap<>();
         if (!idsToCheck.isEmpty()) {
-            workOrderService.findByIdsAndCompany(idsToCheck, company.getId())
+            workOrderService.findByIdsAndCompanyForUpdate(idsToCheck, company.getId())
                     .forEach(wo -> existingWorkOrders.put(wo.getId(), wo));
         }
 

@@ -1,4 +1,34 @@
 const locale = {
+  offline_time_stopped: 'Időzítő leállítva',
+  labor_review_current: 'Jelenlegi idő ellenőrzése',
+  labor_review_confirm: 'Bevitelem megtartása ehhez a verzióhoz',
+  labor_changed_review:
+    'Ez az időbejegyzés megváltozott. Újabb mentés előtt ellenőrizze a szerver verzióját.',
+  labor_server_duration: 'Jelenlegi időtartam a szerveren',
+  offline_time_start: 'Indítás',
+  offline_time_stop: 'Leállítás és mentés',
+  offline_time_running_local: 'Folyamatban ezen az eszközön',
+  offline_time_start_pending: 'Az indítás megerősítésre vár',
+  offline_time_running_server: 'Folyamatban — a szerver megerősítette',
+  offline_time_stop_pending: 'Leállítás mentve — küldésre vár',
+  offline_time_save: 'Idő mentése',
+  offline_time_personal: 'Saját időm',
+  offline_time_connected_form: 'Teljes online űrlap',
+  offline_time_periods: 'Időszakok ezen az eszközön',
+  offline_time_server_total: 'Szerver összesítése',
+  offline_time_review: 'Időszak ellenőrzése',
+  offline_time_preserve_status: 'Mentés a jelenlegi állapot megtartásával',
+  offline_time_correct_connected: 'Összesítés javítása online',
+  offline_time_saved_refresh_pending: 'Idő megerősítve — helyi frissítésre vár',
+  offline_time_invalid_range:
+    'Ellenőrizze a kezdést és a befejezést: az időtartamnak pozitívnak kell lennie, és az időpontok nem lehetnek a jövőben.',
+  offline_time_run_changed:
+    'Ezt az időmérőt máshol leállították vagy újraindították. Az Ön időszaka megmarad.',
+  offline_time_status_changed:
+    'A munkalap állapota megváltozott. Az időszak elküldése előtt ellenőrizze.',
+  offline_time_not_allowed:
+    'A jelenlegi jogosultságok, licenc vagy előfizetés nem engedélyezi ezt az időműveletet.',
+
   offline_refresh_copy: 'Másolat frissítése',
   offline_remove_server_attachment: 'Eltávolítás a munkalapról',
   offline_clear_server_image: 'Főkép eltávolítása',
