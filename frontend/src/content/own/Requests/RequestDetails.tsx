@@ -26,7 +26,7 @@ import {
   cancelRequest,
   editRequest
 } from '../../../slices/request';
-import { useContext, useState } from 'react';
+import { useContext, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   getAssetUrl,
@@ -44,6 +44,8 @@ import BasicField from '../components/BasicField';
 import { editAsset } from '../../../slices/asset';
 import { AssetStatus, assetStatuses } from '../../../models/owns/asset';
 import { getCustomFieldValuesForDetails } from '../type';
+import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
+import { getErrorMessage } from '../../../utils/api';
 
 interface RequestDetailsProps {
   request: Request;
@@ -59,6 +61,7 @@ export default function RequestDetails({
   onClose
 }: RequestDetailsProps) {
   const [approving, setApproving] = useState<boolean>(false);
+  const approvingRef = useRef<boolean>(false);
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const theme = useTheme();
@@ -77,10 +80,13 @@ export default function RequestDetails({
   const { getFormattedDate, getUserNameById } = useContext(
     CompanySettingsContext
   );
+  const { showSnackBar } = useContext(CustomSnackBarContext);
   const [isImageViewerOpen, setIsImageViewerOpen] = useState<boolean>(false);
   const [openCancellationModal, setOpenCancellationModal] =
     useState<boolean>(false);
   const onApprove = () => {
+    if (approvingRef.current) return;
+    approvingRef.current = true;
     setApproving(true);
     dispatch(
       approveRequest(request.id, request.asset ? selectedAssetStatus : null)
@@ -88,7 +94,13 @@ export default function RequestDetails({
       .then((workOrderId) => {
         navigate(`/app/work-orders/${workOrderId}`);
       })
-      .finally(() => setApproving(false));
+      .catch((err) =>
+        showSnackBar(getErrorMessage(err, t('an_error_occured')), 'error')
+      )
+      .finally(() => {
+        approvingRef.current = false;
+        setApproving(false);
+      });
   };
 
   const fieldsToRender = (
@@ -200,13 +212,14 @@ export default function RequestDetails({
                 startIcon={<ClearTwoToneIcon />}
                 onClick={() => setOpenCancellationModal(true)}
                 variant="outlined"
+                disabled={approving}
               >
                 {t('reject')}
               </Button>
               <Button
                 startIcon={
                   approving ? (
-                    <CircularProgress size="1rem" sx={{ color: 'white' }} />
+                    <CircularProgress size="1rem" color="inherit" />
                   ) : (
                     <CheckTwoToneIcon />
                   )
@@ -216,6 +229,7 @@ export default function RequestDetails({
                   else onApprove();
                 }}
                 variant="contained"
+                disabled={approving}
               >
                 {t('approve')}
               </Button>
@@ -248,19 +262,21 @@ export default function RequestDetails({
             <Button
               onClick={() => setShowAssetStatuses(false)}
               variant={'outlined'}
+              disabled={approving}
             >
               {t('go_back')}
             </Button>
             <Button
               startIcon={
                 approving ? (
-                  <CircularProgress size="1rem" sx={{ color: 'white' }} />
+                  <CircularProgress size="1rem" color="inherit" />
                 ) : (
                   <CheckTwoToneIcon />
                 )
               }
               variant={'contained'}
               onClick={onApprove}
+              disabled={approving}
             >
               {t('approve')}
             </Button>
