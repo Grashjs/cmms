@@ -35,6 +35,11 @@ export const CompanySettingsContext = createContext<CompanySettingsContext>(
   {} as CompanySettingsContext
 );
 
+const hasValue = (value: unknown): boolean =>
+  Array.isArray(value)
+    ? value.length > 0
+    : value !== null && value !== undefined;
+
 export const CompanySettingsProvider: FC = ({ children }) => {
   const { companySettings, getFilteredFields, isAuthenticated, company, user } =
     useAuth();
@@ -164,14 +169,19 @@ export const CompanySettingsProvider: FC = ({ children }) => {
               yupSchema = Yup.string().required(requiredMessage).nullable();
               break;
             case 'file':
-              yupSchema = Yup.array().required(requiredMessage);
+              yupSchema = Yup.mixed()
+                .nullable()
+                .test('required', requiredMessage, hasValue);
               break;
             case 'number':
               yupSchema = Yup.number().required(requiredMessage).nullable();
               break;
             case 'select':
               if (fields[fieldIndexInFields].multiple) {
-                yupSchema = Yup.array().required(requiredMessage);
+                yupSchema = Yup.array()
+                  .nullable()
+                  .min(1, requiredMessage)
+                  .required(requiredMessage);
               } else {
                 yupSchema = Yup.object().required(requiredMessage).nullable();
               }
