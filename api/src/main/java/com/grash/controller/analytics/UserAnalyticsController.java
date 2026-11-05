@@ -38,7 +38,7 @@ public class UserAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getUserWOStats",
-            key = "#user.id"
+            key = "@analyticsCacheService.key(#user, null)"
     )
     public ResponseEntity<UserWOStats> getWOStats(@Parameter(hidden = true) @CurrentUser User user) {
         Collection<WorkOrder> createdWorkOrders = workOrderService.findByCreatedBy(user.getId());

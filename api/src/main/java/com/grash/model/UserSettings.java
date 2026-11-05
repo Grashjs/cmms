@@ -1,5 +1,6 @@
 package com.grash.model;
 
+import com.grash.model.enums.AnalyticsSummaryFrequency;
 import com.grash.model.enums.Language;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.annotation.Nullable;
@@ -28,6 +29,16 @@ public class UserSettings {
     private boolean emailUpdatesForPurchaseOrders = true;
     @Schema(description = "Whether stats for assigned work orders are shown")
     private boolean statsForAssignedWorkOrders = true;
+    @Schema(description = "How often the maintenance summary of the company is emailed, with the PDF attached. " +
+            "Only sent to users who can see the analytics")
+    @Column(nullable = false)
+    private AnalyticsSummaryFrequency analyticsSummaryFrequency = AnalyticsSummaryFrequency.NEVER;
+
+    public void setAnalyticsSummaryFrequency(AnalyticsSummaryFrequency analyticsSummaryFrequency) {
+        // clients that do not know the setting yet send the whole object without it
+        this.analyticsSummaryFrequency = analyticsSummaryFrequency == null ? AnalyticsSummaryFrequency.NEVER :
+                analyticsSummaryFrequency;
+    }
 
     public boolean shouldEmailUpdatesForWorkOrders() {
         return emailNotified && emailUpdatesForWorkOrders;
@@ -43,6 +54,10 @@ public class UserSettings {
 
     public boolean shouldShowStatsForAssignedWorkOrders() {
         return emailNotified && statsForAssignedWorkOrders;
+    }
+
+    public boolean shouldEmailAnalyticsSummary(AnalyticsSummaryFrequency frequency) {
+        return emailNotified && analyticsSummaryFrequency == frequency;
     }
 }
 

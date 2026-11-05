@@ -5,11 +5,13 @@ import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.MeterPatchDTO;
 import com.grash.dto.imports.MeterImportDTO;
 import com.grash.dto.MeterPostDTO;
+import com.grash.dto.analytics.meters.MeterAnalytics;
 import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.model.*;
 import com.grash.model.enums.*;
 import com.grash.repository.*;
+import com.grash.service.MeterAnalyticsService;
 import com.grash.service.MeterService;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.*;
 
 import static com.grash.utils.Consts.usageBasedFreeLimits;
@@ -61,6 +64,10 @@ class MeterIntegrationTest extends AbstractIntegrationTest {
     private EntityManager em;
     @Autowired
     private MeterService meterService;
+    @Autowired
+    private ReadingRepository readingRepository;
+    @Autowired
+    private MeterAnalyticsService meterAnalyticsService;
 
     private Company company;
     private User user;
@@ -681,6 +688,76 @@ class MeterIntegrationTest extends AbstractIntegrationTest {
             assertEquals(company.getId(), fromDb.getCompany().getId());
             assertNotNull(fromDb.getMeterCategory());
             assertEquals("Fuel", fromDb.getMeterCategory().getName());
+        }
+    }
+
+    @Nested
+    class AnalyticsTests {
+
+        @Test
+        void cumulativeFlag_isKeptWhenAPatchDoesNotSendIt() {
+            MeterPostDTO dto = buildPostDTO("Hour meter", createAsset("Compressor"));
+            dto.setCumulative(true);
+            Meter meter = meterService.create(dto, user);
+
+            meterService.patch(meter.getId(), buildPatchDTO("Hour meter 1"), user);
+            em.flush();
+            em.clear();
+
+            assertTrue(meterRepository.findById(meter.getId()).orElseThrow().isCumulative());
+        }
+
+        @Test
+        void readingsOfThePeriod_datesAndValuesInOrder() {
+            Meter meter = meterService.create(buildPostDTO("Energy", createAsset("Board")), user);
+            reading(meter, 100, "2026-09-30T12:00:00Z");
+            reading(meter, 130, "2026-10-02T12:00:00Z");
+            reading(meter, 110, "2026-10-01T12:00:00Z");
+            em.clear();
+
+            List<Object[]> rows = readingRepository.findDatesAndValues(meter.getId(), date("2026-10-01T00:00:00Z"),
+                    date("2026-10-10T00:00:00Z"));
+            Optional<Reading> before = readingRepository.findFirstByMeter_IdAndCreatedAtBeforeOrderByCreatedAtDesc(
+                    meter.getId(), date("2026-10-01T00:00:00Z"));
+
+            assertEquals(List.of(110.0, 130.0), rows.stream().map(row -> ((Number) row[1]).doubleValue()).toList());
+            assertEquals(date("2026-10-01T12:00:00Z").getTime(), ((Date) rows.get(0)[0]).getTime());
+            assertEquals(100.0, before.orElseThrow().getValue());
+        }
+
+        @Test
+        void getAnalytics_consumptionOfACumulativeMeter() {
+            MeterPostDTO dto = buildPostDTO("Energy", createAsset("Board"));
+            dto.setCumulative(true);
+            Meter meter = meterService.create(dto, user);
+            reading(meter, 100, "2026-09-30T12:00:00Z");
+            reading(meter, 110, "2026-10-01T12:00:00Z");
+            reading(meter, 130, "2026-10-02T12:00:00Z");
+            em.clear();
+
+            MeterAnalytics result = meterAnalyticsService.getAnalytics(company.getId(), meter.getId(),
+                    date("2026-10-01T00:00:00Z"), date("2026-10-09T23:59:59.999Z"));
+
+            assertEquals(2, result.getReadings());
+            assertEquals(30.0, result.getConsumption());
+            assertEquals(9, result.getPoints().size());
+            assertEquals(10.0, result.getPoints().get(0).getConsumption());
+        }
+
+        // createdAt is set by the auditing listener on insert, so the reading is backdated afterwards
+        private void reading(Meter meter, double value, String createdAt) {
+            Reading reading = new Reading();
+            reading.setMeter(meter);
+            reading.setValue(value);
+            reading = readingRepository.saveAndFlush(reading);
+            em.createNativeQuery("update reading set created_at = :createdAt where id = :id")
+                    .setParameter("createdAt", date(createdAt))
+                    .setParameter("id", reading.getId())
+                    .executeUpdate();
+        }
+
+        private Date date(String instant) {
+            return Date.from(Instant.parse(instant));
         }
     }
 }

@@ -21,9 +21,9 @@ public class WOStats {
     @Schema(description = "Compliant work orders")
     private int compliant;
     
-    @Schema(description = "Average cycle time")
-    private long avgCycleTime;
+    @Schema(description = "Average cycle time, in days")
+    private double avgCycleTime;
     
-    @Schema(description = "Mean time to acknowledge")
-    private long mtta;
+    @Schema(description = "Mean time to acknowledge, in hours")
+    private double mtta;
 }

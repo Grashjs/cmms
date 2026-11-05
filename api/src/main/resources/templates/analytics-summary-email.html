@@ -1,0 +1,9 @@
+<!--/*@thymesVar id="messageBody" type="java.lang.String"*/-->
+<!--/*@thymesVar id="analyticsLink" type="java.lang.String"*/-->
+<div th:replace="fragments/main-layout :: emailTemplate(
+    #{summary_title},
+    #{summary_email_preheader},
+    ${messageBody},
+    #{summary_email_button},
+    ${analyticsLink}
+)"></div>

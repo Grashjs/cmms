@@ -11,6 +11,8 @@ export default interface Meter extends Audit {
   id: number;
   unit: string;
   updateFrequency: number;
+  // hour meters, energy meters...: the statistics show the consumption
+  cumulative?: boolean;
   meterCategory: Category;
   image: FileThumbnailDTO | null;
   users: UserMiniDTO[];

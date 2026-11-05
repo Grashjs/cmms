@@ -1,5 +1,6 @@
 package com.grash.configuration;
 
+import com.grash.job.AnalyticsSummaryJob;
 import com.grash.job.DeleteDemoCompaniesJob;
 import io.sentry.Sentry;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +9,8 @@ import org.quartz.listeners.JobListenerSupport;
 import org.springframework.boot.autoconfigure.quartz.SchedulerFactoryBeanCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.TimeZone;
 
 @Configuration
 public class QuartzConfig {
@@ -28,6 +31,27 @@ public class QuartzConfig {
                 .withSchedule(SimpleScheduleBuilder.simpleSchedule()
                         .withIntervalInHours(1)
                         .repeatForever())
+                .build();
+    }
+
+    @Bean
+    public JobDetail analyticsSummaryJobDetail() {
+        return JobBuilder.newJob(AnalyticsSummaryJob.class)
+                .withIdentity("analyticsSummaryJob")
+                .storeDurably()
+                .build();
+    }
+
+    @Bean
+    public Trigger analyticsSummaryTrigger() {
+        // every hour on the hour: each company gets its summaries at 07:00 in its own time zone
+        return TriggerBuilder.newTrigger()
+                .forJob(analyticsSummaryJobDetail())
+                .withIdentity("analyticsSummaryTrigger")
+                .withSchedule(CronScheduleBuilder.cronSchedule("0 0 * * * ?")
+                        .inTimeZone(TimeZone.getTimeZone("UTC"))
+                        // a missed hour is skipped rather than sent late
+                        .withMisfireHandlingInstructionDoNothing())
                 .build();
     }
 

@@ -1,6 +1,7 @@
 package com.grash.controller.analytics;
 
 import com.grash.dto.DateRange;
+import com.grash.dto.analytics.AnalyticsFilter;
 import com.grash.dto.analytics.assets.*;
 import com.grash.exception.CustomException;
 import com.grash.model.Asset;
@@ -10,6 +11,8 @@ import com.grash.model.WorkOrder;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.Status;
 import com.grash.security.CurrentUser;
+import com.grash.service.AnalyticsFilterService;
+import com.grash.service.MaintenanceKpiService;
 import com.grash.service.AssetDowntimeService;
 import com.grash.service.AssetService;
 import com.grash.service.UserService;
@@ -41,13 +44,14 @@ public class AssetAnalyticsController {
     private final UserService userService;
     private final AssetService assetService;
     private final AssetDowntimeService assetDowntimeService;
+    private final AnalyticsFilterService analyticsFilterService;
+    private final MaintenanceKpiService maintenanceKpiService;
 
     @PostMapping("/time-cost")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getTimeCostByAsset",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
+            key = "@analyticsCacheService.key(#user, #companyId, #dateRange)"
     )
     public ResponseEntity<Collection<TimeCostByAsset>> getTimeCostByAsset(@Parameter(hidden = true) @CurrentUser User user,
                                                                           @Parameter(description = "Date range for " +
@@ -55,10 +59,12 @@ public class AssetAnalyticsController {
                                                                           @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
         if (user.canSeeAnalytics()) {
             Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
+            // shown on the work order "Time and cost" report, so it takes the work order analytics filters
+            AnalyticsFilter filter = analyticsFilterService.resolve(resolvedCompanyId, dateRange);
             boolean includeLaborCost =
                     user.getCompany().getCompanySettings().getGeneralPreferences().isLaborCostInTotalCost();
             List<Object[]> rows = workOrderService.findTopNAssetsTimeCost(
-                    resolvedCompanyId, dateRange.getStart(), dateRange.getEnd(), 10);
+                    resolvedCompanyId, dateRange.getStart(), dateRange.getEnd(), 10, filter);
             Collection<TimeCostByAsset> result = rows.stream()
                     .map(row -> {
                         long time = ((Number) row[2]).longValue();
@@ -82,8 +88,7 @@ public class AssetAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getOverviewStats",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
+            key = "@analyticsCacheService.key(#user, #companyId, #dateRange)"
     )
     public ResponseEntity<AssetStats> getOverviewStats(@Parameter(hidden = true) @CurrentUser User user,
                                                        @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange,
@@ -112,8 +117,7 @@ public class AssetAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getDowntimesByAsset",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
+            key = "@analyticsCacheService.key(#user, #companyId, #dateRange)"
     )
     public ResponseEntity<Collection<DowntimesByAsset>> getDowntimesByAsset(@Parameter(hidden = true) @CurrentUser User user,
                                                                             @Parameter(description = "Date range for " +
@@ -143,8 +147,7 @@ public class AssetAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getMTBFByAsset",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
+            key = "@analyticsCacheService.key(#user, #companyId, #dateRange)"
     )
     public ResponseEntity<Collection<MTBFByAsset>> getMTBFByAsset(@Parameter(hidden = true) @CurrentUser User user,
                                                                   @Parameter(description = "Date range for filtering " +
@@ -170,8 +173,7 @@ public class AssetAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getMeantimes",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
+            key = "@analyticsCacheService.key(#user, #companyId, #dateRange)"
     )
     public ResponseEntity<Meantimes> getMeantimes(@Parameter(hidden = true) @CurrentUser User user,
                                                   @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange,
@@ -204,8 +206,7 @@ public class AssetAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getRepairTimeByAsset",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
+            key = "@analyticsCacheService.key(#user, #companyId, #dateRange)"
     )
     public ResponseEntity<Collection<RepairTimeByAsset>> getRepairTimeByAsset(@Parameter(hidden = true) @CurrentUser User user,
                                                                               @Parameter(description = "Date range " +
@@ -230,8 +231,7 @@ public class AssetAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getDowntimesMeantimeByMonth",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
+            key = "@analyticsCacheService.key(#user, #companyId, #dateRange)"
     )
     public ResponseEntity<List<DowntimesMeantimeByDate>> getDowntimesMeantimeByMonth(@Parameter(hidden = true) @CurrentUser User user,
                                                                                      @Parameter(description = "Date " +
@@ -269,8 +269,7 @@ public class AssetAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getAssetsCosts",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
+            key = "@analyticsCacheService.key(#user, #companyId, #dateRange)"
     )
     public ResponseEntity<AssetsCosts> getAssetsCosts(@Parameter(hidden = true) @CurrentUser User user,
                                                       @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange,
@@ -303,8 +302,7 @@ public class AssetAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getDowntimesAndCosts",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
+            key = "@analyticsCacheService.key(#user, #companyId, #dateRange)"
     )
     public ResponseEntity<Collection<DowntimesAndCostsByAsset>> getDowntimesAndCosts(@Parameter(hidden = true) @CurrentUser User user,
                                                                                      @Parameter(description = "Date " +
@@ -337,8 +335,7 @@ public class AssetAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getDowntimesByMonth",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
+            key = "@analyticsCacheService.key(#user, #companyId, #dateRange)"
     )
     public ResponseEntity<List<DowntimesByDate>> getDowntimesByMonth(@Parameter(hidden = true) @CurrentUser User user,
                                                                      @Parameter(description = "Date range for " +
@@ -377,11 +374,28 @@ public class AssetAnalyticsController {
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
+    @PostMapping("/availability")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @Cacheable(
+            value = "getAvailabilityByAsset",
+            key = "@analyticsCacheService.key(#user, #companyId, #dateRange)"
+    )
+    public ResponseEntity<List<AssetAvailability>> getAvailabilityByAsset(@Parameter(hidden = true) @CurrentUser User user,
+                                                                          @Parameter(description = "Date range and analytics filters (only location and asset category apply)") @RequestBody DateRange dateRange,
+                                                                          @RequestParam(required = false) @Parameter(description = "Filter by specific company") Long companyId) {
+        if (user.canSeeAnalytics()) {
+            Long resolvedCompanyId = Helper.resolveCompanyId(user, companyId);
+            AnalyticsFilter filter = analyticsFilterService.resolve(resolvedCompanyId, dateRange);
+            return ResponseEntity.ok(maintenanceKpiService.getAvailabilityByAsset(resolvedCompanyId,
+                    dateRange.getStart(), dateRange.getEnd(), filter));
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
     @PostMapping("/{id}/overview")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getDateRangeOverview",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end)+'_'+#id"
+            key = "@analyticsCacheService.key(#user, null, #dateRange) + '_' + #id"
     )
     public ResponseEntity<AssetOverview> getDateRangeOverview(@PathVariable Long id, @Parameter(description = "Date " +
                                                                       "range for filtering analytics") @RequestBody DateRange dateRange

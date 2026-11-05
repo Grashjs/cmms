@@ -11,6 +11,7 @@ import HoursWorked from './HoursWorked';
 import { Filter } from '../WOModal';
 import CustomDateRangePicker from '../../CustomDateRangePicker';
 import StatusByDate from './StatusByDate';
+import { FilterField } from '../../../../../models/owns/page';
 
 interface WOStatusStatsProps {
   handleOpenWOModal: (
@@ -31,6 +32,7 @@ function WOStatusStats({ handleOpenWOModal }: WOStatusStatsProps) {
   const [companyId, setCompanyId] = useState<number | undefined>(
     user?.superAccountRelations?.[0]?.childCompanyId ?? undefined
   );
+  const [filterFields, setFilterFields] = useState<FilterField[]>([]);
 
   useEffect(() => {
     setTitle(t('status_report'));
@@ -50,26 +52,26 @@ function WOStatusStats({ handleOpenWOModal }: WOStatusStatsProps) {
         paddingX={1}
       >
         <Grid item xs={12}>
-          <CustomDateRangePicker start={start} end={end} setStart={setStart} setEnd={setEnd} companyId={companyId} onCompanyChange={setCompanyId} />
+          <CustomDateRangePicker start={start} end={end} setStart={setStart} setEnd={setEnd} companyId={companyId} onCompanyChange={setCompanyId} filterFields={filterFields} onFilterFieldsChange={setFilterFields} />
         </Grid>
         <Grid item xs={12} md={6}>
           <Grid container spacing={1}>
             <Grid item xs={12} md={12}>
-              <Overview handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
+              <Overview handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} filterFields={filterFields} />
             </Grid>
             <Grid item xs={12} md={12}>
-              <WOStatusPie handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
+              <WOStatusPie handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} filterFields={filterFields} />
             </Grid>
           </Grid>
         </Grid>
         <Grid item xs={12} md={6}>
-          <IncompleteWO handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
+          <IncompleteWO handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} filterFields={filterFields} />
         </Grid>
         <Grid item xs={12}>
-          <StatusByDate handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
+          <StatusByDate handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} filterFields={filterFields} />
         </Grid>
         <Grid item xs={12} md={12}>
-          <HoursWorked handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
+          <HoursWorked handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} filterFields={filterFields} />
         </Grid>
       </Grid>
     </>

@@ -9,6 +9,7 @@ import { getCompleteByPriority } from '../../../../../slices/analytics/workOrder
 import { getRandomColor } from '../../../../../utils/overall';
 import { getPriorityLabel } from '../../../../../utils/formatters';
 import Loading from '../../Loading';
+import { FilterField } from '../../../../../models/owns/page';
 
 interface WOByPrimaryUserProps {
   handleOpenModal: (
@@ -19,9 +20,10 @@ interface WOByPrimaryUserProps {
   start: Date;
   end: Date;
   companyId?: number;
+  filterFields?: FilterField[];
 }
 
-function WOByPriority({ handleOpenModal, start, end, companyId }: WOByPrimaryUserProps) {
+function WOByPriority({ handleOpenModal, start, end, companyId, filterFields }: WOByPrimaryUserProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -30,8 +32,8 @@ function WOByPriority({ handleOpenModal, start, end, companyId }: WOByPrimaryUse
   );
 
   useEffect(() => {
-    dispatch(getCompleteByPriority(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getCompleteByPriority(start, end, companyId, filterFields));
+  }, [start, end, companyId, filterFields]);
 
   const columns = ['id'];
 

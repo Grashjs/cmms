@@ -15,6 +15,7 @@ import { useDispatch, useSelector } from '../../../../../store';
 import { useEffect } from 'react';
 import { getCompleteByWeek } from '../../../../../slices/analytics/workOrder';
 import { getDayAndMonth } from '../../../../../utils/dates';
+import { FilterField } from '../../../../../models/owns/page';
 
 interface WOStatusIncompleteProps {
   handleOpenModal: (
@@ -23,16 +24,17 @@ interface WOStatusIncompleteProps {
     title: string
   ) => void;
   companyId?: number;
+  filterFields?: FilterField[];
 }
-function WOByWeek({ handleOpenModal, companyId }: WOStatusIncompleteProps) {
+function WOByWeek({ handleOpenModal, companyId, filterFields }: WOStatusIncompleteProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const { completeByWeek, loading } = useSelector((state) => state.woAnalytics);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getCompleteByWeek(companyId));
-  }, [companyId]);
+    dispatch(getCompleteByWeek(companyId, filterFields));
+  }, [companyId, filterFields]);
 
   const columns: string[] = ['id'];
 

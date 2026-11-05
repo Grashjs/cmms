@@ -16,6 +16,7 @@ import { useEffect } from 'react';
 import Loading from '../../Loading';
 import { getRequestsByDate } from '../../../../../slices/analytics/request';
 import { getDayAndMonth } from '../../../../../utils/dates';
+import { FilterField } from '../../../../../models/owns/page';
 
 interface OwnProps {
   handleOpenModal: (
@@ -26,9 +27,10 @@ interface OwnProps {
   start: Date;
   end: Date;
   companyId?: number;
+  filterFields?: FilterField[];
 }
 
-function RequestsByDate({ handleOpenModal, start, end, companyId }: OwnProps) {
+function RequestsByDate({ handleOpenModal, start, end, companyId, filterFields }: OwnProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -37,8 +39,8 @@ function RequestsByDate({ handleOpenModal, start, end, companyId }: OwnProps) {
   );
 
   useEffect(() => {
-    dispatch(getRequestsByDate(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getRequestsByDate(start, end, companyId, filterFields));
+  }, [start, end, companyId, filterFields]);
 
   const formattedData: {
     label: string;

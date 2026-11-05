@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from '../../../../../store';
 import { useCallback, useEffect } from 'react';
 import { getIncompleteByStatus } from '../../../../../slices/analytics/workOrder';
 import Loading from '../../Loading';
+import { FilterField } from '../../../../../models/owns/page';
 
 interface WOStatusPieProps {
   handleOpenModal: (
@@ -17,9 +18,10 @@ interface WOStatusPieProps {
   start: Date;
   end: Date;
   companyId?: number;
+  filterFields?: FilterField[];
 }
 
-function WOStatusPie({ handleOpenModal, start, end, companyId }: WOStatusPieProps) {
+function WOStatusPie({ handleOpenModal, start, end, companyId, filterFields }: WOStatusPieProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -29,8 +31,8 @@ function WOStatusPie({ handleOpenModal, start, end, companyId }: WOStatusPieProp
   const RADIAN = Math.PI / 180;
 
   useEffect(() => {
-    dispatch(getIncompleteByStatus(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getIncompleteByStatus(start, end, companyId, filterFields));
+  }, [start, end, companyId, filterFields]);
 
   const columns = ['id'];
   const formattedData = [
