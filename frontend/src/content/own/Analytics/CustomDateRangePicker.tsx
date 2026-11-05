@@ -17,8 +17,8 @@ import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
-import en from 'date-fns/locale/en-US';
 import useAuth from '../../../hooks/useAuth';
+import useDateLocale from '../../../hooks/useDateLocale';
 import BusinessTwoToneIcon from '@mui/icons-material/BusinessTwoTone';
 
 interface OwnProps {
@@ -39,7 +39,12 @@ export default function ({
   onCompanyChange
 }: OwnProps) {
   const { t }: { t: any } = useTranslation();
-  const { user } = useAuth();
+  const { user, companySettings } = useAuth();
+  const dateLocale = useDateLocale();
+  const displayFormat =
+    companySettings?.generalPreferences?.dateFormat === 'MMDDYY'
+      ? 'MM/dd/yyyy'
+      : 'dd/MM/yyyy';
   const anchorRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -102,8 +107,12 @@ export default function ({
       )?.childCompanyName
     : null;
 
-  const displayStartDate = start ? format(start, 'MMM dd, yyyy') : '';
-  const displayEndDate = end ? format(end, 'MMM dd, yyyy') : '';
+  const displayStartDate = start
+    ? format(start, displayFormat, { locale: dateLocale })
+    : '';
+  const displayEndDate = end
+    ? format(end, displayFormat, { locale: dateLocale })
+    : '';
 
   return (
     <>
@@ -176,7 +185,8 @@ export default function ({
           ranges={state}
           onChange={handleSelect}
           months={2}
-          locale={en}
+          locale={dateLocale}
+          dateDisplayFormat={displayFormat}
           direction="horizontal"
           rangeColors={[theme.palette.primary.main]}
         />
