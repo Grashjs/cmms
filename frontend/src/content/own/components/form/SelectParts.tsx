@@ -25,6 +25,7 @@ import ExpandMoreTwoToneIcon from '@mui/icons-material/ExpandMoreTwoTone';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 import { getPartsMini } from '../../../../slices/part';
 import { getMultiParts } from "../../../../slices/multipart";
+import { matchesSearch } from '../../../../utils/search';
 
 interface SelectPartsProps {
   onChange: (parts: PartMiniDTO[]) => void;
@@ -116,7 +117,7 @@ export default function SelectParts({ onChange, selected }: SelectPartsProps) {
             <Box>
               <TextField sx={{mb:1}} value={searchString} onChange={(event)=>setSearchString(event.target.value)} placeholder={t('search')} label={t('search')}/>
               <FormGroup>
-                {partsMini.filter(part=>part.name.toLowerCase().includes(searchString.toLowerCase())).map((part) => (
+                {partsMini.filter(part=>matchesSearch(part.name, searchString)).map((part) => (
                   <FormControlLabel
                     onChange={(event, checked) => {
                       if (checked) {
