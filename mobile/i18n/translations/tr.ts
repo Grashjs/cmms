@@ -1,4 +1,20 @@
 ﻿const trJSON = {
+  management_access_denied: "İşlem reddedildi: izinlerinizi, hedef rolü ve hesap sahibini kontrol edin.",
+  no_assignable_roles: "Mevcut izinlerinizle atayabileceğiniz bir rol yok.",
+  invitation_created: 'Davet oluşturuldu',
+  invitation_delivery_notice:
+    'Bu kişisel bağlantıyı davet edilen kişiyle paylaşın. Bağlantının geçerlilik süresi vardır, yalnızca bir kez kullanılabilir ve yeni bir davet önceki bağlantıyı geçersiz kılar. Bu ekrandan ayrıldığınızda bağlantılar silinir.',
+  invitation_expires: 'Son geçerlilik tarihi: {{date}}',
+  invitation_copy: 'Bağlantıyı kopyala',
+  invitation_share: 'Bağlantıyı paylaş',
+  invitation_copied: 'Bağlantı kopyalandı',
+  invitation_copy_failed: 'Bağlantı kopyalanamadı. Lütfen tekrar deneyin.',
+  invitation_share_failed: 'Bağlantı paylaşılamadı. Lütfen tekrar deneyin.',
+  invitation_browser_acceptance:
+    'Davet edilen kişi kaydını web tarayıcısında tamamlar, ardından mobil uygulamada oturum açar.',
+  invitation_send_email: 'Ayrıca e-postayla davet gönderilmesini iste',
+  invitation_email_optional:
+    'Yalnızca sunucuda e-posta gönderimi etkinse e-posta istenir. Bir davetin oluşturulması, e-postanın teslim edildiğini doğrulamaz. Bağlantıyı her zaman kopyalayabilir veya paylaşabilirsiniz.',
   DUPLICATE_OF: 'Kopyası',
   DUPLICATED_BY: 'Tarafından çoğaltıldı',
   RELATED_TO: 'İle ilgili',

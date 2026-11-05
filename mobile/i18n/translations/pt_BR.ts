@@ -1,4 +1,21 @@
 const ptBRJSON = {
+  management_access_denied: "Ação negada: verifique suas permissões, a função de destino e o proprietário da conta.",
+  no_assignable_roles: "Nenhuma função pode ser atribuída com suas permissões atuais.",
+  invitation_created: 'Convite criado',
+  invitation_delivery_notice:
+    'Compartilhe este link pessoal com a pessoa convidada. Ele expira, só pode ser usado uma vez e um novo convite invalida o link anterior. Os links são apagados ao sair desta tela.',
+  invitation_expires: 'Expira em: {{date}}',
+  invitation_copy: 'Copiar link',
+  invitation_share: 'Compartilhar link',
+  invitation_copied: 'Link copiado',
+  invitation_copy_failed: 'Não foi possível copiar o link. Tente novamente.',
+  invitation_share_failed:
+    'Não foi possível compartilhar o link. Tente novamente.',
+  invitation_browser_acceptance:
+    'A pessoa convidada conclui o cadastro no navegador e depois entra no aplicativo móvel.',
+  invitation_send_email: 'Solicitar também um convite por e-mail',
+  invitation_email_optional:
+    'O e-mail só é solicitado se o envio estiver habilitado no servidor. Criar um convite não confirma a entrega do e-mail. Você sempre pode copiar ou compartilhar o link.',
   DUPLICATE_OF: 'Duplicado de',
   DUPLICATED_BY: 'Duplicado por',
   RELATED_TO: 'Relacionado a',

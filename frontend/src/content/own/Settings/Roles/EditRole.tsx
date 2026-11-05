@@ -37,7 +37,12 @@ function EditRole({ role, open, onClose, formatValues }: EditRoleProps) {
     showSnackBar(t('changes_saved_success'), 'success');
   };
   const onEditFailure = (err) =>
-    showSnackBar(getErrorMessage(err, t('role_edit_failure')), 'error');
+    showSnackBar(
+      err?.status === 403
+        ? t('management_access_denied')
+        : getErrorMessage(err, t('role_edit_failure')),
+      'error'
+    );
 
   const permissionRoots: PermissionRoot[] = [
     'viewPermissions',

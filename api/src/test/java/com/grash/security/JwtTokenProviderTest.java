@@ -130,6 +130,17 @@ class JwtTokenProviderTest {
         }
 
         @Test
+        void newTokenWithinRevocationSecondUsesMillisecondPrecision() {
+            String username = "immediate@test.com";
+            User user = createUserWithRole(username, true);
+            user.setSessionInvalidatedAt(new Date());
+            String token = jwtTokenProvider.createToken(username, List.of(RoleType.ROLE_CLIENT));
+            when(customUserDetailsService.loadUserByUsername(username))
+                    .thenReturn(CustomUserDetail.builder().user(user).build());
+            assertTrue(jwtTokenProvider.getAuthentication(token).isAuthenticated());
+        }
+
+        @Test
         void tokenIssuedAfterSessionInvalidation_isAccepted() {
             String username = "revalid@test.com";
             User user = createUserWithRole(username, true);

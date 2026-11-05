@@ -51,7 +51,12 @@ function PageHeader({ rolesNumber, formatValues }: PageHeaderProps) {
     showSnackBar(t('role_create_success'), 'success');
   };
   const onCreationFailure = (err) =>
-    showSnackBar(getErrorMessage(err, t('role_create_failure')), 'error');
+    showSnackBar(
+      err?.status === 403
+        ? t('management_access_denied')
+        : getErrorMessage(err, t('role_create_failure')),
+      'error'
+    );
 
   const permissionRoots: PermissionRoot[] = [
     'viewPermissions',
@@ -86,7 +91,15 @@ function PageHeader({ rolesNumber, formatValues }: PageHeaderProps) {
                 sx={{
                   mt: { xs: 2, sm: 0 }
                 }}
-                disabled={!hasFeature(PlanFeature.ROLE)}
+                disabled={
+                  !hasFeature(PlanFeature.ROLE) ||
+                  !user?.role?.createPermissions?.includes(
+                    PermissionEntity.SETTINGS
+                  ) ||
+                  !user?.role?.viewPermissions?.includes(
+                    PermissionEntity.SETTINGS
+                  )
+                }
                 onClick={handleCreateRoleOpen}
                 variant="contained"
                 startIcon={<AddTwoToneIcon fontSize="small" />}

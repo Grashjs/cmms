@@ -54,12 +54,23 @@ const slice = createSlice({
 
 export const reducer = slice.reducer;
 
-export const getRoles = (): AppThunk => async (dispatch) => {
-  dispatch(slice.actions.setLoadingGet({ loading: true }));
-  const roles = await api.get<Role[]>('roles');
-  dispatch(slice.actions.getRoles({ roles }));
-  dispatch(slice.actions.setLoadingGet({ loading: false }));
-};
+export const getRoles =
+  (assignment?: { operation: 'invite' | 'role'; userId?: number }): AppThunk =>
+  async (dispatch) => {
+    dispatch(slice.actions.setLoadingGet({ loading: true }));
+    dispatch(slice.actions.getRoles({ roles: [] }));
+    try {
+      const query = assignment
+        ? `roles/assignable?operation=${assignment.operation}${
+            assignment.userId == null ? '' : `&userId=${assignment.userId}`
+          }`
+        : 'roles';
+      const roles = await api.get<Role[]>(query);
+      dispatch(slice.actions.getRoles({ roles }));
+    } finally {
+      dispatch(slice.actions.setLoadingGet({ loading: false }));
+    }
+  };
 
 export const addRole =
   (role): AppThunk =>

@@ -1,4 +1,6 @@
 const locale = {
+  management_access_denied: "操作被拒绝：请检查您的权限、目标角色和账户所有者。",
+  no_assignable_roles: "您当前的权限无法分配任何角色。",
   DUPLICATE_OF: '复制自',
   DUPLICATED_BY: '被复制',
   RELATED_TO: '相关于',
@@ -604,6 +606,14 @@ const locale = {
     "您可以通过在每次电子邮件输入后按'tab'或'enter'一次添加20个用户。任何重复和已注册的电子邮件地址将在请求用户注册时被删除。",
   enter_email: '输入电子邮件地址',
   users_invite_success: '用户已邀请',
+  invitation_send_email: '发送邀请邮件',
+  invitation_links_notice:
+    '请立即复制这些链接，并将每个链接仅发送给对应的受邀人。链接有有效期且只能使用一次。重新发出邀请会使之前的链接失效。',
+  invitation_link: '邀请链接',
+  invitation_expires: '到期时间：{{date}}',
+  invitation_unavailable:
+    '此邀请无效、已过期或已使用。请向有权限的管理员申请新的邀请链接。仅包含邮箱和角色的旧链接必须重新生成。',
+  invitation_join_details: '以 {{role}} 身份加入 {{company}}',
   users_invite_failure: '用户无法邀请。检查您当前的订阅成员数量',
   please_type_emails: '输入要邀请的电子邮件地址',
   please_select_role: '选择角色',

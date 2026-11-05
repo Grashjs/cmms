@@ -1,4 +1,6 @@
 const trJSON = {
+  management_access_denied: "İşlem reddedildi: izinlerinizi, hedef rolü ve hesap sahibini kontrol edin.",
+  no_assignable_roles: "Mevcut izinlerinizle atayabileceğiniz bir rol yok.",
   DUPLICATE_OF: 'Kopyası',
   DUPLICATED_BY: 'Tarafından çoğaltıldı',
   RELATED_TO: 'İle ilgili',
@@ -722,6 +724,14 @@ const trJSON = {
     "Her e-posta girişinden sonra 'sekme' veya 'enter' tuşuna basarak aynı anda 20 kullanıcı ekleyebilirsiniz. ",
   enter_email: 'Email adresini gir',
   users_invite_success: 'Kullanıcılar davet edildi',
+  invitation_send_email: 'Davetleri e-postayla gönder',
+  invitation_links_notice:
+    'Bu bağlantıları şimdi kopyalayın ve her bağlantıyı yalnızca ilgili alıcıya gönderin. Bağlantıların geçerlilik süresi vardır ve yalnızca bir kez kullanılabilirler. Bir daveti yenilemek önceki bağlantıyı geçersiz kılar.',
+  invitation_link: 'Davet bağlantısı',
+  invitation_expires: 'Son geçerlilik tarihi: {{date}}',
+  invitation_unavailable:
+    'Bu davet geçersiz, süresi dolmuş veya zaten kullanılmış. Yetkili bir yöneticiden yeni bir davet bağlantısı isteyin. Yalnızca e-posta ve rol içeren eski bağlantıların yenilenmesi gerekir.',
+  invitation_join_details: '{{company}} şirketine {{role}} rolüyle katıl',
   users_invite_failure: 'Kullanıcılar davet edilemez. ',
   please_type_emails: 'Lütfen davet etmek için e-postaları yazın',
   please_select_role: 'Lütfen bir rol seçin',

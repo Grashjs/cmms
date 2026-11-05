@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CompanyRepository extends JpaRepository<Company, Long> {
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT c FROM Company c WHERE c.id = :id")
+    Optional<Company> lockAuthorization(@Param("id") Long id);
     List<Company> findByDemoTrue();
 
     void deleteAllByDemoTrue();

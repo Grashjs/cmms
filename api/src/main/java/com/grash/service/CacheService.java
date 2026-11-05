@@ -32,21 +32,25 @@ public class CacheService {
         if (user != null) {
             Cache usersCache = cacheManager.getCache(USERS_CACHE);
             if (usersCache != null) {
-                Hibernate.initialize(user.getRole());
-                Hibernate.initialize(user.getAppStats());
-                if (user.getRole() != null) {
-                    Hibernate.initialize(user.getRole().getCreatePermissions());
-                    Hibernate.initialize(user.getRole().getViewPermissions());
-                    Hibernate.initialize(user.getRole().getViewOtherPermissions());
-                    Hibernate.initialize(user.getRole().getDeleteOtherPermissions());
-                    Hibernate.initialize(user.getRole().getEditOtherPermissions());
-                }
-                if (user.getCompany() != null && user.getCompany().getSubscription() != null) {
-                    Hibernate.initialize(user.getCompany().getSubscription().getSubscriptionPlan().getFeatures());
-                }
+                initializeUser(user);
                 if (user.getEmail() != null)
                     usersCache.put(getCacheKey(user.getEmail()), user);
             }
+        }
+    }
+
+    public void initializeUser(User user) {
+        Hibernate.initialize(user.getRole());
+        Hibernate.initialize(user.getAppStats());
+        if (user.getRole() != null) {
+            Hibernate.initialize(user.getRole().getCreatePermissions());
+            Hibernate.initialize(user.getRole().getViewPermissions());
+            Hibernate.initialize(user.getRole().getViewOtherPermissions());
+            Hibernate.initialize(user.getRole().getDeleteOtherPermissions());
+            Hibernate.initialize(user.getRole().getEditOtherPermissions());
+        }
+        if (user.getCompany() != null && user.getCompany().getSubscription() != null) {
+            Hibernate.initialize(user.getCompany().getSubscription().getSubscriptionPlan().getFeatures());
         }
     }
 

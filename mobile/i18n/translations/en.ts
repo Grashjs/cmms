@@ -1,4 +1,20 @@
 const locale = {
+  management_access_denied: "Action denied: check your permissions, the target role and the account owner.",
+  no_assignable_roles: "No role is available for you to assign.",
+  invitation_created: 'Invitation created',
+  invitation_delivery_notice:
+    'Share this personal link with the invited person. It expires, can only be used once, and a replacement invitation invalidates the previous link. Links are cleared when you leave this screen.',
+  invitation_expires: 'Expires: {{date}}',
+  invitation_copy: 'Copy link',
+  invitation_share: 'Share link',
+  invitation_copied: 'Link copied',
+  invitation_copy_failed: 'Unable to copy the link. Please try again.',
+  invitation_share_failed: 'Unable to share the link. Please try again.',
+  invitation_browser_acceptance:
+    'The invited person completes registration in their web browser, then signs in to the mobile app.',
+  invitation_send_email: 'Also request an invitation email',
+  invitation_email_optional:
+    'An email is requested only if sending is enabled on the server. Creating an invitation does not confirm email delivery. You can always copy or share the link.',
   DUPLICATE_OF: 'Duplicate of',
   DUPLICATED_BY: 'Duplicated by',
   RELATED_TO: 'Related to',

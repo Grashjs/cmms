@@ -1,3 +1,4 @@
+import { openAttachment } from 'src/utils/attachment';
 import { Helmet } from 'react-helmet-async';
 import {
   Box,
@@ -381,7 +382,7 @@ function Files() {
                   onColumnSizingChange={setColumnSizing}
                   columnVisibility={columnVisibility}
                   onColumnVisibilityChange={setColumnVisibility}
-                  onRowClick={(row) => window.open(row.url, '_blank')}
+                  onRowClick={(row) => openAttachment(row.url)}
                   noRowsMessage={t('noRows.file.message')}
                   noRowsAction={t('noRows.file.action')}
                   enableColumnReordering

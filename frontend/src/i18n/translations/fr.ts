@@ -1,4 +1,6 @@
 const frJSON = {
+  management_access_denied: "Opération refusée : vérifiez vos droits, le rôle visé et le propriétaire du compte.",
+  no_assignable_roles: "Aucun rôle ne peut être attribué avec vos droits actuels.",
   Blueprints: 'Plans',
   'Extended Sidebar': 'Barre latérale étendue',
   'Accent Sidebar': "Barre latérale d'accentuation",
@@ -878,6 +880,14 @@ const frJSON = {
     "Vous pouvez ajouter 20 utilisateurs à la fois en appuyant sur «Tab» ou «Entrée» après chaque entrée d'e-mail. ",
   enter_email: "Entrer l'adresse e-mail",
   users_invite_success: 'Les utilisateurs ont été invités',
+  invitation_send_email: 'Envoyer les invitations par email',
+  invitation_links_notice:
+    "Copiez ces liens maintenant et transmettez chaque lien uniquement à son destinataire. Chaque lien expire et ne peut servir qu'une fois. Renouveler une invitation invalide son ancien lien.",
+  invitation_link: "Lien d'invitation",
+  invitation_expires: 'Expire le {{date}}',
+  invitation_unavailable:
+    "Cette invitation est invalide, expirée ou déjà utilisée. Demandez un nouveau lien à une personne autorisée. Les anciens liens contenant seulement l'email et le rôle doivent être renouvelés.",
+  invitation_join_details: 'Rejoindre {{company}} en tant que {{role}}',
   users_invite_failure:
     'Les utilisateurs ne peuvent pas être invités. Vérifiez le nombre de membres de votre abonnement actuel.',
   please_type_emails: 'Veuillez saisir des e-mails à inviter',

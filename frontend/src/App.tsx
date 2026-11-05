@@ -36,13 +36,14 @@ import { initializePaddle } from '@paddle/paddle-js';
 import { getDateLocale, loadLanguage, supportedLanguages } from './i18n/i18n';
 import MobileAppDownloadDialog from './components/MobileAppDownloadDialog';
 import { useMobileAppPrompt } from './hooks/useMobileAppPrompt';
+import { isInvitationPage } from './utils/invitation';
 
-if (!IS_LOCALHOST && googleTrackingId)
+if (!IS_LOCALHOST && googleTrackingId && !isInvitationPage())
   ReactGA.initialize(googleTrackingId, {
     gaOptions: { allowAdPersonalizationSignals: false }
   });
 
-if (!IS_LOCALHOST && clarityId) Clarity.init(clarityId);
+if (!IS_LOCALHOST && clarityId && !isInvitationPage()) Clarity.init(clarityId);
 
 const DemoAlert = () => {
   const [show, setShow] = useState<boolean>(true);
@@ -127,7 +128,7 @@ function App() {
   }, [i18n.language]);
 
   useEffect(() => {
-    if (!IS_LOCALHOST && googleTrackingId)
+    if (!IS_LOCALHOST && googleTrackingId && !isInvitationPage())
       ReactGA.send({
         hitType: 'pageview',
         page: location.pathname + location.search
