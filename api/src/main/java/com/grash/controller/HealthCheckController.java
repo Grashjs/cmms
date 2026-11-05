@@ -5,6 +5,7 @@ import com.grash.service.CustomHealthIndicator;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.actuate.health.Health;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/health-check")
 @RequiredArgsConstructor
+@Slf4j
 @Hidden
 public class HealthCheckController {
 
@@ -31,6 +33,7 @@ public class HealthCheckController {
     public ResponseEntity<SuccessResponse> healthCheck() {
         Health health = healthIndicator.health();
         if (health.getStatus().equals(Status.DOWN)) {
+            log.error("Health check failed: status={}, details={}", health.getStatus(), health.getDetails());
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(new SuccessResponse(false, "Service " +
                     "Unavailable"));
         } else {
