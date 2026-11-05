@@ -60,6 +60,20 @@ function isRefreshRequest(url: string): boolean {
 }
 
 let onConflictError: (() => void) | null = null;
+let onSessionExpired: (() => void) | null = null;
+
+/**
+ * Registers a callback invoked when a request is rejected with 401 and the
+ * session cannot be recovered with the refresh token (e.g. the session was
+ * revoked from another device). The auth context uses it to sign the user out
+ * locally so they are sent back to the login screen.
+ */
+export function setSessionExpiredHandler(handler: () => void): () => void {
+  onSessionExpired = handler;
+  return () => {
+    onSessionExpired = null;
+  };
+}
 
 export function setConflictErrorHandler(handler: () => void): () => void {
   onConflictError = handler;
@@ -73,6 +87,7 @@ async function doFetch<T>(
   options: Options,
   retried: boolean
 ): Promise<T> {
+  const hadSession = !!(await AsyncStorage.getItem('accessToken'));
   const response = await fetch(url, {
     headers: await authHeader(false),
     ...options
@@ -84,6 +99,14 @@ async function doFetch<T>(
         return doFetch<T>(url, options, true);
       }
     }
+    if (
+      response.status === 401 &&
+      hadSession &&
+      !isRefreshRequest(url) &&
+      onSessionExpired
+    ) {
+      onSessionExpired();
+    }
     if (response.status === 409) {
       if (onConflictError) onConflictError();
       throw new Error('conflict_error');
@@ -94,7 +117,9 @@ async function doFetch<T>(
     } catch {
       body = null;
     }
-    const err = new Error(JSON.stringify(body));
+    // Some error responses (e.g. 401s emitted by the JWT filter) have no JSON
+    // body. Never surface a bare "null" to the user.
+    const err = new Error(body == null ? '' : JSON.stringify(body));
     (err as any).status = response.status;
     throw err;
   }
@@ -174,11 +199,22 @@ export const getErrorMessage = (
   error: any,
   defaultMessage: string = 'An error occurred'
 ): string => {
+  const raw: unknown = error?.message;
+  if (typeof raw !== 'string' || raw.trim() === '' || raw === 'null') {
+    return defaultMessage;
+  }
   try {
-    const parsed = JSON.parse(error.message);
-    return parsed?.message ?? error.message ?? defaultMessage;
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === 'object') {
+      return typeof parsed.message === 'string' && parsed.message.trim() !== ''
+        ? parsed.message
+        : defaultMessage;
+    }
+    return typeof parsed === 'string' && parsed.trim() !== ''
+      ? parsed
+      : defaultMessage;
   } catch {
-    return error.message ?? defaultMessage;
+    return raw;
   }
 };
 
