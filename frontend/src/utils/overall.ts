@@ -126,15 +126,8 @@ export const arrayToAoA = (array: string[][]): SpreadsheetData => {
   return result;
 };
 
-export const pushOrRemove = (array: string[], push: boolean, value: string) => {
-  if (push) {
-    array.push(value);
-  } else {
-    const index = array.findIndex((element) => element === value);
-    if (index !== -1) array.splice(index, 1);
-  }
-  return array;
-};
+export const pushOrRemove = (array: string[], push: boolean, value: string) =>
+  push ? [...array, value] : array.filter((element) => element !== value);
 
 export const onSearchQueryChange = <T>(
   event,
@@ -143,28 +136,28 @@ export const onSearchQueryChange = <T>(
   fieldsToSearch: Paths<T>[]
 ) => {
   const query = event.target.value;
-  let newFilterFields: FilterField[] = [...criteria.filterFields];
-
-  newFilterFields = newFilterFields.filter(
-    // @ts-ignore
-    (filterField) => !fieldsToSearch.includes(filterField.field)
-  );
-  const firstField = fieldsToSearch.shift();
-  if (query)
-    newFilterFields = [
-      ...newFilterFields,
-      {
-        field: firstField,
-        value: query,
-        operation: 'cn' as SearchOperator,
-        alternatives: fieldsToSearch.map((field) => ({
-          field,
+  const [firstField, ...otherFields] = fieldsToSearch;
+  setCriteria((prevState) => {
+    let newFilterFields: FilterField[] = prevState.filterFields.filter(
+      // @ts-ignore
+      (filterField) => !fieldsToSearch.includes(filterField.field)
+    );
+    if (query)
+      newFilterFields = [
+        ...newFilterFields,
+        {
+          field: firstField,
+          value: query,
           operation: 'cn' as SearchOperator,
-          value: query
-        }))
-      }
-    ];
-  setCriteria((prevState) => ({ ...prevState, filterFields: newFilterFields }));
+          alternatives: otherFields.map((field) => ({
+            field,
+            operation: 'cn' as SearchOperator,
+            value: query
+          }))
+        }
+      ];
+    return { ...prevState, filterFields: newFilterFields };
+  });
 };
 
 export const fireGa4Event = (
