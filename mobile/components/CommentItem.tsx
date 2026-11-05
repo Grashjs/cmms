@@ -274,10 +274,15 @@ export default function CommentItem({
                     multiline
                     numberOfLines={2}
                     style={{
+                      minHeight: 48,
+                      paddingHorizontal: 12,
+                      paddingVertical: 8,
                       borderWidth: 1,
-                      borderColor: '#ccc',
-                      borderRadius: 4,
-                      color: 'black'
+                      borderColor: theme.colors.outline,
+                      borderRadius: 8,
+                      backgroundColor: theme.colors.surface,
+                      color: theme.colors.onSurface,
+                      textAlignVertical: 'top'
                     }}
                     {...textInputProps}
                   />
