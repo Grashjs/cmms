@@ -71,7 +71,16 @@ const slice = createSlice({
       if (locationIndex === -1) {
         state.locations.content = [...state.locations.content, location];
       } else {
-        state.locations[locationIndex] = location;
+        state.locations.content[locationIndex] = location;
+      }
+      const hierarchyIndex = state.locationsHierarchy.findIndex(
+        (loc) => loc.id === location.id
+      );
+      if (hierarchyIndex !== -1) {
+        state.locationsHierarchy[hierarchyIndex] = {
+          ...state.locationsHierarchy[hierarchyIndex],
+          ...location
+        };
       }
     },
     deleteLocation(
@@ -193,6 +202,7 @@ export const editLocation =
       location
     );
     dispatch(slice.actions.editLocation({ location: locationResponse }));
+    return locationResponse;
   };
 export const getSingleLocation =
   (id: number): AppThunk =>
