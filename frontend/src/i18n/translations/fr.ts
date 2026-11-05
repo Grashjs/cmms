@@ -1,4 +1,9 @@
 const frJSON = {
+  work_order_status_review: "L’intervention a changé. Examinez son statut actuel avant une nouvelle soumission. Votre saisie est conservée.",
+  work_order_status_review_current: "Examiner le statut actuel du serveur",
+  work_order_status_review_value: "Statut serveur : {{status}} · Chronomètres actifs : {{count}}",
+  work_order_status_review_confirm: "Conserver ma saisie sur cette version examinée",
+
   labor_review_current: 'Examiner le temps actuel',
   labor_review_confirm: 'Conserver ma saisie sur cette version',
   labor_changed_review:

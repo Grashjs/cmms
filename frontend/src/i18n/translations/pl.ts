@@ -1,4 +1,9 @@
 const plJSON = {
+  work_order_status_review: "Zlecenie pracy uległo zmianie. Sprawdź jego aktualny status przed ponownym wysłaniem. Wpisane dane zostały zachowane.",
+  work_order_status_review_current: "Sprawdź aktualny status na serwerze",
+  work_order_status_review_value: "Status na serwerze: {{status}} · Aktywne stopery: {{count}}",
+  work_order_status_review_confirm: "Zachowaj moje dane dla tej sprawdzonej wersji",
+
   labor_review_current: 'Sprawdź aktualny czas',
   labor_review_confirm: 'Zachowaj mój wpis dla tej wersji',
   labor_changed_review:

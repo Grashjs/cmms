@@ -459,7 +459,7 @@ class MobileOfflineServiceTest {
     @Test void closedPeriodCompletesBothReceiptsAndLostResponseCannotLaterStartOrAddAgain() {
         eligible(); var records = ledger(); timeAccessible();
         var start = timerStart(); var stop = timerStop(start);
-        when(labors.applyOfflineTime(eq(stop), eq(user), isNull(), isNull(), eq(true), any()))
+        when(labors.applyOfflineTime(eq(stop), eq(user), isNull(), isNull(), eq(true), any(), isNull()))
                 .thenReturn(new LaborService.TimeOutcome(timerLabor(), null, false, 1800, true));
         when(laborRepository.existsByIdAndCompany_IdAndWorkOrder_Id(100L, 52L, 10L)).thenReturn(true);
         var applied = service.submit(stop, user);
@@ -470,7 +470,7 @@ class MobileOfflineServiceTest {
         assertTrue(records.values().stream().allMatch(receipt -> receipt.resultJson() != null));
         assertEquals(applied, service.submit(stop, user));
         assertEquals(applied.startReceipt(), service.submit(start, user));
-        verify(labors, times(1)).applyOfflineTime(any(), any(), any(), any(), anyBoolean(), any());
+        verify(labors, times(1)).applyOfflineTime(any(), any(), any(), any(), anyBoolean(), any(), any());
         InOrder order = inOrder(repository);
         order.verify(repository).reserveOperation(eq(52L), eq(34L), eq(start.operationId()), eq(10L), anyString(), any());
         order.verify(repository).reserveOperation(eq(52L), eq(34L), eq(stop.operationId()), eq(10L), anyString(), any());
@@ -479,22 +479,22 @@ class MobileOfflineServiceTest {
     @Test void refusedFinalizationTerminalizesTheUnknownStartWithoutActivation() {
         eligible(); var records = ledger(); timeAccessible();
         var start = timerStart(); var stop = timerStop(start);
-        when(labors.applyOfflineTime(eq(stop), eq(user), isNull(), isNull(), eq(true), any()))
+        when(labors.applyOfflineTime(eq(stop), eq(user), isNull(), isNull(), eq(true), any(), isNull()))
                 .thenReturn(LaborService.TimeOutcome.conflict("LABOR_VERSION_CONFLICT"));
         var refusal = service.submit(stop, user);
         assertEquals(CONFLICT, refusal.status()); assertEquals(CONFLICT, refusal.startReceipt().status());
         assertEquals("TIMER_START_CLOSED", service.submit(start, user).code());
         assertTrue(records.values().stream().allMatch(receipt -> receipt.resultJson() != null));
-        verify(labors, times(1)).applyOfflineTime(any(), any(), any(), any(), anyBoolean(), any());
+        verify(labors, times(1)).applyOfflineTime(any(), any(), any(), any(), anyBoolean(), any(), any());
     }
 
     @Test void acceptedStartIsProvidedToItsStopAndImmutableStartCannotBeRewritten() {
         eligible(); ledger(); timeAccessible();
         var start = timerStart(); var stop = timerStop(start); var labor = timerLabor();
-        when(labors.applyOfflineTime(eq(start), eq(user), isNull(), isNull(), eq(false), any()))
+        when(labors.applyOfflineTime(eq(start), eq(user), isNull(), isNull(), eq(false), any(), isNull()))
                 .thenReturn(new LaborService.TimeOutcome(labor, null, false, 0, false));
         var running = service.submit(start, user);
-        when(labors.applyOfflineTime(eq(stop), eq(user), isNull(), eq(running), eq(false), any()))
+        when(labors.applyOfflineTime(eq(stop), eq(user), isNull(), eq(running), eq(false), any(), isNull()))
                 .thenReturn(new LaborService.TimeOutcome(labor, null, false, 1800, false));
         var stopped = service.submit(stop, user);
         assertEquals(running, stopped.startReceipt()); assertEquals("TIMER_STOPPED", stopped.code());
@@ -503,7 +503,7 @@ class MobileOfflineServiceTest {
                 new MobileOfflineTime(start.time().periodId(), start.time().startedAt(), null, 100L, 5L, null, 0L, null, null));
         assertEquals("OPERATION_ID_REUSED", assertThrows(CustomException.class,
                 () -> service.submit(timerStop(changed), user)).getMessage());
-        verify(labors, times(2)).applyOfflineTime(any(), any(), any(), any(), anyBoolean(), any());
+        verify(labors, times(2)).applyOfflineTime(any(), any(), any(), any(), anyBoolean(), any(), any());
     }
 
     @Test void acceptedTimeReceiptRemainsTerminalAfterDeletionAndRevocation() throws Exception {
@@ -521,6 +521,81 @@ class MobileOfflineServiceTest {
         assertEquals(APPLIED, hidden.status()); assertNull(hidden.timeResult());
         assertEquals(MobileOfflineResult.Visibility.WORK_ORDER_UNAVAILABLE, hidden.visibility());
         verifyNoInteractions(labors, properties);
+    }
+
+    private MobileOfflineOperation statusOperation(com.grash.model.enums.Status status, long revision, UUID predecessor,
+                                                    List<UUID> dependencies, List<com.grash.dto.WorkOrderTimerRun> runs) {
+        return new MobileOfflineOperation(UUID.randomUUID(), 52L, 34L, 10L, null,
+                MobileOfflineOperation.Type.CHANGE_WORK_ORDER_STATUS, null, null, Instant.now().minusSeconds(60),
+                null, null, predecessor, null, null, null, null,
+                new MobileOfflineStatusChange(status, revision, "Done on site", null, runs, dependencies));
+    }
+
+    private void statusAccess() {
+        eligible();
+        when(access.existsInCompany(10L, user)).thenReturn(true);
+        when(access.canView(10L, user)).thenReturn(true);
+    }
+
+    @Test void statusReceiptKeepsFieldTimeAndReplayDoesNotRepeatMutation() {
+        statusAccess(); ledger();
+        var op = statusOperation(com.grash.model.enums.Status.COMPLETE, 3, null, List.of(), List.of());
+        WorkOrder saved = task.getWorkOrder(); saved.setStatus(com.grash.model.enums.Status.COMPLETE);
+        saved.setTimerStatusRevision(4); saved.setCompletedOn(new Date());
+        when(workOrders.applyOfflineStatus(eq(10L), eq(op.statusChange()), eq(3L), eq(List.of()), eq(user), eq("android"), eq(op.operationId())))
+                .thenReturn(new WorkOrderService.OfflineStatusOutcome(saved, List.of(), null, false));
+        var accepted = service.submit(op, user, "android");
+        assertEquals(APPLIED, accepted.status());
+        assertEquals(op.occurredAt(), accepted.statusResult().occurredAt());
+        assertEquals(saved.getCompletedOn().toInstant(), accepted.statusResult().completedOn());
+        assertEquals(accepted, service.submit(op, user, "android"));
+        verify(workOrders, times(1)).applyOfflineStatus(anyLong(), any(), anyLong(), anyList(), any(), any(), any());
+    }
+
+    @Test void everyStopDependencyMustBeAppliedBeforePauseOpenOrCompletion() throws Exception {
+        statusAccess(); var saved = ledger();
+        for (var target : List.of(com.grash.model.enums.Status.OPEN, com.grash.model.enums.Status.ON_HOLD, com.grash.model.enums.Status.COMPLETE)) {
+            UUID stop = UUID.randomUUID();
+            var op = statusOperation(target, 3, null, List.of(stop), List.of());
+            assertEquals("STATUS_DEPENDENCY_NOT_APPLIED", service.submit(op, user).code());
+            UUID refusedId = UUID.randomUUID();
+            var refused = new MobileOfflineResult(refusedId, CONFLICT, "TIMER_RUN_CHANGED", null, Instant.now());
+            saved.put(refusedId, new MobileOfflineRepository.Receipt(refusedId, 10, "test", json.writeValueAsString(refused)));
+            assertEquals("STATUS_DEPENDENCY_NOT_APPLIED", service.submit(statusOperation(target, 3, null, List.of(refusedId), List.of()), user).code());
+        }
+        verifyNoInteractions(workOrders);
+    }
+
+    @Test void statusUsesOwnStopAndPredecessorReceiptsWithoutTrustingClientVersions() throws Exception {
+        statusAccess(); var saved = ledger();
+        UUID previousId = UUID.randomUUID(); UUID stopId = UUID.randomUUID(); UUID runId = UUID.randomUUID();
+        var run = new com.grash.dto.WorkOrderTimerRun(100L, runId);
+        var previous = new MobileOfflineResult(previousId, APPLIED, "STATUS_CHANGED", null, Instant.now(),
+                null, null, MobileOfflineResult.Visibility.VISIBLE, null, null, null, null, null, null,
+                new MobileOfflineStatusResult(com.grash.model.enums.Status.IN_PROGRESS, 9, 3, Instant.now(), null, List.of()));
+        saved.put(previousId, new MobileOfflineRepository.Receipt(previousId, 10, "test", json.writeValueAsString(previous)));
+        var stop = new MobileOfflineResult(stopId, APPLIED, "TIMER_STOPPED", null, Instant.now(), null, null,
+                MobileOfflineResult.Visibility.VISIBLE, null, null, null, null,
+                new MobileOfflineTimeResult(UUID.randomUUID(), 100L, 5L, runId, Instant.now().minusSeconds(1800), Instant.now(), 1800, false), null);
+        saved.put(stopId, new MobileOfflineRepository.Receipt(stopId, 10, "test", json.writeValueAsString(stop)));
+        var op = statusOperation(com.grash.model.enums.Status.ON_HOLD, 3, previousId, List.of(stopId), List.of(run));
+        WorkOrder wo = task.getWorkOrder(); wo.setStatus(com.grash.model.enums.Status.ON_HOLD); wo.setTimerStatusRevision(10);
+        when(workOrders.applyOfflineStatus(eq(10L), eq(op.statusChange()), eq(9L), eq(List.of()), eq(user), isNull(), eq(op.operationId())))
+                .thenReturn(new WorkOrderService.OfflineStatusOutcome(wo, List.of(), null, false));
+        assertEquals(APPLIED, service.submit(op, user).status());
+        saved.put(stopId, new MobileOfflineRepository.Receipt(stopId, 99, "test", json.writeValueAsString(stop)));
+        assertEquals("STATUS_DEPENDENCY_NOT_APPLIED", service.submit(statusOperation(com.grash.model.enums.Status.OPEN, 3, previousId, List.of(stopId), List.of(run)), user).code());
+    }
+
+    @Test void anAcceptedStatusReceiptDoesNotExposeHistoricalDetailsAfterAccessWithdrawal() throws Exception {
+        UUID id = UUID.randomUUID();
+        var accepted = new MobileOfflineResult(id, APPLIED, "STATUS_CHANGED", null, Instant.now(), null, null,
+                MobileOfflineResult.Visibility.VISIBLE, null, null, null, null, null, null,
+                new MobileOfflineStatusResult(com.grash.model.enums.Status.COMPLETE, 4, 3, Instant.now(), Instant.now(), List.of()));
+        when(repository.receipt(52, 34, id)).thenReturn(Optional.of(new MobileOfflineRepository.Receipt(id, 10, "test", json.writeValueAsString(accepted))));
+        var result = service.receipts(List.of(id), user).results().get(0);
+        assertEquals(APPLIED, result.status()); assertNull(result.statusResult());
+        assertEquals(MobileOfflineResult.Visibility.WORK_ORDER_UNAVAILABLE, result.visibility());
     }
 
 }

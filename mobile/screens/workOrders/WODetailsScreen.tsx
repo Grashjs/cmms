@@ -70,7 +70,10 @@ import AdditionalCostsCard from './components/AdditionalCostsCard';
 import AdditionalTimesCard from './components/AdditionalTimesCard';
 import { SheetManager } from 'react-native-actions-sheet';
 import LoadingDialog from '../../components/LoadingDialog';
-import WorkOrder from '../../models/workOrder';
+import WorkOrder, {
+  WorkOrderStatus,
+  WorkOrderStatusGuard
+} from '../../models/workOrder';
 import Labor from '../../models/labor';
 import { AudioPlayer } from '../../components/AudioPlayer';
 import { Task } from '../../models/tasks';
@@ -86,6 +89,9 @@ import { useHeaderHeight } from '@react-navigation/elements';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useOffline } from '../../offline/OfflineProvider';
 import { useOfflineTime } from '../../offline/useOfflineTime';
+import { useOfflineStatus } from '../../offline/useOfflineStatus';
+import { isStatusOperation, OfflineError } from '../../offline/types';
+import { offlineErrorKey } from '../../offline/errors';
 import { OfflineTimePanel } from '../../offline/components/OfflineTimePanel';
 import { useOfflineWorkOrder, usePendingWork } from '../../offline/hooks';
 import {
@@ -96,7 +102,10 @@ import { OfflineCommentOperations } from '../../offline/components/OfflineCommen
 import { useOfflineCommentComposer } from '../../offline/useOfflineCommentComposer';
 import { OfflineFileItem } from '../../offline/components/OfflineFileItem';
 import FileUpload from '../../components/FileUpload';
-import { sessionGeneration } from '../../offline/sessionBridge';
+import {
+  assertSessionGeneration,
+  sessionGeneration
+} from '../../offline/sessionBridge';
 
 const getRemainingTasksLength = (tasks: Task[]): number => {
   const SECONDS_MS = 5_000;
@@ -193,6 +202,22 @@ export default function WODetailsScreen({
     (state) => state.labors
   );
   const offlineTime = useOfflineTime(id, isPrepared);
+  const offlineStatus = useOfflineStatus(id, isPrepared);
+  const pendingClosure = offlineStatus.view?.operations.some(
+    (operation) =>
+      operation.request.type === 'CHANGE_WORK_ORDER_STATUS' &&
+      operation.request.statusChange.status === 'COMPLETE' &&
+      !['APPLIED', 'ABANDONED'].includes(operation.status)
+  );
+  const lastStatusRequest = offlineStatus.view?.operations
+    .filter((operation) => !['APPLIED', 'ABANDONED'].includes(operation.status))
+    .slice(-1)[0];
+  const selectedStatus =
+    isPrepared &&
+    lastStatusRequest &&
+    isStatusOperation(lastStatusRequest.request)
+      ? lastStatusRequest.request.statusChange.status
+      : workOrder?.status;
   const labors = isPrepared
     ? offlineTime.view?.labors ?? []
     : timesByWorkOrder[id] ?? [];
@@ -346,9 +371,10 @@ export default function WODetailsScreen({
         .catch(offline.reportError);
     } else if (!workOrderProp)
       dispatch(getWorkOrderDetails(id)).catch(offline.reportError);
+    // Status changes need the observed timer identities even in simplified view.
+    if (!isPrepared) dispatch(getLabors(id));
     if (!generalPreferences.simplifiedWorkOrder) {
       dispatch(getPartQuantitiesByWorkOrder(id));
-      if (!isPrepared) dispatch(getLabors(id));
       dispatch(getAdditionalCosts(id));
       dispatch(getRelations(id));
     }
@@ -565,19 +591,69 @@ export default function WODetailsScreen({
 
     setIsExtended(currentScrollPosition <= 0);
   };
+  const captureStatusGuard = (): WorkOrderStatusGuard => {
+    if (
+      typeof workOrder?.timerStatusRevision !== 'number' ||
+      loadingLabors[id] ||
+      !timesByWorkOrder[id]
+    )
+      throw new OfflineError('STATUS_PREPARATION_REQUIRED');
+    const active = labors.filter(
+      (labor) => labor.logged && labor.status === 'RUNNING'
+    );
+    if (active.some((labor) => !labor.timerRunId))
+      throw new OfflineError('TIMER_RUN_CHANGED');
+    return {
+      baseRevision: workOrder.timerStatusRevision,
+      activeTimerRuns: active.map((labor) => ({
+        laborId: labor.id,
+        timerRunId: labor.timerRunId!
+      }))
+    };
+  };
   const onCompleteWO = (
     signature: string | undefined,
-    feedback: string | undefined
+    feedback: string | undefined,
+    guard: WorkOrderStatusGuard,
+    generation: number
   ): Promise<any> => {
+    assertSessionGeneration(generation);
     return dispatch(
       changeWorkOrderStatus(id, {
         status: 'COMPLETE',
+        ...guard,
         feedback: feedback ?? null,
         signature
       })
-    ).then(() => navigation.navigate('Root'));
+    ).then(() => {
+      assertSessionGeneration(generation);
+    });
   };
-  const onStatusChange = (status: string) => {
+  const onStatusChange = (
+    status: WorkOrderStatus,
+    guard?: WorkOrderStatusGuard,
+    generation = sessionGeneration()
+  ) => {
+    if (generation !== sessionGeneration()) return;
+    if (isPrepared) {
+      const closure = offlineStatus.view?.closure;
+      if (!offline.writable || !closure?.canChangeStatus) {
+        offline.reportError(new OfflineError('STATUS_PREPARATION_REQUIRED'));
+        return;
+      }
+      if (status === 'COMPLETE') {
+        navigation.navigate('CompleteWorkOrder', {
+          workOrderId: id,
+          fieldsConfig: {
+            feedback: closure.askFeedback,
+            signature: closure.requiredSignature
+          }
+        });
+      } else {
+        void offlineStatus.request(status).catch(offline.reportError);
+      }
+      return;
+    }
     if (!connectedAvailable) {
       showSnackBar(t('offline_connected_required'), 'error');
       return;
@@ -598,8 +674,15 @@ export default function WODetailsScreen({
           if (error) {
             showSnackBar(t(error), 'error');
           } else {
+            let reviewedGuard = guard!;
             navigation.navigate('CompleteWorkOrder', {
-              onComplete: onCompleteWO,
+              connectedWorkOrderId: id,
+              onReviewStatus: (nextGuard) => {
+                assertSessionGeneration(generation);
+                reviewedGuard = nextGuard;
+              },
+              onComplete: (signature, feedback) =>
+                onCompleteWO(signature, feedback, reviewedGuard, generation),
               fieldsConfig: {
                 feedback: generalPreferences.askFeedBackOnWOClosed,
                 signature: workOrder?.requiredSignature
@@ -613,9 +696,17 @@ export default function WODetailsScreen({
     setLoading(true);
     dispatch(
       changeWorkOrderStatus(id, {
-        status
+        status,
+        ...guard!
       })
-    ).finally(() => setLoading(false));
+    )
+      .catch((error) => {
+        if (generation === sessionGeneration())
+          showSnackBar(t(offlineErrorKey(error)), 'error');
+      })
+      .finally(() => {
+        if (generation === sessionGeneration()) setLoading(false);
+      });
   };
   const groupRelations = (
     relations: Relation[]
@@ -960,8 +1051,18 @@ export default function WODetailsScreen({
               <View style={{ marginTop: 20 }}>
                 <TouchableOpacity
                   disabled={
-                    !connectedAvailable ||
-                    !hasEditPermission(PermissionEntity.WORK_ORDERS, workOrder)
+                    isPrepared
+                      ? !offline.writable ||
+                        !offlineStatus.view?.available ||
+                        !offlineStatus.view?.closure?.canChangeStatus ||
+                        offlineStatus.busy ||
+                        !!pendingClosure
+                      : !connectedAvailable ||
+                        loading ||
+                        !hasEditPermission(
+                          PermissionEntity.WORK_ORDERS,
+                          workOrder
+                        )
                   }
                   style={{
                     flexDirection: 'row',
@@ -972,17 +1073,30 @@ export default function WODetailsScreen({
                     borderColor: statusColor,
                     borderRadius: 4
                   }}
-                  onPress={() =>
+                  onPress={() => {
+                    const generation = sessionGeneration();
+                    let guard: WorkOrderStatusGuard | undefined;
+                    try {
+                      if (!isPrepared) guard = captureStatusGuard();
+                    } catch (error) {
+                      showSnackBar(t(offlineErrorKey(error)), 'error');
+                      return;
+                    }
                     SheetManager.show('dropdown-sheet', {
                       payload: {
                         items: statuses,
-                        value: workOrder.status,
+                        value: selectedStatus,
                         setValue: (value: string) => {
-                          if (workOrder.status !== value) onStatusChange(value);
+                          if (selectedStatus !== value)
+                            onStatusChange(
+                              value as WorkOrderStatus,
+                              guard,
+                              generation
+                            );
                         }
                       }
-                    })
-                  }
+                    });
+                  }}
                 >
                   <Text style={{ color: statusColor }}>
                     {statuses.find((s) => s.value === workOrder.status)?.label}
@@ -994,6 +1108,26 @@ export default function WODetailsScreen({
                     style={{ margin: -5 }}
                   />
                 </TouchableOpacity>
+                {isPrepared && (
+                  <>
+                    <Text>
+                      {t('offline_status_server', {
+                        status: t(workOrder.status)
+                      })}
+                    </Text>
+                    {!offlineStatus.view?.closure && (
+                      <Text>{t('offline_status_prepare_again')}</Text>
+                    )}
+                    {offlineStatus.view?.draft?.status === 'COMPLETE' && (
+                      <Button
+                        disabled={!offline.writable}
+                        onPress={() => onStatusChange('COMPLETE')}
+                      >
+                        {t('offline_closure_resume')}
+                      </Button>
+                    )}
+                  </>
+                )}
                 {workOrder.audioDescription && connectedAvailable && (
                   <View
                     style={{ backgroundColor: 'white', paddingVertical: 20 }}
@@ -1648,6 +1782,7 @@ export default function WODetailsScreen({
                 disabled={
                   isPrepared
                     ? offlineTime.busy ||
+                      (!runningTimer && !!pendingClosure) ||
                       !offlineTime.view?.available ||
                       !!offlineTime.view?.activePeriod?.endedAt ||
                       !(runningTimer

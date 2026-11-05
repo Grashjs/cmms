@@ -67,6 +67,7 @@ class MobileOfflineReceiptPostgresTest {
         jdbc.update("delete from comment");
         jdbc.update("insert into task(id,value,notes) values (7,'A','notes')");
         jdbc.update("delete from labor where id<>1000");
+        jdbc.update("update work_order set timer_status_revision=0 where id=10");
         jdbc.update("insert into labor(id,duration,status,started_at) values (100,1800,0,'2026-11-01 08:00:00+00')");
     }
 
@@ -295,4 +296,29 @@ class MobileOfflineReceiptPostgresTest {
             assertEquals(3600L, jdbc.queryForObject("select duration from labor where id=100", Long.class));
         } finally { release.countDown(); pool.shutdownNow(); }
     }
+    @Test void statusRevisionReceiptAndAfterCommitDeliveryHaveTheSameCommitBoundary() {
+        UUID id = UUID.randomUUID();
+        long before = jdbc.queryForObject("select timer_status_revision from work_order where id=10", Long.class);
+        java.util.concurrent.atomic.AtomicInteger effects = new java.util.concurrent.atomic.AtomicInteger();
+        Runnable mutation = () -> {
+            if (!repository.reserveOperation(52, 34, id, 10, "status-hash", Instant.now())) return;
+            jdbc.update("update work_order set timer_status_revision=timer_status_revision+1 where id=10");
+            repository.finishOperation(52, 34, id, "{\"status\":\"APPLIED\",\"code\":\"STATUS_CHANGED\"}");
+            org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization(
+                    new org.springframework.transaction.support.TransactionSynchronization() {
+                        @Override public void afterCommit() { effects.incrementAndGet(); }
+                    });
+        };
+        assertThrows(IllegalStateException.class, () -> transaction.executeWithoutResult(status -> {
+            mutation.run(); throw new IllegalStateException("receipt transaction interrupted");
+        }));
+        assertTrue(repository.receipt(52, 34, id).isEmpty());
+        assertEquals(before, jdbc.queryForObject("select timer_status_revision from work_order where id=10", Long.class));
+        assertEquals(0, effects.get());
+        transaction.executeWithoutResult(status -> mutation.run());
+        transaction.executeWithoutResult(status -> mutation.run());
+        assertEquals(before + 1, jdbc.queryForObject("select timer_status_revision from work_order where id=10", Long.class));
+        assertEquals(1, effects.get());
+    }
+
 }

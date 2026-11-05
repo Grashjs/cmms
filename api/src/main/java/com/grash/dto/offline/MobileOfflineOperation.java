@@ -9,16 +9,25 @@ import java.util.UUID;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({"operationId", "companyId", "userId", "workOrderId", "taskId", "type", "baseVersion", "value", "occurredAt", "notes", "content", "predecessorOperationId", "fileTransferIds", "addTransferIds", "imageChange", "time"})
+@JsonPropertyOrder({"operationId", "companyId", "userId", "workOrderId", "taskId", "type", "baseVersion", "value", "occurredAt", "notes", "content", "predecessorOperationId", "fileTransferIds", "addTransferIds", "imageChange", "time", "statusChange"})
 public record MobileOfflineOperation(@NotNull UUID operationId, @NotNull @Positive Long companyId,
                                      @NotNull @Positive Long userId, @NotNull @Positive Long workOrderId,
                                      @Positive Long taskId, @NotNull Type type,
                                      @Min(0) Long baseVersion, String value,
                                      @NotNull Instant occurredAt, String notes, String content,
                                      UUID predecessorOperationId, List<UUID> fileTransferIds, List<UUID> addTransferIds, @jakarta.validation.Valid ImageChange imageChange,
-                                     MobileOfflineTime time) {
+                                     MobileOfflineTime time, MobileOfflineStatusChange statusChange) {
     public enum Type { SET_TASK_VALUE, SET_TASK_NOTES, CREATE_COMMENT, ADD_TASK_IMAGES, UPDATE_WORK_ORDER_ATTACHMENTS,
-        START_TIMER, STOP_TIMER, CREATE_MANUAL_TIME }
+        START_TIMER, STOP_TIMER, CREATE_MANUAL_TIME, CHANGE_WORK_ORDER_STATUS }
+
+    public MobileOfflineOperation(UUID operationId, Long companyId, Long userId, Long workOrderId,
+                                  Long taskId, Type type, Long baseVersion, String value, Instant occurredAt,
+                                  String notes, String content, UUID predecessorOperationId,
+                                  List<UUID> fileTransferIds, List<UUID> addTransferIds, ImageChange imageChange,
+                                  MobileOfflineTime time) {
+        this(operationId, companyId, userId, workOrderId, taskId, type, baseVersion, value, occurredAt,
+                notes, content, predecessorOperationId, fileTransferIds, addTransferIds, imageChange, time, null);
+    }
 
     public record ImageChange(@NotNull UUID transferId, @Positive Long baseImageId) {}
 
@@ -51,6 +60,13 @@ public record MobileOfflineOperation(@NotNull UUID operationId, @NotNull @Positi
         if ((fileTransferIds != null && fileTransferIds.stream().anyMatch(java.util.Objects::isNull))
                 || (addTransferIds != null && addTransferIds.stream().anyMatch(java.util.Objects::isNull))) return false;
         boolean noAttachments = fileTransferIds == null && addTransferIds == null && imageChange == null;
+        if (type == Type.CHANGE_WORK_ORDER_STATUS) {
+            return statusChange != null && statusChange.isValid() && time == null && taskId == null
+                    && baseVersion == null && value == null && notes == null && content == null && noAttachments
+                    && !statusChange.dependencyOperationIds().contains(operationId)
+                    && !operationId.equals(predecessorOperationId);
+        }
+        if (statusChange != null) return false;
         if (isTimeOperation()) {
             if (taskId != null || baseVersion != null || value != null || notes != null || content != null
                     || !noAttachments || time == null || !time.hasValidIdentity()) return false;
@@ -59,7 +75,7 @@ public record MobileOfflineOperation(@NotNull UUID operationId, @NotNull @Positi
                     && time.timerRunId() == null && (time.laborId() == null) == (time.laborVersion() == null);
             if (type == Type.CREATE_MANUAL_TIME) return time.endedAt() != null && time.startOperation() == null
                     && time.laborId() == null && time.laborVersion() == null && time.timerRunId() == null
-                    && predecessorOperationId == null && !Boolean.TRUE.equals(time.preserveStatus());
+                    && predecessorOperationId == null && time.statusPredecessorOperationId() == null && !Boolean.TRUE.equals(time.preserveStatus());
             if (time.endedAt() == null) return false;
             MobileOfflineOperation start = time.startOperation();
             if (start == null) return time.laborId() != null && time.laborVersion() != null && time.timerRunId() != null;

@@ -1,4 +1,9 @@
 const locale = {
+  work_order_status_review: "De werkorder is gewijzigd. Beoordeel de huidige status voordat u opnieuw indient. Uw invoer blijft bewaard.",
+  work_order_status_review_current: "Huidige serverstatus beoordelen",
+  work_order_status_review_value: "Serverstatus: {{status}} · Actieve timers: {{count}}",
+  work_order_status_review_confirm: "Mijn invoer op deze beoordeelde versie behouden",
+
   labor_review_current: 'Huidige tijd bekijken',
   labor_review_confirm: 'Mijn invoer voor deze versie behouden',
   labor_changed_review:

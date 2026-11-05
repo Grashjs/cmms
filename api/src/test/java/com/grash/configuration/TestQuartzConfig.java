@@ -3,11 +3,13 @@ package com.grash.configuration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
 import java.util.Properties;
 
 @Configuration
+@ConditionalOnProperty(name = "spring.quartz.job-store-type", havingValue = "memory", matchIfMissing = true)
 public class TestQuartzConfig {
 
     @Bean

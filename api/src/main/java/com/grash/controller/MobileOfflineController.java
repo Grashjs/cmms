@@ -77,8 +77,9 @@ public class MobileOfflineController {
     }
 
     @PostMapping("/operations")
-    public MobileOfflineResult submit(@Valid @RequestBody MobileOfflineOperation operation, HttpServletRequest request) {
-        return offline.submit(operation, currentUser(request));
+    public MobileOfflineResult submit(@Valid @RequestBody MobileOfflineOperation operation, HttpServletRequest request,
+                                      @RequestHeader(value = "X-Platform", required = false) String platform) {
+        return offline.submit(operation, currentUser(request), platform);
     }
 
     @PostMapping("/receipts")

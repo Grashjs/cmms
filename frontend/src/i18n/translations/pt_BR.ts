@@ -1,4 +1,9 @@
 const ptBRJSON = {
+  work_order_status_review: "A ordem de serviço mudou. Revise o status atual antes de enviar novamente. Seus dados foram preservados.",
+  work_order_status_review_current: "Revisar o status atual do servidor",
+  work_order_status_review_value: "Status do servidor: {{status}} · Cronômetros ativos: {{count}}",
+  work_order_status_review_confirm: "Manter meus dados nesta versão revisada",
+
   labor_review_current: 'Revisar o tempo atual',
   labor_review_confirm: 'Manter minha entrada nesta versão',
   labor_changed_review:

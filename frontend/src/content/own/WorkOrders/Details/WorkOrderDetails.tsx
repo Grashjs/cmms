@@ -22,7 +22,7 @@ import {
   Typography,
   useTheme
 } from '@mui/material';
-import WorkOrder from '../../../../models/owns/workOrder';
+import WorkOrder, { WorkOrderStatusGuard } from '../../../../models/owns/workOrder';
 import {
   ChangeEvent,
   Fragment,
@@ -134,6 +134,7 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
   const [openAddFileModal, setOpenAddFileModal] = useState<boolean>(false);
   const [openLinkModal, setOpenLinkModal] = useState<boolean>(false);
   const [openCompleteModal, setOpenCompleteModal] = useState<boolean>(false);
+  const statusGuard = useRef<WorkOrderStatusGuard | null>(null);
   const [openReportConfigModal, setOpenReportConfigModal] =
     useState<boolean>(false);
   const [openSendReportModal, setOpenSendReportModal] =
@@ -334,6 +335,7 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
     setChangingStatus(true);
     return dispatch(
       changeWorkOrderStatus(workOrder?.id, {
+        ...statusGuard.current,
         status: 'COMPLETE',
         feedback: feedback ?? null,
         signature
@@ -635,6 +637,14 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
                     </Box>
                   ) : (
                     <Select
+                      onOpen={() => {
+                        statusGuard.current = {
+                          baseRevision: workOrder.timerStatusRevision,
+                          activeTimerRuns: labors
+                            .filter((labor) => labor.logged && labor.status === 'RUNNING')
+                            .map((labor) => ({ laborId: labor.id, timerRunId: labor.timerRunId }))
+                        };
+                      }}
                       onChange={(event) => {
                         if (event.target.value === 'COMPLETE') {
                           if (canComplete()) {
@@ -661,9 +671,11 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
                         setChangingStatus(true);
                         dispatch(
                           changeWorkOrderStatus(workOrder?.id, {
+                            ...statusGuard.current,
                             status: event.target.value
                           })
-                        ).finally(() => setChangingStatus(false));
+                        ).catch((error) => showSnackBar(t(getErrorMessage(error)), 'error'))
+                          .finally(() => setChangingStatus(false));
                       }}
                       disabled={
                         !hasEditPermission(
@@ -1298,6 +1310,8 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
         defaultCustomers={workOrder.customers}
       />
       <CompleteWOModal
+        workOrderId={workOrder.id}
+        onReviewGuard={(guard) => { statusGuard.current = guard; }}
         open={openCompleteModal}
         onClose={() => setOpenCompleteModal(false)}
         fieldsConfig={{

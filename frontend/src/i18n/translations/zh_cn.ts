@@ -1,4 +1,9 @@
 const locale = {
+  work_order_status_review: "工单已更改。再次提交前请检查其当前状态。您的输入已保留。",
+  work_order_status_review_current: "检查服务器当前状态",
+  work_order_status_review_value: "服务器状态：{{status}} · 活动计时器：{{count}}",
+  work_order_status_review_confirm: "在此已检查版本上保留我的输入",
+
   labor_review_current: '查看当前工时',
   labor_review_confirm: '保留我的输入并使用此版本',
   labor_changed_review: '此工时记录已更改。再次保存前请查看服务器版本。',

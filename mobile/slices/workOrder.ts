@@ -1,7 +1,7 @@
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
 import type { AppThunk } from '../store';
-import WorkOrder from '../models/workOrder';
+import WorkOrder, { WorkOrderStatusGuard } from '../models/workOrder';
 import api from '../utils/api';
 import { Task } from '../models/tasks';
 import { getInitialPage, Page, SearchCriteria } from '../models/page';
@@ -495,7 +495,11 @@ export const getWorkOrderEvents =
 export const changeWorkOrderStatus =
   (
     id: number,
-    body: { status: string; feedback?: string; signature?: string }
+    body: WorkOrderStatusGuard & {
+      status: string;
+      feedback?: string;
+      signature?: string;
+    }
   ): AppThunk =>
   async (dispatch) => {
     const generation = sessionGeneration();

@@ -12,7 +12,15 @@ public record MobileOfflineSnapshot(WorkOrderShowDTO workOrder, List<TaskShowDTO
                                     Instant preparedAt, boolean complete, boolean canEdit, boolean canComment,
                                     List<MobileOfflineAsset> assets, boolean canScan, boolean canReadAssets,
                                     List<MobileOfflineLabor> labors, MobileOfflineTimePermissions timePermissions,
-                                    long timerStatusRevision) {
+                                    long timerStatusRevision, MobileOfflineClosure closure) {
+    public MobileOfflineSnapshot(WorkOrderShowDTO workOrder, List<TaskShowDTO> tasks, List<CommentShowDTO> comments,
+                                 List<WorkOrderHistoryShowDTO> history, Instant preparedAt, boolean complete,
+                                 boolean canEdit, boolean canComment, List<MobileOfflineAsset> assets, boolean canScan,
+                                 boolean canReadAssets, List<MobileOfflineLabor> labors,
+                                 MobileOfflineTimePermissions timePermissions, long timerStatusRevision) {
+        this(workOrder, tasks, comments, history, preparedAt, complete, canEdit, canComment, assets, canScan,
+                canReadAssets, labors, timePermissions, timerStatusRevision, null);
+    }
     public MobileOfflineSnapshot(WorkOrderShowDTO workOrder, List<TaskShowDTO> tasks, List<CommentShowDTO> comments,
                                  List<WorkOrderHistoryShowDTO> history, Instant preparedAt, boolean complete,
                                  boolean canEdit, boolean canComment, List<MobileOfflineAsset> assets, boolean canScan,

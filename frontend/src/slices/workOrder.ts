@@ -1,7 +1,7 @@
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from '@reduxjs/toolkit';
 import type { AppThunk } from 'src/store';
-import WorkOrder from '../models/owns/workOrder';
+import WorkOrder, { WorkOrderStatusGuard } from '../models/owns/workOrder';
 import api from '../utils/api';
 import { Task } from '../models/owns/tasks';
 import {
@@ -360,7 +360,11 @@ export const removeFileFromWorkOrder =
 export const changeWorkOrderStatus =
   (
     id: number,
-    body: { status: string; feedback?: string; signature?: string }
+    body: WorkOrderStatusGuard & {
+      status: string;
+      feedback?: string;
+      signature?: string;
+    }
   ): AppThunk =>
   async (dispatch, getState) => {
     const oldWorkOrder = findWorkOrder(getState().workOrders, id);

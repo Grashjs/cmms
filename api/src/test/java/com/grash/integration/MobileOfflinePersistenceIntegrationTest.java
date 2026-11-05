@@ -18,10 +18,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.event.ApplicationEvents;
 import org.springframework.test.context.event.RecordApplicationEvents;
+import org.springframework.test.context.transaction.TestTransaction;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+
+import javax.sql.DataSource;
 
 import java.time.Instant;
 import java.util.*;
@@ -31,7 +39,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @Testcontainers(disabledWithoutDocker = true)
 @TestPropertySource(properties = {"mobile-offline.enabled=true", "mobile-offline.allowed-accounts=*:*",
-        "license-key=", "license-file-path="})
+        "license-key=", "license-file-path=", "spring.quartz.job-store-type=jdbc",
+        "spring.quartz.jdbc.initialize-schema=never", "spring.quartz.auto-startup=false",
+        "spring.quartz.properties.org.quartz.jobStore.driverDelegateClass=org.quartz.impl.jdbcjobstore.PostgreSQLDelegate",
+        "spring.quartz.scheduler-name=offline-completion-persistence-test"})
 @RecordApplicationEvents
 @Transactional
 class MobileOfflinePersistenceIntegrationTest extends AbstractIntegrationTest {
@@ -44,6 +55,8 @@ class MobileOfflinePersistenceIntegrationTest extends AbstractIntegrationTest {
     @Autowired PlatformTransactionManager transactions;
     @Autowired LaborService laborService;
     @Autowired WorkOrderService workOrderService;
+    @Autowired Scheduler scheduler;
+    @Autowired DataSource dataSource;
     User user;
     WorkOrder workOrder;
     Task task;
@@ -109,6 +122,7 @@ class MobileOfflinePersistenceIntegrationTest extends AbstractIntegrationTest {
         var op = operation(task.getVersion());
         assertEquals(APPLIED, offline.submit(op, user).status());
         em.remove(em.find(Task.class, task.getId())); em.flush(); em.clear();
+        user = em.find(User.class, user.getId()); setCurrentUser(user);
         var snapshot = offline.prepare(workOrder.getId(), UUID.randomUUID(), user);
         assertTrue(snapshot.complete()); assertTrue(snapshot.tasks().isEmpty());
         assertEquals(APPLIED, offline.receipts(List.of(op.operationId()), user).results().get(0).status());
@@ -404,6 +418,7 @@ class MobileOfflinePersistenceIntegrationTest extends AbstractIntegrationTest {
         var begin = start(labor, at, null);
         assertEquals(APPLIED, offline.submit(begin, user).status());
         WorkOrderChangeStatusDTO pause = new WorkOrderChangeStatusDTO(); pause.setStatus(Status.ON_HOLD);
+        pause.setBaseRevision(workOrder.getTimerStatusRevision()); pause.setActiveTimerRuns(workOrderService.activeTimerRuns(workOrder.getId()));
         workOrderService.changeStatus(pause, workOrder.getId(), user, "web");
         reattachTimeContext();
         Labor stopped = em.find(Labor.class, labor.getId());
@@ -414,4 +429,156 @@ class MobileOfflinePersistenceIntegrationTest extends AbstractIntegrationTest {
         assertEquals(CONFLICT, late.status(), late.code());
         assertEquals(counted, stopped.getDuration()); assertEquals(Status.ON_HOLD, workOrder.getStatus());
     }
+    private MobileOfflineOperation status(Status target, long base, UUID predecessor, List<UUID> dependencies,
+                                          List<com.grash.dto.WorkOrderTimerRun> runs) {
+        return new MobileOfflineOperation(UUID.randomUUID(), user.getCompany().getId(), user.getId(), workOrder.getId(), null,
+                MobileOfflineOperation.Type.CHANGE_WORK_ORDER_STATUS, null, null, Instant.now().minusSeconds(3600),
+                null, null, predecessor, null, null, null, null,
+                new com.grash.dto.offline.MobileOfflineStatusChange(target, base, "Work completed on site", null, runs, dependencies));
+    }
+
+    @Test void acceptedLocalStopPrecedesPauseAndCannotBeCountedUntilReception() {
+        Labor labor = timer(user, 0);
+        Instant at = Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MILLIS).minusSeconds(7200);
+        var begin = start(labor, at, null); var running = offline.submit(begin, user);
+        var stop = stop(begin, at.plusSeconds(1800));
+        var runs = List.of(new com.grash.dto.WorkOrderTimerRun(running.timeResult().laborId(), running.timeResult().timerRunId()));
+        var premature = status(Status.ON_HOLD, 0, null, List.of(stop.operationId()), runs);
+        assertEquals(REJECTED, offline.submit(premature, user).status());
+        assertEquals(Status.IN_PROGRESS, em.find(WorkOrder.class, workOrder.getId()).getStatus());
+        assertEquals(APPLIED, offline.submit(stop, user).status());
+        var pause = status(Status.ON_HOLD, 0, null, List.of(stop.operationId()), runs);
+        var accepted = offline.submit(pause, user);
+        assertEquals(APPLIED, accepted.status(), accepted.code());
+        reattachTimeContext();
+        assertEquals(1800L, em.find(Labor.class, labor.getId()).getDuration());
+        assertEquals(Status.ON_HOLD, workOrder.getStatus());
+        assertEquals(accepted, offline.submit(pause, user));
+        assertEquals(accepted.statusResult().revision(), workOrder.getTimerStatusRevision());
+    }
+
+    @Test void completionReceiptAndPersistedStateKeepServerAndFieldDatesSeparate() {
+        var close = status(Status.COMPLETE, 0, null, List.of(), List.of());
+        var accepted = offline.submit(close, user);
+        assertEquals(APPLIED, accepted.status(), accepted.code());
+        reattachTimeContext();
+        assertEquals(Status.COMPLETE, workOrder.getStatus());
+        assertEquals(user.getId(), workOrder.getCompletedBy().getId());
+        assertEquals(accepted.statusResult().completedOn(), workOrder.getCompletedOn().toInstant());
+        assertTrue(accepted.statusResult().completedOn().isAfter(close.occurredAt()));
+        assertEquals(close.occurredAt(), accepted.statusResult().occurredAt());
+        assertEquals(accepted, offline.submit(close, user));
+        assertEquals(CONFLICT, offline.submit(status(Status.COMPLETE, workOrder.getTimerStatusRevision(), null, List.of(), List.of()), user).status());
+    }
+
+    @Test void statusChainsUseTheirOwnReceiptRevisionAndRejectAConnectedDecisionBetweenThem() {
+        var first = status(Status.ON_HOLD, 0, null, List.of(), List.of());
+        var accepted = offline.submit(first, user);
+        assertEquals(APPLIED, accepted.status());
+        var second = status(Status.OPEN, 0, first.operationId(), List.of(), List.of());
+        assertEquals(APPLIED, offline.submit(second, user).status());
+        reattachTimeContext();
+        WorkOrderChangeStatusDTO connected = new WorkOrderChangeStatusDTO();
+        connected.setStatus(Status.ON_HOLD); connected.setBaseRevision(workOrder.getTimerStatusRevision());
+        connected.setActiveTimerRuns(List.of());
+        workOrderService.changeStatus(connected, workOrder.getId(), user, "web");
+        var third = status(Status.IN_PROGRESS, 0, second.operationId(), List.of(), List.of());
+        assertEquals(CONFLICT, offline.submit(third, user).status());
+        assertEquals(Status.ON_HOLD, em.find(WorkOrder.class, workOrder.getId()).getStatus());
+    }
+
+    /** Unlike a mocked callback, this checks the real Spring proxy and Quartz JDBC commit boundary. */
+    @Test void offlineCompletionPersistsQuartzJobAndTriggerAfterTheReceiptCommit() throws Exception {
+        assertTrue(scheduler.getMetaData().isJobStoreSupportsPersistence());
+        assertFalse(scheduler.isStarted(), "The test stores jobs without executing them");
+        JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+        TransactionTemplate freshTransaction = new TransactionTemplate(transactions);
+        freshTransaction.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+        String schedulerName = scheduler.getSchedulerName();
+        long companyId = user.getCompany().getId(), userId = user.getId(), roleId = user.getRole().getId();
+        long workOrderId = workOrder.getId(), taskId = task.getId(), taskBaseId = task.getTaskBase().getId();
+        var preferences = user.getCompany().getCompanySettings().getGeneralPreferences();
+        preferences.setDaysBeforePrevMaintNotification(0);
+        String timeZone = preferences.getTimeZone();
+        PreventiveMaintenance pm = new PreventiveMaintenance();
+        pm.setName("Offline completion Quartz fixture"); pm.setTitle("Offline completion Quartz fixture");
+        pm.setCompany(user.getCompany());
+        pm.getSchedule().setRecurrenceBasedOn(RecurrenceBasedOn.COMPLETED_DATE);
+        pm.getSchedule().setRecurrenceType(RecurrenceType.DAILY); pm.getSchedule().setFrequency(1);
+        em.persist(pm); workOrder.setParentPreventiveMaintenance(pm); em.flush();
+        long pmId = pm.getId();
+        JobKey scheduledJob = null;
+        try {
+            var close = status(Status.COMPLETE, workOrder.getTimerStatusRevision(), null, List.of(), List.of());
+            var accepted = offline.submit(close, user);
+            assertEquals(APPLIED, accepted.status(), accepted.code());
+            Calendar nextDate = Calendar.getInstance(TimeZone.getTimeZone(timeZone));
+            nextDate.setTime(Date.from(accepted.statusResult().completedOn())); nextDate.add(Calendar.DAY_OF_YEAR, 1);
+            scheduledJob = new JobKey("wo-job-chained-" + pm.getSchedule().getId() + "-" + nextDate.getTimeInMillis(), "wo-group");
+            String jobName = scheduledJob.getName();
+            assertEquals(0L, jdbc.queryForObject("select count(*) from qrtz_job_details where sched_name=? and job_name=? and job_group='wo-group'",
+                    Long.class, schedulerName, jobName), "Nothing is scheduled before the receipt transaction commits");
+
+            // Commit the actual closure and fixture. Its afterCommit callback must enter ScheduleService through the proxy.
+            TestTransaction.flagForCommit(); TestTransaction.end();
+            freshTransaction.executeWithoutResult(transaction -> {
+                em.clear();
+                assertEquals(Status.COMPLETE, em.find(WorkOrder.class, workOrderId).getStatus());
+                assertTrue(receipts.receipt(companyId, userId, close.operationId()).isPresent());
+                assertEquals(1L, jdbc.queryForObject("select count(*) from qrtz_job_details where sched_name=? and job_name=? and job_group='wo-group'",
+                        Long.class, schedulerName, jobName));
+                assertEquals(1L, jdbc.queryForObject("""
+                        select count(*) from qrtz_triggers t join qrtz_simple_triggers s
+                        on s.sched_name=t.sched_name and s.trigger_name=t.trigger_name and s.trigger_group=t.trigger_group
+                        where t.sched_name=? and t.job_name=? and t.job_group='wo-group' and t.start_time=?
+                        """, Long.class, schedulerName, jobName, nextDate.getTimeInMillis()));
+            });
+            freshTransaction.executeWithoutResult(transaction -> {
+                User current = em.find(User.class, userId); setCurrentUser(current);
+                assertEquals(accepted, offline.submit(close, current), "A lost response is resolved by the receipt");
+            });
+            freshTransaction.executeWithoutResult(transaction -> {
+                assertEquals(1L, jdbc.queryForObject("select count(*) from qrtz_job_details where sched_name=? and job_name=? and job_group='wo-group'",
+                        Long.class, schedulerName, jobName));
+                assertEquals(1L, jdbc.queryForObject("select count(*) from qrtz_triggers where sched_name=? and job_name=? and job_group='wo-group'",
+                        Long.class, schedulerName, jobName), "Replay does not create another trigger");
+            });
+        } finally {
+            if (TestTransaction.isActive()) { TestTransaction.flagForRollback(); TestTransaction.end(); }
+            org.springframework.security.core.context.SecurityContextHolder.clearContext();
+            JobKey cleanupJob = scheduledJob;
+            freshTransaction.executeWithoutResult(transaction -> {
+                if (cleanupJob != null) {
+                    try { scheduler.deleteJob(cleanupJob); }
+                    catch (SchedulerException failure) { throw new IllegalStateException("Cannot remove the test Quartz job", failure); }
+                }
+                jdbc.update("delete from mobile_offline_receipt where company_id=? and user_id=?", companyId, userId);
+                // The committed fixture is the exception to this class's normal per-test rollback.
+                em.clear();
+                Task storedTask = em.find(Task.class, taskId); if (storedTask != null) em.remove(storedTask);
+                em.flush();
+                jdbc.update("delete from work_order_aud where id=?", workOrderId);
+                jdbc.update("delete from work_order where id=?", workOrderId);
+                jdbc.update("delete from revinfo where user_id=?", userId);
+                TaskBase base = em.find(TaskBase.class, taskBaseId); if (base != null) em.remove(base);
+                PreventiveMaintenance maintenance = em.find(PreventiveMaintenance.class, pmId);
+                if (maintenance != null) em.remove(maintenance);
+                em.flush();
+                User worker = em.find(User.class, userId); if (worker != null) em.remove(worker);
+                em.flush();
+                Role role = em.find(Role.class, roleId); if (role != null) em.remove(role);
+                em.flush();
+                Company company = em.find(Company.class, companyId);
+                if (company != null) {
+                    CompanySettings settings = company.getCompanySettings();
+                    company.setCompanySettings(null);
+                    if (settings != null) settings.setCompany(null);
+                    em.flush();
+                    if (settings != null) em.remove(settings);
+                    em.remove(company);
+                }
+            });
+        }
+    }
+
 }

@@ -1,4 +1,9 @@
 const esJSON = {
+  work_order_status_review: "La orden de trabajo ha cambiado. Revise su estado actual antes de enviarla de nuevo. Su entrada se conserva.",
+  work_order_status_review_current: "Revisar el estado actual del servidor",
+  work_order_status_review_value: "Estado del servidor: {{status}} · Cronómetros activos: {{count}}",
+  work_order_status_review_confirm: "Conservar mi entrada sobre esta versión revisada",
+
   labor_review_current: 'Revisar el tiempo actual',
   labor_review_confirm: 'Conservar mi entrada sobre esta versión',
   labor_changed_review:

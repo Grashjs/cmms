@@ -81,9 +81,9 @@ class MobileOfflineControllerTest extends AbstractControllerTest {
 
     @Test void notesAndCommentsUseTheSameContractWithCompactCommentReceipts() throws Exception {
         UUID note = UUID.randomUUID(); UUID comment = UUID.randomUUID();
-        when(offline.submit(argThat(op -> op != null && op.type() == MobileOfflineOperation.Type.SET_TASK_NOTES), eq(user)))
+        when(offline.submit(argThat(op -> op != null && op.type() == MobileOfflineOperation.Type.SET_TASK_NOTES), eq(user), isNull()))
                 .thenReturn(new MobileOfflineResult(note, MobileOfflineResult.Status.APPLIED, "APPLIED", null, Instant.now(), 3L, null, null));
-        when(offline.submit(argThat(op -> op != null && op.type() == MobileOfflineOperation.Type.CREATE_COMMENT), eq(user)))
+        when(offline.submit(argThat(op -> op != null && op.type() == MobileOfflineOperation.Type.CREATE_COMMENT), eq(user), isNull()))
                 .thenReturn(new MobileOfflineResult(comment, MobileOfflineResult.Status.APPLIED, "APPLIED", null, Instant.now(), null, 99L, MobileOfflineResult.Visibility.VISIBLE));
         mvc.perform(post("/mobile-offline/operations").contentType(MediaType.APPLICATION_JSON)
                 .content("{\"operationId\":\"" + note + "\",\"companyId\":52,\"userId\":34,\"workOrderId\":10,\"taskId\":7,\"type\":\"SET_TASK_NOTES\",\"baseVersion\":3,\"notes\":\"\",\"occurredAt\":\"2026-11-04T12:00:00Z\"}"))
@@ -135,12 +135,12 @@ class MobileOfflineControllerTest extends AbstractControllerTest {
         String stop = "{\"operationId\":\"" + stopId + "\",\"companyId\":52,\"userId\":34,\"workOrderId\":10,"
                 + "\"type\":\"STOP_TIMER\",\"occurredAt\":\"2026-11-05T10:30:00Z\",\"time\":{\"periodId\":\"" + period
                 + "\",\"startedAt\":\"2026-11-05T10:00:00Z\",\"endedAt\":\"2026-11-05T10:30:00Z\",\"startOperation\":" + start + "}}";
-        when(offline.submit(any(), eq(user))).thenReturn(new MobileOfflineResult(stopId, MobileOfflineResult.Status.APPLIED,
+        when(offline.submit(any(), eq(user), isNull())).thenReturn(new MobileOfflineResult(stopId, MobileOfflineResult.Status.APPLIED,
                 "TIMER_PERIOD_RECORDED", null, Instant.now()));
         mvc.perform(post("/mobile-offline/operations").contentType(MediaType.APPLICATION_JSON).content(stop))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.code").value("TIMER_PERIOD_RECORDED"));
         verify(offline).submit(argThat(op -> op != null && op.type() == MobileOfflineOperation.Type.STOP_TIMER
-                && op.time().startOperation().operationId().equals(startId) && op.time().periodId().equals(period)), eq(user));
+                && op.time().startOperation().operationId().equals(startId) && op.time().periodId().equals(period)), eq(user), isNull());
         clearInvocations(offline);
         mvc.perform(post("/mobile-offline/operations").contentType(MediaType.APPLICATION_JSON)
                         .content(stop.replace("\"startOperation\":" + start, "\"startOperation\":" + start.replace("\"userId\":34", "\"userId\":35"))))
@@ -154,6 +154,23 @@ class MobileOfflineControllerTest extends AbstractControllerTest {
                 + "\",\"startedAt\":\"2026-11-05T10:00:00Z\",\"endedAt\":\"2026-11-05T10:30:00Z\",\"laborId\":100}}";
         mvc.perform(post("/mobile-offline/operations").contentType(MediaType.APPLICATION_JSON).content(common))
                 .andExpect(status().isBadRequest());
+        verifyNoInteractions(offline);
+    }
+
+    @Test void statusOperationCarriesRequiredGuardsDependenciesAndPlatform() throws Exception {
+        UUID id = UUID.randomUUID(); UUID stop = UUID.randomUUID();
+        when(offline.submit(any(), eq(user), eq("android"))).thenReturn(new MobileOfflineResult(id,
+                MobileOfflineResult.Status.APPLIED, "STATUS_CHANGED", null, Instant.now()));
+        String body = "{\"operationId\":\"" + id + "\",\"companyId\":52,\"userId\":34,\"workOrderId\":10,"
+                + "\"type\":\"CHANGE_WORK_ORDER_STATUS\",\"occurredAt\":\"2026-11-06T10:30:00Z\","
+                + "\"statusChange\":{\"status\":\"ON_HOLD\",\"baseRevision\":3,\"activeTimerRuns\":[],\"dependencyOperationIds\":[\"" + stop + "\"]}}";
+        mvc.perform(post("/mobile-offline/operations").header("X-Platform", "android").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.code").value("STATUS_CHANGED"));
+        verify(offline).submit(argThat(op -> op.statusChange().baseRevision() == 3
+                && op.statusChange().dependencyOperationIds().equals(List.of(stop))), eq(user), eq("android"));
+        clearInvocations(offline);
+        mvc.perform(post("/mobile-offline/operations").contentType(MediaType.APPLICATION_JSON)
+                .content(body.replace("\"activeTimerRuns\":[],", ""))).andExpect(status().isBadRequest());
         verifyNoInteractions(offline);
     }
 

@@ -1,4 +1,9 @@
 const locale = {
+  work_order_status_review: "L’ordine di lavoro è cambiato. Esamina lo stato attuale prima di inviare nuovamente. I dati inseriti vengono conservati.",
+  work_order_status_review_current: "Esamina lo stato attuale del server",
+  work_order_status_review_value: "Stato del server: {{status}} · Cronometri attivi: {{count}}",
+  work_order_status_review_confirm: "Conserva i miei dati su questa versione esaminata",
+
   labor_review_current: 'Esamina il tempo attuale',
   labor_review_confirm: 'Mantieni il mio inserimento su questa versione',
   labor_changed_review:

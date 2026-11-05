@@ -10,6 +10,7 @@ import {
   OFFLINE_LIMITS,
   isTaskOperation,
   isTimeOperation,
+  isStatusOperation,
   transferIds
 } from './types';
 
@@ -217,7 +218,8 @@ export class SyncCoordinator {
       ),
       ...(await this.repository.getCommentReceiptsToRefresh()),
       ...(await this.repository.getFileReceiptsToRefresh()),
-      ...(await this.repository.getTimeReceiptsToRefresh())
+      ...(await this.repository.getTimeReceiptsToRefresh()),
+      ...(await this.repository.getStatusReceiptsToRefresh())
     ];
     // Receipts are read even while the feature is disabled. Missing is NOT an
     // assurance of non-application, and never makes an operation abandonable.
@@ -272,6 +274,11 @@ export class SyncCoordinator {
       )
         return;
       const request = operation.request;
+      if (
+        isStatusOperation(request) &&
+        !(await this.repository.canSendStatusOperation(operation))
+      )
+        continue;
       if (
         isTimeOperation(request) &&
         !(await this.repository.canSendTimeOperation(operation))
@@ -361,7 +368,7 @@ export class SyncCoordinator {
         // A stop can commit after this pass selected its START candidate.
         if (
           error instanceof OfflineError &&
-          error.code === 'OPERATION_RESOLVED'
+          ['OPERATION_RESOLVED', 'OPERATION_BLOCKED'].includes(error.code)
         )
           continue;
         throw error;

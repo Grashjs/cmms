@@ -229,6 +229,13 @@ public class LaborService {
     public TimeOutcome applyOfflineTime(MobileOfflineOperation operation, User user,
                                        MobileOfflineResult predecessor, MobileOfflineResult acceptedStart,
                                        boolean closeWithoutStart, Instant now) {
+        return applyOfflineTime(operation, user, predecessor, acceptedStart, closeWithoutStart, now, null);
+    }
+
+    public TimeOutcome applyOfflineTime(MobileOfflineOperation operation, User user,
+                                       MobileOfflineResult predecessor, MobileOfflineResult acceptedStart,
+                                       boolean closeWithoutStart, Instant now,
+                                       com.grash.dto.offline.MobileOfflineStatusResult statusPredecessor) {
         MobileOfflineTime time = operation.time();
         MobileOfflineOperation startOperation = time.startOperation();
         boolean manual = operation.type() == MobileOfflineOperation.Type.CREATE_MANUAL_TIME;
@@ -261,8 +268,9 @@ public class LaborService {
             if (wo.getFirstTimeToReact() == null) wo.setFirstTimeToReact(Date.from(now));
             return new TimeOutcome(create(labor), null, false, seconds, true);
         }
-        if ((starting || closeWithoutStart) && (base.timerStatusRevision() == null
-                || base.timerStatusRevision() != wo.getTimerStatusRevision())) return TimeOutcome.conflict("TIMER_STATUS_CHANGED");
+        Long expectedStatusRevision = statusPredecessor == null ? base.timerStatusRevision() : Long.valueOf(statusPredecessor.revision());
+        if ((starting || closeWithoutStart) && (expectedStatusRevision == null
+                || expectedStatusRevision != wo.getTimerStatusRevision())) return TimeOutcome.conflict("TIMER_STATUS_CHANGED");
 
         Long expectedId = base.laborId();
         Long expectedVersion = base.laborVersion();

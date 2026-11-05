@@ -1,4 +1,9 @@
 const locale = {
+  work_order_status_review: "Arbetsordern har ändrats. Granska dess aktuella status innan du skickar igen. Dina uppgifter bevaras.",
+  work_order_status_review_current: "Granska aktuell serverstatus",
+  work_order_status_review_value: "Serverstatus: {{status}} · Aktiva tidtagare: {{count}}",
+  work_order_status_review_confirm: "Behåll mina uppgifter för denna granskade version",
+
   labor_review_current: 'Granska aktuell tid',
   labor_review_confirm: 'Behåll min inmatning för den här versionen',
   labor_changed_review:

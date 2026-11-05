@@ -39,7 +39,13 @@ import {
   ManualTimeDraft,
   ManualTimeInput,
   NO_TIME_PERMISSIONS,
-  isTimeOperation
+  isTimeOperation,
+  isStatusOperation,
+  StatusDraft,
+  StatusInput,
+  StatusOperation,
+  OfflineStatusView,
+  ClosureCheck
 } from './types';
 
 const WORK_ORDERS = 'offline_work_orders';
@@ -78,6 +84,7 @@ const commentDraftId = (workOrderId: number) =>
   `work-order:${workOrderId}:comment`;
 const timerDraftId = (id: number) => `work-order:${id}:timer`;
 const manualTimeDraftId = (id: number) => `work-order:${id}:manual-time`;
+const statusDraftId = (id: number) => `work-order:${id}:status`;
 
 interface RepositoryOptions {
   uuid: () => string;
@@ -347,6 +354,19 @@ export class OfflineRepository {
           )
         )
           records.push(this.change(timeRow, { snapshot_confirmed: true }));
+      }
+      for (const op of await this.statusOperations(snapshot.workOrder.id)) {
+        if (
+          op.status === 'APPLIED' &&
+          !op.snapshotConfirmed &&
+          op.receipt?.statusResult &&
+          (snapshot.timerStatusRevision || 0) >=
+            op.receipt.statusResult.revision
+        ) {
+          const statusRow = await this.find(OPERATIONS, op.id);
+          if (statusRow)
+            records.push(this.change(statusRow, { snapshot_confirmed: true }));
+        }
       }
       if (ownsIntent) records.push(cleanup!.prepareDestroyPermanently());
       // Tasks live in their own table; do not maintain a second mutable copy.
@@ -637,6 +657,714 @@ export class OfflineRepository {
     return matching[0];
   }
 
+  private async statusOperations(
+    workOrderId: number
+  ): Promise<LocalOperation[]> {
+    return (
+      await this.collection(OPERATIONS)
+        .query(Q.where('work_order_id', String(workOrderId)))
+        .fetch()
+    )
+      .map((row) => this.operation(row))
+      .filter(
+        (op) => isStatusOperation(op.request) && op.status !== 'ABANDONED'
+      )
+      .sort((a, b) => (a.submittedRevision || 0) - (b.submittedRevision || 0));
+  }
+
+  private async statusPredecessor(workOrderId: number, serverRevision: number) {
+    const previous = (await this.statusOperations(workOrderId)).slice(-1)[0];
+    if (!previous) return undefined;
+    if (
+      previous.status === 'APPLIED' &&
+      previous.receipt?.statusResult &&
+      serverRevision > previous.receipt.statusResult.revision
+    )
+      return undefined;
+    return previous;
+  }
+
+  private async statusTimerRuns(
+    snapshot: OfflineSnapshot,
+    capturedRuns?: { laborId: number; timerRunId: string }[],
+    knownOperations?: LocalOperation[]
+  ): Promise<{ laborId: number; timerRunId: string }[]> {
+    const operations =
+      knownOperations ||
+      (
+        await this.collection(OPERATIONS)
+          .query(Q.where('work_order_id', String(snapshot.workOrder.id)))
+          .fetch()
+      ).map((row) => this.operation(row));
+    const initial =
+      capturedRuns ??
+      (snapshot.labors || [])
+        .filter(
+          (labor) =>
+            labor.logged && labor.status === 'RUNNING' && labor.timerRunId
+        )
+        .map((labor) => ({ laborId: labor.id, timerRunId: labor.timerRunId! }));
+    const runs = new Map(initial.map((run) => [run.laborId, { ...run }]));
+    for (const op of operations
+      .filter((op) => op.status === 'APPLIED')
+      .sort(
+        (a, b) => (a.submittedRevision || 0) - (b.submittedRevision || 0)
+      )) {
+      const result = op.receipt?.timeResult;
+      if (
+        op.request.type === 'START_TIMER' &&
+        result?.timerRunId &&
+        !result.closedWithoutActivation &&
+        op.receipt?.visibility !== 'LABOR_DELETED' &&
+        op.receipt?.visibility !== 'WORK_ORDER_UNAVAILABLE'
+      ) {
+        const canonical = snapshot.labors?.find(
+          (labor) => labor.id === result.laborId
+        );
+        if (
+          (!canonical && !op.snapshotConfirmed) ||
+          (canonical && canonical.version < result.laborVersion)
+        )
+          runs.set(result.laborId, {
+            laborId: result.laborId,
+            timerRunId: result.timerRunId
+          });
+      }
+      if (
+        op.request.type === 'STOP_TIMER' &&
+        result?.timerRunId &&
+        runs.get(result.laborId)?.timerRunId === result.timerRunId
+      )
+        runs.delete(result.laborId);
+      for (const stopped of op.receipt?.statusResult?.stoppedTimerRuns || [])
+        if (runs.get(stopped.laborId)?.timerRunId === stopped.timerRunId)
+          runs.delete(stopped.laborId);
+    }
+    return [...runs.values()].sort((a, b) => a.laborId - b.laborId);
+  }
+
+  private async closureChecks(
+    snapshot: OfflineSnapshot,
+    knownOperations?: LocalOperation[]
+  ): Promise<ClosureCheck[]> {
+    const required = snapshot.closure?.requiredFields || [];
+    if (!required.length) return [];
+    const operations =
+      knownOperations ||
+      (
+        await this.collection(OPERATIONS)
+          .query(Q.where('work_order_id', String(snapshot.workOrder.id)))
+          .fetch()
+      ).map((row) => this.operation(row));
+    const active = operations.filter((operation) =>
+      ACTIVE.includes(operation.status)
+    );
+    const nonempty = (value: unknown) => value != null && String(value) !== '';
+    const visible = (operation: LocalOperation) =>
+      ![
+        'COMMENT_DELETED',
+        'FILE_DELETED',
+        'LABOR_DELETED',
+        'TARGET_UNAVAILABLE',
+        'WORK_ORDER_UNAVAILABLE'
+      ].includes(operation.receipt?.visibility || '');
+    const checks: ClosureCheck[] = [];
+    if (required.includes('completeFiles')) {
+      const hasFiles =
+        !!snapshot.workOrder.files?.length ||
+        snapshot.comments.some((comment) => !!comment.files?.length);
+      const isAttachment = (operation: LocalOperation) =>
+        (operation.request.type === 'CREATE_COMMENT' &&
+          !!operation.request.fileTransferIds?.length) ||
+        (operation.request.type === 'UPDATE_WORK_ORDER_ATTACHMENTS' &&
+          operation.request.addTransferIds.length > 0);
+      const confirmed = operations.some(
+        (operation) =>
+          operation.status === 'APPLIED' &&
+          visible(operation) &&
+          isAttachment(operation) &&
+          (operation.request.type === 'CREATE_COMMENT'
+            ? operation.serverCommentId == null
+            : !operation.snapshotConfirmed)
+      );
+      const awaiting = active.some(
+        (operation) =>
+          isAttachment(operation) &&
+          transferIds(operation.request).every((id) => {
+            const transfer = operations.find(
+              (candidate) => candidate.id === id
+            );
+            return (
+              transfer?.request.type === 'UPLOAD_FILE' &&
+              visible(transfer) &&
+              (ACTIVE.includes(transfer.status) ||
+                transfer.status === 'APPLIED')
+            );
+          })
+      );
+      checks.push({
+        field: 'completeFiles',
+        labelKey: 'files',
+        messageKey: 'required_files_on_completion',
+        state:
+          hasFiles || confirmed ? 'satisfied' : awaiting ? 'pending' : 'missing'
+      });
+    }
+    if (required.includes('completeTasks')) {
+      const tasks = (
+        await this.collection(TASKS)
+          .query(
+            Q.where('work_order_id', String(snapshot.workOrder.id)),
+            Q.where('available', true)
+          )
+          .fetch()
+      ).map((row) => json<OfflineTask>(row));
+      let pending = false,
+        missing = false;
+      for (const task of tasks) {
+        const next = active
+          .filter(
+            (operation) =>
+              operation.request.type === 'SET_TASK_VALUE' &&
+              operation.request.taskId === task.id
+          )
+          .sort(
+            (a, b) => (a.submittedRevision || 0) - (b.submittedRevision || 0)
+          )
+          .slice(-1)[0];
+        if (next && next.request.type === 'SET_TASK_VALUE') {
+          if (nonempty(next.request.value)) pending = true;
+          else missing = true;
+        } else if (!nonempty(task.value)) missing = true;
+      }
+      checks.push({
+        field: 'completeTasks',
+        labelKey: 'tasks',
+        messageKey: 'required_tasks_on_completion',
+        state: missing ? 'missing' : pending ? 'pending' : 'satisfied'
+      });
+    }
+    if (required.includes('completeTime')) {
+      const hasTime = snapshot.labors?.some((labor) => labor.duration > 0);
+      const confirmed = operations.some((operation) => {
+        const result = operation.receipt?.timeResult;
+        return (
+          operation.status === 'APPLIED' &&
+          visible(operation) &&
+          !operation.snapshotConfirmed &&
+          (operation.request.type === 'STOP_TIMER' ||
+            operation.request.type === 'CREATE_MANUAL_TIME') &&
+          result &&
+          result.durationAdded > 0 &&
+          !snapshot.labors?.some(
+            (labor) =>
+              labor.id === result.laborId &&
+              labor.version >= result.laborVersion
+          )
+        );
+      });
+      const awaiting = active.some((operation) => {
+        if (
+          operation.request.type !== 'STOP_TIMER' &&
+          operation.request.type !== 'CREATE_MANUAL_TIME'
+        )
+          return false;
+        const time = operation.request.time;
+        return (
+          Number.isFinite(Date.parse(time.startedAt)) &&
+          !!time.endedAt &&
+          Number.isFinite(Date.parse(time.endedAt)) &&
+          Math.floor(
+            (Date.parse(time.endedAt) - Date.parse(time.startedAt)) / 1000
+          ) > 0
+        );
+      });
+      checks.push({
+        field: 'completeTime',
+        labelKey: 'time',
+        messageKey: 'required_labor_on_completion',
+        state:
+          hasTime || confirmed ? 'satisfied' : awaiting ? 'pending' : 'missing'
+      });
+    }
+    if (required.includes('completeParts'))
+      checks.push({
+        field: 'completeParts',
+        labelKey: 'parts',
+        messageKey: 'required_part_on_completion',
+        state: snapshot.closure?.hasParts ? 'satisfied' : 'missing'
+      });
+    if (required.includes('completeCost'))
+      checks.push({
+        field: 'completeCost',
+        labelKey: 'costs',
+        messageKey: 'required_cost_on_completion',
+        state: snapshot.closure?.hasCosts ? 'satisfied' : 'missing'
+      });
+    return checks;
+  }
+
+  async getStatusView(workOrderId: number): Promise<OfflineStatusView> {
+    this.assertStorage();
+    return this.database.read(async () => {
+      const row = await this.find(WORK_ORDERS, String(workOrderId));
+      const available = !!row && !!raw(row, 'available');
+      const snapshot = available ? json<OfflineSnapshot>(row!) : null;
+      const draft = available
+        ? await this.find(DRAFTS, statusDraftId(workOrderId))
+        : null;
+      const operations = available
+        ? await this.statusOperations(workOrderId)
+        : [];
+      for (const op of operations)
+        op.blockedReason = await this.statusBlockedReason(op);
+      return {
+        available,
+        unavailableReason: available
+          ? null
+          : String(
+              (row && raw(row, 'unavailable_reason')) || 'TARGET_UNAVAILABLE'
+            ),
+        closure: snapshot?.closure || null,
+        closureChecks: snapshot ? await this.closureChecks(snapshot) : [],
+        serverRevision: snapshot?.timerStatusRevision || 0,
+        serverStatus: snapshot?.workOrder.status || null,
+        activeTimerRuns: snapshot ? await this.statusTimerRuns(snapshot) : [],
+        draft: draft ? json<StatusDraft>(draft) : null,
+        operations
+      };
+    });
+  }
+
+  observeStatus(workOrderId: number) {
+    return this.changes().pipe(
+      switchMap(() => this.getStatusView(workOrderId))
+    );
+  }
+
+  async saveStatusDraft(
+    workOrderId: number,
+    input: StatusInput,
+    expectedRevision?: number | null
+  ): Promise<StatusDraft> {
+    this.assertStorage();
+    return this.database.write(async () => {
+      const snapshot = json<OfflineSnapshot>(
+        await this.usableWorkOrder(workOrderId, true)
+      );
+      if (!snapshot.closure)
+        throw new OfflineError('STATUS_PREPARATION_REQUIRED');
+      if (!snapshot.closure.canChangeStatus)
+        throw new OfflineError('EDIT_FORBIDDEN');
+      if (
+        !['OPEN', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETE'].includes(input.status)
+      )
+        throw new OfflineError('INVALID_VALUE');
+      const row = await this.find(DRAFTS, statusDraftId(workOrderId));
+      const old = row ? json<StatusDraft>(row) : null;
+      if (old && old.status !== input.status)
+        throw new OfflineError('STATUS_WORK_PENDING');
+      if (
+        expectedRevision !== undefined &&
+        (old?.revision ?? null) !== expectedRevision
+      )
+        throw new OfflineError('DRAFT_CHANGED');
+      const previous = old
+        ? undefined
+        : await this.statusPredecessor(
+            workOrderId,
+            snapshot.timerStatusRevision || 0
+          );
+      const clock = await this.nextDraftRevision();
+      const draft: StatusDraft = {
+        ...input,
+        id: statusDraftId(workOrderId),
+        kind: 'STATUS',
+        workOrderId,
+        revision: clock.revision,
+        baseRevision:
+          old?.baseRevision ??
+          (previous && isStatusOperation(previous.request)
+            ? previous.request.statusChange.baseRevision
+            : snapshot.timerStatusRevision || 0),
+        predecessorOperationId: old?.predecessorOperationId || previous?.id,
+        activeTimerRuns: old
+          ? old.activeTimerRuns
+          : await this.statusTimerRuns(snapshot),
+        updatedAt: this.now()
+      };
+      const fields = {
+        work_order_id: String(workOrderId),
+        task_id: '',
+        payload: JSON.stringify(draft),
+        revision: draft.revision
+      };
+      await this.commit([
+        this.clockChange(clock),
+        row ? this.change(row, fields) : this.create(DRAFTS, draft.id, fields)
+      ]);
+      return draft;
+    });
+  }
+
+  private async timeFollowsStatus(
+    operation: LocalOperation | null,
+    statusId: string
+  ): Promise<boolean> {
+    if (!operation || !isTimeOperation(operation.request)) return false;
+    const time =
+      operation.request.time.startOperation?.time || operation.request.time;
+    let predecessor = time.statusPredecessorOperationId;
+    const seen = new Set<string>();
+    while (predecessor && !seen.has(predecessor)) {
+      if (predecessor === statusId) return true;
+      seen.add(predecessor);
+      const previous = await this.getOperation(predecessor);
+      predecessor =
+        previous && isStatusOperation(previous.request)
+          ? previous.request.predecessorOperationId
+          : undefined;
+    }
+    return false;
+  }
+
+  private async statusBlockedReason(
+    operation: LocalOperation
+  ): Promise<string | undefined> {
+    if (!isStatusOperation(operation.request)) return undefined;
+    if (operation.status === 'APPLIED') return undefined;
+    const request = operation.request;
+    const dependencies = [
+      ...request.statusChange.dependencyOperationIds,
+      ...(request.predecessorOperationId
+        ? [request.predecessorOperationId]
+        : [])
+    ];
+    for (const id of dependencies) {
+      const previous = await this.getOperation(id);
+      if (
+        !previous ||
+        ['CONFLICT', 'REJECTED', 'ABANDONED'].includes(previous.status)
+      )
+        return 'STATUS_DEPENDENCY_FAILED';
+      if (previous.status !== 'APPLIED') return 'STATUS_DEPENDENCY_PENDING';
+    }
+    // An attempted immutable request must be reconciled even if new drafts appeared afterwards.
+    if (operation.attemptCount > 0) return undefined;
+    if (request.statusChange.status === 'COMPLETE') {
+      const drafts = await this.collection(DRAFTS)
+        .query(Q.where('work_order_id', String(request.workOrderId)))
+        .fetch();
+      if (drafts.length) return 'STATUS_NEW_WORK';
+      const rows = await this.collection(OPERATIONS)
+        .query(Q.where('work_order_id', String(request.workOrderId)))
+        .fetch();
+      if (
+        rows.some((row) => {
+          const next = this.operation(row);
+          return (
+            next.id !== operation.id &&
+            next.status !== 'ABANDONED' &&
+            !isStatusOperation(next.request) &&
+            (next.submittedRevision || 0) > (operation.submittedRevision || 0)
+          );
+        })
+      )
+        return 'STATUS_NEW_WORK';
+    }
+    if (request.statusChange.status !== 'IN_PROGRESS') {
+      const time = await this.readTimeView(request.workOrderId);
+      if (time.activePeriod) {
+        const start = time.activePeriod.startOperationId
+          ? await this.getOperation(time.activePeriod.startOperationId)
+          : null;
+        if (!(await this.timeFollowsStatus(start, operation.id)))
+          return 'STATUS_TIMER_ACTIVE';
+      }
+      // A newly submitted STOP cannot be silently inserted into a frozen request.
+      for (const op of time.operations) {
+        if (
+          op.request.type === 'STOP_TIMER' &&
+          op.status !== 'ABANDONED' &&
+          !request.statusChange.dependencyOperationIds.includes(op.id) &&
+          (op.submittedRevision || 0) > (operation.submittedRevision || 0) &&
+          !(await this.timeFollowsStatus(op, operation.id))
+        )
+          return 'STATUS_NEW_WORK';
+      }
+    }
+    return undefined;
+  }
+
+  async canSendStatusOperation(operation: LocalOperation): Promise<boolean> {
+    if (!isStatusOperation(operation.request)) return true;
+    if (operation.attemptCount > 0) return true;
+    const row = await this.find(
+      WORK_ORDERS,
+      String(operation.request.workOrderId)
+    );
+    return (
+      !!row &&
+      !!raw(row, 'available') &&
+      !!json<OfflineSnapshot>(row).closure?.canChangeStatus &&
+      !(await this.statusBlockedReason(operation))
+    );
+  }
+
+  async submitStatusDraft(
+    workOrderId: number,
+    expectedRevision: number
+  ): Promise<LocalOperation> {
+    this.assertStorage();
+    return this.database.write(async () => {
+      const snapshot = json<OfflineSnapshot>(
+        await this.usableWorkOrder(workOrderId, true)
+      );
+      if (!snapshot.closure)
+        throw new OfflineError('STATUS_PREPARATION_REQUIRED');
+      if (!snapshot.closure.canChangeStatus)
+        throw new OfflineError('EDIT_FORBIDDEN');
+      const row = await this.find(DRAFTS, statusDraftId(workOrderId));
+      if (!row || Number(raw(row, 'revision')) !== expectedRevision)
+        throw new OfflineError('DRAFT_CHANGED');
+      const draft = json<StatusDraft>(row);
+      const time = await this.readTimeView(workOrderId);
+      if (
+        draft.status !== 'IN_PROGRESS' &&
+        (time.activePeriod || time.serverTimer)
+      )
+        throw new OfflineError('STATUS_TIMER_ACTIVE');
+      const rows = await this.collection(OPERATIONS)
+        .query(Q.where('work_order_id', String(workOrderId)))
+        .fetch();
+      const operations = rows.map((item) => this.operation(item));
+      if (draft.status === 'COMPLETE') {
+        if (
+          operations.some(
+            (operation) =>
+              isStatusOperation(operation.request) &&
+              operation.request.statusChange.status === 'COMPLETE' &&
+              UNRESOLVED.includes(operation.status)
+          )
+        )
+          throw new OfflineError('PREVIOUS_OPERATION');
+        const drafts = await this.collection(DRAFTS)
+          .query(Q.where('work_order_id', String(workOrderId)))
+          .fetch();
+        if (drafts.some((item) => item.id !== row.id))
+          throw new OfflineError('STATUS_WORK_PENDING');
+        if (
+          operations.some((op) => ['CONFLICT', 'REJECTED'].includes(op.status))
+        )
+          throw new OfflineError('STATUS_DEPENDENCY_FAILED');
+        const missing = (await this.closureChecks(snapshot, operations)).find(
+          (check) => check.state === 'missing'
+        );
+        if (missing) throw new OfflineError(missing.messageKey);
+        if (snapshot.closure.askFeedback && !draft.feedback?.trim())
+          throw new OfflineError('STATUS_FEEDBACK_REQUIRED');
+        if (snapshot.closure.requiredSignature && !draft.signature)
+          throw new OfflineError('STATUS_SIGNATURE_REQUIRED');
+        if (draft.signature && !snapshot.closure.canCaptureSignature)
+          throw new OfflineError('STATUS_SIGNATURE_FORBIDDEN');
+      }
+      const dependencies = operations
+        .filter(
+          (op) =>
+            op.status !== 'ABANDONED' &&
+            (draft.status === 'COMPLETE'
+              ? UNRESOLVED.includes(op.status)
+              : draft.status !== 'IN_PROGRESS' &&
+                op.request.type === 'STOP_TIMER')
+        )
+        .map((op) => op.id);
+      if (!Array.isArray(draft.activeTimerRuns))
+        throw new OfflineError('STATUS_PREPARATION_REQUIRED');
+      const runs = await this.statusTimerRuns(
+        snapshot,
+        draft.activeTimerRuns,
+        operations
+      );
+      const request: StatusOperation = {
+        ...this.identity(),
+        operationId: this.options.uuid(),
+        workOrderId,
+        occurredAt: new Date(this.now()).toISOString(),
+        type: 'CHANGE_WORK_ORDER_STATUS',
+        ...(draft.predecessorOperationId
+          ? { predecessorOperationId: draft.predecessorOperationId }
+          : {}),
+        statusChange: {
+          status: draft.status,
+          baseRevision: draft.baseRevision,
+          ...(draft.status === 'COMPLETE'
+            ? {
+                feedback: draft.feedback ?? null,
+                signature: draft.signature || null
+              }
+            : {}),
+          activeTimerRuns: runs,
+          dependencyOperationIds: [...new Set(dependencies)]
+        }
+      };
+      const operation = this.createOperation(request, draft.revision);
+      await this.commit([operation, row.prepareDestroyPermanently()]);
+      return this.operation(operation);
+    });
+  }
+
+  abandonStatusDraft(workOrderId: number, revision: number) {
+    return this.abandonDraftRow(statusDraftId(workOrderId), revision);
+  }
+
+  async reviewStatusOperation(
+    operationId: string,
+    expectedDraftRevision: number | null,
+    expectedServerRevision: number,
+    expectedActiveTimerRuns?: { laborId: number; timerRunId: string }[]
+  ): Promise<StatusDraft> {
+    this.assertStorage();
+    return this.database.write(async () => {
+      const row = await this.find(OPERATIONS, operationId);
+      if (!row) throw new OfflineError('OPERATION_MISSING');
+      const op = this.operation(row);
+      if (!isStatusOperation(op.request))
+        throw new OfflineError('INVALID_VALUE');
+      if (!this.canAbandonKnownOperation(op))
+        throw new OfflineError('RESULT_UNKNOWN');
+      const snapshot = json<OfflineSnapshot>(
+        await this.usableWorkOrder(op.request.workOrderId, true)
+      );
+      if (snapshot.timerStatusRevision !== expectedServerRevision)
+        throw new OfflineError('SERVER_CHANGED');
+      if (!expectedActiveTimerRuns)
+        throw new OfflineError('STATUS_PREPARATION_REQUIRED');
+      const activeTimerRuns = await this.statusTimerRuns(snapshot);
+      if (
+        JSON.stringify(activeTimerRuns) !==
+        JSON.stringify(
+          [...expectedActiveTimerRuns].sort((a, b) => a.laborId - b.laborId)
+        )
+      )
+        throw new OfflineError('SERVER_CHANGED');
+      const existing = await this.find(
+        DRAFTS,
+        statusDraftId(op.request.workOrderId)
+      );
+      const old = existing ? json<StatusDraft>(existing) : null;
+      if ((old?.revision ?? null) !== expectedDraftRevision)
+        throw new OfflineError('DRAFT_CHANGED');
+      const clock = await this.nextDraftRevision();
+      const draft: StatusDraft = {
+        id: statusDraftId(op.request.workOrderId),
+        kind: 'STATUS',
+        workOrderId: op.request.workOrderId,
+        status: old?.status || op.request.statusChange.status,
+        feedback: old ? old.feedback : op.request.statusChange.feedback,
+        signature: old ? old.signature : op.request.statusChange.signature,
+        revision: clock.revision,
+        baseRevision: expectedServerRevision,
+        activeTimerRuns,
+        updatedAt: this.now()
+      };
+      const fields = {
+        work_order_id: String(draft.workOrderId),
+        task_id: '',
+        payload: JSON.stringify(draft),
+        revision: draft.revision
+      };
+      await this.commit([
+        this.clockChange(clock),
+        existing
+          ? this.change(existing, fields)
+          : this.create(DRAFTS, draft.id, fields),
+        this.change(row, { status: 'ABANDONED', updated_at: this.now() })
+      ]);
+      return draft;
+    });
+  }
+
+  async getStatusReceiptsToRefresh(): Promise<LocalOperation[]> {
+    return (
+      await this.collection(OPERATIONS)
+        .query(Q.where('status', 'APPLIED'))
+        .fetch()
+    )
+      .map((row) => this.operation(row))
+      .filter((op) => isStatusOperation(op.request) && !op.snapshotConfirmed);
+  }
+
+  private async applyStatusReceipt(
+    row: Model,
+    operation: LocalOperation,
+    receipt: OperationReceipt
+  ) {
+    if (!isStatusOperation(operation.request))
+      throw new OfflineError('INVALID_RECEIPT');
+    const result = receipt.statusResult;
+    const hidden = receipt.visibility === 'WORK_ORDER_UNAVAILABLE';
+    if (
+      receipt.status === 'APPLIED' &&
+      !hidden &&
+      (!result ||
+        !Number.isSafeInteger(result.revision) ||
+        result.revision < 0 ||
+        result.chainBaseRevision !==
+          operation.request.statusChange.baseRevision ||
+        result.status !== operation.request.statusChange.status)
+    )
+      throw new OfflineError('INVALID_RECEIPT');
+    if (
+      operation.receipt &&
+      (operation.receipt.status !== receipt.status ||
+        operation.receipt.receivedAt !== receipt.receivedAt ||
+        (result &&
+          operation.receipt.statusResult &&
+          JSON.stringify(result) !==
+            JSON.stringify(operation.receipt.statusResult)))
+    )
+      throw new OfflineError('INVALID_RECEIPT');
+    const settled = {
+      ...operation.receipt,
+      ...receipt,
+      statusResult: result || operation.receipt?.statusResult
+    };
+    const workOrder = await this.find(
+      WORK_ORDERS,
+      String(operation.request.workOrderId)
+    );
+    const snapshot = workOrder ? json<OfflineSnapshot>(workOrder) : null;
+    const records = [
+      this.change(row, {
+        status: receipt.status,
+        receipt: JSON.stringify(settled),
+        updated_at: this.now(),
+        snapshot_confirmed: !!(
+          operation.snapshotConfirmed ||
+          hidden ||
+          (result &&
+            snapshot &&
+            (snapshot.timerStatusRevision || 0) >= result.revision)
+        )
+      })
+    ];
+    if (
+      workOrder &&
+      (hidden ||
+        ['ACCESS_REVOKED', 'TARGET_NOT_FOUND'].includes(receipt.code || ''))
+    )
+      records.push(
+        this.change(workOrder, {
+          available: false,
+          unavailable_reason: receipt.code || 'ACCESS_REVOKED',
+          availability_revision:
+            Number(raw(workOrder, 'availability_revision')) + 1
+        })
+      );
+    // The receipt owns only this submission, never a newer signature or feedback draft.
+    await this.commit(records);
+  }
+
   private async lastTimerOperation(
     workOrderId: number
   ): Promise<LocalOperation | undefined> {
@@ -711,14 +1439,37 @@ export class OfflineRepository {
       if (
         labor?.status === 'RUNNING' &&
         (!previous || previous.request.type !== 'STOP_TIMER')
-      )
+      ) {
+        const stoppedByStatus = (await this.statusOperations(workOrderId)).some(
+          (op) =>
+            op.status === 'APPLIED' &&
+            op.receipt?.statusResult?.stoppedTimerRuns?.some(
+              (run) =>
+                run.laborId === labor.id && run.timerRunId === labor.timerRunId
+            )
+        );
+        // The stop is proven, but its Labor version must be read before resuming.
+        if (stoppedByStatus)
+          throw new OfflineError('STATUS_PREPARATION_REQUIRED');
         throw new OfflineError('TIMER_ALREADY_RUNNING');
+      }
       if (
         !(labor || previous?.receipt?.timeResult
           ? snapshot.timePermissions.resumeTimer
           : snapshot.timePermissions.createTimer)
       )
         throw new OfflineError('EDIT_FORBIDDEN');
+      const statusPrevious = await this.statusPredecessor(
+        workOrderId,
+        snapshot.timerStatusRevision || 0
+      );
+      if (
+        statusPrevious &&
+        isStatusOperation(statusPrevious.request) &&
+        statusPrevious.request.statusChange.status === 'COMPLETE' &&
+        statusPrevious.status !== 'APPLIED'
+      )
+        throw new OfflineError('STATUS_WORK_PENDING');
       const clock = await this.nextDraftRevision();
       const periodId = this.options.uuid();
       const request: TimerStartOperation = {
@@ -731,7 +1482,13 @@ export class OfflineRepository {
         time: {
           periodId,
           startedAt,
-          timerStatusRevision: snapshot.timerStatusRevision,
+          timerStatusRevision:
+            statusPrevious && isStatusOperation(statusPrevious.request)
+              ? statusPrevious.request.statusChange.baseRevision
+              : snapshot.timerStatusRevision,
+          ...(statusPrevious
+            ? { statusPredecessorOperationId: statusPrevious.id }
+            : {}),
           ...(labor ? { laborId: labor.id, laborVersion: labor.version } : {})
         }
       };
@@ -1083,12 +1840,26 @@ export class OfflineRepository {
       request.type === 'STOP_TIMER' && request.time.startOperation
         ? request.time.startOperation.predecessorOperationId
         : request.predecessorOperationId;
-    if (!predecessorId) return false;
-    const previous = await this.getOperation(predecessorId);
-    // Missing or uncertain is not proof that the preceding work was refused.
+    const statusId =
+      request.time.statusPredecessorOperationId ||
+      request.time.startOperation?.time.statusPredecessorOperationId;
+    const predecessors = await Promise.all(
+      [predecessorId, statusId]
+        .filter(Boolean)
+        .map((id) => this.getOperation(id!))
+    );
+    // Missing/uncertain still prevents replacing an identity; a refused own status
+    // can be reviewed using the same stopped-period review as a refused time.
     if (
-      !previous ||
-      !['CONFLICT', 'REJECTED', 'ABANDONED'].includes(previous.status)
+      !predecessors.length ||
+      predecessors.some(
+        (previous) => !previous || ACTIVE.includes(previous.status)
+      ) ||
+      !predecessors.some(
+        (previous) =>
+          previous &&
+          ['CONFLICT', 'REJECTED', 'ABANDONED'].includes(previous.status)
+      )
     )
       return false;
     if (request.type === 'STOP_TIMER' && request.time.startOperation) {
@@ -1409,35 +2180,45 @@ export class OfflineRepository {
 
   async getTimeView(workOrderId: number): Promise<OfflineTimeView> {
     this.assertStorage();
-    return this.database.read(async () => {
-      const row = await this.find(WORK_ORDERS, String(workOrderId));
-      const available = !!row && !!raw(row, 'available');
-      if (!available)
-        return {
-          available: false,
-          labors: [],
-          permissions: NO_TIME_PERMISSIONS,
-          timerStatusRevision: 0,
-          activePeriod: null,
-          serverTimer: null,
-          manualDraft: null,
-          operations: []
-        };
-      const snapshot = json<OfflineSnapshot>(row!);
-      const active = await this.find(DRAFTS, timerDraftId(workOrderId));
-      const manual = await this.find(DRAFTS, manualTimeDraftId(workOrderId));
-      const operations = (await this.timeRows(workOrderId))
-        .map((item) => this.operation(item))
-        .filter((op) => op.status !== 'ABANDONED');
-      for (const operation of operations) {
-        operation.blockedReason = await this.blockedReason(operation);
-        operation.canReviewTime =
-          ['CONFLICT', 'REJECTED'].includes(operation.status) ||
-          (await this.canReviewBlockedTime(operation));
-      }
-      const primary = this.primaryLabor(snapshot);
-      const stopped =
-        primary &&
+    return this.database.read(() => this.readTimeView(workOrderId));
+  }
+
+  private async readTimeView(workOrderId: number): Promise<OfflineTimeView> {
+    const row = await this.find(WORK_ORDERS, String(workOrderId));
+    const available = !!row && !!raw(row, 'available');
+    if (!available)
+      return {
+        available: false,
+        labors: [],
+        permissions: NO_TIME_PERMISSIONS,
+        timerStatusRevision: 0,
+        activePeriod: null,
+        serverTimer: null,
+        manualDraft: null,
+        operations: []
+      };
+    const snapshot = json<OfflineSnapshot>(row!);
+    const active = await this.find(DRAFTS, timerDraftId(workOrderId));
+    const manual = await this.find(DRAFTS, manualTimeDraftId(workOrderId));
+    const operations = (await this.timeRows(workOrderId))
+      .map((item) => this.operation(item))
+      .filter((op) => op.status !== 'ABANDONED');
+    for (const operation of operations) {
+      operation.blockedReason = await this.blockedReason(operation);
+      operation.canReviewTime =
+        ['CONFLICT', 'REJECTED'].includes(operation.status) ||
+        (await this.canReviewBlockedTime(operation));
+    }
+    const primary = this.primaryLabor(snapshot);
+    const statusStops = (await this.statusOperations(workOrderId))
+      .filter((op) => op.status === 'APPLIED')
+      .flatMap((op) => op.receipt?.statusResult?.stoppedTimerRuns || []);
+    const stopped =
+      primary &&
+      (statusStops.some(
+        (run) =>
+          run.laborId === primary.id && run.timerRunId === primary.timerRunId
+      ) ||
         operations.some((op) => {
           const request = op.request;
           if (request.type !== 'STOP_TIMER') return false;
@@ -1453,18 +2234,17 @@ export class OfflineRepository {
             // Do not relight a stopped local clock while its submitted start is still unconfirmed.
             (!!start && ['QUEUED', 'SENDING', 'UNKNOWN'].includes(start.status))
           );
-        });
-      return {
-        available,
-        labors: snapshot.labors || [],
-        permissions: snapshot.timePermissions || NO_TIME_PERMISSIONS,
-        timerStatusRevision: snapshot.timerStatusRevision || 0,
-        activePeriod: active ? json<TimerDraft>(active) : null,
-        serverTimer: primary?.status === 'RUNNING' && !stopped ? primary : null,
-        manualDraft: manual ? json<ManualTimeDraft>(manual) : null,
-        operations
-      };
-    });
+        }));
+    return {
+      available,
+      labors: snapshot.labors || [],
+      permissions: snapshot.timePermissions || NO_TIME_PERMISSIONS,
+      timerStatusRevision: snapshot.timerStatusRevision || 0,
+      activePeriod: active ? json<TimerDraft>(active) : null,
+      serverTimer: primary?.status === 'RUNNING' && !stopped ? primary : null,
+      manualDraft: manual ? json<ManualTimeDraft>(manual) : null,
+      operations
+    };
   }
 
   observeTime(workOrderId: number) {
@@ -1496,6 +2276,15 @@ export class OfflineRepository {
   async canSendTimeOperation(operation: LocalOperation): Promise<boolean> {
     if (!isTimeOperation(operation.request)) return true;
     const request = operation.request;
+    const statusPredecessor =
+      request.time.statusPredecessorOperationId ||
+      request.time.startOperation?.time.statusPredecessorOperationId;
+    if (
+      operation.attemptCount === 0 &&
+      statusPredecessor &&
+      (await this.getOperation(statusPredecessor))?.status !== 'APPLIED'
+    )
+      return false;
     if (
       request.type === 'START_TIMER' &&
       (await this.isTimerStartClosed(operation.id))
@@ -1512,7 +2301,7 @@ export class OfflineRepository {
     // Once attempted, the immutable operation needs a terminal answer even after rights change.
     if (operation.attemptCount > 0 || request.type === 'STOP_TIMER')
       return true;
-    const view = await this.getTimeView(request.workOrderId);
+    const view = await this.readTimeView(request.workOrderId);
     if (!view.available) return false;
     if (request.type === 'CREATE_MANUAL_TIME')
       return view.permissions.createManualTime;
@@ -1795,6 +2584,7 @@ export class OfflineRepository {
     operation: LocalOperation
   ): Promise<string | undefined> {
     const request = operation.request;
+    if (isStatusOperation(request)) return this.statusBlockedReason(operation);
     for (const id of transferIds(request)) {
       const dependency = await this.getOperation(id);
       if (
@@ -1812,6 +2602,17 @@ export class OfflineRepository {
         return 'TRANSFER_FAILED';
     }
     if (isTimeOperation(request)) {
+      const statusId =
+        request.time.statusPredecessorOperationId ||
+        request.time.startOperation?.time.statusPredecessorOperationId;
+      if (statusId) {
+        const status = await this.getOperation(statusId);
+        if (
+          !status ||
+          ['CONFLICT', 'REJECTED', 'ABANDONED'].includes(status.status)
+        )
+          return 'PREDECESSOR_FAILED';
+      }
       const id =
         request.type === 'STOP_TIMER' && request.time.startOperation
           ? request.time.startOperation.predecessorOperationId
@@ -2215,6 +3016,10 @@ export class OfflineRepository {
       if (!row) return;
       const operation = this.operation(row);
       if (operation.status === 'ABANDONED') return;
+      if (isStatusOperation(operation.request)) {
+        await this.applyStatusReceipt(row, operation, receipt);
+        return;
+      }
       if (isTimeOperation(operation.request)) {
         await this.applyTimeReceipt(row, operation, receipt);
         return;
@@ -2453,6 +3258,11 @@ export class OfflineRepository {
           (await this.isTimerStartClosed(operationId)))
       )
         throw new OfflineError('OPERATION_RESOLVED');
+      if (
+        isStatusOperation(operation.request) &&
+        !(await this.canSendStatusOperation(operation))
+      )
+        throw new OfflineError('OPERATION_BLOCKED');
       await this.commit([
         this.change(row, {
           status: 'SENDING',
@@ -2564,11 +3374,17 @@ export class OfflineRepository {
       const timeOperations = (await this.timeRows(snapshot.workOrder.id)).map(
         (item) => this.operation(item)
       );
+      const statusStops = (await this.statusOperations(snapshot.workOrder.id))
+        .filter((op) => op.status === 'APPLIED')
+        .flatMap((op) => op.receipt?.statusResult?.stoppedTimerRuns || []);
       const stoppedRun = (
         laborId: number,
         runId: string | null | undefined,
         version: number
       ) =>
+        statusStops.some(
+          (run) => run.laborId === laborId && run.timerRunId === runId
+        ) ||
         timeOperations.some(
           (op) =>
             op.request.type === 'STOP_TIMER' &&
@@ -2794,6 +3610,7 @@ export class OfflineRepository {
       .map((row) => this.operation(row))
       .filter(
         (op) =>
+          op.request.type === 'CREATE_COMMENT' &&
           op.status !== 'ABANDONED' &&
           op.serverCommentId == null &&
           (op.status !== 'APPLIED' ||
@@ -2941,7 +3758,23 @@ export class OfflineRepository {
         | AttachmentDraft
         | TimerDraft
         | ManualTimeDraft
+        | StatusDraft
       >(row);
+      if ('kind' in draft && draft.kind === 'STATUS') {
+        const target = await this.getWorkOrderProjection(draft.workOrderId);
+        items.push({
+          kind: 'DRAFT',
+          id: draft.id,
+          workOrderId: draft.workOrderId,
+          field: 'status',
+          draftRevision: draft.revision,
+          targetAvailable: !!target?.available,
+          reason: target?.unavailableReason || null,
+          canAbandon: true,
+          ...(target?.available ? { value: draft.status } : {})
+        });
+        continue;
+      }
       if (
         'kind' in draft &&
         (draft.kind === 'TIMER' || draft.kind === 'MANUAL_TIME')
@@ -3027,7 +3860,8 @@ export class OfflineRepository {
           (['ADD_TASK_IMAGES', 'UPDATE_WORK_ORDER_ATTACHMENTS'].includes(
             request.type
           ) ||
-            isTimeOperation(request)) &&
+            isTimeOperation(request) ||
+            isStatusOperation(request)) &&
           !operation.snapshotConfirmed
         )
       )

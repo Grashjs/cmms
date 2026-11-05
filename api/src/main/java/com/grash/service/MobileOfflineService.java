@@ -120,6 +120,11 @@ public class MobileOfflineService {
 
     @Transactional
     public MobileOfflineResult submit(MobileOfflineOperation operation, User user) {
+        return submit(operation, user, null);
+    }
+
+    @Transactional
+    public MobileOfflineResult submit(MobileOfflineOperation operation, User user, String platform) {
         if (!operation.isShapeValid()) throw new CustomException("INVALID_OFFLINE_REQUEST", HttpStatus.BAD_REQUEST);
         if (!user.getCompany().getId().equals(operation.companyId()) || !user.getId().equals(operation.userId()))
             throw new CustomException("OFFLINE_CONTEXT_MISMATCH", HttpStatus.FORBIDDEN);
@@ -137,16 +142,17 @@ public class MobileOfflineService {
             return readable(saved, user);
         }
 
-        MobileOfflineResult result = apply(operation, user, receivedAt);
+        MobileOfflineResult result = apply(operation, user, receivedAt, platform);
         repository.finishOperation(company, user.getId(), operation.operationId(), encode(result));
         return result;
     }
 
-    private MobileOfflineResult apply(MobileOfflineOperation operation, User user, Instant now) {
+    private MobileOfflineResult apply(MobileOfflineOperation operation, User user, Instant now, String platform) {
         if (!access.existsInCompany(operation.workOrderId(), user))
             return result(operation, REJECTED, "TARGET_NOT_FOUND", null, now);
         if (!access.canView(operation.workOrderId(), user))
             return result(operation, REJECTED, "ACCESS_REVOKED", null, now);
+        if (operation.type() == MobileOfflineOperation.Type.CHANGE_WORK_ORDER_STATUS) return applyStatus(operation, user, now, platform);
         if (operation.isTimeOperation()) return applyTime(operation, user, now, null, false);
         if (operation.type() == MobileOfflineOperation.Type.CREATE_COMMENT) return createComment(operation, user, now);
         if (!access.canEdit(operation.workOrderId(), user))
@@ -199,6 +205,51 @@ public class MobileOfflineService {
         if (validationError != null) return result(operation, REJECTED, validationError, task, now);
         Task saved = taskService.applyPatch(task, patch, user);
         return result(operation, APPLIED, "APPLIED", saved, now);
+    }
+
+    private MobileOfflineResult applyStatus(MobileOfflineOperation operation, User user, Instant now, String platform) {
+        var change = operation.statusChange();
+        if (operation.occurredAt().isAfter(now.plusSeconds(120)))
+            return result(operation, REJECTED, "INVALID_STATUS_DATE", null, now);
+        long revision = change.baseRevision();
+        Set<com.grash.dto.WorkOrderTimerRun> expectedRuns = new HashSet<>(change.activeTimerRuns());
+        if (operation.predecessorOperationId() != null) {
+            var previous = acceptedDependency(operation.predecessorOperationId(), operation, user);
+            if (previous == null || previous.statusResult() == null
+                    || previous.statusResult().chainBaseRevision() != change.baseRevision())
+                return result(operation, REJECTED, "INVALID_STATUS_PREDECESSOR", null, now);
+            revision = previous.statusResult().revision();
+            if (previous.statusResult().stoppedTimerRuns() != null) expectedRuns.removeAll(previous.statusResult().stoppedTimerRuns());
+        }
+        for (UUID dependencyId : change.dependencyOperationIds()) {
+            var dependency = acceptedDependency(dependencyId, operation, user);
+            if (dependency == null) return result(operation, REJECTED, "STATUS_DEPENDENCY_NOT_APPLIED", null, now);
+            if (change.status() != com.grash.model.enums.Status.COMPLETE
+                    && !"TIMER_STOPPED".equals(dependency.code()) && !"TIMER_PERIOD_RECORDED".equals(dependency.code()))
+                return result(operation, REJECTED, "INVALID_STATUS_DEPENDENCY", null, now);
+            if (dependency.timeResult() != null && "TIMER_STOPPED".equals(dependency.code())
+                    && dependency.timeResult().timerRunId() != null) {
+                expectedRuns.remove(new com.grash.dto.WorkOrderTimerRun(dependency.timeResult().laborId(), dependency.timeResult().timerRunId()));
+            }
+            if (dependency.statusResult() != null && dependency.statusResult().stoppedTimerRuns() != null)
+                expectedRuns.removeAll(dependency.statusResult().stoppedTimerRuns());
+        }
+        var outcome = workOrders.applyOfflineStatus(operation.workOrderId(), change, revision,
+                List.copyOf(expectedRuns), user, platform, operation.operationId());
+        if (outcome.error() != null) return result(operation, outcome.conflict() ? CONFLICT : REJECTED, outcome.error(), null, now);
+        WorkOrder saved = outcome.workOrder();
+        var details = new MobileOfflineStatusResult(saved.getStatus(), saved.getTimerStatusRevision(), change.baseRevision(),
+                operation.occurredAt(), saved.getCompletedOn() == null ? null : saved.getCompletedOn().toInstant(), outcome.stoppedTimerRuns());
+        return new MobileOfflineResult(operation.operationId(), APPLIED, "STATUS_CHANGED", null, now,
+                null, null, MobileOfflineResult.Visibility.VISIBLE, null, null, null, null, null, null, details);
+    }
+
+    private MobileOfflineResult acceptedDependency(UUID dependencyId, MobileOfflineOperation operation, User user) {
+        if (dependencyId == null || dependencyId.equals(operation.operationId())) return null;
+        var receipt = repository.receipt(user.getCompany().getId(), user.getId(), dependencyId);
+        if (receipt.isEmpty() || receipt.get().resultJson() == null || receipt.get().workOrderId() != operation.workOrderId()) return null;
+        var result = decode(receipt.get());
+        return result.status() == APPLIED ? result : null;
     }
 
     /** Resolve a closed local period before retrying its start in isolation. Ledger order is always start -> stop -> target. */
@@ -259,7 +310,16 @@ public class MobileOfflineService {
                 return result(operation, REJECTED, "INVALID_PREDECESSOR", null, now);
             predecessor = decode(saved.get());
         }
-        var outcome = labors.applyOfflineTime(operation, user, predecessor, acceptedStart, closeWithoutStart, now);
+        MobileOfflineStatusResult statusPredecessor = null;
+        UUID statusId = basis.time().statusPredecessorOperationId();
+        if (statusId != null) {
+            var previousStatus = acceptedDependency(statusId, operation, user);
+            if (previousStatus == null || previousStatus.statusResult() == null
+                    || !Objects.equals(basis.time().timerStatusRevision(), previousStatus.statusResult().chainBaseRevision()))
+                return result(operation, REJECTED, "INVALID_STATUS_PREDECESSOR", null, now);
+            statusPredecessor = previousStatus.statusResult();
+        }
+        var outcome = labors.applyOfflineTime(operation, user, predecessor, acceptedStart, closeWithoutStart, now, statusPredecessor);
         if (outcome.error() != null)
             return result(operation, outcome.conflict() ? CONFLICT : REJECTED, outcome.error(), null, now);
         var labor = outcome.labor();
@@ -341,6 +401,7 @@ public class MobileOfflineService {
     private MobileOfflineResult readable(MobileOfflineRepository.Receipt receipt, User user) {
         MobileOfflineResult result = decode(receipt);
         boolean workOrderVisible = access.canView(receipt.workOrderId(), user);
+        if (result.statusResult() != null) return workOrderVisible ? result : result.withoutStatusDetails();
         if (result.timeResult() != null || result.startReceipt() != null) {
             if (!workOrderVisible) return result.withoutTimeDetails();
             boolean exists = result.timeResult() == null || laborRepository.existsByIdAndCompany_IdAndWorkOrder_Id(

@@ -9,7 +9,14 @@ import java.util.UUID;
 public record MobileOfflineTime(UUID periodId, Instant startedAt, Instant endedAt,
                                 Long laborId, Long laborVersion, UUID timerRunId,
                                 Long timerStatusRevision, Boolean preserveStatus,
-                                MobileOfflineOperation startOperation) {
+                                MobileOfflineOperation startOperation, UUID statusPredecessorOperationId) {
+    public MobileOfflineTime(UUID periodId, Instant startedAt, Instant endedAt,
+                             Long laborId, Long laborVersion, UUID timerRunId, Long timerStatusRevision,
+                             Boolean preserveStatus, MobileOfflineOperation startOperation) {
+        this(periodId, startedAt, endedAt, laborId, laborVersion, timerRunId, timerStatusRevision,
+                preserveStatus, startOperation, null);
+    }
+
     public boolean hasValidIdentity() {
         return periodId != null && startedAt != null
                 && (laborId == null || laborId > 0) && (laborVersion == null || laborVersion >= 0)

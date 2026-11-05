@@ -11,6 +11,7 @@ import {
 } from './types';
 import type { DownloadDescriptor, LocalFile } from './types';
 import * as FileSystem from 'expo-file-system';
+import { Platform } from 'react-native';
 
 export class OfflineApiError extends OfflineError {
   constructor(public readonly status: number, code: string) {
@@ -59,7 +60,8 @@ export class OfflineApi {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: 'application/json',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'X-Platform': Platform.OS
         },
         ...(body === undefined ? {} : { body: JSON.stringify(body) }),
         signal: controller.signal,

@@ -298,11 +298,19 @@ public class SendgridService implements MailService {
         thymeleafContext.setVariable("brandConfig", brandingService.getBrandConfig());
         thymeleafContext.setVariable("backgroundColor", brandingService.getMailBackgroundColor());
 
-        String htmlBody = thymeleafTemplateEngine.process(template, thymeleafContext);
+        String htmlBody;
+        try { htmlBody = thymeleafTemplateEngine.process(template, thymeleafContext); }
+        catch (RuntimeException failure) {
+            log.error("EMAIL_RENDER_FAILED operation={} workOrder={} template={}", templateModel.get("offlineOperationId"),
+                    templateModel.get("workOrderId"), template, failure);
+            throw failure;
+        }
 
         try {
             sendHtmlMessage(to, subject, htmlBody, attachmentDTOS, template);
         } catch (IOException e) {
+            log.error("EMAIL_DELIVERY_FAILED operation={} workOrder={} template={}", templateModel.get("offlineOperationId"),
+                    templateModel.get("workOrderId"), template, e);
             log.error("Error sending templated email", e);
             throw new CustomException("Can't send the mail", HttpStatus.INTERNAL_SERVER_ERROR);
         }

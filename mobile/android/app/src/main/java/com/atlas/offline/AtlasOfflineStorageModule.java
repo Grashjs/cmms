@@ -38,9 +38,9 @@ public final class AtlasOfflineStorageModule extends ReactContextBaseJavaModule 
           getReactApplicationContext().getPackageName() + ".FileSystemFileProvider", file);
         Intent view = new Intent(Intent.ACTION_VIEW)
           .setDataAndType(uri, mimeType)
-          .setClipData(ClipData.newRawUri(name, uri))
           .putExtra(Intent.EXTRA_TITLE, name)
           .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        view.setClipData(ClipData.newRawUri(name, uri));
         getReactApplicationContext().startActivity(view);
         grantedUris.add(uri);
         promise.resolve(null);

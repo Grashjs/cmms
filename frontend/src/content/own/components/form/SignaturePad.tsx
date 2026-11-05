@@ -7,12 +7,14 @@ interface SignaturePadProps {
   label: string;
   onChange: (base64Data: string) => void;
   value?: string;
+  onInputStart?: () => void;
 }
 
 const SignaturePad: React.FC<SignaturePadProps> = ({
   label,
   onChange,
-  value
+  value,
+  onInputStart
 }) => {
   const sigCanvas = useRef<SignatureCanvas>(null);
   const { t } = useTranslation();
@@ -45,6 +47,7 @@ const SignaturePad: React.FC<SignaturePadProps> = ({
       </Typography>
       <div style={styles.signatureContainer}>
         <SignatureCanvas
+          onBegin={onInputStart}
           ref={sigCanvas}
           penColor="black"
           canvasProps={{

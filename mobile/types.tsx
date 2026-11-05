@@ -145,7 +145,10 @@ export type RootStackParamList = {
   SelectNfc: { onChange: (value: string) => void };
   SelectBarcode: { onChange: (value: string) => void };
   CompleteWorkOrder: {
-    onComplete: (
+    workOrderId?: number;
+    connectedWorkOrderId?: number;
+    onReviewStatus?: (guard: import('./models/workOrder').WorkOrderStatusGuard) => void;
+    onComplete?: (
       signature: string | undefined,
       feedback: string | undefined
     ) => Promise<any>;

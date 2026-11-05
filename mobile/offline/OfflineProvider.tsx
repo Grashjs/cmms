@@ -48,12 +48,30 @@ import type {
   ManualTimeDraft,
   ManualTimeInput,
   LocalOperation,
-  ObservedServerTimer
+  ObservedServerTimer,
+  StatusDraft,
+  StatusInput
 } from './types';
 import { OfflineError } from './types';
 import { offlineErrorKey } from './errors';
 
 interface OfflineContextValue {
+  saveStatusDraft(
+    workOrderId: number,
+    input: StatusInput,
+    expectedRevision?: number | null
+  ): Promise<StatusDraft>;
+  submitStatusDraft(
+    workOrderId: number,
+    revision: number
+  ): Promise<LocalOperation>;
+  abandonStatusDraft(workOrderId: number, revision: number): Promise<void>;
+  reviewStatusOperation(
+    operationId: string,
+    expectedDraftRevision: number | null,
+    expectedServerRevision: number,
+    expectedActiveTimerRuns?: { laborId: number; timerRunId: string }[]
+  ): Promise<StatusDraft>;
   startTimer(workOrderId: number): Promise<TimerDraft>;
   stopTimer(
     workOrderId: number,
@@ -177,6 +195,16 @@ interface OfflineContextValue {
 }
 const noop = async () => {};
 const OfflineContext = createContext<OfflineContextValue>({
+  saveStatusDraft: async () => {
+    throw new OfflineError('OFFLINE_DISABLED');
+  },
+  submitStatusDraft: async () => {
+    throw new OfflineError('OFFLINE_DISABLED');
+  },
+  abandonStatusDraft: noop,
+  reviewStatusOperation: async () => {
+    throw new OfflineError('OFFLINE_DISABLED');
+  },
   startTimer: async () => {
     throw new OfflineError('OFFLINE_DISABLED');
   },
@@ -705,6 +733,43 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
     return writing;
   };
   const value: OfflineContextValue = {
+    saveStatusDraft: (id, input, revision) => {
+      const writing = persistTime((repo) =>
+        repo.saveStatusDraft(id, input, revision)
+      );
+      const key = `work-order:${id}:status`;
+      void writing.then(
+        () => failedWrites.current.delete(key),
+        () => failedWrites.current.add(key)
+      );
+      return writing;
+    },
+    submitStatusDraft: (id, revision) =>
+      persistTime((repo) => {
+        if (failedWrites.current.has(`work-order:${id}:status`))
+          throw new OfflineError('STORAGE_FAILED');
+        return repo.submitStatusDraft(id, revision);
+      }, true),
+    abandonStatusDraft: (id, revision) =>
+      persist(async () => {
+        if (!repository) throw new OfflineError('OFFLINE_DISABLED');
+        await repository.abandonStatusDraft(id, revision);
+        failedWrites.current.delete(`work-order:${id}:status`);
+      }),
+    reviewStatusOperation: (
+      id,
+      draftRevision,
+      serverRevision,
+      activeTimerRuns
+    ) =>
+      persistTime((repo) =>
+        repo.reviewStatusOperation(
+          id,
+          draftRevision,
+          serverRevision,
+          activeTimerRuns
+        )
+      ),
     startTimer: (id) => persistTime((repo) => repo.startTimer(id), true),
     stopTimer: (id, revision, expectedServerTimer) =>
       persistTime(

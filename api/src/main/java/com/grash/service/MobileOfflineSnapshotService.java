@@ -6,6 +6,8 @@ import com.grash.dto.offline.MobileOfflineSnapshot;
 import com.grash.dto.offline.MobileOfflineAsset;
 import com.grash.dto.offline.MobileOfflineTimePermissions;
 import com.grash.dto.offline.MobileOfflineLabor;
+import com.grash.dto.offline.MobileOfflineClosure;
+import com.grash.model.enums.PlanFeatures;
 import com.grash.dto.license.LicenseEntitlement;
 import com.grash.model.enums.PermissionEntity;
 import java.util.LinkedHashMap;
@@ -65,11 +67,21 @@ public class MobileOfflineSnapshotService {
                 canScan ? asset.getNfcId() : null, asset.getStatus() == null ? null : asset.getStatus().name(),
                 asset.getModel(), asset.getSerialNumber(), asset.getManufacturer(), asset.getPower(), asset.getArea())).toList();
         if (itemCount + assets.size() > MobileOfflineLimits.PILOT.snapshotItems()) throw tooLarge();
+        var settings = user.getCompany().getCompanySettings();
+        var subscription = user.getCompany().getSubscription();
+        boolean signaturePlan = subscription != null && subscription.getSubscriptionPlan() != null
+                && subscription.getSubscriptionPlan().getFeatures().contains(PlanFeatures.SIGNATURE);
+        var closure = new MobileOfflineClosure(WorkOrderService.requiredClosureFields(user),
+                settings != null && settings.getGeneralPreferences() != null && settings.getGeneralPreferences().isAskFeedBackOnWOClosed(),
+                workOrder.isRequiredSignature(), canEdit,
+                canEdit && signaturePlan && license.hasEntitlement(LicenseEntitlement.SIGNATURE_CAPTURE),
+                count("select count(p) from PartQuantity p where p.workOrder.id = :id", id) > 0,
+                count("select count(c) from AdditionalCost c where c.workOrder.id = :id", id) > 0);
         var snapshot = new MobileOfflineSnapshot(workOrderMapper.toShowDto(workOrder),
                 tasks.stream().map(taskMapper::toShowDto).toList(),
                 comments.stream().map(commentMapper::toShowDto).toList(),
                 history.stream().map(historyMapper::toShowDto).toList(), Instant.now(), true, canEdit, true, assets, canScan, canReadAssets,
-                labors.stream().map(MobileOfflineLabor::from).toList(), timePermissions, workOrder.getTimerStatusRevision());
+                labors.stream().map(MobileOfflineLabor::from).toList(), timePermissions, workOrder.getTimerStatusRevision(), closure);
         verifyEncodedSize(snapshot);
         return snapshot;
     }

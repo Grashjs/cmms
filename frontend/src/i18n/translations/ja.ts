@@ -1,4 +1,9 @@
 const locale = {
+  work_order_status_review: "作業指示が変更されました。再送信する前に現在のステータスを確認してください。入力内容は保持されています。",
+  work_order_status_review_current: "現在のサーバーステータスを確認",
+  work_order_status_review_value: "サーバーステータス：{{status}} · 稼働中のタイマー：{{count}}",
+  work_order_status_review_confirm: "この確認済みバージョンで入力内容を保持",
+
   labor_review_current: '現在の時間を確認',
   labor_review_confirm: 'このバージョンに自分の入力を保持',
   labor_changed_review:

@@ -37,6 +37,8 @@ public class WorkOrderShowDTO extends WorkOrderBaseShowDTO {
     @Schema(description = "Current status of the work order")
     private Status status;
 
+    private long timerStatusRevision;
+
     @Schema(description = "Feedback or notes provided upon work order completion")
     private String feedback;
 

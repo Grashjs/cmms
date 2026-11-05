@@ -1,4 +1,9 @@
 const trJSON = {
+  work_order_status_review: "İş emri değişti. Yeniden göndermeden önce mevcut durumunu inceleyin. Girdiniz korunuyor.",
+  work_order_status_review_current: "Sunucudaki mevcut durumu incele",
+  work_order_status_review_value: "Sunucu durumu: {{status}} · Etkin zamanlayıcılar: {{count}}",
+  work_order_status_review_confirm: "Girdimi incelenen bu sürümde koru",
+
   labor_review_current: 'Geçerli süreyi incele',
   labor_review_confirm: 'Girdimi bu sürümde koru',
   labor_changed_review:

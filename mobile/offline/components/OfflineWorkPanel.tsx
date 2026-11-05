@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useOffline } from '../OfflineProvider';
 import { usePendingWork } from '../hooks';
 import { OfflineFileOperationReview } from './OfflineFileOperationReview';
+import { OfflineStatusOperationReview } from './OfflineStatusOperationReview';
 
 /** Metadata-only recovery stays reachable when the server withdrew the target. */
 export function OfflineWorkPanel({ workOrderId }: { workOrderId?: number }) {
@@ -48,7 +49,9 @@ export function OfflineWorkPanel({ workOrderId }: { workOrderId?: number }) {
                   ? item.value
                   : null) ||
                 t(
-                  item.targetAvailable && item.field === 'time'
+                  item.targetAvailable && item.field === 'status'
+                    ? 'offline_status_request'
+                    : item.targetAvailable && item.field === 'time'
                     ? 'time'
                     : item.targetAvailable && item.field === 'comment'
                     ? 'comments'
@@ -60,7 +63,9 @@ export function OfflineWorkPanel({ workOrderId }: { workOrderId?: number }) {
             {item.targetAvailable && (
               <Text>
                 {t(
-                  item.field === 'comment'
+                  item.field === 'status'
+                    ? 'offline_status_request'
+                    : item.field === 'comment'
                     ? 'comments'
                     : item.field === 'attachments'
                     ? 'files'
@@ -73,7 +78,9 @@ export function OfflineWorkPanel({ workOrderId }: { workOrderId?: number }) {
                 item.kind === 'DRAFT'
                   ? 'offline_draft_saved'
                   : item.status === 'APPLIED'
-                  ? item.field === 'time'
+                  ? item.field === 'status'
+                    ? 'offline_status_saved_refresh_pending'
+                    : item.field === 'time'
                     ? 'offline_time_saved_refresh_pending'
                     : 'offline_comment_refresh_pending'
                   : item.status === 'SENDING'
@@ -94,9 +101,13 @@ export function OfflineWorkPanel({ workOrderId }: { workOrderId?: number }) {
             )}
             {item.kind === 'OPERATION' &&
               item.operationType !== 'UPLOAD_FILE' &&
-              item.field !== 'time' && (
+              item.field !== 'time' &&
+              item.field !== 'status' && (
                 <OfflineFileOperationReview item={item} />
               )}
+            {item.targetAvailable && item.field === 'status' && (
+              <OfflineStatusOperationReview item={item} />
+            )}
             {item.canAbandon ? (
               <Button
                 disabled={busy}
@@ -112,7 +123,12 @@ export function OfflineWorkPanel({ workOrderId }: { workOrderId?: number }) {
                         onPress: () =>
                           run(() =>
                             item.kind === 'DRAFT'
-                              ? item.field === 'time'
+                              ? item.field === 'status'
+                                ? offline.abandonStatusDraft(
+                                    item.workOrderId,
+                                    item.draftRevision
+                                  )
+                                : item.field === 'time'
                                 ? item.id.endsWith(':manual-time')
                                   ? offline.abandonManualTimeDraft(
                                       item.workOrderId,

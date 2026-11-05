@@ -60,6 +60,7 @@ interface OwnProps {
   readOnly?: boolean;
   submitDisabled?: boolean;
   preserveFileIds?: boolean;
+  onSignatureInput?: () => void;
 }
 
 export default function Form(props: OwnProps) {
@@ -697,8 +698,9 @@ export default function Form(props: OwnProps) {
                       <SignaturePad
                         label={field.label}
                         value={formik.values[field.name]}
+                        onInputStart={props.onSignatureInput}
                         onChange={(signature) => {
-                          formik.setFieldValue(field.name, signature);
+                          handleChange(formik, field.name, signature);
                         }}
                       />
                     ) : (

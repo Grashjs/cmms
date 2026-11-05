@@ -263,6 +263,9 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
             Long id = saved.getId();
 
             WorkOrderChangeStatusDTO dto = new WorkOrderChangeStatusDTO();
+            dto.setBaseRevision(saved.getTimerStatusRevision());
+            dto.setActiveTimerRuns(workOrderService.activeTimerRuns(saved.getId()));
+            dto.setFeedback("Completed on site");
             dto.setStatus(Status.COMPLETE);
 
             WorkOrder result = workOrderService.changeStatus(dto, id, user, "ios");
@@ -285,6 +288,9 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
             WorkOrder saved = createInitialWO();
 
             WorkOrderChangeStatusDTO dto = new WorkOrderChangeStatusDTO();
+            dto.setBaseRevision(saved.getTimerStatusRevision());
+            dto.setActiveTimerRuns(workOrderService.activeTimerRuns(saved.getId()));
+            dto.setFeedback("Completed on site");
             dto.setStatus(Status.IN_PROGRESS);
 
             WorkOrder result = workOrderService.changeStatus(dto, saved.getId(), user, "ios");
@@ -299,6 +305,9 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
             WorkOrder saved = createInitialWO();
 
             WorkOrderChangeStatusDTO dto = new WorkOrderChangeStatusDTO();
+            dto.setBaseRevision(saved.getTimerStatusRevision());
+            dto.setActiveTimerRuns(workOrderService.activeTimerRuns(saved.getId()));
+            dto.setFeedback("Completed on site");
             dto.setStatus(Status.ON_HOLD);
 
             WorkOrder result = workOrderService.changeStatus(dto, saved.getId(), user, "ios");
@@ -311,6 +320,9 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
             WorkOrder saved = createInitialWO();
 
             WorkOrderChangeStatusDTO dto = new WorkOrderChangeStatusDTO();
+            dto.setBaseRevision(saved.getTimerStatusRevision());
+            dto.setActiveTimerRuns(workOrderService.activeTimerRuns(saved.getId()));
+            dto.setFeedback("Completed on site");
             dto.setStatus(null);
 
             CustomException ex = assertThrows(CustomException.class,

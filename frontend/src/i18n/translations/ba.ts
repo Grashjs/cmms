@@ -1,4 +1,9 @@
 const locale = {
+  work_order_status_review: "Radni nalog je promijenjen. Pregledajte njegov trenutni status prije ponovnog slanja. Vaš unos je sačuvan.",
+  work_order_status_review_current: "Pregledaj trenutni status na serveru",
+  work_order_status_review_value: "Status na serveru: {{status}} · Aktivni tajmeri: {{count}}",
+  work_order_status_review_confirm: "Zadrži moj unos na ovoj pregledanoj verziji",
+
   labor_review_current: 'Pregledaj trenutno vrijeme',
   labor_review_confirm: 'Zadrži moj unos za ovu verziju',
   labor_changed_review:

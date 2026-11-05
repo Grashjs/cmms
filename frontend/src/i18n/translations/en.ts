@@ -1,4 +1,9 @@
 const locale = {
+  work_order_status_review: "The work order changed. Review its current status before submitting again. Your input is preserved.",
+  work_order_status_review_current: "Review current server status",
+  work_order_status_review_value: "Server status: {{status}} · Active timers: {{count}}",
+  work_order_status_review_confirm: "Keep my input on this reviewed version",
+
   labor_review_current: 'Review current time',
   labor_review_confirm: 'Keep my input on this version',
   labor_changed_review:

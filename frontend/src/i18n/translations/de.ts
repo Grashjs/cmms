@@ -1,4 +1,9 @@
 const deJSON = {
+  work_order_status_review: "Der Arbeitsauftrag wurde geändert. Prüfen Sie vor dem erneuten Senden den aktuellen Status. Ihre Eingabe bleibt erhalten.",
+  work_order_status_review_current: "Aktuellen Serverstatus prüfen",
+  work_order_status_review_value: "Serverstatus: {{status}} · Aktive Timer: {{count}}",
+  work_order_status_review_confirm: "Meine Eingabe für diese geprüfte Version behalten",
+
   labor_review_current: 'Aktuelle Zeit prüfen',
   labor_review_confirm: 'Meine Eingabe für diese Version behalten',
   labor_changed_review:

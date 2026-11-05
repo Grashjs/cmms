@@ -3,6 +3,7 @@ import type { Task } from '../models/tasks';
 import type Comment from '../models/comment';
 import type { AssetDTO } from '../models/asset';
 import type Labor from '../models/labor';
+import type { WorkOrderStatus } from '../models/workOrder';
 
 export const OFFLINE_LIMITS = Object.freeze({
   preparedWorkOrders: 25,
@@ -62,6 +63,72 @@ export interface OfflineSnapshot {
   labors?: OfflineLabor[];
   timePermissions?: TimePermissions;
   timerStatusRevision?: number;
+  closure?: ClosureRequirements;
+}
+
+export interface ClosureRequirements {
+  requiredFields: string[];
+  askFeedback: boolean;
+  requiredSignature: boolean;
+  canChangeStatus: boolean;
+  canCaptureSignature: boolean;
+  hasParts: boolean;
+  hasCosts: boolean;
+}
+export interface ClosureCheck {
+  field:
+    | 'completeFiles'
+    | 'completeTasks'
+    | 'completeTime'
+    | 'completeParts'
+    | 'completeCost';
+  labelKey: 'files' | 'tasks' | 'time' | 'parts' | 'costs';
+  messageKey: string;
+  state: 'satisfied' | 'pending' | 'missing';
+}
+export interface StatusInput {
+  status: WorkOrderStatus;
+  feedback?: string | null;
+  signature?: string | null;
+}
+export interface StatusChange extends StatusInput {
+  baseRevision: number;
+  activeTimerRuns: { laborId: number; timerRunId: string }[];
+  dependencyOperationIds: string[];
+}
+export type StatusOperation = OperationIdentity & {
+  type: 'CHANGE_WORK_ORDER_STATUS';
+  statusChange: StatusChange;
+  predecessorOperationId?: string;
+};
+export interface StatusDraft extends StatusInput {
+  id: string;
+  kind: 'STATUS';
+  activeTimerRuns?: { laborId: number; timerRunId: string }[];
+  workOrderId: number;
+  revision: number;
+  baseRevision: number;
+  predecessorOperationId?: string;
+  updatedAt: number;
+}
+export interface StatusResult {
+  status: WorkOrderStatus;
+  revision: number;
+  chainBaseRevision: number;
+  occurredAt: string;
+  completedOn?: string | null;
+  stoppedTimerRuns?: { laborId: number; timerRunId: string }[];
+}
+export interface OfflineStatusView {
+  available: boolean;
+  unavailableReason: string | null;
+  closure: ClosureRequirements | null;
+  closureChecks: ClosureCheck[];
+  serverRevision: number;
+  serverStatus: WorkOrderStatus | null;
+  activeTimerRuns: { laborId: number; timerRunId: string }[];
+  draft: StatusDraft | null;
+  operations: LocalOperation[];
 }
 
 export interface OfflineEligibility {
@@ -98,6 +165,7 @@ export interface TimePayload {
   timerStatusRevision?: number;
   preserveStatus?: boolean;
   startOperation?: TimerStartOperation;
+  statusPredecessorOperationId?: string;
 }
 export type TimerStartOperation = OperationIdentity & {
   type: 'START_TIMER';
@@ -113,6 +181,7 @@ export type TimeOperation =
     });
 export type OperationRequest =
   | TimeOperation
+  | StatusOperation
   | (TaskOperationIdentity & { type: 'SET_TASK_VALUE'; value: string })
   | (TaskOperationIdentity & { type: 'SET_TASK_NOTES'; notes: string })
   | (OperationIdentity & {
@@ -156,6 +225,11 @@ export function isTimeOperation(
     request.type
   );
 }
+export function isStatusOperation(
+  request: OperationRequest
+): request is StatusOperation {
+  return request.type === 'CHANGE_WORK_ORDER_STATUS';
+}
 export function transferIds(request: OperationRequest): string[] {
   if (request.type === 'CREATE_COMMENT' || request.type === 'ADD_TASK_IMAGES')
     return request.fileTransferIds || [];
@@ -169,8 +243,10 @@ export function transferIds(request: OperationRequest): string[] {
 
 export function operationField(
   request: OperationRequest
-): TaskField | 'comment' | 'attachments' | 'time' {
-  return isTimeOperation(request)
+): TaskField | 'comment' | 'attachments' | 'time' | 'status' {
+  return isStatusOperation(request)
+    ? 'status'
+    : isTimeOperation(request)
     ? 'time'
     : request.type === 'CREATE_COMMENT'
     ? 'comment'
@@ -181,7 +257,9 @@ export function operationField(
     : 'attachments';
 }
 export function operationText(request: OperationRequest): string {
-  return isTimeOperation(request)
+  return isStatusOperation(request)
+    ? request.statusChange.status
+    : isTimeOperation(request)
     ? [request.time.startedAt, request.time.endedAt].filter(Boolean).join(' – ')
     : request.type === 'CREATE_COMMENT'
     ? request.content
@@ -216,6 +294,7 @@ export interface OperationReceipt {
   imageId?: number | null;
   timeResult?: TimeResult;
   startReceipt?: OperationReceipt;
+  statusResult?: StatusResult;
   visibility?:
     | 'VISIBLE'
     | 'COMMENT_DELETED'
@@ -420,7 +499,7 @@ export interface PendingWork {
   id: string;
   workOrderId: number;
   taskId?: number;
-  field: TaskField | 'comment' | 'attachments' | 'time';
+  field: TaskField | 'comment' | 'attachments' | 'time' | 'status';
   draftRevision?: number;
   status?: OperationStatus;
   attemptCount?: number;
@@ -529,6 +608,24 @@ export function assertSnapshot(snapshot: OfflineSnapshot): void {
     )
       throw new OfflineError('INVALID_SNAPSHOT');
   }
+  if (
+    snapshot.closure &&
+    (!Array.isArray(snapshot.closure.requiredFields) ||
+      snapshot.closure.requiredFields.some(
+        (field) => typeof field !== 'string'
+      ) ||
+      [
+        'askFeedback',
+        'requiredSignature',
+        'canChangeStatus',
+        'canCaptureSignature',
+        'hasParts',
+        'hasCosts'
+      ].some((key) => typeof snapshot.closure![key] !== 'boolean') ||
+      !Number.isSafeInteger(snapshot.timerStatusRevision) ||
+      snapshot.timerStatusRevision! < 0)
+  )
+    throw new OfflineError('INVALID_SNAPSHOT');
   const commentIds = new Set<number>();
   for (const comment of snapshot.comments) {
     if (

@@ -38,6 +38,7 @@ import jakarta.transaction.Transactional;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import static com.grash.utils.Consts.usageBasedFreeLimits;
@@ -232,6 +233,10 @@ public class AssetService {
     }
 
     private void stopAssetDowntime(Asset asset) {
+        stopAssetDowntime(asset, (name, action) -> action.run());
+    }
+
+    private void stopAssetDowntime(Asset asset, BiConsumer<String, Runnable> effects) {
         Collection<AssetDowntime> assetDowntimes = assetDowntimeService.findByAsset(asset.getId());
         Optional<AssetDowntime> optionalRunningDowntime =
                 assetDowntimes.stream().filter(downtime -> downtime.getDuration() == 0).findFirst();
@@ -248,25 +253,31 @@ public class AssetService {
         save(asset);
 
         if (previousStatus != AssetStatus.OPERATIONAL) {
-            dispatchAssetStatusChangeWebhook(asset, previousStatus, AssetStatus.OPERATIONAL);
+            dispatchAssetStatusChangeWebhook(asset, previousStatus, AssetStatus.OPERATIONAL, effects);
         }
     }
 
-    private void recursivelyStopChildrenDowntime(Asset parentAsset) {
+    private void recursivelyStopChildrenDowntime(Asset parentAsset, BiConsumer<String, Runnable> effects) {
         List<Asset> children = findAssetChildren(parentAsset.getId(), Pageable.unpaged()).getContent();
         for (Asset child : children) {
-            stopAssetDowntime(child);
-            recursivelyStopChildrenDowntime(child);
+            stopAssetDowntime(child, effects);
+            recursivelyStopChildrenDowntime(child, effects);
         }
     }
 
     public void stopDownTime(Long id, Locale locale) {
+        stopDownTime(id, locale, (name, action) -> action.run());
+    }
+
+    /** Used by offline completion to defer delivery, without deferring the asset/downtime mutations. */
+    public void stopDownTime(Long id, Locale locale, BiConsumer<String, Runnable> effects) {
         Asset savedAsset = findById(id).orElseThrow(() -> new EntityNotFoundException("Asset not found"));
-        stopAssetDowntime(savedAsset);
-        recursivelyStopChildrenDowntime(savedAsset);
+        stopAssetDowntime(savedAsset, effects);
+        recursivelyStopChildrenDowntime(savedAsset, effects);
         String message = messageSource.getMessage("notification_asset_operational",
                 new Object[]{savedAsset.getName()}, locale);
-        notify(savedAsset, message, messageSource.getMessage("asset_status_change", null, locale));
+        String body = messageSource.getMessage("asset_status_change", null, locale);
+        effects.accept("asset-notification-" + id, () -> notify(savedAsset, message, body));
     }
 
     public void triggerDownTime(Long id, Locale locale, AssetStatus status) {
@@ -715,14 +726,20 @@ public class AssetService {
     }
 
     private void dispatchAssetStatusChangeWebhook(Asset asset, AssetStatus previousStatus, AssetStatus newStatus) {
+        dispatchAssetStatusChangeWebhook(asset, previousStatus, newStatus, (name, action) -> action.run());
+    }
+
+    private void dispatchAssetStatusChangeWebhook(Asset asset, AssetStatus previousStatus, AssetStatus newStatus,
+                                                   BiConsumer<String, Runnable> effects) {
         Map<String, Object> webhookPayload = new HashMap<>();
         webhookPayload.put("assetId", asset.getId());
         webhookPayload.put("assetName", asset.getName());
         webhookPayload.put("previousStatus", previousStatus);
         webhookPayload.put("newStatus", newStatus);
         Object serializedAsset = assetMapper.toShowDto(asset, this);
-        webhookDispatchService.dispatchWebhook(asset.getCompany(), WebhookEvent.ASSET_STATUS_CHANGE, webhookPayload,
-                "changedAsset", serializedAsset, null, newStatus, null, null, null);
+        Company company = asset.getCompany();
+        effects.accept("asset-webhook-" + asset.getId(), () -> webhookDispatchService.dispatchWebhook(company, WebhookEvent.ASSET_STATUS_CHANGE, webhookPayload,
+                "changedAsset", serializedAsset, null, newStatus, null, null, null));
     }
 }
 

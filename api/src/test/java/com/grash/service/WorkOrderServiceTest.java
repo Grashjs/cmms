@@ -1099,6 +1099,7 @@ class WorkOrderServiceTest {
             wo.setFirstTimeToReact(null);
 
             dto = new WorkOrderChangeStatusDTO();
+            dto.setBaseRevision(0L); dto.setActiveTimerRuns(List.of()); dto.setFeedback("Completed on site");
             dto.setStatus(Status.IN_PROGRESS);
             lenient().when(workOrderRepository.findForUpdate(1L, company.getId())).thenReturn(Optional.of(wo));
         }
@@ -1114,9 +1115,78 @@ class WorkOrderServiceTest {
         }
 
         @Test
+        void staleConnectedStatusGuardDoesNotOverwriteTheAcceptedStatus() {
+            wo.setTimerStatusRevision(2);
+            var failure = assertThrows(CustomException.class, () -> workOrderService.changeStatus(dto, 1L, user, "web"));
+            assertEquals("STATUS_REVISION_CONFLICT", failure.getMessage());
+            assertEquals(Status.OPEN, wo.getStatus());
+            verify(workOrderRepository, never()).saveAndFlush(any());
+        }
+
+        @Test
+        void unknownRunningGenerationIsNotStoppedByAnOldPauseRequest() {
+            stubBasic(); dto.setStatus(Status.ON_HOLD);
+            Labor running = new Labor(); running.setId(71L); running.setLogged(true);
+            running.setStatus(com.grash.model.enums.TimeStatus.RUNNING); running.setTimerRunId(UUID.randomUUID());
+            when(laborService.findByWorkOrder(1L)).thenReturn(List.of(running));
+            assertEquals("STATUS_TIMER_RUNS_CHANGED", assertThrows(CustomException.class,
+                    () -> workOrderService.changeStatus(dto, 1L, user, "web")).getMessage());
+            verify(laborService, never()).stop(any());
+        }
+
+        @Test
+        void currentClosureRequirementsUseTheExistingNonemptyTaskPredicate() {
+            stubBasic(); dto.setStatus(Status.COMPLETE);
+            var fields = company.getCompanySettings().getWorkOrderConfiguration().getWorkOrderFieldConfigurations();
+            fields.stream().filter(field -> field.getFieldName().equals("completeTasks"))
+                    .forEach(field -> field.setFieldType(com.grash.model.enums.FieldType.REQUIRED));
+            var presence = mock(com.grash.repository.WorkOrderRepository.ClosurePresence.class);
+            when(workOrderRepository.closurePresence(1L)).thenReturn(presence);
+            when(presence.getHasUnansweredTasks()).thenReturn(true);
+            assertEquals("required_tasks_on_completion", assertThrows(CustomException.class,
+                    () -> workOrderService.changeStatus(dto, 1L, user, "web")).getMessage());
+            verify(workOrderRepository, never()).saveAndFlush(any());
+        }
+
+        @Test
+        void offlineDuplicateCompletionWithNewIdentityRequiresReview() {
+            stubBasic(); wo.setStatus(Status.COMPLETE);
+            var change = new com.grash.dto.offline.MobileOfflineStatusChange(Status.COMPLETE, 0L, "Done", null, List.of(), List.of());
+            var outcome = workOrderService.applyOfflineStatus(1L, change, 0, List.of(), user, "android", UUID.randomUUID());
+            assertTrue(outcome.conflict()); assertEquals("ALREADY_COMPLETED", outcome.error());
+            verify(workOrderRepository, never()).saveAndFlush(any());
+            verifyNoInteractions(scheduleService);
+        }
+
+        @Test
+        void offlineCompletionDefersEachExternalEffectAndIsolatesItsFailure() {
+            stubBasic(); wo.setAsset(null);
+            Schedule schedule = new Schedule(); schedule.setId(42L);
+            PreventiveMaintenance pm = new PreventiveMaintenance(); pm.setSchedule(schedule); wo.setParentPreventiveMaintenance(pm);
+            var change = new com.grash.dto.offline.MobileOfflineStatusChange(Status.COMPLETE, 0L, "Done", null, List.of(), List.of());
+            org.springframework.transaction.support.TransactionSynchronizationManager.initSynchronization();
+            try {
+                var outcome = workOrderService.applyOfflineStatus(1L, change, 0, List.of(), user, "android", UUID.randomUUID());
+                assertNull(outcome.error()); assertEquals(Status.COMPLETE, outcome.workOrder().getStatus());
+                verifyNoInteractions(scheduleService, notificationService);
+                verify(webhookDispatchService, never()).dispatchWebhook(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
+                doThrow(new IllegalStateException("Quartz unavailable")).when(scheduleService).scheduleNextWorkOrderJobAfterOfflineCompletion(eq(42L), any());
+                for (var callback : org.springframework.transaction.support.TransactionSynchronizationManager.getSynchronizations())
+                    assertDoesNotThrow(callback::afterCommit);
+                verify(scheduleService).scheduleNextWorkOrderJobAfterOfflineCompletion(eq(42L), any());
+                verify(scheduleService, never()).scheduleNextWorkOrderJobAfterCompletion(anyLong(), any());
+                verify(notificationService).createMultiple(anyList(), eq(true), any());
+                verify(webhookDispatchService).dispatchWebhook(any(), eq(com.grash.model.enums.webhook.WebhookEvent.WORK_ORDER_CHANGE), any(), any(), any(), any(), any(), any(), any(), any());
+            } finally {
+                org.springframework.transaction.support.TransactionSynchronizationManager.clearSynchronization();
+            }
+        }
+
+        @Test
         void reaffirmedPauseAdvancesTheExplicitDecisionRevision() {
             wo.setStatus(Status.ON_HOLD);
             wo.setTimerStatusRevision(4);
+            dto.setBaseRevision(4L);
             dto.setStatus(Status.ON_HOLD);
             stubBasic();
 
@@ -1130,7 +1200,6 @@ class WorkOrderServiceTest {
 
         @Test
         void signatureWithoutLicense_throwsForbidden() {
-            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
             dto.setSignature("sig");
             when(licenseService.hasEntitlement(LicenseEntitlement.SIGNATURE_CAPTURE)).thenReturn(false);
             CustomException ex = assertThrows(CustomException.class,
@@ -3308,6 +3377,7 @@ class WorkOrderServiceTest {
             wo.setParentPreventiveMaintenance(pm);
 
             WorkOrderChangeStatusDTO dto = new WorkOrderChangeStatusDTO();
+            dto.setBaseRevision(0L); dto.setActiveTimerRuns(List.of()); dto.setFeedback("Completed on site");
             dto.setStatus(Status.COMPLETE);
 
             when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
@@ -3345,6 +3415,7 @@ class WorkOrderServiceTest {
             User requester = buildUser(5L);
 
             WorkOrderChangeStatusDTO dto = new WorkOrderChangeStatusDTO();
+            dto.setBaseRevision(0L); dto.setActiveTimerRuns(List.of()); dto.setFeedback("Completed on site");
             dto.setStatus(Status.COMPLETE);
 
             when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
@@ -3451,6 +3522,21 @@ class WorkOrderServiceTest {
 
         private WorkOrder givenWorkOrder() {
             return new WorkOrder();
+        }
+
+        @Test
+        void sameStatusImportChangesProtectedFeedbackOnceWithoutANewCounter() {
+            WorkOrder workOrder = givenWorkOrder(); workOrder.setId(11L); workOrder.setStatus(Status.OPEN);
+            workOrder.setFeedback("Before"); workOrder.setTimerStatusRevision(6);
+            WorkOrderImportDTO dto = WorkOrderImportDTO.builder().title("Imported").description("Description")
+                    .status("Open").priority("NONE").requiredSignature("No").archived("false")
+                    .feedback("After").assignedToEmails(List.of()).customersNames(List.of()).build();
+            lenient().when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS)).thenReturn(true);
+            lenient().when(customSequenceService.getNextWorkOrderSequence(any())).thenReturn(1L);
+            workOrderService.importWorkOrder(workOrder, dto, company);
+            assertEquals(Status.OPEN, workOrder.getStatus()); assertEquals(7, workOrder.getTimerStatusRevision());
+            workOrderService.importWorkOrder(workOrder, dto, company);
+            assertEquals(7, workOrder.getTimerStatusRevision());
         }
 
         @Test

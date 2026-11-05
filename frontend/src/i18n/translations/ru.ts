@@ -1,4 +1,9 @@
 const ruJSON = {
+  work_order_status_review: "Заказ на работу изменился. Проверьте текущий статус перед повторной отправкой. Введённые данные сохранены.",
+  work_order_status_review_current: "Проверить текущий статус на сервере",
+  work_order_status_review_value: "Статус на сервере: {{status}} · Активных таймеров: {{count}}",
+  work_order_status_review_confirm: "Сохранить мои данные для этой проверенной версии",
+
   labor_review_current: 'Проверить текущее время',
   labor_review_confirm: 'Сохранить мой ввод для этой версии',
   labor_changed_review:
