@@ -843,7 +843,14 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
 
   const logout = async (): Promise<void> => {
     try {
-      await api.post('auth/logout', {});
+      // Send the refresh token so the server closes only this device's
+      // session; other devices of the same user stay signed in.
+      await api.post(
+        'auth/logout',
+        { refreshToken: await AsyncStorage.getItem('refreshToken') },
+        undefined,
+        true
+      );
     } catch {
       // Server-side logout is best-effort; the local session is the source
       // of truth for the device.
