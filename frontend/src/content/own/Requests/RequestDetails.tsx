@@ -18,6 +18,7 @@ import EditTwoToneIcon from '@mui/icons-material/EditTwoTone';
 import CheckTwoToneIcon from '@mui/icons-material/CheckTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import ClearTwoToneIcon from '@mui/icons-material/ClearTwoTone';
+import LinkTwoToneIcon from '@mui/icons-material/LinkTwoTone';
 import Request from '../../../models/owns/request';
 import { getPriorityLabel } from '../../../utils/formatters';
 import { useDispatch } from '../../../store';
@@ -32,7 +33,8 @@ import {
   getAssetUrl,
   getLocationUrl,
   getTeamUrl,
-  getUserUrl
+  getUserUrl,
+  getWorkOrderUrl
 } from '../../../utils/urlPaths';
 import useAuth from '../../../hooks/useAuth';
 import { PermissionEntity } from '../../../models/owns/role';
@@ -40,6 +42,7 @@ import ImageViewer from 'react-simple-image-viewer';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import FilesList from '../components/FilesList';
 import RequestCancellationModal from './RequestCancellationModal';
+import RequestLinkWorkOrderModal from './RequestLinkWorkOrderModal';
 import BasicField from '../components/BasicField';
 import { editAsset } from '../../../slices/asset';
 import { AssetStatus, assetStatuses } from '../../../models/owns/asset';
@@ -79,6 +82,8 @@ export default function RequestDetails({
   );
   const [isImageViewerOpen, setIsImageViewerOpen] = useState<boolean>(false);
   const [openCancellationModal, setOpenCancellationModal] =
+    useState<boolean>(false);
+  const [openLinkWorkOrderModal, setOpenLinkWorkOrderModal] =
     useState<boolean>(false);
   const onApprove = () => {
     setApproving(true);
@@ -204,6 +209,13 @@ export default function RequestDetails({
                 {t('reject')}
               </Button>
               <Button
+                startIcon={<LinkTwoToneIcon />}
+                onClick={() => setOpenLinkWorkOrderModal(true)}
+                variant="outlined"
+              >
+                {t('request_link_wo')}
+              </Button>
+              <Button
                 startIcon={
                   approving ? (
                     <CircularProgress size="1rem" sx={{ color: 'white' }} />
@@ -320,6 +332,29 @@ export default function RequestDetails({
                   {...field}
                 />
               ))}
+              {request?.workOrder && (
+                <Grid item xs={12} lg={6}>
+                  <Typography
+                    variant="h6"
+                    sx={{ color: theme.colors.alpha.black[70] }}
+                  >
+                    {t('work_order')}
+                  </Typography>
+                  <Link
+                    variant="h6"
+                    href={getWorkOrderUrl(request.workOrder.id)}
+                  >
+                    {request.workOrder.customId
+                      ? `${request.workOrder.customId} - ${request.workOrder.title}`
+                      : request.workOrder.title}
+                  </Link>
+                  {request.workOrder.status && (
+                    <Typography variant="body2">
+                      {t(request.workOrder.status)}
+                    </Typography>
+                  )}
+                </Grid>
+              )}
               {request?.createdBy && (
                 <Grid item xs={12} lg={6}>
                   <Typography
@@ -430,6 +465,15 @@ export default function RequestDetails({
           />
         </div>
       )}
+      <RequestLinkWorkOrderModal
+        requestId={request.id}
+        open={openLinkWorkOrderModal}
+        onClose={() => setOpenLinkWorkOrderModal(false)}
+        onLinked={() => {
+          setOpenLinkWorkOrderModal(false);
+          onClose();
+        }}
+      />
       <RequestCancellationModal
         requestId={request.id}
         open={openCancellationModal}

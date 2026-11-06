@@ -433,6 +433,72 @@ public class RequestService {
         } else throw new CustomException("Request not found", HttpStatus.NOT_FOUND);
     }
 
+    /**
+     * Closes a pending request by linking it to a work order that already exists (open or closed),
+     * instead of creating a new work order. Used when a request duplicates work that is already tracked.
+     * The work order's own parentRequest is left untouched so its metrics and original requester are preserved.
+     */
+    @Transactional
+    public Request linkToExistingWorkOrder(Long id, Long workOrderId, User user) {
+        if (!(user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS) || RoleCode.LIMITED_ADMIN.equals(user.getRole().getCode()))) {
+            throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
+        }
+        Request savedRequest = requestRepository.findById(id)
+                .orElseThrow(() -> new CustomException("Request not found", HttpStatus.NOT_FOUND));
+        if (savedRequest.getWorkOrder() != null) {
+            throw new CustomException("Request is already approved", HttpStatus.NOT_ACCEPTABLE);
+        }
+        if (savedRequest.isCancelled()) {
+            throw new CustomException("Request is already cancelled", HttpStatus.NOT_ACCEPTABLE);
+        }
+        WorkOrder workOrder = workOrderService.findById(workOrderId)
+                .orElseThrow(() -> new CustomException("Work Order not found", HttpStatus.NOT_FOUND));
+        if (!workOrder.getCompany().getId().equals(savedRequest.getCompany().getId())) {
+            throw new CustomException("Work Order not found", HttpStatus.NOT_FOUND);
+        }
+        if (!workOrder.canBeViewedBy(user)) {
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        }
+
+        savedRequest.setWorkOrder(workOrder);
+        Request linkedRequest = requestRepository.save(savedRequest);
+
+        Map<String, Object> webhookPayload = new HashMap<>();
+        webhookPayload.put("requestId", linkedRequest.getId());
+        webhookPayload.put("requestTitle", linkedRequest.getTitle());
+        webhookPayload.put("previousStatus", "PENDING");
+        webhookPayload.put("newStatus", "APPROVED");
+        webhookPayload.put("workOrderId", workOrder.getId());
+        webhookPayload.put("linkedToExistingWorkOrder", true);
+        Object serializedRequest = requestMapper.toShowDto(linkedRequest);
+        webhookDispatchService.dispatchWebhook(user.getCompany(), WebhookEvent.WORK_REQUEST_STATUS_CHANGE,
+                webhookPayload,
+                "changedRequest", serializedRequest, null, null, null, null, null);
+
+        if (linkedRequest.getCreatedBy() != null && !linkedRequest.getCreatedBy().equals(user.getId())) {
+            userService.findById(linkedRequest.getCreatedBy()).filter(User::isEnabled).ifPresent(requester -> {
+                Locale locale = Helper.getLocale(requester);
+                String workOrderLabel = workOrder.getCustomId() == null ? workOrder.getTitle() :
+                        workOrder.getCustomId() + " - " + workOrder.getTitle();
+                String title = messageSource.getMessage("request_linked", null, locale);
+                String message = messageSource.getMessage("request_linked_description",
+                        new Object[]{linkedRequest.getTitle(), workOrderLabel}, locale);
+                notificationService.createMultiple(Collections.singletonList(new Notification(message, requester,
+                        NotificationType.REQUEST, linkedRequest.getId())), true, title);
+                if (requester.getUserSettings().shouldEmailUpdatesForRequests()) {
+                    Map<String, Object> mailVariables = new HashMap<String, Object>() {{
+                        put("workOrderLink", frontendUrl + "/app/requests/" + linkedRequest.getId());
+                        put("message", message);
+                    }};
+                    mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(
+                            new String[]{requester.getEmail()}, title, mailVariables, "requester-update.html",
+                            locale, null);
+                }
+            });
+        }
+        return linkedRequest;
+    }
+
     @Transactional
     public Request cancel(Long id, String reason, User user) {
         Optional<Request> optionalRequest = requestRepository.findById(id);

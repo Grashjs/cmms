@@ -38,4 +38,6 @@ export interface WorkOrderBaseMiniDTO {
   dueDate: string;
   createdAt: string;
   priority: Priority;
+  customId?: string;
+  status?: string;
 }

@@ -90,6 +90,15 @@ public class RequestController {
         return workOrderMapper.toShowDto(requestService.approve(id, requestApproveDTO, user));
     }
 
+    @PatchMapping("/{id}/link-work-order")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public RequestShowDTO linkWorkOrder(@PathVariable("id") Long id,
+                                        @Parameter(description = "Existing work order to link the request to") @Valid @RequestBody RequestLinkWorkOrderDTO requestLinkWorkOrderDTO,
+                                        @Parameter(hidden = true) @CurrentUser User user) {
+        return requestMapper.toShowDto(requestService.linkToExistingWorkOrder(id,
+                requestLinkWorkOrderDTO.getWorkOrderId(), user));
+    }
+
     @PatchMapping("/{id}/cancel")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public RequestShowDTO cancel(@PathVariable("id") Long id,
