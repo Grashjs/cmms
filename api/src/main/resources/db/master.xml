@@ -241,4 +241,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_09_09_1788956680_user_settings_language.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_10_20_1792532400_meter_trigger_work_orders.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

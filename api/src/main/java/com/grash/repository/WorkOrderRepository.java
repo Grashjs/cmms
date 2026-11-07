@@ -2,6 +2,7 @@ package com.grash.repository;
 
 import com.grash.model.WorkOrder;
 import com.grash.model.enums.Priority;
+import com.grash.model.enums.Status;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -33,6 +34,8 @@ public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>, Jpa
     Collection<WorkOrder> findByLocation_Id(Long id);
 
     Page<WorkOrder> findByParentPreventiveMaintenance_Id(Long id, Pageable pageable);
+
+    boolean existsByParentMeterTrigger_IdAndStatusNotAndArchivedFalse(Long parentMeterTriggerId, Status status);
 
 
     Collection<WorkOrder> findByCompletedBy_Id(Long id);

@@ -19,7 +19,7 @@ public class WorkOrderMeterTriggerPatchDTO extends WorkOrderBasePatchDTO {
     private WorkOrderMeterTriggerCondition triggerCondition;
 
     @Schema(description = "Threshold value for the trigger")
-    private int value;
+    private double value;
 
     @Schema(description = "Wait time before triggering (in seconds)")
     private int waitBefore;
