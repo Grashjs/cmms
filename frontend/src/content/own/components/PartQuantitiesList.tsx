@@ -11,11 +11,49 @@ import {
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import { PartQuantityMiniDTO } from '../../../models/owns/partQuantity';
 import { useTranslation } from 'react-i18next';
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { CompanySettingsContext } from '../../../contexts/CompanySettingsContext';
 import { getFormattedCostPerUnit } from '../../../utils/formatters';
 import { deletePartQuantity } from '../../../slices/partQuantity';
 import { useDispatch } from '../../../store';
+
+function QuantityInput({
+  quantity,
+  disabled,
+  onChange
+}: {
+  quantity: number;
+  disabled: boolean;
+  onChange: (value: string) => void;
+}) {
+  const { t }: { t: any } = useTranslation();
+  const [draft, setDraft] = useState<string>(String(quantity));
+
+  useEffect(() => {
+    setDraft((previous) =>
+      Number(previous) === quantity ? previous : String(quantity)
+    );
+  }, [quantity]);
+
+  return (
+    <TextField
+      label={t('quantity')}
+      variant="outlined"
+      sx={{ mr: 1 }}
+      type="number"
+      disabled={disabled}
+      inputProps={{
+        min: '0'
+      }}
+      size="small"
+      value={draft}
+      onChange={(event) => {
+        setDraft(event.target.value);
+        onChange(event.target.value);
+      }}
+    />
+  );
+}
 
 interface PartQuantityListProps {
   partQuantities: PartQuantityMiniDTO[];
@@ -42,18 +80,10 @@ export default function PartQuantitiesList({
           key={partQuantity.part.id}
           secondaryAction={
             <Box display="flex" flexDirection="row" alignItems="center">
-              <TextField
-                label={t('quantity')}
-                variant="outlined"
-                sx={{ mr: 1 }}
-                type="number"
+              <QuantityInput
+                quantity={partQuantity.quantity}
                 disabled={disabled}
-                inputProps={{
-                  min: '0'
-                }}
-                size="small"
-                onChange={(event) => onChange(event.target.value, partQuantity)}
-                defaultValue={partQuantity.quantity}
+                onChange={(value) => onChange(value, partQuantity)}
               />
               <Typography variant="h6">
                 {' * '}
