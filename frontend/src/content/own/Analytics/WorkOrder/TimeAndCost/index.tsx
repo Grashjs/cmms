@@ -9,6 +9,7 @@ import { Filter } from '../WOModal';
 import CompleteCostsByDate from './CompleteCostsByDate';
 import TimeCostByAsset from './TimeCostByAsset';
 import CustomDateRangePicker from '../../CustomDateRangePicker';
+import { FilterField } from '../../../../../models/owns/page';
 
 interface WOStatusStatsProps {
   handleOpenWOModal: (
@@ -29,6 +30,7 @@ function WOStatusStats({ handleOpenWOModal }: WOStatusStatsProps) {
   const [companyId, setCompanyId] = useState<number | undefined>(
     user?.superAccountRelations?.[0]?.childCompanyId ?? undefined
   );
+  const [filterFields, setFilterFields] = useState<FilterField[]>([]);
 
   useEffect(() => {
     setTitle(t('time_and_cost'));
@@ -48,16 +50,16 @@ function WOStatusStats({ handleOpenWOModal }: WOStatusStatsProps) {
         paddingX={1}
       >
         <Grid item xs={6}>
-          <CustomDateRangePicker start={start} end={end} setStart={setStart} setEnd={setEnd} companyId={companyId} onCompanyChange={setCompanyId} />
+          <CustomDateRangePicker start={start} end={end} setStart={setStart} setEnd={setEnd} companyId={companyId} onCompanyChange={setCompanyId} filterFields={filterFields} onFilterFieldsChange={setFilterFields} />
         </Grid>
         <Grid item xs={12} md={12}>
-          <Overview handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
+          <Overview handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} filterFields={filterFields} />
         </Grid>
         <Grid item xs={12} md={6}>
-          <CompleteCostsByDate handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
+          <CompleteCostsByDate handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} filterFields={filterFields} />
         </Grid>
         <Grid item xs={12} md={6}>
-          <TimeCostByAsset handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
+          <TimeCostByAsset handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} filterFields={filterFields} />
         </Grid>
       </Grid>
     </>

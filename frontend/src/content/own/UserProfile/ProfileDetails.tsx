@@ -30,6 +30,15 @@ import internationalization, {
   SupportedLanguage,
   supportedLanguages
 } from '../../../i18n/i18n';
+import { AnalyticsSummaryFrequency } from '../../../models/owns/userSettings';
+import { PlanFeature } from '../../../models/owns/subscriptionPlan';
+import { PermissionEntity } from '../../../models/owns/role';
+
+const analyticsSummaryFrequencies: AnalyticsSummaryFrequency[] = [
+  'NEVER',
+  'WEEKLY',
+  'MONTHLY'
+];
 
 function ProfileDetails() {
   const { t }: { t: any } = useTranslation();
@@ -40,8 +49,14 @@ function ProfileDetails() {
     fetchUserSettings,
     patchUserSettings,
     patchUser,
-    updatePassword
+    updatePassword,
+    hasViewPermission,
+    hasFeature
   } = useAuth();
+  // the summary is only sent to users who can see the analytics
+  const canReceiveAnalyticsSummary =
+    hasFeature(PlanFeature.ANALYTICS) &&
+    hasViewPermission(PermissionEntity.ANALYTICS);
   const [openEditModal, setOpenEditModal] = useState<boolean>(false);
   const handleOpenEditModal = () => setOpenEditModal(true);
   const handleCloseEditModal = () => setOpenEditModal(false);
@@ -140,6 +155,38 @@ function ProfileDetails() {
       </>
     );
   };
+  const renderAnalyticsSummarySelect = () => (
+    <>
+      <Grid item xs={12} sm={4} md={3} textAlign={{ sm: 'right' }}>
+        <Box pr={3} pb={2} pt={{ sm: 1 }}>
+          {t('analytics_summary_email')}:
+        </Box>
+      </Grid>
+      <Grid item xs={12} sm={8} md={9}>
+        <Select
+          size="small"
+          sx={{ minWidth: 220 }}
+          value={userSettings?.analyticsSummaryFrequency ?? 'NEVER'}
+          onChange={(event) =>
+            patchUserSettings({
+              ...userSettings,
+              analyticsSummaryFrequency: event.target
+                .value as AnalyticsSummaryFrequency
+            })
+          }
+        >
+          {analyticsSummaryFrequencies.map((frequency) => (
+            <MenuItem key={frequency} value={frequency}>
+              {t(`analytics_summary_${frequency.toLowerCase()}`)}
+            </MenuItem>
+          ))}
+        </Select>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+          {t('analytics_summary_email_description')}
+        </Typography>
+      </Grid>
+    </>
+  );
   const renderEditModal = () => (
     <CustomDialog
       onClose={handleCloseEditModal}
@@ -524,6 +571,7 @@ function ProfileDetails() {
                     key
                   )
                 )}
+                {canReceiveAnalyticsSummary && renderAnalyticsSummarySelect()}
               </Grid>
             </Typography>
           </CardContent>

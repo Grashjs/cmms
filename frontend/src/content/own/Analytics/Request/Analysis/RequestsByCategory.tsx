@@ -9,6 +9,7 @@ import { getCompleteByCategory } from '../../../../../slices/analytics/workOrder
 import { getRandomColor } from '../../../../../utils/overall';
 import Loading from '../../Loading';
 import { getRequestsByCategory } from '../../../../../slices/analytics/request';
+import { FilterField } from '../../../../../models/owns/page';
 
 interface RequestByCategoryProps {
   handleOpenModal: (
@@ -19,9 +20,10 @@ interface RequestByCategoryProps {
   start: Date;
   end: Date;
   companyId?: number;
+  filterFields?: FilterField[];
 }
 
-function RequestByCategory({ handleOpenModal, start, end, companyId }: RequestByCategoryProps) {
+function RequestByCategory({ handleOpenModal, start, end, companyId, filterFields }: RequestByCategoryProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -30,8 +32,8 @@ function RequestByCategory({ handleOpenModal, start, end, companyId }: RequestBy
   );
 
   useEffect(() => {
-    dispatch(getRequestsByCategory(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getRequestsByCategory(start, end, companyId, filterFields));
+  }, [start, end, companyId, filterFields]);
 
   const columns = ['id'];
 

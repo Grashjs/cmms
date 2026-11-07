@@ -88,6 +88,10 @@ const ownMenuItems: MenuItems[] = [
               {
                 name: 'time_and_cost',
                 link: '/app/analytics/work-orders/time-cost'
+              },
+              {
+                name: 'maintenance_kpis',
+                link: '/app/analytics/work-orders/kpis'
               }
             ]
           },
@@ -126,6 +130,16 @@ const ownMenuItems: MenuItems[] = [
               {
                 name: 'requests_analysis',
                 link: '/app/analytics/requests/analysis'
+              }
+            ]
+          },
+          {
+            name: 'meters',
+            icon: SpeedTwoToneIcon,
+            items: [
+              {
+                name: 'meter_trends',
+                link: '/app/analytics/meters/trends'
               }
             ]
           }

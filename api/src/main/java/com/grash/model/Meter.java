@@ -48,6 +48,10 @@ public class Meter extends CompanyAudit {
     @Schema(description = "Indicates whether this is a demo meter")
     private boolean isDemo;
 
+    @Schema(description = "Whether the meter accumulates, like an hour meter or an energy meter: the analytics then " +
+            "show the consumption per period (the increase of the value) instead of the readings themselves")
+    private boolean cumulative;
+
     @ManyToMany
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JoinTable(name = "T_Meter_User_Associations",

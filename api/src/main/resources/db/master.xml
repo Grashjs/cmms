@@ -241,4 +241,8 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_09_09_1788956680_user_settings_language.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_10_25_00000000001_add_analytics_summary_frequency.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2026_10_25_00000000002_add_meter_cumulative.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>
