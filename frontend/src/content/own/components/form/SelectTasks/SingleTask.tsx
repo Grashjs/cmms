@@ -21,7 +21,7 @@ import ArrowDropDownCircleTwoToneIcon from '@mui/icons-material/ArrowDropDownCir
 import { Task, TaskOption, TaskType } from '../../../../../models/owns/tasks';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import debounce from 'lodash.debounce';
 import { getAssetUrl, getUserUrl } from '../../../../../utils/urlPaths';
 import useAuth from '../../../../../hooks/useAuth';
@@ -59,13 +59,22 @@ export default function SingleTask({
   const [savingNotes, setSavingNotes] = useState<boolean>(false);
   const { user, hasCreatePermission, hasFeature } = useAuth();
 
-  const changeHandler = (event) =>
-    !preview && handleChange(event.target.value, task.id);
+  // The debounced function is created once (recreating it on every render
+  // would give each keystroke its own timer), so it calls the latest props
+  // through a ref instead of the handleChange captured on mount.
+  const latestProps = useRef({ handleChange, preview, taskId: task.id });
+  latestProps.current = { handleChange, preview, taskId: task.id };
 
   const debouncedChangeHandler = useMemo(
-    () => debounce(changeHandler, 1500),
+    () =>
+      debounce((value: string) => {
+        const { handleChange, preview, taskId } = latestProps.current;
+        if (!preview) handleChange(value, taskId);
+      }, 1500),
     []
   );
+  // Send a value typed right before the panel closes instead of dropping it.
+  useEffect(() => () => debouncedChangeHandler.flush(), []);
 
   const subtaskOptions = [
     { label: t('OPEN'), value: 'OPEN' },
@@ -144,7 +153,9 @@ export default function SingleTask({
           ) : (
             <Box sx={{ backgroundColor: 'white' }}>
               <TextField
-                onChange={debouncedChangeHandler}
+                onChange={(event) =>
+                  debouncedChangeHandler(event.target.value)
+                }
                 defaultValue={task.value}
                 label={t('value')}
                 disabled={
