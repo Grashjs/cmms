@@ -13,7 +13,9 @@ export class TaskSavePausedError extends Error {
 /** Serialize connected saves of a task, retaining the last acknowledged server version. */
 export class TaskSaveQueue {
   private versions = new Map<number, number>();
+
   private tails = new Map<number, Promise<Task>>();
+
   private paused = new Set<number>();
 
   constructor(private send: (id: number, patch: TaskFields & { version?: number }) => Promise<Task>) {}
