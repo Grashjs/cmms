@@ -1,4 +1,11 @@
-import { createContext, FC, ReactNode, useEffect, useReducer } from 'react';
+import {
+  createContext,
+  FC,
+  ReactNode,
+  useEffect,
+  useReducer,
+  useRef
+} from 'react';
 import { OwnUser, UserResponseDTO } from 'src/models/user';
 import api, { authHeader, refreshAccessToken } from 'src/utils/api';
 import { verify } from 'src/utils/jwt';
@@ -525,6 +532,23 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   const globalDispatch = useDispatch();
   const { children } = props;
   const [state, dispatch] = useReducer(reducer, initialAuthState);
+  // Latest general preferences, including changes already sent but not yet
+  // confirmed. patchGeneralPreferences sends the whole object (the backend DTO
+  // has primitive fields, so omitted booleans/ints would be reset), and it is
+  // often called from handlers memoized on mount (debounced inputs in
+  // Settings > General). Reading from this ref instead of the render's `state`
+  // keeps those calls from sending stale values and reverting other settings.
+  const syncedGeneralPreferencesRef = useRef<GeneralPreferences>(null);
+  const latestGeneralPreferencesRef = useRef<GeneralPreferences>(null);
+  if (
+    state.companySettings?.generalPreferences !==
+    syncedGeneralPreferencesRef.current
+  ) {
+    syncedGeneralPreferencesRef.current =
+      state.companySettings?.generalPreferences ?? null;
+    latestGeneralPreferencesRef.current =
+      state.companySettings?.generalPreferences ?? null;
+  }
   const { loginUser: loginZendesk, logoutUser: logoutZendesk } = useZendesk();
   const utmParams = useUtmTracker();
   const switchLanguage = async ({ lng }: { lng: any }) => {
@@ -847,10 +871,22 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   const patchGeneralPreferences = async (
     values: Partial<GeneralPreferences>
   ): Promise<void> => {
-    const generalPreferences = await api.patch<GeneralPreferences>(
-      `general-preferences/${state.companySettings.generalPreferences.id}`,
-      { ...state.companySettings.generalPreferences, ...values }
-    );
+    const current =
+      latestGeneralPreferencesRef.current ??
+      state.companySettings.generalPreferences;
+    const body = { ...current, ...values };
+    // Make the change visible to a patch sent before this one returns.
+    latestGeneralPreferencesRef.current = body;
+    let generalPreferences: GeneralPreferences;
+    try {
+      generalPreferences = await api.patch<GeneralPreferences>(
+        `general-preferences/${current.id}`,
+        body
+      );
+    } catch (error) {
+      latestGeneralPreferencesRef.current = syncedGeneralPreferencesRef.current;
+      throw error;
+    }
     dispatch({
       type: 'PATCH_GENERAL_PREFERENCES',
       payload: {
