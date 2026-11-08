@@ -68,14 +68,29 @@ export function setConflictErrorHandler(handler: () => void): () => void {
   };
 }
 
+// Callers may pass their own headers (e.g. file uploads drop Content-Type),
+// usually built with authHeader() before the request. If they carry an
+// Authorization header, refresh it from storage on every attempt: after a 401
+// the access token is renewed and the retry must not resend the expired one.
+// Headers without Authorization (public routes) are left as they are.
+async function resolveHeaders(headers?: HeadersInit): Promise<HeadersInit> {
+  if (!headers) return authHeader(false);
+  const resolved = { ...(headers as Record<string, string>) };
+  if ('Authorization' in resolved) {
+    const accessToken = await AsyncStorage.getItem('accessToken');
+    if (accessToken) resolved.Authorization = 'Bearer ' + accessToken;
+  }
+  return resolved;
+}
+
 async function doFetch<T>(
   url: string,
   options: Options,
   retried: boolean
 ): Promise<T> {
   const response = await fetch(url, {
-    headers: await authHeader(false),
-    ...options
+    ...options,
+    headers: await resolveHeaders(options?.headers)
   });
   if (!response.ok) {
     if (response.status === 401 && !retried && !isRefreshRequest(url)) {
