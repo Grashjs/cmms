@@ -43,6 +43,7 @@ import useAuth from '../../hooks/useAuth';
 import { getCustomFieldValuesForDetails } from '../../models/form';
 import { PermissionEntity } from '../../models/role';
 import Reading from '../../models/reading';
+import { parseDecimalInput } from '../../utils/validators';
 
 export default function MeterDetails({
   navigation,
@@ -142,10 +143,15 @@ export default function MeterDetails({
 
   const handleEditReading = async () => {
     if (!editingReading) return;
+    const value = parseDecimalInput(editReadingValue);
+    if (isNaN(value)) {
+      showSnackBar(t('required_reading_value'), 'error');
+      return;
+    }
     try {
       await dispatch(
         updateReading(meter.id, editingReading.id, {
-          value: parseFloat(editReadingValue)
+          value
         })
       );
       showSnackBar(t('operation_success'), 'success');
@@ -217,12 +223,17 @@ export default function MeterDetails({
   }, [meter]);
 
   const onAddReading = () => {
+    const value = parseDecimalInput(readingValue);
+    if (isNaN(value)) {
+      showSnackBar(t('required_reading_value'), 'error');
+      return;
+    }
     setIsSubmitting(true);
-    dispatch(createReading(meter.id, { value: parseFloat(readingValue) }))
+    dispatch(createReading(meter.id, { value }))
       .then(() => {
         setAddedReading(true);
         setOpenModal(false);
-        onNewReading?.(parseFloat(readingValue));
+        onNewReading?.(value);
       })
       .finally(() => setIsSubmitting(false));
   };
