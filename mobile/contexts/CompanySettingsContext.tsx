@@ -150,16 +150,16 @@ export const CompanySettingsProvider: FC<{ children: ReactNode }> = (props) => {
           let yupSchema;
           switch (fields[fieldIndexInFields].type) {
             case 'text':
-              yupSchema = Yup.string().required(requiredMessage).nullable();
+              yupSchema = Yup.string().required(requiredMessage);
               break;
             case 'date':
-              yupSchema = Yup.string().required(requiredMessage).nullable();
+              yupSchema = Yup.string().required(requiredMessage);
               break;
             case 'file':
               yupSchema = Yup.array().required(requiredMessage);
               break;
             case 'number':
-              yupSchema = Yup.number().required(requiredMessage).nullable();
+              yupSchema = Yup.number().required(requiredMessage);
               break;
             case 'select':
               if (fields[fieldIndexInFields].type2 === 'priority')
@@ -167,11 +167,11 @@ export const CompanySettingsProvider: FC<{ children: ReactNode }> = (props) => {
               else if (fields[fieldIndexInFields].multiple) {
                 yupSchema = Yup.array().required(requiredMessage);
               } else {
-                yupSchema = Yup.object().required(requiredMessage).nullable();
+                yupSchema = Yup.object().required(requiredMessage);
               }
               break;
             default:
-              yupSchema = Yup.object().required(requiredMessage).nullable();
+              yupSchema = Yup.object().required(requiredMessage);
               break;
           }
           shape[trueFieldName] = yupSchema;
@@ -227,7 +227,7 @@ export const CompanySettingsProvider: FC<{ children: ReactNode }> = (props) => {
             yupSchema = Yup.number().required(requiredMessage);
             break;
           default:
-            yupSchema = Yup.object().required(requiredMessage).nullable();
+            yupSchema = Yup.object().required(requiredMessage);
             break;
         }
         shape[name] = yupSchema;
