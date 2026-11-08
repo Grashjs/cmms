@@ -196,7 +196,7 @@ export const approveRequest =
 export const cancelRequest =
   (id: number, reason: string): AppThunk =>
   async (dispatch) => {
-    const request = await api.patch<WorkOrder>(`${basePath}/${id}/cancel?reason=${reason}`, {});
+    const request = await api.patch<WorkOrder>(`${basePath}/${id}/cancel?reason=${encodeURIComponent(reason)}`, {});
     dispatch(slice.actions.cancelRequest({ id }));
   };
 
