@@ -92,7 +92,6 @@ export default function MetersScreen({
     onSearchQueryChange<Meter>(query, criteria, setCriteria, setSearchQuery, [
       'name',
       'unit',
-      'category',
       'customFieldValues.value'
     ]);
   };
