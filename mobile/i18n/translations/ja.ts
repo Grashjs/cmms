@@ -1,4 +1,20 @@
 const locale = {
+  offline_preference_title: "オフラインモードを使用",
+  offline_preference_description: "インターネットなしで使えるよう、この端末に作業指示を準備します。",
+  offline_preference_pending: "オフラインモードをオフにする前に、ローカルの下書き、実行中のタイマー、送信待ちを解決してください。準備の解除が保留中の場合は、サーバーの確認も必要です。データは削除されていません。",
+  offline_preference_denied: "このアカウントのオフライン利用はサーバーで許可されていません。端末内の作業は保持されます。",
+  offline_preference_read_error: "オフライン設定を読み取れませんでした。端末内の作業は保護されたままです。インターネット接続なしで再試行できます。",
+  offline_preference_activation_failed: "この端末でオフラインモードを有効にできませんでした。設定はオフのままです。再試行してください。",
+  offline_unlock_title: "オフライン作業のロックを解除",
+  offline_unlock_explanation: "この端末に保存された作業を見るには本人確認をしてください。",
+  offline_unlock_system_prompt: "Atlas CMMSのオフライン作業をロック解除",
+  offline_unlock_use_code: "端末のパスコードを使用",
+  offline_unlock_setup: "端末の設定で画面ロックを設定してから再試行してください。作業は保存されたまま非表示になります。",
+  offline_unlock_cancelled: "ロック解除をキャンセルしました。オフライン作業は保存されています。",
+  offline_unlock_failed: "ロック解除に失敗しました。再試行するか端末のパスコードを使用してください。",
+  offline_unlock_check_server: "サーバーでアクセスを確認",
+  offline_unlock_sign_in: "このアカウントでサーバーにログインし、アクセスを再確認してください。作業内容は保存され、非表示のままです。",
+  offline_unlock_logout: "サインアウト",
   save_signature: "署名を保存",
   offline_signature_unsaved: "描画は保存されていません。完了を申請する前に「署名を保存」を押してください。",
   offline_signature_saved: "署名をこの端末に保存しました。",
@@ -1727,6 +1743,8 @@ const locale = {
   operation_success: '操作が成功しました',
   edit_reading: '読み取りを編集',
   are_you_sure_delete_reading: 'この読み取りを削除してもよろしいですか？',
-  conflict_retry: 'リソースが別のリクエストによって変更されました。5秒後に再試行してください。'
+  conflict_retry: 'リソースが別のリクエストによって変更されました。5秒後に再試行してください。',
+  offline_network_lost: "接続が切れました。",
+  offline_network_restored: "接続が回復しました。"
 };
 export default locale;

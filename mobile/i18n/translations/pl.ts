@@ -1,4 +1,20 @@
 const plJSON = {
+  offline_preference_title: "Używaj trybu offline",
+  offline_preference_description: "Przygotuj zlecenia na tym urządzeniu do pracy bez internetu.",
+  offline_preference_pending: "Przed wyłączeniem trybu offline rozwiąż lokalne szkice, aktywne liczniki czasu i oczekujące wysyłki. Serwer musi też potwierdzić każde oczekujące zwolnienie przygotowania. Nic nie zostało usunięte.",
+  offline_preference_denied: "Serwer nie zezwala temu kontu na dostęp offline. Lokalna praca została zachowana.",
+  offline_preference_read_error: "Nie udało się odczytać ustawienia trybu offline. Praca lokalna pozostaje chroniona. Spróbuj ponownie; internet nie jest potrzebny.",
+  offline_preference_activation_failed: "Nie udało się włączyć trybu offline na tym urządzeniu. Ustawienie pozostaje wyłączone; spróbuj ponownie.",
+  offline_unlock_title: "Odblokuj pracę offline",
+  offline_unlock_explanation: "Potwierdź tożsamość, aby uzyskać dostęp do pracy zapisanej na tym urządzeniu.",
+  offline_unlock_system_prompt: "Odblokuj pracę offline w Atlas CMMS",
+  offline_unlock_use_code: "Użyj kodu urządzenia",
+  offline_unlock_setup: "Ustaw blokadę ekranu w ustawieniach telefonu i spróbuj ponownie. Praca pozostaje zapisana i ukryta.",
+  offline_unlock_cancelled: "Odblokowanie anulowane. Praca offline pozostaje zapisana.",
+  offline_unlock_failed: "Odblokowanie nie powiodło się. Spróbuj ponownie lub użyj kodu urządzenia.",
+  offline_unlock_check_server: "Sprawdź dostęp na serwerze",
+  offline_unlock_sign_in: "Zaloguj się na serwer przy użyciu tego konta, a następnie ponownie sprawdź dostęp. Twoja praca pozostaje zapisana i ukryta.",
+  offline_unlock_logout: "Wyloguj się",
   save_signature: "Zapisz podpis",
   offline_signature_unsaved: "Rysunek nie został zapisany. Naciśnij Zapisz podpis przed wysłaniem żądania zamknięcia.",
   offline_signature_saved: "Podpis zapisany na tym urządzeniu.",
@@ -1741,6 +1757,8 @@ const plJSON = {
   operation_success: 'Operacja zakończyła się sukcesem',
   edit_reading: 'Edytuj odczyt',
   are_you_sure_delete_reading: 'Czy na pewno chcesz usunąć ten odczyt?',
-  conflict_retry: 'Zasób został zmodyfikowany przez inne żądanie. Spróbuj ponownie za 5 sekund.'
+  conflict_retry: 'Zasób został zmodyfikowany przez inne żądanie. Spróbuj ponownie za 5 sekund.',
+  offline_network_lost: "Połączenie zostało przerwane.",
+  offline_network_restored: "Połączenie zostało przywrócone."
 };
 export default plJSON;

@@ -198,14 +198,10 @@ export function OfflineWorkPanel({ workOrderId }: { workOrderId?: number }) {
 export function OfflineStatus() {
   const offline = useOffline();
   const { t } = useTranslation();
-  if (!offline.enabled && !offline.prepared.length && !offline.error)
-    return null;
+  if (!offline.enabled) return null;
   return (
     <View style={{ padding: 10 }}>
       {offline.error && <Text accessibilityRole="alert">{offline.error}</Text>}
-      {!offline.readable && !!offline.prepared.length && (
-        <Text>{t('offline_disabled')}</Text>
-      )}
       <Button
         loading={offline.syncing}
         onPress={() => offline.sync()}

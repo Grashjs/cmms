@@ -26,6 +26,13 @@ if (process.env.GOOGLE_SERVICES_BASE64) {
 
 const plugins: ExpoConfig['plugins'] = [
   ['expo-secure-store', { configureAndroidBackup: false }],
+  [
+    'expo-local-authentication',
+    {
+      faceIDPermission:
+        'Allow Atlas CMMS to use Face ID to unlock offline work on this device.'
+    }
+  ],
   './plugins/withOfflineStorage',
   'react-native-nfc-manager',
   'expo-font',
@@ -91,7 +98,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   ios: {
     bundleIdentifier: 'com.cmms.atlas',
-    buildNumber: '2',
+    buildNumber: '1',
     jsEngine: 'hermes',
     supportsTablet: false,
     runtimeVersion: 'appVersion',

@@ -8,6 +8,7 @@ import {
   IconButton,
   List,
   Portal,
+  Switch,
   Text,
   useTheme
 } from 'react-native-paper';
@@ -21,19 +22,51 @@ import Constants from 'expo-constants';
 import * as Updates from 'expo-updates';
 import { CustomSnackBarContext } from '../contexts/CustomSnackBarContext';
 import { getErrorMessage } from '../utils/api';
+import { useOffline } from '../offline/OfflineProvider';
+import { offlineErrorKey } from '../offline/errors';
 
 export default function SettingsScreen({
   navigation
 }: RootStackScreenProps<'Settings'>) {
   const theme = useTheme();
   const { user, switchAccount, logout } = useAuth();
+  const offline = useOffline();
   const [switchingAccount, setSwitchingAccount] = useState<boolean>(false);
+  const [updatingOffline, setUpdatingOffline] = useState(false);
   const { t } = useTranslation();
   const [versionPressCount, setVersionPressCount] = useState<number>(0);
   const [openLogout, setOpenLogout] = useState<boolean>(false);
   const [openDevInfo, setOpenDevInfo] = useState<boolean>(false);
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const [devMode, setDevMode] = useState<boolean>(false);
+  const changeOffline = async (next: boolean) => {
+    if (updatingOffline || offline.preferenceChanging) return;
+    setUpdatingOffline(true);
+    try {
+      await offline.setPreference(next);
+    } catch (failure) {
+      const code = (failure as { code?: string })?.code;
+      const errorKey = offlineErrorKey(failure);
+      showSnackBar(
+        t(
+          code === 'WORK_PENDING'
+            ? 'offline_preference_pending'
+            : code === 'OFFLINE_NOT_AUTHORIZED' || code === 'OFFLINE_DISABLED'
+            ? 'offline_preference_denied'
+            : next &&
+              (code === 'INVALID_AUTHORIZATION' ||
+                code === 'STORAGE_FAILED' ||
+                code === 'STORAGE_UNAVAILABLE' ||
+                errorKey === 'offline_action_failed')
+            ? 'offline_preference_activation_failed'
+            : errorKey
+        ),
+        'error'
+      );
+    } finally {
+      setUpdatingOffline(false);
+    }
+  };
   useEffect(() => {
     if (versionPressCount > 2 && versionPressCount < 6) {
       showSnackBar(`Dev mode in ${6 - versionPressCount}`, 'info');
@@ -101,6 +134,25 @@ export default function SettingsScreen({
           description={t('update_profile')}
           onPress={() => navigation.navigate('UserProfile')}
         />
+        {offline.availableInBuild && (
+          <List.Item
+            style={{ paddingHorizontal: 20 }}
+            title={t('offline_preference_title')}
+            description={t('offline_preference_description')}
+            right={() =>
+              updatingOffline ||
+              offline.preferenceChanging ||
+              !offline.initialized ? (
+                <ActivityIndicator />
+              ) : (
+                <Switch
+                  value={offline.enabled}
+                  onValueChange={(next) => void changeOffline(next)}
+                />
+              )
+            }
+          />
+        )}
         {user.parentSuperAccount && (
           <List.Item
             style={{ paddingHorizontal: 20 }}

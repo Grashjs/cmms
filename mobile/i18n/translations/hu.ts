@@ -1,4 +1,20 @@
 const locale = {
+  offline_preference_title: "Offline mód használata",
+  offline_preference_description: "Készítse elő a munkalapokat ezen az eszközön internet nélküli használatra.",
+  offline_preference_pending: "Az offline mód kikapcsolása előtt rendezze a helyi piszkozatokat, futó időmérőket és függőben lévő küldéseket. A függőben lévő előkészítés-feloldást a szervernek is meg kell erősítenie. Semmi sem törlődött.",
+  offline_preference_denied: "A szerver nem engedélyezte az offline hozzáférést ehhez a fiókhoz. A helyi munka megmarad.",
+  offline_preference_read_error: "Nem sikerült beolvasni az offline beállítást. A helyi munkája továbbra is védett. Próbálja újra; internetkapcsolat nem szükséges.",
+  offline_preference_activation_failed: "Az offline mód nem kapcsolható be ezen az eszközön. A beállítás kikapcsolva marad; próbálja újra.",
+  offline_unlock_title: "Offline munka feloldása",
+  offline_unlock_explanation: "Igazolja személyazonosságát az eszközön mentett munkák eléréséhez.",
+  offline_unlock_system_prompt: "Offline munka feloldása az Atlas CMMS-ben",
+  offline_unlock_use_code: "Eszközkód használata",
+  offline_unlock_setup: "Állítson be képernyőzárat a telefon beállításaiban, majd próbálja újra. A munka mentve és rejtve marad.",
+  offline_unlock_cancelled: "A feloldás megszakítva. Az offline munka mentve marad.",
+  offline_unlock_failed: "A feloldás sikertelen. Próbálja újra, vagy használja az eszközkódot.",
+  offline_unlock_check_server: "Hozzáférés ellenőrzése a szerveren",
+  offline_unlock_sign_in: "Jelentkezzen be a szerverre ezzel a fiókkal, majd ellenőrizze újra a hozzáférést. Munkája mentve és rejtve marad.",
+  offline_unlock_logout: "Kijelentkezés",
   save_signature: "Aláírás mentése",
   offline_signature_unsaved: "A rajz nincs mentve. A lezárás beküldése előtt nyomja meg az Aláírás mentése gombot.",
   offline_signature_saved: "Az aláírás mentve ezen az eszközön.",
@@ -1731,6 +1747,8 @@ const locale = {
   operation_success: 'A művelet sikeres volt',
   edit_reading: 'Mérés szerkesztése',
   are_you_sure_delete_reading: 'Biztosan törölni szeretné ezt a mérést?',
-  conflict_retry: 'Az erőforrást egy másik kérés módosította. Kérjük, próbálja újra 5 másodperc múlva.'
+  conflict_retry: 'Az erőforrást egy másik kérés módosította. Kérjük, próbálja újra 5 másodperc múlva.',
+  offline_network_lost: "A kapcsolat megszakadt.",
+  offline_network_restored: "A kapcsolat helyreállt."
 };
 export default locale;

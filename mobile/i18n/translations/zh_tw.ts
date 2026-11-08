@@ -1,4 +1,20 @@
 const locale = {
+  offline_preference_title: "使用離線模式",
+  offline_preference_description: "在此裝置上準備工單，以便沒有網路時使用。",
+  offline_preference_pending: "關閉離線模式前，請處理本機草稿、執行中的計時器與待傳送內容。伺服器也必須確認任何待處理的準備撤銷。沒有刪除任何資料。",
+  offline_preference_denied: "伺服器未授權此帳戶使用離線模式。本機工作已保留。",
+  offline_preference_read_error: "無法讀取離線設定。本機工作仍受保護。請重試；無須連接網路。",
+  offline_preference_activation_failed: "無法在此裝置上啟用離線模式。設定仍為關閉狀態；請重試。",
+  offline_unlock_title: "解鎖離線工作",
+  offline_unlock_explanation: "驗證身分以存取此裝置上儲存的工作。",
+  offline_unlock_system_prompt: "解鎖 Atlas CMMS 離線工作",
+  offline_unlock_use_code: "使用裝置密碼",
+  offline_unlock_setup: "請在手機設定中啟用螢幕鎖定後重試。離線工作仍會儲存並隱藏。",
+  offline_unlock_cancelled: "已取消解鎖。離線工作仍已儲存。",
+  offline_unlock_failed: "解鎖失敗。請重試或使用裝置密碼。",
+  offline_unlock_check_server: "向伺服器檢查存取權限",
+  offline_unlock_sign_in: "使用此帳戶登入伺服器，然後重新檢查存取權限。您的工作仍會儲存並保持隱藏。",
+  offline_unlock_logout: "登出",
   save_signature: "儲存簽名",
   offline_signature_unsaved: "繪圖尚未儲存。提交結案請求前，請點選「儲存簽名」。",
   offline_signature_saved: "簽名已儲存在此裝置上。",
@@ -1579,6 +1595,8 @@ const locale = {
   operation_success: '操作成功',
   edit_reading: '編輯讀數',
   are_you_sure_delete_reading: '您確定要刪除此讀數嗎？',
-  conflict_retry: '資源已被另一個請求修改。請在5秒後重試。'
+  conflict_retry: '資源已被另一個請求修改。請在5秒後重試。',
+  offline_network_lost: "連線已中斷。",
+  offline_network_restored: "連線已恢復。"
 };
 export default locale;

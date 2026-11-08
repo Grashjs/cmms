@@ -39,7 +39,7 @@
       </dict>
     </array>
     <key>CFBundleVersion</key>
-    <string>2</string>
+    <string>1</string>
     <key>ITSAppUsesNonExemptEncryption</key>
     <false/>
     <key>LSMinimumSystemVersion</key>
@@ -57,6 +57,8 @@
     </dict>
     <key>NSCameraUsageDescription</key>
     <string>Allow Atlas to use the camera to scan.</string>
+    <key>NSFaceIDUsageDescription</key>
+    <string>Allow Atlas CMMS to use Face ID to unlock offline work on this device.</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>Allow Atlas to use the microphone for audio notes.</string>
     <key>NSPhotoLibraryAddUsageDescription</key>

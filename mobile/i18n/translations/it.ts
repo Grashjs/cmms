@@ -1,4 +1,20 @@
 const locale = {
+  offline_preference_title: "Usa la modalità offline",
+  offline_preference_description: "Prepara gli interventi su questo dispositivo per usarli senza Internet.",
+  offline_preference_pending: "Risolvi bozze locali, timer attivi e invii in attesa prima di disattivare la modalità offline. Il server deve confermare anche ogni rimozione della preparazione in attesa. Non è stato eliminato nulla.",
+  offline_preference_denied: "Il server non ha abilitato l’accesso offline per questo account. Il lavoro locale è conservato.",
+  offline_preference_read_error: "Impossibile leggere l’impostazione della modalità offline. Il lavoro locale resta protetto. Riprova; non serve Internet.",
+  offline_preference_activation_failed: "Impossibile attivare la modalità offline su questo dispositivo. L’impostazione resta disattivata; riprova.",
+  offline_unlock_title: "Sblocca il lavoro offline",
+  offline_unlock_explanation: "Verifica la tua identità per accedere al lavoro salvato su questo dispositivo.",
+  offline_unlock_system_prompt: "Sblocca il lavoro offline in Atlas CMMS",
+  offline_unlock_use_code: "Usa il codice del dispositivo",
+  offline_unlock_setup: "Imposta un blocco schermo nelle impostazioni del telefono, poi riprova. Il lavoro rimane salvato e nascosto.",
+  offline_unlock_cancelled: "Sblocco annullato. Il lavoro offline rimane salvato.",
+  offline_unlock_failed: "Sblocco non riuscito. Riprova o usa il codice del dispositivo.",
+  offline_unlock_check_server: "Verifica accesso con il server",
+  offline_unlock_sign_in: "Accedi al server con questo account, poi verifica di nuovo l’accesso. Il tuo lavoro resta salvato e nascosto.",
+  offline_unlock_logout: "Esci",
   save_signature: "Salva firma",
   offline_signature_unsaved: "Disegno non salvato. Premi Salva firma prima di richiedere la chiusura.",
   offline_signature_saved: "Firma salvata su questo dispositivo.",
@@ -1747,6 +1763,8 @@ const locale = {
   operation_success: "L'operazione è riuscita",
   edit_reading: 'Modifica lettura',
   are_you_sure_delete_reading: 'Sei sicuro di voler eliminare questa lettura?',
-  conflict_retry: 'La risorsa è stata modificata da un\'altra richiesta. Riprova tra 5 secondi.'
+  conflict_retry: 'La risorsa è stata modificata da un\'altra richiesta. Riprova tra 5 secondi.',
+  offline_network_lost: "Connessione persa.",
+  offline_network_restored: "Connessione ripristinata."
 };
 export default locale;

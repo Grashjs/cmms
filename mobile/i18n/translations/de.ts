@@ -1,4 +1,20 @@
 const deJSON = {
+  offline_preference_title: "Offlinemodus verwenden",
+  offline_preference_description: "Bereiten Sie Arbeitsaufträge auf diesem Gerät für die Nutzung ohne Internet vor.",
+  offline_preference_pending: "Lösen Sie lokale Entwürfe, laufende Zeitmesser und ausstehende Sendungen, bevor Sie den Offlinemodus ausschalten. Auch eine ausstehende Freigabe einer Vorbereitung muss vom Server bestätigt werden. Nichts wurde gelöscht.",
+  offline_preference_denied: "Der Server hat den Offlinezugriff für dieses Konto nicht freigegeben. Ihre lokale Arbeit bleibt erhalten.",
+  offline_preference_read_error: "Die Offline-Einstellung konnte nicht gelesen werden. Ihre lokalen Daten bleiben geschützt. Versuchen Sie es erneut; Internet ist dafür nicht erforderlich.",
+  offline_preference_activation_failed: "Der Offlinemodus konnte auf diesem Gerät nicht aktiviert werden. Die Einstellung bleibt ausgeschaltet; versuchen Sie es erneut.",
+  offline_unlock_title: "Offline-Arbeit entsperren",
+  offline_unlock_explanation: "Bestätigen Sie Ihre Identität, um auf die auf diesem Gerät gespeicherte Arbeit zuzugreifen.",
+  offline_unlock_system_prompt: "Offline-Arbeit in Atlas CMMS entsperren",
+  offline_unlock_use_code: "Gerätecode verwenden",
+  offline_unlock_setup: "Richten Sie in den Telefoneinstellungen eine Bildschirmsperre ein und versuchen Sie es erneut. Ihre Arbeit bleibt gespeichert und verborgen.",
+  offline_unlock_cancelled: "Entsperren abgebrochen. Ihre Offline-Arbeit bleibt gespeichert.",
+  offline_unlock_failed: "Entsperren fehlgeschlagen. Versuchen Sie es erneut oder verwenden Sie den Gerätecode.",
+  offline_unlock_check_server: "Zugriff beim Server prüfen",
+  offline_unlock_sign_in: "Melden Sie sich mit diesem Konto erneut am Server an und prüfen Sie den Zugriff. Ihre Arbeit bleibt gespeichert und verborgen.",
+  offline_unlock_logout: "Abmelden",
   save_signature: "Unterschrift speichern",
   offline_signature_unsaved: "Zeichnung nicht gespeichert. Tippen Sie vor dem Abschluss auf Unterschrift speichern.",
   offline_signature_saved: "Unterschrift auf diesem Gerät gespeichert.",
@@ -1809,6 +1825,8 @@ const deJSON = {
   operation_success: 'Der Vorgang war erfolgreich',
   edit_reading: 'Zählerstand bearbeiten',
   are_you_sure_delete_reading: 'Sind Sie sicher, dass Sie diesen Zählerstand löschen möchten?',
-  conflict_retry: 'Die Ressource wurde von einer anderen Anfrage geändert. Bitte versuchen Sie es in 5 Sekunden erneut.'
+  conflict_retry: 'Die Ressource wurde von einer anderen Anfrage geändert. Bitte versuchen Sie es in 5 Sekunden erneut.',
+  offline_network_lost: "Verbindung unterbrochen.",
+  offline_network_restored: "Verbindung wiederhergestellt."
 };
 export default deJSON;

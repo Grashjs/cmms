@@ -1,4 +1,20 @@
 const locale = {
+  offline_preference_title: "使用离线模式",
+  offline_preference_description: "在此设备上准备工单，以便无网络时使用。",
+  offline_preference_pending: "关闭离线模式前，请处理本地草稿、运行中的计时器和待发送内容。服务器还必须确认任何待处理的准备撤销。没有删除任何数据。",
+  offline_preference_denied: "服务器未授权此账户使用离线模式。本地工作已保留。",
+  offline_preference_read_error: "无法读取离线设置。本地工作仍受保护。请重试；无需连接互联网。",
+  offline_preference_activation_failed: "无法在此设备上启用离线模式。设置仍处于关闭状态；请重试。",
+  offline_unlock_title: "解锁离线工作",
+  offline_unlock_explanation: "验证身份以访问此设备上保存的工作。",
+  offline_unlock_system_prompt: "解锁 Atlas CMMS 离线工作",
+  offline_unlock_use_code: "使用设备密码",
+  offline_unlock_setup: "请在手机设置中启用屏幕锁定后重试。离线工作仍会保存并隐藏。",
+  offline_unlock_cancelled: "已取消解锁。离线工作仍已保存。",
+  offline_unlock_failed: "解锁失败。请重试或使用设备密码。",
+  offline_unlock_check_server: "向服务器检查访问权限",
+  offline_unlock_sign_in: "使用此账户登录服务器，然后重新检查访问权限。您的工作仍会保存并保持隐藏。",
+  offline_unlock_logout: "退出登录",
   save_signature: "保存签名",
   offline_signature_unsaved: "绘图尚未保存。提交关闭请求前，请点击“保存签名”。",
   offline_signature_saved: "签名已保存在此设备上。",
@@ -1559,6 +1575,8 @@ const locale = {
   operation_success: '操作成功',
   edit_reading: '编辑读数',
   are_you_sure_delete_reading: '您确定要删除此读数吗？',
-  conflict_retry: '资源已被另一个请求修改。请在5秒后重试。'
+  conflict_retry: '资源已被另一个请求修改。请在5秒后重试。',
+  offline_network_lost: "连接已断开。",
+  offline_network_restored: "连接已恢复。"
 };
 export default locale;

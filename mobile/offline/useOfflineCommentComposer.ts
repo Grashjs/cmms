@@ -42,6 +42,7 @@ export function useOfflineCommentComposer({
   const commentSequence = useRef(0);
   const commentWriteSequence = useRef(0);
   const commentSavedRevision = useRef<number | null>(null);
+  const commentClearedAfterSubmit = useRef(false);
   const commentSaving = useRef(false);
   const commentSubmitting = useRef(false);
   const transferringComment = useRef(false);
@@ -83,6 +84,7 @@ export function useOfflineCommentComposer({
     commentWriteSequence.current++;
     commentFilesRevision.current++;
     commentSavedRevision.current = null;
+    commentClearedAfterSubmit.current = false;
     commentSaving.current = false;
     commentSubmitting.current = false;
     transferringComment.current = false;
@@ -123,7 +125,7 @@ export function useOfflineCommentComposer({
     const sequence = commentSequence.current;
     void offline.repository
       .getCommentDraft(id)
-      .then((draft) => {
+      .then(async (draft) => {
         if (
           !active ||
           generation !== sessionGeneration() ||
@@ -138,6 +140,24 @@ export function useOfflineCommentComposer({
         // Failed cleanup must not turn an already published revision into a new submission.
         if (draft && draft.revision === confirmedDraftToClearRef.current)
           return;
+        // Remove empty rows left by older input-clear events. They contain no
+        // comment or file, and the revision check protects a newer draft.
+        if (
+          draft?.content === '' &&
+          !draft.fileIds?.length &&
+          !draft.attachmentPending
+        ) {
+          try {
+            await offline.abandonCommentDraft(id, draft.revision);
+          } catch (error) {
+            if (
+              !(error instanceof OfflineError) ||
+              error.code !== 'DRAFT_CHANGED'
+            )
+              throw error;
+          }
+          return;
+        }
         setCommentContent(draft?.content ?? '');
         commentContentRef.current = draft?.content ?? '';
         setAttachmentPending(!!draft?.attachmentPending);
@@ -178,6 +198,25 @@ export function useOfflineCommentComposer({
     filesPending = attachmentPendingRef.current
   ) => {
     if (transferringComment.current) return;
+    // Clearing the input after publication can emit an empty native change.
+    // The submitted draft is already gone; do not recreate it as an empty one.
+    if (
+      isPrepared &&
+      commentClearedAfterSubmit.current &&
+      !content &&
+      !filesPending
+    )
+      return;
+    commentClearedAfterSubmit.current = false;
+    // A repeated TextInput event must not create a second draft while the
+    // unchanged comment is being submitted.
+    if (
+      isPrepared &&
+      content === commentContentRef.current &&
+      filesPending === attachmentPendingRef.current &&
+      !commentDraftError
+    )
+      return;
     setCommentContent(content);
     commentContentRef.current = content;
     setAttachmentPending(filesPending);
@@ -515,6 +554,7 @@ export function useOfflineCommentComposer({
       ) {
         if (publicationConfirmed) {
           if (commentSequence.current === sequence) {
+            if (isPrepared) commentClearedAfterSubmit.current = true;
             commentContentRef.current = '';
             setCommentContent('');
             commentSavedRevision.current = null;

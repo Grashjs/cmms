@@ -1,4 +1,20 @@
 ﻿const trJSON = {
+  offline_preference_title: "Çevrimdışı modu kullan",
+  offline_preference_description: "İnternet olmadan kullanmak için iş emirlerini bu cihazda hazırlayın.",
+  offline_preference_pending: "Çevrimdışı modu kapatmadan önce yerel taslakları, etkin zamanlayıcıları ve bekleyen gönderimleri çözün. Bekleyen hazırlık kaldırma işlemlerini sunucu da onaylamalıdır. Hiçbir şey silinmedi.",
+  offline_preference_denied: "Sunucu bu hesap için çevrimdışı erişime izin vermiyor. Yerel çalışmanız korunuyor.",
+  offline_preference_read_error: "Çevrimdışı ayar okunamadı. Yerel çalışmalarınız korunmaya devam ediyor. Yeniden deneyin; internet gerekmez.",
+  offline_preference_activation_failed: "Bu cihazda çevrimdışı mod etkinleştirilemedi. Ayar kapalı kalır; yeniden deneyin.",
+  offline_unlock_title: "Çevrimdışı çalışmayı aç",
+  offline_unlock_explanation: "Bu cihazda kayıtlı çalışmaya erişmek için kimliğinizi doğrulayın.",
+  offline_unlock_system_prompt: "Atlas CMMS çevrimdışı çalışmayı aç",
+  offline_unlock_use_code: "Cihaz kodunu kullan",
+  offline_unlock_setup: "Telefon ayarlarında ekran kilidi ayarlayın, ardından yeniden deneyin. Çalışma kayıtlı ve gizli kalır.",
+  offline_unlock_cancelled: "Kilidi açma iptal edildi. Çevrimdışı çalışmanız kayıtlıdır.",
+  offline_unlock_failed: "Kilit açılamadı. Yeniden deneyin veya cihaz kodunu kullanın.",
+  offline_unlock_check_server: "Sunucuda erişimi kontrol et",
+  offline_unlock_sign_in: "Bu hesapla sunucuda oturum açın, ardından erişimi yeniden kontrol edin. Çalışmanız kayıtlı ve gizli kalır.",
+  offline_unlock_logout: "Çıkış yap",
   save_signature: "İmzayı kaydet",
   offline_signature_unsaved: "Çizim kaydedilmedi. Kapatma isteğini göndermeden önce İmzayı kaydet düğmesine basın.",
   offline_signature_saved: "İmza bu cihaza kaydedildi.",
@@ -1802,6 +1818,8 @@
   edit_reading: 'Okumayı Düzenle',
   are_you_sure_delete_reading: 'Bu okumayı silmek istediğinizden emin misiniz?',
   conflict_retry:
-    'Kaynak başka bir istek tarafından değiştirildi. Lütfen 5 saniye sonra tekrar deneyin.'
+    'Kaynak başka bir istek tarafından değiştirildi. Lütfen 5 saniye sonra tekrar deneyin.',
+  offline_network_lost: "Bağlantı kesildi.",
+  offline_network_restored: "Bağlantı yeniden kuruldu."
 };
 export default trJSON;

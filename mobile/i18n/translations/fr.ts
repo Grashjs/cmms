@@ -1,4 +1,20 @@
 const frJSON = {
+  offline_preference_title: "Utiliser le mode hors ligne",
+  offline_preference_description: "Préparez des interventions sur cet appareil pour travailler sans Internet.",
+  offline_preference_pending: "Résolvez les brouillons, chronomètres actifs et envois en attente avant de désactiver le mode hors ligne. Le serveur doit aussi confirmer tout retrait de préparation en attente. Rien n’a été supprimé.",
+  offline_preference_denied: "Le serveur n’autorise pas le mode hors ligne pour ce compte. Votre travail local est conservé.",
+  offline_preference_read_error: "Impossible de lire le réglage hors ligne. Votre travail local reste protégé. Réessayez ; Internet n’est pas nécessaire.",
+  offline_preference_activation_failed: "Impossible d’activer le mode hors ligne sur cet appareil. Le choix reste désactivé ; réessayez.",
+  offline_unlock_title: "Déverrouiller le travail hors ligne",
+  offline_unlock_explanation: "Vérifiez votre identité pour accéder au travail enregistré sur cet appareil.",
+  offline_unlock_system_prompt: "Déverrouiller le travail hors ligne dans Atlas CMMS",
+  offline_unlock_use_code: "Utiliser le code du téléphone",
+  offline_unlock_setup: "Configurez un verrouillage d’écran dans les réglages du téléphone, puis réessayez. Le travail reste enregistré et masqué.",
+  offline_unlock_cancelled: "Déverrouillage annulé. Votre travail hors ligne reste enregistré.",
+  offline_unlock_failed: "Échec du déverrouillage. Réessayez ou utilisez le code du téléphone.",
+  offline_unlock_check_server: "Vérifier l’accès auprès du serveur",
+  offline_unlock_sign_in: "Reconnectez-vous au serveur avec ce compte, puis vérifiez l’accès. Votre travail reste enregistré et masqué.",
+  offline_unlock_logout: "Se déconnecter",
   save_signature: "Enregistrer la signature",
   offline_signature_unsaved: "Dessin non enregistré. Appuyez sur Enregistrer la signature avant de soumettre la clôture.",
   offline_signature_saved: "Signature enregistrée sur cet appareil.",
@@ -1880,6 +1896,8 @@ const frJSON = {
   operation_success: "L'opération a réussi",
   edit_reading: 'Modifier la lecture',
   are_you_sure_delete_reading: 'Êtes-vous sûr de vouloir supprimer cette lecture ?',
-  conflict_retry: "La ressource a été modifiée par une autre requête. Veuillez réessayer dans 5 secondes."
+  conflict_retry: "La ressource a été modifiée par une autre requête. Veuillez réessayer dans 5 secondes.",
+  offline_network_lost: "Connexion perdue.",
+  offline_network_restored: "Connexion rétablie."
 };
 export default frJSON;

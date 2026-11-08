@@ -244,6 +244,7 @@ export class OfflineFileStore {
   ): Promise<void> {
     return exclusive(async () => {
       this.current();
+      if (!(await this.canRead())) throw new OfflineError('OFFLINE_DISABLED');
       await this.directories();
       if (!/^https?:\/\//i.test(descriptor.url))
         throw new OfflineError('INVALID_RESPONSE');
@@ -279,6 +280,8 @@ export class OfflineFileStore {
       await this.repository.putFile(file);
       try {
         let exceeded = false;
+        if (!(await this.canRead()))
+          throw new OfflineError('OFFLINE_DISABLED');
         const task = FileSystem.createDownloadResumable(
           descriptor.url,
           file.temporaryUri!,

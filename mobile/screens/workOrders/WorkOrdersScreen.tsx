@@ -162,7 +162,7 @@ export default function WorkOrdersScreen({
       })
     ).catch(offline.reportError);
     fromHomeInit.current = true;
-  }, [criteria, onlyOffline, offline.initialized]);
+  }, [criteria, onlyOffline, offline.initialized, offline.enabled]);
 
   useEffect(() => {
     const filterFields = route.params?.filterFields ?? [];

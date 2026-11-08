@@ -187,8 +187,8 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
   if (localOnly)
     return (
       <View style={{ padding: 20 }}>
+        <Text variant={'bodySmall'} style={{ textAlign: 'center'}}>{t('offline_connected_required')}</Text>
         <OfflineStatus />
-        <Text>{t('offline_connected_required')}</Text>
         <Button
           onPress={() =>
             navigation.navigate('WorkOrders', { filterFields: [] })

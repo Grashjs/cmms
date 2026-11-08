@@ -101,6 +101,16 @@ export class SyncCoordinator {
     );
     return operation;
   }
+  /** Check server permission while the local gate is locked, without syncing work. */
+  checkEligibilityOnly(): Promise<OfflineEligibility> {
+    return this.enqueue(async () => {
+      if (!this.current()) throw new OfflineError('CONTEXT_CHANGED');
+      if (!this.policy.enabled()) throw new OfflineError('OFFLINE_DISABLED');
+      const eligibility = await this.api.eligibility();
+      if (!this.current()) throw new OfflineError('CONTEXT_CHANGED');
+      return eligibility;
+    });
+  }
   private async authorize(): Promise<boolean> {
     if (!this.connected() || !this.policy.enabled()) return false;
     const eligibility = await this.api.eligibility();
@@ -141,6 +151,7 @@ export class SyncCoordinator {
       const preparationToken = await this.repository.beginPreparation(
         workOrderId
       );
+      this.assertConnected();
       const snapshot = await this.api.prepare(workOrderId);
       if (this.current())
         await this.repository.prepareSnapshot(
@@ -374,6 +385,9 @@ export class SyncCoordinator {
         throw error;
       }
       try {
+        // The foreground gate can close while beginAttempt persists its UUID.
+        // Do not start a new network mutation after that transition.
+        this.assertConnected();
         const result =
           attempt.request.type === 'UPLOAD_FILE'
             ? await this.api.uploadFile(attempt.request, localFile!)
@@ -481,6 +495,7 @@ export class SyncCoordinator {
       ) {
         throw new OfflineError('TARGET_UNAVAILABLE');
       }
+      this.assertConnected();
       const canonical = await this.api.patchTask(taskId, {
         ...patch,
         version: view.serverTask.version

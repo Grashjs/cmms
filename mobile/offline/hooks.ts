@@ -6,7 +6,6 @@ import type {
   PendingWork,
   TaskField
 } from './types';
-import { NO_TIME_PERMISSIONS } from './types';
 import type WorkOrder from '../models/workOrder';
 
 /** Related connected lists retain IDs; prepared entities are projected from SQLite. */
@@ -40,25 +39,7 @@ export function useOfflineWorkOrder(id: number) {
     });
     return () => subscription.unsubscribe();
   }, [offline.repository, id]);
-  if (!offline.readable && value) {
-    return {
-      ...value,
-      available: false,
-      workOrder: null,
-      tasks: [],
-      comments: [],
-      labors: [],
-      timePermissions: NO_TIME_PERMISSIONS,
-      timerStatusRevision: 0,
-      commentDraft: null,
-      commentOperations: [],
-      canEdit: false,
-      canComment: false,
-      history: [],
-      unavailableReason: 'OFFLINE_DISABLED'
-    };
-  }
-  return value;
+  return offline.readable ? value : null;
 }
 
 export function useOfflineTask(id: number, field: TaskField = 'value') {
@@ -82,15 +63,19 @@ export function usePendingWork(workOrderId?: number): PendingWork[] {
   useEffect(() => {
     setValue([]);
     if (!offline.repository) return;
-    const subscription = offline.repository
-      .observePendingWork(workOrderId)
-      .subscribe({
-        next: setValue,
-        error: () => setValue([])
-      });
-    return () => subscription.unsubscribe();
+    try {
+      const subscription = offline.repository
+        .observePendingWork(workOrderId)
+        .subscribe({
+          next: setValue,
+          error: () => setValue([])
+        });
+      return () => subscription.unsubscribe();
+    } catch (failure) {
+      // The preference can close the repository between render and this effect.
+      if ((failure as { code?: string })?.code !== 'OFFLINE_DISABLED')
+        throw failure;
+    }
   }, [offline.repository, workOrderId]);
-  return offline.readable
-    ? value
-    : value.map(({ label, value: text, ...item }) => item);
+  return offline.readable ? value : [];
 }

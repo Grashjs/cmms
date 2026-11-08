@@ -153,8 +153,7 @@ export default function WODetailsScreen({
   const offline = useOffline();
   const prepared = useOfflineWorkOrder(id);
   const pendingWork = usePendingWork(id);
-  const hasStoredPreparation = offline.prepared.some((item) => item.id === id);
-  const isPrepared = offline.enabled && hasStoredPreparation;
+  const isPrepared = offline.prepared.some((item) => item.id === id);
   const connectedAvailable =
     (!offline.enabled || offline.networkAvailable) &&
     (!isPrepared || !!prepared?.available);
@@ -959,12 +958,7 @@ export default function WODetailsScreen({
     return (
       <View style={{ padding: 20 }}>
         <OfflineStatus />
-        <Text>
-          {t(
-            hasStoredPreparation ? 'offline_disabled' : 'offline_not_prepared'
-          )}
-        </Text>
-        {hasStoredPreparation && <OfflineWorkPanel workOrderId={id} />}
+        <Text>{t('offline_not_prepared')}</Text>
       </View>
     );
   if (workOrder)
@@ -1756,7 +1750,7 @@ export default function WODetailsScreen({
                   </View>
                 )}
               </View>
-              {hasStoredPreparation && <OfflineWorkPanel workOrderId={id} />}
+              {isPrepared && <OfflineWorkPanel workOrderId={id} />}
             </ScrollView>
           </KeyboardAvoidingView>
           {(connectedAvailable || (isPrepared && offline.writable)) &&
@@ -1821,7 +1815,7 @@ export default function WODetailsScreen({
         </Provider>
       </View>
     );
-  else if (hasStoredPreparation)
+  else if (isPrepared)
     return (
       <ScrollView style={{ padding: 20 }}>
         <OfflineStatus />

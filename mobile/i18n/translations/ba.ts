@@ -1,4 +1,20 @@
 const locale = {
+  offline_preference_title: "Koristi rad van mreže",
+  offline_preference_description: "Pripremite intervencije na ovom uređaju za rad bez interneta.",
+  offline_preference_pending: "Riješite lokalne nacrte, aktivne mjerače vremena i slanja na čekanju prije isključivanja. Server mora potvrditi i svako oslobađanje pripreme na čekanju. Ništa nije obrisano.",
+  offline_preference_denied: "Server nije odobrio rad van mreže za ovaj račun. Lokalni rad je sačuvan.",
+  offline_preference_read_error: "Nije moguće pročitati postavku rada van mreže. Lokalni rad ostaje zaštićen. Pokušajte ponovo; internet nije potreban.",
+  offline_preference_activation_failed: "Nije moguće uključiti rad van mreže na ovom uređaju. Izbor ostaje isključen; pokušajte ponovo.",
+  offline_unlock_title: "Otključaj rad van mreže",
+  offline_unlock_explanation: "Potvrdite identitet za pristup radu sačuvanom na ovom uređaju.",
+  offline_unlock_system_prompt: "Otključaj rad van mreže u Atlas CMMS-u",
+  offline_unlock_use_code: "Koristi šifru uređaja",
+  offline_unlock_setup: "Postavite zaključavanje ekrana u postavkama telefona pa pokušajte ponovo. Rad ostaje sačuvan i skriven.",
+  offline_unlock_cancelled: "Otključavanje je otkazano. Rad van mreže je sačuvan.",
+  offline_unlock_failed: "Otključavanje nije uspjelo. Pokušajte ponovo ili koristite šifru uređaja.",
+  offline_unlock_check_server: "Provjeri pristup na serveru",
+  offline_unlock_sign_in: "Prijavite se na server istim računom, pa ponovo provjerite pristup. Vaš rad ostaje sačuvan i skriven.",
+  offline_unlock_logout: "Odjavi se",
   save_signature: "Sačuvaj potpis",
   offline_signature_unsaved: "Crtež nije sačuvan. Pritisnite Sačuvaj potpis prije slanja zahtjeva za zatvaranje.",
   offline_signature_saved: "Potpis je sačuvan na ovom uređaju.",
@@ -1724,6 +1740,8 @@ const locale = {
   operation_success: 'Operacija je uspjela',
   edit_reading: 'Uredi očitanje',
   are_you_sure_delete_reading: 'Jeste li sigurni da želite obrisati ovo očitanje?',
-  conflict_retry: 'Resurs je izmijenjen drugim zahtjevom. Molimo pokušajte ponovo za 5 sekundi.'
+  conflict_retry: 'Resurs je izmijenjen drugim zahtjevom. Molimo pokušajte ponovo za 5 sekundi.',
+  offline_network_lost: "Veza je prekinuta.",
+  offline_network_restored: "Veza je ponovo uspostavljena."
 };
 export default locale;

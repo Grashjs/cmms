@@ -1,4 +1,20 @@
 const ptBRJSON = {
+  offline_preference_title: "Usar modo offline",
+  offline_preference_description: "Prepare ordens de serviço neste dispositivo para usar sem Internet.",
+  offline_preference_pending: "Resolva rascunhos locais, cronômetros ativos e envios pendentes antes de desligar o modo offline. O servidor também precisa confirmar qualquer liberação de preparação pendente. Nada foi excluído.",
+  offline_preference_denied: "O servidor não habilitou o acesso offline para esta conta. Seu trabalho local foi preservado.",
+  offline_preference_read_error: "Não foi possível ler a configuração do modo offline. Seu trabalho local continua protegido. Tente novamente; não é necessário ter Internet.",
+  offline_preference_activation_failed: "Não foi possível ativar o modo offline neste dispositivo. A opção continua desligada; tente novamente.",
+  offline_unlock_title: "Desbloquear trabalho offline",
+  offline_unlock_explanation: "Confirme sua identidade para acessar o trabalho salvo neste dispositivo.",
+  offline_unlock_system_prompt: "Desbloquear trabalho offline no Atlas CMMS",
+  offline_unlock_use_code: "Usar código do dispositivo",
+  offline_unlock_setup: "Configure um bloqueio de tela nas configurações do telefone e tente novamente. O trabalho permanece salvo e oculto.",
+  offline_unlock_cancelled: "Desbloqueio cancelado. Seu trabalho offline permanece salvo.",
+  offline_unlock_failed: "Falha ao desbloquear. Tente novamente ou use o código do dispositivo.",
+  offline_unlock_check_server: "Verificar acesso com o servidor",
+  offline_unlock_sign_in: "Entre no servidor com esta conta e verifique o acesso novamente. Seu trabalho permanece salvo e oculto.",
+  offline_unlock_logout: "Sair",
   save_signature: "Salvar assinatura",
   offline_signature_unsaved: "Desenho não salvo. Toque em Salvar assinatura antes de solicitar a conclusão.",
   offline_signature_saved: "Assinatura salva neste dispositivo.",
@@ -1773,6 +1789,8 @@ const ptBRJSON = {
   operation_success: 'A operação foi bem-sucedida',
   edit_reading: 'Editar leitura',
   are_you_sure_delete_reading: 'Tem certeza de que deseja excluir esta leitura?',
-  conflict_retry: 'O recurso foi modificado por outra solicitação. Por favor, tente novamente em 5 segundos.'
+  conflict_retry: 'O recurso foi modificado por outra solicitação. Por favor, tente novamente em 5 segundos.',
+  offline_network_lost: "Conexão perdida.",
+  offline_network_restored: "Conexão restabelecida."
 };
 export default ptBRJSON;

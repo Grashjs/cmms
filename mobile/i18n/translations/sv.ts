@@ -1,4 +1,20 @@
 const locale = {
+  offline_preference_title: "Använd offlineläge",
+  offline_preference_description: "Förbered arbetsordrar på den här enheten för användning utan internet.",
+  offline_preference_pending: "Hantera lokala utkast, aktiva tidtagare och väntande sändningar innan du stänger av offlineläget. Servern måste också bekräfta varje väntande frigivning av en förberedelse. Inget har raderats.",
+  offline_preference_denied: "Servern har inte aktiverat offlineåtkomst för det här kontot. Lokalt arbete bevaras.",
+  offline_preference_read_error: "Det gick inte att läsa offlineinställningen. Ditt lokala arbete är fortfarande skyddat. Försök igen; internet behövs inte.",
+  offline_preference_activation_failed: "Det gick inte att aktivera offlineläget på den här enheten. Inställningen förblir avstängd; försök igen.",
+  offline_unlock_title: "Lås upp offlinearbete",
+  offline_unlock_explanation: "Verifiera din identitet för att öppna arbete som sparats på enheten.",
+  offline_unlock_system_prompt: "Lås upp offlinearbete i Atlas CMMS",
+  offline_unlock_use_code: "Använd enhetskod",
+  offline_unlock_setup: "Aktivera skärmlås i telefonens inställningar och försök igen. Arbetet är fortfarande sparat och dolt.",
+  offline_unlock_cancelled: "Upplåsningen avbröts. Ditt offlinearbete är sparat.",
+  offline_unlock_failed: "Upplåsningen misslyckades. Försök igen eller använd enhetskoden.",
+  offline_unlock_check_server: "Kontrollera åtkomst mot servern",
+  offline_unlock_sign_in: "Logga in på servern med det här kontot och kontrollera åtkomsten igen. Ditt arbete förblir sparat och dolt.",
+  offline_unlock_logout: "Logga ut",
   save_signature: "Spara signatur",
   offline_signature_unsaved: "Teckningen är inte sparad. Tryck på Spara signatur innan du begär avslut.",
   offline_signature_saved: "Signaturen har sparats på denna enhet.",
@@ -1722,6 +1738,8 @@ const locale = {
   operation_success: 'Åtgärden lyckades',
   edit_reading: 'Redigera mätning',
   are_you_sure_delete_reading: 'Är du säker på att du vill ta bort denna mätning?',
-  conflict_retry: 'Resursen ändrades av en annan begäran. Försök igen om 5 sekunder.'
+  conflict_retry: 'Resursen ändrades av en annan begäran. Försök igen om 5 sekunder.',
+  offline_network_lost: "Anslutningen bröts.",
+  offline_network_restored: "Anslutningen är återställd."
 };
 export default locale;

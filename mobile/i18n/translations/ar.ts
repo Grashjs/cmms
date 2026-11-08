@@ -1,4 +1,20 @@
 const locale = {
+  offline_preference_title: "استخدام وضع عدم الاتصال",
+  offline_preference_description: "حضّر أوامر العمل على هذا الجهاز لاستخدامها دون إنترنت.",
+  offline_preference_pending: "عالج المسودات المحلية والمؤقتات النشطة والإرسالات المعلقة قبل إيقاف وضع عدم الاتصال. يجب أن يؤكد الخادم أيضًا أي طلب معلّق لتحرير تحضير تدخل. لم يُحذف أي شيء.",
+  offline_preference_denied: "لم يسمح الخادم لهذا الحساب باستخدام وضع عدم الاتصال. عملك المحلي محفوظ.",
+  offline_preference_read_error: "تعذّرت قراءة إعداد وضع عدم الاتصال. يظل عملك المحلي محميًا. حاول مرة أخرى؛ لا يلزم الاتصال بالإنترنت.",
+  offline_preference_activation_failed: "تعذّر تفعيل وضع عدم الاتصال على هذا الجهاز. يظل الخيار مغلقًا؛ حاول مرة أخرى.",
+  offline_unlock_title: "فتح العمل دون اتصال",
+  offline_unlock_explanation: "تحقق من هويتك للوصول إلى العمل المحفوظ على هذا الجهاز.",
+  offline_unlock_system_prompt: "افتح العمل دون اتصال في Atlas CMMS",
+  offline_unlock_use_code: "استخدام رمز الجهاز",
+  offline_unlock_setup: "اضبط قفل الشاشة في إعدادات الهاتف ثم أعد المحاولة. يبقى العمل محفوظًا ومخفيًا.",
+  offline_unlock_cancelled: "أُلغي فتح القفل. يبقى عملك دون اتصال محفوظًا.",
+  offline_unlock_failed: "فشل فتح القفل. أعد المحاولة أو استخدم رمز الجهاز.",
+  offline_unlock_check_server: "تحقق من الوصول عبر الخادم",
+  offline_unlock_sign_in: "سجّل الدخول إلى الخادم بهذا الحساب، ثم تحقق من الوصول مرة أخرى. سيبقى عملك محفوظًا ومخفيًا.",
+  offline_unlock_logout: "تسجيل الخروج",
   save_signature: "حفظ التوقيع",
   offline_signature_unsaved: "لم يُحفظ الرسم. اضغط على حفظ التوقيع قبل إرسال طلب الإغلاق.",
   offline_signature_saved: "تم حفظ التوقيع على هذا الجهاز.",
@@ -1646,6 +1662,8 @@ const locale = {
   operation_success: 'تمت العملية بنجاح',
   edit_reading: 'تحرير القراءة',
   are_you_sure_delete_reading: 'هل أنت متأكد من حذف هذه القراءة؟',
-  conflict_retry: 'تم تعديل المورد بواسطة طلب آخر. يرجى المحاولة مرة أخرى بعد 5 ثوانٍ.'
+  conflict_retry: 'تم تعديل المورد بواسطة طلب آخر. يرجى المحاولة مرة أخرى بعد 5 ثوانٍ.',
+  offline_network_lost: "انقطع الاتصال.",
+  offline_network_restored: "عاد الاتصال."
 };
 export default locale;

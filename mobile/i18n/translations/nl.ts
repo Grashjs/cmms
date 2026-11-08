@@ -1,4 +1,20 @@
 const locale = {
+  offline_preference_title: "Offlinemodus gebruiken",
+  offline_preference_description: "Bereid werkorders op dit apparaat voor gebruik zonder internet voor.",
+  offline_preference_pending: "Los lokale concepten, actieve timers en wachtende verzendingen op voordat u de offlinemodus uitschakelt. De server moet ook elke wachtende vrijgave van een voorbereiding bevestigen. Er is niets verwijderd.",
+  offline_preference_denied: "De server heeft offline toegang voor dit account niet toegestaan. Uw lokale werk blijft behouden.",
+  offline_preference_read_error: "De offline-instelling kon niet worden gelezen. Uw lokale werk blijft beschermd. Probeer het opnieuw; internet is niet nodig.",
+  offline_preference_activation_failed: "De offlinemodus kon niet worden ingeschakeld op dit apparaat. De instelling blijft uit; probeer het opnieuw.",
+  offline_unlock_title: "Offline werk ontgrendelen",
+  offline_unlock_explanation: "Bevestig uw identiteit om werk op dit apparaat te openen.",
+  offline_unlock_system_prompt: "Offline werk in Atlas CMMS ontgrendelen",
+  offline_unlock_use_code: "Apparaatcode gebruiken",
+  offline_unlock_setup: "Stel schermvergrendeling in via de telefooninstellingen en probeer opnieuw. Het werk blijft opgeslagen en verborgen.",
+  offline_unlock_cancelled: "Ontgrendelen geannuleerd. Uw offline werk blijft opgeslagen.",
+  offline_unlock_failed: "Ontgrendelen mislukt. Probeer opnieuw of gebruik uw apparaatcode.",
+  offline_unlock_check_server: "Toegang bij server controleren",
+  offline_unlock_sign_in: "Meld u met dit account aan bij de server en controleer de toegang opnieuw. Uw werk blijft opgeslagen en verborgen.",
+  offline_unlock_logout: "Afmelden",
   save_signature: "Handtekening opslaan",
   offline_signature_unsaved: "Tekening niet opgeslagen. Tik op Handtekening opslaan voordat u afsluiting aanvraagt.",
   offline_signature_saved: "Handtekening opgeslagen op dit apparaat.",
@@ -1730,6 +1746,8 @@ const locale = {
   operation_success: 'De bewerking is gelukt',
   edit_reading: 'Meetwaarde bewerken',
   are_you_sure_delete_reading: 'Weet u zeker dat u deze meetwaarde wilt verwijderen?',
-  conflict_retry: 'De bron is gewijzigd door een ander verzoek. Probeer het over 5 seconden opnieuw.'
+  conflict_retry: 'De bron is gewijzigd door een ander verzoek. Probeer het over 5 seconden opnieuw.',
+  offline_network_lost: "Verbinding verbroken.",
+  offline_network_restored: "Verbinding hersteld."
 };
 export default locale;

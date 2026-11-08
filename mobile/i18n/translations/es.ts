@@ -1,4 +1,20 @@
 const locale = {
+  offline_preference_title: "Usar modo sin conexión",
+  offline_preference_description: "Prepara intervenciones en este dispositivo para usarlas sin Internet.",
+  offline_preference_pending: "Resuelve los borradores locales, temporizadores activos y envíos pendientes antes de desactivar el modo sin conexión. El servidor también debe confirmar cualquier liberación de preparación pendiente. No se ha eliminado nada.",
+  offline_preference_denied: "El servidor no ha autorizado el acceso sin conexión para esta cuenta. Tu trabajo local se conserva.",
+  offline_preference_read_error: "No se pudo leer el ajuste del modo sin conexión. Tu trabajo local sigue protegido. Vuelve a intentarlo; no necesitas Internet.",
+  offline_preference_activation_failed: "No se pudo activar el modo sin conexión en este dispositivo. El ajuste sigue desactivado; vuelve a intentarlo.",
+  offline_unlock_title: "Desbloquear trabajo sin conexión",
+  offline_unlock_explanation: "Verifica tu identidad para acceder al trabajo guardado en este dispositivo.",
+  offline_unlock_system_prompt: "Desbloquear trabajo sin conexión en Atlas CMMS",
+  offline_unlock_use_code: "Usar código del dispositivo",
+  offline_unlock_setup: "Configura un bloqueo de pantalla en los ajustes del teléfono y vuelve a intentarlo. El trabajo permanece guardado y oculto.",
+  offline_unlock_cancelled: "Desbloqueo cancelado. Tu trabajo sin conexión sigue guardado.",
+  offline_unlock_failed: "No se pudo desbloquear. Vuelve a intentarlo o usa el código del dispositivo.",
+  offline_unlock_check_server: "Comprobar acceso con el servidor",
+  offline_unlock_sign_in: "Inicia sesión en el servidor con esta cuenta y vuelve a comprobar el acceso. Tu trabajo permanece guardado y oculto.",
+  offline_unlock_logout: "Cerrar sesión",
   save_signature: "Guardar firma",
   offline_signature_unsaved: "Dibujo sin guardar. Pulse Guardar firma antes de solicitar el cierre.",
   offline_signature_saved: "Firma guardada en este dispositivo.",
@@ -1759,6 +1775,8 @@ const locale = {
   operation_success: 'La operación fue exitosa',
   edit_reading: 'Editar lectura',
   are_you_sure_delete_reading: '¿Está seguro de que desea eliminar esta lectura?',
-  conflict_retry: 'El recurso fue modificado por otra solicitud. Por favor, inténtelo de nuevo en 5 segundos.'
+  conflict_retry: 'El recurso fue modificado por otra solicitud. Por favor, inténtelo de nuevo en 5 segundos.',
+  offline_network_lost: "Se perdió la conexión.",
+  offline_network_restored: "Conexión restablecida."
 };
 export default locale;

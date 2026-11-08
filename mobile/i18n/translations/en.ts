@@ -1,4 +1,20 @@
 const locale = {
+  offline_preference_title: "Use offline mode",
+  offline_preference_description: "Prepare work orders on this device for use without Internet.",
+  offline_preference_pending: "Resolve local drafts, active timers and pending sends before turning offline mode off. The server must also confirm any pending preparation release. Nothing was deleted.",
+  offline_preference_denied: "The server has not enabled offline access for this account. Your local work is preserved.",
+  offline_preference_read_error: "The offline setting could not be read. Your local work remains protected. Try again; Internet is not required.",
+  offline_preference_activation_failed: "Offline mode could not be enabled on this device. The setting remains off; try again.",
+  offline_unlock_title: "Unlock offline work",
+  offline_unlock_explanation: "Verify your identity to access work saved on this device.",
+  offline_unlock_system_prompt: "Unlock offline work in Atlas CMMS",
+  offline_unlock_use_code: "Use device code",
+  offline_unlock_setup: "Set a screen lock in your phone settings, then retry. Offline work remains saved and hidden.",
+  offline_unlock_cancelled: "Unlock cancelled. Your offline work remains saved.",
+  offline_unlock_failed: "Unlock failed. Retry or use your device code.",
+  offline_unlock_check_server: "Check access with server",
+  offline_unlock_sign_in: "Sign in to the server with this account, then check access again. Your work remains saved and hidden.",
+  offline_unlock_logout: "Sign out",
   save_signature: "Save Signature",
   offline_signature_unsaved: "Drawing not saved. Press Save Signature before submitting closure.",
   offline_signature_saved: "Signature saved on this device.",
@@ -1719,6 +1735,8 @@ const locale = {
     'Discard unsaved changes?\nIf you leave now, you will lose unsaved changes',
   edit_reading: 'Edit reading',
   are_you_sure_delete_reading: 'Are you sure to delete this reading?',
-  conflict_retry: 'The resource was modified by another request. Please retry in 5 seconds.'
+  conflict_retry: 'The resource was modified by another request. Please retry in 5 seconds.',
+  offline_network_lost: "Connection lost.",
+  offline_network_restored: "Connection restored."
 };
 export default locale;

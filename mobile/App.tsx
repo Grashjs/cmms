@@ -10,6 +10,7 @@ import { CompanySettingsProvider } from './contexts/CompanySettingsContext';
 import { CustomSnackbarProvider } from './contexts/CustomSnackBarContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { OfflineProvider } from './offline/OfflineProvider';
+import { OfflineNetworkNotice } from './offline/OfflineNetworkNotice';
 import FlashMessage from 'react-native-flash-message';
 import { URL } from 'react-native-url-polyfill';
 import 'text-encoding';
@@ -149,6 +150,7 @@ export default Sentry.wrap(function App() {
               <CompanySettingsProvider>
                 <PaperProvider theme={customTheme}>
                   <CustomSnackbarProvider>
+                    <OfflineNetworkNotice />
                     <SheetProvider>
                       <RootLayout>
                         <FlashMessage
