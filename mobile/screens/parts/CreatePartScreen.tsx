@@ -66,7 +66,9 @@ export default function CreatePartScreen({
         validation={Yup.object().shape(getFieldsAndShapes()[1])}
         navigation={navigation}
         submitText={t('create_part')}
-        values={{}}
+        values={
+          route.params?.initialName ? { name: route.params.initialName } : {}
+        }
         onChange={() => setIsFormDirty(true)}
         onSubmit={async (values) => {
           setIsFormDirty(false);

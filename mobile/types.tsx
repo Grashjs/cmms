@@ -64,6 +64,7 @@ export type RootStackParamList = {
     | {
         openedFromSelector?: boolean;
         onSuccess?: (part: PartMiniDTO) => void;
+        initialName?: string;
       }
     | undefined;
   AddMeter: undefined;

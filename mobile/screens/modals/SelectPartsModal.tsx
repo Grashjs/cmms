@@ -18,6 +18,7 @@ import {
   Avatar,
   Button,
   Checkbox,
+  IconButton,
   Searchbar,
   Text,
   useTheme
@@ -142,12 +143,16 @@ const PartsRoute = React.memo(
     toggle,
     partsMini,
     navigation,
-    selectedIds
+    selectedIds,
+    loading,
+    onCreatePart
   }: {
     toggle: (id: number) => void;
     partsMini: PartMiniDTO[];
     selectedIds: number[];
     navigation: any;
+    loading: boolean;
+    onCreatePart: (initialName?: string) => void;
   }) => {
     const { getFormattedCurrency } = useContext(CompanySettingsContext);
     const { t } = useTranslation();
@@ -187,6 +192,28 @@ const PartsRoute = React.memo(
       []
     );
 
+    const trimmedQuery = searchQuery.trim();
+
+    const renderEmpty = useCallback(
+      () =>
+        !!trimmedQuery && !loading ? (
+          <View style={styles.emptyContainer}>
+            <Text variant="bodyMedium" style={{ color: 'grey' }}>
+              {t('no_results')}
+            </Text>
+            <Button
+              icon="plus"
+              mode="outlined"
+              style={{ marginTop: 12 }}
+              onPress={() => onCreatePart(trimmedQuery)}
+            >
+              {`${t('create')} "${trimmedQuery}"`}
+            </Button>
+          </View>
+        ) : null,
+      [trimmedQuery, loading, onCreatePart, t]
+    );
+
     return (
       <View style={{ flex: 1 }}>
         <Searchbar
@@ -199,6 +226,8 @@ const PartsRoute = React.memo(
           data={filteredParts}
           keyExtractor={keyExtractor}
           renderItem={renderItem}
+          ListEmptyComponent={renderEmpty}
+          keyboardShouldPersistTaps="handled"
           initialNumToRender={20}
           maxToRenderPerBatch={20}
           windowSize={10}
@@ -329,21 +358,36 @@ export default function SelectParts({
     if (!selectedIds.length) setSelectedIds(selected);
   }, [selected]);
 
+  const openCreatePart = useCallback(
+    (initialName?: string) => {
+      navigation.navigate('AddPart', {
+        openedFromSelector: true,
+        initialName,
+        onSuccess: (newPart) => {
+          setSelectedIds((prev) => [...prev, newPart.id]);
+        }
+      });
+    },
+    [navigation]
+  );
+
+  const confirmSelection = useCallback(() => {
+    onChange(selectedParts);
+    navigation.goBack();
+  }, [onChange, selectedParts, navigation]);
+
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <Pressable
-          disabled={!selectedParts.length}
-          onPress={() => {
-            onChange(selectedParts);
-            navigation.goBack();
-          }}
-        >
-          <Text variant="titleMedium">{t('add')}</Text>
-        </Pressable>
+        <IconButton
+          icon="plus"
+          iconColor={theme.colors.primary}
+          accessibilityLabel={t('create_part')}
+          onPress={() => openCreatePart()}
+        />
       )
     });
-  }, [selectedParts]);
+  }, [navigation, openCreatePart, theme.colors.primary, t]);
 
   useEffect(() => {
     dispatch(getPartsMini());
@@ -390,6 +434,8 @@ export default function SelectParts({
               navigation={navigation}
               partsMini={partsMini}
               selectedIds={selectedIds}
+              loading={loadingGet}
+              onCreatePart={openCreatePart}
             />
           );
         case 'sets':
@@ -402,7 +448,16 @@ export default function SelectParts({
           );
       }
     },
-    [toggle, toggleMultipart, navigation, partsMini, multiParts, selectedIds]
+    [
+      toggle,
+      toggleMultipart,
+      navigation,
+      partsMini,
+      multiParts,
+      selectedIds,
+      loadingGet,
+      openCreatePart
+    ]
   );
 
   const renderTabBar = useCallback(
@@ -437,19 +492,13 @@ export default function SelectParts({
         lazy
       />
       <Button
-        icon={'plus-circle'}
+        icon="check"
         style={{ margin: 20 }}
-        mode={'contained'}
-        onPress={() => {
-          navigation.navigate('AddPart', {
-            openedFromSelector: true,
-            onSuccess: (newPart) => {
-              setSelectedIds((prev) => [...prev, newPart.id]);
-            }
-          });
-        }}
+        mode="contained"
+        disabled={!selectedParts.length}
+        onPress={confirmSelection}
       >
-        {t('create_part')}
+        {`${t('add')} (${selectedParts.length})`}
       </Button>
     </View>
   );
@@ -477,5 +526,10 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontWeight: 'bold',
     flexShrink: 1
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    paddingVertical: 32,
+    paddingHorizontal: 20
   }
 });
