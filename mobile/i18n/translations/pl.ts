@@ -1,4 +1,20 @@
 const plJSON = {
+  management_access_denied: "Odmowa wykonania operacji: sprawdź swoje uprawnienia, rolę docelową i właściciela konta.",
+  no_assignable_roles: "Nie ma roli, którą możesz przypisać z obecnymi uprawnieniami.",
+  invitation_created: 'Utworzono zaproszenie',
+  invitation_delivery_notice:
+    'Udostępnij ten osobisty link zaproszonej osobie. Link wygasa, można go użyć tylko raz, a nowe zaproszenie unieważnia poprzedni link. Linki są usuwane po opuszczeniu tego ekranu.',
+  invitation_expires: 'Wygasa: {{date}}',
+  invitation_copy: 'Kopiuj link',
+  invitation_share: 'Udostępnij link',
+  invitation_copied: 'Link skopiowany',
+  invitation_copy_failed: 'Nie udało się skopiować linku. Spróbuj ponownie.',
+  invitation_share_failed: 'Nie udało się udostępnić linku. Spróbuj ponownie.',
+  invitation_browser_acceptance:
+    'Zaproszona osoba kończy rejestrację w przeglądarce internetowej, a następnie loguje się w aplikacji mobilnej.',
+  invitation_send_email: 'Poproś również o wysłanie zaproszenia e-mailem',
+  invitation_email_optional:
+    'Prośba o wysłanie e-maila jest składana tylko wtedy, gdy wysyłka jest włączona na serwerze. Utworzenie zaproszenia nie potwierdza dostarczenia e-maila. Link można zawsze skopiować lub udostępnić.',
   DUPLICATE_OF: 'Duplikat',
   DUPLICATED_BY: 'Duplikowane przez',
   RELATED_TO: 'Powiązane z',

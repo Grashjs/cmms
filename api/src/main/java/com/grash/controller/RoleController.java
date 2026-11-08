@@ -32,6 +32,14 @@ public class RoleController {
         return roleService.getAll(user);
     }
 
+    @GetMapping("/assignable")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public Collection<Role> assignable(@Parameter(hidden = true) @CurrentUser User user,
+                                      @RequestParam(defaultValue = "invite") String operation,
+                                      @RequestParam(required = false) Long userId) {
+        return roleService.assignable(user, operation, userId);
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
     public Role getById(@PathVariable("id") Long id, @Parameter(hidden = true) @CurrentUser User user) {

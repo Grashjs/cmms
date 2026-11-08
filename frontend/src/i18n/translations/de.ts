@@ -1,4 +1,6 @@
 const deJSON = {
+  management_access_denied: "Aktion abgelehnt: Prüfen Sie Ihre Berechtigungen, die Zielrolle und den Kontoinhaber.",
+  no_assignable_roles: "Mit Ihren aktuellen Berechtigungen können Sie keine Rolle zuweisen.",
   DUPLICATE_OF: 'Duplikat von',
   DUPLICATED_BY: 'Dupliziert von',
   RELATED_TO: 'Verwandt mit',
@@ -793,6 +795,14 @@ const deJSON = {
     'Sie können 20 Benutzer gleichzeitig hinzufügen, indem Sie "Tab" oder "Enter" nach jeder E-Mail-Eingabe drücken. Alle doppelten und registrierten E-Mails werden beim Registrieren der angeforderten Benutzer entfernt.',
   enter_email: 'E-Mail-Adresse eingeben',
   users_invite_success: 'Benutzer wurden eingeladen',
+  invitation_send_email: 'Einladungen per E-Mail senden',
+  invitation_links_notice:
+    'Kopieren Sie diese Links jetzt und senden Sie jeden Link nur an die vorgesehene Person. Die Links laufen ab und können nur einmal verwendet werden. Wenn Sie eine Einladung erneuern, wird der vorherige Link ungültig.',
+  invitation_link: 'Einladungslink',
+  invitation_expires: 'Gültig bis: {{date}}',
+  invitation_unavailable:
+    'Diese Einladung ist ungültig, abgelaufen oder wurde bereits verwendet. Bitten Sie einen berechtigten Administrator um einen neuen Einladungslink. Alte Links, die nur E-Mail-Adresse und Rolle enthalten, müssen erneuert werden.',
+  invitation_join_details: '{{company}} als {{role}} beitreten',
   users_invite_failure:
     'Benutzer können nicht eingeladen werden. Überprüfen Sie die aktuelle Anzahl der Abonnementmitglieder',
   please_type_emails: 'Bitte geben Sie E-Mails ein, um einzuladen',

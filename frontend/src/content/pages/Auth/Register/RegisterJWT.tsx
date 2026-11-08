@@ -1,17 +1,11 @@
 import * as Yup from 'yup';
 import { Formik } from 'formik';
 import {
-  Autocomplete,
-  Box,
   Button,
-  Checkbox,
   CircularProgress,
-  FormControlLabel,
-  FormHelperText,
   Grid,
   IconButton,
   InputAdornment,
-  Stack,
   TextField,
   Typography
 } from '@mui/material';
@@ -23,43 +17,33 @@ import { phoneRegExp } from '../../../../utils/validators';
 import { useContext, useState } from 'react';
 import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
 import { useNavigate } from 'react-router-dom';
-import i18n from 'i18next';
-import countries from '../../../../i18n/countries';
 import { verify } from '../../../../utils/jwt';
-import { useUtmTracker } from '@nik0di3m/utm-tracker-hook';
-import { inviteUsers } from '../../../../slices/user';
-import { useDispatch } from '../../../../store';
-import { homeUrl } from '../../../../config';
 import { isNetworkError } from '../../../../utils/api';
 import { getLocalizedHomeUrl } from '../../../../utils/urlPaths';
+import { InvitationPreview } from '../../../../models/owns/user';
 
 function RegisterJWT({
-  email,
-  role,
-  invitationMode,
-  onInvitationSuccess,
+  invitation,
+  invitationToken,
   subscriptionPlanId
 }: {
-  email?: string | undefined;
-  role?: number | undefined;
-  invitationMode?: boolean;
-  onInvitationSuccess?: () => void;
+  invitation?: InvitationPreview;
+  invitationToken?: string;
   subscriptionPlanId?: string;
 }) {
-  const { register, loginInternal, user } = useAuth();
+  const { register } = useAuth();
   const isMountedRef = useRefMounted();
   const { t, i18n } = useTranslation();
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const navigate = useNavigate();
   const getLanguage = i18n.language;
   const [showPassword, setShowPassword] = useState(false);
-  const dispatch = useDispatch();
   const getFieldsAndShapes = (): [
     { [key: string]: any },
     { [key: string]: any }
   ] => {
     let fields = {
-      email: email ?? '',
+      email: invitation?.email ?? '',
       firstName: '',
       lastName: '',
       phone: '',
@@ -78,7 +62,7 @@ function RegisterJWT({
       phone: Yup.string().matches(phoneRegExp, t('invalid_phone')),
       password: Yup.string().min(12).max(128).required(t('required_password'))
     };
-    if (role) {
+    if (invitation) {
       const keysToDelete = ['companyName'];
       keysToDelete.forEach((key) => {
         delete fields[key];
@@ -99,20 +83,22 @@ function RegisterJWT({
         valuesClone.phone =
           (values.countryCode ? `+${values.countryCode.phone}` : '') +
           `${values.phone}`;
-        if (invitationMode)
-          await dispatch(inviteUsers(role, [valuesClone.email], true));
         return register(
-          role ? { ...valuesClone, role: { id: role } } : valuesClone,
-          invitationMode
+          invitation
+            ? {
+                ...valuesClone,
+                email: invitation.email,
+                invitationToken
+              }
+            : valuesClone
         )
           .then(async (res) => {
-            if (invitationMode) {
-              onInvitationSuccess();
-            } else {
-              if (!(res && (await verify(res.message)))) {
-                if (!role) showSnackBar(t('verify_email'), 'success');
-                navigate(role ? '/account/login' : '/account/verify');
-              }
+            if (invitation) {
+              window.history.replaceState(null, '', window.location.pathname);
+            }
+            if (!(res && (await verify(res.message)))) {
+              if (!invitation) showSnackBar(t('verify_email'), 'success');
+              navigate(invitation ? '/account/login' : '/account/verify');
             }
           })
           .catch((err) => {
@@ -198,7 +184,7 @@ function RegisterJWT({
             helperText={touched.email && errors.email}
             label={t('email')}
             name="email"
-            disabled={!!email}
+            disabled={!!invitation}
             onBlur={handleBlur}
             onChange={handleChange}
             type="email"
@@ -240,7 +226,7 @@ function RegisterJWT({
               )
             }}
           />
-          {!role && !invitationMode && (
+          {!invitation && (
             <>
               <Grid item xs={12} lg={6}>
                 <TextField
@@ -270,23 +256,21 @@ function RegisterJWT({
             size="large"
             variant="contained"
           >
-            {t(invitationMode ? 'invite' : 'create_your_account')}
+            {t('create_your_account')}
           </Button>
-          {!invitationMode && (
-            <Typography mt={2} variant="body2">
-              {t('i_accept')}{' '}
-              <Typography
-                color={'primary'}
-                href={getLocalizedHomeUrl('terms-of-service', i18n.language)}
-                target={'_blank'}
-                component="a"
-                style={{ cursor: 'pointer' }}
-              >
-                {t('terms_conditions')}
-              </Typography>
-              .
+          <Typography mt={2} variant="body2">
+            {t('i_accept')}{' '}
+            <Typography
+              color={'primary'}
+              href={getLocalizedHomeUrl('terms-of-service', i18n.language)}
+              target={'_blank'}
+              component="a"
+              style={{ cursor: 'pointer' }}
+            >
+              {t('terms_conditions')}
             </Typography>
-          )}
+            .
+          </Typography>
         </form>
       )}
     </Formik>

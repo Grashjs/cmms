@@ -22,6 +22,19 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class TenantAspectTest {
 
+    @Test
+    void invitationPreviewRequestIsCompatibleWithTenantValidation() throws Exception {
+        com.grash.dto.InvitationPreviewRequest request = new com.grash.dto.InvitationPreviewRequest();
+        request.setToken("a".repeat(43));
+        when(methodSignature.getMethod()).thenReturn(com.grash.controller.AuthController.class
+                .getMethod("previewInvitation", com.grash.dto.InvitationPreviewRequest.class));
+        when(joinPoint.getArgs()).thenReturn(new Object[]{request});
+
+        tenantAspect.validateTenant(joinPoint);
+
+        verifyNoInteractions(entityManager);
+    }
+
     @Mock
     private EntityManager entityManager;
 

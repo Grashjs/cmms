@@ -36,22 +36,25 @@ public class SubscriptionService {
     private final UserRepository userRepository;
     private final Scheduler scheduler;
     private final ScheduleRepository scheduleRepository;
+    private final CompanyAuthorizationService authorization;
 
     public void upgrade(Collection<Long> usersIds, User user) {
         if (usersIds.isEmpty()) return;
-        if (user.isOwnsCompany()) {
+        User current = lockMembership(user);
+        if (current.isOwnsCompany()) {
             int enabledUsersCount =
-                    (int) userRepository.findByCompany_Id(user.getCompany().getId()).stream().filter(User::isEnabledInSubscriptionAndPaid).count();
-            Subscription subscription = user.getCompany().getSubscription();
+                    (int) userRepository.findByCompany_Id(current.getCompany().getId()).stream().filter(User::isEnabledInSubscriptionAndPaid).count();
+            Subscription subscription = current.getCompany().getSubscription();
             int subscriptionUsersCount = subscription.getUsersCount();
             if (enabledUsersCount + usersIds.size() <= subscriptionUsersCount) {
                 Collection<User> users = usersIds.stream().map(userId -> findUserInCompany(userId,
-                                user.getCompany().getId()))
+                                current.getCompany().getId()))
                         .collect(Collectors.toList());
                 if (users.stream().noneMatch(User::isEnabledInSubscription)) {
                     users.forEach(user1 -> {
                         user1.setEnabled(true);
                         user1.setEnabledInSubscription(true);
+                        authorization.authorizationChanged(user1);
                     });
                     userRepository.saveAll(users);
                     subscription.setUpgradeNeeded(false);
@@ -65,19 +68,21 @@ public class SubscriptionService {
 
     public void downgrade(Collection<Long> usersIds, User user) {
         if (usersIds.isEmpty()) return;
-        if (user.isOwnsCompany()) {
+        User current = lockMembership(user);
+        if (current.isOwnsCompany()) {
             int enabledUsersCount =
-                    (int) userRepository.findByCompany_Id(user.getCompany().getId()).stream().filter(User::isEnabledInSubscriptionAndPaid).count();
-            Subscription subscription = user.getCompany().getSubscription();
-            int subscriptionUsersCount = user.getCompany().getSubscription().getUsersCount();
+                    (int) userRepository.findByCompany_Id(current.getCompany().getId()).stream().filter(User::isEnabledInSubscriptionAndPaid).count();
+            Subscription subscription = current.getCompany().getSubscription();
+            int subscriptionUsersCount = subscription.getUsersCount();
             if (enabledUsersCount - usersIds.size() <= subscriptionUsersCount) {
                 Collection<User> users = usersIds.stream().map(userId -> findUserInCompany(userId,
-                                user.getCompany().getId()))
+                                current.getCompany().getId()))
                         .filter(user1 -> !user1.isOwnsCompany()).collect(Collectors.toList());
                 if (users.stream().allMatch(User::isEnabledInSubscription)) {
                     users.forEach(user1 -> {
                         user1.setEnabled(false);
                         user1.setEnabledInSubscription(false);
+                        authorization.authorizationChanged(user1);
                     });
                     userRepository.saveAll(users);
                     subscription.setDowngradeNeeded(false);
@@ -150,9 +155,16 @@ public class SubscriptionService {
         }
     }
 
+    private User lockMembership(User user) {
+        authorization.lockCompany(user.getCompany().getId());
+        return authorization.target(user.getId(), user);
+    }
+
     private User findUserInCompany(Long userId, Long companyId) {
-        return userRepository.findByIdAndCompany_Id(userId, companyId)
+        User user = userRepository.findByIdAndCompany_Id(userId, companyId)
                 .orElseThrow(() -> new CustomException("User not found in company", HttpStatus.NOT_FOUND));
+        if (em.contains(user)) em.refresh(user);
+        return user;
     }
 
     public Optional<Subscription> findByPaddleSubscriptionId(String id) {

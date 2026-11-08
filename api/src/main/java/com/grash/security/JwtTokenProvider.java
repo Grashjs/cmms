@@ -54,6 +54,9 @@ public class JwtTokenProvider {
         return Jwts.builder()
                 .subject(username)
                 .issuedAt(now)
+                // NumericDate iat has second precision; newly issued sessions must survive
+                // a revocation earlier within that same second.
+                .claim("issuedAtMillis", now.getTime())
                 .expiration(validity)
                 .claim("auth",
                         roles.stream().map(s -> new SimpleGrantedAuthority(s.getAuthority())).collect(Collectors.toList()))
@@ -72,7 +75,8 @@ public class JwtTokenProvider {
         }
         User user = userDetails.getUser();
         Date sessionInvalidatedAt = user.getSessionInvalidatedAt();
-        Date issuedAt = claims.getIssuedAt();
+        Number issuedAtMillis = claims.get("issuedAtMillis", Number.class);
+        Date issuedAt = issuedAtMillis == null ? claims.getIssuedAt() : new Date(issuedAtMillis.longValue());
         if (sessionInvalidatedAt != null && issuedAt != null && issuedAt.before(sessionInvalidatedAt)) {
             throw new CustomException("Session has been revoked. Please sign in again",
                     HttpStatus.UNAUTHORIZED);

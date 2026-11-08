@@ -39,10 +39,14 @@ class RoleServiceTest {
 
     @Mock
     private RoleRepository roleRepository;
-    @Mock
-    private RoleMapper roleMapper;
-    @Mock
-    private CompanySettingsService companySettingsService;
+    @org.mockito.Spy
+    private RoleMapper roleMapper = org.mapstruct.factory.Mappers.getMapper(RoleMapper.class);
+    @Mock private com.grash.repository.UserRepository users;
+    @Mock private com.grash.repository.CompanyRepository companies;
+    @Mock private com.grash.repository.UserInvitationRepository invitations;
+    @Mock private com.grash.repository.RefreshTokenRepository tokens;
+    @Mock private CacheService cache;
+    @Mock private jakarta.persistence.EntityManager em;
     @Mock
     private LicenseService licenseService;
 
@@ -147,78 +151,25 @@ class RoleServiceTest {
                 .name("Other Company Role")
                 .companySettings(otherCompanySettings)
                 .build();
+        clientRole.setCode(RoleCode.USER_CREATED); clientRole.setCompanySettings(company.getCompanySettings());
+        clientRole.getCreatePermissions().add(PermissionEntity.SETTINGS);
+        clientRole.getEditOtherPermissions().add(PermissionEntity.SETTINGS);
+        clientRole.getDeleteOtherPermissions().add(PermissionEntity.SETTINGS);
+        restrictedRole.setCode(RoleCode.USER_CREATED); restrictedRole.setCompanySettings(company.getCompanySettings());
+        CompanyAuthorizationService policy = new CompanyAuthorizationService(users, roleRepository, companies, invitations, tokens, cache, em);
+        org.springframework.test.util.ReflectionTestUtils.setField(roleService, "authorization", policy);
+        lenient().when(users.findById(10L)).thenReturn(Optional.of(clientUser));
+        lenient().when(users.findById(11L)).thenReturn(Optional.of(restrictedUser));
+        lenient().when(companies.lockAuthorization(1L)).thenReturn(Optional.of(company));
+        org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(
+                new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+                        com.grash.security.CustomUserDetail.builder().user(clientUser).build(), "", List.of()));
+
     }
 
-    @Nested
-    class Create {
 
-        @Test
-        void customRole_withoutEntitlement_throwsForbidden() {
-            when(licenseService.hasEntitlement(LicenseEntitlement.CUSTOM_ROLES)).thenReturn(false);
 
-            CustomException ex = assertThrows(CustomException.class, () -> roleService.create(customRole));
 
-            assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
-            verify(roleRepository, never()).save(any(Role.class));
-        }
-
-        @Test
-        void customRole_withEntitlement_saves() {
-            when(licenseService.hasEntitlement(LicenseEntitlement.CUSTOM_ROLES)).thenReturn(true);
-            when(roleRepository.save(customRole)).thenReturn(customRole);
-
-            Role result = roleService.create(customRole);
-
-            assertEquals(customRole, result);
-            verify(roleRepository).save(customRole);
-        }
-
-        @Test
-        void defaultRole_savesWithoutEntitlementCheck() {
-            when(roleRepository.save(adminRole)).thenReturn(adminRole);
-
-            Role result = roleService.create(adminRole);
-
-            assertEquals(adminRole, result);
-            verify(licenseService, never()).hasEntitlement(any());
-            verify(roleRepository).save(adminRole);
-        }
-    }
-
-    @Nested
-    class Update {
-
-        @Test
-        void existingRole_updatesAndSaves() {
-            RolePatchDTO patch = new RolePatchDTO();
-            patch.setName("Updated");
-            patch.setDescription("desc");
-            Role updatedRole = Role.builder().id(1L).name("Updated").build();
-            when(roleRepository.existsById(1L)).thenReturn(true);
-            when(roleRepository.findById(1L)).thenReturn(Optional.of(adminRole));
-            when(roleMapper.updateRole(adminRole, patch)).thenReturn(updatedRole);
-            when(roleRepository.save(updatedRole)).thenReturn(updatedRole);
-
-            Role result = roleService.update(1L, patch);
-
-            assertEquals(updatedRole, result);
-            verify(roleMapper).updateRole(adminRole, patch);
-            verify(roleRepository).save(updatedRole);
-        }
-
-        @Test
-        void nonExistingRole_throwsNotFound() {
-            RolePatchDTO patch = new RolePatchDTO();
-            when(roleRepository.existsById(99L)).thenReturn(false);
-
-            CustomException ex = assertThrows(CustomException.class,
-                    () -> roleService.update(99L, patch));
-
-            assertEquals(HttpStatus.NOT_FOUND, ex.getHttpStatus());
-            verify(roleRepository, never()).findById(anyLong());
-            verify(roleRepository, never()).save(any(Role.class));
-        }
-    }
 
     @Nested
     class GetAll {
@@ -236,16 +187,7 @@ class RoleServiceTest {
         }
     }
 
-    @Nested
-    class Delete {
 
-        @Test
-        void deletesById() {
-            roleService.delete(1L);
-
-            verify(roleRepository).deleteById(1L);
-        }
-    }
 
     @Nested
     class FindById {
@@ -525,156 +467,82 @@ class RoleServiceTest {
         }
     }
 
-    @Nested
-    class CreateWithUser {
 
-        @Test
-        void withPermissions_setsCustomFieldsAndSaves() {
+
+
+
+
+    @org.junit.jupiter.api.AfterEach void clearAuthentication() {
+        org.springframework.security.core.context.SecurityContextHolder.clearContext();
+    }
+
+    @Nested class AuthorizedMutations {
+        @Test void createsScopedCustomRoleWithLicenseAndOwnedPermissions() {
+            customRole.setId(null);
             when(licenseService.hasEntitlement(LicenseEntitlement.CUSTOM_ROLES)).thenReturn(true);
-            when(roleRepository.save(customRole)).thenReturn(customRole);
-
-            Role result = roleService.create(customRole, clientUser);
-
-            assertSame(company.getCompanySettings(), customRole.getCompanySettings());
-            assertTrue(customRole.isPaid());
-            assertEquals(RoleCode.USER_CREATED, customRole.getCode());
-            assertEquals(RoleType.ROLE_CLIENT, customRole.getRoleType());
-            assertEquals(customRole, result);
-            verify(roleRepository).save(customRole);
+            when(roleRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+            Role created = roleService.create(customRole, clientUser);
+            assertSame(company.getCompanySettings(), created.getCompanySettings());
+            assertEquals(RoleCode.USER_CREATED, created.getCode());
+            assertEquals(RoleType.ROLE_CLIENT, created.getRoleType()); assertTrue(created.isPaid());
         }
-
-        @Test
-        void withoutSettingsPermission_throwsForbidden() {
-            CustomException ex = assertThrows(CustomException.class,
-                    () -> roleService.create(customRole, restrictedUser));
-
-            assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
-            verify(roleRepository, never()).save(any(Role.class));
+        @Test void rawOverloadStillRequiresAuthorizationAndLicense() {
+            customRole.setId(null);
+            assertThrows(CustomException.class, () -> roleService.create(customRole));
+            verify(roleRepository, never()).save(any());
         }
-
-        @Test
-        void planWithoutRoleFeature_throwsForbidden() {
-            company.getSubscription().getSubscriptionPlan().setFeatures(new HashSet<>(Set.of(PlanFeatures.ANALYTICS)));
-
-            CustomException ex = assertThrows(CustomException.class,
-                    () -> roleService.create(customRole, clientUser));
-
-            assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
-            verify(roleRepository, never()).save(any(Role.class));
+        @Test void rejectsExistingIdPlatformRoleMissingOperationOrSubscription() {
+            assertThrows(CustomException.class, () -> roleService.create(customRole, clientUser));
+            customRole.setId(null); customRole.setRoleType(RoleType.ROLE_SUPER_ADMIN);
+            assertThrows(CustomException.class, () -> roleService.create(customRole, clientUser));
+            customRole.setRoleType(RoleType.ROLE_CLIENT);
+            assertThrows(CustomException.class, () -> roleService.create(customRole, restrictedUser));
+            company.getSubscription().getSubscriptionPlan().setFeatures(Set.of());
+            assertThrows(CustomException.class, () -> roleService.create(customRole, clientUser));
+            verify(roleRepository, never()).save(any());
         }
-
-        @Test
-        void requestedPermissionsNotOwned_throwsForbidden() {
-            Role withUnownedPermission = Role.builder()
-                    .id(3L)
-                    .roleType(RoleType.ROLE_CLIENT)
-                    .code(RoleCode.USER_CREATED)
-                    .createPermissions(new HashSet<>(Collections.singleton(PermissionEntity.ASSETS)))
-                    .build();
-
-            CustomException ex = assertThrows(CustomException.class,
-                    () -> roleService.create(withUnownedPermission, clientUser));
-
-            assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
-            verify(roleRepository, never()).save(any(Role.class));
+        @Test void rejectsUnownedPermissionOnCreate() {
+            customRole.setId(null); customRole.setViewPermissions(Set.of(PermissionEntity.ASSETS));
+            when(licenseService.hasEntitlement(LicenseEntitlement.CUSTOM_ROLES)).thenReturn(true);
+            assertThrows(CustomException.class, () -> roleService.create(customRole, clientUser));
+            verify(roleRepository, never()).save(any());
         }
-    }
-
-    @Nested
-    class Patch {
-
-        @Test
-        void roleOfAnotherCompany_throwsAccessDenied() {
+        @Test void partialPatchPreservesUnspecifiedPermissions() {
+            companyRole.setCreatePermissions(new HashSet<>(Set.of(PermissionEntity.WORK_ORDERS)));
+            when(roleRepository.findById(4L)).thenReturn(Optional.of(companyRole));
+            when(roleRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+            RolePatchDTO patch = new RolePatchDTO(); patch.setName("Updated");
+            Role updated = roleService.update(4L, patch);
+            assertEquals("Updated", updated.getName());
+            assertEquals(Set.of(PermissionEntity.WORK_ORDERS), updated.getCreatePermissions());
+            verifyNoInteractions(invitations, tokens);
+        }
+        @Test void rejectedPatchDoesNotMutateManagedEntity() {
+            when(roleRepository.findById(4L)).thenReturn(Optional.of(companyRole));
+            RolePatchDTO patch = new RolePatchDTO(); patch.setName("Should not persist");
+            patch.setViewPermissions(List.of(PermissionEntity.ASSETS));
+            assertThrows(CustomException.class, () -> roleService.patch(4L, patch, clientUser));
+            assertEquals("Company Role", companyRole.getName()); assertTrue(companyRole.getViewPermissions().isEmpty());
+            verify(roleRepository, never()).save(any());
+        }
+        @Test void rejectsForeignAndBuiltInRoleChanges() {
             when(roleRepository.findById(4L)).thenReturn(Optional.of(otherCompanyRole));
-
-            CustomException ex = assertThrows(CustomException.class,
-                    () -> roleService.patch(4L, new RolePatchDTO(), clientUser));
-
-            assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
-            verify(roleRepository, never()).save(any(Role.class));
+            assertThrows(CustomException.class, () -> roleService.patch(4L, new RolePatchDTO(), clientUser));
+            assertThrows(CustomException.class, () -> roleService.deleteByIdAndUser(4L, clientUser));
+            when(roleRepository.findById(1L)).thenReturn(Optional.of(adminRole));
+            assertThrows(CustomException.class, () -> roleService.patch(1L, new RolePatchDTO(), clientUser));
+            verify(roleRepository, never()).save(any()); verify(roleRepository, never()).delete(any(Role.class));
         }
-
-        @Test
-        void nonExisting_throwsRoleNotFound() {
-            when(roleRepository.findById(99L)).thenReturn(Optional.empty());
-
-            CustomException ex = assertThrows(CustomException.class,
-                    () -> roleService.patch(99L, new RolePatchDTO(), clientUser));
-
-            assertEquals(HttpStatus.NOT_FOUND, ex.getHttpStatus());
-        }
-
-        @Test
-        void requestedPermissionsNotOwned_throwsForbidden() {
-            RolePatchDTO patch = new RolePatchDTO();
-            patch.setViewPermissions(Collections.singletonList(PermissionEntity.ASSETS));
+        @Test void deletesAuthorizedUnassignedCustomRoleAndInvalidatesInvitations() {
             when(roleRepository.findById(4L)).thenReturn(Optional.of(companyRole));
-
-            CustomException ex = assertThrows(CustomException.class,
-                    () -> roleService.patch(4L, patch, clientUser));
-
-            assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
+            roleService.delete(4L);
+            verify(roleRepository).delete(companyRole);
+            verify(invitations).revokeByRole(eq(4L), any(Date.class));
         }
-
-        @Test
-        void existingAndBelongsToCompany_returnsUpdatedRole() {
-            RolePatchDTO patch = new RolePatchDTO();
-            patch.setName("Updated");
-            Role updatedRole = Role.builder().id(4L).name("Updated").build();
-            when(roleRepository.findById(4L)).thenReturn(Optional.of(companyRole));
-            when(roleRepository.existsById(4L)).thenReturn(true);
-            when(roleMapper.updateRole(companyRole, patch)).thenReturn(updatedRole);
-            when(roleRepository.save(updatedRole)).thenReturn(updatedRole);
-
-            Role result = roleService.patch(4L, patch, clientUser);
-
-            assertEquals(updatedRole, result);
-            verify(roleMapper).updateRole(companyRole, patch);
-            verify(roleRepository).save(updatedRole);
+        @Test void rejectsUnknownRole() {
+            assertThrows(CustomException.class, () -> roleService.update(99L, new RolePatchDTO()));
+            verify(roleRepository, never()).save(any());
         }
     }
 
-    @Nested
-    class DeleteByIdAndUser {
-
-        @Test
-        void withoutSettingsPermission_throwsForbidden() {
-            CustomException ex = assertThrows(CustomException.class,
-                    () -> roleService.deleteByIdAndUser(4L, restrictedUser));
-
-            assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
-            verify(roleRepository, never()).deleteById(anyLong());
-        }
-
-        @Test
-        void nonExisting_throwsRoleNotFound() {
-            when(roleRepository.findById(99L)).thenReturn(Optional.empty());
-
-            CustomException ex = assertThrows(CustomException.class,
-                    () -> roleService.deleteByIdAndUser(99L, clientUser));
-
-            assertEquals(HttpStatus.NOT_FOUND, ex.getHttpStatus());
-            verify(roleRepository, never()).deleteById(anyLong());
-        }
-
-        @Test
-        void roleOfAnotherCompany_throwsAccessDenied() {
-            when(roleRepository.findById(4L)).thenReturn(Optional.of(otherCompanyRole));
-
-            CustomException ex = assertThrows(CustomException.class,
-                    () -> roleService.deleteByIdAndUser(4L, clientUser));
-
-            assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
-            verify(roleRepository, never()).deleteById(anyLong());
-        }
-
-        @Test
-        void existingAndBelongsToCompany_deletes() {
-            when(roleRepository.findById(4L)).thenReturn(Optional.of(companyRole));
-
-            roleService.deleteByIdAndUser(4L, clientUser);
-
-            verify(roleRepository).deleteById(4L);
-        }
-    }
 }

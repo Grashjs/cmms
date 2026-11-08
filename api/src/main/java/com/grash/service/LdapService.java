@@ -41,6 +41,7 @@ public class LdapService {
     private final CompanyService companyService;
     private final CacheService cacheService;
     private final RefreshTokenService refreshTokenService;
+    private final CompanyAuthorizationService authorization;
 
     @Autowired(required = false)
     private LdapAuthenticationProvider ldapAuthenticationProvider;
@@ -104,20 +105,22 @@ public class LdapService {
         }
 
         Set<String> ldapUsernames = new HashSet<>(fetchAllLdapUsernames());
+        // Serialize revocation with invitation acceptance before changing membership state.
+        authorization.lockCompany(company.getId());
         Map<String, User> existingLdapUsersByProviderId = new HashMap<>();
         Collection<User> existingUsers = userRepository.findByCompany_Id(company.getId());
 
-        for (User user : existingUsers) {
-            if (!"LDAP".equals(user.getSsoProvider()) || user.getSsoProviderId() == null) {
+        for (User snapshot : existingUsers) {
+            if (!"LDAP".equals(snapshot.getSsoProvider()) || snapshot.getSsoProviderId() == null) {
                 continue;
             }
+            User user = authorization.target(snapshot.getId(), snapshot);
             existingLdapUsersByProviderId.put(user.getSsoProviderId(), user);
 
             if (!ldapUsernames.contains(user.getSsoProviderId())) {
-                if (ldapSyncDisable) {
+                if (ldapSyncDisable && user.isEnabled()) {
                     user.setEnabled(false);
-                    userRepository.save(user);
-                    cacheService.evictUserFromCache(user.getEmail());
+                    authorization.authorizationChanged(user);
                 }
             }
         }
@@ -147,7 +150,7 @@ public class LdapService {
                 }
                 if (!user.isEnabled() && ldapSyncDisable) {
                     user.setEnabled(true);
-                    userRepository.save(user);
+                    authorization.authorizationChanged(user);
                 }
             } else {
                 if (ldapSyncCreate) {
@@ -270,9 +273,15 @@ public class LdapService {
                 user.setLastLogin(new Date());
 
             } else {
+                authorization.lockCompany(user.getCompany().getId());
+                user = authorization.target(user.getId(), user);
                 user.setLastLogin(new Date());
                 List<String> userOus = getLdapUserOu(ldapUsername);
-                user.setRole(getRoleForOu(userOus));
+                Role nextRole = getRoleForOu(userOus);
+                if (!Objects.equals(user.getRole().getId(), nextRole.getId())) {
+                    user.setRole(nextRole);
+                    authorization.authorizationChanged(user);
+                }
             }
             Sanitizer.sanitizeUser(user);
             user = userRepository.save(user);

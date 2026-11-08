@@ -4,7 +4,6 @@ import com.grash.dto.RolePatchDTO;
 import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.mapper.RoleMapper;
-import com.grash.model.Company;
 import com.grash.model.Role;
 import com.grash.model.User;
 import com.grash.model.enums.PermissionEntity;
@@ -21,70 +20,80 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class RoleService {
     private final RoleRepository roleRepository;
     private final RoleMapper roleMapper;
-    private final CompanySettingsService companySettingsService;
     private final LicenseService licenseService;
+    private final CompanyAuthorizationService authorization;
 
+    @Transactional
     public Role create(Role role) {
-        if (role.getCode().equals(RoleCode.USER_CREATED) && !licenseService.hasEntitlement(LicenseEntitlement.CUSTOM_ROLES))
-            throw new CustomException("You need a license to create custom roles", HttpStatus.FORBIDDEN);
-        Sanitizer.sanitizeRole(role);
-        return roleRepository.save(role);
+        return create(role, authorization.currentActor());
     }
 
     @Transactional
     public Role create(Role roleReq, User user) {
-        if (user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)
-                && user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.ROLE)) {
-            assertCanGrant(roleReq.getCreatePermissions(), user.getRole().getCreatePermissions());
-            assertCanGrant(roleReq.getViewPermissions(), user.getRole().getViewPermissions());
-            assertCanGrant(roleReq.getViewOtherPermissions(), user.getRole().getViewOtherPermissions());
-            assertCanGrant(roleReq.getEditOtherPermissions(), user.getRole().getEditOtherPermissions());
-            assertCanGrant(roleReq.getDeleteOtherPermissions(), user.getRole().getDeleteOtherPermissions());
-            roleReq.setPaid(true);
-            roleReq.setCode(RoleCode.USER_CREATED);
-            roleReq.setRoleType(RoleType.ROLE_CLIENT);
-            roleReq.setCompanySettings(user.getCompany().getCompanySettings());
-            return create(roleReq);
-        } else throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        user = authorization.actor(user);
+        authorization.assertRoleOperation(user, "create");
+        if (roleReq.getId() != null || roleReq.getRoleType() != RoleType.ROLE_CLIENT)
+            throw new CustomException("Company management can only create new company roles", HttpStatus.FORBIDDEN);
+        if (!user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.ROLE)
+                || !licenseService.hasEntitlement(LicenseEntitlement.CUSTOM_ROLES))
+            throw new CustomException("Your subscription and license must allow custom roles", HttpStatus.FORBIDDEN);
+        roleReq.setPaid(true);
+        roleReq.setCode(RoleCode.USER_CREATED);
+        roleReq.setCompanySettings(user.getCompany().getCompanySettings());
+        authorization.assertCanGrant(user, roleReq);
+        Sanitizer.sanitizeRole(roleReq);
+        return roleRepository.save(roleReq);
     }
 
     @Transactional
-    public Role patch(Long id, RolePatchDTO role, User user) {
-        Optional<Role> optionalRole = findById(id);
-        if (optionalRole.isPresent()) {
-            Role savedRole = optionalRole.get();
-            if (!savedRole.belongsOnlyToCompany(user.getCompany())) {
-                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-            }
-            assertCanGrant(role.getCreatePermissions(), user.getRole().getCreatePermissions());
-            assertCanGrant(role.getViewPermissions(), user.getRole().getViewPermissions());
-            assertCanGrant(role.getViewOtherPermissions(), user.getRole().getViewOtherPermissions());
-            assertCanGrant(role.getEditOtherPermissions(), user.getRole().getEditOtherPermissions());
-            assertCanGrant(role.getDeleteOtherPermissions(), user.getRole().getDeleteOtherPermissions());
-            return update(id, role);
-        } else throw new CustomException("Role not found", HttpStatus.NOT_FOUND);
+    public Role patch(Long id, RolePatchDTO patch, User user) {
+        user = authorization.actor(user);
+        Role current = authorization.role(Role.builder().id(id).build());
+        // Validate a detached candidate before touching a managed entity or its collections.
+        Role candidate = Role.builder().id(current.getId()).name(current.getName()).description(current.getDescription())
+                .externalId(current.getExternalId()).roleType(current.getRoleType()).code(current.getCode())
+                .paid(current.isPaid()).companySettings(current.getCompanySettings())
+                .createPermissions(new HashSet<>(current.getCreatePermissions()))
+                .viewPermissions(new HashSet<>(current.getViewPermissions()))
+                .viewOtherPermissions(new HashSet<>(current.getViewOtherPermissions()))
+                .editOtherPermissions(new HashSet<>(current.getEditOtherPermissions()))
+                .deleteOtherPermissions(new HashSet<>(current.getDeleteOtherPermissions())).build();
+        roleMapper.updateRole(candidate, patch);
+        authorization.assertCanEditRole(user, current, candidate, "edit");
+        boolean permissionsChanged = !authorization.fingerprint(current).equals(authorization.fingerprint(candidate));
+        roleMapper.updateRole(current, patch);
+        Sanitizer.sanitizeRole(current);
+        Role saved = roleRepository.save(current);
+        if (permissionsChanged) authorization.roleChanged(saved);
+        return saved;
     }
 
-    private void assertCanGrant(Collection<PermissionEntity> requested, Collection<PermissionEntity> owned) {
-        if (requested != null && owned != null && !owned.containsAll(requested)) {
-            throw new CustomException("Cannot grant permissions you don't have", HttpStatus.FORBIDDEN);
-        }
+    @Transactional
+    public Role update(Long id, RolePatchDTO patch) {
+        return patch(id, patch, authorization.currentActor());
     }
 
-    public Role update(Long id, RolePatchDTO role) {
-        if (roleRepository.existsById(id)) {
-            Role savedRole = roleRepository.findById(id).get();
-            Role updatedRole = roleMapper.updateRole(savedRole, role);
-            Sanitizer.sanitizeRole(updatedRole);
-            return roleRepository.save(updatedRole);
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    @Transactional
+    public List<Role> assignable(User requester, String operation, Long targetId) {
+        User actor = authorization.actor(requester);
+        if (!Set.of("invite", "role").contains(operation))
+            throw new CustomException("Unknown assignment operation", HttpStatus.BAD_REQUEST);
+        if ("role".equals(operation) && targetId == null)
+            throw new CustomException("A target user is required", HttpStatus.BAD_REQUEST);
+        User target = "role".equals(operation) ? authorization.target(targetId, actor) : null;
+        return findByCompany(actor.getCompany().getId()).stream().filter(role -> {
+            try {
+                if (target == null) authorization.assertCanInvite(actor, role);
+                else authorization.assertCanChangeRole(actor, target, role);
+                return true;
+            } catch (CustomException denied) { return false; }
+        }).toList();
     }
 
     public Collection<Role> getAll() {
@@ -99,23 +108,19 @@ public class RoleService {
         } else return getAll();
     }
 
+    @Transactional
     public void delete(Long id) {
-        roleRepository.deleteById(id);
+        deleteByIdAndUser(id, authorization.currentActor());
     }
 
     @Transactional
     public void deleteByIdAndUser(Long id, User user) {
-        if (!user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS)) {
-            throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
-        }
-        Optional<Role> optionalRole = findById(id);
-        if (optionalRole.isPresent()) {
-            Role savedRole = optionalRole.get();
-            if (!savedRole.belongsOnlyToCompany(user.getCompany())) {
-                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-            }
-            delete(id);
-        } else throw new CustomException("Role not found", HttpStatus.NOT_FOUND);
+        user = authorization.actor(user);
+        Role current = authorization.role(Role.builder().id(id).build());
+        authorization.assertCanEditRole(user, current, current, "delete");
+        // The database prevents deleting assigned roles; pending links are invalidated too.
+        authorization.roleChanged(current);
+        roleRepository.delete(current);
     }
 
     public Optional<Role> findById(Long id) {

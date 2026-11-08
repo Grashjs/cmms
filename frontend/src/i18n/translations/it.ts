@@ -1,4 +1,6 @@
 const locale = {
+  management_access_denied: "Operazione negata: controlla i tuoi permessi, il ruolo di destinazione e il proprietario dell’account.",
+  no_assignable_roles: "Nessun ruolo può essere assegnato con i tuoi permessi attuali.",
   DUPLICATE_OF: 'Duplicato di',
   DUPLICATED_BY: 'Duplicato da',
   RELATED_TO: 'Correlato a',
@@ -763,6 +765,14 @@ const locale = {
     'È possibile aggiungere 20 utenti alla volta premendo "Tab" o "Invio" dopo ogni inserimento di un indirizzo email. Eventuali indirizzi email duplicati e registrati verranno rimossi durante la registrazione degli utenti richiesti.',
   enter_email: "Inserisci l'indirizzo email",
   users_invite_success: 'Gli utenti sono stati invitati',
+  invitation_send_email: 'Invia gli inviti via email',
+  invitation_links_notice:
+    'Copia subito questi link e invia ciascun link solo al destinatario previsto. I link scadono e possono essere usati una sola volta. Rinnovare un invito invalida il link precedente.',
+  invitation_link: 'Link di invito',
+  invitation_expires: 'Scade il: {{date}}',
+  invitation_unavailable:
+    'Questo invito non è valido, è scaduto o è già stato utilizzato. Chiedi un nuovo link di invito a un amministratore autorizzato. I vecchi link che contengono solo email e ruolo devono essere rinnovati.',
+  invitation_join_details: 'Unisciti a {{company}} come {{role}}',
   users_invite_failure:
     'Gli utenti non possono essere invitati. Controlla il numero attuale dei membri del tuo abbonamento.',
   please_type_emails: 'Inserisci gli indirizzi email per invitare',

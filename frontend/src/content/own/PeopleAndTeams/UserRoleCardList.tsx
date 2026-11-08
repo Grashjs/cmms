@@ -3,6 +3,7 @@ import {
   Box,
   Card,
   CardHeader,
+  Typography,
   CircularProgress,
   Divider,
   List,
@@ -38,6 +39,7 @@ function UserRoleCardList({ onChange }: Props) {
   const theme = useTheme();
   const dispatch = useDispatch();
   const { roles, loadingGet } = useSelector((state) => state.roles);
+  const [loadError, setLoadError] = useState(false);
   const [selectedItem, setSelectedItem] = useState<number>();
   const defaultRoles: Partial<
     Record<RoleCode, { name: string; description: string }>
@@ -68,7 +70,7 @@ function UserRoleCardList({ onChange }: Props) {
     }
   };
   useEffect(() => {
-    dispatch(getRoles());
+    dispatch(getRoles({ operation: 'invite' })).catch(() => setLoadError(true));
   }, []);
   const isSelected = (value) => selectedItem === value;
 
@@ -85,7 +87,7 @@ function UserRoleCardList({ onChange }: Props) {
         return roles.find((role) => role.code === code);
       });
       const customRoles = roles.filter((role) => role.code === 'USER_CREATED');
-      return [...defaultRolesOnly, ...customRoles];
+      return [...defaultRolesOnly, ...customRoles].filter(Boolean);
     } else return [];
   };
   return (
@@ -104,6 +106,13 @@ function UserRoleCardList({ onChange }: Props) {
         </Stack>
       ) : (
         <List disablePadding>
+          {(loadError || !roles.length) && (
+            <Typography sx={{ p: 2 }}>
+              {t(
+                loadError ? 'management_access_denied' : 'no_assignable_roles'
+              )}
+            </Typography>
+          )}
           {getOrderedRoles().map((role, index) => (
             <Box
               key={role.id}

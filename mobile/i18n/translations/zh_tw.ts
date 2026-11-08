@@ -1,4 +1,20 @@
 const locale = {
+  management_access_denied: "操作遭拒：請檢查您的權限、目標角色和帳號擁有者。",
+  no_assignable_roles: "您目前的權限無法指派任何角色。",
+  invitation_created: '邀請已建立',
+  invitation_delivery_notice:
+    '請將此專屬連結分享給受邀者。連結有有效期限且只能使用一次，新的邀請會使先前的連結失效。離開此畫面後，連結會被清除。',
+  invitation_expires: '到期時間：{{date}}',
+  invitation_copy: '複製連結',
+  invitation_share: '分享連結',
+  invitation_copied: '連結已複製',
+  invitation_copy_failed: '無法複製連結，請再試一次。',
+  invitation_share_failed: '無法分享連結，請再試一次。',
+  invitation_browser_acceptance:
+    '受邀者需先在網頁瀏覽器中完成註冊，然後登入行動應用程式。',
+  invitation_send_email: '同時要求寄送邀請郵件',
+  invitation_email_optional:
+    '僅在伺服器啟用郵件寄送時才會要求寄送郵件。邀請已建立並不表示郵件已送達。您隨時都可以複製或分享連結。',
   DUPLICATE_OF: '重複於',
   DUPLICATED_BY: '被重複於',
   RELATED_TO: '相關於',

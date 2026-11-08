@@ -1,3 +1,4 @@
+import { openAttachment } from '../../../utils/attachment';
 import * as React from 'react';
 import { useState } from 'react';
 import { useDispatch } from '../../../store';
@@ -6,7 +7,6 @@ import Location from '../../../models/location';
 import { useNavigation } from '@react-navigation/native';
 import { editLocation } from '../../../slices/location';
 import {
-  Linking,
   ScrollView,
   StyleSheet,
   TouchableOpacity
@@ -67,7 +67,7 @@ export default function LocationFiles({ location }: { location: Location }) {
         <TouchableOpacity
           key={file.id}
           onPress={async () => {
-            await Linking.openURL(file.url);
+            await openAttachment(file.url);
           }}
         >
           <View

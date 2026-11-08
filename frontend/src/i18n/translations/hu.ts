@@ -1,4 +1,6 @@
 const locale = {
+  management_access_denied: "A művelet megtagadva: ellenőrizze a jogosultságait, a célszerepkört és a fiók tulajdonosát.",
+  no_assignable_roles: "A jelenlegi jogosultságaival nem rendelhet hozzá szerepkört.",
   DUPLICATE_OF: 'Másolata ennek',
   DUPLICATED_BY: 'Másolva általa',
   RELATED_TO: 'Kapcsolódik ehhez',
@@ -682,6 +684,15 @@ const locale = {
     "20 felhasználót adhatsz hozzá egyszerre a 'tab' vagy 'enter' megnyomásával minden e-mail bevitel után. Bármilyen duplikátum és regisztrált e-mail cím eltávolításra kerül a kért felhasználók regisztrációjakor.",
   enter_email: 'Add meg az e-mail címet',
   users_invite_success: 'Felhasználók meghívva',
+  invitation_send_email: 'Meghívók küldése e-mailben',
+  invitation_links_notice:
+    'Másold ki most ezeket a hivatkozásokat, és mindegyiket csak a megfelelő címzettnek küldd el. A hivatkozások lejárnak, és csak egyszer használhatók. A meghívó megújítása érvényteleníti a korábbi hivatkozást.',
+  invitation_link: 'Meghívó hivatkozása',
+  invitation_expires: 'Lejárat: {{date}}',
+  invitation_unavailable:
+    'Ez a meghívó érvénytelen, lejárt vagy már felhasználták. Kérj új meghívóhivatkozást egy jogosult rendszergazdától. A csak e-mail-címet és szerepkört tartalmazó régi hivatkozásokat meg kell újítani.',
+  invitation_join_details:
+    'Csatlakozás a(z) {{company}} vállalathoz {{role}} szerepkörben',
   users_invite_failure:
     'A felhasználók nem hívhatók meg. Ellenőrizd a jelenlegi előfizetésed tagszámát',
   please_type_emails: 'Írj be e-mail címeket a meghíváshoz',

@@ -10,6 +10,7 @@ import com.grash.repository.SuperAccountRelationRepository;
 import com.grash.service.LdapService;
 import com.grash.service.RefreshTokenService;
 import com.grash.service.UserService;
+import com.grash.service.UserInvitationService;
 import com.grash.service.VerificationTokenService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,6 +50,9 @@ class AuthControllerTest extends AbstractControllerTest {
     private UserService userService;
 
     @MockitoBean
+    private UserInvitationService userInvitationService;
+
+    @MockitoBean
     private PasswordEncoder passwordEncoder;
 
     @MockitoBean
@@ -70,6 +74,34 @@ class AuthControllerTest extends AbstractControllerTest {
     private User superAdminUser;
     private UserResponseDTO userResponseDto;
     private final Date accessTokenExpiresAt = new Date(1784300000000L);
+
+    @Test
+    void invitationPreviewReturnsOnlyValidatedDetailsWithoutCaching() throws Exception {
+        when(userInvitationService.preview("personal-token")).thenReturn(new InvitationPreviewDTO(
+                "invited@example.com", 2L, "Technician", 3L, "Inviting company", accessTokenExpiresAt));
+
+        mockMvc.perform(post("/auth/invitations/preview")
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"token\":\"personal-token\"}"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Cache-Control", "no-store"))
+                .andExpect(header().string("Referrer-Policy", "no-referrer"))
+                .andExpect(jsonPath("$.email").value("invited@example.com"))
+                .andExpect(jsonPath("$.companyId").value(3))
+                .andExpect(jsonPath("$.roleId").value(2))
+                .andExpect(jsonPath("$.tokenHash").doesNotExist())
+                .andExpect(jsonPath("$.token").doesNotExist());
+        verifyNoInteractions(userService, refreshTokenService);
+    }
+
+    @Test
+    void invalidInvitationPreviewDoesNotRegisterOrIssueSession() throws Exception {
+        when(userInvitationService.preview("invalid")).thenThrow(new CustomException(
+                "Invalid invitation", HttpStatus.NOT_ACCEPTABLE));
+        mockMvc.perform(post("/auth/invitations/preview")
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"token\":\"invalid\"}"))
+                .andExpect(status().isNotAcceptable());
+        verifyNoInteractions(userService, refreshTokenService);
+    }
 
     @BeforeEach
     void setUp() {

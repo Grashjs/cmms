@@ -62,6 +62,8 @@ class SubscriptionServiceTest {
     private Scheduler scheduler;
     @Mock
     private ScheduleRepository scheduleRepository;
+    @Mock
+    private CompanyAuthorizationService authorization;
 
     private Company company;
     private User owner;
@@ -106,6 +108,7 @@ class SubscriptionServiceTest {
                 .build();
 
         owner = buildUser(1L, true, true, true);
+        lenient().when(authorization.target(anyLong(), any(User.class))).thenAnswer(inv -> inv.getArgument(1));
     }
 
     private User buildUser(Long id, boolean enabled, boolean enabledInSubscription, boolean ownsCompany) {
@@ -178,6 +181,7 @@ class SubscriptionServiceTest {
 
             assertTrue(target.isEnabled());
             assertTrue(target.isEnabledInSubscription());
+            verify(authorization).authorizationChanged(target);
             verify(userRepository).saveAll(argThat(users -> ((Iterable<?>) users).iterator().next() == target));
             verify(subscriptionRepository).save(subscription);
             assertFalse(subscription.isUpgradeNeeded());
@@ -201,6 +205,7 @@ class SubscriptionServiceTest {
 
             verify(userRepository, never()).saveAll(anyCollection());
             verify(subscriptionRepository, never()).save(subscription);
+            verifyNoInteractions(authorization);
         }
     }
 
@@ -243,6 +248,10 @@ class SubscriptionServiceTest {
 
             assertFalse(target.isEnabled());
             assertFalse(target.isEnabledInSubscription());
+            var order = inOrder(authorization, userRepository);
+            order.verify(authorization).lockCompany(company.getId());
+            order.verify(userRepository).findByIdAndCompany_Id(target.getId(), company.getId());
+            order.verify(authorization).authorizationChanged(target);
             verify(userRepository).saveAll(argThat(users -> ((Iterable<?>) users).iterator().next() == target));
             verify(subscriptionRepository).save(subscription);
             assertFalse(subscription.isDowngradeNeeded());
@@ -261,6 +270,8 @@ class SubscriptionServiceTest {
             assertTrue(owner.isEnabled());
             assertTrue(owner.isEnabledInSubscription());
             assertFalse(target.isEnabled());
+            verify(authorization, never()).authorizationChanged(owner);
+            verify(authorization).authorizationChanged(target);
             verify(userRepository).saveAll(argThat(users -> {
                 List<?> list = new java.util.ArrayList<>((java.util.Collection<?>) users);
                 return list.size() == 1 && list.get(0) == target;
