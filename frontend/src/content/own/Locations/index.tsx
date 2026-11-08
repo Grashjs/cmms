@@ -887,9 +887,10 @@ function Locations() {
                   files: imageAndFiles.files
                 };
 
-                await dispatch(
+                const updatedLocation: Location = await dispatch(
                   editLocation(currentLocation.id, formattedValues)
                 );
+                setCurrentLocation(updatedLocation);
                 await onEditSuccess();
               } catch (err) {
                 onEditFailure(err);
