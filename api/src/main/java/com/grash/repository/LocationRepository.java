@@ -48,4 +48,12 @@ public interface LocationRepository extends JpaRepository<Location, Long>, JpaSp
             "parentLocation", "image"
     })
     Page<Location> findByCompany_IdAndParentLocationIsNull(Long id, Pageable pageable);
+        @Query(value = "WITH RECURSIVE location_tree AS (" +
+            "    SELECT id FROM location WHERE id IN (:rootIds) AND company_id = :companyId " +
+            "    UNION ALL " +
+            "    SELECT l.id FROM location l " +
+            "    INNER JOIN location_tree lt ON l.parent_location_id = lt.id " +
+            "    WHERE l.company_id = :companyId" +
+            ") SELECT id FROM location_tree", nativeQuery = true)
+    List<Long> findDescendantIdsIncludingSelf(@Param("rootIds") List<Long> rootIds, @Param("companyId") Long companyId);
 }
