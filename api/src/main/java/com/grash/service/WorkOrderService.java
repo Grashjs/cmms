@@ -831,8 +831,8 @@ public class WorkOrderService {
 
     @Transactional
     public WorkOrder changeStatus(WorkOrderChangeStatusDTO dto, Long id, User user, String platform) {
-        Optional<WorkOrder> optionalWorkOrder = findById(id);
-        WorkOrder savedWorkOrder = optionalWorkOrder.get();
+        WorkOrder savedWorkOrder = findById(id)
+                .orElseThrow(() -> new CustomException("Not found", HttpStatus.NOT_FOUND));
         em.detach(savedWorkOrder); // detach FIRST
         WorkOrder originalWorkOrder = savedWorkOrder;
         WorkOrder mutableWO = findById(id).get(); // fresh managed copy
@@ -863,7 +863,11 @@ public class WorkOrderService {
         if (mutableWO.canBeEditedBy(user) && (dto.getSignature() == null ||
                 user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.SIGNATURE))) {
             if (!dto.getStatus().equals(Status.IN_PROGRESS)) {
-                if (dto.getStatus().equals(Status.COMPLETE)) {
+                // Re-sending COMPLETE on a completed work order (adding a signature or feedback later,
+                // a double click) must not change who/when completed it or reschedule the next PM.
+                boolean newlyCompleted = savedWorkOrderStatusBefore != Status.COMPLETE
+                        || mutableWO.getCompletedOn() == null;
+                if (dto.getStatus().equals(Status.COMPLETE) && newlyCompleted) {
                     mutableWO.setCompletedBy(user);
                     mutableWO.setCompletedOn(new Date());
                     if (mutableWO.getAsset() != null) {
@@ -910,8 +914,10 @@ public class WorkOrderService {
                         requesterEmail = contact;
                     }
                 } else {
-                    requester = userService.findById(requesterId).get();
-                    requesterEmail = requester.getEmail();
+                    // The requester may have been deleted: skip the notification instead of failing
+                    // (and rolling back) the status change.
+                    requester = userService.findById(requesterId).orElse(null);
+                    if (requester != null) requesterEmail = requester.getEmail();
                 }
                 Locale locale = Helper.getLocale(user);
                 String message = messageSource.getMessage("notification_wo_request",
