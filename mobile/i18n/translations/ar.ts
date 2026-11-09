@@ -1,4 +1,223 @@
 const locale = {
+  offline_preference_title: "استخدام وضع عدم الاتصال",
+  offline_preference_description: "حضّر أوامر العمل على هذا الجهاز لاستخدامها دون إنترنت.",
+  offline_preference_pending: "عالج المسودات المحلية والمؤقتات النشطة والإرسالات المعلقة قبل إيقاف وضع عدم الاتصال. يجب أن يؤكد الخادم أيضًا أي طلب معلّق لتحرير تحضير تدخل. لم يُحذف أي شيء.",
+  offline_preference_denied: "لم يسمح الخادم لهذا الحساب باستخدام وضع عدم الاتصال. عملك المحلي محفوظ.",
+  offline_preference_read_error: "تعذّرت قراءة إعداد وضع عدم الاتصال. يظل عملك المحلي محميًا. حاول مرة أخرى؛ لا يلزم الاتصال بالإنترنت.",
+  offline_preference_activation_failed: "تعذّر تفعيل وضع عدم الاتصال على هذا الجهاز. يظل الخيار مغلقًا؛ حاول مرة أخرى.",
+  offline_unlock_title: "فتح العمل دون اتصال",
+  offline_unlock_explanation: "تحقق من هويتك للوصول إلى العمل المحفوظ على هذا الجهاز.",
+  offline_unlock_system_prompt: "افتح العمل دون اتصال في Atlas CMMS",
+  offline_unlock_use_code: "استخدام رمز الجهاز",
+  offline_unlock_setup: "اضبط قفل الشاشة في إعدادات الهاتف ثم أعد المحاولة. يبقى العمل محفوظًا ومخفيًا.",
+  offline_unlock_cancelled: "أُلغي فتح القفل. يبقى عملك دون اتصال محفوظًا.",
+  offline_unlock_failed: "فشل فتح القفل. أعد المحاولة أو استخدم رمز الجهاز.",
+  offline_unlock_check_server: "تحقق من الوصول عبر الخادم",
+  offline_unlock_sign_in: "سجّل الدخول إلى الخادم بهذا الحساب، ثم تحقق من الوصول مرة أخرى. سيبقى عملك محفوظًا ومخفيًا.",
+  offline_unlock_logout: "تسجيل الخروج",
+  save_signature: "حفظ التوقيع",
+  offline_signature_unsaved: "لم يُحفظ الرسم. اضغط على حفظ التوقيع قبل إرسال طلب الإغلاق.",
+  offline_signature_saved: "تم حفظ التوقيع على هذا الجهاز.",
+  offline_signature_save_failed: "لم يُحفظ التوقيع. اضغط على حفظ التوقيع لإعادة المحاولة أو امسحه.",
+
+  offline_status_request: "طلب تغيير الحالة",
+  offline_status_requested: "الحالة المطلوبة: {{status}}",
+  offline_status_saved_refresh_pending: "تم تأكيد الحالة — التحديث المحلي قيد الانتظار",
+  offline_status_review: "مراجعة الطلب",
+  offline_status_review_confirm: "الخادم: {{server}}. طلبك: {{local}}. احتفظ بإدخالك كمسودة على هذه النسخة التي راجعتها، ثم أرسلها بإجراء صريح.",
+  offline_status_submit: "إرسال طلب تغيير الحالة",
+  offline_closure_submit: "إرسال طلب الإغلاق",
+  offline_status_stop_timer: "أوقف المؤقت واحفظه على هذا الجهاز قبل طلب هذه الحالة.",
+  offline_status_drafts_pending: "أرسل المسودات غير المكتملة أو تخلّص منها صراحة قبل إرسال طلب الإغلاق.",
+  offline_status_dependency_failed: "عالج الرفض أو التعارض السابق قبل إرسال هذا الطلب.",
+  offline_status_dependency_pending: "بانتظار تأكيد العمليات السابقة.",
+  offline_status_new_work: "توجد إدخالات محلية جديدة. راجعها قبل إرسال طلب الإغلاق.",
+  offline_status_signature_forbidden: "لا يُسمح بالتقاط التوقيع باستخدام الصلاحيات أو الترخيص أو الاشتراك الحالي.",
+  offline_status_conflict: "تغيّرت الحالة أو معلومات الإغلاق. راجعها؛ تم الاحتفاظ بإدخالك.",
+  offline_status_requirements: "لم تُستوفَ شروط الإغلاق المطلوبة.",
+  offline_status_prepare_again: "حدّث هذه النسخة المحضّرة عبر الإنترنت قبل تغيير الحالة دون اتصال.",
+  offline_status_server: "الحالة المؤكدة: {{status}}",
+  offline_closure_resume: "استئناف مسودة الإغلاق",
+  offline_closure_local: "يبقى الإغلاق محليًا إلى أن يقبل الخادم طلبك المرسل.",
+  offline_closure_save_failed: "تعذّر حفظ مسودة الإغلاق على هذا الجهاز. أبقِ هذه الشاشة مفتوحة وأعد المحاولة.",
+  retry: "إعادة المحاولة",
+  work_order_status_review: "تغيّر أمر العمل. راجع حالته الحالية قبل الإرسال مجددًا. تم الاحتفاظ بإدخالك.",
+  work_order_status_review_current: "مراجعة الحالة الحالية على الخادم",
+  work_order_status_review_value: "حالة الخادم: {{status}} · المؤقتات النشطة: {{count}}",
+  work_order_status_review_confirm: "الاحتفاظ بإدخالي على هذه النسخة التي راجعتها",
+
+  offline_time_stopped: 'تم إيقاف المؤقت',
+  labor_review_current: 'مراجعة الوقت الحالي',
+  labor_review_confirm: 'الاحتفاظ بإدخالي على هذه النسخة',
+  labor_changed_review: 'تغيّر سجل الوقت. راجع نسخة الخادم قبل الحفظ مجددًا.',
+  labor_server_duration: 'المدة الحالية على الخادم',
+  offline_time_start: 'بدء',
+  offline_time_stop: 'إيقاف وحفظ',
+  offline_time_running_local: 'قيد التشغيل على هذا الجهاز',
+  offline_time_start_pending: 'البدء بانتظار التأكيد',
+  offline_time_running_server: 'قيد التشغيل — مؤكّد من الخادم',
+  offline_time_stop_pending: 'تم حفظ الإيقاف — بانتظار الإرسال',
+  offline_time_save: 'حفظ الوقت',
+  offline_time_personal: 'وقتي',
+  offline_time_connected_form: 'النموذج الكامل عبر الإنترنت',
+  offline_time_periods: 'الفترات على هذا الجهاز',
+  offline_time_server_total: 'إجمالي الخادم',
+  offline_time_review: 'مراجعة الفترة',
+  offline_time_preserve_status: 'الحفظ مع إبقاء الحالة الحالية',
+  offline_time_correct_connected: 'تصحيح الإجمالي عبر الإنترنت',
+  offline_time_saved_refresh_pending:
+    'تم تأكيد الوقت — بانتظار تحديث النسخة المحلية',
+  offline_time_invalid_range:
+    'تحقّق من البداية والنهاية: يجب أن تكون المدة موجبة وألا تكون الأوقات في المستقبل.',
+  offline_time_run_changed:
+    'تم إيقاف هذا المؤقّت أو إعادة تشغيله من مكان آخر. تم الاحتفاظ بفترتك.',
+  offline_time_status_changed:
+    'تغيّرت حالة أمر العمل. راجعها قبل إرسال هذه الفترة.',
+  offline_time_not_allowed:
+    'لا تسمح الصلاحيات أو الترخيص أو الاشتراك الحالي بهذا الإجراء على الوقت.',
+
+  offline_refresh_copy: 'تحديث النسخة',
+  offline_remove_server_attachment: 'إزالة من أمر العمل',
+  offline_clear_server_image: 'إزالة الصورة الرئيسية',
+  offline_remove_server_attachment_confirm:
+    'هل تريد إزالة هذا الملف من أمر العمل على الخادم؟ ستبقى اختياراتك وعمليات الإرسال المعلّقة محفوظة.',
+  offline_clear_server_image_confirm:
+    'هل تريد إزالة الصورة الرئيسية على الخادم؟ ستبقى صورتك المختارة وعمليات الإرسال المعلّقة محفوظة.',
+  offline_server_removal_refresh_pending:
+    'تم تأكيد الإزالة — بانتظار تحديث النسخة المحلية',
+  offline_review_files: 'مراجعة التحديد',
+  offline_restore_files_draft:
+    'سيُعاد التحديد إلى مسودة. راجعه ثم احفظه صراحةً. لن تُستبدل أي مسودة أحدث.',
+  offline_keep_file_selection: 'الاحتفاظ بتحديدي',
+  offline_file_transfer_only:
+    'تم نقل الملف إلى الخادم؛ يُؤكَّد إرفاقه بشكل منفصل.',
+  offline_file_dependency_failed:
+    'ينتظر الإرفاق ملفًا رُفض نقله. تم الاحتفاظ بتحديدك.',
+  offline_retry_file_import: 'إعادة محاولة حفظ الملف',
+  offline_file_available: 'الملف متاح على هذا الجهاز',
+  offline_file_failed: 'الملف غير متاح على هذا الجهاز',
+  offline_open_file: 'فتح الملف',
+  offline_download_file: 'تنزيل على هذا الجهاز',
+  offline_remove_file_selection: 'إزالة من التحديد',
+  offline_remove_local_copy: 'حذف النسخة المحلية',
+  offline_save_files: 'حفظ الملفات',
+  offline_other_fields_read_only:
+    'يمكن تعديل الملفات فقط في هذا النموذج عند عدم الاتصال بالإنترنت.',
+  offline_save_other_changes: 'حفظ التغييرات الأخرى',
+  offline_scan_asset: 'مسح رمز معدّة مُجهّزة',
+  offline_scan_unavailable:
+    'يتطلب المسح دون اتصال تجهيزًا مصرحًا به وترخيص المسح.',
+  offline_scan_ambiguous:
+    'تطابق عدة معدّات مُجهّزة هذا الرمز. افتح أمر العمل الخاص بها.',
+  offline_asset_not_available:
+    'هذه المعدّة غير متاحة دون اتصال. جهّز أمر العمل الخاص بها أثناء الاتصال بالإنترنت.',
+  offline_asset_read_only:
+    'نسخة مُجهّزة للقراءة فقط. تتطلب المعلومات الأخرى اتصالًا بالإنترنت.',
+  offline_asset_prepared_work_orders: 'تُعرض أوامر العمل المُجهّزة فقط.',
+  offline_file_not_ready: 'انتظر حتى يكتمل نسخ الملف إلى هذا الجهاز.',
+  offline_file_limit: 'يتجاوز هذا الملف الحجم المسموح به.',
+  offline_storage_limit:
+    'مساحة التخزين غير كافية. احذف النسخ المحلية التي لم تعد بحاجة إليها.',
+  offline_transfer_failed:
+    'تم رفض نقل ملف. احتفظ بعملك، ثم ألغِ هذا الإرسال صراحةً وحدد الملفات مجددًا لتصحيحه.',
+  offline_file_in_use:
+    'لا يزال هذا الملف مستخدمًا في تجهيز أو عمل قيد الانتظار.',
+  offline_file_open_failed: 'تعذّر فتح هذا المستند على هذا الجهاز.',
+  offline_file_integrity: 'نسخة الملف غير مكتملة أو تغيّرت. حدده مجددًا.',
+  offline_attachments_conflict:
+    'تغيّرت المرفقات على الخادم. حدّث البيانات، ثم جهّز التغيير مجددًا.',
+  offline_file_copy_failed: 'فشل النسخ إلى هذا الجهاز. حدد الملف مجددًا.',
+  offline_comment_saved_refresh_pending:
+    'تم تأكيد تغيير التعليق على الخادم؛ لا تزال النسخة المحلية بحاجة إلى تحديث.',
+  offline_comment_published_cleanup_pending:
+    'تم نشر التعليق. تعذّر حذف مسودته من هذا الجهاز. لا تنشره مرة أخرى؛ أعد محاولة حذف المسودة المحلية.',
+  offline_comment_attachment_pending:
+    'سبق تحديد مرفق. حدده مرة أخرى أو أكّد نشر النص فقط.',
+  offline_comment_text_only: 'نشر النص فقط',
+  offline_comment_clear_confirmed: 'حذف مسودة التعليق المنشور',
+  offline_refresh_pending: 'التحديث المحلي قيد الانتظار',
+  offline_sending: 'جارٍ الإرسال',
+  offline_request_too_large:
+    'حجم هذا الإرسال كبير جدًا. اختصر النص قبل إعادة المحاولة. تم الاحتفاظ بمسودتك.',
+  offline_comment_refresh_pending:
+    'تم الإرسال — في انتظار تحديث النسخة المحلية',
+  offline_invalid_choice: 'اختر خيارًا لا يزال متاحًا.',
+  offline_comment_empty: 'أدخل تعليقًا غير فارغ.',
+  offline_max_notes: 'يمكن أن تحتوي الملاحظات على 255 حرفًا كحد أقصى.',
+  offline_submit_notes: 'حفظ الملاحظات',
+  offline_submission: 'الإرسال',
+  offline_comment_pending: 'تعليق في انتظار الإرسال',
+  offline_comment_unavailable:
+    'تم إرسال التعليق. لم يعد متاحًا في النسخة المحلية.',
+  offline_invalid_number: 'أدخل رقمًا صالحًا قبل حفظ الإجابة.',
+  offline_prepare: 'تحضير على هذا الجهاز',
+  offline_available: 'متاح دون اتصال',
+  offline_prepared_at: 'تم حفظ نسخة كاملة: {{date}}',
+  offline_preparing: 'جارٍ التحضير…',
+  offline_sync: 'مزامنة',
+  offline_syncing: 'جارٍ المزامنة…',
+  offline_saving: 'جارٍ الحفظ…',
+  offline_draft_saved: 'تم حفظ المسودة على هذا الجهاز',
+  offline_save_failed:
+    'تعذّر حفظ هذا النص. انسخه قبل إعادة فتح التطبيق. تم الاحتفاظ بآخر مسودة محفوظة.',
+  offline_submit: 'حفظ الإجابة',
+  offline_queued: 'تم الحفظ على هذا الجهاز — في انتظار الإرسال',
+  offline_unknown: 'نتيجة تحتاج إلى التحقق',
+  offline_applied: 'تم الإرسال',
+  offline_conflict: 'تم التعديل من مكان آخر — تم الاحتفاظ بإجابتك',
+  offline_rejected: 'رُفض الإرسال — تم الاحتفاظ بعملك',
+  offline_wait_previous: 'انتظر نتيجة الإجابة السابقة قبل إرسال هذه المسودة.',
+  offline_server_value: 'القيمة الحالية على الخادم',
+  offline_keep_draft: 'مراجعة إجابتي وإرسالها',
+  offline_use_server: 'استخدام قيمة الخادم',
+  offline_discard: 'تجاهل هذا العمل المحلي',
+  offline_discard_confirm:
+    'هل تريد تجاهل هذه المراجعة نهائيًا؟ سيتم الاحتفاظ بأي مسودة أحدث.',
+  offline_remove: 'إزالة التحضير',
+  offline_remove_confirm: 'هل تريد إزالة النسخة المنزّلة من هذا الجهاز؟',
+  offline_pending: 'العمل المحلي',
+  offline_orphan: 'لم يعد العنصر المستهدف متاحًا. تم الاحتفاظ بعملك المحلي.',
+  offline_unavailable:
+    'لم يعد أمر العمل هذا متاحًا. تم الاحتفاظ بالعمل المحلي.',
+  offline_task_deleted:
+    'تم حذف هذه المهمة. يبقى عملها المحلي محفوظًا بشكل منفصل.',
+  offline_connected_required: 'يلزم الاتصال لتنفيذ هذا الإجراء',
+  offline_files_not_downloaded: 'لم يتم تنزيل الملفات',
+  offline_disabled: 'تم تعليق الوضع دون اتصال. تم الاحتفاظ بالعمل المحلي.',
+  offline_reconnect: 'أعد اتصال هذا الحساب للتحقق من عمليات الإرسال المعلّقة.',
+  offline_expired: 'اتصل لتجديد صلاحية الوصول المحلي. تم الاحتفاظ بعملك.',
+  offline_load_error: 'تعذّر فتح التخزين المحلي. تم الاحتفاظ بملفاتك.',
+  offline_limit:
+    'يتجاوز هذا التحضير حدود الوضع دون اتصال. تم الاحتفاظ بالنسخة الكاملة السابقة.',
+  offline_prepare_failed: 'فشل التحضير. تم الاحتفاظ بأي نسخة كاملة سابقة.',
+  offline_changed_revision: 'تغيّرت المسودة. راجع آخر مراجعة قبل تجاهلها.',
+  offline_leave_context:
+    'ستبقى المسودات المحلية وعمليات الإرسال المعلّقة على هذا الجهاز لهذا الحساب وهذا الخادم. ولن تُرسل من حساب آخر.',
+  offline_not_prepared: 'لم يتم تحضير أمر العمل هذا على هذا الجهاز.',
+  offline_storage_busy: 'لا يزال حفظ البيانات المحلية جاريًا.',
+  offline_count: 'أوامر العمل المحضّرة على هذا الجهاز: {{count}}',
+  offline_resume_after_conflict:
+    'تغيّرت هذه المهمة على الخادم. راجع القيمتين قبل إنشاء إرسال جديد.',
+  offline_abandoned: 'تم تجاهل العمل المحلي',
+  offline_max_text: '255 حرفًا كحد أقصى',
+  offline_received_without_access: 'تم التحقق من النتيجة. لم تعد المهمة متاحة.',
+  offline_no_local_work: 'لا يوجد عمل محلي متبقٍ',
+  offline_read_only: 'الوصول المحلي للقراءة فقط حتى يُصرّح لهذا الحساب مجددًا.',
+  offline_action_failed: 'فشل الإجراء. تم الاحتفاظ بعملك المحلي المحفوظ.',
+  offline_network_unavailable: 'الخادم غير متاح. يبقى عملك على هذا الجهاز.',
+  offline_invalid_response:
+    'استجابة الخادم غير مكتملة أو غير صالحة. تم الاحتفاظ بالنسخة الكاملة السابقة.',
+  offline_context_changed:
+    'تغيّر الحساب أو الخادم. عُد إلى الحساب الأصلي للمتابعة.',
+  offline_https_required: 'يلزم خادم يستخدم HTTPS لتحضير العمل دون اتصال.',
+  offline_native_required:
+    'يتطلب التخزين دون اتصال إصدارًا من التطبيق يتضمن الوحدات الأصلية.',
+  offline_work_pending: 'عالج العمل المحلي المتبقي قبل إزالة هذا التحضير.',
+  offline_removal_pending:
+    'أعد الاتصال لإنهاء إزالة التحضير السابق قبل تحضيره مجددًا.',
+  offline_unsupported_task:
+    'يجب تعبئة هذا النوع من المهام أثناء الاتصال بالإنترنت.',
+  offline_result_changed: 'تم حسم نتيجة هذا الإرسال بالفعل. حدّث لعرض النتيجة.',
   DUPLICATE_OF: 'نسخة مكررة من',
   DUPLICATED_BY: 'تم تكراره بواسطة',
   RELATED_TO: 'ذات صلة ب',
@@ -1443,6 +1662,8 @@ const locale = {
   operation_success: 'تمت العملية بنجاح',
   edit_reading: 'تحرير القراءة',
   are_you_sure_delete_reading: 'هل أنت متأكد من حذف هذه القراءة؟',
-  conflict_retry: 'تم تعديل المورد بواسطة طلب آخر. يرجى المحاولة مرة أخرى بعد 5 ثوانٍ.'
+  conflict_retry: 'تم تعديل المورد بواسطة طلب آخر. يرجى المحاولة مرة أخرى بعد 5 ثوانٍ.',
+  offline_network_lost: "انقطع الاتصال.",
+  offline_network_restored: "عاد الاتصال."
 };
 export default locale;

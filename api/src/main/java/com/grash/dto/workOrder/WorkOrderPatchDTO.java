@@ -16,6 +16,26 @@ import java.util.List;
 @NoArgsConstructor
 @Schema(description = "DTO for patching an existing work order")
 public class WorkOrderPatchDTO extends WorkOrderBasePatchDTO {
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    private boolean imagePresent;
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    private boolean filesPresent;
+    private AttachmentsBase attachmentsBase;
+
+    public record AttachmentsBase(Long imageId, List<Long> fileIds) {}
+
+    @Override
+    public void setImage(com.grash.model.File image) {
+        super.setImage(image);
+        imagePresent = true;
+    }
+
+    @Override
+    public void setFiles(List<com.grash.model.File> files) {
+        super.setFiles(files);
+        filesPresent = true;
+    }
+
     //    @Schema(description = "User who completed the work order", implementation = IdDTO.class)
 //    //TODO remove or implement user changing completion details in frontends
 //    @Deprecated

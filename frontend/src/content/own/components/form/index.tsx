@@ -37,6 +37,7 @@ interface PropsType {
   isButtonEnabled?: (values: IHash<any>, ...props: any[]) => boolean;
   enableReinitialize?: boolean;
   nextToButton?: React.ReactNode;
+  onSignatureInput?: () => void;
 }
 
 export default (props: PropsType) => {
@@ -251,8 +252,9 @@ export default (props: PropsType) => {
                     <SignaturePad
                       label={field.label}
                       value={formik.values[field.name]}
+                      onInputStart={props.onSignatureInput}
                       onChange={(signature) => {
-                        formik.setFieldValue(field.name, signature);
+                        handleChange(formik, field.name, signature);
                       }}
                     />
                   ) : (

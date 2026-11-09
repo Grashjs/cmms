@@ -8,16 +8,22 @@ import {
   useTheme
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import useAuth from '../hooks/useAuth';
 import debounce from 'lodash.debounce';
 import { SheetManager } from 'react-native-actions-sheet';
 import { PermissionEntity } from '../models/role';
 import { PlanFeature } from '../models/subscriptionPlan';
 import { Image, StyleSheet, TouchableOpacity } from 'react-native';
+import type { ReactNode } from 'react';
 
 interface SingleTaskProps {
   task: Task;
+  valueEditor?: ReactNode;
+  notesEditor?: ReactNode;
+  imagesEditor?: ReactNode;
+  connectedDisabled?: boolean;
+  saving?: boolean;
   preview?: boolean;
   handleChange?: (value: string | number, id: number) => void;
   handleSaveNotes?: (value: string, id: number) => Promise<void>;
@@ -30,6 +36,11 @@ interface SingleTaskProps {
 
 export default function SingleTask({
   task,
+  valueEditor,
+  notesEditor,
+  imagesEditor,
+  connectedDisabled = false,
+  saving = false,
   handleChange,
   handleNoteChange,
   handleSaveNotes,
@@ -42,8 +53,15 @@ export default function SingleTask({
   const theme = useTheme();
   const { t }: { t: any } = useTranslation();
   const [savingNotes, setSavingNotes] = useState<boolean>(false);
+  const notesVisible = !!notes?.get(task.id);
+  const [notesVisited, setNotesVisited] = useState(notesVisible);
+  useEffect(() => {
+    if (notesVisible) setNotesVisited(true);
+  }, [notesVisible]);
   const { user, hasCreatePermission, hasFeature } = useAuth();
-  const [inputValue, setInputValue] = useState<string>(task.value?.toString() || '');
+  const [inputValue, setInputValue] = useState<string>(
+    task.value?.toString() || ''
+  );
   const changeHandler = (newValue: string) => {
     if (!preview) {
       let formattedValue = newValue;
@@ -51,22 +69,29 @@ export default function SingleTask({
         task.taskBase.taskType === 'METER' ||
         task.taskBase.taskType === 'NUMBER'
       ) {
-        formattedValue = newValue?.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1') ?? '';
+        formattedValue =
+          newValue?.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1') ?? '';
         setInputValue(formattedValue);
       } else setInputValue(formattedValue);
       if (formattedValue !== '') handleChange(formattedValue, task.id);
     }
   };
 
+  const changeHandlerRef = useRef(changeHandler);
+  changeHandlerRef.current = changeHandler;
   const debouncedChangeHandler = useMemo(
-    () => debounce(changeHandler, 1000),
+    () => debounce((value: string) => changeHandlerRef.current(value), 1000),
     []
   );
-  
+  useEffect(
+    () => () => debouncedChangeHandler.cancel(),
+    [debouncedChangeHandler]
+  );
+
   useEffect(() => {
-  setInputValue(task.value?.toString() || '');
-}, [task.value]);
-  
+    setInputValue(task.value?.toString() || '');
+  }, [task.value]);
+
   const onDropdownValueChange = (value) => {
     !preview &&
       !(task.taskBase.user && task.taskBase.user.id !== user.id) &&
@@ -115,18 +140,21 @@ export default function SingleTask({
           {task.taskBase.label || `<${t('enter_task_name')}>`}
         </Text>
         <View style={{ display: 'flex', flexDirection: 'row' }}>
-          <IconButton
-            iconColor={theme.colors.primary}
-            icon={'image'}
-            onPress={() => handleSelectImages(task.id)}
-            disabled={
-              preview ||
-              !(
-                hasCreatePermission(PermissionEntity.FILES) &&
-                hasFeature(PlanFeature.FILE)
-              )
-            }
-          />
+          {!imagesEditor && (
+            <IconButton
+              iconColor={theme.colors.primary}
+              icon={'image'}
+              onPress={() => handleSelectImages(task.id)}
+              disabled={
+                connectedDisabled ||
+                preview ||
+                !(
+                  hasCreatePermission(PermissionEntity.FILES) &&
+                  hasFeature(PlanFeature.FILE)
+                )
+              }
+            />
+          )}
           <IconButton
             iconColor={theme.colors.primary}
             icon={'note-outline'}
@@ -134,66 +162,81 @@ export default function SingleTask({
           />
         </View>
       </View>
-      {['SUBTASK', 'INSPECTION', 'MULTIPLE'].includes(
-        task.taskBase.taskType
-      ) ? (
-        <TouchableOpacity
-          onPress={() => {
-            SheetManager.show('dropdown-sheet', {
-              payload: {
-                value: preview
-                  ? getOptions(task.taskBase.taskType, task.taskBase.options)[0]
-                      .value
-                  : task.value,
-                items: getOptions(
-                  task.taskBase.taskType,
-                  task.taskBase.options
-                ),
-                setValue: onDropdownValueChange
-              }
-            });
-          }}
-        >
-          <View pointerEvents="none">
-            <TextInput
-              editable={false}
-              value={
-                getOptions(task.taskBase.taskType, task.taskBase.options).find(
-                  (o) =>
-                    o.value ===
-                    (preview
-                      ? getOptions(
-                          task.taskBase.taskType,
-                          task.taskBase.options
-                        )[0].value
-                      : task.value)
-                )?.label
-              }
-              mode="outlined"
-              right={<TextInput.Icon icon="menu-down" />}
-            />
-          </View>
-        </TouchableOpacity>
-      ) : task.taskBase.taskType === 'METER' ||
-        task.taskBase.taskType === 'NUMBER' ? (
-        <TextInput
-          defaultValue={task.value?.toString()}
-          onChangeText={changeHandler}
-          label={t('value')}
-          value={inputValue}
-          mode={'outlined'}
-          keyboardType="decimal-pad"
-          disabled={task.taskBase.user && task.taskBase.user.id !== user.id}
-        />
-      ) : (
-        <TextInput
-          defaultValue={task.value?.toString()}
-          onChangeText={debouncedChangeHandler}
-          label={t('value')}
-          mode={'outlined'}
-          disabled={task.taskBase.user && task.taskBase.user.id !== user.id}
-        />
-      )}
+      {valueEditor ??
+        (['SUBTASK', 'INSPECTION', 'MULTIPLE'].includes(
+          task.taskBase.taskType
+        ) ? (
+          <TouchableOpacity
+            disabled={connectedDisabled || saving}
+            onPress={() => {
+              SheetManager.show('dropdown-sheet', {
+                payload: {
+                  value: preview
+                    ? getOptions(
+                        task.taskBase.taskType,
+                        task.taskBase.options
+                      )[0].value
+                    : task.value,
+                  items: getOptions(
+                    task.taskBase.taskType,
+                    task.taskBase.options
+                  ),
+                  setValue: onDropdownValueChange
+                }
+              });
+            }}
+          >
+            <View pointerEvents="none">
+              <TextInput
+                editable={false}
+                value={
+                  getOptions(
+                    task.taskBase.taskType,
+                    task.taskBase.options
+                  ).find(
+                    (o) =>
+                      o.value ===
+                      (preview
+                        ? getOptions(
+                            task.taskBase.taskType,
+                            task.taskBase.options
+                          )[0].value
+                        : task.value)
+                  )?.label
+                }
+                mode="outlined"
+                right={<TextInput.Icon icon="menu-down" />}
+              />
+            </View>
+          </TouchableOpacity>
+        ) : task.taskBase.taskType === 'METER' ||
+          task.taskBase.taskType === 'NUMBER' ? (
+          <TextInput
+            defaultValue={task.value?.toString()}
+            onChangeText={changeHandler}
+            label={t('value')}
+            value={inputValue}
+            mode={'outlined'}
+            keyboardType="decimal-pad"
+            disabled={
+              connectedDisabled ||
+              saving ||
+              (task.taskBase.user && task.taskBase.user.id !== user.id)
+            }
+          />
+        ) : (
+          <TextInput
+            defaultValue={task.value?.toString()}
+            onChangeText={debouncedChangeHandler}
+            label={t('value')}
+            mode={'outlined'}
+            disabled={
+              connectedDisabled ||
+              saving ||
+              (task.taskBase.user && task.taskBase.user.id !== user.id)
+            }
+          />
+        ))}
       {task.taskBase.asset && (
         <View
           style={{
@@ -228,50 +271,61 @@ export default function SingleTask({
           </TouchableOpacity>
         </View>
       )}
-      {notes.get(task.id) && (
-        <View>
-          <TextInput
-            mode={'outlined'}
-            multiline
-            value={task.notes}
-            label={t('notes')}
-            onChangeText={(value) =>
-              !preview && handleNoteChange(value, task.id)
-            }
-          />
-          <Button
-            style={{ marginTop: 10 }}
-            mode="contained"
-            loading={savingNotes}
-            disabled={savingNotes}
-            onPress={() => {
-              setSavingNotes(true);
-              handleSaveNotes(task.notes, task.id).finally(() =>
-                setSavingNotes(false)
-              );
-            }}
-          >
-            {t('save')}
-          </Button>
+      {(notesEditor ? notesVisible || notesVisited : notesVisible) && (
+        <View style={{ display: notesVisible ? 'flex' : 'none' }}>
+          {notesEditor ?? (
+            <>
+              <TextInput
+                mode={'outlined'}
+                multiline
+                disabled={connectedDisabled}
+                value={task.notes}
+                label={t('notes')}
+                onChangeText={(value) =>
+                  !preview && handleNoteChange(value, task.id)
+                }
+              />
+              <Button
+                style={{ marginTop: 10 }}
+                mode="contained"
+                loading={savingNotes}
+                disabled={savingNotes || saving || connectedDisabled}
+                onPress={() => {
+                  setSavingNotes(true);
+                  handleSaveNotes(task.notes, task.id).finally(() =>
+                    setSavingNotes(false)
+                  );
+                }}
+              >
+                {t('save')}
+              </Button>
+            </>
+          )}
         </View>
       )}
-      {task.images.map((image) => (
-        <TouchableOpacity
-          key={image.id}
-          onPress={() =>
-            handleZoomImage(
-              task.images.map((img) => img.url),
-              image.url
-            )
-          }
-          style={{ marginTop: 10 }}
-        >
-          <Image
-            source={{ uri: image.url }}
-            style={{ borderRadius: 5, height: 150 }}
-          />
-        </TouchableOpacity>
-      ))}
+      {imagesEditor}
+      {!imagesEditor && connectedDisabled && !!task.images?.length && (
+        <Text>{t('offline_files_not_downloaded')}</Text>
+      )}
+      {!imagesEditor &&
+        !connectedDisabled &&
+        task.images?.map((image) => (
+          <TouchableOpacity
+            key={image.id}
+            onPress={() =>
+              handleZoomImage(
+                task.images.map((img) => img.url),
+                image.url
+              )
+            }
+            style={{ marginTop: 10 }}
+          >
+            <Image
+              source={{ uri: image.url }}
+              style={{ borderRadius: 5, height: 150 }}
+            />
+          </TouchableOpacity>
+        ))}
     </View>
   );
 }

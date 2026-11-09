@@ -26,6 +26,7 @@ export interface TaskBase {
 }
 export interface Task {
   id: number;
+  version?: number;
   value?: string | number;
   notes: string;
   taskBase: TaskBase;

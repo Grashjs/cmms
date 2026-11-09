@@ -27,6 +27,8 @@ import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toCollection;
 
 @Entity
+// Editing another field must not rewrite a concurrently replaced primary image.
+@org.hibernate.annotations.DynamicUpdate
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -84,6 +86,12 @@ public class WorkOrder extends WorkOrderBase {
     @Schema(description = "The first time the work order was reacted to", accessMode = Schema.AccessMode.READ_ONLY)
     @NotAudited
     private Date firstTimeToReact;
+
+    /** Explicit status decisions only; labor writes must not advance this guard. */
+    @NotAudited
+    @JsonIgnore
+    @Column(nullable = false)
+    private long timerStatusRevision;
 
     @NotAudited
     @OneToMany(mappedBy = "workOrder", cascade = CascadeType.ALL, orphanRemoval = true)

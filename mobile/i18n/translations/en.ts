@@ -1,4 +1,236 @@
 const locale = {
+  offline_preference_title: "Use offline mode",
+  offline_preference_description: "Prepare work orders on this device for use without Internet.",
+  offline_preference_pending: "Resolve local drafts, active timers and pending sends before turning offline mode off. The server must also confirm any pending preparation release. Nothing was deleted.",
+  offline_preference_denied: "The server has not enabled offline access for this account. Your local work is preserved.",
+  offline_preference_read_error: "The offline setting could not be read. Your local work remains protected. Try again; Internet is not required.",
+  offline_preference_activation_failed: "Offline mode could not be enabled on this device. The setting remains off; try again.",
+  offline_unlock_title: "Unlock offline work",
+  offline_unlock_explanation: "Verify your identity to access work saved on this device.",
+  offline_unlock_system_prompt: "Unlock offline work in Atlas CMMS",
+  offline_unlock_use_code: "Use device code",
+  offline_unlock_setup: "Set a screen lock in your phone settings, then retry. Offline work remains saved and hidden.",
+  offline_unlock_cancelled: "Unlock cancelled. Your offline work remains saved.",
+  offline_unlock_failed: "Unlock failed. Retry or use your device code.",
+  offline_unlock_check_server: "Check access with server",
+  offline_unlock_sign_in: "Sign in to the server with this account, then check access again. Your work remains saved and hidden.",
+  offline_unlock_logout: "Sign out",
+  save_signature: "Save Signature",
+  offline_signature_unsaved: "Drawing not saved. Press Save Signature before submitting closure.",
+  offline_signature_saved: "Signature saved on this device.",
+  offline_signature_save_failed: "Signature not saved. Press Save Signature to retry, or clear it.",
+
+  offline_status_request: "Status request",
+  offline_status_requested: "Requested status: {{status}}",
+  offline_status_saved_refresh_pending: "Status confirmed — local refresh pending",
+  offline_status_review: "Review request",
+  offline_status_review_confirm: "Server: {{server}}. Your request: {{local}}. Keep your input as a draft on this reviewed version, then submit it explicitly.",
+  offline_status_submit: "Submit status request",
+  offline_closure_submit: "Submit closure request",
+  offline_status_stop_timer: "Stop and save the timer on this device before requesting this status.",
+  offline_status_drafts_pending: "Submit or explicitly discard your unfinished drafts before submitting closure.",
+  offline_status_dependency_failed: "Resolve the earlier refusal or conflict before sending this request.",
+  offline_status_dependency_pending: "Waiting for earlier operations to be confirmed.",
+  offline_status_new_work: "New local work is present. Review it before sending closure.",
+  offline_status_signature_forbidden: "Signature capture is not allowed with the current permissions, license or subscription.",
+  offline_status_conflict: "The status or closure information changed. Review it; your input is preserved.",
+  offline_status_requirements: "The required closure conditions are not met.",
+  offline_status_prepare_again: "Refresh this preparation online before using offline status changes.",
+  offline_status_server: "Confirmed status: {{status}}",
+  offline_closure_resume: "Resume closure draft",
+  offline_closure_local: "Closure remains local until the server accepts your submitted request.",
+  offline_closure_save_failed: "The closure draft could not be saved on this device. Keep this screen open and retry.",
+  retry: "Retry",
+  work_order_status_review: "The work order changed. Review its current status before submitting again. Your input is preserved.",
+  work_order_status_review_current: "Review current server status",
+  work_order_status_review_value: "Server status: {{status}} · Active timers: {{count}}",
+  work_order_status_review_confirm: "Keep my input on this reviewed version",
+
+  offline_time_stopped: 'Timer stopped',
+  labor_review_current: 'Review current time',
+  labor_review_confirm: 'Keep my input on this version',
+  labor_changed_review:
+    'This time entry changed. Review the server version before saving again.',
+  labor_server_duration: 'Current server duration',
+  offline_time_start: 'Start',
+  offline_time_stop: 'Stop and save',
+  offline_time_running_local: 'Running on this device',
+  offline_time_start_pending: 'Start awaiting confirmation',
+  offline_time_running_server: 'Running — confirmed by the server',
+  offline_time_stop_pending: 'Stop saved — waiting to send',
+  offline_time_save: 'Save time',
+  offline_time_personal: 'My time',
+  offline_time_connected_form: 'Full online form',
+  offline_time_periods: 'Periods on this device',
+  offline_time_server_total: 'Server total',
+  offline_time_review: 'Review period',
+  offline_time_preserve_status: 'Save and keep the current status',
+  offline_time_correct_connected: 'Correct total online',
+  offline_time_saved_refresh_pending: 'Time confirmed — local refresh pending',
+  offline_time_invalid_range:
+    'Check the start and end: the duration must be positive and the times must not be in the future.',
+  offline_time_run_changed:
+    'This timer was stopped or restarted elsewhere. Your period is preserved.',
+  offline_time_status_changed:
+    'The work order status changed. Review it before sending this period.',
+  offline_time_not_allowed:
+    'This time action is not allowed with the current permissions, license or subscription.',
+
+  offline_refresh_copy: 'Refresh copy',
+  offline_remove_server_attachment: 'Remove from work order',
+  offline_clear_server_image: 'Clear main image',
+  offline_remove_server_attachment_confirm:
+    'Remove this file from the work order on the server? Your selections and pending submissions will be preserved.',
+  offline_clear_server_image_confirm:
+    'Clear the main image on the server? Your selected image and pending submissions will be preserved.',
+  offline_server_removal_refresh_pending:
+    'Removal confirmed — local refresh pending',
+  offline_review_files: 'Review selection',
+  offline_restore_files_draft:
+    'The selection will be restored as a draft. Review it, then save it explicitly. A newer draft will not be replaced.',
+  offline_keep_file_selection: 'Keep my selection',
+  offline_file_transfer_only:
+    'File transferred to the server; attachment is confirmed separately.',
+  offline_file_dependency_failed:
+    'The attachment is waiting for a file whose transfer was rejected. Your selection is preserved.',
+  offline_retry_file_import: 'Retry saving the file',
+  offline_file_available: 'File available on this device',
+  offline_file_failed: 'File unavailable on this device',
+  offline_open_file: 'Open file',
+  offline_download_file: 'Download to this device',
+  offline_remove_file_selection: 'Remove from selection',
+  offline_remove_local_copy: 'Delete local copy',
+  offline_save_files: 'Save files',
+  offline_other_fields_read_only:
+    'Only files can be changed in this form while offline.',
+  offline_save_other_changes: 'Save other changes',
+  offline_scan_asset: 'Scan a prepared asset',
+  offline_scan_unavailable:
+    'Offline scanning requires an authorized preparation and the scanning license.',
+  offline_scan_ambiguous:
+    'Several prepared assets match this code. Open their work order.',
+  offline_asset_not_available:
+    'This asset is not available offline. Prepare its work order with an Internet connection.',
+  offline_asset_read_only:
+    'Read-only prepared copy. Other information requires an Internet connection.',
+  offline_asset_prepared_work_orders: 'Only prepared work orders are shown.',
+  offline_file_not_ready:
+    'Wait until the file has finished copying to this device.',
+  offline_file_limit: 'This file exceeds the allowed size.',
+  offline_storage_limit:
+    'There is not enough storage space. Remove local copies that are no longer needed.',
+  offline_transfer_failed:
+    'A transfer was rejected. Keep your work, then explicitly discard this submission and select the files again to correct it.',
+  offline_file_in_use:
+    'This file is still used by a preparation or pending work.',
+  offline_file_open_failed: 'This document cannot be opened on this device.',
+  offline_file_integrity:
+    'The file copy is incomplete or has changed. Select it again.',
+  offline_attachments_conflict:
+    'The attachments have changed on the server. Refresh, then prepare the change again.',
+  offline_file_copy_failed:
+    'Copying to this device failed. Select the file again.',
+  offline_comment_saved_refresh_pending:
+    'The comment change is confirmed on the server; the local copy still needs to be refreshed.',
+  offline_comment_published_cleanup_pending:
+    'The comment is published. Its draft could not be removed from this device. Do not publish it again; retry removing the local draft.',
+  offline_comment_attachment_pending:
+    'An attachment was selected. Select it again or explicitly choose to publish the text only.',
+  offline_comment_text_only: 'Publish text only',
+  offline_comment_clear_confirmed: 'Remove published draft',
+  offline_refresh_pending: 'Local refresh pending',
+  offline_sending: 'Sending',
+  offline_request_too_large:
+    'This submission is too large. Shorten the text before trying again. Your draft is preserved.',
+  offline_comment_refresh_pending: 'Sent — waiting to refresh the local copy',
+  offline_invalid_choice: 'Choose an option that is still available.',
+  offline_comment_empty: 'Enter a comment that is not empty.',
+  offline_max_notes: 'Notes can contain a maximum of 255 characters.',
+  offline_submit_notes: 'Save notes',
+  offline_submission: 'Submission',
+  offline_comment_pending: 'Pending comment',
+  offline_comment_unavailable:
+    'Comment sent. It is no longer available in the local copy.',
+  offline_invalid_number: 'Enter a valid number before saving the response.',
+  offline_prepare: 'Prepare on this device',
+  offline_available: 'Available offline',
+  offline_prepared_at: 'Complete copy saved: {{date}}',
+  offline_preparing: 'Preparing…',
+  offline_sync: 'Synchronize',
+  offline_syncing: 'Synchronizing…',
+  offline_saving: 'Saving…',
+  offline_draft_saved: 'Draft saved on this device',
+  offline_save_failed:
+    'This text could not be saved. Copy it before reopening the app. The last saved draft is preserved.',
+  offline_submit: 'Save response',
+  offline_queued: 'Saved on this device — waiting to send',
+  offline_unknown: 'Result to verify',
+  offline_applied: 'Sent',
+  offline_conflict: 'Changed elsewhere — your response is preserved',
+  offline_rejected: 'Submission refused — your work is preserved',
+  offline_wait_previous:
+    'Wait for the previous response before submitting this draft.',
+  offline_server_value: 'Current server value',
+  offline_keep_draft: 'Review and submit my response',
+  offline_use_server: 'Use the server value',
+  offline_discard: 'Discard this local work',
+  offline_discard_confirm:
+    'Permanently discard this revision? A newer draft will be preserved.',
+  offline_remove: 'Remove preparation',
+  offline_remove_confirm: 'Remove the downloaded copy from this device?',
+  offline_pending: 'Local work',
+  offline_orphan:
+    'The target is no longer available. Your local work is preserved.',
+  offline_unavailable:
+    'This intervention is no longer accessible. Local work is preserved.',
+  offline_task_deleted:
+    'This task was removed. Its local work remains separate.',
+  offline_connected_required: 'Connection required for this action',
+  offline_files_not_downloaded: 'Files not downloaded',
+  offline_disabled: 'Offline mode suspended. Local work is preserved.',
+  offline_reconnect: 'Reconnect this account to verify pending sends.',
+  offline_expired: 'Connect to renew local access. Your work is preserved.',
+  offline_load_error:
+    'Local storage could not be opened. Your files have been preserved.',
+  offline_limit:
+    'This preparation exceeds the offline limits. The previous complete copy is preserved.',
+  offline_prepare_failed:
+    'Preparation failed. Any previous complete copy is preserved.',
+  offline_changed_revision:
+    'The draft changed. Review the latest revision before discarding it.',
+  offline_leave_context:
+    'Local drafts and pending sends will remain on this device for this account and server. They will not be sent from another account.',
+  offline_not_prepared:
+    'This intervention has not been prepared on this device.',
+  offline_storage_busy: 'Local writes are still being saved.',
+  offline_count: '{{count}} interventions prepared on this device',
+  offline_resume_after_conflict:
+    'The server changed this task. Review both values before creating a new submission.',
+  offline_abandoned: 'Local work discarded',
+  offline_max_text: 'Maximum 255 characters',
+  offline_received_without_access:
+    'Result verified. The task is no longer accessible.',
+  offline_no_local_work: 'No remaining local work',
+  offline_read_only:
+    'Local access is read only until this account is authorized again.',
+  offline_action_failed: 'Action failed. Your saved local work is preserved.',
+  offline_network_unavailable:
+    'Server unavailable. Your work remains on this device.',
+  offline_invalid_response:
+    'The server response is incomplete or invalid. The previous complete copy is preserved.',
+  offline_context_changed:
+    'The account or server changed. Return to the original account to continue.',
+  offline_https_required:
+    'An HTTPS server is required to prepare work offline.',
+  offline_native_required:
+    'Offline storage requires an app version that includes the native modules.',
+  offline_work_pending:
+    'Resolve remaining local work before removing this preparation.',
+  offline_removal_pending:
+    'Reconnect to finish removing the previous preparation before preparing it again.',
+  offline_unsupported_task: 'This task type must be completed online.',
+  offline_result_changed:
+    'This send has already been resolved. Refresh to see its result.',
   DUPLICATE_OF: 'Duplicate of',
   DUPLICATED_BY: 'Duplicated by',
   RELATED_TO: 'Related to',
@@ -1503,6 +1735,8 @@ const locale = {
     'Discard unsaved changes?\nIf you leave now, you will lose unsaved changes',
   edit_reading: 'Edit reading',
   are_you_sure_delete_reading: 'Are you sure to delete this reading?',
-  conflict_retry: 'The resource was modified by another request. Please retry in 5 seconds.'
+  conflict_retry: 'The resource was modified by another request. Please retry in 5 seconds.',
+  offline_network_lost: "Connection lost.",
+  offline_network_restored: "Connection restored."
 };
 export default locale;

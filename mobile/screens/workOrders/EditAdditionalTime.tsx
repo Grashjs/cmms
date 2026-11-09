@@ -8,9 +8,16 @@ import { formatSelect } from '../../utils/formatters';
 import { editLabor } from '../../slices/labor';
 import { RootStackScreenProps } from '../../types';
 import { useDispatch } from '../../store';
-import { getErrorMessage } from '../../utils/api';
-import { useContext } from 'react';
+import api, { getErrorMessage } from '../../utils/api';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
+import { Button, Text } from 'react-native-paper';
+import Labor from '../../models/labor';
+import { useOffline } from '../../offline/OfflineProvider';
+import {
+  assertSessionGeneration,
+  sessionGeneration
+} from '../../offline/sessionBridge';
 
 export default function EditAdditionalTime({
   navigation,
@@ -20,6 +27,19 @@ export default function EditAdditionalTime({
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const dispatch = useDispatch();
   const { workOrderId, labor } = route.params;
+  const offline = useOffline();
+  const connected = !offline.enabled || offline.networkAvailable;
+  const [baseLabor, setBaseLabor] = useState<Labor>(() => ({ ...labor }));
+  const [conflict, setConflict] = useState(false);
+  const inputRevision = useRef(0);
+  const mounted = useRef(true);
+  useEffect(
+    () => () => {
+      mounted.current = false;
+    },
+    []
+  );
+  const [reviewed, setReviewed] = useState<Labor | null>(null);
 
   const hours = Math.floor(labor.duration / 3600);
   const minutes = Math.floor((labor.duration % 3600) / 60);
@@ -83,7 +103,60 @@ export default function EditAdditionalTime({
   };
   return (
     <View style={{ flex: 1 }}>
+      {conflict && (
+        <View style={{ padding: 12 }}>
+          <Text accessibilityRole="alert">{t('labor_changed_review')}</Text>
+          <Button
+            disabled={!connected}
+            onPress={async () => {
+              const generation = sessionGeneration();
+              try {
+                const current = await api.get<Labor>(`labors/${baseLabor.id}`);
+                assertSessionGeneration(generation);
+                if (mounted.current) setReviewed(current);
+              } catch (error) {
+                if (mounted.current && generation === sessionGeneration())
+                  showSnackBar(getErrorMessage(error), 'error');
+              }
+            }}
+          >
+            {t('labor_review_current')}
+          </Button>
+          {reviewed && (
+            <View>
+              <Text>
+                {t('labor_server_duration')}: {reviewed.duration / 60}{' '}
+                {t('minutes')}
+              </Text>
+              <Text>
+                {t('work_started_at')}:{' '}
+                {new Date(reviewed.startedAt).toLocaleString()}
+              </Text>
+              <Text>
+                {t('assigned_to')}: {reviewed.assignedTo?.firstName}{' '}
+                {reviewed.assignedTo?.lastName}
+              </Text>
+              <Text>
+                {t('hourly_rate')}: {reviewed.hourlyRate} · {t('category')}:{' '}
+                {reviewed.timeCategory?.name || '—'} · {t('include_time')}:{' '}
+                {String(reviewed.includeToTotalTime)}
+              </Text>
+              <Button
+                onPress={() => {
+                  setBaseLabor(reviewed);
+                  setReviewed(null);
+                  setConflict(false);
+                }}
+              >
+                {t('labor_review_confirm')}
+              </Button>
+            </View>
+          )}
+        </View>
+      )}
       <Form
+        readOnly={!connected}
+        submitDisabled={!connected || conflict}
         fields={fields}
         navigation={navigation}
         validation={Yup.object().shape(shape)}
@@ -107,19 +180,39 @@ export default function EditAdditionalTime({
           hours: hours.toString(),
           minutes: minutes.toString()
         }}
-        onChange={({ field, e }) => {}}
+        onChange={() => {
+          inputRevision.current += 1;
+        }}
         onSubmit={async (values) => {
-          const formattedValues = { ...values };
+          if (!connected || conflict) return;
+          const generation = sessionGeneration();
+          const submittedRevision = inputRevision.current;
+          const formattedValues: any = {
+            ...values,
+            version: baseLabor.version
+          };
           formattedValues.assignedTo = formatSelect(formattedValues.assignedTo);
           formattedValues.timeCategory = formatSelect(
             formattedValues.timeCategory
           );
           formattedValues.duration = values.hours * 3600 + values.minutes * 60;
-          return dispatch(
-            editLabor(labor.id, workOrderId, formattedValues)
-          )
-            .catch((err) => showSnackBar(getErrorMessage(err), 'error'))
-            .finally(() => navigation.goBack());
+          try {
+            const result = await dispatch(
+              editLabor(baseLabor.id, workOrderId, formattedValues)
+            );
+            assertSessionGeneration(generation);
+            if (!mounted.current) return;
+            if (result?.localUpdateError)
+              showSnackBar(t('offline_time_saved_refresh_pending'), 'error');
+            if (result?.labor) setBaseLabor(result.labor);
+            if (inputRevision.current === submittedRevision)
+              navigation.goBack();
+          } catch (error) {
+            if (mounted.current && generation === sessionGeneration()) {
+              setConflict(error?.message === 'conflict_error');
+              showSnackBar(getErrorMessage(error), 'error');
+            }
+          }
         }}
       />
     </View>

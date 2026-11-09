@@ -22,13 +22,14 @@ import {
   Typography,
   useTheme
 } from '@mui/material';
-import WorkOrder from '../../../../models/owns/workOrder';
+import WorkOrder, { WorkOrderStatusGuard } from '../../../../models/owns/workOrder';
 import {
   ChangeEvent,
   Fragment,
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState
 } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -90,7 +91,7 @@ import AddFileModal from './AddFileModal';
 import CommentsSection from './CommentsSection';
 import { useLicenseEntitlement } from '../../../../hooks/useLicenseEntitlement';
 import { getCustomFieldValuesForDetails } from '../../type';
-import { getErrorMessage } from '../../../../utils/api';
+import api, { getErrorMessage } from '../../../../utils/api';
 import { getCommentsCountByWorkOrder } from '../../../../slices/comment';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CloseIcon from '@mui/icons-material/Close';
@@ -133,6 +134,7 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
   const [openAddFileModal, setOpenAddFileModal] = useState<boolean>(false);
   const [openLinkModal, setOpenLinkModal] = useState<boolean>(false);
   const [openCompleteModal, setOpenCompleteModal] = useState<boolean>(false);
+  const statusGuard = useRef<WorkOrderStatusGuard | null>(null);
   const [openReportConfigModal, setOpenReportConfigModal] =
     useState<boolean>(false);
   const [openSendReportModal, setOpenSendReportModal] =
@@ -174,6 +176,12 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
   const [generatingReport, setGeneratingReport] = useState<boolean>(false);
   const [openEditPrimaryTime, setOpenEditPrimaryTime] =
     useState<boolean>(false);
+  const [primaryTimeBase, setPrimaryTimeBase] = useState<Labor | null>(null);
+  const [primaryTimeConflict, setPrimaryTimeConflict] = useState(false);
+  const [reviewedPrimaryTime, setReviewedPrimaryTime] = useState<Labor | null>(
+    null
+  );
+  const primaryInputRevision = useRef(0);
   const [primaryTimeHours, setPrimaryTimeHours] = useState<number>();
   const [primaryTimeMinutes, setPrimaryTimeMinutes] = useState<number>();
   const [savingPrimaryTime, setSavingPrimaryTime] = useState<boolean>(false);
@@ -224,7 +232,8 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
   const onArchive = () => {
     handleCloseMenu();
     if (window.confirm(t('wo_archive_confirm') + workOrder.title + ' ?')) {
-      dispatch(editWorkOrder(workOrder?.id, { ...workOrder, archived: true }))
+      const { image, files, ...values } = workOrder;
+      dispatch(editWorkOrder(workOrder?.id, { ...values, archived: true }))
         .then(onArchiveSuccess)
         .catch(onArchiveFailure);
     }
@@ -245,12 +254,13 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
     dispatch(getRelations(workOrder.id));
   }, []);
   useEffect(() => {
+    if (openEditPrimaryTime) return;
     const [hours, minutes] = getHoursAndMinutesAndSeconds(
       primaryTime?.duration
     );
     setPrimaryTimeHours(hours);
     setPrimaryTimeMinutes(minutes);
-  }, [primaryTime]);
+  }, [primaryTime, openEditPrimaryTime]);
 
   const setImageState = (images: string[], image: string) => {
     setCurrentImage(image);
@@ -325,6 +335,7 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
     setChangingStatus(true);
     return dispatch(
       changeWorkOrderStatus(workOrder?.id, {
+        ...statusGuard.current,
         status: 'COMPLETE',
         feedback: feedback ?? null,
         signature
@@ -411,16 +422,24 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
     }
   };
   const onSavePrimaryTime = () => {
+    if (!primaryTimeBase || primaryTimeConflict) return;
     setSavingPrimaryTime(true);
+    const submittedRevision = primaryInputRevision.current;
     const duration = primaryTimeHours * 3600 + primaryTimeMinutes * 60;
     dispatch(
-      editLabor(primaryTime.id, workOrder.id, {
-        ...primaryTime,
+      editLabor(primaryTimeBase.id, workOrder.id, {
+        ...primaryTimeBase,
         duration
       })
     )
-      .then(() => {
-        setOpenEditPrimaryTime(false);
+      .then((labor) => {
+        setPrimaryTimeBase(labor);
+        if (primaryInputRevision.current === submittedRevision)
+          setOpenEditPrimaryTime(false);
+      })
+      .catch((error) => {
+        setPrimaryTimeConflict(error?.message === 'conflict_error');
+        showSnackBar(getErrorMessage(error), 'error');
       })
       .finally(() => setSavingPrimaryTime(false));
   };
@@ -618,6 +637,14 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
                     </Box>
                   ) : (
                     <Select
+                      onOpen={() => {
+                        statusGuard.current = {
+                          baseRevision: workOrder.timerStatusRevision,
+                          activeTimerRuns: labors
+                            .filter((labor) => labor.logged && labor.status === 'RUNNING')
+                            .map((labor) => ({ laborId: labor.id, timerRunId: labor.timerRunId }))
+                        };
+                      }}
                       onChange={(event) => {
                         if (event.target.value === 'COMPLETE') {
                           if (canComplete()) {
@@ -644,9 +671,11 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
                         setChangingStatus(true);
                         dispatch(
                           changeWorkOrderStatus(workOrder?.id, {
+                            ...statusGuard.current,
                             status: event.target.value
                           })
-                        ).finally(() => setChangingStatus(false));
+                        ).catch((error) => showSnackBar(t(getErrorMessage(error)), 'error'))
+                          .finally(() => setChangingStatus(false));
                       }}
                       disabled={
                         !hasEditPermission(
@@ -699,7 +728,9 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
                     }
                     onClick={() => {
                       setControllingTime(true);
-                      dispatch(controlTimer(!runningTimer, workOrder.id))
+                      dispatch(
+                        controlTimer(!runningTimer, workOrder.id, primaryTime)
+                      )
                         .catch((err) =>
                           showSnackBar(getErrorMessage(err), 'error')
                         )
@@ -879,25 +910,27 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
                       <TextField
                         value={primaryTimeHours}
                         type="number"
-                        onChange={(event) =>
-                          setPrimaryTimeHours(Number(event.target.value))
-                        }
+                        onChange={(event) => {
+                          primaryInputRevision.current += 1;
+                          setPrimaryTimeHours(Number(event.target.value));
+                        }}
                       />
                       <Typography variant="h6">h</Typography>
                       <TextField
                         value={primaryTimeMinutes}
                         type="number"
                         InputProps={{ inputProps: { min: 0, max: 59 } }}
-                        onChange={(event) =>
-                          setPrimaryTimeMinutes(Number(event.target.value))
-                        }
+                        onChange={(event) => {
+                          primaryInputRevision.current += 1;
+                          setPrimaryTimeMinutes(Number(event.target.value));
+                        }}
                       />
                       <Typography variant="h6">m</Typography>
                       {savingPrimaryTime ? (
                         <CircularProgress size="1rem" />
                       ) : (
                         <IconButton
-                          disabled={savingPrimaryTime}
+                          disabled={savingPrimaryTime || primaryTimeConflict}
                           onClick={onSavePrimaryTime}
                         >
                           <CheckTwoToneIcon color={'primary'} />
@@ -911,11 +944,60 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
                     <Typography
                       variant="h6"
                       style={{ cursor: 'pointer' }}
-                      onClick={() => setOpenEditPrimaryTime(true)}
+                      onClick={() => {
+                        setPrimaryTimeBase({ ...primaryTime });
+                        const [hours, minutes] = getHoursAndMinutesAndSeconds(
+                          primaryTime.duration
+                        );
+                        setPrimaryTimeHours(hours);
+                        setPrimaryTimeMinutes(minutes);
+                        setPrimaryTimeConflict(false);
+                        setReviewedPrimaryTime(null);
+                        setOpenEditPrimaryTime(true);
+                      }}
                       color="primary"
                     >
                       {durationToHours(primaryTime?.duration)}
                     </Typography>
+                  )}
+                  {openEditPrimaryTime && primaryTimeConflict && (
+                    <Box>
+                      <Typography color="error">
+                        {t('labor_changed_review')}
+                      </Typography>
+                      <Button
+                        onClick={async () => {
+                          try {
+                            setReviewedPrimaryTime(
+                              await api.get<Labor>(
+                                `labors/${primaryTimeBase.id}`
+                              )
+                            );
+                          } catch (error) {
+                            showSnackBar(getErrorMessage(error), 'error');
+                          }
+                        }}
+                      >
+                        {t('labor_review_current')}
+                      </Button>
+                      {reviewedPrimaryTime && (
+                        <Box>
+                          <Typography>
+                            {t('labor_server_duration')}:{' '}
+                            {durationToHours(reviewedPrimaryTime.duration)}
+                          </Typography>
+                          <Button
+                            onClick={() => {
+                              setPrimaryTimeBase(reviewedPrimaryTime);
+                              setReviewedPrimaryTime(null);
+                              setPrimaryTimeConflict(false);
+                            }}
+                          >
+                            {t('labor_review_confirm')}
+                          </Button>
+                        </Box>
+                      )}
+                    </Box>
                   )}
                 </Grid>
               )}
@@ -1228,6 +1310,8 @@ export default function WorkOrderDetails(props: WorkOrderDetailsProps) {
         defaultCustomers={workOrder.customers}
       />
       <CompleteWOModal
+        workOrderId={workOrder.id}
+        onReviewGuard={(guard) => { statusGuard.current = guard; }}
         open={openCompleteModal}
         onClose={() => setOpenCompleteModal(false)}
         fieldsConfig={{

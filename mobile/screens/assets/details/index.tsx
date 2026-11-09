@@ -23,16 +23,21 @@ import AssetWorkOrders from './AssetWorkOrders';
 import AssetFiles from './AssetFiles';
 import AssetParts from './AssetParts';
 import { CustomSnackBarContext } from '../../../contexts/CustomSnackBarContext';
+import { useOffline } from '../../../offline/OfflineProvider';
+import { useOfflineAsset } from '../../../offline/useOfflineAsset';
 
 export default function AssetDetailsHome({
-                                           navigation,
-                                           route
-                                         }: RootStackScreenProps<'AssetDetails'>) {
+  navigation,
+  route
+}: RootStackScreenProps<'AssetDetails'>) {
   const { id, assetProp } = route.params;
 
   const { t } = useTranslation();
+  const offline = useOffline();
+  const localOnly = offline.enabled && !offline.networkAvailable;
+  const local = useOfflineAsset(id);
   const { assetInfos, loadingGet } = useSelector((state) => state.assets);
-  const asset = assetInfos[id]?.asset ?? assetProp;
+  const asset = localOnly ? null : assetInfos[id]?.asset ?? assetProp;
   const dispatch = useDispatch();
   const theme = useTheme();
   const layout = useWindowDimensions();
@@ -46,6 +51,22 @@ export default function AssetDetailsHome({
     { key: 'parts', title: t('parts') }
   ]);
   const renderScene = ({ route, jumpTo }) => {
+    if (localOnly) {
+      if (!local.asset) return null;
+      if (route.key === 'details')
+        return (
+          <AssetDetails offlineAsset={local.asset} navigation={navigation} />
+        );
+      if (route.key === 'work-orders')
+        return (
+          <AssetWorkOrders offlineAsset={local.asset} navigation={navigation} />
+        );
+      return (
+        <View style={{ padding: 20 }}>
+          <Text>{t('offline_connected_required')}</Text>
+        </View>
+      );
+    }
     switch (route.key) {
       case 'details':
         return <AssetDetails asset={asset} navigation={navigation} />;
@@ -67,33 +88,37 @@ export default function AssetDetailsHome({
   );
 
   useEffect(() => {
-    if (!assetProp)
-      dispatch(getAssetDetails(id));
-  }, [assetProp]);
+    if (!localOnly && !assetProp) dispatch(getAssetDetails(id));
+  }, [assetProp, id, localOnly]);
   useEffect(() => {
     navigation.setOptions({
-      title: asset?.name ?? t('loading'),
-      headerRight: () => (
-        <Pressable
-          onPress={() => {
-            SheetManager.show('asset-details-sheet', {
-              payload: {
-                onEdit: () => navigation.navigate('EditAsset', { asset }),
-                onDelete: () => setOpenDelete(true),
-                onCreateWorkOrder: () =>
-                  navigation.push('AddWorkOrder', { asset }),
-                onCreateChildAsset: () =>
-                  navigation.push('AddAsset', { parentAsset: asset }),
-                asset
-              }
-            });
-          }}
-        >
-          <IconButton icon='dots-vertical' />
-        </Pressable>
-      )
+      title: (localOnly ? local.asset?.name : asset?.name) ?? t('loading'),
+      headerRight: () =>
+        localOnly ? null : (
+          <Pressable
+            onPress={() => {
+              SheetManager.show('asset-details-sheet', {
+                payload: {
+                  onEdit: () => navigation.navigate('EditAsset', { asset }),
+                  onDelete: () => setOpenDelete(true),
+                  onCreateWorkOrder: () =>
+                    navigation.push('AddWorkOrder', { asset }),
+                  onCreateChildAsset: () =>
+                    navigation.push('AddAsset', { parentAsset: asset }),
+                  asset
+                }
+              });
+            }}
+          >
+            <IconButton icon="dots-vertical" />
+          </Pressable>
+        )
     });
-  }, [asset]);
+    if (localOnly) {
+      setOpenDelete(false);
+      void SheetManager.hide('asset-details-sheet');
+    }
+  }, [asset, localOnly, local.asset]);
 
   const onDeleteSuccess = () => {
     showSnackBar(t('asset_remove_success'), 'success');
@@ -103,6 +128,7 @@ export default function AssetDetailsHome({
     showSnackBar(t('asset_remove_failure'), 'error');
 
   const handleDelete = () => {
+    if (localOnly) return;
     dispatch(deleteAsset(asset?.id))
       .then(onDeleteSuccess)
       .catch(onDeleteFailure);
@@ -114,7 +140,7 @@ export default function AssetDetailsHome({
         <Dialog visible={openDelete} onDismiss={() => setOpenDelete(false)}>
           <Dialog.Title>{t('confirmation')}</Dialog.Title>
           <Dialog.Content>
-            <Text variant='bodyMedium'>{t('confirm_delete_asset')}</Text>
+            <Text variant="bodyMedium">{t('confirm_delete_asset')}</Text>
           </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={() => setOpenDelete(false)}>{t('cancel')}</Button>
@@ -124,10 +150,10 @@ export default function AssetDetailsHome({
       </Portal>
     );
   };
-  if (asset)
+  if (asset || (localOnly && local.asset))
     return (
       <View style={styles.container}>
-        {renderConfirmDelete()}
+        {!localOnly && renderConfirmDelete()}
         <TabView
           renderTabBar={renderTabBar}
           navigationState={{ index: tabIndex, routes: tabs }}
@@ -135,6 +161,12 @@ export default function AssetDetailsHome({
           onIndexChange={setTabIndex}
           initialLayout={{ width: layout.width }}
         />
+      </View>
+    );
+  else if (localOnly && !local.loading)
+    return (
+      <View style={{ padding: 20 }}>
+        <Text>{t('offline_asset_not_available')}</Text>
       </View>
     );
   else return <LoadingDialog visible={true} />;

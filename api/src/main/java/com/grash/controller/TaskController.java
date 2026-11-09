@@ -9,7 +9,6 @@ import com.grash.mapper.TaskMapper;
 import com.grash.model.*;
 import com.grash.model.enums.PermissionEntity;
 import com.grash.model.enums.TaskType;
-import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.security.CurrentUser;
 import com.grash.service.*;
 
@@ -41,7 +40,6 @@ public class TaskController {
     private final UserService userService;
     private final TaskBaseService taskBaseService;
     private final WorkOrderService workOrderService;
-    private final WorkflowService workflowService;
     private final TaskMapper taskMapper;
     private final PreventiveMaintenanceService preventiveMaintenanceService;
 
@@ -212,16 +210,12 @@ public class TaskController {
                              @PathVariable(
                                      "id") Long id,
                              HttpServletRequest req) {
-        User user = userService.whoami(req);
+        User user = userService.whoami(req, false);
         Optional<Task> optionalTask = taskService.findById(id);
 
         if (optionalTask.isPresent()) {
             checkAccessToTask(optionalTask.get(), user, false);
-            Task patchedTask = taskService.update(id, task);
-            Collection<Workflow> workflows =
-                    workflowService.findByMainConditionAndCompany(WFMainCondition.TASK_UPDATED,
-                            user.getCompany().getId());
-            workflows.forEach(workflow -> workflowService.runTask(workflow, patchedTask));
+            Task patchedTask = taskService.update(id, task, user);
             return taskMapper.toShowDto(patchedTask);
         } else throw new CustomException("Task not found", HttpStatus.NOT_FOUND);
     }

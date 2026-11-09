@@ -1,4 +1,238 @@
 ﻿const trJSON = {
+  offline_preference_title: "Çevrimdışı modu kullan",
+  offline_preference_description: "İnternet olmadan kullanmak için iş emirlerini bu cihazda hazırlayın.",
+  offline_preference_pending: "Çevrimdışı modu kapatmadan önce yerel taslakları, etkin zamanlayıcıları ve bekleyen gönderimleri çözün. Bekleyen hazırlık kaldırma işlemlerini sunucu da onaylamalıdır. Hiçbir şey silinmedi.",
+  offline_preference_denied: "Sunucu bu hesap için çevrimdışı erişime izin vermiyor. Yerel çalışmanız korunuyor.",
+  offline_preference_read_error: "Çevrimdışı ayar okunamadı. Yerel çalışmalarınız korunmaya devam ediyor. Yeniden deneyin; internet gerekmez.",
+  offline_preference_activation_failed: "Bu cihazda çevrimdışı mod etkinleştirilemedi. Ayar kapalı kalır; yeniden deneyin.",
+  offline_unlock_title: "Çevrimdışı çalışmayı aç",
+  offline_unlock_explanation: "Bu cihazda kayıtlı çalışmaya erişmek için kimliğinizi doğrulayın.",
+  offline_unlock_system_prompt: "Atlas CMMS çevrimdışı çalışmayı aç",
+  offline_unlock_use_code: "Cihaz kodunu kullan",
+  offline_unlock_setup: "Telefon ayarlarında ekran kilidi ayarlayın, ardından yeniden deneyin. Çalışma kayıtlı ve gizli kalır.",
+  offline_unlock_cancelled: "Kilidi açma iptal edildi. Çevrimdışı çalışmanız kayıtlıdır.",
+  offline_unlock_failed: "Kilit açılamadı. Yeniden deneyin veya cihaz kodunu kullanın.",
+  offline_unlock_check_server: "Sunucuda erişimi kontrol et",
+  offline_unlock_sign_in: "Bu hesapla sunucuda oturum açın, ardından erişimi yeniden kontrol edin. Çalışmanız kayıtlı ve gizli kalır.",
+  offline_unlock_logout: "Çıkış yap",
+  save_signature: "İmzayı kaydet",
+  offline_signature_unsaved: "Çizim kaydedilmedi. Kapatma isteğini göndermeden önce İmzayı kaydet düğmesine basın.",
+  offline_signature_saved: "İmza bu cihaza kaydedildi.",
+  offline_signature_save_failed: "İmza kaydedilmedi. Yeniden denemek için İmzayı kaydet düğmesine basın veya imzayı temizleyin.",
+
+  offline_status_request: "Durum isteği",
+  offline_status_requested: "İstenen durum: {{status}}",
+  offline_status_saved_refresh_pending: "Durum onaylandı — yerel güncelleme bekleniyor",
+  offline_status_review: "İsteği incele",
+  offline_status_review_confirm: "Sunucu: {{server}}. İsteğiniz: {{local}}. Girdinizi incelenen bu sürüm üzerinde taslak olarak koruyun, ardından açıkça gönderin.",
+  offline_status_submit: "Durum isteğini gönder",
+  offline_closure_submit: "Kapatma isteğini gönder",
+  offline_status_stop_timer: "Bu durumu istemeden önce bu cihazdaki zamanlayıcıyı durdurup kaydedin.",
+  offline_status_drafts_pending: "Kapatma isteğini göndermeden önce tamamlanmamış taslakları gönderin veya açıkça silin.",
+  offline_status_dependency_failed: "Bu isteği göndermeden önce önceki reddi veya çakışmayı çözün.",
+  offline_status_dependency_pending: "Önceki işlemlerin onaylanması bekleniyor.",
+  offline_status_new_work: "Yeni yerel veriler var. Kapatmayı göndermeden önce bunları inceleyin.",
+  offline_status_signature_forbidden: "Mevcut izinler, lisans veya abonelik ile imza alınmasına izin verilmiyor.",
+  offline_status_conflict: "Durum veya kapatma bilgileri değişti. İnceleyin; girdiniz korunuyor.",
+  offline_status_requirements: "Gerekli kapatma koşulları sağlanmıyor.",
+  offline_status_prepare_again: "Çevrimdışı durum değişikliklerini kullanmadan önce bu hazırlığı çevrimiçi güncelleyin.",
+  offline_status_server: "Onaylanan durum: {{status}}",
+  offline_closure_resume: "Kapatma taslağına devam et",
+  offline_closure_local: "Sunucu gönderdiğiniz isteği kabul edene kadar kapatma yerel kalır.",
+  offline_closure_save_failed: "Kapatma taslağı bu cihaza kaydedilemedi. Bu ekranı açık tutun ve yeniden deneyin.",
+  retry: "Yeniden dene",
+  work_order_status_review: "İş emri değişti. Yeniden göndermeden önce mevcut durumunu inceleyin. Girdiniz korunuyor.",
+  work_order_status_review_current: "Sunucudaki mevcut durumu incele",
+  work_order_status_review_value: "Sunucu durumu: {{status}} · Etkin zamanlayıcılar: {{count}}",
+  work_order_status_review_confirm: "Girdimi incelenen bu sürümde koru",
+
+  offline_time_stopped: 'Zamanlayıcı durduruldu',
+  labor_review_current: 'Geçerli süreyi incele',
+  labor_review_confirm: 'Girdimi bu sürümde koru',
+  labor_changed_review:
+    'Bu süre kaydı değişti. Yeniden kaydetmeden önce sunucu sürümünü inceleyin.',
+  labor_server_duration: 'Sunucudaki geçerli süre',
+  offline_time_start: 'Başlat',
+  offline_time_stop: 'Durdur ve kaydet',
+  offline_time_running_local: 'Bu cihazda çalışıyor',
+  offline_time_start_pending: 'Başlatma onay bekliyor',
+  offline_time_running_server: 'Çalışıyor — sunucu tarafından onaylandı',
+  offline_time_stop_pending: 'Durdurma kaydedildi — gönderim bekliyor',
+  offline_time_save: 'Süreyi kaydet',
+  offline_time_personal: 'Sürem',
+  offline_time_connected_form: 'Tam çevrimiçi form',
+  offline_time_periods: 'Bu cihazdaki dönemler',
+  offline_time_server_total: 'Sunucu toplamı',
+  offline_time_review: 'Dönemi incele',
+  offline_time_preserve_status: 'Geçerli durumu koruyarak kaydet',
+  offline_time_correct_connected: 'Toplamı çevrimiçi düzelt',
+  offline_time_saved_refresh_pending:
+    'Süre onaylandı — yerel yenileme bekliyor',
+  offline_time_invalid_range:
+    'Başlangıcı ve bitişi kontrol edin: süre pozitif olmalı ve zamanlar gelecekte olmamalıdır.',
+  offline_time_run_changed:
+    'Bu zamanlayıcı başka bir yerde durduruldu veya yeniden başlatıldı. Döneminiz korundu.',
+  offline_time_status_changed:
+    'İş emrinin durumu değişti. Bu dönemi göndermeden önce inceleyin.',
+  offline_time_not_allowed:
+    'Geçerli izinler, lisans veya abonelik bu süre işlemine izin vermiyor.',
+
+  offline_refresh_copy: 'Kopyayı güncelle',
+  offline_remove_server_attachment: 'İş emrinden kaldır',
+  offline_clear_server_image: 'Ana görseli kaldır',
+  offline_remove_server_attachment_confirm:
+    'Bu dosya sunucudaki iş emrinden kaldırılsın mı? Seçimleriniz ve bekleyen gönderimler korunacak.',
+  offline_clear_server_image_confirm:
+    'Sunucudaki ana görsel kaldırılsın mı? Seçtiğiniz görsel ve bekleyen gönderimler korunacak.',
+  offline_server_removal_refresh_pending:
+    'Kaldırma onaylandı — yerel güncelleme bekleniyor',
+  offline_review_files: 'Seçimi incele',
+  offline_restore_files_draft:
+    'Seçim taslağa geri alınacak. Kontrol edip açıkça kaydedin. Daha yeni bir taslak değiştirilmeyecek.',
+  offline_keep_file_selection: 'Seçimimi koru',
+  offline_file_transfer_only:
+    'Dosya sunucuya aktarıldı; ilişkilendirme ayrı olarak onaylanır.',
+  offline_file_dependency_failed:
+    'İlişkilendirme, aktarımı reddedilen bir dosyayı bekliyor. Seçiminiz korunuyor.',
+  offline_retry_file_import: 'Dosyayı kaydetmeyi yeniden dene',
+  offline_file_available: 'Dosya bu cihazda kullanılabilir',
+  offline_file_failed: 'Dosya bu cihazda kullanılamıyor',
+  offline_open_file: 'Dosyayı aç',
+  offline_download_file: 'Bu cihaza indir',
+  offline_remove_file_selection: 'Seçimden kaldır',
+  offline_remove_local_copy: 'Yerel kopyayı sil',
+  offline_save_files: 'Dosyaları kaydet',
+  offline_other_fields_read_only:
+    'Çevrimdışıyken bu formda yalnızca dosyalar değiştirilebilir.',
+  offline_save_other_changes: 'Diğer değişiklikleri kaydet',
+  offline_scan_asset: 'Hazırlanmış bir ekipmanı tara',
+  offline_scan_unavailable:
+    'Çevrimdışı tarama, yetkili bir hazırlık ve tarama lisansı gerektirir.',
+  offline_scan_ambiguous:
+    'Bu kodla eşleşen birden fazla hazırlanmış ekipman var. İlgili iş emrini açın.',
+  offline_asset_not_available:
+    'Bu ekipman çevrimdışı kullanılamıyor. İnternet bağlantısıyla iş emrini hazırlayın.',
+  offline_asset_read_only:
+    'Hazırlanmış salt okunur kopya. Diğer bilgiler için İnternet bağlantısı gerekir.',
+  offline_asset_prepared_work_orders:
+    'Yalnızca hazırlanmış iş emirleri gösterilir.',
+  offline_file_not_ready:
+    'Dosyanın bu cihaza kopyalanması tamamlanana kadar bekleyin.',
+  offline_file_limit: 'Bu dosya izin verilen boyutu aşıyor.',
+  offline_storage_limit:
+    'Yeterli depolama alanı yok. Artık gerekmeyen yerel kopyaları kaldırın.',
+  offline_transfer_failed:
+    'Bir aktarım reddedildi. Çalışmanızı koruyun, ardından bu gönderimi açıkça iptal edin ve düzeltmek için dosyaları yeniden seçin.',
+  offline_file_in_use:
+    'Bu dosya hâlâ bir hazırlık veya bekleyen çalışma tarafından kullanılıyor.',
+  offline_file_open_failed: 'Bu belge bu cihazda açılamıyor.',
+  offline_file_integrity: 'Dosya kopyası eksik veya değişmiş. Yeniden seçin.',
+  offline_attachments_conflict:
+    'Ekler sunucuda değişmiş. Verileri yenileyin, ardından değişikliği yeniden hazırlayın.',
+  offline_file_copy_failed:
+    'Bu cihaza kopyalama başarısız oldu. Dosyayı yeniden seçin.',
+  offline_comment_saved_refresh_pending:
+    'Yorumdaki değişiklik sunucuda onaylandı; yerel kopyanın hâlâ güncellenmesi gerekiyor.',
+  offline_comment_published_cleanup_pending:
+    'Yorum yayımlandı. Taslağı bu cihazdan kaldırılamadı. Yorumu tekrar yayımlamayın; yerel taslağı kaldırmayı yeniden deneyin.',
+  offline_comment_attachment_pending:
+    'Daha önce bir ek seçilmişti. Eki yeniden seçin veya yalnızca metni yayımlamayı onaylayın.',
+  offline_comment_text_only: 'Yalnızca metni yayımla',
+  offline_comment_clear_confirmed: 'Yayımlanan yorumun taslağını kaldır',
+  offline_refresh_pending: 'Yerel güncelleme bekleniyor',
+  offline_sending: 'Gönderiliyor',
+  offline_request_too_large:
+    'Gönderilecek içerik çok büyük. Yeniden denemeden önce metni kısaltın. Taslağınız korundu.',
+  offline_comment_refresh_pending:
+    'Gönderildi — yerel kopyanın yenilenmesi bekleniyor',
+  offline_invalid_choice: 'Hâlâ kullanılabilir olan bir seçenek belirleyin.',
+  offline_comment_empty: 'Boş olmayan bir yorum girin.',
+  offline_max_notes: 'Notlar en fazla 255 karakter içerebilir.',
+  offline_submit_notes: 'Notları kaydet',
+  offline_submission: 'Gönderim',
+  offline_comment_pending: 'Bekleyen yorum',
+  offline_comment_unavailable:
+    'Yorum gönderildi. Artık yerel kopyada mevcut değil.',
+  offline_invalid_number: 'Yanıtı kaydetmeden önce geçerli bir sayı girin.',
+  offline_prepare: 'Bu cihazda hazırla',
+  offline_available: 'Çevrimdışı kullanılabilir',
+  offline_prepared_at: 'Tam kopya kaydedildi: {{date}}',
+  offline_preparing: 'Hazırlanıyor…',
+  offline_sync: 'Eşitle',
+  offline_syncing: 'Eşitleniyor…',
+  offline_saving: 'Kaydediliyor…',
+  offline_draft_saved: 'Taslak bu cihaza kaydedildi',
+  offline_save_failed:
+    'Bu metin kaydedilemedi. Uygulamayı yeniden açmadan önce metni kopyalayın. Son kaydedilen taslak korunuyor.',
+  offline_submit: 'Yanıtı kaydet',
+  offline_queued: 'Bu cihaza kaydedildi — gönderilmeyi bekliyor',
+  offline_unknown: 'Sonuç doğrulanmalı',
+  offline_applied: 'Gönderildi',
+  offline_conflict: 'Başka bir yerde değiştirildi — yanıtınız korunuyor',
+  offline_rejected: 'Gönderim reddedildi — çalışmanız korundu',
+  offline_wait_previous:
+    'Bu taslağı göndermeden önce önceki yanıtın sonucunu bekleyin.',
+  offline_server_value: 'Sunucudaki mevcut değer',
+  offline_keep_draft: 'Yanıtımı incele ve gönder',
+  offline_use_server: 'Sunucudaki değeri kullan',
+  offline_discard: 'Bu yerel çalışmayı sil',
+  offline_discard_confirm:
+    'Bu sürüm kalıcı olarak silinsin mi? Daha yeni bir taslak korunacaktır.',
+  offline_remove: 'Hazırlığı kaldır',
+  offline_remove_confirm: 'İndirilen kopya bu cihazdan kaldırılsın mı?',
+  offline_pending: 'Yerel çalışma',
+  offline_orphan: 'Hedef artık kullanılamıyor. Yerel çalışmanız korunuyor.',
+  offline_unavailable:
+    'Bu iş emrine artık erişilemiyor. Yerel çalışma korunuyor.',
+  offline_task_deleted:
+    'Bu görev kaldırıldı. Göreve ait yerel çalışma ayrı tutuluyor.',
+  offline_connected_required: 'Bu işlem için bağlantı gerekiyor',
+  offline_files_not_downloaded: 'Dosyalar indirilmedi',
+  offline_disabled: 'Çevrimdışı mod askıya alındı. Yerel çalışma korunuyor.',
+  offline_reconnect:
+    'Bekleyen gönderimleri doğrulamak için bu hesapla yeniden bağlanın.',
+  offline_expired:
+    'Yerel erişimi yenilemek için bağlanın. Çalışmanız korunuyor.',
+  offline_load_error: 'Yerel depolama açılamadı. Dosyalarınız korunuyor.',
+  offline_limit:
+    'Bu hazırlık çevrimdışı sınırları aşıyor. Önceki tam kopya korunuyor.',
+  offline_prepare_failed:
+    'Hazırlık başarısız oldu. Varsa önceki tam kopya korunuyor.',
+  offline_changed_revision:
+    'Taslak değişti. Silmeden önce en son sürümü inceleyin.',
+  offline_leave_context:
+    'Yerel taslaklar ve bekleyen gönderimler bu hesap ve sunucu için bu cihazda kalacaktır. Başka bir hesaptan gönderilmeyecektir.',
+  offline_not_prepared: 'Bu iş emri bu cihazda hazırlanmadı.',
+  offline_storage_busy: 'Yerel veriler hâlâ kaydediliyor.',
+  offline_count: 'Bu cihazda hazırlanan iş emri sayısı: {{count}}',
+  offline_resume_after_conflict:
+    'Görev sunucuda değişti. Yeni bir gönderim oluşturmadan önce iki değeri de inceleyin.',
+  offline_abandoned: 'Yerel çalışma silindi',
+  offline_max_text: 'En fazla 255 karakter',
+  offline_received_without_access:
+    'Sonuç doğrulandı. Göreve artık erişilemiyor.',
+  offline_no_local_work: 'Kalan yerel çalışma yok',
+  offline_read_only:
+    'Bu hesap yeniden yetkilendirilene kadar yerel erişim salt okunurdur.',
+  offline_action_failed:
+    'İşlem başarısız oldu. Kaydedilmiş yerel çalışmanız korunuyor.',
+  offline_network_unavailable:
+    'Sunucu kullanılamıyor. Çalışmanız bu cihazda kalıyor.',
+  offline_invalid_response:
+    'Sunucu yanıtı eksik veya geçersiz. Önceki tam kopya korunuyor.',
+  offline_context_changed:
+    'Hesap veya sunucu değişti. Devam etmek için asıl hesaba dönün.',
+  offline_https_required:
+    'Çalışmayı çevrimdışı hazırlamak için bir HTTPS sunucusu gerekiyor.',
+  offline_native_required:
+    'Çevrimdışı depolama, yerel modülleri içeren bir uygulama sürümü gerektirir.',
+  offline_work_pending:
+    'Bu hazırlığı kaldırmadan önce kalan yerel çalışmayı sonuçlandırın.',
+  offline_removal_pending:
+    'Yeniden hazırlamadan önce önceki hazırlığın kaldırılmasını tamamlamak için tekrar bağlanın.',
+  offline_unsupported_task: 'Bu görev türü çevrimiçi olarak doldurulmalıdır.',
+  offline_result_changed:
+    'Bu gönderim zaten sonuçlandı. Sonucunu görmek için yenileyin.',
   DUPLICATE_OF: 'Kopyası',
   DUPLICATED_BY: 'Tarafından çoğaltıldı',
   RELATED_TO: 'İle ilgili',
@@ -1584,6 +1818,8 @@
   edit_reading: 'Okumayı Düzenle',
   are_you_sure_delete_reading: 'Bu okumayı silmek istediğinizden emin misiniz?',
   conflict_retry:
-    'Kaynak başka bir istek tarafından değiştirildi. Lütfen 5 saniye sonra tekrar deneyin.'
+    'Kaynak başka bir istek tarafından değiştirildi. Lütfen 5 saniye sonra tekrar deneyin.',
+  offline_network_lost: "Bağlantı kesildi.",
+  offline_network_restored: "Bağlantı yeniden kuruldu."
 };
 export default trJSON;

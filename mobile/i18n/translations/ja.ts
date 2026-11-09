@@ -1,4 +1,236 @@
 const locale = {
+  offline_preference_title: "オフラインモードを使用",
+  offline_preference_description: "インターネットなしで使えるよう、この端末に作業指示を準備します。",
+  offline_preference_pending: "オフラインモードをオフにする前に、ローカルの下書き、実行中のタイマー、送信待ちを解決してください。準備の解除が保留中の場合は、サーバーの確認も必要です。データは削除されていません。",
+  offline_preference_denied: "このアカウントのオフライン利用はサーバーで許可されていません。端末内の作業は保持されます。",
+  offline_preference_read_error: "オフライン設定を読み取れませんでした。端末内の作業は保護されたままです。インターネット接続なしで再試行できます。",
+  offline_preference_activation_failed: "この端末でオフラインモードを有効にできませんでした。設定はオフのままです。再試行してください。",
+  offline_unlock_title: "オフライン作業のロックを解除",
+  offline_unlock_explanation: "この端末に保存された作業を見るには本人確認をしてください。",
+  offline_unlock_system_prompt: "Atlas CMMSのオフライン作業をロック解除",
+  offline_unlock_use_code: "端末のパスコードを使用",
+  offline_unlock_setup: "端末の設定で画面ロックを設定してから再試行してください。作業は保存されたまま非表示になります。",
+  offline_unlock_cancelled: "ロック解除をキャンセルしました。オフライン作業は保存されています。",
+  offline_unlock_failed: "ロック解除に失敗しました。再試行するか端末のパスコードを使用してください。",
+  offline_unlock_check_server: "サーバーでアクセスを確認",
+  offline_unlock_sign_in: "このアカウントでサーバーにログインし、アクセスを再確認してください。作業内容は保存され、非表示のままです。",
+  offline_unlock_logout: "サインアウト",
+  save_signature: "署名を保存",
+  offline_signature_unsaved: "描画は保存されていません。完了を申請する前に「署名を保存」を押してください。",
+  offline_signature_saved: "署名をこの端末に保存しました。",
+  offline_signature_save_failed: "署名を保存できていません。「署名を保存」で再試行するか、消去してください。",
+
+  offline_status_request: "ステータス変更申請",
+  offline_status_requested: "申請したステータス：{{status}}",
+  offline_status_saved_refresh_pending: "ステータス確認済み — ローカル更新待ち",
+  offline_status_review: "申請を確認",
+  offline_status_review_confirm: "サーバー：{{server}}。申請内容：{{local}}。入力をこの確認済みバージョンの下書きとして保持し、明示的に送信してください。",
+  offline_status_submit: "ステータス変更を申請",
+  offline_closure_submit: "完了を申請",
+  offline_status_stop_timer: "このステータスを申請する前に、この端末のタイマーを停止して保存してください。",
+  offline_status_drafts_pending: "完了を申請する前に、未完了の下書きを送信するか、明示的に破棄してください。",
+  offline_status_dependency_failed: "この申請を送信する前に、以前の拒否または競合を解決してください。",
+  offline_status_dependency_pending: "以前の操作の確認を待っています。",
+  offline_status_new_work: "新しいローカル入力があります。完了を申請する前に確認してください。",
+  offline_status_signature_forbidden: "現在の権限、ライセンス、または契約では署名の取得が許可されていません。",
+  offline_status_conflict: "ステータスまたは完了情報が変更されました。確認してください。入力内容は保持されています。",
+  offline_status_requirements: "必要な完了条件を満たしていません。",
+  offline_status_prepare_again: "オフラインでステータスを変更する前に、この準備済みデータをオンラインで更新してください。",
+  offline_status_server: "確認済みステータス：{{status}}",
+  offline_closure_resume: "完了の下書きを再開",
+  offline_closure_local: "送信した申請がサーバーに受理されるまで、完了情報はローカルに保持されます。",
+  offline_closure_save_failed: "完了の下書きをこの端末に保存できませんでした。この画面を開いたまま再試行してください。",
+  retry: "再試行",
+  work_order_status_review: "作業指示が変更されました。再送信する前に現在のステータスを確認してください。入力内容は保持されています。",
+  work_order_status_review_current: "現在のサーバーステータスを確認",
+  work_order_status_review_value: "サーバーステータス：{{status}} · 稼働中のタイマー：{{count}}",
+  work_order_status_review_confirm: "この確認済みバージョンで入力内容を保持",
+
+  offline_time_stopped: 'タイマー停止',
+  labor_review_current: '現在の時間を確認',
+  labor_review_confirm: 'このバージョンに自分の入力を保持',
+  labor_changed_review:
+    'この時間記録は変更されています。再保存する前にサーバーのバージョンを確認してください。',
+  labor_server_duration: 'サーバー上の現在の時間',
+  offline_time_start: '開始',
+  offline_time_stop: '停止して保存',
+  offline_time_running_local: 'この端末で計測中',
+  offline_time_start_pending: '開始の確認待ち',
+  offline_time_running_server: '計測中 — サーバー確認済み',
+  offline_time_stop_pending: '停止を保存済み — 送信待ち',
+  offline_time_save: '時間を保存',
+  offline_time_personal: '自分の時間',
+  offline_time_connected_form: 'オンラインの完全なフォーム',
+  offline_time_periods: 'この端末の計測期間',
+  offline_time_server_total: 'サーバーの合計',
+  offline_time_review: '期間を確認',
+  offline_time_preserve_status: '現在のステータスを維持して保存',
+  offline_time_correct_connected: 'オンラインで合計を修正',
+  offline_time_saved_refresh_pending: '時間は確認済み — ローカル更新待ち',
+  offline_time_invalid_range:
+    '開始と終了を確認してください。時間は正の値で、日時は未来でない必要があります。',
+  offline_time_run_changed:
+    'このタイマーは別の場所で停止または再開されました。計測期間は保持されています。',
+  offline_time_status_changed:
+    '作業指示のステータスが変更されました。この期間を送信する前に確認してください。',
+  offline_time_not_allowed:
+    '現在の権限、ライセンスまたは契約では、この時間操作は許可されていません。',
+
+  offline_refresh_copy: 'コピーを更新',
+  offline_remove_server_attachment: '作業指示から取り外す',
+  offline_clear_server_image: 'メイン画像を削除',
+  offline_remove_server_attachment_confirm:
+    'サーバー上の作業指示からこのファイルを取り外しますか？選択内容と送信待ちのデータは保持されます。',
+  offline_clear_server_image_confirm:
+    'サーバー上のメイン画像を削除しますか？選択した画像と送信待ちのデータは保持されます。',
+  offline_server_removal_refresh_pending: '削除確認済み — ローカル更新待ち',
+  offline_review_files: '選択内容を確認',
+  offline_restore_files_draft:
+    '選択内容を下書きに戻します。内容を確認し、保存ボタンで明示的に保存してください。より新しい下書きは上書きされません。',
+  offline_keep_file_selection: '選択内容を保持',
+  offline_file_transfer_only:
+    'ファイルはサーバーに転送されました。添付の確定は別途行われます。',
+  offline_file_dependency_failed:
+    '転送が拒否されたファイルのため、添付は待機中です。選択内容は保持されています。',
+  offline_retry_file_import: 'ファイルの保存を再試行',
+  offline_file_available: 'この端末で利用できるファイル',
+  offline_file_failed: 'この端末では利用できないファイル',
+  offline_open_file: 'ファイルを開く',
+  offline_download_file: 'この端末にダウンロード',
+  offline_remove_file_selection: '選択から外す',
+  offline_remove_local_copy: '端末上のコピーを削除',
+  offline_save_files: 'ファイルを保存',
+  offline_other_fields_read_only:
+    'オフラインでは、このフォームのファイルのみ変更できます。',
+  offline_save_other_changes: 'その他の変更を保存',
+  offline_scan_asset: '準備済みの設備をスキャン',
+  offline_scan_unavailable:
+    'オフラインでのスキャンには、許可された準備とスキャンのライセンスが必要です。',
+  offline_scan_ambiguous:
+    'このコードに一致する準備済みの設備が複数あります。対象の作業指示を開いてください。',
+  offline_asset_not_available:
+    'この設備はオフラインでは利用できません。インターネットに接続して対象の作業指示を準備してください。',
+  offline_asset_read_only:
+    '準備済みの読み取り専用コピーです。その他の情報にはインターネット接続が必要です。',
+  offline_asset_prepared_work_orders: '準備済みの作業指示のみ表示しています。',
+  offline_file_not_ready:
+    'この端末へのファイルのコピーが完了するまでお待ちください。',
+  offline_file_limit: 'このファイルは許容サイズを超えています。',
+  offline_storage_limit:
+    '保存領域が不足しています。不要になった端末上のコピーを削除してください。',
+  offline_transfer_failed:
+    '転送が拒否されました。作業内容を保持し、この送信を明示的に破棄してから、ファイルを選択し直して修正してください。',
+  offline_file_in_use:
+    'このファイルは準備済みデータまたは保留中の作業で使用されています。',
+  offline_file_open_failed: 'この端末ではこの文書を開けません。',
+  offline_file_integrity:
+    'ファイルのコピーが不完全であるか変更されています。もう一度選択してください。',
+  offline_attachments_conflict:
+    'サーバー上の添付ファイルが変更されました。データを更新してから、変更を準備し直してください。',
+  offline_file_copy_failed:
+    'この端末へのコピーに失敗しました。ファイルを選択し直してください。',
+  offline_comment_saved_refresh_pending: 'コメントの変更はサーバーで確認済みです。ローカルコピーの更新がまだ必要です。',
+  offline_comment_published_cleanup_pending:
+    'コメントは公開済みです。この端末から下書きを削除できませんでした。再投稿せず、ローカルの下書きの削除をもう一度お試しください。',
+  offline_comment_attachment_pending:
+    '添付ファイルが選択されていました。もう一度選択するか、テキストのみを投稿することを確認してください。',
+  offline_comment_text_only: 'テキストのみ投稿',
+  offline_comment_clear_confirmed: '公開済みの下書きを削除',
+  offline_refresh_pending: 'ローカル更新待ち',
+  offline_sending: '送信中',
+  offline_request_too_large:
+    '送信するデータが大きすぎます。文章を短くしてから、もう一度お試しください。下書きは保持されています。',
+  offline_comment_refresh_pending: '送信済み — ローカルコピーの更新待ち',
+  offline_invalid_choice: '現在利用できる選択肢を選んでください。',
+  offline_comment_empty: '空ではないコメントを入力してください。',
+  offline_max_notes: 'メモは255文字以内で入力してください。',
+  offline_submit_notes: 'メモを保存',
+  offline_submission: '送信',
+  offline_comment_pending: '送信待ちのコメント',
+  offline_comment_unavailable: 'コメントは送信済みです。ローカルコピーでは利用できなくなりました。',
+  offline_invalid_number: '回答を保存する前に、有効な数値を入力してください。',
+  offline_prepare: 'この端末に準備する',
+  offline_available: 'オフラインで利用可能',
+  offline_prepared_at: '完全なコピーの保存日時：{{date}}',
+  offline_preparing: '準備中…',
+  offline_sync: '同期',
+  offline_syncing: '同期中…',
+  offline_saving: '保存中…',
+  offline_draft_saved: '下書きをこの端末に保存しました',
+  offline_save_failed:
+    'このテキストを保存できませんでした。アプリを開き直す前にコピーしてください。最後に保存した下書きは保持されています。',
+  offline_submit: '回答を保存',
+  offline_queued: 'この端末に保存済み — 送信待ち',
+  offline_unknown: '結果の確認が必要',
+  offline_applied: '送信済み',
+  offline_conflict: '別の場所で変更されました — 回答は保持されています',
+  offline_rejected: '送信が拒否されました — 作業内容は保持されています',
+  offline_wait_previous:
+    '前の回答の結果を待ってから、この下書きを送信してください。',
+  offline_server_value: '現在のサーバーの値',
+  offline_keep_draft: '自分の回答を確認して送信',
+  offline_use_server: 'サーバーの値を使用',
+  offline_discard: 'この端末内の作業内容を破棄',
+  offline_discard_confirm:
+    'この版を完全に破棄しますか？より新しい下書きは保持されます。',
+  offline_remove: '準備を解除',
+  offline_remove_confirm: 'ダウンロードしたコピーをこの端末から削除しますか？',
+  offline_pending: '端末内の作業内容',
+  offline_orphan:
+    '対象は利用できなくなりました。端末内の作業内容は保持されています。',
+  offline_unavailable:
+    'この作業指示書にはアクセスできなくなりました。端末内の作業内容は保持されています。',
+  offline_task_deleted:
+    'このタスクは削除されました。端末内の作業内容は別に保持されています。',
+  offline_connected_required: 'この操作には接続が必要です',
+  offline_files_not_downloaded: 'ファイルはダウンロードされていません',
+  offline_disabled:
+    'オフラインモードは停止中です。端末内の作業内容は保持されています。',
+  offline_reconnect:
+    'このアカウントで再接続して、保留中の送信を確認してください。',
+  offline_expired:
+    '接続して端末内のアクセス権を更新してください。作業内容は保持されています。',
+  offline_load_error:
+    '端末内のストレージを開けませんでした。ファイルは保持されています。',
+  offline_limit:
+    'この準備はオフラインの上限を超えています。前回の完全なコピーは保持されています。',
+  offline_prepare_failed:
+    '準備に失敗しました。以前の完全なコピーがあれば保持されています。',
+  offline_changed_revision:
+    '下書きが変更されました。破棄する前に最新の版を確認してください。',
+  offline_leave_context:
+    '端末内の下書きと保留中の送信は、このアカウントとサーバーに紐づけてこの端末に保持されます。別のアカウントから送信されることはありません。',
+  offline_not_prepared: 'この作業指示書はこの端末に準備されていません。',
+  offline_storage_busy: '端末内のデータを保存中です。',
+  offline_count: 'この端末に準備済みの作業指示書：{{count}}件',
+  offline_resume_after_conflict:
+    'サーバー上でこのタスクが変更されました。新たに送信する前に、両方の値を確認してください。',
+  offline_abandoned: '端末内の作業内容を破棄しました',
+  offline_max_text: '最大255文字',
+  offline_received_without_access:
+    '結果を確認しました。タスクにはアクセスできなくなりました。',
+  offline_no_local_work: '端末内に残っている作業内容はありません',
+  offline_read_only:
+    'このアカウントが再度許可されるまで、端末内のアクセスは読み取り専用です。',
+  offline_action_failed:
+    '操作に失敗しました。保存済みの端末内の作業内容は保持されています。',
+  offline_network_unavailable:
+    'サーバーを利用できません。作業内容はこの端末に保持されています。',
+  offline_invalid_response:
+    'サーバーの応答が不完全か無効です。前回の完全なコピーは保持されています。',
+  offline_context_changed:
+    'アカウントまたはサーバーが変更されました。続行するには元のアカウントに戻ってください。',
+  offline_https_required:
+    'オフライン作業を準備するにはHTTPSサーバーが必要です。',
+  offline_native_required:
+    'オフラインストレージには、ネイティブモジュールを含むバージョンのアプリが必要です。',
+  offline_work_pending:
+    '準備を解除する前に、端末内に残っている作業内容を解決してください。',
+  offline_removal_pending:
+    '再接続して以前の準備の解除を完了してから、もう一度準備してください。',
+  offline_unsupported_task: 'この種類のタスクはオンラインで入力してください。',
+  offline_result_changed:
+    'この送信の結果はすでに確定しています。更新して結果を確認してください。',
   DUPLICATE_OF: '重複元',
   DUPLICATED_BY: '重複先',
   RELATED_TO: '関連先',
@@ -1511,6 +1743,8 @@ const locale = {
   operation_success: '操作が成功しました',
   edit_reading: '読み取りを編集',
   are_you_sure_delete_reading: 'この読み取りを削除してもよろしいですか？',
-  conflict_retry: 'リソースが別のリクエストによって変更されました。5秒後に再試行してください。'
+  conflict_retry: 'リソースが別のリクエストによって変更されました。5秒後に再試行してください。',
+  offline_network_lost: "接続が切れました。",
+  offline_network_restored: "接続が回復しました。"
 };
 export default locale;

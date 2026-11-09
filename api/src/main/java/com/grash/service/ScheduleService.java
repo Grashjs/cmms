@@ -323,6 +323,12 @@ public class ScheduleService {
     // CHAINING METHOD (Updated to use the shared notification method)
     // =========================================================================================
 
+    /** Called through this service's Spring proxy after the offline receipt transaction commits. */
+    @Transactional(propagation = org.springframework.transaction.annotation.Propagation.REQUIRES_NEW)
+    public void scheduleNextWorkOrderJobAfterOfflineCompletion(Long scheduleId, Date completedDate) {
+        scheduleNextWorkOrderJobAfterCompletion(scheduleId, completedDate);
+    }
+
     public void scheduleNextWorkOrderJobAfterCompletion(Long scheduleId, Date completedDate) {
         Optional<Schedule> scheduleOpt = scheduleRepository.findById(scheduleId);
         if (scheduleOpt.isEmpty()) return;

@@ -1,4 +1,18 @@
 const locale = {
+  work_order_status_review: "تغيّر أمر العمل. راجع حالته الحالية قبل الإرسال مجددًا. تم الاحتفاظ بإدخالك.",
+  work_order_status_review_current: "مراجعة الحالة الحالية على الخادم",
+  work_order_status_review_value: "حالة الخادم: {{status}} · المؤقتات النشطة: {{count}}",
+  work_order_status_review_confirm: "الاحتفاظ بإدخالي على هذه النسخة التي راجعتها",
+
+  labor_review_current: 'مراجعة الوقت الحالي',
+  labor_review_confirm: 'الاحتفاظ بإدخالي على هذه النسخة',
+  labor_changed_review: 'تغيّر سجل الوقت. راجع نسخة الخادم قبل الحفظ مجددًا.',
+  labor_server_duration: 'المدة الحالية على الخادم',
+
+  task_save_review: "تم الاحتفاظ بما أدخلته. تم إيقاف الحفظ مؤقتًا؛ قارنه ببيانات الخادم قبل إرسال التغييرات المعروضة.",
+  task_server_value: "القيمة الحالية على الخادم",
+  task_review_submit: "مراجعة التغييرات المعروضة وإرسالها",
+  task_review_discard: "تجاهل التغييرات المحلية واستخدام نسخة الخادم",
   DUPLICATE_OF: 'نسخة مكررة من',
   DUPLICATED_BY: 'تم تكراره بواسطة',
   RELATED_TO: 'ذات صلة ب',

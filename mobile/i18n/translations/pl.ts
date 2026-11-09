@@ -1,4 +1,248 @@
 const plJSON = {
+  offline_preference_title: "Używaj trybu offline",
+  offline_preference_description: "Przygotuj zlecenia na tym urządzeniu do pracy bez internetu.",
+  offline_preference_pending: "Przed wyłączeniem trybu offline rozwiąż lokalne szkice, aktywne liczniki czasu i oczekujące wysyłki. Serwer musi też potwierdzić każde oczekujące zwolnienie przygotowania. Nic nie zostało usunięte.",
+  offline_preference_denied: "Serwer nie zezwala temu kontu na dostęp offline. Lokalna praca została zachowana.",
+  offline_preference_read_error: "Nie udało się odczytać ustawienia trybu offline. Praca lokalna pozostaje chroniona. Spróbuj ponownie; internet nie jest potrzebny.",
+  offline_preference_activation_failed: "Nie udało się włączyć trybu offline na tym urządzeniu. Ustawienie pozostaje wyłączone; spróbuj ponownie.",
+  offline_unlock_title: "Odblokuj pracę offline",
+  offline_unlock_explanation: "Potwierdź tożsamość, aby uzyskać dostęp do pracy zapisanej na tym urządzeniu.",
+  offline_unlock_system_prompt: "Odblokuj pracę offline w Atlas CMMS",
+  offline_unlock_use_code: "Użyj kodu urządzenia",
+  offline_unlock_setup: "Ustaw blokadę ekranu w ustawieniach telefonu i spróbuj ponownie. Praca pozostaje zapisana i ukryta.",
+  offline_unlock_cancelled: "Odblokowanie anulowane. Praca offline pozostaje zapisana.",
+  offline_unlock_failed: "Odblokowanie nie powiodło się. Spróbuj ponownie lub użyj kodu urządzenia.",
+  offline_unlock_check_server: "Sprawdź dostęp na serwerze",
+  offline_unlock_sign_in: "Zaloguj się na serwer przy użyciu tego konta, a następnie ponownie sprawdź dostęp. Twoja praca pozostaje zapisana i ukryta.",
+  offline_unlock_logout: "Wyloguj się",
+  save_signature: "Zapisz podpis",
+  offline_signature_unsaved: "Rysunek nie został zapisany. Naciśnij Zapisz podpis przed wysłaniem żądania zamknięcia.",
+  offline_signature_saved: "Podpis zapisany na tym urządzeniu.",
+  offline_signature_save_failed: "Podpis nie został zapisany. Naciśnij Zapisz podpis, aby spróbować ponownie, lub wyczyść go.",
+
+  offline_status_request: "Żądanie zmiany statusu",
+  offline_status_requested: "Żądany status: {{status}}",
+  offline_status_saved_refresh_pending: "Status potwierdzony — oczekiwanie na aktualizację lokalną",
+  offline_status_review: "Sprawdź żądanie",
+  offline_status_review_confirm: "Serwer: {{server}}. Twoje żądanie: {{local}}. Zachowaj dane jako szkic dla tej sprawdzonej wersji, a następnie wyślij je jawnie.",
+  offline_status_submit: "Wyślij żądanie zmiany statusu",
+  offline_closure_submit: "Wyślij żądanie zamknięcia",
+  offline_status_stop_timer: "Zatrzymaj i zapisz stoper na tym urządzeniu przed zażądaniem tego statusu.",
+  offline_status_drafts_pending: "Wyślij lub jawnie odrzuć niedokończone szkice przed wysłaniem żądania zamknięcia.",
+  offline_status_dependency_failed: "Rozwiąż wcześniejsze odrzucenie lub konflikt przed wysłaniem tego żądania.",
+  offline_status_dependency_pending: "Oczekiwanie na potwierdzenie wcześniejszych operacji.",
+  offline_status_new_work: "Pojawiły się nowe dane lokalne. Sprawdź je przed wysłaniem zamknięcia.",
+  offline_status_signature_forbidden: "Rejestrowanie podpisu nie jest dozwolone przy obecnych uprawnieniach, licencji lub subskrypcji.",
+  offline_status_conflict: "Status lub dane zamknięcia uległy zmianie. Sprawdź je; wpisane dane zostały zachowane.",
+  offline_status_requirements: "Wymagane warunki zamknięcia nie są spełnione.",
+  offline_status_prepare_again: "Odśwież to przygotowanie online przed zmianą statusu offline.",
+  offline_status_server: "Potwierdzony status: {{status}}",
+  offline_closure_resume: "Wznów szkic zamknięcia",
+  offline_closure_local: "Zamknięcie pozostaje lokalne do czasu zaakceptowania wysłanego żądania przez serwer.",
+  offline_closure_save_failed: "Nie udało się zapisać szkicu zamknięcia na tym urządzeniu. Pozostaw ten ekran otwarty i spróbuj ponownie.",
+  retry: "Spróbuj ponownie",
+  work_order_status_review: "Zlecenie pracy uległo zmianie. Sprawdź jego aktualny status przed ponownym wysłaniem. Wpisane dane zostały zachowane.",
+  work_order_status_review_current: "Sprawdź aktualny status na serwerze",
+  work_order_status_review_value: "Status na serwerze: {{status}} · Aktywne stopery: {{count}}",
+  work_order_status_review_confirm: "Zachowaj moje dane dla tej sprawdzonej wersji",
+
+  offline_time_stopped: 'Stoper zatrzymany',
+  labor_review_current: 'Sprawdź aktualny czas',
+  labor_review_confirm: 'Zachowaj mój wpis dla tej wersji',
+  labor_changed_review:
+    'Ten wpis czasu został zmieniony. Przed ponownym zapisem sprawdź wersję na serwerze.',
+  labor_server_duration: 'Aktualny czas trwania na serwerze',
+  offline_time_start: 'Rozpocznij',
+  offline_time_stop: 'Zatrzymaj i zapisz',
+  offline_time_running_local: 'W toku na tym urządzeniu',
+  offline_time_start_pending: 'Rozpoczęcie oczekuje na potwierdzenie',
+  offline_time_running_server: 'W toku — potwierdzone przez serwer',
+  offline_time_stop_pending: 'Zatrzymanie zapisane — oczekuje na wysłanie',
+  offline_time_save: 'Zapisz czas',
+  offline_time_personal: 'Mój czas',
+  offline_time_connected_form: 'Pełny formularz online',
+  offline_time_periods: 'Okresy na tym urządzeniu',
+  offline_time_server_total: 'Suma na serwerze',
+  offline_time_review: 'Sprawdź okres',
+  offline_time_preserve_status: 'Zapisz, zachowując aktualny status',
+  offline_time_correct_connected: 'Popraw sumę online',
+  offline_time_saved_refresh_pending:
+    'Czas potwierdzony — oczekuje na aktualizację lokalną',
+  offline_time_invalid_range:
+    'Sprawdź początek i koniec: czas trwania musi być dodatni, a daty nie mogą przypadać w przyszłości.',
+  offline_time_run_changed:
+    'Ten stoper został zatrzymany lub uruchomiony ponownie w innym miejscu. Twój okres został zachowany.',
+  offline_time_status_changed:
+    'Status zlecenia pracy został zmieniony. Sprawdź go przed wysłaniem tego okresu.',
+  offline_time_not_allowed:
+    'Aktualne uprawnienia, licencja lub subskrypcja nie pozwalają na tę operację czasu.',
+
+  offline_refresh_copy: 'Odśwież kopię',
+  offline_remove_server_attachment: 'Usuń ze zlecenia pracy',
+  offline_clear_server_image: 'Usuń obraz główny',
+  offline_remove_server_attachment_confirm:
+    'Usunąć ten plik ze zlecenia pracy na serwerze? Wybrane elementy i oczekujące zgłoszenia zostaną zachowane.',
+  offline_clear_server_image_confirm:
+    'Usunąć obraz główny na serwerze? Wybrany obraz i oczekujące zgłoszenia zostaną zachowane.',
+  offline_server_removal_refresh_pending:
+    'Usunięcie potwierdzone — oczekiwanie na aktualizację lokalną',
+  offline_review_files: 'Sprawdź wybór',
+  offline_restore_files_draft:
+    'Wybór zostanie przywrócony jako wersja robocza. Sprawdź go, a następnie jawnie zapisz. Nowsza wersja robocza nie zostanie zastąpiona.',
+  offline_keep_file_selection: 'Zachowaj mój wybór',
+  offline_file_transfer_only:
+    'Plik przesłano na serwer; dołączenie jest potwierdzane oddzielnie.',
+  offline_file_dependency_failed:
+    'Dołączenie czeka na plik, którego transfer został odrzucony. Wybrane elementy zostają zachowane.',
+  offline_retry_file_import: 'Ponów zapis pliku',
+  offline_file_available: 'Plik dostępny na tym urządzeniu',
+  offline_file_failed: 'Plik niedostępny na tym urządzeniu',
+  offline_open_file: 'Otwórz plik',
+  offline_download_file: 'Pobierz na to urządzenie',
+  offline_remove_file_selection: 'Usuń z wyboru',
+  offline_remove_local_copy: 'Usuń lokalną kopię',
+  offline_save_files: 'Zapisz pliki',
+  offline_other_fields_read_only:
+    'Bez połączenia z Internetem w tym formularzu można zmieniać tylko pliki.',
+  offline_save_other_changes: 'Zapisz pozostałe zmiany',
+  offline_scan_asset: 'Skanuj przygotowane urządzenie',
+  offline_scan_unavailable:
+    'Skanowanie offline wymaga uprawnionej kopii przygotowanych danych i licencji na skanowanie.',
+  offline_scan_ambiguous:
+    'Kilka przygotowanych urządzeń pasuje do tego kodu. Otwórz ich zlecenie pracy.',
+  offline_asset_not_available:
+    'To urządzenie nie jest dostępne offline. Przygotuj jego zlecenie pracy, korzystając z połączenia z Internetem.',
+  offline_asset_read_only:
+    'Przygotowana kopia tylko do odczytu. Pozostałe informacje wymagają połączenia z Internetem.',
+  offline_asset_prepared_work_orders:
+    'Wyświetlane są tylko przygotowane zlecenia pracy.',
+  offline_file_not_ready:
+    'Poczekaj, aż plik zostanie w całości skopiowany na to urządzenie.',
+  offline_file_limit: 'Ten plik przekracza dozwolony rozmiar.',
+  offline_storage_limit:
+    'Brak wystarczającej ilości miejsca. Usuń lokalne kopie, które nie są już potrzebne.',
+  offline_transfer_failed:
+    'Transfer został odrzucony. Zachowaj swoją pracę, następnie jawnie odrzuć to zgłoszenie i ponownie wybierz pliki, aby je poprawić.',
+  offline_file_in_use:
+    'Ten plik jest nadal używany przez przygotowane dane lub oczekującą pracę.',
+  offline_file_open_failed:
+    'Nie można otworzyć tego dokumentu na tym urządzeniu.',
+  offline_file_integrity:
+    'Kopia pliku jest niekompletna lub została zmieniona. Wybierz go ponownie.',
+  offline_attachments_conflict:
+    'Załączniki na serwerze zostały zmienione. Odśwież dane i ponownie przygotuj zmianę.',
+  offline_file_copy_failed:
+    'Kopiowanie na to urządzenie nie powiodło się. Wybierz plik ponownie.',
+  offline_comment_saved_refresh_pending:
+    'Zmiana komentarza została potwierdzona na serwerze; lokalna kopia wymaga jeszcze odświeżenia.',
+  offline_comment_published_cleanup_pending:
+    'Komentarz został opublikowany. Nie udało się usunąć jego wersji roboczej z tego urządzenia. Nie publikuj go ponownie; spróbuj ponownie usunąć lokalną wersję roboczą.',
+  offline_comment_attachment_pending:
+    'Załącznik był wcześniej wybrany. Wybierz go ponownie lub potwierdź publikację samego tekstu.',
+  offline_comment_text_only: 'Opublikuj tylko tekst',
+  offline_comment_clear_confirmed:
+    'Usuń wersję roboczą opublikowanego komentarza',
+  offline_refresh_pending: 'Oczekiwanie na lokalne odświeżenie',
+  offline_sending: 'Wysyłanie w toku',
+  offline_request_too_large:
+    'Wysyłana treść jest zbyt duża. Skróć tekst przed ponowną próbą. Wersja robocza została zachowana.',
+  offline_comment_refresh_pending:
+    'Wysłano — oczekiwanie na odświeżenie kopii lokalnej',
+  offline_invalid_choice: 'Wybierz opcję, która jest nadal dostępna.',
+  offline_comment_empty: 'Wpisz komentarz, który nie jest pusty.',
+  offline_max_notes: 'Notatki mogą zawierać maksymalnie 255 znaków.',
+  offline_submit_notes: 'Zapisz notatki',
+  offline_submission: 'Wysyłanie',
+  offline_comment_pending: 'Oczekujący komentarz',
+  offline_comment_unavailable:
+    'Komentarz został wysłany. Nie jest już dostępny w kopii lokalnej.',
+  offline_invalid_number:
+    'Przed zapisaniem odpowiedzi wprowadź prawidłową liczbę.',
+  offline_prepare: 'Przygotuj na tym urządzeniu',
+  offline_available: 'Dostępne offline',
+  offline_prepared_at: 'Pełna kopia zapisana: {{date}}',
+  offline_preparing: 'Przygotowywanie…',
+  offline_sync: 'Synchronizuj',
+  offline_syncing: 'Synchronizowanie…',
+  offline_saving: 'Zapisywanie…',
+  offline_draft_saved: 'Wersja robocza zapisana na tym urządzeniu',
+  offline_save_failed:
+    'Nie udało się zapisać tego tekstu. Skopiuj go przed ponownym otwarciem aplikacji. Ostatnia zapisana wersja robocza została zachowana.',
+  offline_submit: 'Zapisz odpowiedź',
+  offline_queued: 'Zapisano na tym urządzeniu — oczekuje na wysłanie',
+  offline_unknown: 'Wynik do sprawdzenia',
+  offline_applied: 'Wysłano',
+  offline_conflict:
+    'Zmieniono w innym miejscu — Twoja odpowiedź została zachowana',
+  offline_rejected: 'Wysyłanie odrzucone — Twoja praca została zachowana',
+  offline_wait_previous:
+    'Poczekaj na wynik poprzedniej odpowiedzi przed przesłaniem tej wersji roboczej.',
+  offline_server_value: 'Aktualna wartość na serwerze',
+  offline_keep_draft: 'Sprawdź i prześlij moją odpowiedź',
+  offline_use_server: 'Użyj wartości z serwera',
+  offline_discard: 'Odrzuć tę lokalną pracę',
+  offline_discard_confirm:
+    'Trwale odrzucić tę wersję? Nowsza wersja robocza zostanie zachowana.',
+  offline_remove: 'Usuń przygotowanie',
+  offline_remove_confirm: 'Usunąć pobraną kopię z tego urządzenia?',
+  offline_pending: 'Praca lokalna',
+  offline_orphan:
+    'Element docelowy nie jest już dostępny. Twoja lokalna praca została zachowana.',
+  offline_unavailable:
+    'To zlecenie pracy nie jest już dostępne. Lokalna praca została zachowana.',
+  offline_task_deleted:
+    'To zadanie zostało usunięte. Jego lokalna praca pozostaje zachowana oddzielnie.',
+  offline_connected_required: 'Ta czynność wymaga połączenia',
+  offline_files_not_downloaded: 'Pliki nie zostały pobrane',
+  offline_disabled:
+    'Tryb offline został wstrzymany. Lokalna praca została zachowana.',
+  offline_reconnect:
+    'Połącz ponownie to konto, aby sprawdzić oczekujące wysyłki.',
+  offline_expired:
+    'Połącz się, aby odnowić dostęp lokalny. Twoja praca została zachowana.',
+  offline_load_error:
+    'Nie udało się otworzyć pamięci lokalnej. Twoje pliki zostały zachowane.',
+  offline_limit:
+    'To przygotowanie przekracza limity trybu offline. Poprzednia pełna kopia została zachowana.',
+  offline_prepare_failed:
+    'Przygotowanie nie powiodło się. Poprzednia pełna kopia, jeśli istnieje, została zachowana.',
+  offline_changed_revision:
+    'Wersja robocza uległa zmianie. Sprawdź najnowszą wersję przed odrzuceniem.',
+  offline_leave_context:
+    'Lokalne wersje robocze i oczekujące wysyłki pozostaną na tym urządzeniu dla tego konta i serwera. Nie zostaną wysłane z innego konta.',
+  offline_not_prepared:
+    'To zlecenie pracy nie zostało przygotowane na tym urządzeniu.',
+  offline_storage_busy: 'Zapisywanie danych lokalnych nadal trwa.',
+  offline_count: 'Zlecenia pracy przygotowane na tym urządzeniu: {{count}}',
+  offline_resume_after_conflict:
+    'Zadanie uległo zmianie na serwerze. Porównaj obie wartości przed utworzeniem nowego zgłoszenia.',
+  offline_abandoned: 'Lokalna praca została odrzucona',
+  offline_max_text: 'Maksymalnie 255 znaków',
+  offline_received_without_access:
+    'Wynik został sprawdzony. Zadanie nie jest już dostępne.',
+  offline_no_local_work: 'Brak pozostałej pracy lokalnej',
+  offline_read_only:
+    'Dostęp lokalny jest tylko do odczytu do czasu ponownego przyznania uprawnień temu kontu.',
+  offline_action_failed:
+    'Czynność nie powiodła się. Twoja zapisana lokalna praca została zachowana.',
+  offline_network_unavailable:
+    'Serwer jest niedostępny. Twoja praca pozostaje na tym urządzeniu.',
+  offline_invalid_response:
+    'Odpowiedź serwera jest niepełna lub nieprawidłowa. Poprzednia pełna kopia została zachowana.',
+  offline_context_changed:
+    'Konto lub serwer uległy zmianie. Wróć do pierwotnego konta, aby kontynuować.',
+  offline_https_required:
+    'Do przygotowania pracy offline wymagany jest serwer HTTPS.',
+  offline_native_required:
+    'Przechowywanie offline wymaga wersji aplikacji zawierającej moduły natywne.',
+  offline_work_pending:
+    'Rozstrzygnij pozostałą pracę lokalną przed usunięciem tego przygotowania.',
+  offline_removal_pending:
+    'Połącz się ponownie, aby dokończyć usuwanie poprzedniego przygotowania przed ponownym przygotowaniem.',
+  offline_unsupported_task:
+    'Ten typ zadania należy wypełnić przy połączeniu z internetem.',
+  offline_result_changed:
+    'Ta wysyłka została już rozstrzygnięta. Odśwież widok, aby zobaczyć wynik.',
   DUPLICATE_OF: 'Duplikat',
   DUPLICATED_BY: 'Duplikowane przez',
   RELATED_TO: 'Powiązane z',
@@ -1513,6 +1757,8 @@ const plJSON = {
   operation_success: 'Operacja zakończyła się sukcesem',
   edit_reading: 'Edytuj odczyt',
   are_you_sure_delete_reading: 'Czy na pewno chcesz usunąć ten odczyt?',
-  conflict_retry: 'Zasób został zmodyfikowany przez inne żądanie. Spróbuj ponownie za 5 sekund.'
+  conflict_retry: 'Zasób został zmodyfikowany przez inne żądanie. Spróbuj ponownie za 5 sekund.',
+  offline_network_lost: "Połączenie zostało przerwane.",
+  offline_network_restored: "Połączenie zostało przywrócone."
 };
 export default plJSON;

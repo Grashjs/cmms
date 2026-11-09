@@ -1,4 +1,243 @@
 const locale = {
+  offline_preference_title: "Offlinemodus gebruiken",
+  offline_preference_description: "Bereid werkorders op dit apparaat voor gebruik zonder internet voor.",
+  offline_preference_pending: "Los lokale concepten, actieve timers en wachtende verzendingen op voordat u de offlinemodus uitschakelt. De server moet ook elke wachtende vrijgave van een voorbereiding bevestigen. Er is niets verwijderd.",
+  offline_preference_denied: "De server heeft offline toegang voor dit account niet toegestaan. Uw lokale werk blijft behouden.",
+  offline_preference_read_error: "De offline-instelling kon niet worden gelezen. Uw lokale werk blijft beschermd. Probeer het opnieuw; internet is niet nodig.",
+  offline_preference_activation_failed: "De offlinemodus kon niet worden ingeschakeld op dit apparaat. De instelling blijft uit; probeer het opnieuw.",
+  offline_unlock_title: "Offline werk ontgrendelen",
+  offline_unlock_explanation: "Bevestig uw identiteit om werk op dit apparaat te openen.",
+  offline_unlock_system_prompt: "Offline werk in Atlas CMMS ontgrendelen",
+  offline_unlock_use_code: "Apparaatcode gebruiken",
+  offline_unlock_setup: "Stel schermvergrendeling in via de telefooninstellingen en probeer opnieuw. Het werk blijft opgeslagen en verborgen.",
+  offline_unlock_cancelled: "Ontgrendelen geannuleerd. Uw offline werk blijft opgeslagen.",
+  offline_unlock_failed: "Ontgrendelen mislukt. Probeer opnieuw of gebruik uw apparaatcode.",
+  offline_unlock_check_server: "Toegang bij server controleren",
+  offline_unlock_sign_in: "Meld u met dit account aan bij de server en controleer de toegang opnieuw. Uw werk blijft opgeslagen en verborgen.",
+  offline_unlock_logout: "Afmelden",
+  save_signature: "Handtekening opslaan",
+  offline_signature_unsaved: "Tekening niet opgeslagen. Tik op Handtekening opslaan voordat u afsluiting aanvraagt.",
+  offline_signature_saved: "Handtekening opgeslagen op dit apparaat.",
+  offline_signature_save_failed: "Handtekening niet opgeslagen. Tik op Handtekening opslaan om opnieuw te proberen of wis deze.",
+
+  offline_status_request: "Statusverzoek",
+  offline_status_requested: "Aangevraagde status: {{status}}",
+  offline_status_saved_refresh_pending: "Status bevestigd — lokale vernieuwing in afwachting",
+  offline_status_review: "Verzoek beoordelen",
+  offline_status_review_confirm: "Server: {{server}}. Uw verzoek: {{local}}. Bewaar uw invoer als concept op deze beoordeelde versie en dien deze daarna uitdrukkelijk in.",
+  offline_status_submit: "Statusverzoek indienen",
+  offline_closure_submit: "Afsluitverzoek indienen",
+  offline_status_stop_timer: "Stop en sla de timer op dit apparaat op voordat u deze status aanvraagt.",
+  offline_status_drafts_pending: "Dien uw openstaande concepten in of verwijder ze uitdrukkelijk voordat u afsluiting aanvraagt.",
+  offline_status_dependency_failed: "Los de eerdere weigering of het conflict op voordat u dit verzoek verstuurt.",
+  offline_status_dependency_pending: "Wachten op bevestiging van eerdere bewerkingen.",
+  offline_status_new_work: "Er is nieuwe lokale invoer. Beoordeel deze voordat u de afsluiting verstuurt.",
+  offline_status_signature_forbidden: "Handtekeningen vastleggen is niet toegestaan met de huidige rechten, licentie of het abonnement.",
+  offline_status_conflict: "De status of afsluitgegevens zijn gewijzigd. Beoordeel ze; uw invoer blijft bewaard.",
+  offline_status_requirements: "Er is niet voldaan aan de vereiste afsluitvoorwaarden.",
+  offline_status_prepare_again: "Vernieuw deze voorbereiding online voordat u statussen offline wijzigt.",
+  offline_status_server: "Bevestigde status: {{status}}",
+  offline_closure_resume: "Afsluitconcept hervatten",
+  offline_closure_local: "De afsluiting blijft lokaal totdat de server uw ingediende verzoek accepteert.",
+  offline_closure_save_failed: "Het afsluitconcept kon niet op dit apparaat worden opgeslagen. Houd dit scherm open en probeer het opnieuw.",
+  retry: "Opnieuw proberen",
+  work_order_status_review: "De werkorder is gewijzigd. Beoordeel de huidige status voordat u opnieuw indient. Uw invoer blijft bewaard.",
+  work_order_status_review_current: "Huidige serverstatus beoordelen",
+  work_order_status_review_value: "Serverstatus: {{status}} · Actieve timers: {{count}}",
+  work_order_status_review_confirm: "Mijn invoer op deze beoordeelde versie behouden",
+
+  offline_time_stopped: 'Timer gestopt',
+  labor_review_current: 'Huidige tijd bekijken',
+  labor_review_confirm: 'Mijn invoer voor deze versie behouden',
+  labor_changed_review:
+    'Deze tijdregistratie is gewijzigd. Bekijk de serverversie voordat u opnieuw opslaat.',
+  labor_server_duration: 'Huidige duur op de server',
+  offline_time_start: 'Starten',
+  offline_time_stop: 'Stoppen en opslaan',
+  offline_time_running_local: 'Actief op dit apparaat',
+  offline_time_start_pending: 'Start wacht op bevestiging',
+  offline_time_running_server: 'Actief — bevestigd door de server',
+  offline_time_stop_pending: 'Stop opgeslagen — wacht op verzending',
+  offline_time_save: 'Tijd opslaan',
+  offline_time_personal: 'Mijn tijd',
+  offline_time_connected_form: 'Volledig onlineformulier',
+  offline_time_periods: 'Perioden op dit apparaat',
+  offline_time_server_total: 'Servertotaal',
+  offline_time_review: 'Periode bekijken',
+  offline_time_preserve_status: 'Opslaan en huidige status behouden',
+  offline_time_correct_connected: 'Totaal online corrigeren',
+  offline_time_saved_refresh_pending:
+    'Tijd bevestigd — lokale verversing in afwachting',
+  offline_time_invalid_range:
+    'Controleer begin en einde: de duur moet positief zijn en de tijdstippen mogen niet in de toekomst liggen.',
+  offline_time_run_changed:
+    'Deze timer is elders gestopt of opnieuw gestart. Uw periode blijft bewaard.',
+  offline_time_status_changed:
+    'De status van de werkorder is gewijzigd. Bekijk deze voordat u deze periode verzendt.',
+  offline_time_not_allowed:
+    'De huidige rechten, licentie of het abonnement staan deze tijdactie niet toe.',
+
+  offline_refresh_copy: 'Kopie vernieuwen',
+  offline_remove_server_attachment: 'Verwijderen uit werkorder',
+  offline_clear_server_image: 'Hoofdafbeelding verwijderen',
+  offline_remove_server_attachment_confirm:
+    'Dit bestand uit de werkorder op de server verwijderen? Uw selecties en wachtende verzendingen blijven behouden.',
+  offline_clear_server_image_confirm:
+    'De hoofdafbeelding op de server verwijderen? Uw geselecteerde afbeelding en wachtende verzendingen blijven behouden.',
+  offline_server_removal_refresh_pending:
+    'Verwijdering bevestigd — lokale vernieuwing in afwachting',
+  offline_review_files: 'Selectie bekijken',
+  offline_restore_files_draft:
+    'De selectie wordt teruggezet als concept. Controleer deze en sla deze vervolgens expliciet op. Een nieuwer concept wordt niet vervangen.',
+  offline_keep_file_selection: 'Mijn selectie behouden',
+  offline_file_transfer_only:
+    'Bestand overgedragen naar de server; de koppeling wordt afzonderlijk bevestigd.',
+  offline_file_dependency_failed:
+    'De koppeling wacht op een bestand waarvan de overdracht is geweigerd. Uw selectie blijft behouden.',
+  offline_retry_file_import: 'Bestand opnieuw proberen op te slaan',
+  offline_file_available: 'Bestand beschikbaar op dit apparaat',
+  offline_file_failed: 'Bestand niet beschikbaar op dit apparaat',
+  offline_open_file: 'Bestand openen',
+  offline_download_file: 'Downloaden naar dit apparaat',
+  offline_remove_file_selection: 'Uit selectie verwijderen',
+  offline_remove_local_copy: 'Lokale kopie verwijderen',
+  offline_save_files: 'Bestanden opslaan',
+  offline_other_fields_read_only:
+    'Zonder internetverbinding kunnen alleen bestanden in dit formulier worden gewijzigd.',
+  offline_save_other_changes: 'Andere wijzigingen opslaan',
+  offline_scan_asset: 'Een voorbereide installatie scannen',
+  offline_scan_unavailable:
+    'Offline scannen vereist een toegestane voorbereiding en een scanlicentie.',
+  offline_scan_ambiguous:
+    'Meerdere voorbereide installaties komen overeen met deze code. Open hun werkorder.',
+  offline_asset_not_available:
+    'Deze installatie is offline niet beschikbaar. Bereid de werkorder voor met een internetverbinding.',
+  offline_asset_read_only:
+    'Voorbereide kopie, alleen lezen. Voor andere informatie is een internetverbinding vereist.',
+  offline_asset_prepared_work_orders:
+    'Alleen voorbereide werkorders worden weergegeven.',
+  offline_file_not_ready:
+    'Wacht tot het bestand volledig naar dit apparaat is gekopieerd.',
+  offline_file_limit: 'Dit bestand overschrijdt de toegestane grootte.',
+  offline_storage_limit:
+    'Er is onvoldoende opslagruimte. Verwijder lokale kopieën die niet meer nodig zijn.',
+  offline_transfer_failed:
+    'Een overdracht is geweigerd. Bewaar uw werk, verwerp deze inzending vervolgens expliciet en selecteer de bestanden opnieuw om dit te corrigeren.',
+  offline_file_in_use:
+    'Dit bestand wordt nog gebruikt door een voorbereiding of werk dat in behandeling is.',
+  offline_file_open_failed:
+    'Dit document kan niet op dit apparaat worden geopend.',
+  offline_file_integrity:
+    'De bestandskopie is onvolledig of gewijzigd. Selecteer het bestand opnieuw.',
+  offline_attachments_conflict:
+    'De bijlagen zijn op de server gewijzigd. Vernieuw de gegevens en bereid de wijziging opnieuw voor.',
+  offline_file_copy_failed:
+    'Kopiëren naar dit apparaat is mislukt. Selecteer het bestand opnieuw.',
+  offline_comment_saved_refresh_pending:
+    'De wijziging van de opmerking is bevestigd op de server; de lokale kopie moet nog worden bijgewerkt.',
+  offline_comment_published_cleanup_pending:
+    'De opmerking is geplaatst. Het concept kon niet van dit apparaat worden verwijderd. Plaats de opmerking niet opnieuw; probeer het lokale concept opnieuw te verwijderen.',
+  offline_comment_attachment_pending:
+    'Er was een bijlage geselecteerd. Selecteer deze opnieuw of bevestig dat u alleen de tekst wilt plaatsen.',
+  offline_comment_text_only: 'Alleen tekst plaatsen',
+  offline_comment_clear_confirmed: 'Concept van geplaatste opmerking verwijderen',
+  offline_refresh_pending: 'Lokale update in afwachting',
+  offline_sending: 'Wordt verzonden',
+  offline_request_too_large:
+    'Deze verzending is te groot. Kort de tekst in voordat u het opnieuw probeert. Uw concept blijft bewaard.',
+  offline_comment_refresh_pending:
+    'Verzonden — lokale kopie moet nog worden vernieuwd',
+  offline_invalid_choice: 'Kies een optie die nog beschikbaar is.',
+  offline_comment_empty: 'Voer een opmerking in die niet leeg is.',
+  offline_max_notes: 'Notities mogen maximaal 255 tekens bevatten.',
+  offline_submit_notes: 'Notities opslaan',
+  offline_submission: 'Verzending',
+  offline_comment_pending: 'Opmerking in afwachting',
+  offline_comment_unavailable:
+    'Opmerking verzonden. Deze is niet meer beschikbaar in de lokale kopie.',
+  offline_invalid_number:
+    'Voer een geldig getal in voordat u het antwoord opslaat.',
+  offline_prepare: 'Op dit apparaat voorbereiden',
+  offline_available: 'Offline beschikbaar',
+  offline_prepared_at: 'Volledige kopie opgeslagen: {{date}}',
+  offline_preparing: 'Voorbereiden…',
+  offline_sync: 'Synchroniseren',
+  offline_syncing: 'Bezig met synchroniseren…',
+  offline_saving: 'Opslaan…',
+  offline_draft_saved: 'Concept opgeslagen op dit apparaat',
+  offline_save_failed:
+    'Deze tekst kon niet worden opgeslagen. Kopieer de tekst voordat u de app opnieuw opent. Het laatst opgeslagen concept blijft behouden.',
+  offline_submit: 'Antwoord opslaan',
+  offline_queued: 'Opgeslagen op dit apparaat — wacht op verzending',
+  offline_unknown: 'Resultaat moet worden gecontroleerd',
+  offline_applied: 'Verzonden',
+  offline_conflict: 'Elders gewijzigd — uw antwoord blijft behouden',
+  offline_rejected: 'Verzending geweigerd — uw werk blijft bewaard',
+  offline_wait_previous:
+    'Wacht op het vorige resultaat voordat u dit concept indient.',
+  offline_server_value: 'Huidige waarde op de server',
+  offline_keep_draft: 'Mijn antwoord controleren en indienen',
+  offline_use_server: 'Serverwaarde gebruiken',
+  offline_discard: 'Dit lokale werk verwijderen',
+  offline_discard_confirm:
+    'Deze versie definitief verwijderen? Een nieuwer concept blijft behouden.',
+  offline_remove: 'Voorbereiding verwijderen',
+  offline_remove_confirm: 'De gedownloade kopie van dit apparaat verwijderen?',
+  offline_pending: 'Lokaal werk',
+  offline_orphan:
+    'Het doel is niet meer beschikbaar. Uw lokale werk blijft behouden.',
+  offline_unavailable:
+    'Deze werkorder is niet meer toegankelijk. Het lokale werk blijft behouden.',
+  offline_task_deleted:
+    'Deze taak is verwijderd. Het lokale werk blijft afzonderlijk bewaard.',
+  offline_connected_required: 'Voor deze actie is een verbinding vereist',
+  offline_files_not_downloaded: 'Bestanden niet gedownload',
+  offline_disabled: 'Offlinemodus opgeschort. Het lokale werk blijft behouden.',
+  offline_reconnect:
+    'Maak opnieuw verbinding met dit account om wachtende verzendingen te controleren.',
+  offline_expired:
+    'Maak verbinding om de lokale toegang te vernieuwen. Uw werk blijft behouden.',
+  offline_load_error:
+    'De lokale opslag kon niet worden geopend. Uw bestanden blijven behouden.',
+  offline_limit:
+    'Deze voorbereiding overschrijdt de offlinelimieten. De vorige volledige kopie blijft behouden.',
+  offline_prepare_failed:
+    'Voorbereiden mislukt. Een eerdere volledige kopie blijft behouden, indien aanwezig.',
+  offline_changed_revision:
+    'Het concept is gewijzigd. Controleer de laatste versie voordat u het verwijdert.',
+  offline_leave_context:
+    'Lokale concepten en wachtende verzendingen blijven voor dit account en deze server op dit apparaat staan. Ze worden niet vanuit een ander account verzonden.',
+  offline_not_prepared: 'Deze werkorder is niet voorbereid op dit apparaat.',
+  offline_storage_busy: 'Lokale gegevens worden nog opgeslagen.',
+  offline_count: '{{count}} werkorders voorbereid op dit apparaat',
+  offline_resume_after_conflict:
+    'De taak is gewijzigd op de server. Vergelijk beide waarden voordat u opnieuw indient.',
+  offline_abandoned: 'Lokaal werk verwijderd',
+  offline_max_text: 'Maximaal 255 tekens',
+  offline_received_without_access:
+    'Resultaat gecontroleerd. De taak is niet meer toegankelijk.',
+  offline_no_local_work: 'Geen lokaal werk meer over',
+  offline_read_only:
+    'Lokale toegang is alleen-lezen totdat dit account opnieuw wordt geautoriseerd.',
+  offline_action_failed:
+    'Actie mislukt. Uw opgeslagen lokale werk blijft behouden.',
+  offline_network_unavailable:
+    'Server niet beschikbaar. Uw werk blijft op dit apparaat.',
+  offline_invalid_response:
+    'Het serverantwoord is onvolledig of ongeldig. De vorige volledige kopie blijft behouden.',
+  offline_context_changed:
+    'Het account of de server is gewijzigd. Keer terug naar het oorspronkelijke account om verder te gaan.',
+  offline_https_required:
+    'Een HTTPS-server is vereist om werk offline voor te bereiden.',
+  offline_native_required:
+    'Offlineopslag vereist een appversie met de native modules.',
+  offline_work_pending:
+    'Handel het resterende lokale werk af voordat u deze voorbereiding verwijdert.',
+  offline_removal_pending:
+    'Maak opnieuw verbinding om de vorige voorbereiding volledig te verwijderen voordat u opnieuw voorbereidt.',
+  offline_unsupported_task: 'Dit type taak moet online worden ingevuld.',
+  offline_result_changed:
+    'Deze verzending is al afgehandeld. Vernieuw de weergave om het resultaat te zien.',
   DUPLICATE_OF: 'Duplicaat van',
   DUPLICATED_BY: 'Gekopieerd door',
   RELATED_TO: 'Gerelateerd aan',
@@ -1507,6 +1746,8 @@ const locale = {
   operation_success: 'De bewerking is gelukt',
   edit_reading: 'Meetwaarde bewerken',
   are_you_sure_delete_reading: 'Weet u zeker dat u deze meetwaarde wilt verwijderen?',
-  conflict_retry: 'De bron is gewijzigd door een ander verzoek. Probeer het over 5 seconden opnieuw.'
+  conflict_retry: 'De bron is gewijzigd door een ander verzoek. Probeer het over 5 seconden opnieuw.',
+  offline_network_lost: "Verbinding verbroken.",
+  offline_network_restored: "Verbinding hersteld."
 };
 export default locale;

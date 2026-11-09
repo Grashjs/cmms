@@ -16,6 +16,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Entity
@@ -27,6 +28,15 @@ public class Labor extends Time {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Schema(description = "Unique identifier", accessMode = Schema.AccessMode.READ_ONLY)
     private Long id;
+
+    @Version
+    @Column(nullable = false)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private long version;
+
+    /** Identifies one running generation, not an interval history. */
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private UUID timerRunId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User assignedTo;

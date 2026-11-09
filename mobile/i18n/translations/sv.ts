@@ -1,4 +1,245 @@
 const locale = {
+  offline_preference_title: "Använd offlineläge",
+  offline_preference_description: "Förbered arbetsordrar på den här enheten för användning utan internet.",
+  offline_preference_pending: "Hantera lokala utkast, aktiva tidtagare och väntande sändningar innan du stänger av offlineläget. Servern måste också bekräfta varje väntande frigivning av en förberedelse. Inget har raderats.",
+  offline_preference_denied: "Servern har inte aktiverat offlineåtkomst för det här kontot. Lokalt arbete bevaras.",
+  offline_preference_read_error: "Det gick inte att läsa offlineinställningen. Ditt lokala arbete är fortfarande skyddat. Försök igen; internet behövs inte.",
+  offline_preference_activation_failed: "Det gick inte att aktivera offlineläget på den här enheten. Inställningen förblir avstängd; försök igen.",
+  offline_unlock_title: "Lås upp offlinearbete",
+  offline_unlock_explanation: "Verifiera din identitet för att öppna arbete som sparats på enheten.",
+  offline_unlock_system_prompt: "Lås upp offlinearbete i Atlas CMMS",
+  offline_unlock_use_code: "Använd enhetskod",
+  offline_unlock_setup: "Aktivera skärmlås i telefonens inställningar och försök igen. Arbetet är fortfarande sparat och dolt.",
+  offline_unlock_cancelled: "Upplåsningen avbröts. Ditt offlinearbete är sparat.",
+  offline_unlock_failed: "Upplåsningen misslyckades. Försök igen eller använd enhetskoden.",
+  offline_unlock_check_server: "Kontrollera åtkomst mot servern",
+  offline_unlock_sign_in: "Logga in på servern med det här kontot och kontrollera åtkomsten igen. Ditt arbete förblir sparat och dolt.",
+  offline_unlock_logout: "Logga ut",
+  save_signature: "Spara signatur",
+  offline_signature_unsaved: "Teckningen är inte sparad. Tryck på Spara signatur innan du begär avslut.",
+  offline_signature_saved: "Signaturen har sparats på denna enhet.",
+  offline_signature_save_failed: "Signaturen är inte sparad. Tryck på Spara signatur för att försöka igen eller radera den.",
+
+  offline_status_request: "Statusbegäran",
+  offline_status_requested: "Begärd status: {{status}}",
+  offline_status_saved_refresh_pending: "Status bekräftad — lokal uppdatering väntar",
+  offline_status_review: "Granska begäran",
+  offline_status_review_confirm: "Server: {{server}}. Din begäran: {{local}}. Behåll dina uppgifter som utkast för denna granskade version och skicka sedan in dem uttryckligen.",
+  offline_status_submit: "Skicka statusbegäran",
+  offline_closure_submit: "Skicka begäran om avslut",
+  offline_status_stop_timer: "Stoppa och spara tidtagaren på den här enheten innan du begär denna status.",
+  offline_status_drafts_pending: "Skicka in eller kassera uttryckligen dina ofärdiga utkast innan du begär avslut.",
+  offline_status_dependency_failed: "Lös den tidigare avvisningen eller konflikten innan du skickar denna begäran.",
+  offline_status_dependency_pending: "Väntar på bekräftelse av tidigare åtgärder.",
+  offline_status_new_work: "Nya lokala uppgifter finns. Granska dem innan du skickar avslutet.",
+  offline_status_signature_forbidden: "Signaturinsamling är inte tillåten med aktuella behörigheter, licens eller abonnemang.",
+  offline_status_conflict: "Statusen eller avslutsuppgifterna har ändrats. Granska dem; dina uppgifter bevaras.",
+  offline_status_requirements: "Villkoren för avslut är inte uppfyllda.",
+  offline_status_prepare_again: "Uppdatera denna förberedelse online innan du ändrar status offline.",
+  offline_status_server: "Bekräftad status: {{status}}",
+  offline_closure_resume: "Återuppta avslutsutkast",
+  offline_closure_local: "Avslutet förblir lokalt tills servern godkänner din inskickade begäran.",
+  offline_closure_save_failed: "Avslutsutkastet kunde inte sparas på denna enhet. Håll skärmen öppen och försök igen.",
+  retry: "Försök igen",
+  work_order_status_review: "Arbetsordern har ändrats. Granska dess aktuella status innan du skickar igen. Dina uppgifter bevaras.",
+  work_order_status_review_current: "Granska aktuell serverstatus",
+  work_order_status_review_value: "Serverstatus: {{status}} · Aktiva tidtagare: {{count}}",
+  work_order_status_review_confirm: "Behåll mina uppgifter för denna granskade version",
+
+  offline_time_stopped: 'Tidtagningen stoppad',
+  labor_review_current: 'Granska aktuell tid',
+  labor_review_confirm: 'Behåll min inmatning för den här versionen',
+  labor_changed_review:
+    'Den här tidsposten har ändrats. Granska serverversionen innan du sparar igen.',
+  labor_server_duration: 'Aktuell varaktighet på servern',
+  offline_time_start: 'Starta',
+  offline_time_stop: 'Stoppa och spara',
+  offline_time_running_local: 'Pågår på den här enheten',
+  offline_time_start_pending: 'Start väntar på bekräftelse',
+  offline_time_running_server: 'Pågår — bekräftat av servern',
+  offline_time_stop_pending: 'Stopp sparat — väntar på att skickas',
+  offline_time_save: 'Spara tid',
+  offline_time_personal: 'Min tid',
+  offline_time_connected_form: 'Fullständigt onlineformulär',
+  offline_time_periods: 'Perioder på den här enheten',
+  offline_time_server_total: 'Serversumma',
+  offline_time_review: 'Granska perioden',
+  offline_time_preserve_status: 'Spara och behåll aktuell status',
+  offline_time_correct_connected: 'Korrigera summan online',
+  offline_time_saved_refresh_pending:
+    'Tid bekräftad — lokal uppdatering väntar',
+  offline_time_invalid_range:
+    'Kontrollera start och slut: varaktigheten måste vara positiv och tidpunkterna får inte ligga i framtiden.',
+  offline_time_run_changed:
+    'Den här tidtagaren har stoppats eller startats om någon annanstans. Din period är sparad.',
+  offline_time_status_changed:
+    'Arbetsorderns status har ändrats. Granska den innan du skickar perioden.',
+  offline_time_not_allowed:
+    'Nuvarande behörigheter, licens eller abonnemang tillåter inte den här tidsåtgärden.',
+
+  offline_refresh_copy: 'Uppdatera kopian',
+  offline_remove_server_attachment: 'Ta bort från arbetsordern',
+  offline_clear_server_image: 'Ta bort huvudbilden',
+  offline_remove_server_attachment_confirm:
+    'Ta bort den här filen från arbetsordern på servern? Dina val och väntande inskickningar bevaras.',
+  offline_clear_server_image_confirm:
+    'Ta bort huvudbilden på servern? Din valda bild och väntande inskickningar bevaras.',
+  offline_server_removal_refresh_pending:
+    'Borttagning bekräftad — lokal uppdatering väntar',
+  offline_review_files: 'Granska urvalet',
+  offline_restore_files_draft:
+    'Urvalet återställs som ett utkast. Granska det och spara det sedan uttryckligen. Ett nyare utkast ersätts inte.',
+  offline_keep_file_selection: 'Behåll mitt urval',
+  offline_file_transfer_only:
+    'Filen har överförts till servern; kopplingen bekräftas separat.',
+  offline_file_dependency_failed:
+    'Kopplingen väntar på en fil vars överföring nekades. Ditt urval finns kvar.',
+  offline_retry_file_import: 'Försök spara filen igen',
+  offline_file_available: 'Filen är tillgänglig på den här enheten',
+  offline_file_failed: 'Filen är inte tillgänglig på den här enheten',
+  offline_open_file: 'Öppna fil',
+  offline_download_file: 'Ladda ned till den här enheten',
+  offline_remove_file_selection: 'Ta bort från urvalet',
+  offline_remove_local_copy: 'Ta bort lokal kopia',
+  offline_save_files: 'Spara filer',
+  offline_other_fields_read_only:
+    'Utan internetanslutning kan endast filer ändras i det här formuläret.',
+  offline_save_other_changes: 'Spara övriga ändringar',
+  offline_scan_asset: 'Skanna en förberedd tillgång',
+  offline_scan_unavailable:
+    'Skanning offline kräver en godkänd förberedelse och en skanningslicens.',
+  offline_scan_ambiguous:
+    'Flera förberedda tillgångar matchar den här koden. Öppna deras arbetsorder.',
+  offline_asset_not_available:
+    'Den här tillgången är inte tillgänglig offline. Förbered dess arbetsorder med en internetanslutning.',
+  offline_asset_read_only:
+    'Förberedd kopia med endast läsbehörighet. Övrig information kräver internetanslutning.',
+  offline_asset_prepared_work_orders: 'Endast förberedda arbetsorder visas.',
+  offline_file_not_ready:
+    'Vänta tills filen har kopierats färdigt till den här enheten.',
+  offline_file_limit: 'Den här filen överskrider den tillåtna storleken.',
+  offline_storage_limit:
+    'Det finns inte tillräckligt med lagringsutrymme. Ta bort lokala kopior som inte längre behövs.',
+  offline_transfer_failed:
+    'En överföring nekades. Behåll ditt arbete, avbryt sedan uttryckligen den här insändningen och välj filerna igen för att rätta till den.',
+  offline_file_in_use:
+    'Den här filen används fortfarande av en förberedelse eller ett väntande arbete.',
+  offline_file_open_failed:
+    'Det går inte att öppna det här dokumentet på den här enheten.',
+  offline_file_integrity:
+    'Filkopian är ofullständig eller har ändrats. Välj filen igen.',
+  offline_attachments_conflict:
+    'Bilagorna har ändrats på servern. Uppdatera uppgifterna och förbered sedan ändringen igen.',
+  offline_file_copy_failed:
+    'Kopieringen till den här enheten misslyckades. Välj filen igen.',
+  offline_comment_saved_refresh_pending:
+    'Ändringen av kommentaren är bekräftad på servern; den lokala kopian behöver fortfarande uppdateras.',
+  offline_comment_published_cleanup_pending:
+    'Kommentaren har publicerats. Utkastet kunde inte tas bort från den här enheten. Publicera inte kommentaren igen; försök ta bort det lokala utkastet på nytt.',
+  offline_comment_attachment_pending:
+    'En bilaga hade valts. Välj den igen eller bekräfta att endast texten ska publiceras.',
+  offline_comment_text_only: 'Publicera endast texten',
+  offline_comment_clear_confirmed:
+    'Ta bort utkastet till den publicerade kommentaren',
+  offline_refresh_pending: 'Lokal uppdatering väntar',
+  offline_sending: 'Skickar',
+  offline_request_too_large:
+    'Det som ska skickas är för stort. Korta ned texten innan du försöker igen. Ditt utkast har sparats.',
+  offline_comment_refresh_pending:
+    'Skickat — väntar på uppdatering av den lokala kopian',
+  offline_invalid_choice:
+    'Välj ett alternativ som fortfarande är tillgängligt.',
+  offline_comment_empty: 'Skriv en kommentar som inte är tom.',
+  offline_max_notes: 'Anteckningar får innehålla högst 255 tecken.',
+  offline_submit_notes: 'Spara anteckningar',
+  offline_submission: 'Inskickning',
+  offline_comment_pending: 'Väntande kommentar',
+  offline_comment_unavailable:
+    'Kommentaren har skickats. Den är inte längre tillgänglig i den lokala kopian.',
+  offline_invalid_number: 'Ange ett giltigt tal innan du sparar svaret.',
+  offline_prepare: 'Förbered på den här enheten',
+  offline_available: 'Tillgänglig offline',
+  offline_prepared_at: 'Fullständig kopia sparad: {{date}}',
+  offline_preparing: 'Förbereder…',
+  offline_sync: 'Synkronisera',
+  offline_syncing: 'Synkroniserar…',
+  offline_saving: 'Sparar…',
+  offline_draft_saved: 'Utkast sparat på den här enheten',
+  offline_save_failed:
+    'Texten kunde inte sparas. Kopiera den innan du öppnar appen igen. Det senast sparade utkastet finns kvar.',
+  offline_submit: 'Spara svar',
+  offline_queued: 'Sparat på den här enheten — väntar på att skickas',
+  offline_unknown: 'Resultatet behöver kontrolleras',
+  offline_applied: 'Skickat',
+  offline_conflict: 'Ändrat på annat håll — ditt svar finns kvar',
+  offline_rejected: 'Inskickningen avvisades — ditt arbete har sparats',
+  offline_wait_previous:
+    'Vänta på det föregående resultatet innan du skickar in det här utkastet.',
+  offline_server_value: 'Nuvarande värde på servern',
+  offline_keep_draft: 'Granska och skicka in mitt svar',
+  offline_use_server: 'Använd serverns värde',
+  offline_discard: 'Kasta det här lokala arbetet',
+  offline_discard_confirm:
+    'Kasta den här versionen permanent? Ett nyare utkast behålls.',
+  offline_remove: 'Ta bort förberedelsen',
+  offline_remove_confirm: 'Ta bort den nedladdade kopian från den här enheten?',
+  offline_pending: 'Lokalt arbete',
+  offline_orphan:
+    'Målobjektet är inte längre tillgängligt. Ditt lokala arbete finns kvar.',
+  offline_unavailable:
+    'Den här arbetsordern är inte längre tillgänglig. Det lokala arbetet finns kvar.',
+  offline_task_deleted:
+    'Den här uppgiften har tagits bort. Dess lokala arbete sparas separat.',
+  offline_connected_required: 'En anslutning krävs för den här åtgärden',
+  offline_files_not_downloaded: 'Filerna har inte laddats ned',
+  offline_disabled: 'Offlineläget är pausat. Det lokala arbetet finns kvar.',
+  offline_reconnect:
+    'Anslut det här kontot igen för att kontrollera väntande sändningar.',
+  offline_expired:
+    'Anslut för att förnya den lokala åtkomsten. Ditt arbete finns kvar.',
+  offline_load_error:
+    'Den lokala lagringen kunde inte öppnas. Dina filer finns kvar.',
+  offline_limit:
+    'Den här förberedelsen överskrider offlinegränserna. Den föregående fullständiga kopian finns kvar.',
+  offline_prepare_failed:
+    'Förberedelsen misslyckades. En tidigare fullständig kopia behålls om den finns.',
+  offline_changed_revision:
+    'Utkastet har ändrats. Granska den senaste versionen innan du kastar det.',
+  offline_leave_context:
+    'Lokala utkast och väntande sändningar stannar på den här enheten för det här kontot och den här servern. De skickas inte från ett annat konto.',
+  offline_not_prepared:
+    'Den här arbetsordern har inte förberetts på den här enheten.',
+  offline_storage_busy: 'Lokala data håller fortfarande på att sparas.',
+  offline_count: '{{count}} arbetsorder förberedda på den här enheten',
+  offline_resume_after_conflict:
+    'Uppgiften har ändrats på servern. Jämför båda värdena innan du skickar in ett nytt svar.',
+  offline_abandoned: 'Lokalt arbete kastat',
+  offline_max_text: 'Högst 255 tecken',
+  offline_received_without_access:
+    'Resultatet har kontrollerats. Uppgiften är inte längre tillgänglig.',
+  offline_no_local_work: 'Inget lokalt arbete återstår',
+  offline_read_only:
+    'Lokal åtkomst är skrivskyddad tills det här kontot får behörighet igen.',
+  offline_action_failed:
+    'Åtgärden misslyckades. Ditt sparade lokala arbete finns kvar.',
+  offline_network_unavailable:
+    'Servern är inte tillgänglig. Ditt arbete finns kvar på den här enheten.',
+  offline_invalid_response:
+    'Serverns svar är ofullständigt eller ogiltigt. Den föregående fullständiga kopian finns kvar.',
+  offline_context_changed:
+    'Kontot eller servern har ändrats. Gå tillbaka till det ursprungliga kontot för att fortsätta.',
+  offline_https_required:
+    'En HTTPS-server krävs för att förbereda arbete offline.',
+  offline_native_required:
+    'Offlinelagring kräver en appversion som innehåller de inbyggda modulerna.',
+  offline_work_pending:
+    'Hantera återstående lokalt arbete innan du tar bort den här förberedelsen.',
+  offline_removal_pending:
+    'Anslut igen för att slutföra borttagningen av den föregående förberedelsen innan du förbereder på nytt.',
+  offline_unsupported_task:
+    'Den här uppgiftstypen måste fyllas i med internetanslutning.',
+  offline_result_changed:
+    'Den här sändningen har redan fått ett slutligt resultat. Uppdatera för att se resultatet.',
   DUPLICATE_OF: 'Duplikat av',
   DUPLICATED_BY: 'Duplicerad av',
   RELATED_TO: 'Relaterat till',
@@ -1497,6 +1738,8 @@ const locale = {
   operation_success: 'Åtgärden lyckades',
   edit_reading: 'Redigera mätning',
   are_you_sure_delete_reading: 'Är du säker på att du vill ta bort denna mätning?',
-  conflict_retry: 'Resursen ändrades av en annan begäran. Försök igen om 5 sekunder.'
+  conflict_retry: 'Resursen ändrades av en annan begäran. Försök igen om 5 sekunder.',
+  offline_network_lost: "Anslutningen bröts.",
+  offline_network_restored: "Anslutningen är återställd."
 };
 export default locale;

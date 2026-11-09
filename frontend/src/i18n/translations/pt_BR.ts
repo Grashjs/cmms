@@ -1,4 +1,19 @@
 const ptBRJSON = {
+  work_order_status_review: "A ordem de serviço mudou. Revise o status atual antes de enviar novamente. Seus dados foram preservados.",
+  work_order_status_review_current: "Revisar o status atual do servidor",
+  work_order_status_review_value: "Status do servidor: {{status}} · Cronômetros ativos: {{count}}",
+  work_order_status_review_confirm: "Manter meus dados nesta versão revisada",
+
+  labor_review_current: 'Revisar o tempo atual',
+  labor_review_confirm: 'Manter minha entrada nesta versão',
+  labor_changed_review:
+    'Este registro de tempo mudou. Revise a versão do servidor antes de salvar novamente.',
+  labor_server_duration: 'Duração atual no servidor',
+
+  task_save_review: "Os dados digitados foram mantidos. O salvamento está pausado; compare-os com os dados do servidor antes de enviar as alterações exibidas.",
+  task_server_value: "Valor atual no servidor",
+  task_review_submit: "Revisar e enviar as alterações exibidas",
+  task_review_discard: "Descartar as alterações locais e usar a versão do servidor",
   DUPLICATE_OF: 'Duplicado de',
   DUPLICATED_BY: 'Duplicado por',
   RELATED_TO: 'Relacionado a',

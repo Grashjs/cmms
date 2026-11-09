@@ -32,6 +32,7 @@ import java.util.Map;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@lombok.extern.slf4j.Slf4j
 public class EmailService2 implements MailService {
 
     private final JavaMailSender emailSender;
@@ -119,11 +120,19 @@ public class EmailService2 implements MailService {
         thymeleafContext.setVariable("environment", environment);
         thymeleafContext.setVariable("brandConfig", brandingService.getBrandConfig());
         thymeleafContext.setVariable("backgroundColor", brandingService.getMailBackgroundColor());
-        String htmlBody = thymeleafTemplateEngine.process(template, thymeleafContext);
+        String htmlBody;
+        try { htmlBody = thymeleafTemplateEngine.process(template, thymeleafContext); }
+        catch (RuntimeException failure) {
+            log.error("EMAIL_RENDER_FAILED operation={} workOrder={} template={}", templateModel.get("offlineOperationId"),
+                    templateModel.get("workOrderId"), template, failure);
+            throw failure;
+        }
 
         try {
             sendHtmlMessage(to, subject, htmlBody, attachmentDTOS);
         } catch (MessagingException | IOException e) {
+            log.error("EMAIL_DELIVERY_FAILED operation={} workOrder={} template={}", templateModel.get("offlineOperationId"),
+                    templateModel.get("workOrderId"), template, e);
             throw new CustomException("Can't send the mail", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

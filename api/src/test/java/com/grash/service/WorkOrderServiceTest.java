@@ -164,6 +164,8 @@ class WorkOrderServiceTest {
         ReflectionTestUtils.setField(workOrderService, "brandingService", brandingService);
         ReflectionTestUtils.setField(workOrderService, "workOrderHistoryService", workOrderHistoryService);
         ReflectionTestUtils.setField(workOrderService, "environment", environment);
+        ReflectionTestUtils.setField(workOrderService, "fileService", new FileService(
+                fileRepository, storageServiceFactory, null, licenseService, null, null));
 
         subscriptionPlan = SubscriptionPlan.builder()
                 .id(1L)
@@ -1097,7 +1099,9 @@ class WorkOrderServiceTest {
             wo.setFirstTimeToReact(null);
 
             dto = new WorkOrderChangeStatusDTO();
+            dto.setBaseRevision(0L); dto.setActiveTimerRuns(List.of()); dto.setFeedback("Completed on site");
             dto.setStatus(Status.IN_PROGRESS);
+            lenient().when(workOrderRepository.findForUpdate(1L, company.getId())).thenReturn(Optional.of(wo));
         }
 
         private void stubBasic() {
@@ -1111,8 +1115,91 @@ class WorkOrderServiceTest {
         }
 
         @Test
+        void staleConnectedStatusGuardDoesNotOverwriteTheAcceptedStatus() {
+            wo.setTimerStatusRevision(2);
+            var failure = assertThrows(CustomException.class, () -> workOrderService.changeStatus(dto, 1L, user, "web"));
+            assertEquals("STATUS_REVISION_CONFLICT", failure.getMessage());
+            assertEquals(Status.OPEN, wo.getStatus());
+            verify(workOrderRepository, never()).saveAndFlush(any());
+        }
+
+        @Test
+        void unknownRunningGenerationIsNotStoppedByAnOldPauseRequest() {
+            stubBasic(); dto.setStatus(Status.ON_HOLD);
+            Labor running = new Labor(); running.setId(71L); running.setLogged(true);
+            running.setStatus(com.grash.model.enums.TimeStatus.RUNNING); running.setTimerRunId(UUID.randomUUID());
+            when(laborService.findByWorkOrder(1L)).thenReturn(List.of(running));
+            assertEquals("STATUS_TIMER_RUNS_CHANGED", assertThrows(CustomException.class,
+                    () -> workOrderService.changeStatus(dto, 1L, user, "web")).getMessage());
+            verify(laborService, never()).stop(any());
+        }
+
+        @Test
+        void currentClosureRequirementsUseTheExistingNonemptyTaskPredicate() {
+            stubBasic(); dto.setStatus(Status.COMPLETE);
+            var fields = company.getCompanySettings().getWorkOrderConfiguration().getWorkOrderFieldConfigurations();
+            fields.stream().filter(field -> field.getFieldName().equals("completeTasks"))
+                    .forEach(field -> field.setFieldType(com.grash.model.enums.FieldType.REQUIRED));
+            var presence = mock(com.grash.repository.WorkOrderRepository.ClosurePresence.class);
+            when(workOrderRepository.closurePresence(1L)).thenReturn(presence);
+            when(presence.getHasUnansweredTasks()).thenReturn(true);
+            assertEquals("required_tasks_on_completion", assertThrows(CustomException.class,
+                    () -> workOrderService.changeStatus(dto, 1L, user, "web")).getMessage());
+            verify(workOrderRepository, never()).saveAndFlush(any());
+        }
+
+        @Test
+        void offlineDuplicateCompletionWithNewIdentityRequiresReview() {
+            stubBasic(); wo.setStatus(Status.COMPLETE);
+            var change = new com.grash.dto.offline.MobileOfflineStatusChange(Status.COMPLETE, 0L, "Done", null, List.of(), List.of());
+            var outcome = workOrderService.applyOfflineStatus(1L, change, 0, List.of(), user, "android", UUID.randomUUID());
+            assertTrue(outcome.conflict()); assertEquals("ALREADY_COMPLETED", outcome.error());
+            verify(workOrderRepository, never()).saveAndFlush(any());
+            verifyNoInteractions(scheduleService);
+        }
+
+        @Test
+        void offlineCompletionDefersEachExternalEffectAndIsolatesItsFailure() {
+            stubBasic(); wo.setAsset(null);
+            Schedule schedule = new Schedule(); schedule.setId(42L);
+            PreventiveMaintenance pm = new PreventiveMaintenance(); pm.setSchedule(schedule); wo.setParentPreventiveMaintenance(pm);
+            var change = new com.grash.dto.offline.MobileOfflineStatusChange(Status.COMPLETE, 0L, "Done", null, List.of(), List.of());
+            org.springframework.transaction.support.TransactionSynchronizationManager.initSynchronization();
+            try {
+                var outcome = workOrderService.applyOfflineStatus(1L, change, 0, List.of(), user, "android", UUID.randomUUID());
+                assertNull(outcome.error()); assertEquals(Status.COMPLETE, outcome.workOrder().getStatus());
+                verifyNoInteractions(scheduleService, notificationService);
+                verify(webhookDispatchService, never()).dispatchWebhook(any(), any(), any(), any(), any(), any(), any(), any(), any(), any());
+                doThrow(new IllegalStateException("Quartz unavailable")).when(scheduleService).scheduleNextWorkOrderJobAfterOfflineCompletion(eq(42L), any());
+                for (var callback : org.springframework.transaction.support.TransactionSynchronizationManager.getSynchronizations())
+                    assertDoesNotThrow(callback::afterCommit);
+                verify(scheduleService).scheduleNextWorkOrderJobAfterOfflineCompletion(eq(42L), any());
+                verify(scheduleService, never()).scheduleNextWorkOrderJobAfterCompletion(anyLong(), any());
+                verify(notificationService).createMultiple(anyList(), eq(true), any());
+                verify(webhookDispatchService).dispatchWebhook(any(), eq(com.grash.model.enums.webhook.WebhookEvent.WORK_ORDER_CHANGE), any(), any(), any(), any(), any(), any(), any(), any());
+            } finally {
+                org.springframework.transaction.support.TransactionSynchronizationManager.clearSynchronization();
+            }
+        }
+
+        @Test
+        void reaffirmedPauseAdvancesTheExplicitDecisionRevision() {
+            wo.setStatus(Status.ON_HOLD);
+            wo.setTimerStatusRevision(4);
+            dto.setBaseRevision(4L);
+            dto.setStatus(Status.ON_HOLD);
+            stubBasic();
+
+            workOrderService.changeStatus(dto, 1L, user, "web");
+
+            assertEquals(Status.ON_HOLD, wo.getStatus());
+            assertEquals(5, wo.getTimerStatusRevision());
+            assertNull(wo.getFirstTimeToReact());
+            verify(workOrderRepository).saveAndFlush(argThat(saved -> saved.getTimerStatusRevision() == 5));
+        }
+
+        @Test
         void signatureWithoutLicense_throwsForbidden() {
-            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
             dto.setSignature("sig");
             when(licenseService.hasEntitlement(LicenseEntitlement.SIGNATURE_CAPTURE)).thenReturn(false);
             CustomException ex = assertThrows(CustomException.class,
@@ -1566,6 +1653,7 @@ class WorkOrderServiceTest {
 
         private void stubPatch(WorkOrder woAfterPatch, boolean disableNotif, Status newStatus) {
             woAfterPatch.setStatus(newStatus);
+            when(workOrderRepository.findForUpdate(1L, company.getId())).thenReturn(Optional.of(wo));
             when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
             when(workOrderRepository.existsById(1L)).thenReturn(true);
             when(workOrderMapper.updateWorkOrder(any(), any())).thenReturn(woAfterPatch);
@@ -2764,11 +2852,225 @@ class WorkOrderServiceTest {
     }
 
     @Nested
+    class AttachmentConcurrency {
+        com.grash.model.File attachment(long id) {
+            var file = new com.grash.model.File(); file.setId(id); file.setCompany(company);
+            file.setCreatedBy(user.getId()); file.setType(FileType.IMAGE);
+            return file;
+        }
+
+        @Test void jsonDistinguishesAbsentAttachmentsFromExplicitClearsWithoutChangingTheSharedBaseDto() throws Exception {
+            var json = new com.fasterxml.jackson.databind.ObjectMapper();
+            var absent = json.readValue("{}", WorkOrderPatchDTO.class);
+            assertFalse(absent.isImagePresent()); assertFalse(absent.isFilesPresent());
+            var clear = json.readValue("{\"image\":null,\"files\":[],\"attachmentsBase\":{\"imageId\":10,\"fileIds\":[11]}}", WorkOrderPatchDTO.class);
+            assertTrue(clear.isImagePresent()); assertTrue(clear.isFilesPresent());
+            assertEquals(10L, clear.getAttachmentsBase().imageId());
+            var shared = json.readValue("{\"image\":null,\"files\":[]}", com.grash.dto.WorkOrderBasePatchDTO.class);
+            assertNull(shared.getImage()); assertTrue(shared.getFiles().isEmpty());
+        }
+
+        @Test void absentAttachmentsLeaveBothAssociationsUntouched() {
+            WorkOrder wo = buildWorkOrder(1L); var a = attachment(10);
+            wo.setImage(a); wo.getFiles().add(a);
+            workOrderService.applyAttachmentPatch(wo, new WorkOrderPatchDTO(), user);
+            assertSame(a, wo.getImage()); assertEquals(List.of(a), wo.getFiles());
+            verifyNoInteractions(fileRepository);
+        }
+
+        @Test void explicitFileDeltaPreservesAnInterleavedMobileAddition() {
+            role.getViewPermissions().add(PermissionEntity.FILES);
+            WorkOrder wo = buildWorkOrder(1L); var a = attachment(10); var b = attachment(11); var c = attachment(12);
+            wo.getFiles().addAll(List.of(a, b));
+            WorkOrderPatchDTO patch = new WorkOrderPatchDTO(); patch.setFiles(List.of(c));
+            patch.setAttachmentsBase(new WorkOrderPatchDTO.AttachmentsBase(null, List.of(10L)));
+            when(fileRepository.findByIdAndCompany_Id(12L, company.getId())).thenReturn(Optional.of(c));
+            workOrderService.applyAttachmentPatch(wo, patch, user);
+            assertEquals(List.of(11L, 12L), wo.getFiles().stream().map(com.grash.model.File::getId).toList());
+        }
+
+        @Test void technicianCanAttachItsAuditedUploadAndReplaceImageWithoutCataloguePermission() {
+            role.getCreatePermissions().add(PermissionEntity.FILES);
+            subscriptionPlan.getFeatures().add(PlanFeatures.FILE);
+            when(licenseService.hasEntitlement(LicenseEntitlement.FILE_ATTACHMENTS)).thenReturn(true);
+            assertFalse(role.getViewPermissions().contains(PermissionEntity.FILES));
+            WorkOrder wo = buildWorkOrder(1L);
+            var retained = attachment(10); retained.setCreatedBy(99L);
+            var uploaded = attachment(11); uploaded.setHidden(false);
+            wo.setImage(retained); wo.getFiles().add(retained);
+            when(fileRepository.findByIdAndCompany_Id(11L, company.getId())).thenReturn(Optional.of(uploaded));
+            WorkOrderPatchDTO patch = new WorkOrderPatchDTO();
+            patch.setImage(uploaded); patch.setFiles(List.of(retained, uploaded));
+            patch.setAttachmentsBase(new WorkOrderPatchDTO.AttachmentsBase(10L, List.of(10L)));
+
+            workOrderService.applyAttachmentPatch(wo, patch, user);
+
+            assertSame(uploaded, wo.getImage());
+            assertEquals(List.of(retained, uploaded), wo.getFiles());
+            verify(fileRepository, never()).findByIdAndCompany_Id(10L, company.getId());
+            verify(licenseService, times(2)).hasEntitlement(LicenseEntitlement.FILE_ATTACHMENTS);
+        }
+
+        @Test void retainingCurrentAttachmentsNeedsNeitherCatalogueNorUploadPermission() {
+            WorkOrder wo = buildWorkOrder(1L); var existing = attachment(10); existing.setCreatedBy(99L);
+            wo.setImage(existing); wo.getFiles().add(existing);
+            WorkOrderPatchDTO patch = new WorkOrderPatchDTO();
+            patch.setImage(existing); patch.setFiles(List.of(existing));
+            patch.setAttachmentsBase(new WorkOrderPatchDTO.AttachmentsBase(10L, List.of(10L)));
+
+            workOrderService.applyAttachmentPatch(wo, patch, user);
+
+            assertSame(existing, wo.getImage()); assertEquals(List.of(existing), wo.getFiles());
+            verifyNoInteractions(fileRepository, licenseService);
+        }
+
+        @Test void aStaleRetainedFileDoesNotReattachOrRequireCatalogueAccess() {
+            WorkOrder wo = buildWorkOrder(1L); var old = attachment(10); var concurrent = attachment(11);
+            old.setCreatedBy(99L); wo.getFiles().add(concurrent);
+            WorkOrderPatchDTO patch = new WorkOrderPatchDTO(); patch.setFiles(List.of(old));
+            patch.setAttachmentsBase(new WorkOrderPatchDTO.AttachmentsBase(null, List.of(10L)));
+
+            workOrderService.applyAttachmentPatch(wo, patch, user);
+
+            assertEquals(List.of(concurrent), wo.getFiles());
+            verifyNoInteractions(fileRepository, licenseService);
+        }
+
+        @Test void aClaimedUploadUsesDatabaseAuthorAndCannotAttachAnotherUsersFile() {
+            role.getCreatePermissions().add(PermissionEntity.FILES);
+            WorkOrder wo = buildWorkOrder(1L); var claimed = attachment(10); var stored = attachment(10);
+            stored.setCreatedBy(99L);
+            when(fileRepository.findByIdAndCompany_Id(10L, company.getId())).thenReturn(Optional.of(stored));
+            WorkOrderPatchDTO patch = new WorkOrderPatchDTO(); patch.setFiles(List.of(claimed));
+            patch.setAttachmentsBase(new WorkOrderPatchDTO.AttachmentsBase(null, List.of()));
+
+            assertEquals(HttpStatus.FORBIDDEN, assertThrows(CustomException.class,
+                    () -> workOrderService.applyAttachmentPatch(wo, patch, user)).getHttpStatus());
+            assertTrue(wo.getFiles().isEmpty()); verifyNoInteractions(licenseService);
+        }
+
+        @Test void anotherCompanyOrMissingFileCannotUseTheOwnUploadException() {
+            WorkOrder wo = buildWorkOrder(1L); var claimed = attachment(10);
+            when(fileRepository.findByIdAndCompany_Id(10L, company.getId())).thenReturn(Optional.empty());
+            WorkOrderPatchDTO patch = new WorkOrderPatchDTO(); patch.setFiles(List.of(claimed));
+            patch.setAttachmentsBase(new WorkOrderPatchDTO.AttachmentsBase(null, List.of()));
+
+            assertEquals(HttpStatus.NOT_FOUND, assertThrows(CustomException.class,
+                    () -> workOrderService.applyAttachmentPatch(wo, patch, user)).getHttpStatus());
+            assertTrue(wo.getFiles().isEmpty()); verifyNoInteractions(licenseService);
+        }
+
+        @Test void anOwnUploadStillNeedsCurrentCreatePermissionPlanAndLicense() {
+            WorkOrder wo = buildWorkOrder(1L); var uploaded = attachment(10);
+            when(fileRepository.findByIdAndCompany_Id(10L, company.getId())).thenReturn(Optional.of(uploaded));
+            WorkOrderPatchDTO patch = new WorkOrderPatchDTO(); patch.setFiles(List.of(uploaded));
+            patch.setAttachmentsBase(new WorkOrderPatchDTO.AttachmentsBase(null, List.of()));
+            // No entitlement, then no create permission, then no subscription feature.
+            assertEquals(HttpStatus.FORBIDDEN, assertThrows(CustomException.class,
+                    () -> workOrderService.applyAttachmentPatch(wo, patch, user)).getHttpStatus());
+            when(licenseService.hasEntitlement(LicenseEntitlement.FILE_ATTACHMENTS)).thenReturn(true);
+            assertEquals(HttpStatus.FORBIDDEN, assertThrows(CustomException.class,
+                    () -> workOrderService.applyAttachmentPatch(wo, patch, user)).getHttpStatus());
+            role.getCreatePermissions().add(PermissionEntity.FILES);
+            assertEquals(HttpStatus.FORBIDDEN, assertThrows(CustomException.class,
+                    () -> workOrderService.applyAttachmentPatch(wo, patch, user)).getHttpStatus());
+            assertTrue(wo.getFiles().isEmpty());
+        }
+
+        @Test void catalogueAdditionStillRequiresItsExistingReadPermission() {
+            WorkOrder wo = buildWorkOrder(1L); var fromCatalogue = attachment(10);
+            role.getCreatePermissions().add(PermissionEntity.FILES);
+            when(workOrderRepository.findForUpdate(1L, company.getId())).thenReturn(Optional.of(wo));
+            when(fileRepository.findByIdAndCompany_Id(10L, company.getId())).thenReturn(Optional.of(fromCatalogue));
+
+            assertEquals(HttpStatus.FORBIDDEN, assertThrows(CustomException.class,
+                    () -> workOrderService.addFiles(1L, List.of(fromCatalogue), user)).getHttpStatus());
+            verify(workOrderRepository, never()).save(any());
+            verifyNoInteractions(licenseService);
+        }
+
+        @Test void attachmentOnlyPatchUsesLockedBusinessFieldsAndIncomingPresence() {
+            WorkOrder wo = buildWorkOrder(1L); var oldImage = attachment(10); var retained = attachment(11);
+            wo.setImage(oldImage); wo.getFiles().add(retained); wo.setArchived(true);
+            WorkOrderPatchDTO current = new WorkOrderPatchDTO();
+            current.setTitle(wo.getTitle()); current.setDescription(wo.getDescription());
+            current.setArchived(true); current.setPriority(Priority.HIGH); current.setEstimatedDuration(8);
+            current.setImage(oldImage); current.setFiles(List.of(retained));
+            current.setCustomFields(List.of(new CustomFieldValuePostDTO()));
+            when(workOrderRepository.findForUpdate(1L, company.getId())).thenReturn(Optional.of(wo));
+            when(workOrderMapper.toPatchDto(wo)).thenReturn(current);
+            WorkOrderPatchDTO request = new WorkOrderPatchDTO(); request.setImage(null);
+            request.setTitle("must not overwrite the current title");
+            request.setAttachmentsBase(new WorkOrderPatchDTO.AttachmentsBase(10L, null));
+            WorkOrderService spy = spy(workOrderService);
+            doAnswer(call -> {
+                WorkOrderPatchDTO effective = call.getArgument(1);
+                assertEquals(wo.getTitle(), effective.getTitle());
+                assertEquals(wo.getDescription(), effective.getDescription());
+                assertTrue(effective.isArchived()); assertEquals(Priority.HIGH, effective.getPriority());
+                assertEquals(8, effective.getEstimatedDuration());
+                assertTrue(effective.isImagePresent()); assertFalse(effective.isFilesPresent());
+                assertTrue(effective.getCustomFields().isEmpty());
+                spy.applyAttachmentPatch(wo, effective, user);
+                return wo;
+            }).when(spy).update(eq(1L), any(), eq(user));
+            doNothing().when(spy).patchNotify(any(), any(), any());
+
+            assertSame(wo, spy.patch(1L, request, user, true));
+
+            assertNull(wo.getImage()); assertEquals(List.of(retained), wo.getFiles());
+            var order = inOrder(workOrderRepository, em, workOrderMapper);
+            order.verify(workOrderRepository).findForUpdate(1L, company.getId());
+            order.verify(em).refresh(wo);
+            order.verify(workOrderMapper).toPatchDto(wo);
+            verifyNoInteractions(customFieldValueService, fileRepository, licenseService, workflowService);
+        }
+
+        @Test void attachmentOnlyPatchStillRequiresWorkOrderEditAccess() {
+            WorkOrder wo = buildWorkOrder(1L); wo.setCreatedBy(99L); role.getEditOtherPermissions().clear();
+            when(workOrderRepository.findForUpdate(1L, company.getId())).thenReturn(Optional.of(wo));
+            WorkOrderPatchDTO request = new WorkOrderPatchDTO(); request.setImage(null);
+
+            assertEquals(HttpStatus.FORBIDDEN, assertThrows(CustomException.class,
+                    () -> workOrderService.patch(1L, request, user, true)).getHttpStatus());
+            verifyNoInteractions(workOrderMapper, fileRepository);
+        }
+
+        @Test void staleImageBaseRejectsWithoutChangingTheCurrentImage() {
+            WorkOrder wo = buildWorkOrder(1L); var a = attachment(10); var b = attachment(11);
+            wo.setImage(b);
+            WorkOrderPatchDTO patch = new WorkOrderPatchDTO(); patch.setImage(null);
+            patch.setAttachmentsBase(new WorkOrderPatchDTO.AttachmentsBase(a.getId(), null));
+            assertEquals(HttpStatus.CONFLICT, assertThrows(CustomException.class,
+                    () -> workOrderService.applyAttachmentPatch(wo, patch, user)).getHttpStatus());
+            assertSame(b, wo.getImage()); verifyNoInteractions(fileRepository);
+        }
+
+        @Test void explicitReplacementWithoutABaseIsRejected() {
+            WorkOrder wo = buildWorkOrder(1L); wo.setImage(attachment(10));
+            WorkOrderPatchDTO patch = new WorkOrderPatchDTO(); patch.setImage(null);
+            assertEquals("ATTACHMENTS_BASE_REQUIRED", assertThrows(CustomException.class,
+                    () -> workOrderService.applyAttachmentPatch(wo, patch, user)).getMessage());
+        }
+
+        @Test void repeatedOfflineAdditionIsASetAndAnImageConflictWritesNothing() {
+            WorkOrder wo = buildWorkOrder(1L); var a = attachment(10); var b = attachment(11);
+            wo.getFiles().add(a); wo.setImage(a);
+            when(workOrderRepository.findForUpdate(1L, company.getId())).thenReturn(Optional.of(wo));
+            var refused = workOrderService.applyOfflineAttachments(1, List.of(b), b, 99L, true, user);
+            assertTrue(refused.conflict()); assertEquals(List.of(a), wo.getFiles()); assertSame(a, wo.getImage());
+            verify(workOrderRepository, never()).saveAndFlush(any());
+            var applied = workOrderService.applyOfflineAttachments(1, List.of(a, b), null, null, false, user);
+            assertNull(applied.error()); assertEquals(List.of(a, b), wo.getFiles());
+        }
+    }
+
+    @Nested
     class AddFilesTests {
 
         @Test
         void notFound_throwsNotFound() {
-            when(workOrderRepository.findById(1L)).thenReturn(Optional.empty());
+            when(workOrderRepository.findForUpdate(1L, company.getId())).thenReturn(Optional.empty());
             assertThrows(CustomException.class,
                     () -> workOrderService.addFiles(1L, List.of(new com.grash.model.File()), user));
         }
@@ -2778,7 +3080,7 @@ class WorkOrderServiceTest {
             WorkOrder wo = buildWorkOrder(1L);
             wo.setCreatedBy(99L);
             role.getEditOtherPermissions().clear();
-            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+            when(workOrderRepository.findForUpdate(1L, company.getId())).thenReturn(Optional.of(wo));
 
             assertThrows(CustomException.class,
                     () -> workOrderService.addFiles(1L, List.of(new com.grash.model.File()), user));
@@ -2788,12 +3090,15 @@ class WorkOrderServiceTest {
         void addsFilesAndReturnsUpdatedList() {
             WorkOrder wo = buildWorkOrder(1L);
             wo.setCreatedBy(user.getId());
-            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+            when(workOrderRepository.findForUpdate(1L, company.getId())).thenReturn(Optional.of(wo));
             when(workOrderRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
             com.grash.model.File f = new com.grash.model.File();
             f.setId(10L);
             f.setName("file.txt");
+            role.getViewPermissions().add(PermissionEntity.FILES);
+            f.setCreatedBy(user.getId());
+            when(fileRepository.findByIdAndCompany_Id(10L, company.getId())).thenReturn(Optional.of(f));
 
             List<com.grash.model.File> result = workOrderService.addFiles(1L, List.of(f), user);
 
@@ -2809,8 +3114,8 @@ class WorkOrderServiceTest {
             com.grash.model.File f = new com.grash.model.File();
             f.setId(10L);
             f.setName("private.txt");
-            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
-            when(fileRepository.findByIdIn(List.of(10L))).thenReturn(List.of(f));
+            when(workOrderRepository.findForUpdate(1L, company.getId())).thenReturn(Optional.of(wo));
+            when(fileRepository.findByIdAndCompany_Id(10L, company.getId())).thenReturn(Optional.of(f));
 
             CustomException ex = assertThrows(CustomException.class,
                     () -> workOrderService.addFiles(1L, List.of(f), user));
@@ -2828,15 +3133,15 @@ class WorkOrderServiceTest {
             com.grash.model.File f = new com.grash.model.File();
             f.setId(10L);
             f.setName("file.txt");
-            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
-            when(fileRepository.findByIdIn(List.of(10L))).thenReturn(List.of(f));
+            when(workOrderRepository.findForUpdate(1L, company.getId())).thenReturn(Optional.of(wo));
+            when(fileRepository.findByIdAndCompany_Id(10L, company.getId())).thenReturn(Optional.of(f));
             when(workOrderRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
             List<com.grash.model.File> result = workOrderService.addFiles(1L, List.of(f), user);
 
             assertEquals(1, result.size());
             assertEquals("file.txt", result.get(0).getName());
-            verify(fileRepository).findByIdIn(List.of(10L));
+            verify(fileRepository).findByIdAndCompany_Id(10L, company.getId());
             verify(workOrderRepository).save(wo);
         }
 
@@ -2853,8 +3158,9 @@ class WorkOrderServiceTest {
             hidden.setId(11L);
             hidden.setName("hidden.txt");
             hidden.setCreatedBy(99L);
-            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
-            when(fileRepository.findByIdIn(List.of(10L, 11L))).thenReturn(List.of(viewable, hidden));
+            when(workOrderRepository.findForUpdate(1L, company.getId())).thenReturn(Optional.of(wo));
+            when(fileRepository.findByIdAndCompany_Id(10L, company.getId())).thenReturn(Optional.of(viewable));
+            when(fileRepository.findByIdAndCompany_Id(11L, company.getId())).thenReturn(Optional.of(hidden));
 
             CustomException ex = assertThrows(CustomException.class,
                     () -> workOrderService.addFiles(1L, List.of(viewable, hidden), user));
@@ -2869,7 +3175,7 @@ class WorkOrderServiceTest {
 
         @Test
         void notFound_throwsNotFound() {
-            when(workOrderRepository.findById(1L)).thenReturn(Optional.empty());
+            when(workOrderRepository.findForUpdate(1L, company.getId())).thenReturn(Optional.empty());
             assertThrows(CustomException.class,
                     () -> workOrderService.removeFile(1L, 10L, user));
         }
@@ -2879,7 +3185,7 @@ class WorkOrderServiceTest {
             WorkOrder wo = buildWorkOrder(1L);
             wo.setCreatedBy(99L);
             role.getEditOtherPermissions().clear();
-            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+            when(workOrderRepository.findForUpdate(1L, company.getId())).thenReturn(Optional.of(wo));
 
             assertThrows(CustomException.class,
                     () -> workOrderService.removeFile(1L, 10L, user));
@@ -2892,7 +3198,7 @@ class WorkOrderServiceTest {
             com.grash.model.File f = new com.grash.model.File();
             f.setId(10L);
             wo.setFiles(new ArrayList<>(List.of(f)));
-            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+            when(workOrderRepository.findForUpdate(1L, company.getId())).thenReturn(Optional.of(wo));
             when(workOrderRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
             List<com.grash.model.File> result = workOrderService.removeFile(1L, 10L, user);
@@ -2906,7 +3212,7 @@ class WorkOrderServiceTest {
             WorkOrder wo = buildWorkOrder(1L);
             wo.setCreatedBy(user.getId());
             wo.setFiles(new ArrayList<>());
-            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+            when(workOrderRepository.findForUpdate(1L, company.getId())).thenReturn(Optional.of(wo));
             when(workOrderRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
             List<com.grash.model.File> result = workOrderService.removeFile(1L, 99L, user);
@@ -2939,7 +3245,7 @@ class WorkOrderServiceTest {
 
         @Test
         void notFound_throwsNotFound() {
-            when(workOrderRepository.findById(1L)).thenReturn(Optional.empty());
+            when(workOrderRepository.findForUpdate(1L, company.getId())).thenReturn(Optional.empty());
             CustomException ex = assertThrows(CustomException.class,
                     () -> workOrderService.patch(1L, new WorkOrderPatchDTO(), user));
             assertEquals(HttpStatus.NOT_FOUND, ex.getHttpStatus());
@@ -2950,7 +3256,7 @@ class WorkOrderServiceTest {
             WorkOrder wo = buildWorkOrder(1L);
             wo.setCreatedBy(99L);
             role.getEditOtherPermissions().clear();
-            when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+            when(workOrderRepository.findForUpdate(1L, company.getId())).thenReturn(Optional.of(wo));
 
             CustomException ex = assertThrows(CustomException.class,
                     () -> workOrderService.patch(1L, new WorkOrderPatchDTO(), user));
@@ -2963,6 +3269,7 @@ class WorkOrderServiceTest {
             wo.setArchived(false);
             WorkOrder woAfterPatch = buildWorkOrder(1L);
             woAfterPatch.setArchived(true);
+            when(workOrderRepository.findForUpdate(1L, company.getId())).thenReturn(Optional.of(wo));
             when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
             when(workOrderRepository.existsById(1L)).thenReturn(true);
             when(workOrderMapper.updateWorkOrder(any(), any())).thenReturn(woAfterPatch);
@@ -3070,9 +3377,11 @@ class WorkOrderServiceTest {
             wo.setParentPreventiveMaintenance(pm);
 
             WorkOrderChangeStatusDTO dto = new WorkOrderChangeStatusDTO();
+            dto.setBaseRevision(0L); dto.setActiveTimerRuns(List.of()); dto.setFeedback("Completed on site");
             dto.setStatus(Status.COMPLETE);
 
             when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+            when(workOrderRepository.findForUpdate(1L, user.getCompany().getId())).thenReturn(Optional.of(wo));
             when(workOrderRepository.saveAndFlush(any())).thenAnswer(inv -> {
                 WorkOrder saved = inv.getArgument(0);
                 saved.setId(1L);
@@ -3106,9 +3415,11 @@ class WorkOrderServiceTest {
             User requester = buildUser(5L);
 
             WorkOrderChangeStatusDTO dto = new WorkOrderChangeStatusDTO();
+            dto.setBaseRevision(0L); dto.setActiveTimerRuns(List.of()); dto.setFeedback("Completed on site");
             dto.setStatus(Status.COMPLETE);
 
             when(workOrderRepository.findById(1L)).thenReturn(Optional.of(wo));
+            when(workOrderRepository.findForUpdate(1L, user.getCompany().getId())).thenReturn(Optional.of(wo));
             when(workOrderRepository.saveAndFlush(any())).thenAnswer(inv -> {
                 WorkOrder saved = inv.getArgument(0);
                 saved.setId(1L);
@@ -3211,6 +3522,21 @@ class WorkOrderServiceTest {
 
         private WorkOrder givenWorkOrder() {
             return new WorkOrder();
+        }
+
+        @Test
+        void sameStatusImportChangesProtectedFeedbackOnceWithoutANewCounter() {
+            WorkOrder workOrder = givenWorkOrder(); workOrder.setId(11L); workOrder.setStatus(Status.OPEN);
+            workOrder.setFeedback("Before"); workOrder.setTimerStatusRevision(6);
+            WorkOrderImportDTO dto = WorkOrderImportDTO.builder().title("Imported").description("Description")
+                    .status("Open").priority("NONE").requiredSignature("No").archived("false")
+                    .feedback("After").assignedToEmails(List.of()).customersNames(List.of()).build();
+            lenient().when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_ACTIVE_WORK_ORDERS)).thenReturn(true);
+            lenient().when(customSequenceService.getNextWorkOrderSequence(any())).thenReturn(1L);
+            workOrderService.importWorkOrder(workOrder, dto, company);
+            assertEquals(Status.OPEN, workOrder.getStatus()); assertEquals(7, workOrder.getTimerStatusRevision());
+            workOrderService.importWorkOrder(workOrder, dto, company);
+            assertEquals(7, workOrder.getTimerStatusRevision());
         }
 
         @Test

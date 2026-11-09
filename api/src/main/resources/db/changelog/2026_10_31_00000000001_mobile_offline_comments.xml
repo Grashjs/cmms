@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+    <changeSet id="2026_10_31_00000000001" author="atlas">
+        <addColumn tableName="comment">
+            <column name="source_operation_id" type="UUID"/>
+        </addColumn>
+        <addUniqueConstraint tableName="comment" columnNames="company_id,user_id,source_operation_id"
+                             constraintName="comment_source_operation_unique"/>
+        <rollback>
+            <dropUniqueConstraint tableName="comment" constraintName="comment_source_operation_unique"/>
+            <dropColumn tableName="comment" columnName="source_operation_id"/>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

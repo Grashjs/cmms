@@ -1,4 +1,19 @@
 const locale = {
+  work_order_status_review: "A munkalap megváltozott. Újbóli beküldés előtt tekintse át a jelenlegi állapotát. A bevitt adatok megmaradtak.",
+  work_order_status_review_current: "Jelenlegi szerverállapot áttekintése",
+  work_order_status_review_value: "Szerverállapot: {{status}} · Aktív időmérők: {{count}}",
+  work_order_status_review_confirm: "Bevitt adataim megtartása ezen az áttekintett verzión",
+
+  labor_review_current: 'Jelenlegi idő ellenőrzése',
+  labor_review_confirm: 'Bevitelem megtartása ehhez a verzióhoz',
+  labor_changed_review:
+    'Ez az időbejegyzés megváltozott. Újabb mentés előtt ellenőrizze a szerver verzióját.',
+  labor_server_duration: 'Jelenlegi időtartam a szerveren',
+
+  task_save_review: "A beírt adatok megmaradnak. A mentés szünetel; a megjelenített módosítások elküldése előtt hasonlítsa össze őket a szerver adataival.",
+  task_server_value: "A szerveren tárolt jelenlegi érték",
+  task_review_submit: "A megjelenített módosítások ellenőrzése és elküldése",
+  task_review_discard: "Helyi módosítások elvetése és a szerver verziójának használata",
   DUPLICATE_OF: 'Másolata ennek',
   DUPLICATED_BY: 'Másolva általa',
   RELATED_TO: 'Kapcsolódik ehhez',

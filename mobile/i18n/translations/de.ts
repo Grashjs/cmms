@@ -1,4 +1,248 @@
 const deJSON = {
+  offline_preference_title: "Offlinemodus verwenden",
+  offline_preference_description: "Bereiten Sie Arbeitsaufträge auf diesem Gerät für die Nutzung ohne Internet vor.",
+  offline_preference_pending: "Lösen Sie lokale Entwürfe, laufende Zeitmesser und ausstehende Sendungen, bevor Sie den Offlinemodus ausschalten. Auch eine ausstehende Freigabe einer Vorbereitung muss vom Server bestätigt werden. Nichts wurde gelöscht.",
+  offline_preference_denied: "Der Server hat den Offlinezugriff für dieses Konto nicht freigegeben. Ihre lokale Arbeit bleibt erhalten.",
+  offline_preference_read_error: "Die Offline-Einstellung konnte nicht gelesen werden. Ihre lokalen Daten bleiben geschützt. Versuchen Sie es erneut; Internet ist dafür nicht erforderlich.",
+  offline_preference_activation_failed: "Der Offlinemodus konnte auf diesem Gerät nicht aktiviert werden. Die Einstellung bleibt ausgeschaltet; versuchen Sie es erneut.",
+  offline_unlock_title: "Offline-Arbeit entsperren",
+  offline_unlock_explanation: "Bestätigen Sie Ihre Identität, um auf die auf diesem Gerät gespeicherte Arbeit zuzugreifen.",
+  offline_unlock_system_prompt: "Offline-Arbeit in Atlas CMMS entsperren",
+  offline_unlock_use_code: "Gerätecode verwenden",
+  offline_unlock_setup: "Richten Sie in den Telefoneinstellungen eine Bildschirmsperre ein und versuchen Sie es erneut. Ihre Arbeit bleibt gespeichert und verborgen.",
+  offline_unlock_cancelled: "Entsperren abgebrochen. Ihre Offline-Arbeit bleibt gespeichert.",
+  offline_unlock_failed: "Entsperren fehlgeschlagen. Versuchen Sie es erneut oder verwenden Sie den Gerätecode.",
+  offline_unlock_check_server: "Zugriff beim Server prüfen",
+  offline_unlock_sign_in: "Melden Sie sich mit diesem Konto erneut am Server an und prüfen Sie den Zugriff. Ihre Arbeit bleibt gespeichert und verborgen.",
+  offline_unlock_logout: "Abmelden",
+  save_signature: "Unterschrift speichern",
+  offline_signature_unsaved: "Zeichnung nicht gespeichert. Tippen Sie vor dem Abschluss auf Unterschrift speichern.",
+  offline_signature_saved: "Unterschrift auf diesem Gerät gespeichert.",
+  offline_signature_save_failed: "Unterschrift nicht gespeichert. Tippen Sie erneut auf Unterschrift speichern oder löschen Sie sie.",
+
+  offline_status_request: "Statusanfrage",
+  offline_status_requested: "Angefragter Status: {{status}}",
+  offline_status_saved_refresh_pending: "Status bestätigt — lokale Aktualisierung ausstehend",
+  offline_status_review: "Anfrage prüfen",
+  offline_status_review_confirm: "Server: {{server}}. Ihre Anfrage: {{local}}. Behalten Sie Ihre Eingabe als Entwurf für diese geprüfte Version und senden Sie sie anschließend ausdrücklich ab.",
+  offline_status_submit: "Statusanfrage senden",
+  offline_closure_submit: "Abschlussanfrage senden",
+  offline_status_stop_timer: "Stoppen und speichern Sie den Timer auf diesem Gerät, bevor Sie diesen Status anfordern.",
+  offline_status_drafts_pending: "Senden Sie Ihre offenen Entwürfe ab oder verwerfen Sie sie ausdrücklich, bevor Sie den Abschluss anfordern.",
+  offline_status_dependency_failed: "Beheben Sie zunächst die frühere Ablehnung oder den Konflikt.",
+  offline_status_dependency_pending: "Frühere Vorgänge müssen noch bestätigt werden.",
+  offline_status_new_work: "Neue lokale Eingaben sind vorhanden. Prüfen Sie diese vor dem Abschluss.",
+  offline_status_signature_forbidden: "Die Unterschriftenerfassung ist mit den aktuellen Berechtigungen, der Lizenz oder dem Abonnement nicht erlaubt.",
+  offline_status_conflict: "Der Status oder die Abschlussangaben wurden geändert. Prüfen Sie diese; Ihre Eingabe bleibt erhalten.",
+  offline_status_requirements: "Die erforderlichen Abschlussbedingungen sind nicht erfüllt.",
+  offline_status_prepare_again: "Aktualisieren Sie diese Vorbereitung online, bevor Sie Statusänderungen offline verwenden.",
+  offline_status_server: "Bestätigter Status: {{status}}",
+  offline_closure_resume: "Abschlussentwurf fortsetzen",
+  offline_closure_local: "Der Abschluss bleibt lokal, bis der Server Ihre gesendete Anfrage annimmt.",
+  offline_closure_save_failed: "Der Abschlussentwurf konnte auf diesem Gerät nicht gespeichert werden. Lassen Sie diesen Bildschirm geöffnet und versuchen Sie es erneut.",
+  retry: "Erneut versuchen",
+  work_order_status_review: "Der Arbeitsauftrag wurde geändert. Prüfen Sie vor dem erneuten Senden den aktuellen Status. Ihre Eingabe bleibt erhalten.",
+  work_order_status_review_current: "Aktuellen Serverstatus prüfen",
+  work_order_status_review_value: "Serverstatus: {{status}} · Aktive Timer: {{count}}",
+  work_order_status_review_confirm: "Meine Eingabe für diese geprüfte Version behalten",
+
+  offline_time_stopped: 'Timer gestoppt',
+  labor_review_current: 'Aktuelle Zeit prüfen',
+  labor_review_confirm: 'Meine Eingabe für diese Version behalten',
+  labor_changed_review:
+    'Dieser Zeiteintrag wurde geändert. Prüfen Sie die Serverversion vor dem erneuten Speichern.',
+  labor_server_duration: 'Aktuelle Dauer auf dem Server',
+  offline_time_start: 'Starten',
+  offline_time_stop: 'Stoppen und speichern',
+  offline_time_running_local: 'Läuft auf diesem Gerät',
+  offline_time_start_pending: 'Start wartet auf Bestätigung',
+  offline_time_running_server: 'Läuft — vom Server bestätigt',
+  offline_time_stop_pending: 'Stopp gespeichert — wartet auf Übertragung',
+  offline_time_save: 'Zeit speichern',
+  offline_time_personal: 'Meine Zeit',
+  offline_time_connected_form: 'Vollständiges Onlineformular',
+  offline_time_periods: 'Zeiträume auf diesem Gerät',
+  offline_time_server_total: 'Serversumme',
+  offline_time_review: 'Zeitraum prüfen',
+  offline_time_preserve_status: 'Speichern und aktuellen Status beibehalten',
+  offline_time_correct_connected: 'Summe online korrigieren',
+  offline_time_saved_refresh_pending:
+    'Zeit bestätigt — lokale Aktualisierung ausstehend',
+  offline_time_invalid_range:
+    'Prüfen Sie Beginn und Ende: Die Dauer muss positiv sein und die Zeiten dürfen nicht in der Zukunft liegen.',
+  offline_time_run_changed:
+    'Dieser Timer wurde andernorts gestoppt oder neu gestartet. Ihr Zeitraum bleibt erhalten.',
+  offline_time_status_changed:
+    'Der Status des Arbeitsauftrags wurde geändert. Prüfen Sie ihn vor der Übertragung dieses Zeitraums.',
+  offline_time_not_allowed:
+    'Diese Zeitaktion ist mit den aktuellen Berechtigungen, der Lizenz oder dem Abonnement nicht erlaubt.',
+
+  offline_refresh_copy: 'Kopie aktualisieren',
+  offline_remove_server_attachment: 'Aus Arbeitsauftrag entfernen',
+  offline_clear_server_image: 'Hauptbild entfernen',
+  offline_remove_server_attachment_confirm:
+    'Diese Datei auf dem Server aus dem Arbeitsauftrag entfernen? Ihre Auswahl und ausstehenden Übermittlungen bleiben erhalten.',
+  offline_clear_server_image_confirm:
+    'Das Hauptbild auf dem Server entfernen? Ihr ausgewähltes Bild und ausstehende Übermittlungen bleiben erhalten.',
+  offline_server_removal_refresh_pending:
+    'Entfernung bestätigt — lokale Aktualisierung ausstehend',
+  offline_review_files: 'Auswahl prüfen',
+  offline_restore_files_draft:
+    'Die Auswahl wird als Entwurf wiederhergestellt. Prüfen Sie sie und speichern Sie sie anschließend ausdrücklich. Ein neuerer Entwurf wird nicht ersetzt.',
+  offline_keep_file_selection: 'Meine Auswahl behalten',
+  offline_file_transfer_only:
+    'Datei auf den Server übertragen; die Zuordnung wird separat bestätigt.',
+  offline_file_dependency_failed:
+    'Die Zuordnung wartet auf eine Datei, deren Übertragung abgelehnt wurde. Ihre Auswahl bleibt erhalten.',
+  offline_retry_file_import: 'Speichern der Datei erneut versuchen',
+  offline_file_available: 'Datei auf diesem Gerät verfügbar',
+  offline_file_failed: 'Datei auf diesem Gerät nicht verfügbar',
+  offline_open_file: 'Datei öffnen',
+  offline_download_file: 'Auf dieses Gerät herunterladen',
+  offline_remove_file_selection: 'Aus Auswahl entfernen',
+  offline_remove_local_copy: 'Lokale Kopie löschen',
+  offline_save_files: 'Dateien speichern',
+  offline_other_fields_read_only:
+    'Ohne Internetverbindung können in diesem Formular nur Dateien geändert werden.',
+  offline_save_other_changes: 'Andere Änderungen speichern',
+  offline_scan_asset: 'Vorbereitete Anlage scannen',
+  offline_scan_unavailable:
+    'Das Scannen ohne Internetverbindung erfordert eine autorisierte Vorbereitung und die Scanlizenz.',
+  offline_scan_ambiguous:
+    'Mehrere vorbereitete Anlagen stimmen mit diesem Code überein. Öffnen Sie deren Arbeitsauftrag.',
+  offline_asset_not_available:
+    'Diese Anlage ist offline nicht verfügbar. Bereiten Sie ihren Arbeitsauftrag mit Internetverbindung vor.',
+  offline_asset_read_only:
+    'Vorbereitete Kopie nur zum Lesen. Weitere Informationen erfordern eine Internetverbindung.',
+  offline_asset_prepared_work_orders:
+    'Es werden nur vorbereitete Arbeitsaufträge angezeigt.',
+  offline_file_not_ready:
+    'Warten Sie, bis die Datei vollständig auf dieses Gerät kopiert wurde.',
+  offline_file_limit: 'Diese Datei überschreitet die zulässige Größe.',
+  offline_storage_limit:
+    'Der Speicherplatz reicht nicht aus. Entfernen Sie nicht mehr benötigte lokale Kopien.',
+  offline_transfer_failed:
+    'Eine Übertragung wurde abgelehnt. Bewahren Sie Ihre Arbeit auf, verwerfen Sie diese Übermittlung anschließend ausdrücklich und wählen Sie die Dateien zur Korrektur erneut aus.',
+  offline_file_in_use:
+    'Diese Datei wird noch von einer Vorbereitung oder ausstehenden Arbeit verwendet.',
+  offline_file_open_failed:
+    'Dieses Dokument kann auf diesem Gerät nicht geöffnet werden.',
+  offline_file_integrity:
+    'Die Dateikopie ist unvollständig oder wurde geändert. Wählen Sie sie erneut aus.',
+  offline_attachments_conflict:
+    'Die Anhänge wurden auf dem Server geändert. Aktualisieren Sie die Daten und bereiten Sie die Änderung erneut vor.',
+  offline_file_copy_failed:
+    'Das Kopieren auf dieses Gerät ist fehlgeschlagen. Wählen Sie die Datei erneut aus.',
+  offline_comment_saved_refresh_pending:
+    'Die Änderung des Kommentars wurde auf dem Server bestätigt; die lokale Kopie muss noch aktualisiert werden.',
+  offline_comment_published_cleanup_pending:
+    'Der Kommentar wurde veröffentlicht. Der Entwurf konnte nicht von diesem Gerät entfernt werden. Veröffentlichen Sie ihn nicht erneut; versuchen Sie erneut, den lokalen Entwurf zu entfernen.',
+  offline_comment_attachment_pending:
+    'Ein Anhang war ausgewählt. Wählen Sie ihn erneut aus oder bestätigen Sie, dass nur der Text veröffentlicht werden soll.',
+  offline_comment_text_only: 'Nur Text veröffentlichen',
+  offline_comment_clear_confirmed:
+    'Entwurf des veröffentlichten Kommentars entfernen',
+  offline_refresh_pending: 'Lokale Aktualisierung ausstehend',
+  offline_sending: 'Wird übermittelt',
+  offline_request_too_large:
+    'Diese Übermittlung ist zu groß. Kürzen Sie den Text und versuchen Sie es erneut. Ihr Entwurf bleibt erhalten.',
+  offline_comment_refresh_pending:
+    'Übermittelt — Aktualisierung der lokalen Kopie ausstehend',
+  offline_invalid_choice: 'Wählen Sie eine noch verfügbare Option.',
+  offline_comment_empty: 'Geben Sie einen nicht leeren Kommentar ein.',
+  offline_max_notes: 'Notizen dürfen höchstens 255 Zeichen enthalten.',
+  offline_submit_notes: 'Notizen speichern',
+  offline_submission: 'Übermittlung',
+  offline_comment_pending: 'Ausstehender Kommentar',
+  offline_comment_unavailable:
+    'Kommentar übermittelt. Er ist in der lokalen Kopie nicht mehr verfügbar.',
+  offline_invalid_number:
+    'Geben Sie eine gültige Zahl ein, bevor Sie die Antwort speichern.',
+  offline_prepare: 'Auf diesem Gerät vorbereiten',
+  offline_available: 'Offline verfügbar',
+  offline_prepared_at: 'Vollständige Kopie gespeichert: {{date}}',
+  offline_preparing: 'Wird vorbereitet…',
+  offline_sync: 'Synchronisieren',
+  offline_syncing: 'Wird synchronisiert…',
+  offline_saving: 'Wird gespeichert…',
+  offline_draft_saved: 'Entwurf auf diesem Gerät gespeichert',
+  offline_save_failed:
+    'Dieser Text konnte nicht gespeichert werden. Kopieren Sie ihn, bevor Sie die App erneut öffnen. Der zuletzt gespeicherte Entwurf bleibt erhalten.',
+  offline_submit: 'Antwort speichern',
+  offline_queued: 'Auf diesem Gerät gespeichert — wartet auf Übertragung',
+  offline_unknown: 'Ergebnis muss geprüft werden',
+  offline_applied: 'Übertragen',
+  offline_conflict: 'Andernorts geändert — Ihre Antwort bleibt erhalten',
+  offline_rejected: 'Übermittlung abgelehnt — Ihre Arbeit bleibt erhalten',
+  offline_wait_previous:
+    'Warten Sie auf das vorherige Ergebnis, bevor Sie diesen Entwurf übermitteln.',
+  offline_server_value: 'Aktueller Wert auf dem Server',
+  offline_keep_draft: 'Meine Antwort prüfen und übermitteln',
+  offline_use_server: 'Serverwert verwenden',
+  offline_discard: 'Diese lokale Arbeit verwerfen',
+  offline_discard_confirm:
+    'Diese Fassung endgültig verwerfen? Ein neuerer Entwurf bleibt erhalten.',
+  offline_remove: 'Vorbereitung entfernen',
+  offline_remove_confirm:
+    'Die heruntergeladene Kopie von diesem Gerät entfernen?',
+  offline_pending: 'Lokale Arbeit',
+  offline_orphan:
+    'Das Ziel ist nicht mehr verfügbar. Ihre lokale Arbeit bleibt erhalten.',
+  offline_unavailable:
+    'Dieser Arbeitsauftrag ist nicht mehr zugänglich. Die lokale Arbeit bleibt erhalten.',
+  offline_task_deleted:
+    'Diese Aufgabe wurde entfernt. Ihre lokale Arbeit wird weiterhin separat aufbewahrt.',
+  offline_connected_required:
+    'Für diese Aktion ist eine Verbindung erforderlich',
+  offline_files_not_downloaded: 'Dateien nicht heruntergeladen',
+  offline_disabled:
+    'Offline-Modus ausgesetzt. Die lokale Arbeit bleibt erhalten.',
+  offline_reconnect:
+    'Verbinden Sie dieses Konto erneut, um ausstehende Übertragungen zu prüfen.',
+  offline_expired:
+    'Stellen Sie eine Verbindung her, um den lokalen Zugriff zu erneuern. Ihre Arbeit bleibt erhalten.',
+  offline_load_error:
+    'Der lokale Speicher konnte nicht geöffnet werden. Ihre Dateien bleiben erhalten.',
+  offline_limit:
+    'Diese Vorbereitung überschreitet die Offline-Grenzen. Die vorherige vollständige Kopie bleibt erhalten.',
+  offline_prepare_failed:
+    'Vorbereitung fehlgeschlagen. Eine vorhandene vollständige Kopie bleibt erhalten.',
+  offline_changed_revision:
+    'Der Entwurf wurde geändert. Prüfen Sie die neueste Fassung, bevor Sie ihn verwerfen.',
+  offline_leave_context:
+    'Lokale Entwürfe und ausstehende Übertragungen bleiben für dieses Konto und diesen Server auf diesem Gerät. Sie werden nicht über ein anderes Konto gesendet.',
+  offline_not_prepared:
+    'Dieser Arbeitsauftrag wurde auf diesem Gerät nicht vorbereitet.',
+  offline_storage_busy: 'Lokale Daten werden noch gespeichert.',
+  offline_count: '{{count}} Arbeitsaufträge auf diesem Gerät vorbereitet',
+  offline_resume_after_conflict:
+    'Die Aufgabe wurde auf dem Server geändert. Vergleichen Sie beide Werte, bevor Sie eine neue Übermittlung erstellen.',
+  offline_abandoned: 'Lokale Arbeit verworfen',
+  offline_max_text: 'Höchstens 255 Zeichen',
+  offline_received_without_access:
+    'Ergebnis geprüft. Die Aufgabe ist nicht mehr zugänglich.',
+  offline_no_local_work: 'Keine lokale Arbeit mehr vorhanden',
+  offline_read_only:
+    'Lokaler Zugriff ist nur lesend möglich, bis dieses Konto erneut autorisiert wird.',
+  offline_action_failed:
+    'Aktion fehlgeschlagen. Ihre gespeicherte lokale Arbeit bleibt erhalten.',
+  offline_network_unavailable:
+    'Server nicht verfügbar. Ihre Arbeit bleibt auf diesem Gerät.',
+  offline_invalid_response:
+    'Die Serverantwort ist unvollständig oder ungültig. Die vorherige vollständige Kopie bleibt erhalten.',
+  offline_context_changed:
+    'Das Konto oder der Server wurde gewechselt. Kehren Sie zum ursprünglichen Konto zurück, um fortzufahren.',
+  offline_https_required:
+    'Ein HTTPS-Server ist erforderlich, um Arbeit offline vorzubereiten.',
+  offline_native_required:
+    'Der Offline-Speicher erfordert eine App-Version mit den nativen Modulen.',
+  offline_work_pending:
+    'Klären Sie die verbleibende lokale Arbeit, bevor Sie diese Vorbereitung entfernen.',
+  offline_removal_pending:
+    'Stellen Sie erneut eine Verbindung her, um die vorherige Vorbereitung vollständig zu entfernen, bevor Sie sie erneut vorbereiten.',
+  offline_unsupported_task: 'Dieser Aufgabentyp muss online ausgefüllt werden.',
+  offline_result_changed:
+    'Diese Übertragung wurde bereits abschließend bearbeitet. Aktualisieren Sie die Ansicht, um das Ergebnis zu sehen.',
   DUPLICATE_OF: 'Duplikat von ',
   DUPLICATED_BY: 'Dupliziert von ',
   RELATED_TO: 'Verwandt mit ',
@@ -1581,6 +1825,8 @@ const deJSON = {
   operation_success: 'Der Vorgang war erfolgreich',
   edit_reading: 'Zählerstand bearbeiten',
   are_you_sure_delete_reading: 'Sind Sie sicher, dass Sie diesen Zählerstand löschen möchten?',
-  conflict_retry: 'Die Ressource wurde von einer anderen Anfrage geändert. Bitte versuchen Sie es in 5 Sekunden erneut.'
+  conflict_retry: 'Die Ressource wurde von einer anderen Anfrage geändert. Bitte versuchen Sie es in 5 Sekunden erneut.',
+  offline_network_lost: "Verbindung unterbrochen.",
+  offline_network_restored: "Verbindung wiederhergestellt."
 };
 export default deJSON;

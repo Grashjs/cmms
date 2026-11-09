@@ -5,6 +5,7 @@ import fs from 'fs';
 import path from 'path';
 
 const apiUrl = process.env.API_URL;
+const offlineEnabled = process.env.OFFLINE_ENABLED === 'true';
 const clarityId = process.env.CLARITY_ID;
 const googleServicesPlist = process.env.GOOGLE_SERVICES_PLIST;
 const sentryDsn = process.env.SENTRY_DSN;
@@ -24,6 +25,15 @@ if (process.env.GOOGLE_SERVICES_BASE64) {
 }
 
 const plugins: ExpoConfig['plugins'] = [
+  ['expo-secure-store', { configureAndroidBackup: false }],
+  [
+    'expo-local-authentication',
+    {
+      faceIDPermission:
+        'Allow Atlas CMMS to use Face ID to unlock offline work on this device.'
+    }
+  ],
+  './plugins/withOfflineStorage',
   'react-native-nfc-manager',
   'expo-font',
   'expo-notifications',
@@ -88,7 +98,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   ios: {
     bundleIdentifier: 'com.cmms.atlas',
-    buildNumber: '2',
+    buildNumber: '1',
     jsEngine: 'hermes',
     supportsTablet: false,
     runtimeVersion: 'appVersion',
@@ -114,6 +124,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   extra: {
     API_URL: apiUrl,
+    OFFLINE_ENABLED: offlineEnabled,
     CLARITY_ID: clarityId,
     SENTRY_DSN: sentryDsn,
     SENTRY_ENVIRONMENT: sentryEnvironment,

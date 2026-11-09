@@ -1,4 +1,240 @@
 const locale = {
+  offline_preference_title: "Koristi rad van mreže",
+  offline_preference_description: "Pripremite intervencije na ovom uređaju za rad bez interneta.",
+  offline_preference_pending: "Riješite lokalne nacrte, aktivne mjerače vremena i slanja na čekanju prije isključivanja. Server mora potvrditi i svako oslobađanje pripreme na čekanju. Ništa nije obrisano.",
+  offline_preference_denied: "Server nije odobrio rad van mreže za ovaj račun. Lokalni rad je sačuvan.",
+  offline_preference_read_error: "Nije moguće pročitati postavku rada van mreže. Lokalni rad ostaje zaštićen. Pokušajte ponovo; internet nije potreban.",
+  offline_preference_activation_failed: "Nije moguće uključiti rad van mreže na ovom uređaju. Izbor ostaje isključen; pokušajte ponovo.",
+  offline_unlock_title: "Otključaj rad van mreže",
+  offline_unlock_explanation: "Potvrdite identitet za pristup radu sačuvanom na ovom uređaju.",
+  offline_unlock_system_prompt: "Otključaj rad van mreže u Atlas CMMS-u",
+  offline_unlock_use_code: "Koristi šifru uređaja",
+  offline_unlock_setup: "Postavite zaključavanje ekrana u postavkama telefona pa pokušajte ponovo. Rad ostaje sačuvan i skriven.",
+  offline_unlock_cancelled: "Otključavanje je otkazano. Rad van mreže je sačuvan.",
+  offline_unlock_failed: "Otključavanje nije uspjelo. Pokušajte ponovo ili koristite šifru uređaja.",
+  offline_unlock_check_server: "Provjeri pristup na serveru",
+  offline_unlock_sign_in: "Prijavite se na server istim računom, pa ponovo provjerite pristup. Vaš rad ostaje sačuvan i skriven.",
+  offline_unlock_logout: "Odjavi se",
+  save_signature: "Sačuvaj potpis",
+  offline_signature_unsaved: "Crtež nije sačuvan. Pritisnite Sačuvaj potpis prije slanja zahtjeva za zatvaranje.",
+  offline_signature_saved: "Potpis je sačuvan na ovom uređaju.",
+  offline_signature_save_failed: "Potpis nije sačuvan. Pritisnite Sačuvaj potpis za novi pokušaj ili ga obrišite.",
+
+  offline_status_request: "Zahtjev za status",
+  offline_status_requested: "Traženi status: {{status}}",
+  offline_status_saved_refresh_pending: "Status potvrđen — lokalno osvježavanje na čekanju",
+  offline_status_review: "Pregledaj zahtjev",
+  offline_status_review_confirm: "Server: {{server}}. Vaš zahtjev: {{local}}. Zadržite unos kao nacrt na ovoj pregledanoj verziji, a zatim ga izričito pošaljite.",
+  offline_status_submit: "Pošalji zahtjev za status",
+  offline_closure_submit: "Pošalji zahtjev za zatvaranje",
+  offline_status_stop_timer: "Zaustavite i sačuvajte tajmer na ovom uređaju prije zahtjeva za ovaj status.",
+  offline_status_drafts_pending: "Pošaljite ili izričito odbacite nedovršene nacrte prije slanja zahtjeva za zatvaranje.",
+  offline_status_dependency_failed: "Riješite prethodno odbijanje ili sukob prije slanja ovog zahtjeva.",
+  offline_status_dependency_pending: "Čeka se potvrda prethodnih operacija.",
+  offline_status_new_work: "Postoje novi lokalni unosi. Pregledajte ih prije slanja zahtjeva za zatvaranje.",
+  offline_status_signature_forbidden: "Prikupljanje potpisa nije dozvoljeno s trenutnim dozvolama, licencom ili pretplatom.",
+  offline_status_conflict: "Status ili podaci za zatvaranje su promijenjeni. Pregledajte ih; vaš unos je sačuvan.",
+  offline_status_requirements: "Potrebni uslovi za zatvaranje nisu ispunjeni.",
+  offline_status_prepare_again: "Osvježite ovu pripremu na mreži prije promjene statusa van mreže.",
+  offline_status_server: "Potvrđeni status: {{status}}",
+  offline_closure_resume: "Nastavi nacrt zatvaranja",
+  offline_closure_local: "Zatvaranje ostaje lokalno dok server ne prihvati poslani zahtjev.",
+  offline_closure_save_failed: "Nacrt zatvaranja nije mogao biti sačuvan na ovom uređaju. Ostavite ovaj ekran otvoren i pokušajte ponovo.",
+  retry: "Pokušaj ponovo",
+  work_order_status_review: "Radni nalog je promijenjen. Pregledajte njegov trenutni status prije ponovnog slanja. Vaš unos je sačuvan.",
+  work_order_status_review_current: "Pregledaj trenutni status na serveru",
+  work_order_status_review_value: "Status na serveru: {{status}} · Aktivni tajmeri: {{count}}",
+  work_order_status_review_confirm: "Zadrži moj unos na ovoj pregledanoj verziji",
+
+  offline_time_stopped: 'Tajmer zaustavljen',
+  labor_review_current: 'Pregledaj trenutno vrijeme',
+  labor_review_confirm: 'Zadrži moj unos za ovu verziju',
+  labor_changed_review:
+    'Ovaj unos vremena je promijenjen. Pregledajte verziju na serveru prije ponovnog čuvanja.',
+  labor_server_duration: 'Trenutno trajanje na serveru',
+  offline_time_start: 'Pokreni',
+  offline_time_stop: 'Zaustavi i sačuvaj',
+  offline_time_running_local: 'U toku na ovom uređaju',
+  offline_time_start_pending: 'Pokretanje čeka potvrdu',
+  offline_time_running_server: 'U toku — server je potvrdio',
+  offline_time_stop_pending: 'Zaustavljanje sačuvano — čeka slanje',
+  offline_time_save: 'Sačuvaj vrijeme',
+  offline_time_personal: 'Moje vrijeme',
+  offline_time_connected_form: 'Potpuni obrazac na mreži',
+  offline_time_periods: 'Periodi na ovom uređaju',
+  offline_time_server_total: 'Ukupno na serveru',
+  offline_time_review: 'Pregledaj period',
+  offline_time_preserve_status: 'Sačuvaj i zadrži trenutni status',
+  offline_time_correct_connected: 'Ispravi ukupan iznos na mreži',
+  offline_time_saved_refresh_pending:
+    'Vrijeme potvrđeno — lokalno osvježavanje na čekanju',
+  offline_time_invalid_range:
+    'Provjerite početak i kraj: trajanje mora biti pozitivno, a vremena ne smiju biti u budućnosti.',
+  offline_time_run_changed:
+    'Ovaj mjerač vremena je zaustavljen ili ponovo pokrenut drugdje. Vaš period je sačuvan.',
+  offline_time_status_changed:
+    'Status radnog naloga je promijenjen. Pregledajte ga prije slanja ovog perioda.',
+  offline_time_not_allowed:
+    'Trenutne dozvole, licenca ili pretplata ne dopuštaju ovu radnju s vremenom.',
+
+  offline_refresh_copy: 'Osvježi kopiju',
+  offline_remove_server_attachment: 'Ukloni iz radnog naloga',
+  offline_clear_server_image: 'Ukloni glavnu sliku',
+  offline_remove_server_attachment_confirm:
+    'Ukloniti ovu datoteku iz radnog naloga na serveru? Vaši odabiri i slanja na čekanju bit će sačuvani.',
+  offline_clear_server_image_confirm:
+    'Ukloniti glavnu sliku na serveru? Vaša odabrana slika i slanja na čekanju bit će sačuvani.',
+  offline_server_removal_refresh_pending:
+    'Uklanjanje potvrđeno — čeka se ažuriranje lokalne kopije',
+  offline_review_files: 'Pregledaj odabir',
+  offline_restore_files_draft:
+    'Odabir će biti vraćen u nacrt. Provjerite ga, a zatim ga izričito sačuvajte. Noviji nacrt neće biti zamijenjen.',
+  offline_keep_file_selection: 'Zadrži moj odabir',
+  offline_file_transfer_only:
+    'Datoteka je prenesena na server; prilaganje se potvrđuje zasebno.',
+  offline_file_dependency_failed:
+    'Prilaganje čeka datoteku čiji je prijenos odbijen. Vaš odabir je sačuvan.',
+  offline_retry_file_import: 'Ponovo pokušaj sačuvati datoteku',
+  offline_file_available: 'Datoteka je dostupna na ovom uređaju',
+  offline_file_failed: 'Datoteka nije dostupna na ovom uređaju',
+  offline_open_file: 'Otvori datoteku',
+  offline_download_file: 'Preuzmi na ovaj uređaj',
+  offline_remove_file_selection: 'Ukloni iz odabira',
+  offline_remove_local_copy: 'Izbriši lokalnu kopiju',
+  offline_save_files: 'Sačuvaj datoteke',
+  offline_other_fields_read_only:
+    'Bez interneta u ovom obrascu možete mijenjati samo datoteke.',
+  offline_save_other_changes: 'Sačuvaj ostale promjene',
+  offline_scan_asset: 'Skeniraj pripremljenu opremu',
+  offline_scan_unavailable:
+    'Skeniranje bez interneta zahtijeva odobrenu pripremu i licencu za skeniranje.',
+  offline_scan_ambiguous:
+    'Više pripremljene opreme odgovara ovom kodu. Otvorite njihov radni nalog.',
+  offline_asset_not_available:
+    'Ova oprema nije dostupna bez interneta. Pripremite njen radni nalog dok ste povezani.',
+  offline_asset_read_only:
+    'Pripremljena kopija samo za čitanje. Ostale informacije zahtijevaju internetsku vezu.',
+  offline_asset_prepared_work_orders:
+    'Prikazani su samo pripremljeni radni nalozi.',
+  offline_file_not_ready: 'Sačekajte da se datoteka kopira na ovaj uređaj.',
+  offline_file_limit: 'Ova datoteka prelazi dozvoljenu veličinu.',
+  offline_storage_limit:
+    'Nema dovoljno prostora za pohranu. Uklonite lokalne kopije koje više nisu potrebne.',
+  offline_transfer_failed:
+    'Prijenos je odbijen. Sačuvajte svoj rad, zatim izričito odbacite ovo slanje i ponovo odaberite datoteke da ga ispravite.',
+  offline_file_in_use: 'Ovu datoteku još koristi priprema ili rad na čekanju.',
+  offline_file_open_failed:
+    'Ovaj dokument nije moguće otvoriti na ovom uređaju.',
+  offline_file_integrity:
+    'Kopija datoteke je nepotpuna ili je promijenjena. Ponovo je odaberite.',
+  offline_attachments_conflict:
+    'Prilozi su promijenjeni na serveru. Osvježite podatke pa ponovo pripremite promjenu.',
+  offline_file_copy_failed:
+    'Kopiranje na ovaj uređaj nije uspjelo. Ponovo odaberite datoteku.',
+  offline_comment_saved_refresh_pending:
+    'Promjena komentara je potvrđena na serveru; lokalnu kopiju još treba osvježiti.',
+  offline_comment_published_cleanup_pending:
+    'Komentar je objavljen. Nacrt nije mogao biti uklonjen s ovog uređaja. Nemojte ga ponovo objavljivati; pokušajte ponovo ukloniti lokalni nacrt.',
+  offline_comment_attachment_pending:
+    'Prilog je bio odabran. Odaberite ga ponovo ili potvrdite objavljivanje samo teksta.',
+  offline_comment_text_only: 'Objavi samo tekst',
+  offline_comment_clear_confirmed: 'Ukloni nacrt objavljenog komentara',
+  offline_refresh_pending: 'Lokalno osvježavanje na čekanju',
+  offline_sending: 'Slanje je u toku',
+  offline_request_too_large:
+    'Ovaj unos je prevelik za slanje. Skratite tekst prije ponovnog pokušaja. Vaš nacrt je sačuvan.',
+  offline_comment_refresh_pending: 'Poslano — čeka osvježavanje lokalne kopije',
+  offline_invalid_choice: 'Odaberite opciju koja je još dostupna.',
+  offline_comment_empty: 'Unesite komentar koji nije prazan.',
+  offline_max_notes: 'Napomene mogu sadržavati najviše 255 znakova.',
+  offline_submit_notes: 'Sačuvaj napomene',
+  offline_submission: 'Slanje',
+  offline_comment_pending: 'Komentar na čekanju',
+  offline_comment_unavailable:
+    'Komentar je poslan. Više nije dostupan u lokalnoj kopiji.',
+  offline_invalid_number: 'Unesite ispravan broj prije čuvanja odgovora.',
+  offline_prepare: 'Pripremi na ovom uređaju',
+  offline_available: 'Dostupno bez interneta',
+  offline_prepared_at: 'Potpuna kopija sačuvana: {{date}}',
+  offline_preparing: 'Priprema…',
+  offline_sync: 'Sinhronizuj',
+  offline_syncing: 'Sinhronizacija…',
+  offline_saving: 'Čuvanje…',
+  offline_draft_saved: 'Nacrt je sačuvan na ovom uređaju',
+  offline_save_failed:
+    'Ovaj tekst nije sačuvan. Kopirajte ga prije ponovnog otvaranja aplikacije. Posljednji sačuvani nacrt je zadržan.',
+  offline_submit: 'Sačuvaj odgovor',
+  offline_queued: 'Sačuvano na ovom uređaju — čeka slanje',
+  offline_unknown: 'Rezultat treba provjeriti',
+  offline_applied: 'Poslano',
+  offline_conflict: 'Izmijenjeno na drugom mjestu — vaš odgovor je sačuvan',
+  offline_rejected: 'Slanje je odbijeno — vaš rad je sačuvan',
+  offline_wait_previous:
+    'Sačekajte rezultat prethodnog odgovora prije slanja ovog nacrta.',
+  offline_server_value: 'Trenutna vrijednost na serveru',
+  offline_keep_draft: 'Pregledaj i pošalji moj odgovor',
+  offline_use_server: 'Koristi vrijednost sa servera',
+  offline_discard: 'Odbaci ovaj lokalni rad',
+  offline_discard_confirm:
+    'Trajno odbaciti ovu verziju? Noviji nacrt će biti sačuvan.',
+  offline_remove: 'Ukloni pripremu',
+  offline_remove_confirm: 'Ukloniti preuzetu kopiju s ovog uređaja?',
+  offline_pending: 'Lokalni rad',
+  offline_orphan:
+    'Ciljna stavka više nije dostupna. Vaš lokalni rad je sačuvan.',
+  offline_unavailable:
+    'Ovaj radni nalog više nije dostupan. Lokalni rad je sačuvan.',
+  offline_task_deleted:
+    'Ovaj zadatak je uklonjen. Njegov lokalni rad ostaje odvojen.',
+  offline_connected_required: 'Za ovu radnju potrebna je internetska veza',
+  offline_files_not_downloaded: 'Datoteke nisu preuzete',
+  offline_disabled: 'Rad bez interneta je obustavljen. Lokalni rad je sačuvan.',
+  offline_reconnect:
+    'Ponovo povežite ovaj račun da provjerite slanja na čekanju.',
+  offline_expired:
+    'Povežite se da obnovite lokalni pristup. Vaš rad je sačuvan.',
+  offline_load_error:
+    'Lokalna pohrana se ne može otvoriti. Vaše datoteke su sačuvane.',
+  offline_limit:
+    'Ova priprema premašuje ograničenja rada bez interneta. Prethodna potpuna kopija je sačuvana.',
+  offline_prepare_failed:
+    'Priprema nije uspjela. Prethodna potpuna kopija, ako postoji, sačuvana je.',
+  offline_changed_revision:
+    'Nacrt je izmijenjen. Pregledajte najnoviju verziju prije odbacivanja.',
+  offline_leave_context:
+    'Lokalni nacrti i slanja na čekanju ostat će na ovom uređaju za ovaj račun i server. Neće biti poslani s drugog računa.',
+  offline_not_prepared: 'Ovaj radni nalog nije pripremljen na ovom uređaju.',
+  offline_storage_busy: 'Lokalni podaci se još čuvaju.',
+  offline_count: 'Radni nalozi pripremljeni na ovom uređaju: {{count}}',
+  offline_resume_after_conflict:
+    'Zadatak je izmijenjen na serveru. Pregledajte obje vrijednosti prije novog slanja.',
+  offline_abandoned: 'Lokalni rad je odbačen',
+  offline_max_text: 'Najviše 255 znakova',
+  offline_received_without_access:
+    'Rezultat je provjeren. Zadatak više nije dostupan.',
+  offline_no_local_work: 'Nema preostalog lokalnog rada',
+  offline_read_only:
+    'Lokalni pristup je samo za čitanje dok ovaj račun ponovo ne dobije odobrenje.',
+  offline_action_failed:
+    'Radnja nije uspjela. Vaš sačuvani lokalni rad je zadržan.',
+  offline_network_unavailable:
+    'Server nije dostupan. Vaš rad ostaje na ovom uređaju.',
+  offline_invalid_response:
+    'Odgovor servera je nepotpun ili nevažeći. Prethodna potpuna kopija je sačuvana.',
+  offline_context_changed:
+    'Račun ili server je promijenjen. Vratite se na izvorni račun da nastavite.',
+  offline_https_required:
+    'Za pripremu rada bez interneta potreban je HTTPS server.',
+  offline_native_required:
+    'Pohrana za rad bez interneta zahtijeva verziju aplikacije koja uključuje nativne module.',
+  offline_work_pending:
+    'Razriješite preostali lokalni rad prije uklanjanja ove pripreme.',
+  offline_removal_pending:
+    'Ponovo se povežite da završite uklanjanje prethodne pripreme prije nove pripreme.',
+  offline_unsupported_task:
+    'Ova vrsta zadatka mora se popuniti uz internetsku vezu.',
+  offline_result_changed:
+    'Ovo slanje je već razriješeno. Osvježite prikaz da vidite rezultat.',
   DUPLICATE_OF: 'Duplikat od',
   DUPLICATED_BY: 'Duplirano od strane',
   RELATED_TO: 'Povezano sa',
@@ -1504,6 +1740,8 @@ const locale = {
   operation_success: 'Operacija je uspjela',
   edit_reading: 'Uredi očitanje',
   are_you_sure_delete_reading: 'Jeste li sigurni da želite obrisati ovo očitanje?',
-  conflict_retry: 'Resurs je izmijenjen drugim zahtjevom. Molimo pokušajte ponovo za 5 sekundi.'
+  conflict_retry: 'Resurs je izmijenjen drugim zahtjevom. Molimo pokušajte ponovo za 5 sekundi.',
+  offline_network_lost: "Veza je prekinuta.",
+  offline_network_restored: "Veza je ponovo uspostavljena."
 };
 export default locale;

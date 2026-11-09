@@ -1,4 +1,243 @@
 const ptBRJSON = {
+  offline_preference_title: "Usar modo offline",
+  offline_preference_description: "Prepare ordens de serviço neste dispositivo para usar sem Internet.",
+  offline_preference_pending: "Resolva rascunhos locais, cronômetros ativos e envios pendentes antes de desligar o modo offline. O servidor também precisa confirmar qualquer liberação de preparação pendente. Nada foi excluído.",
+  offline_preference_denied: "O servidor não habilitou o acesso offline para esta conta. Seu trabalho local foi preservado.",
+  offline_preference_read_error: "Não foi possível ler a configuração do modo offline. Seu trabalho local continua protegido. Tente novamente; não é necessário ter Internet.",
+  offline_preference_activation_failed: "Não foi possível ativar o modo offline neste dispositivo. A opção continua desligada; tente novamente.",
+  offline_unlock_title: "Desbloquear trabalho offline",
+  offline_unlock_explanation: "Confirme sua identidade para acessar o trabalho salvo neste dispositivo.",
+  offline_unlock_system_prompt: "Desbloquear trabalho offline no Atlas CMMS",
+  offline_unlock_use_code: "Usar código do dispositivo",
+  offline_unlock_setup: "Configure um bloqueio de tela nas configurações do telefone e tente novamente. O trabalho permanece salvo e oculto.",
+  offline_unlock_cancelled: "Desbloqueio cancelado. Seu trabalho offline permanece salvo.",
+  offline_unlock_failed: "Falha ao desbloquear. Tente novamente ou use o código do dispositivo.",
+  offline_unlock_check_server: "Verificar acesso com o servidor",
+  offline_unlock_sign_in: "Entre no servidor com esta conta e verifique o acesso novamente. Seu trabalho permanece salvo e oculto.",
+  offline_unlock_logout: "Sair",
+  save_signature: "Salvar assinatura",
+  offline_signature_unsaved: "Desenho não salvo. Toque em Salvar assinatura antes de solicitar a conclusão.",
+  offline_signature_saved: "Assinatura salva neste dispositivo.",
+  offline_signature_save_failed: "Assinatura não salva. Toque em Salvar assinatura para tentar novamente ou apague-a.",
+
+  offline_status_request: "Solicitação de status",
+  offline_status_requested: "Status solicitado: {{status}}",
+  offline_status_saved_refresh_pending: "Status confirmado — atualização local pendente",
+  offline_status_review: "Revisar solicitação",
+  offline_status_review_confirm: "Servidor: {{server}}. Sua solicitação: {{local}}. Mantenha os dados como rascunho nesta versão revisada e depois envie-os explicitamente.",
+  offline_status_submit: "Enviar solicitação de status",
+  offline_closure_submit: "Enviar solicitação de conclusão",
+  offline_status_stop_timer: "Pare e salve o cronômetro neste dispositivo antes de solicitar este status.",
+  offline_status_drafts_pending: "Envie ou descarte explicitamente os rascunhos pendentes antes de solicitar a conclusão.",
+  offline_status_dependency_failed: "Resolva a recusa ou o conflito anterior antes de enviar esta solicitação.",
+  offline_status_dependency_pending: "Aguardando a confirmação das operações anteriores.",
+  offline_status_new_work: "Há novos dados locais. Revise-os antes de enviar a conclusão.",
+  offline_status_signature_forbidden: "A captura de assinatura não é permitida com as permissões, licença ou assinatura atuais.",
+  offline_status_conflict: "O status ou os dados de conclusão mudaram. Revise-os; seus dados foram preservados.",
+  offline_status_requirements: "As condições exigidas para a conclusão não foram atendidas.",
+  offline_status_prepare_again: "Atualize esta preparação online antes de alterar status offline.",
+  offline_status_server: "Status confirmado: {{status}}",
+  offline_closure_resume: "Retomar rascunho de conclusão",
+  offline_closure_local: "A conclusão permanece local até que o servidor aceite a solicitação enviada.",
+  offline_closure_save_failed: "Não foi possível salvar o rascunho de conclusão neste dispositivo. Mantenha esta tela aberta e tente novamente.",
+  retry: "Tentar novamente",
+  work_order_status_review: "A ordem de serviço mudou. Revise o status atual antes de enviar novamente. Seus dados foram preservados.",
+  work_order_status_review_current: "Revisar o status atual do servidor",
+  work_order_status_review_value: "Status do servidor: {{status}} · Cronômetros ativos: {{count}}",
+  work_order_status_review_confirm: "Manter meus dados nesta versão revisada",
+
+  offline_time_stopped: 'Cronômetro parado',
+  labor_review_current: 'Revisar o tempo atual',
+  labor_review_confirm: 'Manter minha entrada nesta versão',
+  labor_changed_review:
+    'Este registro de tempo mudou. Revise a versão do servidor antes de salvar novamente.',
+  labor_server_duration: 'Duração atual no servidor',
+  offline_time_start: 'Iniciar',
+  offline_time_stop: 'Parar e salvar',
+  offline_time_running_local: 'Em andamento neste dispositivo',
+  offline_time_start_pending: 'Início aguardando confirmação',
+  offline_time_running_server: 'Em andamento — confirmado pelo servidor',
+  offline_time_stop_pending: 'Parada salva — aguardando envio',
+  offline_time_save: 'Salvar tempo',
+  offline_time_personal: 'Meu tempo',
+  offline_time_connected_form: 'Formulário completo online',
+  offline_time_periods: 'Períodos neste dispositivo',
+  offline_time_server_total: 'Total no servidor',
+  offline_time_review: 'Revisar período',
+  offline_time_preserve_status: 'Salvar mantendo o status atual',
+  offline_time_correct_connected: 'Corrigir o total online',
+  offline_time_saved_refresh_pending:
+    'Tempo confirmado — atualização local pendente',
+  offline_time_invalid_range:
+    'Verifique o início e o fim: a duração deve ser positiva e os horários não podem estar no futuro.',
+  offline_time_run_changed:
+    'Este cronômetro foi parado ou reiniciado em outro lugar. Seu período foi preservado.',
+  offline_time_status_changed:
+    'O status da ordem de serviço mudou. Revise-o antes de enviar este período.',
+  offline_time_not_allowed:
+    'As permissões, a licença ou a assinatura atuais não permitem esta ação de tempo.',
+
+  offline_refresh_copy: 'Atualizar a cópia',
+  offline_remove_server_attachment: 'Remover da ordem de serviço',
+  offline_clear_server_image: 'Remover imagem principal',
+  offline_remove_server_attachment_confirm:
+    'Remover este arquivo da ordem de serviço no servidor? Suas seleções e os envios pendentes serão preservados.',
+  offline_clear_server_image_confirm:
+    'Remover a imagem principal no servidor? A imagem selecionada e os envios pendentes serão preservados.',
+  offline_server_removal_refresh_pending:
+    'Remoção confirmada — atualização local pendente',
+  offline_review_files: 'Revisar a seleção',
+  offline_restore_files_draft:
+    'A seleção voltará a ser um rascunho. Confira e salve explicitamente. Um rascunho mais recente não será substituído.',
+  offline_keep_file_selection: 'Manter minha seleção',
+  offline_file_transfer_only:
+    'Arquivo transferido para o servidor; a vinculação é confirmada separadamente.',
+  offline_file_dependency_failed:
+    'A vinculação aguarda um arquivo cuja transferência foi recusada. Sua seleção foi preservada.',
+  offline_retry_file_import: 'Tentar salvar o arquivo novamente',
+  offline_file_available: 'Arquivo disponível neste dispositivo',
+  offline_file_failed: 'Arquivo indisponível neste dispositivo',
+  offline_open_file: 'Abrir arquivo',
+  offline_download_file: 'Baixar neste dispositivo',
+  offline_remove_file_selection: 'Remover da seleção',
+  offline_remove_local_copy: 'Excluir cópia local',
+  offline_save_files: 'Salvar arquivos',
+  offline_other_fields_read_only:
+    'Sem conexão, apenas os arquivos podem ser alterados neste formulário.',
+  offline_save_other_changes: 'Salvar outras alterações',
+  offline_scan_asset: 'Escanear um ativo preparado',
+  offline_scan_unavailable:
+    'O escaneamento offline exige uma preparação autorizada e a licença de escaneamento.',
+  offline_scan_ambiguous:
+    'Vários ativos preparados correspondem a este código. Abra a ordem de serviço deles.',
+  offline_asset_not_available:
+    'Este ativo não está disponível offline. Prepare a ordem de serviço dele com uma conexão à Internet.',
+  offline_asset_read_only:
+    'Cópia preparada somente para leitura. As demais informações exigem conexão à Internet.',
+  offline_asset_prepared_work_orders:
+    'Apenas as ordens de serviço preparadas são exibidas.',
+  offline_file_not_ready:
+    'Aguarde a conclusão da cópia do arquivo neste dispositivo.',
+  offline_file_limit: 'Este arquivo excede o tamanho permitido.',
+  offline_storage_limit:
+    'Não há espaço de armazenamento suficiente. Remova as cópias locais que não são mais necessárias.',
+  offline_transfer_failed:
+    'Uma transferência foi recusada. Preserve seu trabalho, descarte explicitamente este envio e selecione os arquivos novamente para corrigi-lo.',
+  offline_file_in_use:
+    'Este arquivo ainda está sendo usado por uma preparação ou um trabalho pendente.',
+  offline_file_open_failed:
+    'Não é possível abrir este documento neste dispositivo.',
+  offline_file_integrity:
+    'A cópia do arquivo está incompleta ou foi alterada. Selecione-o novamente.',
+  offline_attachments_conflict:
+    'Os anexos foram alterados no servidor. Atualize os dados e prepare novamente a alteração.',
+  offline_file_copy_failed:
+    'A cópia neste dispositivo falhou. Selecione o arquivo novamente.',
+  offline_comment_saved_refresh_pending:
+    'A alteração do comentário foi confirmada no servidor; a cópia local ainda precisa ser atualizada.',
+  offline_comment_published_cleanup_pending:
+    'Comentário publicado. Não foi possível remover o rascunho deste dispositivo. Não o publique novamente; tente remover o rascunho local mais uma vez.',
+  offline_comment_attachment_pending:
+    'Um anexo havia sido selecionado. Selecione-o novamente ou confirme a publicação apenas do texto.',
+  offline_comment_text_only: 'Publicar apenas o texto',
+  offline_comment_clear_confirmed: 'Remover o rascunho publicado',
+  offline_refresh_pending: 'Atualização local pendente',
+  offline_sending: 'Enviando',
+  offline_request_too_large:
+    'Este envio é grande demais. Encurte o texto antes de tentar novamente. Seu rascunho foi preservado.',
+  offline_comment_refresh_pending:
+    'Enviado — aguardando atualização da cópia local',
+  offline_invalid_choice: 'Escolha uma opção que ainda esteja disponível.',
+  offline_comment_empty: 'Digite um comentário que não esteja vazio.',
+  offline_max_notes: 'As notas podem conter no máximo 255 caracteres.',
+  offline_submit_notes: 'Salvar notas',
+  offline_submission: 'Envio',
+  offline_comment_pending: 'Comentário pendente',
+  offline_comment_unavailable:
+    'Comentário enviado. Ele não está mais disponível na cópia local.',
+  offline_invalid_number: 'Digite um número válido antes de salvar a resposta.',
+  offline_prepare: 'Preparar neste dispositivo',
+  offline_available: 'Disponível offline',
+  offline_prepared_at: 'Cópia completa salva: {{date}}',
+  offline_preparing: 'Preparando…',
+  offline_sync: 'Sincronizar',
+  offline_syncing: 'Sincronizando…',
+  offline_saving: 'Salvando…',
+  offline_draft_saved: 'Rascunho salvo neste dispositivo',
+  offline_save_failed:
+    'Não foi possível salvar este texto. Copie-o antes de reabrir o aplicativo. O último rascunho salvo foi preservado.',
+  offline_submit: 'Salvar resposta',
+  offline_queued: 'Salvo neste dispositivo — aguardando envio',
+  offline_unknown: 'Resultado a verificar',
+  offline_applied: 'Enviado',
+  offline_conflict: 'Alterado em outro lugar — sua resposta foi preservada',
+  offline_rejected: 'Envio recusado — seu trabalho foi preservado',
+  offline_wait_previous:
+    'Aguarde o resultado anterior antes de enviar este rascunho.',
+  offline_server_value: 'Valor atual no servidor',
+  offline_keep_draft: 'Revisar e enviar minha resposta',
+  offline_use_server: 'Usar o valor do servidor',
+  offline_discard: 'Descartar este trabalho local',
+  offline_discard_confirm:
+    'Descartar esta revisão permanentemente? Um rascunho mais recente será preservado.',
+  offline_remove: 'Remover preparação',
+  offline_remove_confirm: 'Remover a cópia baixada deste dispositivo?',
+  offline_pending: 'Trabalho local',
+  offline_orphan:
+    'O item de destino não está mais disponível. Seu trabalho local foi preservado.',
+  offline_unavailable:
+    'Esta ordem de serviço não está mais acessível. O trabalho local foi preservado.',
+  offline_task_deleted:
+    'Esta tarefa foi removida. Seu trabalho local permanece separado.',
+  offline_connected_required: 'É necessário ter conexão para esta ação',
+  offline_files_not_downloaded: 'Arquivos não baixados',
+  offline_disabled: 'Modo offline suspenso. O trabalho local foi preservado.',
+  offline_reconnect: 'Reconecte esta conta para verificar os envios pendentes.',
+  offline_expired:
+    'Conecte-se para renovar o acesso local. Seu trabalho foi preservado.',
+  offline_load_error:
+    'Não foi possível abrir o armazenamento local. Seus arquivos foram preservados.',
+  offline_limit:
+    'Esta preparação excede os limites offline. A cópia completa anterior foi preservada.',
+  offline_prepare_failed:
+    'Falha na preparação. A cópia completa anterior, se houver, foi preservada.',
+  offline_changed_revision:
+    'O rascunho mudou. Revise a versão mais recente antes de descartá-lo.',
+  offline_leave_context:
+    'Os rascunhos locais e os envios pendentes permanecerão neste dispositivo para esta conta e este servidor. Eles não serão enviados por outra conta.',
+  offline_not_prepared:
+    'Esta ordem de serviço não foi preparada neste dispositivo.',
+  offline_storage_busy: 'Os dados locais ainda estão sendo salvos.',
+  offline_count: '{{count}} ordens de serviço preparadas neste dispositivo',
+  offline_resume_after_conflict:
+    'A tarefa mudou no servidor. Compare os dois valores antes de criar um novo envio.',
+  offline_abandoned: 'Trabalho local descartado',
+  offline_max_text: 'Máximo de 255 caracteres',
+  offline_received_without_access:
+    'Resultado verificado. A tarefa não está mais acessível.',
+  offline_no_local_work: 'Nenhum trabalho local restante',
+  offline_read_only:
+    'O acesso local é somente leitura até que esta conta seja autorizada novamente.',
+  offline_action_failed:
+    'A ação falhou. Seu trabalho local salvo foi preservado.',
+  offline_network_unavailable:
+    'Servidor indisponível. Seu trabalho permanece neste dispositivo.',
+  offline_invalid_response:
+    'A resposta do servidor está incompleta ou é inválida. A cópia completa anterior foi preservada.',
+  offline_context_changed:
+    'A conta ou o servidor mudou. Volte à conta original para continuar.',
+  offline_https_required:
+    'É necessário um servidor HTTPS para preparar o trabalho offline.',
+  offline_native_required:
+    'O armazenamento offline exige uma versão do aplicativo que inclua os módulos nativos.',
+  offline_work_pending:
+    'Resolva o trabalho local restante antes de remover esta preparação.',
+  offline_removal_pending:
+    'Reconecte-se para concluir a remoção da preparação anterior antes de prepará-la novamente.',
+  offline_unsupported_task:
+    'Este tipo de tarefa deve ser preenchido com conexão à internet.',
+  offline_result_changed:
+    'Este envio já foi resolvido. Atualize para consultar o resultado.',
   DUPLICATE_OF: 'Duplicado de',
   DUPLICATED_BY: 'Duplicado por',
   RELATED_TO: 'Relacionado a',
@@ -1550,6 +1789,8 @@ const ptBRJSON = {
   operation_success: 'A operação foi bem-sucedida',
   edit_reading: 'Editar leitura',
   are_you_sure_delete_reading: 'Tem certeza de que deseja excluir esta leitura?',
-  conflict_retry: 'O recurso foi modificado por outra solicitação. Por favor, tente novamente em 5 segundos.'
+  conflict_retry: 'O recurso foi modificado por outra solicitação. Por favor, tente novamente em 5 segundos.',
+  offline_network_lost: "Conexão perdida.",
+  offline_network_restored: "Conexão restabelecida."
 };
 export default ptBRJSON;

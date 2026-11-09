@@ -1,4 +1,245 @@
 const locale = {
+  offline_preference_title: "Offline mód használata",
+  offline_preference_description: "Készítse elő a munkalapokat ezen az eszközön internet nélküli használatra.",
+  offline_preference_pending: "Az offline mód kikapcsolása előtt rendezze a helyi piszkozatokat, futó időmérőket és függőben lévő küldéseket. A függőben lévő előkészítés-feloldást a szervernek is meg kell erősítenie. Semmi sem törlődött.",
+  offline_preference_denied: "A szerver nem engedélyezte az offline hozzáférést ehhez a fiókhoz. A helyi munka megmarad.",
+  offline_preference_read_error: "Nem sikerült beolvasni az offline beállítást. A helyi munkája továbbra is védett. Próbálja újra; internetkapcsolat nem szükséges.",
+  offline_preference_activation_failed: "Az offline mód nem kapcsolható be ezen az eszközön. A beállítás kikapcsolva marad; próbálja újra.",
+  offline_unlock_title: "Offline munka feloldása",
+  offline_unlock_explanation: "Igazolja személyazonosságát az eszközön mentett munkák eléréséhez.",
+  offline_unlock_system_prompt: "Offline munka feloldása az Atlas CMMS-ben",
+  offline_unlock_use_code: "Eszközkód használata",
+  offline_unlock_setup: "Állítson be képernyőzárat a telefon beállításaiban, majd próbálja újra. A munka mentve és rejtve marad.",
+  offline_unlock_cancelled: "A feloldás megszakítva. Az offline munka mentve marad.",
+  offline_unlock_failed: "A feloldás sikertelen. Próbálja újra, vagy használja az eszközkódot.",
+  offline_unlock_check_server: "Hozzáférés ellenőrzése a szerveren",
+  offline_unlock_sign_in: "Jelentkezzen be a szerverre ezzel a fiókkal, majd ellenőrizze újra a hozzáférést. Munkája mentve és rejtve marad.",
+  offline_unlock_logout: "Kijelentkezés",
+  save_signature: "Aláírás mentése",
+  offline_signature_unsaved: "A rajz nincs mentve. A lezárás beküldése előtt nyomja meg az Aláírás mentése gombot.",
+  offline_signature_saved: "Az aláírás mentve ezen az eszközön.",
+  offline_signature_save_failed: "Az aláírás nincs mentve. Az újrapróbáláshoz nyomja meg az Aláírás mentése gombot, vagy törölje.",
+
+  offline_status_request: "Állapotkérelem",
+  offline_status_requested: "Kért állapot: {{status}}",
+  offline_status_saved_refresh_pending: "Állapot megerősítve — helyi frissítésre vár",
+  offline_status_review: "Kérelem áttekintése",
+  offline_status_review_confirm: "Szerver: {{server}}. Az Ön kérelme: {{local}}. Tartsa meg a bevitt adatokat vázlatként ezen az áttekintett verzión, majd küldje be őket külön.",
+  offline_status_submit: "Állapotkérelem beküldése",
+  offline_closure_submit: "Lezárási kérelem beküldése",
+  offline_status_stop_timer: "Állítsa le és mentse az időmérőt ezen az eszközön, mielőtt ezt az állapotot kéri.",
+  offline_status_drafts_pending: "A lezárás beküldése előtt küldje be vagy kifejezetten vesse el a befejezetlen vázlatokat.",
+  offline_status_dependency_failed: "A kérelem elküldése előtt rendezze a korábbi elutasítást vagy ütközést.",
+  offline_status_dependency_pending: "A korábbi műveletek megerősítésére vár.",
+  offline_status_new_work: "Új helyi adatok vannak. Tekintse át őket a lezárás elküldése előtt.",
+  offline_status_signature_forbidden: "Az aláírás rögzítése a jelenlegi jogosultságokkal, licenccel vagy előfizetéssel nem engedélyezett.",
+  offline_status_conflict: "Az állapot vagy a lezárási adatok megváltoztak. Tekintse át őket; a bevitt adatok megmaradtak.",
+  offline_status_requirements: "A lezárás szükséges feltételei nem teljesülnek.",
+  offline_status_prepare_again: "Frissítse ezt az előkészítést online az offline állapotmódosítás előtt.",
+  offline_status_server: "Megerősített állapot: {{status}}",
+  offline_closure_resume: "Lezárási vázlat folytatása",
+  offline_closure_local: "A lezárás helyi marad, amíg a szerver el nem fogadja a beküldött kérelmet.",
+  offline_closure_save_failed: "A lezárási vázlatot nem sikerült menteni ezen az eszközön. Tartsa nyitva ezt a képernyőt, és próbálja újra.",
+  retry: "Újrapróbálás",
+  work_order_status_review: "A munkalap megváltozott. Újbóli beküldés előtt tekintse át a jelenlegi állapotát. A bevitt adatok megmaradtak.",
+  work_order_status_review_current: "Jelenlegi szerverállapot áttekintése",
+  work_order_status_review_value: "Szerverállapot: {{status}} · Aktív időmérők: {{count}}",
+  work_order_status_review_confirm: "Bevitt adataim megtartása ezen az áttekintett verzión",
+
+  offline_time_stopped: 'Időzítő leállítva',
+  labor_review_current: 'Jelenlegi idő ellenőrzése',
+  labor_review_confirm: 'Bevitelem megtartása ehhez a verzióhoz',
+  labor_changed_review:
+    'Ez az időbejegyzés megváltozott. Újabb mentés előtt ellenőrizze a szerver verzióját.',
+  labor_server_duration: 'Jelenlegi időtartam a szerveren',
+  offline_time_start: 'Indítás',
+  offline_time_stop: 'Leállítás és mentés',
+  offline_time_running_local: 'Folyamatban ezen az eszközön',
+  offline_time_start_pending: 'Az indítás megerősítésre vár',
+  offline_time_running_server: 'Folyamatban — a szerver megerősítette',
+  offline_time_stop_pending: 'Leállítás mentve — küldésre vár',
+  offline_time_save: 'Idő mentése',
+  offline_time_personal: 'Saját időm',
+  offline_time_connected_form: 'Teljes online űrlap',
+  offline_time_periods: 'Időszakok ezen az eszközön',
+  offline_time_server_total: 'Szerver összesítése',
+  offline_time_review: 'Időszak ellenőrzése',
+  offline_time_preserve_status: 'Mentés a jelenlegi állapot megtartásával',
+  offline_time_correct_connected: 'Összesítés javítása online',
+  offline_time_saved_refresh_pending: 'Idő megerősítve — helyi frissítésre vár',
+  offline_time_invalid_range:
+    'Ellenőrizze a kezdést és a befejezést: az időtartamnak pozitívnak kell lennie, és az időpontok nem lehetnek a jövőben.',
+  offline_time_run_changed:
+    'Ezt az időmérőt máshol leállították vagy újraindították. Az Ön időszaka megmarad.',
+  offline_time_status_changed:
+    'A munkalap állapota megváltozott. Az időszak elküldése előtt ellenőrizze.',
+  offline_time_not_allowed:
+    'A jelenlegi jogosultságok, licenc vagy előfizetés nem engedélyezi ezt az időműveletet.',
+
+  offline_refresh_copy: 'Másolat frissítése',
+  offline_remove_server_attachment: 'Eltávolítás a munkalapról',
+  offline_clear_server_image: 'Főkép eltávolítása',
+  offline_remove_server_attachment_confirm:
+    'Eltávolítja ezt a fájlt a szerveren lévő munkalapról? A kijelölt elemek és a függőben lévő beküldések megmaradnak.',
+  offline_clear_server_image_confirm:
+    'Eltávolítja a főképet a szerveren? A kiválasztott kép és a függőben lévő beküldések megmaradnak.',
+  offline_server_removal_refresh_pending:
+    'Eltávolítás megerősítve — helyi frissítésre vár',
+  offline_review_files: 'Kijelölés áttekintése',
+  offline_restore_files_draft:
+    'A kijelölés visszakerül a piszkozatba. Ellenőrizze, majd mentse kifejezetten. Az újabb piszkozatot a rendszer nem írja felül.',
+  offline_keep_file_selection: 'Kijelölésem megtartása',
+  offline_file_transfer_only:
+    'A fájl átvitele a szerverre megtörtént; a csatolást külön erősíti meg a rendszer.',
+  offline_file_dependency_failed:
+    'A csatolás egy olyan fájlra vár, amelynek átvitelét elutasították. A kijelölése megmarad.',
+  offline_retry_file_import: 'Fájl mentésének újrapróbálása',
+  offline_file_available: 'A fájl elérhető ezen az eszközön',
+  offline_file_failed: 'A fájl nem érhető el ezen az eszközön',
+  offline_open_file: 'Fájl megnyitása',
+  offline_download_file: 'Letöltés erre az eszközre',
+  offline_remove_file_selection: 'Eltávolítás a kijelölésből',
+  offline_remove_local_copy: 'Helyi másolat törlése',
+  offline_save_files: 'Fájlok mentése',
+  offline_other_fields_read_only:
+    'Internetkapcsolat nélkül ezen az űrlapon csak a fájlok módosíthatók.',
+  offline_save_other_changes: 'Egyéb módosítások mentése',
+  offline_scan_asset: 'Előkészített berendezés beolvasása',
+  offline_scan_unavailable:
+    'Az offline beolvasáshoz engedélyezett előkészítés és beolvasási licenc szükséges.',
+  offline_scan_ambiguous:
+    'Több előkészített berendezéshez tartozik ez a kód. Nyissa meg a munkalapjukat.',
+  offline_asset_not_available:
+    'Ez a berendezés offline nem érhető el. Internetkapcsolattal készítse elő a munkalapját.',
+  offline_asset_read_only:
+    'Előkészített, csak olvasható másolat. A további információkhoz internetkapcsolat szükséges.',
+  offline_asset_prepared_work_orders:
+    'Csak az előkészített munkalapok jelennek meg.',
+  offline_file_not_ready:
+    'Várja meg, amíg a fájl másolása erre az eszközre befejeződik.',
+  offline_file_limit: 'Ez a fájl meghaladja az engedélyezett méretet.',
+  offline_storage_limit:
+    'Nincs elegendő tárhely. Távolítsa el a már nem szükséges helyi másolatokat.',
+  offline_transfer_failed:
+    'Egy átvitel elutasításra került. Őrizze meg a munkáját, majd kifejezetten vesse el ezt a beküldést, és a javításhoz válassza ki újra a fájlokat.',
+  offline_file_in_use:
+    'Ezt a fájlt még használja egy előkészítés vagy függőben lévő munka.',
+  offline_file_open_failed:
+    'Ez a dokumentum nem nyitható meg ezen az eszközön.',
+  offline_file_integrity:
+    'A fájl másolata hiányos vagy megváltozott. Válassza ki újra.',
+  offline_attachments_conflict:
+    'A mellékletek megváltoztak a szerveren. Frissítse az adatokat, majd készítse elő újra a módosítást.',
+  offline_file_copy_failed:
+    'A másolás erre az eszközre sikertelen. Válassza ki újra a fájlt.',
+  offline_comment_saved_refresh_pending:
+    'A hozzászólás módosítását a szerver visszaigazolta; a helyi másolat még frissítésre vár.',
+  offline_comment_published_cleanup_pending:
+    'A hozzászólás megjelent. A piszkozatot nem sikerült eltávolítani erről az eszközről. Ne tegye közzé újra; próbálja meg ismét eltávolítani a helyi piszkozatot.',
+  offline_comment_attachment_pending:
+    'Korábban kiválasztott egy mellékletet. Válassza ki újra, vagy erősítse meg, hogy csak a szöveget kívánja közzétenni.',
+  offline_comment_text_only: 'Csak a szöveg közzététele',
+  offline_comment_clear_confirmed:
+    'Közzétett hozzászólás piszkozatának eltávolítása',
+  offline_refresh_pending: 'Helyi frissítésre vár',
+  offline_sending: 'Küldés folyamatban',
+  offline_request_too_large:
+    'Ez a beküldés túl nagy. Rövidítse le a szöveget az újrapróbálkozás előtt. A piszkozat megmaradt.',
+  offline_comment_refresh_pending:
+    'Elküldve — a helyi másolat frissítésére vár',
+  offline_invalid_choice: 'Válasszon egy még elérhető lehetőséget.',
+  offline_comment_empty: 'Írjon be egy nem üres hozzászólást.',
+  offline_max_notes: 'A jegyzetek legfeljebb 255 karaktert tartalmazhatnak.',
+  offline_submit_notes: 'Jegyzetek mentése',
+  offline_submission: 'Beküldés',
+  offline_comment_pending: 'Függőben lévő hozzászólás',
+  offline_comment_unavailable:
+    'A hozzászólás elküldve. A helyi másolatban már nem érhető el.',
+  offline_invalid_number:
+    'A válasz mentése előtt adjon meg egy érvényes számot.',
+  offline_prepare: 'Előkészítés ezen az eszközön',
+  offline_available: 'Offline elérhető',
+  offline_prepared_at: 'Teljes másolat mentve: {{date}}',
+  offline_preparing: 'Előkészítés…',
+  offline_sync: 'Szinkronizálás',
+  offline_syncing: 'Szinkronizálás folyamatban…',
+  offline_saving: 'Mentés…',
+  offline_draft_saved: 'Piszkozat mentve ezen az eszközön',
+  offline_save_failed:
+    'A szöveget nem sikerült menteni. Másolja ki az alkalmazás újbóli megnyitása előtt. Az utolsó mentett piszkozat megmarad.',
+  offline_submit: 'Válasz mentése',
+  offline_queued: 'Mentve ezen az eszközön — küldésre vár',
+  offline_unknown: 'Ellenőrizendő eredmény',
+  offline_applied: 'Elküldve',
+  offline_conflict: 'Máshol módosították — a válasza megmarad',
+  offline_rejected: 'A beküldés elutasítva — a munkája megmaradt',
+  offline_wait_previous:
+    'A piszkozat beküldése előtt várja meg az előző válasz eredményét.',
+  offline_server_value: 'Jelenlegi érték a szerveren',
+  offline_keep_draft: 'Válaszom áttekintése és beküldése',
+  offline_use_server: 'A szerver értékének használata',
+  offline_discard: 'A helyi munka elvetése',
+  offline_discard_confirm:
+    'Végleg elveti ezt a változatot? Az újabb piszkozat megmarad.',
+  offline_remove: 'Előkészítés eltávolítása',
+  offline_remove_confirm:
+    'Eltávolítja a letöltött másolatot erről az eszközről?',
+  offline_pending: 'Helyi munka',
+  offline_orphan: 'A célelem már nem érhető el. A helyi munkája megmarad.',
+  offline_unavailable:
+    'Ez a munkalap már nem érhető el. A helyi munka megmarad.',
+  offline_task_deleted:
+    'Ezt a feladatot eltávolították. A hozzá tartozó helyi munka külön megmarad.',
+  offline_connected_required: 'Ehhez a művelethez kapcsolat szükséges',
+  offline_files_not_downloaded: 'A fájlok nincsenek letöltve',
+  offline_disabled:
+    'Az offline mód fel van függesztve. A helyi munka megmarad.',
+  offline_reconnect:
+    'Csatlakozzon újra ezzel a fiókkal a függőben lévő küldések ellenőrzéséhez.',
+  offline_expired:
+    'Csatlakozzon a helyi hozzáférés megújításához. A munkája megmarad.',
+  offline_load_error:
+    'A helyi tárhelyet nem sikerült megnyitni. A fájljai megmaradnak.',
+  offline_limit:
+    'Ez az előkészítés túllépi az offline korlátokat. Az előző teljes másolat megmarad.',
+  offline_prepare_failed:
+    'Az előkészítés sikertelen. A korábbi teljes másolat, ha van, megmarad.',
+  offline_changed_revision:
+    'A piszkozat megváltozott. Elvetés előtt ellenőrizze a legújabb változatot.',
+  offline_leave_context:
+    'A helyi piszkozatok és függőben lévő küldések ezen az eszközön maradnak, ehhez a fiókhoz és szerverhez kapcsolva. Másik fiókból nem kerülnek elküldésre.',
+  offline_not_prepared: 'Ez a munkalap nincs előkészítve ezen az eszközön.',
+  offline_storage_busy: 'A helyi adatok mentése még folyamatban van.',
+  offline_count: '{{count}} munkalap előkészítve ezen az eszközön',
+  offline_resume_after_conflict:
+    'A feladat megváltozott a szerveren. Új beküldés előtt hasonlítsa össze a két értéket.',
+  offline_abandoned: 'Helyi munka elvetve',
+  offline_max_text: 'Legfeljebb 255 karakter',
+  offline_received_without_access:
+    'Eredmény ellenőrizve. A feladat már nem érhető el.',
+  offline_no_local_work: 'Nincs fennmaradó helyi munka',
+  offline_read_only:
+    'A helyi hozzáférés csak olvasást enged, amíg ezt a fiókot újra nem engedélyezik.',
+  offline_action_failed:
+    'A művelet sikertelen. A mentett helyi munkája megmarad.',
+  offline_network_unavailable:
+    'A szerver nem érhető el. A munkája ezen az eszközön marad.',
+  offline_invalid_response:
+    'A szerver válasza hiányos vagy érvénytelen. Az előző teljes másolat megmarad.',
+  offline_context_changed:
+    'A fiók vagy a szerver megváltozott. A folytatáshoz térjen vissza az eredeti fiókhoz.',
+  offline_https_required:
+    'A munka offline előkészítéséhez HTTPS-szerver szükséges.',
+  offline_native_required:
+    'Az offline tároláshoz a natív modulokat tartalmazó alkalmazásverzió szükséges.',
+  offline_work_pending:
+    'Az előkészítés eltávolítása előtt rendezze a fennmaradó helyi munkát.',
+  offline_removal_pending:
+    'Csatlakozzon újra a korábbi előkészítés eltávolításának befejezéséhez, mielőtt újra előkészíti.',
+  offline_unsupported_task:
+    'Ezt a feladattípust internetkapcsolattal kell kitölteni.',
+  offline_result_changed:
+    'Ennek a küldésnek az eredménye már végleges. Frissítse a nézetet az eredmény megtekintéséhez.',
   DUPLICATE_OF: 'Másolata',
   DUPLICATED_BY: 'Másolta',
   RELATED_TO: 'Kapcsolódik',
@@ -1506,6 +1747,8 @@ const locale = {
   operation_success: 'A művelet sikeres volt',
   edit_reading: 'Mérés szerkesztése',
   are_you_sure_delete_reading: 'Biztosan törölni szeretné ezt a mérést?',
-  conflict_retry: 'Az erőforrást egy másik kérés módosította. Kérjük, próbálja újra 5 másodperc múlva.'
+  conflict_retry: 'Az erőforrást egy másik kérés módosította. Kérjük, próbálja újra 5 másodperc múlva.',
+  offline_network_lost: "A kapcsolat megszakadt.",
+  offline_network_restored: "A kapcsolat helyreállt."
 };
 export default locale;

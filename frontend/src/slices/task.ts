@@ -186,5 +186,6 @@ export const patchTask =
         task: taskResponse
       })
     );
+    return taskResponse;
   };
 export default slice;

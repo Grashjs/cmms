@@ -1,4 +1,19 @@
 const locale = {
+  work_order_status_review: "L’ordine di lavoro è cambiato. Esamina lo stato attuale prima di inviare nuovamente. I dati inseriti vengono conservati.",
+  work_order_status_review_current: "Esamina lo stato attuale del server",
+  work_order_status_review_value: "Stato del server: {{status}} · Cronometri attivi: {{count}}",
+  work_order_status_review_confirm: "Conserva i miei dati su questa versione esaminata",
+
+  labor_review_current: 'Esamina il tempo attuale',
+  labor_review_confirm: 'Mantieni il mio inserimento su questa versione',
+  labor_changed_review:
+    'Questa registrazione del tempo è cambiata. Esamina la versione del server prima di salvare di nuovo.',
+  labor_server_duration: 'Durata attuale sul server',
+
+  task_save_review: "I dati inseriti vengono conservati. Il salvataggio è sospeso: confrontali con i dati del server prima di inviare le modifiche visualizzate.",
+  task_server_value: "Valore attuale sul server",
+  task_review_submit: "Verifica e invia le modifiche visualizzate",
+  task_review_discard: "Scarta le modifiche locali e usa la versione del server",
   DUPLICATE_OF: 'Duplicato di',
   DUPLICATED_BY: 'Duplicato da',
   RELATED_TO: 'Correlato a',

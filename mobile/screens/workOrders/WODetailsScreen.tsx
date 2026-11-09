@@ -30,7 +30,6 @@ import {
   TextInput,
   useTheme
 } from 'react-native-paper';
-import * as DocumentPicker from 'expo-document-picker';
 import { useTranslation } from 'react-i18next';
 import * as React from 'react';
 import {
@@ -71,7 +70,10 @@ import AdditionalCostsCard from './components/AdditionalCostsCard';
 import AdditionalTimesCard from './components/AdditionalTimesCard';
 import { SheetManager } from 'react-native-actions-sheet';
 import LoadingDialog from '../../components/LoadingDialog';
-import WorkOrder from '../../models/workOrder';
+import WorkOrder, {
+  WorkOrderStatus,
+  WorkOrderStatusGuard
+} from '../../models/workOrder';
 import Labor from '../../models/labor';
 import { AudioPlayer } from '../../components/AudioPlayer';
 import { Task } from '../../models/tasks';
@@ -80,11 +82,30 @@ import ImageView from 'react-native-image-viewing';
 import { getCustomFieldValuesForDetails } from '../../models/form';
 import CommentItem from '../../components/CommentItem';
 import { downloadFile } from '../../utils/fileDownload';
-import { getCommentsByWorkOrder, createComment } from '../../slices/comment';
+import { getCommentsByWorkOrder } from '../../slices/comment';
 import { getUsersMini } from '../../slices/user';
 import { TriggersConfig } from 'react-native-controlled-mentions/dist/types/types';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useOffline } from '../../offline/OfflineProvider';
+import { useOfflineTime } from '../../offline/useOfflineTime';
+import { useOfflineStatus } from '../../offline/useOfflineStatus';
+import { isStatusOperation, OfflineError } from '../../offline/types';
+import { offlineErrorKey } from '../../offline/errors';
+import { OfflineTimePanel } from '../../offline/components/OfflineTimePanel';
+import { useOfflineWorkOrder, usePendingWork } from '../../offline/hooks';
+import {
+  OfflineStatus,
+  OfflineWorkPanel
+} from '../../offline/components/OfflineWorkPanel';
+import { OfflineCommentOperations } from '../../offline/components/OfflineCommentOperations';
+import { useOfflineCommentComposer } from '../../offline/useOfflineCommentComposer';
+import { OfflineFileItem } from '../../offline/components/OfflineFileItem';
+import FileUpload from '../../components/FileUpload';
+import {
+  assertSessionGeneration,
+  sessionGeneration
+} from '../../offline/sessionBridge';
 
 const getRemainingTasksLength = (tasks: Task[]): number => {
   const SECONDS_MS = 5_000;
@@ -129,20 +150,29 @@ export default function WODetailsScreen({
   route
 }: RootStackScreenProps<'WODetails'>) {
   const { id, workOrderProp } = route.params;
+  const offline = useOffline();
+  const prepared = useOfflineWorkOrder(id);
+  const pendingWork = usePendingWork(id);
+  const isPrepared = offline.prepared.some((item) => item.id === id);
+  const connectedAvailable =
+    (!offline.enabled || offline.networkAvailable) &&
+    (!isPrepared || !!prepared?.available);
   const { workOrderInfos, loadingGet } = useSelector(
     (state) => state.workOrders
   );
-  const workOrder = workOrderInfos[id]?.workOrder ?? workOrderProp;
+  const workOrder = isPrepared
+    ? prepared?.workOrder
+    : workOrderInfos[id]?.workOrder ?? workOrderProp;
   const { t } = useTranslation();
   const {
     hasEditPermission,
     user,
     companySettings,
     hasFeature,
+    hasCreatePermission,
     hasViewPermission
   } = useAuth();
   const { showSnackBar } = useContext(CustomSnackBarContext);
-  const { uploadFiles } = useContext(CompanySettingsContext);
   const [runningTimerDuration, setRunningTimerDuration] = useState<string>();
   const { workOrderConfiguration, generalPreferences } = companySettings;
   const [loading, setLoading] = useState<boolean>(false);
@@ -162,7 +192,7 @@ export default function WODetailsScreen({
   const { tasksByWorkOrder, loadingTasks } = useSelector(
     (state) => state.tasks
   );
-  const tasks = tasksByWorkOrder[id] ?? [];
+  const tasks = isPrepared ? prepared?.tasks ?? [] : tasksByWorkOrder[id] ?? [];
   const currentWorkOrderRelations = relationsByWorkOrder[id] ?? [];
   const { costsByWorkOrder, loadingCosts } = useSelector(
     (state) => state.additionalCosts
@@ -170,25 +200,80 @@ export default function WODetailsScreen({
   const { timesByWorkOrder, loadingLabors } = useSelector(
     (state) => state.labors
   );
-  const labors = timesByWorkOrder[id] ?? [];
+  const offlineTime = useOfflineTime(id, isPrepared);
+  const offlineStatus = useOfflineStatus(id, isPrepared);
+  const pendingClosure = offlineStatus.view?.operations.some(
+    (operation) =>
+      operation.request.type === 'CHANGE_WORK_ORDER_STATUS' &&
+      operation.request.statusChange.status === 'COMPLETE' &&
+      !['APPLIED', 'ABANDONED'].includes(operation.status)
+  );
+  const lastStatusRequest = offlineStatus.view?.operations
+    .filter((operation) => !['APPLIED', 'ABANDONED'].includes(operation.status))
+    .slice(-1)[0];
+  const selectedStatus =
+    isPrepared &&
+    lastStatusRequest &&
+    isStatusOperation(lastStatusRequest.request)
+      ? lastStatusRequest.request.statusChange.status
+      : workOrder?.status;
+  const labors = isPrepared
+    ? offlineTime.view?.labors ?? []
+    : timesByWorkOrder[id] ?? [];
   const primaryTime = labors.find(
-    (labor) => labor.logged && labor.assignedTo.id === user.id
+    (labor) => labor.logged && labor.assignedTo?.id === user.id
   );
   const additionalCosts = costsByWorkOrder[id] ?? [];
-  const runningTimer = primaryTime?.status === 'RUNNING';
+  const runningTimer = isPrepared
+    ? offlineTime.running
+    : primaryTime?.status === 'RUNNING';
   const [controllingTime, setControllingTime] = useState<boolean>(false);
   const { getFormattedDate, getUserNameById, getFormattedCurrency } =
     useContext(CompanySettingsContext);
   const [isExtended, setIsExtended] = React.useState(true);
-  const [commentContent, setCommentContent] = useState('');
-  const [commentFiles, setCommentFiles] = useState<
-    { uri: string; name: string; type: string }[]
-  >([]);
   const { commentsByWorkOrder, loadingComments, loadingCreate } = useSelector(
     (state) => state.comments
   );
   const { usersMini } = useSelector((state) => state.users);
-  const comments = commentsByWorkOrder[id] ?? [];
+  const comments = isPrepared
+    ? prepared?.comments ?? []
+    : commentsByWorkOrder[id] ?? [];
+  const canComposeComment = isPrepared
+    ? offline.writable && !!prepared?.available && !!prepared.canEdit
+    : connectedAvailable &&
+      hasEditPermission(PermissionEntity.WORK_ORDERS, workOrder);
+
+  const {
+    preparing,
+    commentContent,
+    attachmentPending,
+    confirmedDraftToClear,
+    commentRefreshPending,
+    commentTransferConflict,
+    savingCommentDraft,
+    commentDraftError,
+    submittingComment,
+    commentFiles,
+    changeCommentContent,
+    prepareWorkOrder,
+    resolveTransferredComment,
+    retryPublishedDraftCleanup,
+    handleCommentSubmit,
+    pickCommentFile,
+    removeCommentFile,
+    confirmCommentRefresh,
+    removeLocalCommentFile,
+    filesReady,
+    importingFiles,
+    importCommentFiles
+  } = useOfflineCommentComposer({
+    id,
+    isPrepared,
+    prepared,
+    connectedAvailable,
+    canComposeComment
+  });
+
   const statuses = ['OPEN', 'ON_HOLD', 'IN_PROGRESS', 'COMPLETE'].map(
     (status) => ({ value: status, label: t(status) })
   );
@@ -273,26 +358,56 @@ export default function WODetailsScreen({
     }
   ];
   const getInfos = () => {
-    if (!workOrderProp) dispatch(getWorkOrderDetails(id));
+    if (!offline.initialized || (offline.enabled && !offline.networkAvailable))
+      return;
+    if (isPrepared) {
+      const generation = sessionGeneration();
+      void offline
+        .refresh(id)
+        .then(() => {
+          confirmCommentRefresh(generation);
+        })
+        .catch(offline.reportError);
+    } else if (!workOrderProp)
+      dispatch(getWorkOrderDetails(id)).catch(offline.reportError);
+    // Status changes need the observed timer identities even in simplified view.
+    if (!isPrepared) dispatch(getLabors(id));
     if (!generalPreferences.simplifiedWorkOrder) {
       dispatch(getPartQuantitiesByWorkOrder(id));
-      dispatch(getLabors(id));
       dispatch(getAdditionalCosts(id));
       dispatch(getRelations(id));
     }
-    dispatch(getTasks(id));
+    if (!isPrepared) dispatch(getTasks(id));
   };
   useEffect(() => {
     navigation.setOptions({
       headerRight: () =>
         workOrder &&
+        connectedAvailable &&
         !loadingTasks[id] && (
           <Pressable
             onPress={() => {
               SheetManager.show('work-order-details-sheet', {
                 payload: {
-                  onEdit: () =>
-                    navigation.navigate('EditWorkOrder', { workOrder, tasks }),
+                  onEdit: async () => {
+                    // Editing the task definitions must never serialize display drafts.
+                    const canonicalTasks =
+                      isPrepared && offline.repository
+                        ? (
+                            await Promise.all(
+                              tasks.map((task) =>
+                                offline.repository.getTask(task.id)
+                              )
+                            )
+                          )
+                            .map((view) => view.serverTask)
+                            .filter(Boolean)
+                        : tasks;
+                    navigation.navigate('EditWorkOrder', {
+                      workOrder,
+                      tasks: canonicalTasks
+                    });
+                  },
                   onOpenArchive: () => {
                     setOpenArchive(true);
                   },
@@ -310,22 +425,29 @@ export default function WODetailsScreen({
         )
     });
     //LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
-  }, [loadingTasks, workOrder, tasks]);
+  }, [loadingTasks, workOrder, tasks, connectedAvailable]);
 
   useEffect(() => {
     getInfos();
-  }, [workOrderProp]);
+  }, [
+    workOrderProp,
+    id,
+    isPrepared,
+    offline.initialized,
+    offline.networkAvailable
+  ]);
 
   useEffect(() => {
-    dispatch(getCommentsByWorkOrder(id));
+    if (!offline.initialized || !connectedAvailable) return;
+    if (!isPrepared) dispatch(getCommentsByWorkOrder(id));
     dispatch(getUsersMini());
-  }, [id]);
+  }, [id, isPrepared, offline.initialized, connectedAvailable]);
 
   useEffect(() => {
     let intervalId;
 
     // Function to update timer duration every minute
-    if (primaryTime?.status === 'RUNNING') {
+    if (!isPrepared && primaryTime?.status === 'RUNNING') {
       const updateTimerDuration = () => {
         // Calculate new duration here
         const newDuration = getRunningTimerDuration(primaryTime);
@@ -340,7 +462,7 @@ export default function WODetailsScreen({
       if (intervalId) clearInterval(intervalId);
       setRunningTimerDuration('0:00');
     };
-  }, [primaryTime, runningTimer]); // Run effect whenever runningTimer changes
+  }, [primaryTime, runningTimer, isPrepared]); // Run effect whenever runningTimer changes
 
   const actualDownload = async (uri: string): Promise<void> => {
     const rawFileName = workOrder?.title ?? `work-order-${id}`;
@@ -371,7 +493,8 @@ export default function WODetailsScreen({
     setOpenDelete(false);
   };
   const onArchive = () => {
-    dispatch(editWorkOrder(id, { ...workOrder, archived: true }))
+    const { image, files, ...values } = workOrder;
+    dispatch(editWorkOrder(id, { ...values, archived: true }))
       .then(onArchiveSuccess)
       .catch(onArchiveFailure);
   };
@@ -407,6 +530,14 @@ export default function WODetailsScreen({
       .finally(() => setLoading(false));
   };
   const canComplete = (): boolean => {
+    if (
+      pendingWork.some(
+        (item) => item.kind === 'DRAFT' || item.status !== 'APPLIED'
+      )
+    ) {
+      showSnackBar(t('offline_wait_previous'), 'error');
+      return false;
+    }
     let error;
     const fieldsToTest = [
       {
@@ -459,19 +590,73 @@ export default function WODetailsScreen({
 
     setIsExtended(currentScrollPosition <= 0);
   };
+  const captureStatusGuard = (): WorkOrderStatusGuard => {
+    if (
+      typeof workOrder?.timerStatusRevision !== 'number' ||
+      loadingLabors[id] ||
+      !timesByWorkOrder[id]
+    )
+      throw new OfflineError('STATUS_PREPARATION_REQUIRED');
+    const active = labors.filter(
+      (labor) => labor.logged && labor.status === 'RUNNING'
+    );
+    if (active.some((labor) => !labor.timerRunId))
+      throw new OfflineError('TIMER_RUN_CHANGED');
+    return {
+      baseRevision: workOrder.timerStatusRevision,
+      activeTimerRuns: active.map((labor) => ({
+        laborId: labor.id,
+        timerRunId: labor.timerRunId!
+      }))
+    };
+  };
   const onCompleteWO = (
     signature: string | undefined,
-    feedback: string | undefined
+    feedback: string | undefined,
+    guard: WorkOrderStatusGuard,
+    generation: number
   ): Promise<any> => {
+    assertSessionGeneration(generation);
     return dispatch(
       changeWorkOrderStatus(id, {
         status: 'COMPLETE',
+        ...guard,
         feedback: feedback ?? null,
         signature
       })
-    ).then(() => navigation.navigate('Root'));
+    ).then(() => {
+      assertSessionGeneration(generation);
+    });
   };
-  const onStatusChange = (status: string) => {
+  const onStatusChange = (
+    status: WorkOrderStatus,
+    guard?: WorkOrderStatusGuard,
+    generation = sessionGeneration()
+  ) => {
+    if (generation !== sessionGeneration()) return;
+    if (isPrepared) {
+      const closure = offlineStatus.view?.closure;
+      if (!offline.writable || !closure?.canChangeStatus) {
+        offline.reportError(new OfflineError('STATUS_PREPARATION_REQUIRED'));
+        return;
+      }
+      if (status === 'COMPLETE') {
+        navigation.navigate('CompleteWorkOrder', {
+          workOrderId: id,
+          fieldsConfig: {
+            feedback: closure.askFeedback,
+            signature: closure.requiredSignature
+          }
+        });
+      } else {
+        void offlineStatus.request(status).catch(offline.reportError);
+      }
+      return;
+    }
+    if (!connectedAvailable) {
+      showSnackBar(t('offline_connected_required'), 'error');
+      return;
+    }
     if (status === 'COMPLETE') {
       if (canComplete()) {
         if (
@@ -488,8 +673,15 @@ export default function WODetailsScreen({
           if (error) {
             showSnackBar(t(error), 'error');
           } else {
+            let reviewedGuard = guard!;
             navigation.navigate('CompleteWorkOrder', {
-              onComplete: onCompleteWO,
+              connectedWorkOrderId: id,
+              onReviewStatus: (nextGuard) => {
+                assertSessionGeneration(generation);
+                reviewedGuard = nextGuard;
+              },
+              onComplete: (signature, feedback) =>
+                onCompleteWO(signature, feedback, reviewedGuard, generation),
               fieldsConfig: {
                 feedback: generalPreferences.askFeedBackOnWOClosed,
                 signature: workOrder?.requiredSignature
@@ -503,9 +695,17 @@ export default function WODetailsScreen({
     setLoading(true);
     dispatch(
       changeWorkOrderStatus(id, {
-        status
+        status,
+        ...guard!
       })
-    ).finally(() => setLoading(false));
+    )
+      .catch((error) => {
+        if (generation === sessionGeneration())
+          showSnackBar(t(offlineErrorKey(error)), 'error');
+      })
+      .finally(() => {
+        if (generation === sessionGeneration()) setLoading(false);
+      });
   };
   const groupRelations = (
     relations: Relation[]
@@ -571,7 +771,7 @@ export default function WODetailsScreen({
 
   const { textInputProps, triggers } = useMentions({
     value: commentContent,
-    onChange: setCommentContent,
+    onChange: changeCommentContent,
     triggersConfig
   });
 
@@ -588,52 +788,6 @@ export default function WODetailsScreen({
     id: user.id.toString(),
     name: `${user.firstName} ${user.lastName}`
   }));
-
-  const handleCommentSubmit = async () => {
-    if (!commentContent.trim()) return;
-    try {
-      let fileIds: { id: number }[] = [];
-      if (commentFiles.length > 0) {
-        const uploadedFiles = await uploadFiles(commentFiles, [], false);
-        fileIds = uploadedFiles.map((f) => ({ id: f.id }));
-      }
-      await dispatch(
-        createComment({
-          workOrder: { id },
-          content: commentContent.trim(),
-          files: fileIds
-        })
-      );
-      setCommentContent('');
-      setCommentFiles([]);
-    } catch (error) {
-      console.error('Failed to create comment:', error);
-    }
-  };
-
-  const pickCommentFile = async () => {
-    try {
-      const result = await DocumentPicker.getDocumentAsync({
-        type: '*/*',
-        multiple: true,
-        copyToCacheDirectory: true
-      });
-      if (!result.canceled && result.assets) {
-        const newFiles = result.assets.map((asset) => ({
-          uri: asset.uri,
-          name: asset.name,
-          type: asset.mimeType || 'application/octet-stream'
-        }));
-        setCommentFiles([...commentFiles, ...newFiles]);
-      }
-    } catch (error) {
-      console.error('Error picking document:', error);
-    }
-  };
-
-  const removeCommentFile = (index: number) => {
-    setCommentFiles(commentFiles.filter((_, i) => i !== index));
-  };
 
   function ObjectField({
     label,
@@ -665,7 +819,7 @@ export default function WODetailsScreen({
       return (
         <TouchableOpacity
           // @ts-ignore
-          disabled={!hasViewPermission(permissionEntity)}
+          disabled={!connectedAvailable || !hasViewPermission(permissionEntity)}
           onPress={() => {
             // @ts-ignore
             navigation.navigate(link.route, { id: link.id });
@@ -680,7 +834,7 @@ export default function WODetailsScreen({
               <Text variant="titleMedium" style={{ fontWeight: 'bold' }}>
                 {value}
               </Text>
-              {isLocation && address && (
+              {isLocation && address && connectedAvailable && (
                 <Text
                   style={{
                     fontSize: 14,
@@ -721,7 +875,7 @@ export default function WODetailsScreen({
     if (!value) return null;
 
     const handlePress = () => {
-      if (isLink) {
+      if (isLink && connectedAvailable) {
         const href = value.toString().startsWith('http')
           ? value.toString()
           : `https://${value}`;
@@ -791,6 +945,22 @@ export default function WODetailsScreen({
   const statusColor = workOrder
     ? getStatusColor(workOrder.status, theme)
     : null;
+  if (!offline.initialized) return <LoadingDialog visible={true} />;
+  if (isPrepared && (!prepared?.available || !offline.readable))
+    return (
+      <ScrollView style={{ padding: 20 }}>
+        <OfflineStatus />
+        <Text>{t('offline_unavailable')}</Text>
+        <OfflineWorkPanel workOrderId={id} />
+      </ScrollView>
+    );
+  if (!isPrepared && offline.enabled && !offline.networkAvailable)
+    return (
+      <View style={{ padding: 20 }}>
+        <OfflineStatus />
+        <Text>{t('offline_not_prepared')}</Text>
+      </View>
+    );
   if (workOrder)
     return (
       <View style={styles.container}>
@@ -820,6 +990,29 @@ export default function WODetailsScreen({
                 />
               }
             >
+              <OfflineStatus />
+              {offline.enabled && !isPrepared && (
+                <Button
+                  mode="outlined"
+                  loading={preparing}
+                  disabled={
+                    preparing ||
+                    submittingComment ||
+                    loadingCreate ||
+                    !offline.networkAvailable
+                  }
+                  onPress={prepareWorkOrder}
+                >
+                  {t('offline_prepare')}
+                </Button>
+              )}
+              {isPrepared && (
+                <Text>
+                  {t('offline_prepared_at', {
+                    date: getFormattedDate(prepared.preparedAt)
+                  })}
+                </Text>
+              )}
               <Text style={{ marginTop: 5 }} variant="displaySmall">
                 {workOrder.title}
               </Text>
@@ -838,7 +1031,10 @@ export default function WODetailsScreen({
                   />
                 )}
               </View>
-              {workOrder.image && (
+              {workOrder.image && isPrepared && (
+                <OfflineFileItem workOrderId={id} file={workOrder.image} />
+              )}
+              {workOrder.image && !isPrepared && connectedAvailable && (
                 <TouchableOpacity onPress={() => setIsImageViewerOpen(true)}>
                   <Image
                     style={{ height: 200, marginTop: 20 }}
@@ -849,7 +1045,18 @@ export default function WODetailsScreen({
               <View style={{ marginTop: 20 }}>
                 <TouchableOpacity
                   disabled={
-                    !hasEditPermission(PermissionEntity.WORK_ORDERS, workOrder)
+                    isPrepared
+                      ? !offline.writable ||
+                        !offlineStatus.view?.available ||
+                        !offlineStatus.view?.closure?.canChangeStatus ||
+                        offlineStatus.busy ||
+                        !!pendingClosure
+                      : !connectedAvailable ||
+                        loading ||
+                        !hasEditPermission(
+                          PermissionEntity.WORK_ORDERS,
+                          workOrder
+                        )
                   }
                   style={{
                     flexDirection: 'row',
@@ -860,17 +1067,30 @@ export default function WODetailsScreen({
                     borderColor: statusColor,
                     borderRadius: 4
                   }}
-                  onPress={() =>
+                  onPress={() => {
+                    const generation = sessionGeneration();
+                    let guard: WorkOrderStatusGuard | undefined;
+                    try {
+                      if (!isPrepared) guard = captureStatusGuard();
+                    } catch (error) {
+                      showSnackBar(t(offlineErrorKey(error)), 'error');
+                      return;
+                    }
                     SheetManager.show('dropdown-sheet', {
                       payload: {
                         items: statuses,
-                        value: workOrder.status,
+                        value: selectedStatus,
                         setValue: (value: string) => {
-                          if (workOrder.status !== value) onStatusChange(value);
+                          if (selectedStatus !== value)
+                            onStatusChange(
+                              value as WorkOrderStatus,
+                              guard,
+                              generation
+                            );
                         }
                       }
-                    })
-                  }
+                    });
+                  }}
                 >
                   <Text style={{ color: statusColor }}>
                     {statuses.find((s) => s.value === workOrder.status)?.label}
@@ -882,7 +1102,27 @@ export default function WODetailsScreen({
                     style={{ margin: -5 }}
                   />
                 </TouchableOpacity>
-                {workOrder.audioDescription && (
+                {isPrepared && (
+                  <>
+                    <Text>
+                      {t('offline_status_server', {
+                        status: t(workOrder.status)
+                      })}
+                    </Text>
+                    {!offlineStatus.view?.closure && (
+                      <Text>{t('offline_status_prepare_again')}</Text>
+                    )}
+                    {offlineStatus.view?.draft?.status === 'COMPLETE' && (
+                      <Button
+                        disabled={!offline.writable}
+                        onPress={() => onStatusChange('COMPLETE')}
+                      >
+                        {t('offline_closure_resume')}
+                      </Button>
+                    )}
+                  </>
+                )}
+                {workOrder.audioDescription && connectedAvailable && (
                   <View
                     style={{ backgroundColor: 'white', paddingVertical: 20 }}
                   >
@@ -1007,71 +1247,76 @@ export default function WODetailsScreen({
                     ))}
                   </View>
                 )}
-                {!generalPreferences.simplifiedWorkOrder && (
-                  <View>
-                    <View style={styles.shadowedCard}>
-                      <Text
-                        style={{
-                          marginBottom: 10,
-                          color: theme.colors.onSurfaceVariant
-                        }}
-                      >
-                        {t('parts')}
-                      </Text>
-                      <PartQuantities
-                        partQuantities={partQuantities}
-                        isPO={false}
-                        navigation={navigation}
-                        rootId={id}
-                        disabled={
-                          !hasEditPermission(
+                {!generalPreferences.simplifiedWorkOrder &&
+                  connectedAvailable && (
+                    <View>
+                      <View style={styles.shadowedCard}>
+                        <Text
+                          style={{
+                            marginBottom: 10,
+                            color: theme.colors.onSurfaceVariant
+                          }}
+                        >
+                          {t('parts')}
+                        </Text>
+                        <PartQuantities
+                          partQuantities={partQuantities}
+                          isPO={false}
+                          navigation={navigation}
+                          rootId={id}
+                          disabled={
+                            !hasEditPermission(
+                              PermissionEntity.WORK_ORDERS,
+                              workOrder
+                            )
+                          }
+                        />
+                        {connectedAvailable &&
+                          hasEditPermission(
                             PermissionEntity.WORK_ORDERS,
                             workOrder
-                          )
-                        }
-                      />
-                      {hasEditPermission(
-                        PermissionEntity.WORK_ORDERS,
-                        workOrder
-                      ) && (
-                        <Fragment>
-                          <Divider style={{ marginTop: 5 }} />
-                          <Button
-                            onPress={() =>
-                              navigation.navigate('SelectParts', {
-                                onChange: (selectedParts) => {
-                                  // throw new Error('nuuur');
-                                  dispatch(
-                                    editWOPartQuantities(
-                                      id,
-                                      selectedParts.map((part) => part.id)
+                          ) && (
+                            <Fragment>
+                              <Divider style={{ marginTop: 5 }} />
+                              <Button
+                                onPress={() =>
+                                  navigation.navigate('SelectParts', {
+                                    onChange: (selectedParts) => {
+                                      // throw new Error('nuuur');
+                                      dispatch(
+                                        editWOPartQuantities(
+                                          id,
+                                          selectedParts.map((part) => part.id)
+                                        )
+                                      ).catch((error) =>
+                                        showSnackBar(
+                                          t('not_enough_part'),
+                                          'error'
+                                        )
+                                      );
+                                    },
+                                    selected: partQuantities.map(
+                                      (partQuantity) => partQuantity.part.id
                                     )
-                                  ).catch((error) =>
-                                    showSnackBar(t('not_enough_part'), 'error')
-                                  );
-                                },
-                                selected: partQuantities.map(
-                                  (partQuantity) => partQuantity.part.id
-                                )
-                              })
-                            }
-                          >
-                            {t('add_parts')}
-                          </Button>
-                        </Fragment>
-                      )}
+                                  })
+                                }
+                              >
+                                {t('add_parts')}
+                              </Button>
+                            </Fragment>
+                          )}
+                      </View>
+                      <AdditionalCostsCard
+                        additionalCosts={additionalCosts}
+                        workOrder={workOrder}
+                        workOrderId={id}
+                        hasEditPermission={hasEditPermission}
+                        hasFeature={hasFeature}
+                        getFormattedCurrency={getFormattedCurrency}
+                        navigation={navigation}
+                      />
                     </View>
-                    <AdditionalCostsCard
-                      additionalCosts={additionalCosts}
-                      workOrder={workOrder}
-                      workOrderId={id}
-                      hasEditPermission={hasEditPermission}
-                      hasFeature={hasFeature}
-                      getFormattedCurrency={getFormattedCurrency}
-                      navigation={navigation}
-                    />
-                  </View>
-                )}
+                  )}
                 {!!tasks.length && (
                   <View style={styles.shadowedCard}>
                     <Text
@@ -1086,7 +1331,7 @@ export default function WODetailsScreen({
                       onPress={() =>
                         navigation.navigate('Tasks', {
                           workOrderId: id,
-                          tasksProps: tasks
+                          ...(isPrepared ? {} : { tasksProps: tasks })
                         })
                       }
                     >
@@ -1125,61 +1370,104 @@ export default function WODetailsScreen({
                         >
                           {t('files')}
                         </Text>
-                        {workOrder.files.map((file) => (
-                          <List.Item
-                            key={file.id}
-                            titleStyle={{ color: theme.colors.primary }}
-                            title={file.name}
-                            onPress={() => {
-                              Linking.openURL(file.url);
-                            }}
-                          />
-                        ))}
-                      </View>
-                    )}
-                    {!!currentWorkOrderRelations.length && (
-                      <View style={styles.shadowedCard}>
-                        <Text
-                          style={{
-                            marginBottom: 10,
-                            color: theme.colors.onSurfaceVariant
-                          }}
-                        >
-                          {t('links')}
-                        </Text>
-                        {Object.entries(
-                          groupRelations(currentWorkOrderRelations)
-                        ).map(
-                          ([relationType, relations]) =>
-                            !!relations.length && (
-                              <View>
-                                <Text style={{ fontWeight: 'bold' }}>
-                                  {t(relationType)}
-                                </Text>
-                                {relations.map((relation) => (
-                                  <List.Item
-                                    title={relation.workOrder.title}
-                                    onPress={() =>
-                                      navigation.push('WODetails', {
-                                        id: relation.workOrder.id
-                                      })
-                                    }
-                                    description={getFormattedDate(
-                                      relation.workOrder.createdAt
-                                    )}
-                                  />
-                                ))}
-                              </View>
-                            )
+                        {workOrder.files.map((file) =>
+                          isPrepared ? (
+                            <OfflineFileItem
+                              key={file.id}
+                              workOrderId={id}
+                              file={file}
+                            />
+                          ) : (
+                            <List.Item
+                              key={file.id}
+                              titleStyle={{ color: theme.colors.primary }}
+                              title={file.name}
+                              description={
+                                !connectedAvailable
+                                  ? t('offline_files_not_downloaded')
+                                  : undefined
+                              }
+                              disabled={!connectedAvailable}
+                              onPress={() => {
+                                Linking.openURL(file.url);
+                              }}
+                            />
+                          )
                         )}
                       </View>
                     )}
-                    <AdditionalTimesCard
-                      labors={labors}
-                      workOrder={workOrder}
-                      navigation={navigation}
-                    />
+                    {connectedAvailable &&
+                      !!currentWorkOrderRelations.length && (
+                        <View style={styles.shadowedCard}>
+                          <Text
+                            style={{
+                              marginBottom: 10,
+                              color: theme.colors.onSurfaceVariant
+                            }}
+                          >
+                            {t('links')}
+                          </Text>
+                          {Object.entries(
+                            groupRelations(currentWorkOrderRelations)
+                          ).map(
+                            ([relationType, relations]) =>
+                              !!relations.length && (
+                                <View>
+                                  <Text style={{ fontWeight: 'bold' }}>
+                                    {t(relationType)}
+                                  </Text>
+                                  {relations.map((relation) => (
+                                    <List.Item
+                                      title={relation.workOrder.title}
+                                      onPress={() =>
+                                        navigation.push('WODetails', {
+                                          id: relation.workOrder.id
+                                        })
+                                      }
+                                      description={getFormattedDate(
+                                        relation.workOrder.createdAt
+                                      )}
+                                    />
+                                  ))}
+                                </View>
+                              )
+                          )}
+                        </View>
+                      )}
+                    {isPrepared && offlineTime.view && (
+                      <OfflineTimePanel
+                        key={`${offline.repository?.contextKey}:${id}`}
+                        workOrderId={id}
+                        view={offlineTime.view}
+                        navigation={navigation}
+                        statusKey={offlineTime.statusKey}
+                      />
+                    )}
+                    {(connectedAvailable || isPrepared) && (
+                      <AdditionalTimesCard
+                        labors={labors}
+                        workOrder={workOrder}
+                        navigation={navigation}
+                        connectedAvailable={connectedAvailable}
+                        prepared={isPrepared}
+                        canCreatePersonal={
+                          !!offlineTime.view?.permissions.createManualTime
+                        }
+                      />
+                    )}
+                    {!connectedAvailable && !isPrepared && (
+                      <Text>{t('offline_connected_required')}</Text>
+                    )}
                     <View style={styles.shadowedCard}>
+                      {isPrepared &&
+                        prepared.history.map((event: any) => (
+                          <Text
+                            key={`history:${event.id}`}
+                            style={{ marginBottom: 8 }}
+                          >
+                            {event.name} — {getFormattedDate(event.createdAt)}
+                          </Text>
+                        ))}
                       <Text
                         style={{
                           marginBottom: 10,
@@ -1188,7 +1476,7 @@ export default function WODetailsScreen({
                       >
                         {t('comments')}
                       </Text>
-                      {loadingComments ? (
+                      {!isPrepared && loadingComments ? (
                         <ActivityIndicator
                           size="small"
                           color={theme.colors.primary}
@@ -1208,6 +1496,7 @@ export default function WODetailsScreen({
                           <CommentItem
                             key={comment.id}
                             comment={comment}
+                            connectedDisabled={!connectedAvailable}
                             workOrderId={id}
                             users={usersMini.map((u) => ({
                               id: u.id.toString(),
@@ -1216,10 +1505,12 @@ export default function WODetailsScreen({
                           />
                         ))
                       )}
-                      {hasEditPermission(
-                        PermissionEntity.WORK_ORDERS,
-                        workOrder
-                      ) && (
+                      {isPrepared && (
+                        <OfflineCommentOperations
+                          operations={prepared?.commentOperations ?? []}
+                        />
+                      )}
+                      {canComposeComment && (
                         <View style={{ marginTop: 10 }}>
                           <View
                             style={{
@@ -1234,40 +1525,42 @@ export default function WODetailsScreen({
                                 marginRight: 8
                               }}
                             >
-                              {mentionKeyword && filteredUsers.length > 0 && (
-                                <View
-                                  style={{
-                                    backgroundColor: '#fff',
-                                    borderRadius: 8,
-                                    elevation: 5,
-                                    shadowColor: '#000',
-                                    shadowOffset: { width: 0, height: 2 },
-                                    shadowOpacity: 0.2,
-                                    marginBottom: 8,
-                                    maxHeight: 200,
-                                    overflow: 'hidden'
-                                  }}
-                                >
-                                  {filteredUsers.map((item) => (
-                                    <Pressable
-                                      key={item.id}
-                                      onPress={() => {
-                                        triggers?.mention?.onSelect?.({
-                                          id: item.id,
-                                          name: item.name
-                                        });
-                                      }}
-                                      style={{
-                                        padding: 12,
-                                        borderBottomWidth: 1,
-                                        borderBottomColor: '#eee'
-                                      }}
-                                    >
-                                      <Text>{item.name}</Text>
-                                    </Pressable>
-                                  ))}
-                                </View>
-                              )}
+                              {connectedAvailable &&
+                                mentionKeyword &&
+                                filteredUsers.length > 0 && (
+                                  <View
+                                    style={{
+                                      backgroundColor: '#fff',
+                                      borderRadius: 8,
+                                      elevation: 5,
+                                      shadowColor: '#000',
+                                      shadowOffset: { width: 0, height: 2 },
+                                      shadowOpacity: 0.2,
+                                      marginBottom: 8,
+                                      maxHeight: 200,
+                                      overflow: 'hidden'
+                                    }}
+                                  >
+                                    {filteredUsers.map((item) => (
+                                      <Pressable
+                                        key={item.id}
+                                        onPress={() => {
+                                          triggers?.mention?.onSelect?.({
+                                            id: item.id,
+                                            name: item.name
+                                          });
+                                        }}
+                                        style={{
+                                          padding: 12,
+                                          borderBottomWidth: 1,
+                                          borderBottomColor: '#eee'
+                                        }}
+                                      >
+                                        <Text>{item.name}</Text>
+                                      </Pressable>
+                                    ))}
+                                  </View>
+                                )}
                               <RNTextInput
                                 multiline
                                 numberOfLines={3}
@@ -1282,14 +1575,58 @@ export default function WODetailsScreen({
                                 placeholderTextColor="black"
                                 style={{ flex: 1, color: 'black' }}
                                 {...textInputProps}
+                                editable={
+                                  !preparing && !commentTransferConflict
+                                }
                               />
                             </View>
                             <IconButton
                               icon="paperclip"
                               onPress={pickCommentFile}
+                              disabled={
+                                (!isPrepared && !connectedAvailable) ||
+                                importingFiles ||
+                                (isPrepared &&
+                                  !(
+                                    hasCreatePermission(
+                                      PermissionEntity.FILES
+                                    ) && hasFeature(PlanFeature.FILE)
+                                  )) ||
+                                preparing ||
+                                commentTransferConflict
+                              }
                               style={{ marginBottom: 8 }}
                             />
                           </View>
+                          {isPrepared &&
+                            hasCreatePermission(PermissionEntity.FILES) &&
+                            hasFeature(PlanFeature.FILE) && (
+                              <FileUpload
+                                title={t('images')}
+                                description={t('upload')}
+                                type="image"
+                                multiple
+                                selectionOnly
+                                maxFileSize={35}
+                                disabled={
+                                  importingFiles ||
+                                  preparing ||
+                                  commentTransferConflict
+                                }
+                                onChange={(files) =>
+                                  void importCommentFiles(files)
+                                }
+                              />
+                            )}
+                          {isPrepared &&
+                            prepared?.commentDraft?.fileIds?.map((localId) => (
+                              <OfflineFileItem
+                                key={localId}
+                                workOrderId={id}
+                                localId={localId}
+                                onRemove={() => removeLocalCommentFile(localId)}
+                              />
+                            ))}
                           {commentFiles.length > 0 && (
                             <View style={{ marginBottom: 8 }}>
                               {commentFiles.map((file, index) => (
@@ -1310,17 +1647,100 @@ export default function WODetailsScreen({
                                   <IconButton
                                     icon="close-circle"
                                     size={16}
+                                    disabled={importingFiles}
                                     onPress={() => removeCommentFile(index)}
                                   />
                                 </View>
                               ))}
                             </View>
                           )}
+                          {isPrepared &&
+                            (savingCommentDraft ||
+                              commentDraftError ||
+                              !!prepared?.commentDraft) && (
+                              <Text
+                                accessibilityRole={
+                                  commentDraftError ? 'alert' : undefined
+                                }
+                              >
+                                {t(
+                                  savingCommentDraft
+                                    ? 'offline_saving'
+                                    : commentDraftError
+                                    ? 'offline_save_failed'
+                                    : 'offline_draft_saved'
+                                )}
+                              </Text>
+                            )}
+                          {commentRefreshPending && (
+                            <Text accessibilityRole="alert">
+                              {t('offline_comment_saved_refresh_pending')}
+                            </Text>
+                          )}
+                          {confirmedDraftToClear !== null && (
+                            <View>
+                              <Text accessibilityRole="alert">
+                                {t('offline_comment_published_cleanup_pending')}
+                              </Text>
+                              <Button
+                                onPress={() =>
+                                  void retryPublishedDraftCleanup()
+                                }
+                              >
+                                {t('offline_comment_clear_confirmed')}
+                              </Button>
+                            </View>
+                          )}
+                          {attachmentPending &&
+                            !commentFiles.length &&
+                            !prepared?.commentDraft?.fileIds?.length && (
+                              <Text accessibilityRole="alert">
+                                {t('offline_comment_attachment_pending')}
+                              </Text>
+                            )}
+                          {!isPrepared &&
+                            !!commentFiles.length &&
+                            !connectedAvailable && (
+                              <Text>{t('offline_connected_required')}</Text>
+                            )}
+                          {commentTransferConflict && (
+                            <View>
+                              <Text>{t('offline_changed_revision')}</Text>
+                              <Button
+                                onPress={() =>
+                                  void resolveTransferredComment(true)
+                                }
+                              >
+                                {t('offline_keep_draft')}
+                              </Button>
+                              <Button
+                                onPress={() =>
+                                  void resolveTransferredComment(false)
+                                }
+                              >
+                                {t('offline_draft_saved')}
+                              </Button>
+                            </View>
+                          )}
                           <Button
                             mode="contained"
-                            onPress={handleCommentSubmit}
-                            disabled={!commentContent.trim() || loadingCreate}
-                            loading={loadingCreate}
+                            onPress={() => void handleCommentSubmit()}
+                            disabled={
+                              !commentContent.trim() ||
+                              loadingCreate ||
+                              preparing ||
+                              commentTransferConflict ||
+                              submittingComment ||
+                              confirmedDraftToClear !== null ||
+                              (isPrepared &&
+                                (savingCommentDraft ||
+                                  commentDraftError ||
+                                  !filesReady)) ||
+                              (!isPrepared &&
+                                !!commentFiles.length &&
+                                !connectedAvailable)
+                            }
+                            loading={loadingCreate || submittingComment}
                           >
                             {t('post_comment')}
                           </Button>
@@ -1330,24 +1750,53 @@ export default function WODetailsScreen({
                   </View>
                 )}
               </View>
+              {isPrepared && <OfflineWorkPanel workOrderId={id} />}
             </ScrollView>
           </KeyboardAvoidingView>
-          {!generalPreferences.simplifiedWorkOrder &&
+          {(connectedAvailable || (isPrepared && offline.writable)) &&
+            !generalPreferences.simplifiedWorkOrder &&
             hasEditPermission(PermissionEntity.WORK_ORDERS, workOrder) && (
               <FAB
                 icon={runningTimer ? 'stop' : 'play'}
                 label={
-                  runningTimer
+                  isPrepared
+                    ? `${t(
+                        runningTimer
+                          ? 'offline_time_stop'
+                          : 'offline_time_start'
+                      )} · ${durationToHours(
+                        runningTimer
+                          ? offlineTime.elapsedSeconds
+                          : primaryTime?.duration
+                      )}`
+                    : runningTimer
                     ? runningTimerDuration
                     : durationToHours(primaryTime?.duration)
                 }
-                disabled={controllingTime}
+                disabled={
+                  isPrepared
+                    ? offlineTime.busy ||
+                      (!runningTimer && !!pendingClosure) ||
+                      !offlineTime.view?.available ||
+                      !!offlineTime.view?.activePeriod?.endedAt ||
+                      !(runningTimer
+                        ? offlineTime.view?.activePeriod ||
+                          offlineTime.view?.permissions.stopTimer
+                        : primaryTime || offlineTime.resumeWithoutSnapshot
+                        ? offlineTime.view?.permissions.resumeTimer
+                        : offlineTime.view?.permissions.createTimer)
+                    : controllingTime
+                }
                 theme={theme}
                 variant={runningTimer ? 'primary' : 'secondary'}
                 color="white"
                 onPress={() => {
+                  if (isPrepared) {
+                    void offlineTime.control();
+                    return;
+                  }
                   setControllingTime(true);
-                  dispatch(controlTimer(!runningTimer, id))
+                  dispatch(controlTimer(!runningTimer, id, primaryTime))
                     .catch((err) => showSnackBar(getErrorMessage(err), 'error'))
                     .finally(() => setControllingTime(false));
                 }}
@@ -1365,6 +1814,13 @@ export default function WODetailsScreen({
           )}
         </Provider>
       </View>
+    );
+  else if (isPrepared)
+    return (
+      <ScrollView style={{ padding: 20 }}>
+        <OfflineStatus />
+        <OfflineWorkPanel workOrderId={id} />
+      </ScrollView>
     );
   else return <LoadingDialog visible={true} />;
 }

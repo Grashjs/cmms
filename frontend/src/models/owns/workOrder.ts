@@ -13,6 +13,11 @@ import { CustomField } from './customField';
 
 export type Priority = 'HIGH' | 'MEDIUM' | 'LOW' | 'NONE';
 
+export interface WorkOrderStatusGuard {
+  baseRevision: number;
+  activeTimerRuns: { laborId: number; timerRunId: string }[];
+}
+
 export default interface WorkOrder extends WorkOrderBase {
   category: Category | null;
   id: number;
@@ -25,6 +30,7 @@ export default interface WorkOrder extends WorkOrderBase {
   feedback: string;
   requiredSignature: boolean;
   status: string;
+  timerStatusRevision: number;
   audioDescription: File;
   customId: string;
   //parentPreventiveMaintenance:

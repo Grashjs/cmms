@@ -1,4 +1,19 @@
 const trJSON = {
+  work_order_status_review: "İş emri değişti. Yeniden göndermeden önce mevcut durumunu inceleyin. Girdiniz korunuyor.",
+  work_order_status_review_current: "Sunucudaki mevcut durumu incele",
+  work_order_status_review_value: "Sunucu durumu: {{status}} · Etkin zamanlayıcılar: {{count}}",
+  work_order_status_review_confirm: "Girdimi incelenen bu sürümde koru",
+
+  labor_review_current: 'Geçerli süreyi incele',
+  labor_review_confirm: 'Girdimi bu sürümde koru',
+  labor_changed_review:
+    'Bu süre kaydı değişti. Yeniden kaydetmeden önce sunucu sürümünü inceleyin.',
+  labor_server_duration: 'Sunucudaki geçerli süre',
+
+  task_save_review: "Girdiğiniz bilgiler korunuyor. Kaydetme duraklatıldı; gösterilen değişiklikleri göndermeden önce sunucudaki verilerle karşılaştırın.",
+  task_server_value: "Sunucudaki mevcut değer",
+  task_review_submit: "Gösterilen değişiklikleri incele ve gönder",
+  task_review_discard: "Yerel değişiklikleri at ve sunucu sürümünü kullan",
   DUPLICATE_OF: 'Kopyası',
   DUPLICATED_BY: 'Tarafından çoğaltıldı',
   RELATED_TO: 'İle ilgili',

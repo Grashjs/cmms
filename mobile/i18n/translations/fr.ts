@@ -1,4 +1,243 @@
 const frJSON = {
+  offline_preference_title: "Utiliser le mode hors ligne",
+  offline_preference_description: "Préparez des interventions sur cet appareil pour travailler sans Internet.",
+  offline_preference_pending: "Résolvez les brouillons, chronomètres actifs et envois en attente avant de désactiver le mode hors ligne. Le serveur doit aussi confirmer tout retrait de préparation en attente. Rien n’a été supprimé.",
+  offline_preference_denied: "Le serveur n’autorise pas le mode hors ligne pour ce compte. Votre travail local est conservé.",
+  offline_preference_read_error: "Impossible de lire le réglage hors ligne. Votre travail local reste protégé. Réessayez ; Internet n’est pas nécessaire.",
+  offline_preference_activation_failed: "Impossible d’activer le mode hors ligne sur cet appareil. Le choix reste désactivé ; réessayez.",
+  offline_unlock_title: "Déverrouiller le travail hors ligne",
+  offline_unlock_explanation: "Vérifiez votre identité pour accéder au travail enregistré sur cet appareil.",
+  offline_unlock_system_prompt: "Déverrouiller le travail hors ligne dans Atlas CMMS",
+  offline_unlock_use_code: "Utiliser le code du téléphone",
+  offline_unlock_setup: "Configurez un verrouillage d’écran dans les réglages du téléphone, puis réessayez. Le travail reste enregistré et masqué.",
+  offline_unlock_cancelled: "Déverrouillage annulé. Votre travail hors ligne reste enregistré.",
+  offline_unlock_failed: "Échec du déverrouillage. Réessayez ou utilisez le code du téléphone.",
+  offline_unlock_check_server: "Vérifier l’accès auprès du serveur",
+  offline_unlock_sign_in: "Reconnectez-vous au serveur avec ce compte, puis vérifiez l’accès. Votre travail reste enregistré et masqué.",
+  offline_unlock_logout: "Se déconnecter",
+  save_signature: "Enregistrer la signature",
+  offline_signature_unsaved: "Dessin non enregistré. Appuyez sur Enregistrer la signature avant de soumettre la clôture.",
+  offline_signature_saved: "Signature enregistrée sur cet appareil.",
+  offline_signature_save_failed: "Signature non enregistrée. Appuyez sur Enregistrer la signature pour réessayer, ou effacez-la.",
+
+  offline_status_request: "Demande de statut",
+  offline_status_requested: "Statut demandé : {{status}}",
+  offline_status_saved_refresh_pending: "Statut confirmé — actualisation locale en attente",
+  offline_status_review: "Examiner la demande",
+  offline_status_review_confirm: "Serveur : {{server}}. Votre demande : {{local}}. Conserver votre saisie en brouillon sur cette version examinée, puis la soumettre explicitement.",
+  offline_status_submit: "Soumettre la demande de statut",
+  offline_closure_submit: "Soumettre la demande de clôture",
+  offline_status_stop_timer: "Arrêtez et enregistrez le chronomètre sur cet appareil avant de demander ce statut.",
+  offline_status_drafts_pending: "Soumettez ou abandonnez explicitement vos brouillons avant de soumettre la clôture.",
+  offline_status_dependency_failed: "Résolvez le refus ou le conflit précédent avant d’envoyer cette demande.",
+  offline_status_dependency_pending: "En attente de confirmation des opérations précédentes.",
+  offline_status_new_work: "De nouvelles saisies locales sont présentes. Examinez-les avant d’envoyer la clôture.",
+  offline_status_signature_forbidden: "La capture de signature n’est pas autorisée avec les droits, la licence ou l’abonnement actuels.",
+  offline_status_conflict: "Le statut ou les informations de clôture ont changé. Examinez-les ; votre saisie est conservée.",
+  offline_status_requirements: "Les conditions requises pour la clôture ne sont pas remplies.",
+  offline_status_prepare_again: "Actualisez cette préparation en ligne avant de modifier les statuts hors ligne.",
+  offline_status_server: "Statut confirmé : {{status}}",
+  offline_closure_resume: "Reprendre le brouillon de clôture",
+  offline_closure_local: "La clôture reste locale tant que le serveur n’a pas accepté votre demande soumise.",
+  offline_closure_save_failed: "Le brouillon de clôture n’a pas pu être enregistré sur cet appareil. Gardez cet écran ouvert et réessayez.",
+  retry: "Réessayer",
+  work_order_status_review: "L’intervention a changé. Examinez son statut actuel avant une nouvelle soumission. Votre saisie est conservée.",
+  work_order_status_review_current: "Examiner le statut actuel du serveur",
+  work_order_status_review_value: "Statut serveur : {{status}} · Chronomètres actifs : {{count}}",
+  work_order_status_review_confirm: "Conserver ma saisie sur cette version examinée",
+
+  offline_time_stopped: 'Chronomètre arrêté',
+  labor_review_current: 'Examiner le temps actuel',
+  labor_review_confirm: 'Conserver ma saisie sur cette version',
+  labor_changed_review:
+    'Ce temps a changé. Examinez la version serveur avant une nouvelle sauvegarde.',
+  labor_server_duration: 'Durée actuelle sur le serveur',
+  offline_time_start: 'Démarrer',
+  offline_time_stop: 'Arrêter et enregistrer',
+  offline_time_running_local: 'En cours sur cet appareil',
+  offline_time_start_pending: 'Démarrage à confirmer',
+  offline_time_running_server: 'En cours — confirmé par le serveur',
+  offline_time_stop_pending: 'Arrêt enregistré — en attente d’envoi',
+  offline_time_save: 'Enregistrer le temps',
+  offline_time_personal: 'Mon temps',
+  offline_time_connected_form: 'Saisie complète en ligne',
+  offline_time_periods: 'Périodes sur cet appareil',
+  offline_time_server_total: 'Cumul serveur',
+  offline_time_review: 'Examiner la période',
+  offline_time_preserve_status: 'Enregistrer en conservant le statut actuel',
+  offline_time_correct_connected: 'Corriger le cumul en ligne',
+  offline_time_saved_refresh_pending:
+    'Temps confirmé — actualisation locale en attente',
+  offline_time_invalid_range:
+    'Vérifiez le début et la fin : la durée doit être positive et les horaires ne doivent pas être dans le futur.',
+  offline_time_run_changed:
+    'Ce chronomètre a été arrêté ou relancé ailleurs. Votre période est conservée.',
+  offline_time_status_changed:
+    'Le statut de l’intervention a changé. Examinez-le avant de transmettre cette période.',
+  offline_time_not_allowed:
+    'Cette action sur le temps n’est pas autorisée avec les droits, la licence ou l’abonnement actuels.',
+
+  offline_refresh_copy: 'Actualiser la copie',
+  offline_remove_server_attachment: 'Retirer de l’intervention',
+  offline_clear_server_image: 'Effacer l’image principale',
+  offline_remove_server_attachment_confirm:
+    'Retirer ce fichier de l’intervention sur le serveur ? Vos sélections et envois en attente seront conservés.',
+  offline_clear_server_image_confirm:
+    'Effacer l’image principale sur le serveur ? Votre image sélectionnée et les envois en attente seront conservés.',
+  offline_server_removal_refresh_pending:
+    'Retrait confirmé — actualisation locale en attente',
+  offline_review_files: 'Examiner la sélection',
+  offline_restore_files_draft:
+    'La sélection sera remise en brouillon. Vérifiez-la puis enregistrez-la explicitement. Un brouillon plus récent ne sera pas remplacé.',
+  offline_keep_file_selection: 'Conserver ma sélection',
+  offline_file_transfer_only:
+    'Fichier transféré au serveur ; le rattachement est confirmé séparément.',
+  offline_file_dependency_failed:
+    'Le rattachement attend un fichier dont le transfert a été refusé. Votre sélection est conservée.',
+  offline_retry_file_import: 'Réessayer l’enregistrement du fichier',
+  offline_file_available: 'Fichier disponible sur cet appareil',
+  offline_file_failed: 'Fichier indisponible sur cet appareil',
+  offline_open_file: 'Ouvrir le fichier',
+  offline_download_file: 'Télécharger sur cet appareil',
+  offline_remove_file_selection: 'Retirer de la sélection',
+  offline_remove_local_copy: 'Supprimer la copie locale',
+  offline_save_files: 'Enregistrer les fichiers',
+  offline_other_fields_read_only:
+    'Hors ligne, seuls les fichiers peuvent être modifiés dans ce formulaire.',
+  offline_save_other_changes: 'Enregistrer les autres modifications',
+  offline_scan_asset: 'Scanner un équipement préparé',
+  offline_scan_unavailable:
+    'Le scan hors ligne nécessite une préparation autorisée et la licence de scan.',
+  offline_scan_ambiguous:
+    'Plusieurs équipements préparés correspondent à ce code. Ouvrez leur intervention.',
+  offline_asset_not_available:
+    'Cet équipement n’est pas disponible hors ligne. Préparez son intervention avec une connexion.',
+  offline_asset_read_only:
+    'Copie préparée en lecture seule. Les autres informations nécessitent une connexion.',
+  offline_asset_prepared_work_orders:
+    'Seules les interventions préparées sont affichées.',
+  offline_file_not_ready:
+    'Attendez la fin de la copie du fichier sur cet appareil.',
+  offline_file_limit: 'Ce fichier dépasse la taille autorisée.',
+  offline_storage_limit:
+    'L’espace disponible est insuffisant. Retirez des copies locales devenues inutiles.',
+  offline_transfer_failed:
+    'Un transfert a été refusé. Conservez le travail, puis abandonnez explicitement cet envoi et sélectionnez à nouveau les fichiers pour le corriger.',
+  offline_file_in_use:
+    'Ce fichier est encore utilisé par une préparation ou un travail en attente.',
+  offline_file_open_failed: 'Impossible d’ouvrir ce document sur cet appareil.',
+  offline_file_integrity:
+    'La copie du fichier est incomplète ou a changé. Sélectionnez-le à nouveau.',
+  offline_attachments_conflict:
+    'Les pièces jointes ont changé sur le serveur. Actualisez, puis préparez à nouveau la modification.',
+  offline_file_copy_failed:
+    'La copie sur cet appareil a échoué. Sélectionnez à nouveau le fichier.',
+  offline_comment_saved_refresh_pending:
+    'Modification du commentaire confirmée sur le serveur ; la copie locale reste à actualiser.',
+  offline_comment_published_cleanup_pending:
+    'Commentaire publié. Le brouillon n’a pas pu être retiré de cet appareil. Ne le republiez pas ; réessayez l’effacement local.',
+  offline_comment_attachment_pending:
+    'Une pièce jointe avait été sélectionnée. Resélectionnez-la ou confirmez l’envoi du texte seul.',
+  offline_comment_text_only: 'Publier le texte seul',
+  offline_comment_clear_confirmed: 'Retirer le brouillon publié',
+  offline_refresh_pending: 'Actualisation locale en attente',
+  offline_sending: 'Envoi en cours',
+  offline_request_too_large:
+    'Cet envoi est trop volumineux. Réduisez le texte avant de réessayer. Votre brouillon est conservé.',
+  offline_comment_refresh_pending:
+    'Transmis — actualisation de la copie en attente',
+  offline_invalid_choice: 'Choisissez une option encore disponible.',
+  offline_comment_empty: 'Saisissez un commentaire non vide.',
+  offline_max_notes: 'Les notes peuvent contenir au maximum 255 caractères.',
+  offline_submit_notes: 'Enregistrer les notes',
+  offline_submission: 'Envoi',
+  offline_comment_pending: 'Commentaire en attente',
+  offline_comment_unavailable:
+    'Commentaire transmis. Il n’est plus disponible dans la copie locale.',
+  offline_invalid_number:
+    'Saisissez un nombre valide avant d’enregistrer la réponse.',
+  offline_prepare: 'Préparer sur cet appareil',
+  offline_available: 'Disponible hors ligne',
+  offline_prepared_at: 'Copie complète enregistrée : {{date}}',
+  offline_preparing: 'Préparation…',
+  offline_sync: 'Synchroniser',
+  offline_syncing: 'Synchronisation…',
+  offline_saving: 'Enregistrement…',
+  offline_draft_saved: 'Brouillon enregistré sur cet appareil',
+  offline_save_failed:
+    'Ce texte n’a pas pu être enregistré. Copiez-le avant de rouvrir l’application. Le dernier brouillon enregistré est conservé.',
+  offline_submit: 'Enregistrer la réponse',
+  offline_queued: 'Enregistré sur cet appareil — en attente d’envoi',
+  offline_unknown: 'Résultat à vérifier',
+  offline_applied: 'Transmis',
+  offline_conflict: 'Modification concurrente — votre saisie est conservée',
+  offline_rejected: 'Envoi refusé — votre travail est conservé',
+  offline_wait_previous:
+    'Attendez le résultat précédent pour soumettre ce brouillon.',
+  offline_server_value: 'Valeur actuelle sur le serveur',
+  offline_keep_draft: 'Revoir et soumettre ma saisie',
+  offline_use_server: 'Utiliser la valeur serveur',
+  offline_discard: 'Abandonner ce travail local',
+  offline_discard_confirm:
+    'Abandonner définitivement cette révision ? Une saisie plus récente sera conservée.',
+  offline_remove: 'Retirer la préparation',
+  offline_remove_confirm: 'Retirer la copie téléchargée de cet appareil ?',
+  offline_pending: 'Travail local',
+  offline_orphan:
+    'La cible n’est plus disponible. Votre travail local est conservé.',
+  offline_unavailable:
+    'Cette intervention n’est plus accessible. Le travail local est conservé.',
+  offline_task_deleted:
+    'Cette tâche a été supprimée. Son travail local reste séparé.',
+  offline_connected_required: 'Connexion nécessaire pour cette action',
+  offline_files_not_downloaded: 'Fichiers non téléchargés',
+  offline_disabled: 'Mode hors ligne suspendu. Le travail local est conservé.',
+  offline_reconnect:
+    'Reconnectez ce compte pour vérifier les envois en attente.',
+  offline_expired:
+    'Connectez-vous pour renouveler l’accès local. Vos saisies sont conservées.',
+  offline_load_error:
+    'Impossible d’ouvrir le stockage local. Vos fichiers sont conservés.',
+  offline_limit:
+    'Cette préparation dépasse les limites hors ligne. L’ancienne copie complète est conservée.',
+  offline_prepare_failed:
+    'Échec de la préparation. L’ancienne copie complète éventuelle est conservée.',
+  offline_changed_revision:
+    'Le brouillon a changé. Vérifiez la dernière révision avant de l’abandonner.',
+  offline_leave_context:
+    'Les brouillons et envois en attente resteront sur cet appareil pour ce compte et ce serveur. Ils ne seront pas transmis depuis un autre compte.',
+  offline_not_prepared:
+    'Cette intervention n’a pas été préparée sur cet appareil.',
+  offline_storage_busy: 'Les écritures locales sont encore en cours.',
+  offline_count: '{{count}} interventions préparées sur cet appareil',
+  offline_resume_after_conflict:
+    'La tâche a changé sur le serveur. Comparez les valeurs avant de créer une nouvelle soumission.',
+  offline_abandoned: 'Travail local abandonné',
+  offline_max_text: '255 caractères maximum',
+  offline_received_without_access:
+    'Résultat vérifié. La tâche n’est plus accessible.',
+  offline_no_local_work: 'Aucun travail local restant',
+  offline_read_only:
+    'Accès local en lecture seule jusqu’à la nouvelle autorisation de ce compte.',
+  offline_action_failed:
+    'L’action a échoué. Votre travail local enregistré est conservé.',
+  offline_network_unavailable:
+    'Serveur indisponible. Votre travail reste sur cet appareil.',
+  offline_invalid_response:
+    'La réponse du serveur est incomplète ou invalide. L’ancienne copie complète est conservée.',
+  offline_context_changed:
+    'Le compte ou le serveur a changé. Revenez au compte initial pour continuer.',
+  offline_https_required:
+    'Un serveur HTTPS est nécessaire pour préparer le travail hors ligne.',
+  offline_native_required:
+    'Le stockage hors ligne nécessite une version de l’application incluant les modules natifs.',
+  offline_work_pending:
+    'Résolvez le travail local restant avant de retirer cette préparation.',
+  offline_removal_pending:
+    'Reconnectez-vous pour terminer le retrait de l’ancienne préparation avant de la préparer à nouveau.',
+  offline_unsupported_task: 'Ce type de tâche doit être renseigné en ligne.',
+  offline_result_changed:
+    'Cet envoi a déjà été résolu. Actualisez pour consulter son résultat.',
   Blueprints: 'Plans',
   'Extended Sidebar': 'Barre latérale étendue',
   'Accent Sidebar': "Barre latérale d'accentuation",
@@ -1657,6 +1896,8 @@ const frJSON = {
   operation_success: "L'opération a réussi",
   edit_reading: 'Modifier la lecture',
   are_you_sure_delete_reading: 'Êtes-vous sûr de vouloir supprimer cette lecture ?',
-  conflict_retry: "La ressource a été modifiée par une autre requête. Veuillez réessayer dans 5 secondes."
+  conflict_retry: "La ressource a été modifiée par une autre requête. Veuillez réessayer dans 5 secondes.",
+  offline_network_lost: "Connexion perdue.",
+  offline_network_restored: "Connexion rétablie."
 };
 export default frJSON;

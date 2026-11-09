@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+    <changeSet id="2026-11-03-mobile-offline-time" author="atlas">
+        <addColumn tableName="labor">
+            <column name="version" type="BIGINT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="timer_run_id" type="UUID"/>
+        </addColumn>
+        <addColumn tableName="work_order">
+            <column name="timer_status_revision" type="BIGINT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <!-- TimeStatus.RUNNING is ordinal 1. Preserve all business timestamps and totals. -->
+        <sql dbms="postgresql">UPDATE labor SET timer_run_id = gen_random_uuid() WHERE status = 1 AND timer_run_id IS NULL</sql>
+    </changeSet>
+</databaseChangeLog>

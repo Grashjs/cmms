@@ -43,6 +43,7 @@ import File, { IFile } from '../../models/file';
 import mime from 'mime';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import type { ReactNode } from 'react';
 
 interface OwnProps {
   fields: Array<IField>;
@@ -55,6 +56,11 @@ interface OwnProps {
   isLoading?: boolean;
   isButtonEnabled?: (values: IHash<any>, ...props: any[]) => boolean;
   navigation: any;
+  fieldOverrides?: Record<string, ReactNode>;
+  readOnly?: boolean;
+  submitDisabled?: boolean;
+  preserveFileIds?: boolean;
+  onSignatureInput?: () => void;
 }
 
 export default function Form(props: OwnProps) {
@@ -87,6 +93,7 @@ export default function Form(props: OwnProps) {
       | { label: string; value: any }
       | [string, string]
   ) => {
+    if (props.readOnly) return;
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     props.onChange && props.onChange({ field, e });
     if (props.fields.length == 1) {
@@ -130,7 +137,7 @@ export default function Form(props: OwnProps) {
 
       return (
         <TouchableOpacity
-          disabled={formik.isSubmitting}
+          disabled={props.readOnly || formik.isSubmitting}
           onPress={() => {
             SheetManager.show('basic-select-sheet', {
               payload: {
@@ -347,7 +354,7 @@ export default function Form(props: OwnProps) {
       // @ts-ignore
       return (
         <TouchableOpacity
-          disabled={formik.isSubmitting}
+          disabled={props.readOnly || formik.isSubmitting}
           onPress={() =>
             props.navigation.navigate(screenPath, navigationOptions)
           }
@@ -386,7 +393,7 @@ export default function Form(props: OwnProps) {
       // @ts-ignore
       return (
         <TouchableOpacity
-          disabled={formik.isSubmitting}
+          disabled={props.readOnly || formik.isSubmitting}
           onPress={() =>
             props.navigation.navigate(screenPath, navigationOptions)
           }
@@ -513,9 +520,24 @@ export default function Form(props: OwnProps) {
                   return null;
                 }
 
+                if (props.fieldOverrides?.[field.name])
+                  return (
+                    <View
+                      key={field.name}
+                      style={{
+                        width: '100%',
+                        backgroundColor: 'white',
+                        paddingHorizontal: 10,
+                        paddingVertical: 10
+                      }}
+                    >
+                      {props.fieldOverrides[field.name]}
+                    </View>
+                  );
                 return (
                   <View
                     key={field.name}
+                    pointerEvents={props.readOnly ? 'none' : 'auto'}
                     style={{
                       width: '100%',
                       backgroundColor: 'white',
@@ -535,7 +557,7 @@ export default function Form(props: OwnProps) {
                           handleChange(formik, field.name, text)
                         }
                         value={formik.values[field.name]}
-                        disabled={formik.isSubmitting}
+                        disabled={props.readOnly || formik.isSubmitting}
                         multiline={field.multiple}
                       />
                     ) : field.type === 'number' ? (
@@ -550,7 +572,7 @@ export default function Form(props: OwnProps) {
                         onChangeText={(newValue) => {
                           handleChange(formik, field.name, newValue);
                         }}
-                        disabled={formik.isSubmitting}
+                        disabled={props.readOnly || formik.isSubmitting}
                         multiline={field.multiple}
                       />
                     ) : field.type === 'file' ? (
@@ -568,7 +590,10 @@ export default function Form(props: OwnProps) {
                           ).map(
                             (file: File) =>
                               ({
-                                uri: file.url,
+                                ...(props.preserveFileIds && file.id
+                                  ? { id: file.id }
+                                  : {}),
+                                uri: file.url ?? (file as unknown as IFile).uri,
                                 type: mime.getType(file.name),
                                 name: file.name
                               } as IFile)
@@ -673,8 +698,9 @@ export default function Form(props: OwnProps) {
                       <SignaturePad
                         label={field.label}
                         value={formik.values[field.name]}
+                        onInputStart={props.onSignatureInput}
                         onChange={(signature) => {
-                          formik.setFieldValue(field.name, signature);
+                          handleChange(formik, field.name, signature);
                         }}
                       />
                     ) : (
@@ -693,7 +719,11 @@ export default function Form(props: OwnProps) {
                 onPress={() => formik.handleSubmit()}
                 mode="contained"
                 loading={formik.isSubmitting}
-                disabled={Boolean(formik.errors.submit) || formik.isSubmitting}
+                disabled={
+                  props.submitDisabled ||
+                  Boolean(formik.errors.submit) ||
+                  formik.isSubmitting
+                }
               >
                 {t(props.submitText)}
               </Button>

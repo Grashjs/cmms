@@ -9,6 +9,8 @@ import store, { persistor } from './store';
 import { CompanySettingsProvider } from './contexts/CompanySettingsContext';
 import { CustomSnackbarProvider } from './contexts/CustomSnackBarContext';
 import { AuthProvider } from './contexts/AuthContext';
+import { OfflineProvider } from './offline/OfflineProvider';
+import { OfflineNetworkNotice } from './offline/OfflineNetworkNotice';
 import FlashMessage from 'react-native-flash-message';
 import { URL } from 'react-native-url-polyfill';
 import 'text-encoding';
@@ -144,9 +146,11 @@ export default Sentry.wrap(function App() {
         <Provider store={store}>
           <PersistGate loading={null} persistor={persistor}>
             <AuthProvider>
+              <OfflineProvider>
               <CompanySettingsProvider>
                 <PaperProvider theme={customTheme}>
                   <CustomSnackbarProvider>
+                    <OfflineNetworkNotice />
                     <SheetProvider>
                       <RootLayout>
                         <FlashMessage
@@ -161,6 +165,7 @@ export default Sentry.wrap(function App() {
                   </CustomSnackbarProvider>
                 </PaperProvider>
               </CompanySettingsProvider>
+              </OfflineProvider>
             </AuthProvider>
           </PersistGate>
         </Provider>
