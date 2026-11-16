@@ -238,6 +238,15 @@ exact Corresponding Source for the deployed revision:
   `intelloop/atlas-cmms-frontend` images are **not** used for the fork.
 - Set `SOURCE_CODE_URL` and `SOURCE_REVISION` to keep the source offer accurate.
 
+### Relación con Atlas CMMS
+
+- Fierabras CMMS deriva de [Atlas CMMS](https://github.com/Grashjs/cmms) hasta
+  el commit `44069b69`.
+- Desde el 16/11/2026 evoluciona de forma independiente, sin sincronización
+  con upstream.
+- Se conservan la atribución y las obligaciones de la AGPLv3; ver
+  [`NOTICE.md`](./NOTICE.md).
+
 ### Sync with upstream
 
 See [`fierabras/docs/planFork.md`](./fierabras/docs/planFork.md) for the
