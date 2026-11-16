@@ -19,14 +19,14 @@ trademark, and other notices are preserved. This fork is distributed
 - **Date of modification:** 2026-08.
 - **License of the fork:** AGPL-3.0-only.
 
-## Evolución independiente
+## Independent evolution
 
-- Fierabras CMMS deriva de Atlas CMMS (`Grashjs/cmms`) hasta el commit
+- Fierabras CMMS is derived from Atlas CMMS (`Grashjs/cmms`) up to commit
   `44069b69`.
-- Desde el 16/11/2026 evoluciona de forma independiente, sin sincronización
-  con upstream.
-- Se conservan la atribución original y todas las obligaciones de la AGPLv3
-  (`LICENSE`, avisos de modificación y oferta de código fuente §13).
+- Since 2026-11-16 it evolves independently, without synchronization
+  with upstream.
+- The original attribution and all AGPLv3 obligations are retained
+  (`LICENSE`, modification notices, and the §13 corresponding source offer).
 
 ## Summary of changes
 
