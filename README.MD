@@ -247,10 +247,10 @@ exact Corresponding Source for the deployed revision:
 - Attribution and AGPLv3 obligations are retained; see
   [`NOTICE.md`](./NOTICE.md).
 
-### Sync with upstream
+### Upstream policy
 
-See [`fierabras/docs/planFork.md`](./fierabras/docs/planFork.md) for the
-synchronization strategy, the rationale, and the per-UPstream-integration
-checklist.
+- Fierabras CMMS does not synchronize with Atlas CMMS.
+- Applicable security fixes are ported or reimplemented individually.
+- Derivation base: upstream commit `44069b69`.
 
 <img src="https://api.star-history.com/svg?repos=grashjs/cmms&type=Date"/>
