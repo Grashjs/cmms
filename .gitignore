@@ -13,3 +13,6 @@ logo
 docker-compose-minio.yml
 /fierabras/
 /docs/
+/.serena/
+/Claude outputs/
+/AGENTS.md
