@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { View } from 'react-native';
-import { Button, Text } from 'react-native-paper';
+import { ScrollView, View } from 'react-native';
+import { Button, Dialog, Portal, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useOffline } from '../OfflineProvider';
 import { useOfflineWorkOrder } from '../hooks';
@@ -61,55 +61,68 @@ export function OfflineFileOperationReview({ item }: { item: PendingWork }) {
         {t('offline_review_files')}
       </Button>
       {reviewing && (
-        <View>
-          {request.type === 'CREATE_COMMENT' && (
-            <Text selectable>{request.content}</Text>
-          )}
-          {transferIds(request).map((localId) => (
-            <OfflineFileItem
-              key={localId}
-              localId={localId}
-              workOrderId={item.workOrderId}
-            />
-          ))}
-          {imageChange && (
-            <View>
-              <Text>{t('offline_server_value')}</Text>
-              {prepared.workOrder.image ? (
-                <OfflineFileItem
-                  workOrderId={item.workOrderId}
-                  file={prepared.workOrder.image}
-                />
-              ) : (
-                <Text>—</Text>
-              )}
-            </View>
-          )}
-          <Text>{t('offline_restore_files_draft')}</Text>
-          <Button
-            disabled={busy || !offline.writable}
-            onPress={async () => {
-              const generation = sessionGeneration();
-              setBusy(true);
-              try {
-                // null requires an empty composer/selection; the provider refuses any newer draft.
-                await offline.restoreFileOperation(
-                  item.id,
-                  null,
-                  imageChange ? prepared.workOrder.image?.id ?? null : undefined
-                );
-                if (generation === sessionGeneration()) setReviewing(false);
-              } catch (error) {
-                if (generation === sessionGeneration())
-                  offline.reportError(error);
-              } finally {
-                if (generation === sessionGeneration()) setBusy(false);
-              }
-            }}
-          >
-            {t('offline_keep_file_selection')}
-          </Button>
-        </View>
+        <Portal>
+          <Dialog visible onDismiss={() => setReviewing(false)}>
+            <Dialog.Title>{t('offline_review_files')}</Dialog.Title>
+            <Dialog.ScrollArea>
+              <ScrollView>
+                {request.type === 'CREATE_COMMENT' && (
+                  <Text selectable>{request.content}</Text>
+                )}
+                {transferIds(request).map((localId) => (
+                  <OfflineFileItem
+                    key={localId}
+                    localId={localId}
+                    workOrderId={item.workOrderId}
+                  />
+                ))}
+                {imageChange && (
+                  <View>
+                    <Text>{t('offline_server_value')}</Text>
+                    {prepared.workOrder.image ? (
+                      <OfflineFileItem
+                        workOrderId={item.workOrderId}
+                        file={prepared.workOrder.image}
+                      />
+                    ) : (
+                      <Text>—</Text>
+                    )}
+                  </View>
+                )}
+                <Text>{t('offline_restore_files_draft')}</Text>
+                <Button
+                  disabled={busy || !offline.writable}
+                  onPress={async () => {
+                    const generation = sessionGeneration();
+                    setBusy(true);
+                    try {
+                      // null requires an empty composer/selection; the provider refuses any newer draft.
+                      await offline.restoreFileOperation(
+                        item.id,
+                        null,
+                        imageChange
+                          ? prepared.workOrder.image?.id ?? null
+                          : undefined
+                      );
+                      if (generation === sessionGeneration())
+                        setReviewing(false);
+                    } catch (error) {
+                      if (generation === sessionGeneration())
+                        offline.reportError(error);
+                    } finally {
+                      if (generation === sessionGeneration()) setBusy(false);
+                    }
+                  }}
+                >
+                  {t('offline_keep_file_selection')}
+                </Button>
+                <Button onPress={() => setReviewing(false)}>
+                  {t('cancel')}
+                </Button>
+              </ScrollView>
+            </Dialog.ScrollArea>
+          </Dialog>
+        </Portal>
       )}
     </View>
   );

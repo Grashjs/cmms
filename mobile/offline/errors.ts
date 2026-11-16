@@ -89,6 +89,8 @@ const messageKeys: Record<string, string> = {
   COMMENT_EMPTY: 'offline_comment_empty',
   COMMENT_ATTACHMENT_PENDING: 'offline_comment_attachment_pending',
   INVALID_COMMENT_CONTENT: 'offline_comment_empty',
+  COMMENT_CHANGED: 'offline_server_changed',
+  COMMENT_NOT_OWNED: 'offline_read_only',
   REQUEST_TOO_LARGE: 'offline_request_too_large',
   OPERATION_LIMIT_EXCEEDED: 'offline_request_too_large',
   INVALID_PREDECESSOR: 'offline_resume_after_conflict',

@@ -185,9 +185,10 @@ function PreparedClosureEditor({
   const writes = useRef<Promise<StatusDraft | null>>(Promise.resolve(initial));
   const signature = useRef<SignaturePadHandle>(null);
   const [saving, setSaving] = useState(false);
-  const [signatureState, setSignatureState] = useState<SignatureSaveState>(initial?.signature ? 'saved' : 'dirty');
+  const [signatureState, setSignatureState] = useState<SignatureSaveState>(
+    initial?.signature ? 'saved' : 'dirty'
+  );
   const [saveFailed, setSaveFailed] = useState(false);
-  const [saved, setSaved] = useState(!!initial);
   const [submitting, setSubmitting] = useState(false);
   const submittingRef = useRef(false);
   const requirements = status.view.closure;
@@ -202,23 +203,34 @@ function PreparedClosureEditor({
     const revision = ++inputRevision.current;
     setSaving(true);
     setSaveFailed(false);
-    setSaved(false);
     // Keep all accepted inputs in the hook's ordered, context-checked write lane.
     const write = status.save(next);
     writes.current = write;
-    return write.then((draft) => {
-      assertSessionGeneration(generation);
-      if (mounted.current && revision === inputRevision.current) {
-        savedDraft.current = draft;
-        setSaved(true);
-      }
-      return draft;
-    }).catch((error) => {
-      if (mounted.current && generation === sessionGeneration() && revision === inputRevision.current) setSaveFailed(true);
-      throw error;
-    }).finally(() => {
-      if (mounted.current && generation === sessionGeneration() && revision === inputRevision.current) setSaving(false);
-    });
+    return write
+      .then((draft) => {
+        assertSessionGeneration(generation);
+        if (mounted.current && revision === inputRevision.current) {
+          savedDraft.current = draft;
+        }
+        return draft;
+      })
+      .catch((error) => {
+        if (
+          mounted.current &&
+          generation === sessionGeneration() &&
+          revision === inputRevision.current
+        )
+          setSaveFailed(true);
+        throw error;
+      })
+      .finally(() => {
+        if (
+          mounted.current &&
+          generation === sessionGeneration() &&
+          revision === inputRevision.current
+        )
+          setSaving(false);
+      });
   };
 
   const submit = async () => {
@@ -236,15 +248,17 @@ function PreparedClosureEditor({
       await signature.current?.waitForSave();
       assertSessionGeneration(generation);
       if (!mounted.current) return;
-      if (!savedDraft.current) await save(current.current);
-      const revision = inputRevision.current;
       const submittedGesture = gestureRevision.current;
       const fields: Record<string, any> = {};
       if (requirements.askFeedback) fields.feedback = Yup.string().required(t('required_feedback'));
       if (requirements.requiredSignature) fields.signature = Yup.string().required(t('required_signature'));
       Yup.object(fields).validateSync(current.current);
+      const revision = inputRevision.current;
       if (saveFailed) throw new OfflineError('DRAFT_SAVE_FAILED');
-      await status.submit(savedDraft.current.revision);
+      await status.submit(
+        current.current,
+        savedDraft.current?.revision ?? null
+      );
       assertSessionGeneration(generation);
       if (!mounted.current) return;
       showSnackBar(t('offline_queued'), 'success');
@@ -265,15 +279,21 @@ function PreparedClosureEditor({
   return (
     <View style={styles.container}>
       <Text>{t('offline_closure_local')}</Text>
-      {closureChecks.filter((check) => check.state !== 'satisfied').map((check) => (
-        <HelperText key={check.field} type={check.state === 'missing' ? 'error' : 'info'}>
-          {check.state === 'missing'
-            ? t(check.messageKey)
-            : `${t(check.labelKey)} — ${t('offline_status_dependency_pending')}`}
-        </HelperText>
-      ))}
+      {closureChecks
+        .filter((check) => check.state !== 'satisfied')
+        .map((check) => (
+          <HelperText
+            key={check.field}
+            type={check.state === 'missing' ? 'error' : 'info'}
+          >
+            {check.state === 'missing'
+              ? t(check.messageKey)
+              : `${t(check.labelKey)} — ${t(
+                  'offline_status_dependency_pending'
+                )}`}
+          </HelperText>
+        ))}
       {saving && <Text>{t('offline_saving')}</Text>}
-      {!saving && saved && !saveFailed && (!requirements?.requiredSignature || signatureState === 'saved') && <Text>{t('offline_draft_saved')}</Text>}
       {saveFailed && signatureState !== 'error' && (
         <>
           <HelperText type="error">{t('offline_closure_save_failed')}</HelperText>
@@ -299,8 +319,16 @@ function PreparedClosureEditor({
           (!!requirements?.requiredSignature && !requirements.canCaptureSignature)}
         fieldOverrides={{
           feedback: (
-            <TextInput label={t('feedback')} multiline value={input.feedback ?? ''} disabled={!writable}
-              onChangeText={(feedback) => void save({ ...current.current, feedback }).catch(() => undefined)} />
+            <TextInput
+              label={t('feedback')}
+              multiline
+              value={input.feedback ?? ''}
+              disabled={!writable || submitting}
+              onChangeText={(feedback) => {
+                current.current = { ...current.current, feedback };
+                setInput(current.current);
+              }}
+            />
           ),
           signature: (
             <SignaturePad ref={signature} label={t('signature')} durable value={initial?.signature ?? ''}

@@ -9,13 +9,32 @@ import { useOffline } from './OfflineProvider';
 /** Show a notice only when network availability actually changes in the open app. */
 export function OfflineNetworkNotice() {
   const { isAuthenticated } = useAuth();
-  const { enabled } = useOffline();
+  const { enabled, error, errorSequence, syncSuccessSequence } = useOffline();
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const { t } = useTranslation();
   const previous = useRef<boolean | null>(null);
 
+  const lastError = useRef(-1);
   useEffect(() => {
-    if (!enabled) return;
+    if (error && errorSequence !== lastError.current) {
+      lastError.current = errorSequence;
+      showSnackBar(error, 'error');
+    }
+  }, [error, errorSequence, showSnackBar]);
+
+  const lastSuccess = useRef(syncSuccessSequence);
+  useEffect(() => {
+    if (syncSuccessSequence !== lastSuccess.current) {
+      lastSuccess.current = syncSuccessSequence;
+      if (enabled) showSnackBar(t('offline_sync_success'), 'success');
+    }
+  }, [enabled, syncSuccessSequence, showSnackBar, t]);
+
+  useEffect(() => {
+    if (!enabled) {
+      previous.current = null;
+      return;
+    }
     return NetInfo.addEventListener((state) => {
       const available =
         state.isConnected === true && state.isInternetReachable !== false;

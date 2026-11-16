@@ -1,15 +1,23 @@
 package com.grash.repository;
 
 import com.grash.model.Comment;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface CommentRepository extends JpaRepository<Comment, Long>,
         JpaSpecificationExecutor<Comment> {
 
     Optional<Comment> findByIdAndCompany_Id(Long id, Long companyId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT c FROM Comment c WHERE c.id = :id AND c.company.id = :companyId AND c.workOrder.id = :workOrderId")
+    Optional<Comment> findForOfflineUpdate(@Param("id") Long id, @Param("companyId") Long companyId,
+                                           @Param("workOrderId") Long workOrderId);
 
     boolean existsByIdAndCompany_IdAndWorkOrder_Id(Long id, Long companyId, Long workOrderId);
 

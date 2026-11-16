@@ -121,7 +121,8 @@ export class OfflineFileStore {
     workOrderId: number,
     target: FileTarget,
     inputs: IFile[],
-    maxBytes?: number
+    maxBytes: number,
+    commitSelection: (ids: string[]) => Promise<unknown>
   ): Promise<void> {
     return exclusive(async () => {
       this.current();
@@ -167,18 +168,16 @@ export class OfflineFileStore {
         };
         reserved.push(file);
       }
-      for (const file of reserved)
-        await this.repository.createFileSelection(file, workOrderId, target);
-      let firstError: unknown;
-      for (const file of reserved) {
-        try {
+      try {
+        for (const file of reserved) {
+          await this.repository.putFile(file);
           await this.copySelection(file);
-        } catch (error) {
-          firstError ||= error;
         }
+        await commitSelection(reserved.map((file) => file.id));
+      } catch (error) {
+        await this.cleanupNow();
+        throw error;
       }
-      if (firstError) throw firstError;
-      await this.cleanupNow();
     });
   }
 
@@ -280,8 +279,7 @@ export class OfflineFileStore {
       await this.repository.putFile(file);
       try {
         let exceeded = false;
-        if (!(await this.canRead()))
-          throw new OfflineError('OFFLINE_DISABLED');
+        if (!(await this.canRead())) throw new OfflineError('OFFLINE_DISABLED');
         const task = FileSystem.createDownloadResumable(
           descriptor.url,
           file.temporaryUri!,

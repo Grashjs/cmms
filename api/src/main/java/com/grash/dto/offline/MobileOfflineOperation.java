@@ -9,16 +9,26 @@ import java.util.UUID;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({"operationId", "companyId", "userId", "workOrderId", "taskId", "type", "baseVersion", "value", "occurredAt", "notes", "content", "predecessorOperationId", "fileTransferIds", "addTransferIds", "imageChange", "time", "statusChange"})
+@JsonPropertyOrder({"operationId", "companyId", "userId", "workOrderId", "taskId", "type", "baseVersion", "value", "occurredAt", "notes", "content", "predecessorOperationId", "fileTransferIds", "addTransferIds", "imageChange", "time", "statusChange", "commentId", "baseCommentUpdatedAt"})
 public record MobileOfflineOperation(@NotNull UUID operationId, @NotNull @Positive Long companyId,
                                      @NotNull @Positive Long userId, @NotNull @Positive Long workOrderId,
                                      @Positive Long taskId, @NotNull Type type,
                                      @Min(0) Long baseVersion, String value,
                                      @NotNull Instant occurredAt, String notes, String content,
                                      UUID predecessorOperationId, List<UUID> fileTransferIds, List<UUID> addTransferIds, @jakarta.validation.Valid ImageChange imageChange,
-                                     MobileOfflineTime time, MobileOfflineStatusChange statusChange) {
-    public enum Type { SET_TASK_VALUE, SET_TASK_NOTES, CREATE_COMMENT, ADD_TASK_IMAGES, UPDATE_WORK_ORDER_ATTACHMENTS,
+                                     MobileOfflineTime time, MobileOfflineStatusChange statusChange,
+                                     @Positive Long commentId, Instant baseCommentUpdatedAt) {
+    public enum Type { SET_TASK_VALUE, SET_TASK_NOTES, CREATE_COMMENT, UPDATE_COMMENT, DELETE_COMMENT, ADD_TASK_IMAGES, UPDATE_WORK_ORDER_ATTACHMENTS,
         START_TIMER, STOP_TIMER, CREATE_MANUAL_TIME, CHANGE_WORK_ORDER_STATUS }
+
+    public MobileOfflineOperation(UUID operationId, Long companyId, Long userId, Long workOrderId,
+                                  Long taskId, Type type, Long baseVersion, String value, Instant occurredAt,
+                                  String notes, String content, UUID predecessorOperationId,
+                                  List<UUID> fileTransferIds, List<UUID> addTransferIds, ImageChange imageChange,
+                                  MobileOfflineTime time, MobileOfflineStatusChange statusChange) {
+        this(operationId, companyId, userId, workOrderId, taskId, type, baseVersion, value, occurredAt,
+                notes, content, predecessorOperationId, fileTransferIds, addTransferIds, imageChange, time, statusChange, null, null);
+    }
 
     public MobileOfflineOperation(UUID operationId, Long companyId, Long userId, Long workOrderId,
                                   Long taskId, Type type, Long baseVersion, String value, Instant occurredAt,
@@ -60,6 +70,7 @@ public record MobileOfflineOperation(@NotNull UUID operationId, @NotNull @Positi
         if ((fileTransferIds != null && fileTransferIds.stream().anyMatch(java.util.Objects::isNull))
                 || (addTransferIds != null && addTransferIds.stream().anyMatch(java.util.Objects::isNull))) return false;
         boolean noAttachments = fileTransferIds == null && addTransferIds == null && imageChange == null;
+        if (type != Type.UPDATE_COMMENT && type != Type.DELETE_COMMENT && (commentId != null || baseCommentUpdatedAt != null)) return false;
         if (type == Type.CHANGE_WORK_ORDER_STATUS) {
             return statusChange != null && statusChange.isValid() && time == null && taskId == null
                     && baseVersion == null && value == null && notes == null && content == null && noAttachments
@@ -93,6 +104,10 @@ public record MobileOfflineOperation(@NotNull UUID operationId, @NotNull @Positi
             case SET_TASK_NOTES -> taskId != null && baseVersion != null && notes != null && value == null && content == null && noAttachments;
             case CREATE_COMMENT -> content != null && taskId == null && baseVersion == null && value == null
                     && notes == null && predecessorOperationId == null && addTransferIds == null && imageChange == null;
+            case UPDATE_COMMENT, DELETE_COMMENT -> commentId != null && baseCommentUpdatedAt != null
+                    && taskId == null && baseVersion == null && value == null && notes == null
+                    && predecessorOperationId == null && noAttachments
+                    && (type == Type.UPDATE_COMMENT ? content != null : content == null);
             case ADD_TASK_IMAGES -> taskId != null && baseVersion == null && value == null && notes == null
                     && content == null && predecessorOperationId == null && fileTransferIds != null
                     && !fileTransferIds.isEmpty() && addTransferIds == null && imageChange == null;

@@ -9,6 +9,7 @@ import com.grash.dto.offline.*;
 import com.grash.exception.CustomException;
 import com.grash.mapper.TaskMapper;
 import com.grash.model.Task;
+import com.grash.model.Comment;
 import com.grash.model.User;
 import com.grash.model.WorkOrder;
 import com.grash.repository.CommentRepository;
@@ -155,6 +156,9 @@ public class MobileOfflineService {
         if (operation.type() == MobileOfflineOperation.Type.CHANGE_WORK_ORDER_STATUS) return applyStatus(operation, user, now, platform);
         if (operation.isTimeOperation()) return applyTime(operation, user, now, null, false);
         if (operation.type() == MobileOfflineOperation.Type.CREATE_COMMENT) return createComment(operation, user, now);
+        if (operation.type() == MobileOfflineOperation.Type.UPDATE_COMMENT
+                || operation.type() == MobileOfflineOperation.Type.DELETE_COMMENT)
+            return mutateComment(operation, user, now);
         if (!access.canEdit(operation.workOrderId(), user))
             return result(operation, REJECTED, "ACCESS_REVOKED", null, now);
         if (operation.type() == MobileOfflineOperation.Type.UPDATE_WORK_ORDER_ATTACHMENTS)
@@ -375,6 +379,29 @@ public class MobileOfflineService {
         var saved = comments.createOffline(request, user, operation.operationId()).getFirst();
         return new MobileOfflineResult(operation.operationId(), APPLIED, "APPLIED", null, now,
                 null, saved.getId(), MobileOfflineResult.Visibility.VISIBLE);
+    }
+
+    private MobileOfflineResult mutateComment(MobileOfflineOperation operation, User user, Instant now) {
+        String content = null;
+        if (operation.type() == MobileOfflineOperation.Type.UPDATE_COMMENT) {
+            try { content = CommentService.cleanOfflineContent(operation.content()); }
+            catch (CustomException invalid) { return result(operation, REJECTED, "INVALID_COMMENT_CONTENT", null, now); }
+        }
+        Optional<Comment> found = commentRepository.findForOfflineUpdate(operation.commentId(),
+                user.getCompany().getId(), operation.workOrderId());
+        if (found.isEmpty()) return result(operation, REJECTED, "TARGET_NOT_FOUND", null, now);
+        Comment comment = found.get();
+        if (!comment.getUser().getId().equals(user.getId()))
+            return result(operation, REJECTED, "COMMENT_NOT_OWNED", null, now);
+        if (comment.getUpdatedAt() == null
+                || !comment.getUpdatedAt().toInstant().equals(operation.baseCommentUpdatedAt()))
+            return result(operation, CONFLICT, "COMMENT_CHANGED", null, now);
+        if (operation.type() == MobileOfflineOperation.Type.UPDATE_COMMENT)
+            comments.updateOffline(comment, content, user);
+        else commentRepository.delete(comment);
+        return new MobileOfflineResult(operation.operationId(), APPLIED, "APPLIED", null, now,
+                null, comment.getId(), operation.type() == MobileOfflineOperation.Type.DELETE_COMMENT
+                ? MobileOfflineResult.Visibility.COMMENT_DELETED : MobileOfflineResult.Visibility.VISIBLE);
     }
 
     private MobileOfflineResult result(MobileOfflineOperation operation, MobileOfflineResult.Status status,

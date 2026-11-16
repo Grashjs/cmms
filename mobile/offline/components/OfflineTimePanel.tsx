@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
-import { Button, HelperText, Switch, Text } from 'react-native-paper';
+import { Button, Switch, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../../types';
@@ -8,11 +8,12 @@ import type Labor from '../../models/labor';
 import CustomDateTimePicker from '../../components/CustomDateTimePicker';
 import { useOffline } from '../OfflineProvider';
 import { offlineErrorKey } from '../errors';
+import { getHMSString } from '../../utils/formatters';
 import { isTimeOperation } from '../types';
 import type { LocalOperation, OfflineTimeView, TimerDraft } from '../types';
 import { assertSessionGeneration, sessionGeneration } from '../sessionBridge';
 
-/** Server totals and unconfirmed periods are deliberately displayed separately. */
+/** Present one total. Keep only actionable time conflicts below the timer. */
 export function OfflineTimePanel({
   workOrderId,
   view,
@@ -90,16 +91,13 @@ export function OfflineTimePanel({
       });
       setPreserveStatus(false);
     });
-  const operations = view.operations.filter((operation) => {
-    if (!isTimeOperation(operation.request)) return false;
-    if (operation.request.type !== 'START_TIMER') return true;
-    const periodId = operation.request.time.periodId;
-    return !view.operations.some(
-      (other) =>
-        other.request.type === 'STOP_TIMER' &&
-        other.request.time.periodId === periodId
-    );
-  });
+  const operations = view.operations.filter(
+    (operation) =>
+      isTimeOperation(operation.request) &&
+      (operation.canReviewTime ||
+        operation.status === 'CONFLICT' ||
+        operation.status === 'REJECTED')
+  );
   const activeStart = view.operations.find(
     (operation) => operation.id === view.activePeriod?.startOperationId
   );
@@ -109,14 +107,37 @@ export function OfflineTimePanel({
       (!!activeStart &&
         ((activeStart.status === 'QUEUED' && activeStart.attemptCount === 0) ||
           ['CONFLICT', 'REJECTED'].includes(activeStart.status))));
-  const total = view.labors
+  const confirmed = view.labors
     .filter((labor) => labor.includeToTotalTime)
     .reduce((sum, labor) => sum + labor.duration, 0);
+  const pendingSeconds = view.operations.reduce((sum, op) => {
+    if (!isTimeOperation(op.request) || !op.request.time.endedAt) return sum;
+    // An attempted command with a lost receipt may already be in the snapshot.
+    // Add only definitely unsent work, or a receipt newer than the snapshot.
+    const receipt = op.receipt?.timeResult;
+    if (op.status === 'APPLIED' && receipt && !op.snapshotConfirmed) {
+      const labor = view.labors.find((item) => item.id === receipt.laborId);
+      return !labor ||
+        (labor.includeToTotalTime && labor.version < receipt.laborVersion)
+        ? sum + receipt.durationAdded
+        : sum;
+    }
+    if (op.status !== 'QUEUED' || op.attemptCount || op.blockedReason)
+      return sum;
+    const laborId = op.request.time.laborId;
+    const source = view.labors.find((item) => item.id === laborId);
+    if (source && !source.includeToTotalTime) return sum;
+    return (
+      sum +
+      (Date.parse(op.request.time.endedAt) -
+        Date.parse(op.request.time.startedAt)) /
+        1000
+    );
+  }, 0);
   return (
     <View style={{ margin: 10, gap: 8 }}>
-      <Text variant="titleMedium">{t('offline_time_periods')}</Text>
       <Text>
-        {t('offline_time_server_total')}: {total / 60} {t('minutes')}
+        {t('duration')} · {getHMSString(confirmed + pendingSeconds)}
       </Text>
       {statusKey && <Text>{t(statusKey)}</Text>}
       {view.activePeriod?.endedAt && (
@@ -132,7 +153,7 @@ export function OfflineTimePanel({
             navigation.navigate('AddAdditionalTime', { workOrderId })
           }
         >
-          {t('offline_time_personal')} · {t('offline_draft_saved')}
+          {t('offline_time_personal')}
         </Button>
       )}
       {operations.map((operation) => {
@@ -266,17 +287,6 @@ export function OfflineTimePanel({
           </View>
         );
       })}
-      {operations.some(
-        (operation) =>
-          operation.status === 'APPLIED' && !operation.snapshotConfirmed
-      ) && (
-        <Button
-          disabled={!offline.networkAvailable || busy}
-          onPress={() => void run(() => offline.refresh(workOrderId))}
-        >
-          {t('offline_refresh_copy')}
-        </Button>
-      )}
     </View>
   );
 }
@@ -294,14 +304,8 @@ function TimeReviewDraft({
     startedAt: draft.startedAt,
     endedAt: draft.endedAt
   });
-  const [saving, setSaving] = useState(false);
-  const [failed, setFailed] = useState(false);
   const [busy, setBusy] = useState(false);
   const revision = useRef(draft.revision);
-  const latest = useRef(dates);
-  const sequence = useRef(0);
-  const tail = useRef<Promise<unknown>>(Promise.resolve());
-  const failedRef = useRef(false);
   const busyRef = useRef(false);
   const generation = useRef(sessionGeneration());
   const mounted = useRef(true);
@@ -315,34 +319,7 @@ function TimeReviewDraft({
     mounted.current && generation.current === sessionGeneration();
   const change = (patch: Partial<typeof dates>) => {
     if (!offline.writable || busyRef.current) return;
-    latest.current = { ...latest.current, ...patch };
-    const next = latest.current;
-    setDates(next);
-    setSaving(true);
-    setFailed(false);
-    const localSequence = ++sequence.current;
-    const pending = tail.current.then(async () => {
-      assertSessionGeneration(generation.current);
-      const saved = await offline.saveTimerReview(
-        draft.workOrderId,
-        next,
-        revision.current
-      );
-      revision.current = saved.revision;
-      if (current() && localSequence === sequence.current) {
-        failedRef.current = false;
-        setSaving(false);
-        setFailed(false);
-      }
-    });
-    tail.current = pending.catch((error) => {
-      if (current() && localSequence === sequence.current) {
-        failedRef.current = true;
-        setSaving(false);
-        setFailed(true);
-        offline.reportError(error);
-      }
-    });
+    setDates((previous) => ({ ...previous, ...patch }));
   };
   const valid =
     Number.isFinite(Date.parse(dates.startedAt)) &&
@@ -366,30 +343,25 @@ function TimeReviewDraft({
           onChange={(date) => change({ endedAt: date.toISOString() })}
         />
       </View>
-      <HelperText type={failed ? 'error' : 'info'}>
-        {t(
-          saving
-            ? 'offline_saving'
-            : failed
-            ? 'offline_save_failed'
-            : 'offline_draft_saved'
-        )}
-      </HelperText>
       <Button
-        disabled={!offline.writable || failed || busy || !valid}
+        disabled={!offline.writable || busy || !valid}
         loading={busy}
         onPress={async () => {
           if (busyRef.current) return;
           busyRef.current = true;
           setBusy(true);
           try {
-            await tail.current;
+            const saved = await offline.saveTimerReview(
+              draft.workOrderId,
+              dates,
+              revision.current
+            );
+            revision.current = saved.revision;
             assertSessionGeneration(generation.current);
-            if (!failedRef.current)
-              await offline.submitReviewedTimer(
-                draft.workOrderId,
-                revision.current
-              );
+            await offline.submitReviewedTimer(
+              draft.workOrderId,
+              revision.current
+            );
           } catch (error) {
             if (current()) offline.reportError(error);
           } finally {

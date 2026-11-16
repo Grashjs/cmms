@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Image, View } from 'react-native';
+import { Image, TouchableOpacity, View } from 'react-native';
 import { Button, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import type File from '../../models/file';
@@ -13,11 +13,13 @@ export function OfflineFileItem({
   workOrderId,
   file,
   localId,
+  compact = false,
   onRemove
 }: {
   workOrderId: number;
   file?: Pick<File, 'id' | 'name'>;
   localId?: string;
+  compact?: boolean;
   onRemove?: () => Promise<void>;
 }) {
   const offline = useOffline();
@@ -52,27 +54,60 @@ export function OfflineFileItem({
     }
   };
   const ready = offline.readable && local?.status === 'READY';
+  if (file && !localId) return (
+    <View style={{ marginVertical: 6 }}>
+      {(!compact || (ready && !local?.mimeType?.startsWith('image/'))) && (
+        <TouchableOpacity disabled={!ready || busy}
+          onPress={() => void run(() => offline.openFile(local!.id))}>
+          <Text>{file.name}</Text>
+        </TouchableOpacity>
+      )}
+      {ready && local.mimeType?.startsWith('image/') && (
+        <TouchableOpacity disabled={busy}
+          onPress={() => void run(() => offline.openFile(local.id))}>
+          <Image source={{ uri: local.uri }}
+            style={{ height: 150, borderRadius: 5 }} />
+        </TouchableOpacity>
+      )}
+      {!ready && <Text>{t(local?.status === 'IMPORTING' || offline.syncing
+        ? 'offline_saving' : 'offline_file_failed')}</Text>}
+      {!!local?.error &&
+        <Text accessibilityRole="alert">{t(offlineErrorKey({ code: local.error }))}</Text>}
+    </View>
+  );
   return (
     <View style={{ marginVertical: 6 }}>
-      <Text>{file?.name ?? local?.name ?? t('files')}</Text>
-      {ready && local.mimeType?.startsWith('image/') && (
-        <Image
-          source={{ uri: local.uri }}
-          style={{ height: 150, borderRadius: 5 }}
-        />
+      {(!compact || (ready && !local?.mimeType?.startsWith('image/'))) && (
+        <TouchableOpacity disabled={!ready || busy || !compact}
+          onPress={() => void run(() => offline.openFile(local!.id))}>
+          <Text>{file?.name ?? local?.name ?? t('files')}</Text>
+        </TouchableOpacity>
       )}
-      <Text>
-        {t(
-          ready
-            ? 'offline_file_available'
-            : local?.status === 'IMPORTING'
-            ? 'offline_saving'
-            : local?.status === 'ERROR'
-            ? 'offline_file_failed'
-            : 'offline_files_not_downloaded'
-        )}
-      </Text>
-      {local?.transferStatus === 'APPLIED' && (
+      {ready && local.mimeType?.startsWith('image/') && (
+        <TouchableOpacity
+          disabled={busy}
+          onPress={() => void run(() => offline.openFile(local.id))}
+        >
+          <Image
+            source={{ uri: local.uri }}
+            style={{ height: 150, width: compact ? 150 : '100%', borderRadius: 5 }}
+          />
+        </TouchableOpacity>
+      )}
+      {!compact && (
+        <Text>
+          {t(
+            ready
+              ? 'offline_file_available'
+              : local?.status === 'IMPORTING'
+              ? 'offline_saving'
+              : local?.status === 'ERROR'
+              ? 'offline_file_failed'
+              : 'offline_files_not_downloaded'
+          )}
+        </Text>
+      )}
+      {!compact && local?.transferStatus === 'APPLIED' && (
         <Text>{t('offline_file_transfer_only')}</Text>
       )}
       {!!local?.error && (
@@ -88,26 +123,26 @@ export function OfflineFileItem({
           {t('offline_retry_file_import')}
         </Button>
       )}
-      {ready ? (
-        <Button
-          disabled={busy}
-          onPress={() => void run(() => offline.openFile(local.id))}
-        >
-          {t('offline_open_file')}
-        </Button>
-      ) : (
-        file && (
-          <Button
-            loading={busy}
-            disabled={busy || !offline.networkAvailable || !offline.writable}
-            onPress={() =>
-              void run(() => offline.downloadFile(workOrderId, file.id))
-            }
-          >
-            {t('offline_download_file')}
-          </Button>
-        )
-      )}
+      {ready
+        ? !compact && (
+            <Button
+              disabled={busy}
+              onPress={() => void run(() => offline.openFile(local.id))}
+            >
+              {t('offline_open_file')}
+            </Button>
+          )
+        : file && (
+            <Button
+              loading={busy}
+              disabled={busy || !offline.networkAvailable || !offline.writable}
+              onPress={() =>
+                void run(() => offline.downloadFile(workOrderId, file.id))
+              }
+            >
+              {t('offline_download_file')}
+            </Button>
+          )}
       {onRemove ? (
         <Button
           disabled={busy || !offline.writable}
@@ -116,6 +151,7 @@ export function OfflineFileItem({
           {t('offline_remove_file_selection')}
         </Button>
       ) : (
+        !compact &&
         !!local &&
         file && (
           <Button

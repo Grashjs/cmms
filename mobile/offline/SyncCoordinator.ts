@@ -37,6 +37,7 @@ interface CoordinatorTimers {
 export class SyncCoordinator {
   private tail: Promise<void> = Promise.resolve();
   private suspended = false;
+  private removing = new Set<number>();
   private requested = false;
   private syncPromise: Promise<void> | null = null;
   private state: SyncState = { status: 'idle' };
@@ -141,7 +142,9 @@ export class SyncCoordinator {
       await this.repository.acknowledgeRelease(id);
     }
   }
-  private async refreshOne(workOrderId: number) {
+  private async refreshOne(workOrderId: number, downloadFiles = true) {
+    if (this.removing.has(workOrderId)) return;
+    let snapshot;
     try {
       const revision = await this.repository.getAvailabilityRevision(
         workOrderId
@@ -152,8 +155,9 @@ export class SyncCoordinator {
         workOrderId
       );
       this.assertConnected();
-      const snapshot = await this.api.prepare(workOrderId);
-      if (this.current())
+      if (this.removing.has(workOrderId)) return;
+      snapshot = await this.api.prepare(workOrderId);
+      if (this.current() && !this.removing.has(workOrderId))
         await this.repository.prepareSnapshot(
           snapshot,
           revision,
@@ -179,6 +183,22 @@ export class SyncCoordinator {
         );
       }
       throw error;
+    }
+    if (snapshot && downloadFiles) await this.downloadPreparedFiles(workOrderId);
+  }
+
+  private async downloadPreparedFiles(workOrderId: number) {
+    if (!this.files) return;
+    for (const fileId of await this.repository.getPreparedFileIds(workOrderId)) {
+      this.assertConnected();
+      if (this.removing.has(workOrderId)) return;
+      if ((await this.repository.getServerFile(workOrderId, fileId))?.status === 'READY')
+        continue;
+      const descriptor = await this.api.fileDescriptor(workOrderId, fileId);
+      this.assertConnected();
+      if (descriptor.fileId !== fileId)
+        throw new OfflineError('TARGET_MISMATCH');
+      await this.files.downloadFile(workOrderId, descriptor);
     }
   }
 
@@ -263,7 +283,7 @@ export class SyncCoordinator {
     for (const workOrder of await this.repository.getPreparedWorkOrderSummaries()) {
       if (!this.connected() || !this.policy.enabled()) return;
       try {
-        await this.refreshOne(workOrder.id);
+        await this.refreshOne(workOrder.id, false);
       } catch (error) {
         if (
           error instanceof OfflineApiError &&
@@ -285,6 +305,7 @@ export class SyncCoordinator {
       )
         return;
       const request = operation.request;
+      if (this.removing.has(request.workOrderId)) continue;
       if (
         isStatusOperation(request) &&
         !(await this.repository.canSendStatusOperation(operation))
@@ -348,6 +369,8 @@ export class SyncCoordinator {
         (!target?.available ||
           !(request.type === 'CREATE_COMMENT'
             ? 'canComment' in target && target.canComment
+            : request.type === 'UPDATE_COMMENT' || request.type === 'DELETE_COMMENT'
+            ? true
             : target.canEdit))
       )
         continue;
@@ -388,6 +411,7 @@ export class SyncCoordinator {
         // The foreground gate can close while beginAttempt persists its UUID.
         // Do not start a new network mutation after that transition.
         this.assertConnected();
+        if (this.removing.has(request.workOrderId)) continue;
         const result =
           attempt.request.type === 'UPLOAD_FILE'
             ? await this.api.uploadFile(attempt.request, localFile!)
@@ -414,7 +438,15 @@ export class SyncCoordinator {
     for (const workOrderId of commentsToRefresh) {
       if (!this.connected() || !this.policy.enabled()) return;
       try {
-        await this.refreshOne(workOrderId);
+        await this.refreshOne(workOrderId, false);
+      } catch (error) {
+        firstRefreshError ||= error;
+      }
+    }
+    for (const workOrder of await this.repository.getPreparedWorkOrderSummaries()) {
+      if (!this.connected() || !this.policy.enabled()) return;
+      try {
+        await this.downloadPreparedFiles(workOrder.id);
       } catch (error) {
         firstRefreshError ||= error;
       }
@@ -507,6 +539,7 @@ export class SyncCoordinator {
   }
 
   removePreparation(workOrderId: number): Promise<void> {
+    this.removing.add(workOrderId);
     return this.enqueue(async () => {
       if (!this.current()) throw new OfflineError('CONTEXT_CHANGED');
       await this.repository.removePreparation(workOrderId);
@@ -520,7 +553,7 @@ export class SyncCoordinator {
           this.policy.onError?.(error);
         }
       }
-    });
+    }).finally(() => this.removing.delete(workOrderId));
   }
 
   downloadFile(workOrderId: number, fileId: number): Promise<void> {

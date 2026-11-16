@@ -28,10 +28,7 @@ import { CustomFieldEntityType } from '../../models/customField';
 import { useOffline } from '../../offline/OfflineProvider';
 import { useOfflineWorkOrder } from '../../offline/hooks';
 import { OfflineAttachmentEditor } from '../../offline/components/OfflineAttachmentEditor';
-import {
-  OfflineStatus,
-  OfflineWorkPanel
-} from '../../offline/components/OfflineWorkPanel';
+import { OfflineStatus } from '../../offline/components/OfflineWorkPanel';
 import { Text } from 'react-native-paper';
 import useAuth from '../../hooks/useAuth';
 import { PermissionEntity } from '../../models/role';
@@ -89,7 +86,6 @@ export default function EditWorkOrderScreen({
       <View>
         <OfflineStatus />
         <Text>{t('offline_unavailable')}</Text>
-        <OfflineWorkPanel workOrderId={workOrder.id} />
       </View>
     );
   return (
@@ -208,7 +204,6 @@ export default function EditWorkOrderScreen({
           }
         }}
       />
-      {isPrepared && <OfflineWorkPanel workOrderId={workOrder.id} />}
     </View>
   );
 }

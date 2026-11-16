@@ -113,6 +113,43 @@ class MobileOfflineServiceTest {
                 MobileOfflineOperation.Type.CREATE_COMMENT, null, null, Instant.now(), null, content, null);
     }
 
+    MobileOfflineOperation commentMutation(MobileOfflineOperation.Type type, Instant updatedAt) {
+        return new MobileOfflineOperation(UUID.randomUUID(), 52L, 34L, 10L, null,
+                type, null, null, Instant.now(), null,
+                type == MobileOfflineOperation.Type.UPDATE_COMMENT ? "Revised" : null,
+                null, null, null, null, null, null, 99L, updatedAt);
+    }
+
+    @Test void offlineCommentEditReusesItsReceiptAfterLostResponse() {
+        eligible(); ledger(); timeAccessible();
+        Instant updatedAt = Instant.parse("2026-11-01T10:00:00Z");
+        Comment comment = new Comment(); comment.setId(99L); comment.setUser(user);
+        comment.setUpdatedAt(Date.from(updatedAt));
+        var edit = commentMutation(MobileOfflineOperation.Type.UPDATE_COMMENT, updatedAt);
+        assertTrue(edit.isShapeValid());
+        when(commentRepository.findForOfflineUpdate(99L, 52L, 10L)).thenReturn(Optional.of(comment));
+        when(commentRepository.existsByIdAndCompany_IdAndWorkOrder_Id(99L, 52L, 10L)).thenReturn(true);
+        var firstResult = service.submit(edit, user);
+        var replay = service.submit(edit, user);
+        assertEquals(APPLIED, firstResult.status());
+        assertEquals(APPLIED, replay.status());
+        verify(comments, times(1)).updateOffline(comment, "Revised", user);
+    }
+
+    @Test void offlineCommentDeleteRejectsAStaleVersionWithoutDeleting() {
+        eligible(); ledger(); timeAccessible();
+        var deletion = commentMutation(MobileOfflineOperation.Type.DELETE_COMMENT,
+                Instant.parse("2026-11-01T10:00:00Z"));
+        Comment comment = new Comment(); comment.setId(99L); comment.setUser(user);
+        comment.setUpdatedAt(Date.from(Instant.parse("2026-11-01T11:00:00Z")));
+        when(commentRepository.findForOfflineUpdate(99L, 52L, 10L)).thenReturn(Optional.of(comment));
+        assertTrue(deletion.isShapeValid());
+        var result = service.submit(deletion, user);
+        assertEquals(CONFLICT, result.status());
+        assertEquals("COMMENT_CHANGED", result.code());
+        verify(commentRepository, never()).delete(any(Comment.class));
+    }
+
     @Test void localGrantIsSevenDaysAndMissingEligibilityDoesNotGrantAccess() {
         var denied = service.eligibility(user); assertNull(denied.authorizedUntil()); assertFalse(denied.eligible());
         eligible();

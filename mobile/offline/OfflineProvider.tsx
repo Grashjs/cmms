@@ -97,7 +97,8 @@ interface OfflineContextValue {
   ): Promise<StatusDraft>;
   submitStatusDraft(
     workOrderId: number,
-    revision: number
+    revision: number | null,
+    input?: StatusInput
   ): Promise<LocalOperation>;
   abandonStatusDraft(workOrderId: number, revision: number): Promise<void>;
   reviewStatusOperation(
@@ -112,15 +113,11 @@ interface OfflineContextValue {
     expectedRevision?: number,
     expectedServerTimer?: ObservedServerTimer
   ): Promise<LocalOperation>;
-  saveManualTimeDraft(
-    workOrderId: number,
+  commitManualTime(
+    id: number,
     input: ManualTimeInput,
-    expectedRevision?: number | null
-  ): Promise<ManualTimeDraft>;
-  submitManualTimeDraft(
-    workOrderId: number,
-    revision: number
-  ): Promise<LocalOperation>;
+    revision: number | null
+  ): Promise<unknown>;
   abandonManualTimeDraft(workOrderId: number, revision: number): Promise<void>;
   reviewTimeOperation(
     operationId: string,
@@ -138,12 +135,6 @@ interface OfflineContextValue {
     revision: number
   ): Promise<LocalOperation>;
   abandonTimeDraft(workOrderId: number, revision: number): Promise<void>;
-  importFiles(
-    workOrderId: number,
-    target: FileTarget,
-    files: IFile[],
-    maxBytes?: number
-  ): Promise<void>;
   retryFileImport(id: string): Promise<void>;
   removeDraftFile(
     workOrderId: number,
@@ -151,11 +142,13 @@ interface OfflineContextValue {
     id: string,
     revision: number
   ): Promise<void>;
-  submitAttachmentDraft(
-    workOrderId: number,
-    revision: number,
-    taskId?: number
-  ): Promise<unknown>;
+  commitAttachments(
+    id: number,
+    target: FileTarget,
+    files: IFile[],
+    baseImageId: number | null,
+    revision: number | null
+  ): Promise<void>;
   abandonAttachmentDraft(
     workOrderId: number,
     revision: number,
@@ -185,48 +178,41 @@ interface OfflineContextValue {
   networkAvailable: boolean;
   syncing: boolean;
   error: string | null;
+  errorSequence: number;
+  syncSuccessSequence: number;
   repository: OfflineRepository | null;
   prepared: PreparedWorkOrderSummary[];
   sync(): Promise<void>;
   prepare(id: number): Promise<void>;
   refresh(id: number): Promise<void>;
   removePreparation(id: number): Promise<void>;
-  saveDraft(
-    workOrderId: number,
-    taskId: number,
-    value: string,
-    field?: TaskField
-  ): Promise<TaskDraft>;
-  submitDraft(
-    taskId: number,
-    revision: number,
-    field?: TaskField
-  ): Promise<unknown>;
-  saveCommentDraft(
-    workOrderId: number,
-    content: string,
-    expectedRevision?: number | null,
-    attachmentPending?: boolean
-  ): Promise<CommentDraft>;
-  preserveConnectedCommentDraft(
-    workOrderId: number,
-    content: string,
-    attachmentPending?: boolean
-  ): Promise<CommentDraft>;
-  submitCommentDraft(workOrderId: number, revision: number): Promise<unknown>;
-  abandonCommentDraft(workOrderId: number, revision: number): Promise<void>;
-  resolveConflict(
-    taskId: number,
-    draftRevision?: number,
-    serverVersion?: number,
-    field?: TaskField
-  ): Promise<unknown>;
-  discardTaskField(
+  commitTaskField(
+    id: number,
     taskId: number,
     field: TaskField,
-    draftRevision: number | null,
-    operationId: string | null,
-    serverVersion: number
+    value: string,
+    version: number
+  ): Promise<void>;
+  publishComment(
+    workOrderId: number,
+    content: string,
+    files: IFile[],
+    revision: number | null
+  ): Promise<void>;
+  changeComment(workOrderId: number, commentId: number,
+    baseCommentUpdatedAt: string, content?: string): Promise<void>;
+  editQueuedComment(operationId: string, content: string): Promise<void>;
+  resolveCommentMutation(operationId: string, serverUpdatedAt: string | null,
+    keepLocal: boolean): Promise<void>;
+  abandonCommentDraft(workOrderId: number, revision: number): Promise<void>;
+  settleTaskField(
+    id: number,
+    taskId: number,
+    field: TaskField,
+    operationId: string,
+    value: string,
+    version: number,
+    keepLocal: boolean
   ): Promise<void>;
   reportError(error: unknown): void;
 }
@@ -248,10 +234,7 @@ const OfflineContext = createContext<OfflineContextValue>({
   stopTimer: async () => {
     throw new OfflineError('OFFLINE_DISABLED');
   },
-  saveManualTimeDraft: async () => {
-    throw new OfflineError('OFFLINE_DISABLED');
-  },
-  submitManualTimeDraft: async () => {
+  commitManualTime: async () => {
     throw new OfflineError('OFFLINE_DISABLED');
   },
   abandonManualTimeDraft: noop,
@@ -277,12 +260,13 @@ const OfflineContext = createContext<OfflineContextValue>({
   networkAvailable: true,
   syncing: false,
   error: null,
+  errorSequence: 0,
+  syncSuccessSequence: 0,
   repository: null,
   prepared: [],
-  importFiles: noop,
   retryFileImport: noop,
   removeDraftFile: noop,
-  submitAttachmentDraft: noop,
+  commitAttachments: noop,
   abandonAttachmentDraft: noop,
   abandonOperation: noop,
   restoreFileOperation: noop,
@@ -296,20 +280,13 @@ const OfflineContext = createContext<OfflineContextValue>({
   prepare: noop,
   refresh: noop,
   removePreparation: noop,
-  saveDraft: async () => {
-    throw new OfflineError('OFFLINE_DISABLED');
-  },
-  submitDraft: noop,
-  saveCommentDraft: async () => {
-    throw new OfflineError('OFFLINE_DISABLED');
-  },
-  preserveConnectedCommentDraft: async () => {
-    throw new OfflineError('OFFLINE_DISABLED');
-  },
-  submitCommentDraft: noop,
+  commitTaskField: noop,
+  publishComment: noop,
+  changeComment: noop,
+  editQueuedComment: noop,
+  resolveCommentMutation: noop,
   abandonCommentDraft: noop,
-  resolveConflict: noop,
-  discardTaskField: noop,
+  settleTaskField: noop,
   reportError: () => {}
 });
 export const useOffline = () => useContext(OfflineContext);
@@ -330,6 +307,8 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
   const [networkAvailable, setNetworkAvailable] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
+  const [errorSequence, setErrorSequence] = useState(0);
+  const [syncSuccessSequence, setSyncSuccessSequence] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [gate, setGate] = useState<AccessGate>(
     availableInBuild ? 'checking' : 'open'
@@ -346,6 +325,7 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
   const accessGate = useRef<AccessGate>(availableInBuild ? 'checking' : 'open');
   const localChoice = useRef(false);
   const requestEligibleSync = useRef<(reason: string) => Promise<void>>(noop);
+  const completionNoticePending = useRef(false);
   const changingChoice = useRef(false);
   const changePreference = useRef<(value: boolean) => Promise<void>>(
     async () => {
@@ -396,6 +376,10 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
   const reportError = (failure: unknown) => {
     const code = (failure as { code?: string })?.code || '';
     if (
+      (!localChoice.current || changingChoice.current) &&
+      ['OFFLINE_DISABLED', 'CONTEXT_CHANGED', 'NETWORK_UNAVAILABLE'].includes(code)
+    ) return;
+    if (
       code === 'OFFLINE_NOT_AUTHORIZED' ||
       code === 'OFFLINE_CONTEXT_MISMATCH'
     ) {
@@ -405,6 +389,7 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
       lockAccess('authorization');
     }
     setError(String(t(offlineErrorKey(failure))));
+    setErrorSequence((previous) => previous + 1);
   };
 
   useEffect(
@@ -453,6 +438,7 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
     protectedWork.current = false;
     localChoice.current = false;
     requestEligibleSync.current = noop;
+    completionNoticePending.current = false;
     changingChoice.current = false;
     changePreference.current = async () => {
       throw new OfflineError('OFFLINE_DISABLED');
@@ -619,8 +605,7 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
         client,
         {
           enabled: () => availableInBuild,
-          online: () =>
-            network.current && canStartOfflineAction() && localChoice.current,
+          online: () => network.current && canUseOfflineFeature(),
           sessionIsCurrent: isCurrent,
           onEligibility: async (eligibility) => {
             if (!isCurrent()) return;
@@ -656,7 +641,8 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
             setSyncing(state.status === 'syncing');
           },
           onError: (failure) => {
-            if (isCurrent()) reportError(failure);
+            if (isCurrent() && localChoice.current && !changingChoice.current)
+              reportError(failure);
           }
         },
         undefined,
@@ -678,9 +664,22 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
         )
           return;
         const hadRelease = (await repo.getPendingReleases()).length > 0;
+        const notifyCompletion = !completionNoticePending.current;
+        completionNoticePending.current = true;
         try {
+          const hadPending = notifyCompletion && (await repo.getPendingWork()).some(
+            (item) => item.kind === 'OPERATION' &&
+              !['CONFLICT', 'REJECTED'].includes(item.status || '')
+          );
           await sync.trigger(reason);
+          if (hadPending && isCurrent() && canUseOfflineFeature()) {
+            const remaining = await repo.getPendingWork();
+            if (!remaining.some((item) => item.kind === 'OPERATION' &&
+              !['CONFLICT', 'REJECTED'].includes(item.status || '')))
+              setSyncSuccessSequence((current) => current + 1);
+          }
         } finally {
+          if (notifyCompletion) completionNoticePending.current = false;
           if (hadRelease && isCurrent() && coordinator.current === sync) {
             const items = await repo.getPreparedWorkOrderSummaries();
             const needed = await hasProtectedWork(items);
@@ -910,8 +909,27 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
         setPreferenceChanging(true);
         try {
           let preparedToProject: number[] = [];
-          if (next) {
-            if (!network.current) throw new OfflineError('NETWORK_UNAVAILABLE');
+          const savedGrant = next
+            ? await restoreLocalAuthorization(serverUrl)
+            : null;
+          if (
+            next &&
+            savedGrant &&
+            serverContextKey(savedGrant.context) === key &&
+            !serverDenied
+          ) {
+            if (!canChange()) throw new OfflineError('CONTEXT_CHANGED');
+            if (!(await canVerifyDeviceOwner()))
+              throw new OfflineError('DEVICE_LOCK_REQUIRED');
+            // Reuse only this account's unexpired grant; the server checks rights before sending.
+            protectedWork.current = true;
+            await scheduleExpiry();
+            preparedToProject = (
+              await repo.getPreparedWorkOrderSummaries()
+            ).map((item) => item.id);
+          } else if (next && !network.current) {
+            throw new OfflineError('NETWORK_UNAVAILABLE');
+          } else if (next) {
             if (!(await canVerifyDeviceOwner()))
               throw new OfflineError('DEVICE_LOCK_REQUIRED');
             if (!canChange()) throw new OfflineError('CONTEXT_CHANGED');
@@ -927,8 +945,11 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
               eligibility.userId !== context.userId
             )
               throw new OfflineError('OFFLINE_CONTEXT_MISMATCH');
-            if (!eligibility.enabled || !eligibility.eligible)
+            if (!eligibility.enabled || !eligibility.eligible) {
+              serverDenied = true;
+              await revokeLocalAccess(context);
               throw new OfflineError('OFFLINE_NOT_AUTHORIZED');
+            }
             const confirmedSession = await auth.getServerSession();
             if (!canChange()) throw new OfflineError('CONTEXT_CHANGED');
             if (
@@ -948,23 +969,14 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
               await repo.getPreparedWorkOrderSummaries()
             ).map((item) => item.id);
           } else {
-            // Stop new local submissions, then inspect every accepted write.
-            await Promise.all([...writes.current]);
-            if (!canChange()) throw new OfflineError('CONTEXT_CHANGED');
-            if (failedWrites.current.size)
-              throw new OfflineError('STORAGE_FAILED');
-            if (
-              (await repo.hasUnresolved()) ||
-              (await repo.getPendingWork()).length > 0 ||
-              (await repo.getPendingReleases()).length > 0
-            )
-              throw new OfflineError('WORK_PENDING');
+            // Pausing retains every committed operation. Allow accepted writers to settle first.
+            await Promise.allSettled([...writes.current]);
           }
           if (!canChange()) throw new OfflineError('CONTEXT_CHANGED');
           await writeOfflinePreference(context, next);
           // A write accepted in the foreground may finish after backgrounding.
           // Keep memory consistent with the durable choice for this context.
-          if (!isCurrent()) throw new OfflineError('CONTEXT_CHANGED');
+          if (!isCurrent()) return;
           if (next) {
             dispatch(removePreparedTasks(preparedToProject));
             dispatch(removePreparedLabors(preparedToProject));
@@ -973,6 +985,7 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
           }
           localChoice.current = next;
           setPreferenceOn(next);
+          setError(null);
           if (next && protectedWork.current) {
             serverDenied = false;
             if (accessGate.current !== 'locked') lockAccess();
@@ -1172,57 +1185,6 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
     );
     return writing;
   };
-  const saveDraft = (
-    workOrderId: number,
-    taskId: number,
-    value: string,
-    field: TaskField = 'value'
-  ): Promise<TaskDraft> => {
-    if (sessionChangeInProgress())
-      return Promise.reject(new OfflineError('CONTEXT_BUSY'));
-    const writing = persist(async (acceptedAccess) => {
-      if (!repository || !(await acceptedAccess()))
-        throw new OfflineError('OFFLINE_DISABLED');
-      const task = await repository.getTask(taskId, field);
-      if (
-        field === 'value' &&
-        task.serverTask?.taskBase.user &&
-        task.serverTask.taskBase.user.id !== auth.user?.id
-      )
-        throw new OfflineError('EDIT_FORBIDDEN');
-      return repository.saveDraft(workOrderId, taskId, value, field);
-    });
-    void writing.then(
-      () => failedWrites.current.delete(`${taskId}:${field}`),
-      () => failedWrites.current.add(`${taskId}:${field}`)
-    );
-    return writing;
-  };
-  const saveCommentDraft = (
-    workOrderId: number,
-    content: string,
-    expectedRevision?: number | null,
-    attachmentPending?: boolean
-  ): Promise<CommentDraft> => {
-    if (sessionChangeInProgress())
-      return Promise.reject(new OfflineError('CONTEXT_BUSY'));
-    const writing = persist(async (acceptedAccess) => {
-      if (!repository || !(await acceptedAccess()))
-        throw new OfflineError('OFFLINE_DISABLED');
-      return repository.saveCommentDraft(
-        workOrderId,
-        content,
-        expectedRevision,
-        attachmentPending
-      );
-    });
-    const key = `work-order:${workOrderId}:comment`;
-    void writing.then(
-      () => failedWrites.current.delete(key),
-      () => failedWrites.current.add(key)
-    );
-    return writing;
-  };
   const persistTime = <T,>(
     action: (repo: OfflineRepository) => Promise<T>,
     submit = false
@@ -1235,21 +1197,6 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
         void coordinator.current?.trigger('submission').catch(reportError);
       return result;
     });
-  const saveManualTimeDraft = (
-    workOrderId: number,
-    input: ManualTimeInput,
-    revision?: number | null
-  ) => {
-    const key = `work-order:${workOrderId}:manual-time`;
-    const writing = persistTime((repo) =>
-      repo.saveManualTimeDraft(workOrderId, input, revision)
-    );
-    void writing.then(
-      () => failedWrites.current.delete(key),
-      () => failedWrites.current.add(key)
-    );
-    return writing;
-  };
   const projectionsOpen =
     enabled &&
     !preferenceChanging &&
@@ -1292,11 +1239,11 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
       );
       return writing;
     },
-    submitStatusDraft: (id, revision) =>
+    submitStatusDraft: (id, revision, input) =>
       persistTime((repo) => {
         if (failedWrites.current.has(`work-order:${id}:status`))
           throw new OfflineError('STORAGE_FAILED');
-        return repo.submitStatusDraft(id, revision);
+        return repo.submitStatusDraft(id, revision, input);
       }, true),
     abandonStatusDraft: (id, revision) =>
       persist(async () => {
@@ -1324,13 +1271,8 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
         (repo) => repo.stopTimer(id, revision, expectedServerTimer),
         true
       ),
-    saveManualTimeDraft,
-    submitManualTimeDraft: (id, revision) =>
-      persistTime((repo) => {
-        if (failedWrites.current.has(`work-order:${id}:manual-time`))
-          throw new OfflineError('STORAGE_FAILED');
-        return repo.submitManualTimeDraft(id, revision);
-      }, true),
+    commitManualTime: (id, input, revision) =>
+      persistTime((repo) => repo.commitManualTime(id, input, revision), true),
     abandonManualTimeDraft: (id, revision) =>
       persist(async () => {
         if (!repository) throw new OfflineError('OFFLINE_DISABLED');
@@ -1363,6 +1305,8 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
     networkAvailable,
     syncing,
     error,
+    errorSequence,
+    syncSuccessSequence,
     repository: projectionsOpen ? exposedRepository : null,
     prepared: projectionsOpen ? prepared : [],
     reportError,
@@ -1370,7 +1314,7 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
       if (!canUseOfflineFeature()) return;
       setError(null);
       try {
-        await coordinator.current?.trigger('manual');
+        await requestEligibleSync.current('manual');
       } catch (failure) {
         reportError(failure);
       }
@@ -1435,19 +1379,16 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
           }
         }
       } else {
-        if (!canUseOfflineFeature())
-          throw new OfflineError('OFFLINE_DISABLED');
+        if (!canUseOfflineFeature()) throw new OfflineError('OFFLINE_DISABLED');
         await coordinator.current.prepare(id);
       }
     },
     refresh: async (id) => {
-      if (!canUseOfflineFeature())
-        throw new OfflineError('OFFLINE_DISABLED');
+      if (!canUseOfflineFeature()) throw new OfflineError('OFFLINE_DISABLED');
       if (coordinator.current) await coordinator.current.refresh(id);
     },
     removePreparation: async (id) => {
-      if (!canUseOfflineFeature())
-        throw new OfflineError('OFFLINE_DISABLED');
+      if (!canUseOfflineFeature()) throw new OfflineError('OFFLINE_DISABLED');
       if (coordinator.current) await coordinator.current.removePreparation(id);
     },
     removeServerAttachment: async (workOrderId, fileId, image) => {
@@ -1469,17 +1410,6 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
         throw new OfflineError('CONTEXT_CHANGED');
       return sync.removeServerAttachment(workOrderId, fileId, image);
     },
-    importFiles: (workOrderId, target, files, maxBytes) =>
-      persist(async (acceptedAccess) => {
-        if (!fileStore.current || !(await acceptedAccess()))
-          throw new OfflineError('OFFLINE_DISABLED');
-        await fileStore.current.importFiles(
-          workOrderId,
-          target,
-          files,
-          maxBytes
-        );
-      }),
     retryFileImport: (id) =>
       persist(async (acceptedAccess) => {
         if (!fileStore.current || !(await acceptedAccess()))
@@ -1493,18 +1423,23 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
         await repository.removeDraftFile(workOrderId, target, id, revision);
         await fileStore.current?.cleanup();
       }),
-    submitAttachmentDraft: (workOrderId, revision, taskId) =>
-      persist(async (acceptedAccess) => {
-        if (!repository || !(await acceptedAccess()))
-          throw new OfflineError('OFFLINE_DISABLED');
-        const operation = await repository.submitAttachmentDraft(
-          workOrderId,
-          revision,
-          taskId
+    commitAttachments: (id, target, files, baseImageId, revision) =>
+      persistTime(async (repo) => {
+        const commit = (ids: string[]) =>
+          repo.commitAttachments(id, target, ids, baseImageId, revision);
+        if (!files.length) {
+          await commit([]);
+          return;
+        }
+        if (!fileStore.current) throw new OfflineError('OFFLINE_DISABLED');
+        await fileStore.current.importFiles(
+          id,
+          target,
+          files,
+          (target.taskId ? 35 : 7) * 1024 * 1024,
+          commit
         );
-        void coordinator.current?.trigger('submission').catch(reportError);
-        return operation;
-      }),
+      }, true),
     abandonAttachmentDraft: (workOrderId, revision, taskId) =>
       persist(async () => {
         if (!repository) throw new OfflineError('OFFLINE_DISABLED');
@@ -1549,117 +1484,60 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
           throw new OfflineError('OFFLINE_DISABLED');
         await fileStore.current.removeLocalCopy(id);
       }),
-    saveDraft,
-    saveCommentDraft,
-    preserveConnectedCommentDraft: (
-      workOrderId,
-      content,
-      attachmentPending = false
-    ) => {
-      if (sessionChangeInProgress())
-        return Promise.reject(new OfflineError('CONTEXT_BUSY'));
-      const key = `work-order:${workOrderId}:comment`;
-      const writing = persist(async (acceptedAccess) => {
-        if (!repository || !(await acceptedAccess()))
-          throw new OfflineError('OFFLINE_DISABLED');
-        const existing = await repository.getCommentDraft(workOrderId);
-        if (existing) {
-          if (
-            existing.content !== content ||
-            !!existing.attachmentPending !== attachmentPending
-          )
-            throw new OfflineError('DRAFT_CHANGED');
-          return existing;
-        }
-        return repository.saveCommentDraft(
-          workOrderId,
-          content,
-          null,
-          attachmentPending
+    commitTaskField: (id, taskId, field, value, version) =>
+      persistTime(
+        (repo) => repo.commitTaskField(id, taskId, field, value, version),
+        true
+      ),
+    publishComment: (id, content, files, revision) =>
+      persistTime(async (repo) => {
+        if (!files.length)
+          return repo.publishComment(id, content, [], revision);
+        if (!fileStore.current) throw new OfflineError('OFFLINE_DISABLED');
+        await fileStore.current.importFiles(
+          id,
+          { kind: 'COMMENT' },
+          files,
+          35 * 1024 * 1024,
+          (ids) => repo.publishComment(id, content, ids, revision)
         );
-      });
-      void writing.then(
-        () => failedWrites.current.delete(key),
-        () => failedWrites.current.add(key)
-      );
-      return writing;
-    },
-    discardTaskField: (
-      taskId,
-      field,
-      draftRevision,
-      operationId,
-      serverVersion
-    ) =>
-      persist(async (acceptedAccess) => {
-        if (!repository || !(await acceptedAccess()))
-          throw new OfflineError('OFFLINE_DISABLED');
-        await repository.discardTaskField(
-          taskId,
-          field,
-          draftRevision,
-          operationId,
-          serverVersion
-        );
-      }),
-    submitCommentDraft: (workOrderId, revision) =>
-      persist(async (acceptedAccess) => {
-        if (!repository || !(await acceptedAccess()))
-          throw new OfflineError('OFFLINE_DISABLED');
-        const operation = await repository.submitCommentDraft(
-          workOrderId,
-          revision
-        );
-        void coordinator.current?.trigger('submission').catch(reportError);
-        return operation;
-      }),
+      }, true),
+    changeComment: (workOrderId, commentId, baseCommentUpdatedAt, content) =>
+      persistTime((repo) =>
+        repo.changeComment(workOrderId, commentId, baseCommentUpdatedAt, content), true),
+    editQueuedComment: (operationId, content) =>
+      persistTime((repo) => repo.editQueuedComment(operationId, content), true),
+    resolveCommentMutation: (operationId, serverUpdatedAt, keepLocal) =>
+      persistTime((repo) =>
+        repo.resolveCommentMutation(operationId, serverUpdatedAt, keepLocal), true),
     abandonCommentDraft: (workOrderId, revision) =>
       persist(async () => {
         if (!repository) throw new OfflineError('OFFLINE_DISABLED');
         await repository.abandonCommentDraft(workOrderId, revision);
         await fileStore.current?.cleanup();
       }),
-    submitDraft: (taskId, revision, field = 'value') =>
-      persist(async (acceptedAccess) => {
-        if (!repository || !(await acceptedAccess()))
-          throw new OfflineError('OFFLINE_DISABLED');
-        const operation = await repository.submitDraft(taskId, revision, field);
-        void coordinator.current?.trigger('submission').catch(reportError);
-        return operation;
-      }),
-    resolveConflict: (taskId, revision, serverVersion, field = 'value') =>
-      persist(async (acceptedAccess) => {
-        if (!repository || !(await acceptedAccess()))
-          throw new OfflineError('OFFLINE_DISABLED');
-        const current = await repository.getTask(taskId, field);
-        if (
-          (current.draft?.revision ?? null) !== (revision ?? null) ||
-          current.serverTask?.version !== serverVersion
-        ) {
-          throw new OfflineError('DRAFT_CHANGED');
-        }
-        if (
-          current.operation &&
-          (['CONFLICT', 'REJECTED'].includes(current.operation.status) ||
-            (current.operation.status === 'QUEUED' &&
-              current.operation.attemptCount === 0 &&
-              current.operation.blockedReason))
-        ) {
-          return repository.resolveOperationAgainstServer(
-            current.operation.id,
-            revision ?? null,
-            serverVersion
-          );
-        }
-        if (current.draft?.blockedReason)
-          return repository.resolveDraftAgainstServer(
+    settleTaskField: (
+      id,
+      taskId,
+      field,
+      operationId,
+      value,
+      version,
+      keepLocal
+    ) =>
+      persistTime(
+        (repo) =>
+          repo.settleTaskField(
+            id,
             taskId,
-            revision,
-            serverVersion,
-            field
-          );
-        throw new OfflineError('DRAFT_CHANGED');
-      })
+            field,
+            operationId,
+            value,
+            version,
+            keepLocal
+          ),
+        keepLocal
+      )
   };
   return (
     <OfflineContext.Provider value={value}>

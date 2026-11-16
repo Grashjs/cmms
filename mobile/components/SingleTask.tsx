@@ -14,54 +14,52 @@ import debounce from 'lodash.debounce';
 import { SheetManager } from 'react-native-actions-sheet';
 import { PermissionEntity } from '../models/role';
 import { PlanFeature } from '../models/subscriptionPlan';
-import { Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { Image, TouchableOpacity } from 'react-native';
 import type { ReactNode } from 'react';
 
 interface SingleTaskProps {
   task: Task;
-  valueEditor?: ReactNode;
-  notesEditor?: ReactNode;
   imagesEditor?: ReactNode;
   connectedDisabled?: boolean;
   saving?: boolean;
   preview?: boolean;
-  handleChange?: (value: string | number, id: number) => void;
+  handleChange?: (value: string | number, id: number) => Promise<boolean> | void;
+  localCommitOnSave?: boolean;
   handleSaveNotes?: (value: string, id: number) => Promise<void>;
   handleNoteChange?: (value: string, id: number) => void;
   handleSelectImages?: (id: number) => void;
   handleZoomImage?: (images: string[], image: string) => void;
+  onInputFocus?: (target: number) => void;
   toggleNotes?: (id: number) => void;
   notes?: Map<number, boolean>;
 }
 
 export default function SingleTask({
   task,
-  valueEditor,
-  notesEditor,
   imagesEditor,
   connectedDisabled = false,
   saving = false,
   handleChange,
+  localCommitOnSave = false,
   handleNoteChange,
   handleSaveNotes,
   preview,
   toggleNotes,
   notes,
   handleSelectImages,
-  handleZoomImage
+  handleZoomImage,
+  onInputFocus
 }: SingleTaskProps) {
   const theme = useTheme();
   const { t }: { t: any } = useTranslation();
   const [savingNotes, setSavingNotes] = useState<boolean>(false);
   const notesVisible = !!notes?.get(task.id);
-  const [notesVisited, setNotesVisited] = useState(notesVisible);
-  useEffect(() => {
-    if (notesVisible) setNotesVisited(true);
-  }, [notesVisible]);
   const { user, hasCreatePermission, hasFeature } = useAuth();
   const [inputValue, setInputValue] = useState<string>(
     task.value?.toString() || ''
   );
+  const valueInput = useRef<any>(null);
+  const inputRevision = useRef(0);
   const changeHandler = (newValue: string) => {
     if (!preview) {
       let formattedValue = newValue;
@@ -73,14 +71,30 @@ export default function SingleTask({
           newValue?.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1') ?? '';
         setInputValue(formattedValue);
       } else setInputValue(formattedValue);
-      if (formattedValue !== '') handleChange(formattedValue, task.id);
+      if (localCommitOnSave) {
+        editingText.current = true;
+        if (formattedValue === '') {
+          debouncedChangeHandler.cancel();
+          return;
+        }
+        const revision = ++inputRevision.current;
+        debouncedChangeHandler(formattedValue, revision);
+      } else if (formattedValue !== '') handleChange(formattedValue, task.id);
     }
   };
 
-  const changeHandlerRef = useRef(changeHandler);
-  changeHandlerRef.current = changeHandler;
+  const editingText = useRef(false);
+  const changeHandlerRef = useRef((value: string) => handleChange?.(value, task.id));
+  changeHandlerRef.current = (value: string) => handleChange?.(value, task.id);
   const debouncedChangeHandler = useMemo(
-    () => debounce((value: string) => changeHandlerRef.current(value), 1000),
+    () =>
+      debounce((value: string, revision: number) => {
+        editingText.current = false;
+        void Promise.resolve(changeHandlerRef.current(value)).then((saved) => {
+          if (localCommitOnSave && saved && revision === inputRevision.current)
+            valueInput.current?.blur();
+        });
+      }, 1000),
     []
   );
   useEffect(
@@ -89,7 +103,7 @@ export default function SingleTask({
   );
 
   useEffect(() => {
-    setInputValue(task.value?.toString() || '');
+    if (!editingText.current) setInputValue(task.value?.toString() || '');
   }, [task.value]);
 
   const onDropdownValueChange = (value) => {
@@ -140,21 +154,19 @@ export default function SingleTask({
           {task.taskBase.label || `<${t('enter_task_name')}>`}
         </Text>
         <View style={{ display: 'flex', flexDirection: 'row' }}>
-          {!imagesEditor && (
-            <IconButton
-              iconColor={theme.colors.primary}
-              icon={'image'}
-              onPress={() => handleSelectImages(task.id)}
-              disabled={
-                connectedDisabled ||
-                preview ||
-                !(
-                  hasCreatePermission(PermissionEntity.FILES) &&
-                  hasFeature(PlanFeature.FILE)
-                )
-              }
-            />
-          )}
+          <IconButton
+            iconColor={theme.colors.primary}
+            icon={'image'}
+            onPress={() => handleSelectImages(task.id)}
+            disabled={
+              connectedDisabled ||
+              preview ||
+              !(
+                hasCreatePermission(PermissionEntity.FILES) &&
+                hasFeature(PlanFeature.FILE)
+              )
+            }
+          />
           <IconButton
             iconColor={theme.colors.primary}
             icon={'note-outline'}
@@ -162,81 +174,85 @@ export default function SingleTask({
           />
         </View>
       </View>
-      {valueEditor ??
-        (['SUBTASK', 'INSPECTION', 'MULTIPLE'].includes(
-          task.taskBase.taskType
-        ) ? (
-          <TouchableOpacity
-            disabled={connectedDisabled || saving}
-            onPress={() => {
-              SheetManager.show('dropdown-sheet', {
-                payload: {
-                  value: preview
-                    ? getOptions(
-                        task.taskBase.taskType,
-                        task.taskBase.options
-                      )[0].value
-                    : task.value,
-                  items: getOptions(
-                    task.taskBase.taskType,
-                    task.taskBase.options
-                  ),
-                  setValue: onDropdownValueChange
-                }
-              });
-            }}
-          >
-            <View pointerEvents="none">
-              <TextInput
-                editable={false}
-                value={
-                  getOptions(
-                    task.taskBase.taskType,
-                    task.taskBase.options
-                  ).find(
-                    (o) =>
-                      o.value ===
-                      (preview
-                        ? getOptions(
-                            task.taskBase.taskType,
-                            task.taskBase.options
-                          )[0].value
-                        : task.value)
-                  )?.label
-                }
-                mode="outlined"
-                right={<TextInput.Icon icon="menu-down" />}
-              />
-            </View>
-          </TouchableOpacity>
-        ) : task.taskBase.taskType === 'METER' ||
-          task.taskBase.taskType === 'NUMBER' ? (
-          <TextInput
-            defaultValue={task.value?.toString()}
-            onChangeText={changeHandler}
-            label={t('value')}
-            value={inputValue}
-            mode={'outlined'}
-            keyboardType="decimal-pad"
-            disabled={
-              connectedDisabled ||
-              saving ||
-              (task.taskBase.user && task.taskBase.user.id !== user.id)
-            }
-          />
-        ) : (
-          <TextInput
-            defaultValue={task.value?.toString()}
-            onChangeText={debouncedChangeHandler}
-            label={t('value')}
-            mode={'outlined'}
-            disabled={
-              connectedDisabled ||
-              saving ||
-              (task.taskBase.user && task.taskBase.user.id !== user.id)
-            }
-          />
-        ))}
+      {['SUBTASK', 'INSPECTION', 'MULTIPLE'].includes(
+        task.taskBase.taskType
+      ) ? (
+        <TouchableOpacity
+          disabled={connectedDisabled || saving}
+          onPress={() => {
+            SheetManager.show('dropdown-sheet', {
+              payload: {
+                value: preview
+                  ? getOptions(task.taskBase.taskType, task.taskBase.options)[0]
+                      .value
+                  : task.value,
+                items: getOptions(
+                  task.taskBase.taskType,
+                  task.taskBase.options
+                ),
+                setValue: onDropdownValueChange
+              }
+            });
+          }}
+        >
+          <View pointerEvents="none">
+            <TextInput
+              editable={false}
+              value={
+                getOptions(task.taskBase.taskType, task.taskBase.options).find(
+                  (o) =>
+                    o.value ===
+                    (preview
+                      ? getOptions(
+                          task.taskBase.taskType,
+                          task.taskBase.options
+                        )[0].value
+                      : task.value)
+                )?.label
+              }
+              mode="outlined"
+              right={<TextInput.Icon icon="menu-down" />}
+            />
+          </View>
+        </TouchableOpacity>
+      ) : task.taskBase.taskType === 'METER' ||
+        task.taskBase.taskType === 'NUMBER' ? (
+        <TextInput
+          ref={valueInput}
+          onFocus={(event) => onInputFocus?.(event.nativeEvent.target)}
+          defaultValue={task.value?.toString()}
+          onChangeText={changeHandler}
+          onBlur={() => localCommitOnSave && debouncedChangeHandler.flush()}
+          label={t('value')}
+          value={inputValue}
+          mode={'outlined'}
+          keyboardType="decimal-pad"
+          disabled={
+            connectedDisabled ||
+            saving ||
+            (task.taskBase.user && task.taskBase.user.id !== user.id)
+          }
+        />
+      ) : (
+        <TextInput
+          ref={valueInput}
+          onFocus={(event) => onInputFocus?.(event.nativeEvent.target)}
+          value={inputValue}
+          onChangeText={(text) => {
+            editingText.current = true;
+            setInputValue(text);
+            debouncedChangeHandler(text, ++inputRevision.current);
+          }}
+          onBlur={() => debouncedChangeHandler.flush()}
+          label={t('value')}
+          mode={'outlined'}
+          disabled={
+            connectedDisabled ||
+            saving ||
+            (task.taskBase.user && task.taskBase.user.id !== user.id)
+          }
+        />
+      )}
       {task.taskBase.asset && (
         <View
           style={{
@@ -271,36 +287,33 @@ export default function SingleTask({
           </TouchableOpacity>
         </View>
       )}
-      {(notesEditor ? notesVisible || notesVisited : notesVisible) && (
+      {notesVisible && (
         <View style={{ display: notesVisible ? 'flex' : 'none' }}>
-          {notesEditor ?? (
-            <>
-              <TextInput
-                mode={'outlined'}
-                multiline
-                disabled={connectedDisabled}
-                value={task.notes}
-                label={t('notes')}
-                onChangeText={(value) =>
-                  !preview && handleNoteChange(value, task.id)
-                }
-              />
-              <Button
-                style={{ marginTop: 10 }}
-                mode="contained"
-                loading={savingNotes}
-                disabled={savingNotes || saving || connectedDisabled}
-                onPress={() => {
-                  setSavingNotes(true);
-                  handleSaveNotes(task.notes, task.id).finally(() =>
-                    setSavingNotes(false)
-                  );
-                }}
-              >
-                {t('save')}
-              </Button>
-            </>
-          )}
+          <TextInput
+            mode={'outlined'}
+            multiline
+            onFocus={(event) => onInputFocus?.(event.nativeEvent.target)}
+            disabled={connectedDisabled}
+            value={task.notes}
+            label={t('notes')}
+            onChangeText={(value) =>
+              !preview && handleNoteChange(value, task.id)
+            }
+          />
+          <Button
+            style={{ marginTop: 10 }}
+            mode="contained"
+            loading={savingNotes}
+            disabled={savingNotes || saving || connectedDisabled}
+            onPress={() => {
+              setSavingNotes(true);
+              handleSaveNotes(task.notes, task.id).finally(() =>
+                setSavingNotes(false)
+              );
+            }}
+          >
+            {t('save')}
+          </Button>
         </View>
       )}
       {imagesEditor}
@@ -329,4 +342,3 @@ export default function SingleTask({
     </View>
   );
 }
-const styles = StyleSheet.create({});

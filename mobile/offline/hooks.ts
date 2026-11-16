@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useOffline } from './OfflineProvider';
 import type {
   PreparedWorkOrderView,
+  WorkOrderActivity,
   TaskView,
   PendingWork,
   TaskField
@@ -57,12 +58,15 @@ export function useOfflineTask(id: number, field: TaskField = 'value') {
   return offline.readable ? value : null;
 }
 
-export function usePendingWork(workOrderId?: number): PendingWork[] {
+export function usePendingWork(
+  workOrderId?: number,
+  enabled = true
+): PendingWork[] {
   const offline = useOffline();
   const [value, setValue] = useState<PendingWork[]>([]);
   useEffect(() => {
     setValue([]);
-    if (!offline.repository) return;
+    if (!enabled || !offline.repository) return;
     try {
       const subscription = offline.repository
         .observePendingWork(workOrderId)
@@ -76,6 +80,29 @@ export function usePendingWork(workOrderId?: number): PendingWork[] {
       if ((failure as { code?: string })?.code !== 'OFFLINE_DISABLED')
         throw failure;
     }
-  }, [offline.repository, workOrderId]);
-  return offline.readable ? value : [];
+  }, [offline.repository, workOrderId, enabled]);
+  return enabled && offline.readable ? value : [];
+}
+
+export function useWorkOrderActivity() {
+  const { repository } = useOffline();
+  const [observed, setObserved] = useState<{
+    owner: typeof repository;
+    items: Map<number, WorkOrderActivity>;
+  }>();
+  useEffect(() => {
+    if (!repository) return;
+    try {
+      const subscription = repository.observeWorkOrderActivity().subscribe({
+        next: (items) => setObserved({ owner: repository, items }),
+        error: () => setObserved(undefined)
+      });
+      return () => subscription.unsubscribe();
+    } catch (error) {
+      if (error?.code !== 'OFFLINE_DISABLED') throw error;
+    }
+  }, [repository]);
+  return repository && observed?.owner === repository
+    ? observed.items
+    : undefined;
 }

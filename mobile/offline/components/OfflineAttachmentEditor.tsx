@@ -1,3 +1,4 @@
+import type { IFile } from '../../models/file';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, View } from 'react-native';
 import { Button, Text } from 'react-native-paper';
@@ -17,6 +18,7 @@ export function OfflineAttachmentEditor({
   files = [],
   title,
   showSubmit = true,
+  sharedTaskPicker = false,
   editable = true,
   onRemoveServer
 }: {
@@ -26,11 +28,15 @@ export function OfflineAttachmentEditor({
   files?: File[];
   title: string;
   showSubmit?: boolean;
+  sharedTaskPicker?: boolean;
   editable?: boolean;
   onRemoveServer?: (fileId: number) => Promise<{ localUpdateError?: unknown }>;
 }) {
   const offline = useOffline();
   const { t } = useTranslation();
+  const filesOnServerId = files[0]?.id ?? null;
+  const [selected, setSelected] = useState<IFile[]>([]);
+  const baseImageId = useRef<number | null>(null);
   const [draft, setDraft] = useState<AttachmentDraft | null>(null);
   const [saving, setSaving] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -56,6 +62,7 @@ export function OfflineAttachmentEditor({
     : { kind: 'WORK_ORDER', image };
   useEffect(() => {
     setDraft(null);
+    setSelected([]);
     busy.current = false;
     setSaving(false);
     setFailed(false);
@@ -96,7 +103,6 @@ export function OfflineAttachmentEditor({
   const filesReady =
     allIds.length === localFiles.length &&
     localFiles.every((file) => file.status === 'READY');
-  const importing = localFiles.some((file) => file.status === 'IMPORTING');
   const fileError = localFiles.some((file) => file.status === 'ERROR');
   useEffect(() => {
     if (filesReady) setFailed(false);
@@ -192,7 +198,11 @@ export function OfflineAttachmentEditor({
     <View>
       {files.map((file) => (
         <View key={file.id}>
-          <OfflineFileItem workOrderId={workOrderId} file={file} />
+          <OfflineFileItem
+            workOrderId={workOrderId}
+            file={file}
+            compact={sharedTaskPicker}
+          />
           {onRemoveServer && (
             <Button
               disabled={
@@ -254,7 +264,7 @@ export function OfflineAttachmentEditor({
           </Button>
         </View>
       )}
-      {editable && (
+      {editable && !sharedTaskPicker && (
         <FileUpload
           title={title}
           description={t('upload')}
@@ -263,23 +273,33 @@ export function OfflineAttachmentEditor({
           maxFileSize={taskId ? 35 : 7}
           selectionOnly
           disabled={saving || !offline.writable}
-          onChange={(selected) =>
-            void run(() =>
-              offline.importFiles(
-                workOrderId,
-                target,
-                selected,
-                (taskId ? 35 : 7) * 1024 * 1024
-              )
-            )
-          }
+          onChange={(files) => {
+            if (!selected.length)
+              baseImageId.current = image ? filesOnServerId : null;
+            setSelected((old) =>
+              image ? files.slice(-1) : [...old, ...files]
+            );
+          }}
         />
       )}
+      {selected.map((file, index) => (
+        <Button
+          key={index}
+          icon="close"
+          disabled={saving}
+          onPress={() =>
+            setSelected((list) => list.filter((_, i) => i !== index))
+          }
+        >
+          {file.name}
+        </Button>
+      ))}
       {ids.map((localId) => (
         <OfflineFileItem
           key={localId}
           workOrderId={workOrderId}
           localId={localId}
+          compact={sharedTaskPicker}
           onRemove={
             editable
               ? () =>
@@ -295,30 +315,23 @@ export function OfflineAttachmentEditor({
           }
         />
       ))}
-      {(saving || failed || !!draft) && (
-        <Text accessibilityRole={failed || fileError ? 'alert' : undefined}>
-          {t(
-            saving || importing
-              ? 'offline_saving'
-              : failed || fileError
-              ? 'offline_save_failed'
-              : 'offline_draft_saved'
-          )}
-        </Text>
+      {(failed || fileError) && (
+        <Text accessibilityRole="alert">{t('offline_save_failed')}</Text>
       )}
-      {showSubmit && editable && (
+      {editable && (selected.length > 0 || (!!draft && showSubmit)) && (
         <Button
-          disabled={
-            saving ||
-            !filesReady ||
-            !offline.writable ||
-            !draft ||
-            (!draft.fileIds.length && !draft.imageFileId)
-          }
+          disabled={saving || !filesReady || !offline.writable}
           onPress={() =>
-            void run(() =>
-              offline.submitAttachmentDraft(workOrderId, draft.revision, taskId)
-            )
+            void run(async () => {
+              await offline.commitAttachments(
+                workOrderId,
+                target,
+                selected,
+                baseImageId.current,
+                draft?.revision ?? null
+              );
+              setSelected([]);
+            })
           }
         >
           {t('offline_save_files')}

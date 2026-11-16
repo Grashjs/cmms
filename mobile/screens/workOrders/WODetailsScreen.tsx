@@ -94,10 +94,7 @@ import { isStatusOperation, OfflineError } from '../../offline/types';
 import { offlineErrorKey } from '../../offline/errors';
 import { OfflineTimePanel } from '../../offline/components/OfflineTimePanel';
 import { useOfflineWorkOrder, usePendingWork } from '../../offline/hooks';
-import {
-  OfflineStatus,
-  OfflineWorkPanel
-} from '../../offline/components/OfflineWorkPanel';
+import { OfflineStatus, OfflineWorkPanel } from '../../offline/components/OfflineWorkPanel';
 import { OfflineCommentOperations } from '../../offline/components/OfflineCommentOperations';
 import { useOfflineCommentComposer } from '../../offline/useOfflineCommentComposer';
 import { OfflineFileItem } from '../../offline/components/OfflineFileItem';
@@ -209,7 +206,14 @@ export default function WODetailsScreen({
       !['APPLIED', 'ABANDONED'].includes(operation.status)
   );
   const lastStatusRequest = offlineStatus.view?.operations
-    .filter((operation) => !['APPLIED', 'ABANDONED'].includes(operation.status))
+    .filter(
+      (operation) =>
+        ['QUEUED', 'SENDING', 'UNKNOWN'].includes(operation.status) ||
+        (operation.status === 'APPLIED' &&
+          !operation.snapshotConfirmed &&
+          operation.receipt?.statusResult?.revision >
+            offlineStatus.view.serverRevision)
+    )
     .slice(-1)[0];
   const selectedStatus =
     isPrepared &&
@@ -239,32 +243,23 @@ export default function WODetailsScreen({
     ? prepared?.comments ?? []
     : commentsByWorkOrder[id] ?? [];
   const canComposeComment = isPrepared
-    ? offline.writable && !!prepared?.available && !!prepared.canEdit
+    ? offline.writable && !!prepared?.available && !!prepared.canComment
     : connectedAvailable &&
       hasEditPermission(PermissionEntity.WORK_ORDERS, workOrder);
 
   const {
     preparing,
     commentContent,
-    attachmentPending,
-    confirmedDraftToClear,
     commentRefreshPending,
-    commentTransferConflict,
-    savingCommentDraft,
-    commentDraftError,
     submittingComment,
     commentFiles,
     changeCommentContent,
     prepareWorkOrder,
-    resolveTransferredComment,
-    retryPublishedDraftCleanup,
     handleCommentSubmit,
     pickCommentFile,
     removeCommentFile,
     confirmCommentRefresh,
     removeLocalCommentFile,
-    filesReady,
-    importingFiles,
     importCommentFiles
   } = useOfflineCommentComposer({
     id,
@@ -942,14 +937,11 @@ export default function WODetailsScreen({
       </Portal>
     );
   };
-  const statusColor = workOrder
-    ? getStatusColor(workOrder.status, theme)
-    : null;
+  const statusColor = workOrder ? getStatusColor(selectedStatus, theme) : null;
   if (!offline.initialized) return <LoadingDialog visible={true} />;
   if (isPrepared && (!prepared?.available || !offline.readable))
     return (
       <ScrollView style={{ padding: 20 }}>
-        <OfflineStatus />
         <Text>{t('offline_unavailable')}</Text>
         <OfflineWorkPanel workOrderId={id} />
       </ScrollView>
@@ -957,8 +949,8 @@ export default function WODetailsScreen({
   if (!isPrepared && offline.enabled && !offline.networkAvailable)
     return (
       <View style={{ padding: 20 }}>
-        <OfflineStatus />
         <Text>{t('offline_not_prepared')}</Text>
+        <Button disabled>{t('offline_prepare')}</Button>
       </View>
     );
   if (workOrder)
@@ -990,9 +982,9 @@ export default function WODetailsScreen({
                 />
               }
             >
-              <OfflineStatus />
               {offline.enabled && !isPrepared && (
                 <Button
+                  style={{ marginTop: 12 }}
                   mode="outlined"
                   loading={preparing}
                   disabled={
@@ -1007,11 +999,14 @@ export default function WODetailsScreen({
                 </Button>
               )}
               {isPrepared && (
-                <Text>
-                  {t('offline_prepared_at', {
-                    date: getFormattedDate(prepared.preparedAt)
-                  })}
-                </Text>
+                <View style={{ marginTop: 12 }}>
+                  <OfflineStatus />
+                  <Text>
+                    {t('offline_prepared_at', {
+                      date: getFormattedDate(prepared.preparedAt)
+                    })}
+                  </Text>
+                </View>
               )}
               <Text style={{ marginTop: 5 }} variant="displaySmall">
                 {workOrder.title}
@@ -1093,7 +1088,7 @@ export default function WODetailsScreen({
                   }}
                 >
                   <Text style={{ color: statusColor }}>
-                    {statuses.find((s) => s.value === workOrder.status)?.label}
+                    {statuses.find((s) => s.value === selectedStatus)?.label}
                   </Text>
                   <IconButton
                     iconColor={statusColor}
@@ -1104,11 +1099,6 @@ export default function WODetailsScreen({
                 </TouchableOpacity>
                 {isPrepared && (
                   <>
-                    <Text>
-                      {t('offline_status_server', {
-                        status: t(workOrder.status)
-                      })}
-                    </Text>
                     {!offlineStatus.view?.closure && (
                       <Text>{t('offline_status_prepare_again')}</Text>
                     )}
@@ -1497,6 +1487,11 @@ export default function WODetailsScreen({
                             key={comment.id}
                             comment={comment}
                             connectedDisabled={!connectedAvailable}
+                            mutationPending={prepared?.commentMutations.some((operation) =>
+                              (operation.request.type === 'UPDATE_COMMENT' ||
+                                operation.request.type === 'DELETE_COMMENT') &&
+                              operation.request.commentId === comment.id
+                            )}
                             workOrderId={id}
                             users={usersMini.map((u) => ({
                               id: u.id.toString(),
@@ -1575,9 +1570,7 @@ export default function WODetailsScreen({
                                 placeholderTextColor="black"
                                 style={{ flex: 1, color: 'black' }}
                                 {...textInputProps}
-                                editable={
-                                  !preparing && !commentTransferConflict
-                                }
+                                editable={!preparing}
                               />
                             </View>
                             <IconButton
@@ -1585,15 +1578,14 @@ export default function WODetailsScreen({
                               onPress={pickCommentFile}
                               disabled={
                                 (!isPrepared && !connectedAvailable) ||
-                                importingFiles ||
+                                submittingComment ||
                                 (isPrepared &&
                                   !(
                                     hasCreatePermission(
                                       PermissionEntity.FILES
                                     ) && hasFeature(PlanFeature.FILE)
                                   )) ||
-                                preparing ||
-                                commentTransferConflict
+                                preparing
                               }
                               style={{ marginBottom: 8 }}
                             />
@@ -1608,11 +1600,7 @@ export default function WODetailsScreen({
                                 multiple
                                 selectionOnly
                                 maxFileSize={35}
-                                disabled={
-                                  importingFiles ||
-                                  preparing ||
-                                  commentTransferConflict
-                                }
+                                disabled={submittingComment || preparing}
                                 onChange={(files) =>
                                   void importCommentFiles(files)
                                 }
@@ -1647,81 +1635,23 @@ export default function WODetailsScreen({
                                   <IconButton
                                     icon="close-circle"
                                     size={16}
-                                    disabled={importingFiles}
+                                    disabled={submittingComment}
                                     onPress={() => removeCommentFile(index)}
                                   />
                                 </View>
                               ))}
                             </View>
                           )}
-                          {isPrepared &&
-                            (savingCommentDraft ||
-                              commentDraftError ||
-                              !!prepared?.commentDraft) && (
-                              <Text
-                                accessibilityRole={
-                                  commentDraftError ? 'alert' : undefined
-                                }
-                              >
-                                {t(
-                                  savingCommentDraft
-                                    ? 'offline_saving'
-                                    : commentDraftError
-                                    ? 'offline_save_failed'
-                                    : 'offline_draft_saved'
-                                )}
-                              </Text>
-                            )}
                           {commentRefreshPending && (
                             <Text accessibilityRole="alert">
                               {t('offline_comment_saved_refresh_pending')}
                             </Text>
                           )}
-                          {confirmedDraftToClear !== null && (
-                            <View>
-                              <Text accessibilityRole="alert">
-                                {t('offline_comment_published_cleanup_pending')}
-                              </Text>
-                              <Button
-                                onPress={() =>
-                                  void retryPublishedDraftCleanup()
-                                }
-                              >
-                                {t('offline_comment_clear_confirmed')}
-                              </Button>
-                            </View>
-                          )}
-                          {attachmentPending &&
-                            !commentFiles.length &&
-                            !prepared?.commentDraft?.fileIds?.length && (
-                              <Text accessibilityRole="alert">
-                                {t('offline_comment_attachment_pending')}
-                              </Text>
-                            )}
                           {!isPrepared &&
                             !!commentFiles.length &&
                             !connectedAvailable && (
                               <Text>{t('offline_connected_required')}</Text>
                             )}
-                          {commentTransferConflict && (
-                            <View>
-                              <Text>{t('offline_changed_revision')}</Text>
-                              <Button
-                                onPress={() =>
-                                  void resolveTransferredComment(true)
-                                }
-                              >
-                                {t('offline_keep_draft')}
-                              </Button>
-                              <Button
-                                onPress={() =>
-                                  void resolveTransferredComment(false)
-                                }
-                              >
-                                {t('offline_draft_saved')}
-                              </Button>
-                            </View>
-                          )}
                           <Button
                             mode="contained"
                             onPress={() => void handleCommentSubmit()}
@@ -1729,13 +1659,7 @@ export default function WODetailsScreen({
                               !commentContent.trim() ||
                               loadingCreate ||
                               preparing ||
-                              commentTransferConflict ||
                               submittingComment ||
-                              confirmedDraftToClear !== null ||
-                              (isPrepared &&
-                                (savingCommentDraft ||
-                                  commentDraftError ||
-                                  !filesReady)) ||
                               (!isPrepared &&
                                 !!commentFiles.length &&
                                 !connectedAvailable)
@@ -1818,7 +1742,6 @@ export default function WODetailsScreen({
   else if (isPrepared)
     return (
       <ScrollView style={{ padding: 20 }}>
-        <OfflineStatus />
         <OfflineWorkPanel workOrderId={id} />
       </ScrollView>
     );

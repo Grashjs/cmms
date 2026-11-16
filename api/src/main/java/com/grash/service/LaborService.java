@@ -247,7 +247,7 @@ public class LaborService {
                     || (time.endedAt() != null && !Date.from(time.endedAt()).toInstant().equals(time.endedAt())))
                 return TimeOutcome.rejected("INVALID_TIME_RANGE");
         } catch (IllegalArgumentException invalid) { return TimeOutcome.rejected("INVALID_TIME_RANGE"); }
-        if (startedAt.isAfter(now.plusSeconds(120)) || (time.endedAt() != null && time.endedAt().isAfter(now.plusSeconds(120))))
+        if (!manual && (startedAt.isAfter(now.plusSeconds(120)) || (time.endedAt() != null && time.endedAt().isAfter(now.plusSeconds(120)))))
             return TimeOutcome.rejected("INVALID_TIME_RANGE");
         long seconds = 0;
         if (!starting) {

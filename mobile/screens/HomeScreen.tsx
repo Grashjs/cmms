@@ -28,7 +28,6 @@ import { CustomSnackBarContext } from '../contexts/CustomSnackBarContext';
 import { PermissionEntity } from '../models/role';
 import { useAppTheme } from '../custom-theme';
 import { useOffline } from '../offline/OfflineProvider';
-import { OfflineStatus } from '../offline/components/OfflineWorkPanel';
 
 export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
   const theme = useAppTheme();
@@ -187,17 +186,23 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
   if (localOnly)
     return (
       <View style={{ padding: 20 }}>
-        <Text variant={'bodySmall'} style={{ textAlign: 'center'}}>{t('offline_connected_required')}</Text>
-        <OfflineStatus />
         <Button
           onPress={() =>
             navigation.navigate('WorkOrders', { filterFields: [] })
           }
         >
-          {t('offline_available')}
+          {t('offline_my_available', {
+            count: offline.prepared.filter((item) => item.available).length
+          })}
         </Button>
+        {!offline.prepared.some((item) => item.available) && (
+          <Text>{t('offline_empty_list')}</Text>
+        )}
         {offline.readable && (
-          <Button icon="magnify-scan" onPress={() => navigation.navigate('ScanAsset')}>
+          <Button
+            icon="magnify-scan"
+            onPress={() => navigation.navigate('ScanAsset')}
+          >
             {t('offline_scan_asset')}
           </Button>
         )}

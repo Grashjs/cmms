@@ -12,7 +12,7 @@ import { createLabor } from '../../slices/labor';
 import { getErrorMessage } from '../../utils/api';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { CustomSnackBarContext } from '../../contexts/CustomSnackBarContext';
-import { Button, HelperText, Text, TextInput } from 'react-native-paper';
+import { Button, Text, TextInput } from 'react-native-paper';
 import CustomDateTimePicker from '../../components/CustomDateTimePicker';
 import { useOffline } from '../../offline/OfflineProvider';
 import { useOfflineTime } from '../../offline/useOfflineTime';
@@ -163,7 +163,7 @@ function ConnectedTimeForm({
   );
 }
 
-/** A personal draft has no remote selectors and is never submitted by reconnection. */
+/** The personal form creates an operation only after the user saves it. */
 function PersonalTimeForm({
   workOrderId,
   initialDraft,
@@ -180,94 +180,44 @@ function PersonalTimeForm({
   const [values, setValues] = useState<ManualTimeInput>(
     () =>
       initialDraft || {
-        startedAt: new Date().toISOString(),
-        hours: '0',
-        minutes: '0'
+        startedAt: '',
+        hours: '',
+        minutes: ''
       }
   );
-  const [saving, setSaving] = useState(false);
-  const [failed, setFailed] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [saved, setSaved] = useState(!!initialDraft);
-  const valuesRef = useRef(values);
-  const draft = useRef(initialDraft);
-  const tail = useRef<Promise<unknown>>(Promise.resolve());
-  const sequence = useRef(0);
-  const durableSequence = useRef(0);
-  const failedRef = useRef(false);
   const busyRef = useRef(false);
-  const mounted = useRef(true);
+  const draft = useRef(initialDraft);
   const generation = useRef(sessionGeneration());
+  const mounted = useRef(true);
   useEffect(
     () => () => {
       mounted.current = false;
     },
     []
   );
-  const current = () =>
-    mounted.current && generation.current === sessionGeneration();
-  const editable = allowed && offline.writable;
-  const change = (patch: Partial<ManualTimeInput>) => {
-    if (!editable) return;
-    const next = { ...valuesRef.current, ...patch };
-    valuesRef.current = next;
-    setValues(next);
-    const revision = ++sequence.current;
-    setSaving(true);
-    setFailed(false);
-    const pending = tail.current.then(async () => {
-      assertSessionGeneration(generation.current);
-      const result = await offline.saveManualTimeDraft(
-        workOrderId,
-        next,
-        draft.current?.revision ?? null
-      );
-      draft.current = result;
-      durableSequence.current = revision;
-      failedRef.current = false;
-      if (current() && sequence.current === revision) {
-        failedRef.current = false;
-        setFailed(false);
-        setSaving(false);
-        setSaved(true);
-      }
-    });
-    tail.current = pending.catch((error) => {
-      failedRef.current = true;
-      if (current() && sequence.current === revision) {
-        failedRef.current = true;
-        setSaving(false);
-        setFailed(true);
-        offline.reportError(error);
-      }
-    });
-  };
+  const editable = allowed && offline.writable && !busy;
+  const change = (patch: Partial<ManualTimeInput>) =>
+    setValues((current) => ({ ...current, ...patch }));
   const submit = async () => {
     if (!editable || busyRef.current) return;
     busyRef.current = true;
     setBusy(true);
-    const submittedSequence = sequence.current;
-    const pending = tail.current.then(async () => {
+    try {
       assertSessionGeneration(generation.current);
-      if (
-        failedRef.current ||
-        !draft.current ||
-        durableSequence.current !== submittedSequence
-      )
-        return;
-      await offline.submitManualTimeDraft(workOrderId, draft.current.revision);
-      draft.current = null;
-      if (current() && submittedSequence === sequence.current)
+      await offline.commitManualTime(
+        workOrderId,
+        values,
+        draft.current?.revision ?? null
+      );
+      if (mounted.current && generation.current === sessionGeneration())
         navigation.goBack();
-    });
-    // Later typing is queued after this exact revision is consumed.
-    tail.current = pending.catch((error) => {
-      if (current()) offline.reportError(error);
-    });
-    await tail.current;
-    if (current()) {
+    } catch (failure) {
+      if (mounted.current && generation.current === sessionGeneration())
+        offline.reportError(failure);
+    } finally {
       busyRef.current = false;
-      setBusy(false);
+      if (mounted.current) setBusy(false);
     }
   };
   const duration = Number(values.hours) * 3600 + Number(values.minutes) * 60;
@@ -282,11 +232,12 @@ function PersonalTimeForm({
       contentContainerStyle={{ padding: 16, gap: 16 }}
       keyboardShouldPersistTaps="handled"
     >
-      <Text variant="titleMedium">{t('offline_time_personal')}</Text>
+      <Text variant="titleMedium">{t('add_time')}</Text>
       <View pointerEvents={editable ? 'auto' : 'none'}>
         <CustomDateTimePicker
           label={t('work_started_at')}
-          value={new Date(values.startedAt)}
+          value={values.startedAt ? new Date(values.startedAt) : null}
+          showEmptyIcon
           onChange={(date) => change({ startedAt: date.toISOString() })}
         />
       </View>
@@ -308,21 +259,10 @@ function PersonalTimeForm({
           change({ minutes: minutes.replace(/[^0-9]/g, '') })
         }
       />
-      {(saving || failed || saved) && (
-        <HelperText type={failed ? 'error' : 'info'}>
-          {t(
-            saving
-              ? 'offline_saving'
-              : failed
-              ? 'offline_save_failed'
-              : 'offline_draft_saved'
-          )}
-        </HelperText>
-      )}
       <Button
         mode="contained"
         loading={busy}
-        disabled={!editable || busy || failed || !valid || (!saved && !saving)}
+        disabled={!editable || !valid}
         onPress={() => void submit()}
       >
         {t('offline_time_save')}

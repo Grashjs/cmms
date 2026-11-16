@@ -58,6 +58,9 @@ export function canonicalizeServerUrl(raw: string): string {
   url.pathname = `${url.pathname.replace(/\/+$/, '')}/`;
   return url.toString();
 }
+function offlineTransportAllowed(serverUrl: string): boolean {
+  return canonicalizeServerUrl(serverUrl).startsWith('https://') || __DEV__;
+}
 export function serverContextKey(context: OfflineContext): string {
   if (
     !Number.isSafeInteger(context.companyId) ||
@@ -181,7 +184,7 @@ export function authorizeLocalAccess(
     return revokeLocalAccess(context);
   return withGrantLock(context, async () => {
     assertSessionGeneration(generation);
-    if (!canonicalizeServerUrl(context.serverUrl).startsWith('https://')) {
+    if (!offlineTransportAllowed(context.serverUrl)) {
       throw new OfflineError('OFFLINE_HTTPS_REQUIRED');
     }
     if (

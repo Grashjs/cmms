@@ -105,7 +105,8 @@ import {
 } from '../models/role';
 import RequestsScreen from '../screens/requests/RequestsScreen';
 import SwitchAccountScreen from '../screens/superUser/SwitchAccountScreen';
-import { FontAwesome, Ionicons, Feather } from '@expo/vector-icons';
+import { FontAwesome, Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useOffline } from '../offline/OfflineProvider';
 import { Fragment, ReactElement, ReactNode } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -144,6 +145,18 @@ export default function Navigation({
  */
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
+function OfflineHeaderIndicator() {
+  const offline = useOffline();
+  const { t } = useTranslation();
+  if (!offline.initialized || offline.networkAvailable) return null;
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginRight: 8 }}>
+      <MaterialCommunityIcons name="wifi-off" size={17} />
+      <Text>{t('offline_network_label')}</Text>
+    </View>
+  );
+}
+
 function RootNavigator() {
   const { t } = useTranslation();
   return (
@@ -156,7 +169,7 @@ function RootNavigator() {
       <Stack.Screen
         name="WODetails"
         component={WODetailsScreen}
-        options={{ title: t('wo_details') }}
+        options={{ title: t('wo_details'), headerRight: () => <OfflineHeaderIndicator /> }}
       />
       <Stack.Screen
         name="Tasks"
@@ -639,13 +652,12 @@ function BottomTabNavigator({ navigation }: RootTabScreenProps<'Home'>) {
               />
             ),
             headerRight: () => (
-              <Pressable
-                onPress={() => {
-                  navigation.navigate('Settings');
-                }}
-              >
-                <IconButton icon="cog-outline" />
-              </Pressable>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <OfflineHeaderIndicator />
+                <Pressable onPress={() => navigation.navigate('Settings')}>
+                  <IconButton icon="cog-outline" />
+                </Pressable>
+              </View>
             )
           })}
         />
@@ -655,6 +667,7 @@ function BottomTabNavigator({ navigation }: RootTabScreenProps<'Home'>) {
         component={WorkOrdersScreen}
         options={{
           title: t('work_orders'),
+          headerRight: () => <OfflineHeaderIndicator />,
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? 'clipboard' : 'clipboard-outline'}

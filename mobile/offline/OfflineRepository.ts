@@ -15,6 +15,7 @@ import {
   OperationStatus,
   PendingWork,
   PreparedWorkOrderSummary,
+  WorkOrderActivity,
   PreparedWorkOrderView,
   TaskDraft,
   TaskView,
@@ -341,6 +342,19 @@ export class OfflineRepository {
       associations.forEach(({ row, commentId }) =>
         records.push(this.change(row, { server_comment_id: commentId }))
       );
+      for (const row of await this.collection(OPERATIONS)
+        .query(Q.where('work_order_id', String(workOrderId)), Q.where('status', 'APPLIED'))
+        .fetch()) {
+        const operation = this.operation(row);
+        if (
+          (operation.request.type === 'UPDATE_COMMENT' ||
+            operation.request.type === 'DELETE_COMMENT') &&
+          !operation.snapshotConfirmed &&
+          operation.receipt &&
+          Date.parse(snapshot.preparedAt) >=
+            Date.parse(operation.receipt.receivedAt)
+        ) records.push(this.change(row, { snapshot_confirmed: true }));
+      }
       for (const timeRow of await this.timeRows(snapshot.workOrder.id)) {
         const op = this.operation(timeRow),
           time = op.receipt?.timeResult;
@@ -942,6 +956,56 @@ export class OfflineRepository {
     );
   }
 
+  private async statusInput(
+    workOrderId: number,
+    input: StatusInput,
+    expectedRevision?: number | null
+  ) {
+    const snapshot = json<OfflineSnapshot>(
+      await this.usableWorkOrder(workOrderId, true)
+    );
+    if (!snapshot.closure)
+      throw new OfflineError('STATUS_PREPARATION_REQUIRED');
+    if (!snapshot.closure.canChangeStatus)
+      throw new OfflineError('EDIT_FORBIDDEN');
+    if (!['OPEN', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETE'].includes(input.status))
+      throw new OfflineError('INVALID_VALUE');
+    const row = await this.find(DRAFTS, statusDraftId(workOrderId));
+    const old = row ? json<StatusDraft>(row) : null;
+    if (old && old.status !== input.status)
+      throw new OfflineError('STATUS_WORK_PENDING');
+    if (
+      expectedRevision !== undefined &&
+      (old?.revision ?? null) !== expectedRevision
+    )
+      throw new OfflineError('DRAFT_CHANGED');
+    const previous = old
+      ? undefined
+      : await this.statusPredecessor(
+          workOrderId,
+          snapshot.timerStatusRevision || 0
+        );
+    const clock = await this.nextDraftRevision();
+    const draft: StatusDraft = {
+      ...input,
+      id: statusDraftId(workOrderId),
+      kind: 'STATUS',
+      workOrderId,
+      revision: clock.revision,
+      baseRevision:
+        old?.baseRevision ??
+        (previous && isStatusOperation(previous.request)
+          ? previous.request.statusChange.baseRevision
+          : snapshot.timerStatusRevision || 0),
+      predecessorOperationId: old?.predecessorOperationId || previous?.id,
+      activeTimerRuns: old
+        ? old.activeTimerRuns
+        : await this.statusTimerRuns(snapshot),
+      updatedAt: this.now()
+    };
+    return { snapshot, draft, row, clock };
+  }
+
   async saveStatusDraft(
     workOrderId: number,
     input: StatusInput,
@@ -949,50 +1013,11 @@ export class OfflineRepository {
   ): Promise<StatusDraft> {
     this.assertStorage();
     return this.database.write(async () => {
-      const snapshot = json<OfflineSnapshot>(
-        await this.usableWorkOrder(workOrderId, true)
-      );
-      if (!snapshot.closure)
-        throw new OfflineError('STATUS_PREPARATION_REQUIRED');
-      if (!snapshot.closure.canChangeStatus)
-        throw new OfflineError('EDIT_FORBIDDEN');
-      if (
-        !['OPEN', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETE'].includes(input.status)
-      )
-        throw new OfflineError('INVALID_VALUE');
-      const row = await this.find(DRAFTS, statusDraftId(workOrderId));
-      const old = row ? json<StatusDraft>(row) : null;
-      if (old && old.status !== input.status)
-        throw new OfflineError('STATUS_WORK_PENDING');
-      if (
-        expectedRevision !== undefined &&
-        (old?.revision ?? null) !== expectedRevision
-      )
-        throw new OfflineError('DRAFT_CHANGED');
-      const previous = old
-        ? undefined
-        : await this.statusPredecessor(
-            workOrderId,
-            snapshot.timerStatusRevision || 0
-          );
-      const clock = await this.nextDraftRevision();
-      const draft: StatusDraft = {
-        ...input,
-        id: statusDraftId(workOrderId),
-        kind: 'STATUS',
+      const { draft, clock, row } = await this.statusInput(
         workOrderId,
-        revision: clock.revision,
-        baseRevision:
-          old?.baseRevision ??
-          (previous && isStatusOperation(previous.request)
-            ? previous.request.statusChange.baseRevision
-            : snapshot.timerStatusRevision || 0),
-        predecessorOperationId: old?.predecessorOperationId || previous?.id,
-        activeTimerRuns: old
-          ? old.activeTimerRuns
-          : await this.statusTimerRuns(snapshot),
-        updatedAt: this.now()
-      };
+        input,
+        expectedRevision
+      );
       const fields = {
         work_order_id: String(workOrderId),
         task_id: '',
@@ -1113,21 +1138,23 @@ export class OfflineRepository {
 
   async submitStatusDraft(
     workOrderId: number,
-    expectedRevision: number
+    expectedRevision: number | null,
+    input?: StatusInput
   ): Promise<LocalOperation> {
     this.assertStorage();
     return this.database.write(async () => {
-      const snapshot = json<OfflineSnapshot>(
-        await this.usableWorkOrder(workOrderId, true)
-      );
-      if (!snapshot.closure)
-        throw new OfflineError('STATUS_PREPARATION_REQUIRED');
-      if (!snapshot.closure.canChangeStatus)
-        throw new OfflineError('EDIT_FORBIDDEN');
-      const row = await this.find(DRAFTS, statusDraftId(workOrderId));
-      if (!row || Number(raw(row, 'revision')) !== expectedRevision)
+      const saved =
+        !input && (await this.find(DRAFTS, statusDraftId(workOrderId)));
+      if (
+        !input &&
+        (!saved || Number(raw(saved, 'revision')) !== expectedRevision)
+      )
         throw new OfflineError('DRAFT_CHANGED');
-      const draft = json<StatusDraft>(row);
+      const { snapshot, draft, row, clock } = await this.statusInput(
+        workOrderId,
+        input || json<StatusDraft>(saved),
+        expectedRevision
+      );
       const time = await this.readTimeView(workOrderId);
       if (
         draft.status !== 'IN_PROGRESS' &&
@@ -1151,7 +1178,7 @@ export class OfflineRepository {
         const drafts = await this.collection(DRAFTS)
           .query(Q.where('work_order_id', String(workOrderId)))
           .fetch();
-        if (drafts.some((item) => item.id !== row.id))
+        if (drafts.some((item) => item.id !== row?.id))
           throw new OfflineError('STATUS_WORK_PENDING');
         if (
           operations.some((op) => ['CONFLICT', 'REJECTED'].includes(op.status))
@@ -1208,7 +1235,11 @@ export class OfflineRepository {
         }
       };
       const operation = this.createOperation(request, draft.revision);
-      await this.commit([operation, row.prepareDestroyPermanently()]);
+      await this.commit([
+        operation,
+        this.clockChange(clock),
+        ...(row ? [row.prepareDestroyPermanently()] : [])
+      ]);
       return this.operation(operation);
     });
   }
@@ -1386,7 +1417,7 @@ export class OfflineRepository {
     };
   }
 
-  private validateTimeBounds(startedAt: string, endedAt?: string) {
+  private validateTimeBounds(startedAt: string, endedAt?: string, allowFuture = false) {
     const start = Date.parse(startedAt),
       end = endedAt === undefined ? undefined : Date.parse(endedAt);
     if (
@@ -1395,10 +1426,10 @@ export class OfflineRepository {
         (!Number.isFinite(end) || Math.floor((end - start) / 1000) <= 0))
     )
       throw new OfflineError('INVALID_TIME');
-    if (
+    if (!allowFuture && (
       start > this.now() + 120000 ||
       (end !== undefined && end > this.now() + 120000)
-    )
+    ))
       throw new OfflineError('TIME_IN_FUTURE');
   }
 
@@ -1631,52 +1662,10 @@ export class OfflineRepository {
     });
   }
 
-  async saveManualTimeDraft(
+  async commitManualTime(
     workOrderId: number,
     input: ManualTimeInput,
-    expectedRevision?: number | null
-  ): Promise<ManualTimeDraft> {
-    this.assertStorage();
-    return this.database.write(async () => {
-      const snapshot = json<OfflineSnapshot>(
-        await this.usableWorkOrder(workOrderId, true)
-      );
-      if (!snapshot.timePermissions?.createManualTime)
-        throw new OfflineError('EDIT_FORBIDDEN');
-      const id = manualTimeDraftId(workOrderId),
-        row = await this.find(DRAFTS, id);
-      if (
-        expectedRevision !== undefined &&
-        (row ? Number(raw(row, 'revision')) : null) !== expectedRevision
-      )
-        throw new OfflineError('DRAFT_CHANGED');
-      const clock = await this.nextDraftRevision();
-      const draft: ManualTimeDraft = {
-        id,
-        kind: 'MANUAL_TIME',
-        workOrderId,
-        periodId: row
-          ? json<ManualTimeDraft>(row).periodId
-          : this.options.uuid(),
-        revision: clock.revision,
-        startedAt: input.startedAt,
-        hours: String(input.hours),
-        minutes: String(input.minutes),
-        updatedAt: this.now()
-      };
-      await this.commit([
-        this.clockChange(clock),
-        row
-          ? this.change(row, this.timeDraftFields(draft))
-          : this.create(DRAFTS, id, this.timeDraftFields(draft))
-      ]);
-      return draft;
-    });
-  }
-
-  async submitManualTimeDraft(
-    workOrderId: number,
-    revision: number
+    expectedRevision: number | null
   ): Promise<LocalOperation> {
     this.assertStorage();
     return this.database.write(async () => {
@@ -1686,9 +1675,15 @@ export class OfflineRepository {
       if (!snapshot.timePermissions?.createManualTime)
         throw new OfflineError('EDIT_FORBIDDEN');
       const row = await this.find(DRAFTS, manualTimeDraftId(workOrderId));
-      if (!row || Number(raw(row, 'revision')) !== revision)
+      if ((row ? Number(raw(row, 'revision')) : null) !== expectedRevision)
         throw new OfflineError('DRAFT_CHANGED');
-      const draft = json<ManualTimeDraft>(row);
+      const clock = await this.nextDraftRevision();
+      const draft = {
+        ...input,
+        periodId: row
+          ? json<ManualTimeDraft>(row).periodId
+          : this.options.uuid()
+      };
       const hours = Number(draft.hours),
         minutes = Number(draft.minutes);
       const duration = hours * 3600 + minutes * 60;
@@ -1708,7 +1703,7 @@ export class OfflineRepository {
       if (!Number.isFinite(end) || Math.abs(end) > 8640000000000000)
         throw new OfflineError('INVALID_TIME');
       const endedAt = new Date(end).toISOString();
-      this.validateTimeBounds(draft.startedAt, endedAt);
+      this.validateTimeBounds(draft.startedAt, endedAt, true);
       const request: TimeOperation = {
         ...this.identity(),
         operationId: this.options.uuid(),
@@ -1717,8 +1712,12 @@ export class OfflineRepository {
         occurredAt: new Date(this.now()).toISOString(),
         time: { periodId: draft.periodId, startedAt: draft.startedAt, endedAt }
       };
-      const operation = this.createOperation(request, revision);
-      await this.commit([operation, row.prepareDestroyPermanently()]);
+      const operation = this.createOperation(request, clock.revision);
+      await this.commit([
+        operation,
+        this.clockChange(clock),
+        ...(row ? [row.prepareDestroyPermanently()] : [])
+      ]);
       return this.operation(operation);
     });
   }
@@ -2326,234 +2325,249 @@ export class OfflineRepository {
       );
   }
 
-  async saveDraft(
+  /** The field gesture is the commit. A submitted request stays immutable once attempted. */
+  async commitTaskField(
     workOrderId: number,
     taskId: number,
+    field: TaskField,
     value: string,
-    field: TaskField = 'value'
-  ): Promise<TaskDraft> {
+    seenVersion: number
+  ) {
     this.assertStorage();
-    if (typeof value !== 'string') throw new OfflineError('INVALID_VALUE');
-    return this.database.write(async () => {
+    await this.database.write(async () => {
       const { server } = await this.usableTask(
         workOrderId,
         taskId,
         true,
         field
       );
-      const existing = await this.find(DRAFTS, draftId(taskId, field));
-      const original = existing ? json<TaskDraft>(existing) : null;
-      const operations = (await this.unresolvedRows(taskId)).map((row) =>
-        this.operation(row)
-      );
-      const predecessor = operations[operations.length - 1];
-      const request = predecessor?.request;
-      const priorField = operations
-        .filter((op) => operationField(op.request) === field)
-        .pop();
-      const clock = await this.nextDraftRevision();
-      const draft: TaskDraft = {
-        id: draftId(taskId, field),
-        workOrderId,
-        taskId,
-        field,
-        revision: clock.revision,
-        value,
-        baseVersion:
-          original?.baseVersion ??
-          (request && isTaskOperation(request)
-            ? request.baseVersion
-            : server.version),
-        baseValue:
-          original?.baseValue ??
-          (priorField
-            ? operationText(priorField.request)
-            : String(server[field] ?? '')),
-        basedOnOperationId: original?.basedOnOperationId || predecessor?.id,
-        blockedReason:
-          original?.blockedReason ||
-          (predecessor && !ACTIVE.includes(predecessor.status)
-            ? predecessor.receipt?.code || predecessor.status
-            : undefined),
-        updatedAt: this.now()
-      };
-      const fields = {
-        work_order_id: String(workOrderId),
-        task_id: String(taskId),
-        payload: JSON.stringify(draft),
-        revision: draft.revision
-      };
-      await this.commit([
-        this.clockChange(clock),
-        existing
-          ? this.change(existing, fields)
-          : this.create(DRAFTS, draft.id, fields)
-      ]);
-      return draft;
-    });
-  }
-
-  async submitDraft(
-    taskId: number,
-    expectedDraftRevision: number,
-    field: TaskField = 'value'
-  ): Promise<LocalOperation> {
-    this.assertStorage();
-    return this.database.write(async () => {
-      const row = await this.find(DRAFTS, draftId(taskId, field));
-      if (!row || Number(raw(row, 'revision')) !== expectedDraftRevision)
-        throw new OfflineError('DRAFT_CHANGED');
-      const draft = json<TaskDraft>(row);
-      const { server } = await this.usableTask(
-        draft.workOrderId,
-        taskId,
-        true,
-        field
-      );
-      this.validateTaskInput(server, draft.value, field);
-      const unresolved = (await this.unresolvedRows(taskId)).map((item) =>
-        this.operation(item)
-      );
-      if (
-        draft.blockedReason ||
-        unresolved.some(
+      this.validateTaskInput(server, value, field);
+      const rows = await this.unresolvedRows(taskId);
+      const previousRow = rows[rows.length - 1];
+      const previous = previousRow && this.operation(previousRow);
+      if (rows.some((row) => !ACTIVE.includes(this.operation(row).status)))
+        throw new OfflineError('PREVIOUS_OPERATION');
+      // Only unsent commands may be edited. A closure which already references
+      // an operation must continue to see the value it was submitted with.
+      const sameField = [...rows]
+        .reverse()
+        .find((row) => operationField(this.operation(row).request) === field);
+      if (sameField) {
+        const queued = this.operation(sameField);
+        const closures = await this.statusOperations(workOrderId);
+        const captured = closures.some(
           (op) =>
-            operationField(op.request) === field || !ACTIVE.includes(op.status)
+            isStatusOperation(op.request) &&
+            op.request.statusChange.dependencyOperationIds.includes(
+              queued.id
+            ) &&
+            ACTIVE.includes(op.status)
+        );
+        if (queued.status === 'QUEUED' && !queued.attemptCount && !captured) {
+          await this.commit([
+            this.change(sameField, {
+              request: JSON.stringify({ ...queued.request, [field]: value }),
+              updated_at: this.now()
+            })
+          ]);
+          return;
+        }
+      }
+      let baseVersion = seenVersion;
+      if (previous && isTaskOperation(previous.request))
+        baseVersion = previous.request.baseVersion;
+      else if (server.version !== seenVersion) {
+        // A confirmation from this phone can arrive between rendering and tapping.
+        const accepted = await this.collection(OPERATIONS)
+          .query(
+            Q.where('task_id', String(taskId)),
+            Q.where('status', 'APPLIED')
+          )
+          .fetch();
+        if (
+          accepted.some((row) => {
+            const { receipt, request } = this.operation(row);
+            return (
+              isTaskOperation(request) &&
+              request.baseVersion === seenVersion &&
+              receipt?.task?.version === server.version
+            );
+          })
         )
-      )
-        throw new OfflineError('PREVIOUS_OPERATION');
-      const predecessor = unresolved[unresolved.length - 1];
-      if (
-        predecessor &&
-        (predecessor.submittedRevision == null ||
-          !isTaskOperation(predecessor.request) ||
-          predecessor.request.baseVersion !== draft.baseVersion)
-      )
-        throw new OfflineError('PREVIOUS_OPERATION');
-      if (!predecessor && draft.basedOnOperationId)
-        throw new OfflineError('PREVIOUS_OPERATION');
-      const id = this.options.uuid();
+          baseVersion = server.version;
+      }
+      const clock = await this.nextDraftRevision();
       const common = {
         ...this.identity(),
-        operationId: id,
-        workOrderId: draft.workOrderId,
+        workOrderId,
         taskId,
-        baseVersion: draft.baseVersion,
+        baseVersion,
+        operationId: this.options.uuid(),
         occurredAt: new Date(this.now()).toISOString(),
-        ...(predecessor ? { predecessorOperationId: predecessor.id } : {})
+        ...(previous ? { predecessorOperationId: previous.id } : {})
       };
       const request: OperationRequest =
         field === 'notes'
-          ? { ...common, type: 'SET_TASK_NOTES', notes: draft.value }
-          : { ...common, type: 'SET_TASK_VALUE', value: draft.value };
-      const other = await this.find(
-        DRAFTS,
-        draftId(taskId, field === 'value' ? 'notes' : 'value')
-      );
-      const otherDraft = other ? json<TaskDraft>(other) : null;
-      // A field's own receipt is the only authority allowed to advance another local draft.
-      const binding =
-        otherDraft &&
-        !otherDraft.blockedReason &&
-        otherDraft.baseVersion === draft.baseVersion;
-      const clock = binding ? await this.nextDraftRevision() : null;
-      const operation = this.createOperation(request, draft.revision);
-      const records = [operation, row.prepareDestroyPermanently()];
-      if (binding)
-        records.push(
-          this.clockChange(clock!),
-          this.change(other!, {
-            payload: JSON.stringify({
-              ...otherDraft,
-              basedOnOperationId: id,
-              revision: clock!.revision
-            }),
-            revision: clock!.revision
-          })
-        );
-      await this.commit(records);
-      return this.operation(operation);
+          ? { ...common, type: 'SET_TASK_NOTES', notes: value }
+          : { ...common, type: 'SET_TASK_VALUE', value };
+      const records = [this.createOperation(request, clock.revision)];
+      await this.commit([...records, this.clockChange(clock)]);
     });
   }
 
-  async saveCommentDraft(
+  async publishComment(
     workOrderId: number,
     content: string,
-    expectedRevision?: number | null,
-    attachmentPending?: boolean
-  ): Promise<CommentDraft> {
+    fileIds: string[],
+    reviewRevision: number | null
+  ) {
     this.assertStorage();
     return this.database.write(async () => {
-      await this.usableWorkOrder(workOrderId, true);
+      const target = json<OfflineSnapshot>(
+        await this.usableWorkOrder(workOrderId)
+      );
+      if (!(target.canComment ?? target.canEdit))
+        throw new OfflineError('EDIT_FORBIDDEN');
+      if (!content.trim()) throw new OfflineError('COMMENT_EMPTY');
       const row = await this.find(DRAFTS, commentDraftId(workOrderId));
-      if (
-        expectedRevision !== undefined &&
-        (row ? Number(raw(row, 'revision')) : null) !== expectedRevision
-      )
+      if ((row ? Number(raw(row, 'revision')) : null) !== reviewRevision)
         throw new OfflineError('DRAFT_CHANGED');
+      const reviewed = row ? json<CommentDraft>(row).fileIds ?? [] : [];
       const clock = await this.nextDraftRevision();
-      const draft: CommentDraft = {
-        id: commentDraftId(workOrderId),
-        kind: 'COMMENT',
-        workOrderId,
-        content,
-        fileIds: row ? json<CommentDraft>(row).fileIds || [] : [],
-        attachmentPending:
-          attachmentPending ??
-          (row ? !!json<CommentDraft>(row).attachmentPending : false),
-        revision: clock.revision,
-        updatedAt: this.now()
-      };
-      const fields = {
-        work_order_id: String(workOrderId),
-        task_id: '',
-        payload: JSON.stringify(draft),
-        revision: draft.revision
-      };
-      await this.commit([
-        this.clockChange(clock),
-        row ? this.change(row, fields) : this.create(DRAFTS, draft.id, fields)
-      ]);
-      return draft;
-    });
-  }
-
-  async submitCommentDraft(
-    workOrderId: number,
-    expectedRevision: number
-  ): Promise<LocalOperation> {
-    this.assertStorage();
-    return this.database.write(async () => {
-      await this.usableWorkOrder(workOrderId, true);
-      const row = await this.find(DRAFTS, commentDraftId(workOrderId));
-      if (!row || Number(raw(row, 'revision')) !== expectedRevision)
-        throw new OfflineError('DRAFT_CHANGED');
-      const draft = json<CommentDraft>(row);
-      if (draft.attachmentPending)
-        throw new OfflineError('COMMENT_ATTACHMENT_PENDING');
-      if (!draft.content.trim()) throw new OfflineError('COMMENT_EMPTY');
       const transfers = await this.prepareTransfers(
         workOrderId,
         { kind: 'COMMENT' },
-        draft.fileIds || [],
-        draft.revision
+        [...reviewed, ...fileIds],
+        clock.revision
       );
-      const request: OperationRequest = {
-        ...this.identity(),
-        operationId: this.options.uuid(),
-        type: 'CREATE_COMMENT',
-        workOrderId,
-        content: draft.content,
-        ...(transfers.ids.length ? { fileTransferIds: transfers.ids } : {}),
-        occurredAt: new Date(this.now()).toISOString()
-      };
-      const operation = this.createOperation(request, draft.revision);
+      const operation = this.createOperation(
+        {
+          ...this.identity(),
+          operationId: this.options.uuid(),
+          type: 'CREATE_COMMENT',
+          workOrderId,
+          content,
+          ...(transfers.ids.length ? { fileTransferIds: transfers.ids } : {}),
+          occurredAt: new Date(this.now()).toISOString()
+        },
+        clock.revision
+      );
       await this.commit([
         ...transfers.records(),
         operation,
-        row.prepareDestroyPermanently()
+        this.clockChange(clock),
+        ...(row ? [row.prepareDestroyPermanently()] : [])
       ]);
-      return this.operation(operation);
+    });
+  }
+
+  async changeComment(
+    workOrderId: number,
+    commentId: number,
+    baseCommentUpdatedAt: string,
+    content?: string
+  ): Promise<void> {
+    this.assertStorage();
+    await this.database.write(async () => {
+      const snapshot = json<OfflineSnapshot>(
+        await this.usableWorkOrder(workOrderId)
+      );
+      const owner = this.identity().userId;
+      const comment = snapshot.comments.find((item) => item.id === commentId);
+      if (!comment || comment.system || comment.user?.id !== owner)
+        throw new OfflineError('EDIT_FORBIDDEN');
+      if (comment.updatedAt !== baseCommentUpdatedAt)
+        throw new OfflineError('SERVER_CHANGED');
+      if (content !== undefined && !content.trim())
+        throw new OfflineError('COMMENT_EMPTY');
+      const previous = await this.collection(OPERATIONS)
+        .query(Q.where('work_order_id', String(workOrderId)))
+        .fetch();
+      if (previous.some((row) => {
+        const operation = this.operation(row);
+        return (
+          (operation.request.type === 'UPDATE_COMMENT' ||
+            operation.request.type === 'DELETE_COMMENT') &&
+          operation.request.commentId === commentId &&
+          (UNRESOLVED.includes(operation.status) ||
+            (operation.status === 'APPLIED' && !operation.snapshotConfirmed))
+        );
+      })) throw new OfflineError('PREVIOUS_OPERATION');
+      const clock = await this.nextDraftRevision();
+      const request: OperationRequest = {
+        ...this.identity(),
+        operationId: this.options.uuid(),
+        workOrderId,
+        occurredAt: new Date(this.now()).toISOString(),
+        commentId,
+        baseCommentUpdatedAt,
+        ...(content === undefined
+          ? { type: 'DELETE_COMMENT' as const }
+          : { type: 'UPDATE_COMMENT' as const, content })
+      };
+      await this.commit([
+        this.createOperation(request, clock.revision),
+        this.clockChange(clock)
+      ]);
+    });
+  }
+
+  async editQueuedComment(operationId: string, content: string): Promise<void> {
+    this.assertStorage();
+    if (!content.trim()) throw new OfflineError('COMMENT_EMPTY');
+    await this.database.write(async () => {
+      const row = await this.find(OPERATIONS, operationId);
+      if (!row) throw new OfflineError('OPERATION_MISSING');
+      const operation = this.operation(row);
+      // A request that has never left this device has no server receipt to preserve.
+      if (operation.request.type !== 'CREATE_COMMENT' ||
+        operation.status !== 'QUEUED' || operation.attemptCount !== 0)
+        throw new OfflineError('RESULT_UNKNOWN');
+      const snapshot = json<OfflineSnapshot>(
+        await this.usableWorkOrder(operation.request.workOrderId)
+      );
+      if (!(snapshot.canComment ?? snapshot.canEdit))
+        throw new OfflineError('EDIT_FORBIDDEN');
+      await this.commit([this.change(row, {
+        request: JSON.stringify({ ...operation.request, content }),
+        updated_at: this.now()
+      })]);
+    });
+  }
+
+  async resolveCommentMutation(
+    operationId: string,
+    serverUpdatedAt: string | null,
+    keepLocal: boolean
+  ): Promise<void> {
+    this.assertStorage();
+    await this.database.write(async () => {
+      const row = await this.find(OPERATIONS, operationId);
+      if (!row) throw new OfflineError('OPERATION_MISSING');
+      const operation = this.operation(row);
+      const request = operation.request;
+      if ((request.type !== 'UPDATE_COMMENT' && request.type !== 'DELETE_COMMENT') ||
+        operation.status !== 'CONFLICT') throw new OfflineError('RESULT_UNKNOWN');
+      if (!keepLocal) {
+        await this.commit([this.change(row, { status: 'ABANDONED', updated_at: this.now() })]);
+        return;
+      }
+      const snapshot = json<OfflineSnapshot>(await this.usableWorkOrder(request.workOrderId));
+      const comment = snapshot.comments.find((item) => item.id === request.commentId);
+      if (!comment || !serverUpdatedAt || comment.updatedAt !== serverUpdatedAt ||
+        comment.system || comment.user?.id !== this.identity().userId)
+        throw new OfflineError('SERVER_CHANGED');
+      const clock = await this.nextDraftRevision();
+      await this.commit([
+        this.change(row, { status: 'ABANDONED', updated_at: this.now() }),
+        this.createOperation({
+          ...request,
+          operationId: this.options.uuid(),
+          baseCommentUpdatedAt: serverUpdatedAt,
+          occurredAt: new Date(this.now()).toISOString()
+        }, clock.revision),
+        this.clockChange(clock)
+      ]);
     });
   }
 
@@ -2702,174 +2716,64 @@ export class OfflineRepository {
     });
   }
 
-  async discardTaskField(
+  async settleTaskField(
+    workOrderId: number,
     taskId: number,
     field: TaskField,
-    expectedDraftRevision: number | null,
-    operationId: string | null,
-    expectedServerVersion: number
-  ): Promise<void> {
+    operationId: string,
+    localValue: string,
+    serverVersion: number,
+    keepLocal: boolean
+  ) {
     this.assertStorage();
     await this.database.write(async () => {
-      const task = await this.find(TASKS, String(taskId));
-      if (!task) throw new OfflineError('TARGET_UNAVAILABLE');
       const { server } = await this.usableTask(
-        Number(raw(task, 'work_order_id')),
-        taskId
-      );
-      if (server.version !== expectedServerVersion)
-        throw new OfflineError('SERVER_CHANGED');
-      const draftRow = await this.find(DRAFTS, draftId(taskId, field));
-      if (
-        (draftRow ? Number(raw(draftRow, 'revision')) : null) !==
-        expectedDraftRevision
-      )
-        throw new OfflineError('DRAFT_CHANGED');
-      const unresolved = (await this.unresolvedRows(taskId)).filter(
-        (row) => operationField(this.operation(row).request) === field
-      );
-      if (unresolved.some((row) => row.id !== operationId))
-        throw new OfflineError('DRAFT_CHANGED');
-      const records: Model[] = [];
-      for (const row of unresolved) {
-        const operation = this.operation(row);
-        if (
-          !['CONFLICT', 'REJECTED'].includes(operation.status) &&
-          !(operation.status === 'QUEUED' && operation.attemptCount === 0)
-        )
-          throw new OfflineError('RESULT_UNKNOWN');
-        records.push(
-          this.change(row, { status: 'ABANDONED', updated_at: this.now() })
-        );
-      }
-      if (draftRow) records.push(draftRow.prepareDestroyPermanently());
-      // Other-field drafts retain their predecessor and must explicitly review an abandoned chain.
-      const other = await this.find(
-        DRAFTS,
-        draftId(taskId, field === 'value' ? 'notes' : 'value')
-      );
-      if (other) {
-        const draft = json<TaskDraft>(other);
-        if (unresolved.some((row) => row.id === draft.basedOnOperationId))
-          records.push(
-            this.change(other, {
-              payload: JSON.stringify({
-                ...draft,
-                blockedReason: 'PREDECESSOR_ABANDONED'
-              })
-            })
-          );
-      }
-      if (records.length) await this.commit(records);
-    });
-  }
-
-  async resolveDraftAgainstServer(
-    taskId: number,
-    expectedDraftRevision: number,
-    expectedServerVersion: number,
-    field: TaskField = 'value'
-  ): Promise<TaskDraft> {
-    this.assertStorage();
-    return this.database.write(async () => {
-      const row = await this.find(DRAFTS, draftId(taskId, field));
-      if (!row || Number(raw(row, 'revision')) !== expectedDraftRevision)
-        throw new OfflineError('DRAFT_CHANGED');
-      const draft = json<TaskDraft>(row);
-      const { server } = await this.usableTask(
-        draft.workOrderId,
+        workOrderId,
         taskId,
-        true,
+        keepLocal,
         field
       );
-      if (server.version !== expectedServerVersion)
+      if (server.version !== serverVersion)
         throw new OfflineError('SERVER_CHANGED');
-      const operations = (await this.unresolvedRows(taskId)).filter(
+      const rows = (await this.unresolvedRows(taskId)).filter(
         (row) => operationField(this.operation(row).request) === field
       );
-      if (operations.length) throw new OfflineError('PREVIOUS_OPERATION');
-      const clock = await this.nextDraftRevision();
-      const resolved = {
-        ...draft,
-        revision: clock.revision,
-        baseVersion: server.version,
-        baseValue: String(server[field] ?? ''),
-        basedOnOperationId: undefined,
-        blockedReason: undefined,
-        updatedAt: this.now()
-      };
-      await this.commit([
-        this.clockChange(clock),
-        this.change(row, {
-          payload: JSON.stringify(resolved),
-          revision: resolved.revision
-        })
-      ]);
-      return resolved;
-    });
-  }
-
-  async resolveOperationAgainstServer(
-    operationId: string,
-    expectedDraftRevision: number | null,
-    expectedServerVersion: number
-  ): Promise<TaskDraft> {
-    this.assertStorage();
-    return this.database.write(async () => {
-      const row = await this.find(OPERATIONS, operationId);
-      if (!row) throw new OfflineError('OPERATION_MISSING');
-      const operation = this.operation(row);
-      if (!isTaskOperation(operation.request))
-        throw new OfflineError('INVALID_VALUE');
+      const latest = rows.length && this.operation(rows[rows.length - 1]);
       if (
-        !['CONFLICT', 'REJECTED'].includes(operation.status) &&
-        !(
-          operation.status === 'QUEUED' &&
-          operation.attemptCount === 0 &&
-          (await this.blockedReason(operation))
-        )
+        !latest ||
+        latest.id !== operationId ||
+        operationText(latest.request) !== localValue
+      )
+        throw new OfflineError('DRAFT_CHANGED');
+      if (
+        rows.some((row) => !this.canAbandonKnownOperation(this.operation(row)))
       )
         throw new OfflineError('RESULT_UNKNOWN');
-      const { taskId, workOrderId } = operation.request;
-      const field = operationField(operation.request) as TaskField;
-      const { server } = await this.usableTask(
-        workOrderId,
-        taskId,
-        true,
-        field
-      );
-      if (server.version !== expectedServerVersion)
-        throw new OfflineError('SERVER_CHANGED');
-      const draftRow = await this.find(DRAFTS, draftId(taskId, field));
-      const draft = draftRow ? json<TaskDraft>(draftRow) : null;
-      if ((draft?.revision ?? null) !== expectedDraftRevision)
-        throw new OfflineError('DRAFT_CHANGED');
       const clock = await this.nextDraftRevision();
-      const resolved: TaskDraft = {
-        id: draftId(taskId, field),
-        workOrderId,
-        taskId,
-        field,
-        revision: clock.revision,
-        value: draft?.value ?? operationText(operation.request),
-        baseVersion: server.version,
-        baseValue: String(server[field] ?? ''),
-        updatedAt: this.now()
-      };
-      const fields = {
-        work_order_id: String(workOrderId),
-        task_id: String(taskId),
-        payload: JSON.stringify(resolved),
-        revision: resolved.revision
-      };
-      await this.commit([
-        this.clockChange(clock),
-        draftRow
-          ? this.change(draftRow, fields)
-          : this.create(DRAFTS, resolved.id, fields),
+      if (keepLocal) this.validateTaskInput(server, localValue, field);
+      const records = rows.map((row) =>
         this.change(row, { status: 'ABANDONED', updated_at: this.now() })
-      ]);
-      return resolved;
+      );
+      if (keepLocal) {
+        const common = {
+          ...this.identity(),
+          workOrderId,
+          taskId,
+          baseVersion: serverVersion,
+          operationId: this.options.uuid(),
+          occurredAt: new Date(this.now()).toISOString()
+        };
+        records.push(
+          this.createOperation(
+            field === 'notes'
+              ? { ...common, type: 'SET_TASK_NOTES', notes: localValue }
+              : { ...common, type: 'SET_TASK_VALUE', value: localValue },
+            clock.revision
+          ),
+          this.clockChange(clock)
+        );
+      }
+      await this.commit(records);
     });
   }
 
@@ -3024,6 +2928,37 @@ export class OfflineRepository {
         await this.applyTimeReceipt(row, operation, receipt);
         return;
       }
+      if (
+        operation.request.type === 'UPDATE_COMMENT' ||
+        operation.request.type === 'DELETE_COMMENT'
+      ) {
+        const request = operation.request;
+        if (
+          receipt.task || receipt.fileId != null ||
+          (receipt.status === 'APPLIED' && receipt.commentId !== request.commentId) ||
+          (receipt.status !== 'APPLIED' && receipt.commentId != null)
+        ) throw new OfflineError('INVALID_RECEIPT');
+        if (operation.receipt &&
+          (operation.receipt.status !== receipt.status ||
+            operation.receipt.receivedAt !== receipt.receivedAt ||
+            operation.receipt.commentId !== receipt.commentId))
+          throw new OfflineError('INVALID_RECEIPT');
+        const workOrder = await this.find(WORK_ORDERS, String(request.workOrderId));
+        const records = [this.change(row, {
+          status: receipt.status,
+          receipt: JSON.stringify(receipt),
+          updated_at: this.now()
+        })];
+        if (workOrder &&
+          (receipt.code === 'ACCESS_REVOKED' || receipt.visibility === 'WORK_ORDER_UNAVAILABLE'))
+          records.push(this.change(workOrder, {
+            available: false,
+            unavailable_reason: 'ACCESS_REVOKED',
+            availability_revision: Number(raw(workOrder, 'availability_revision')) + 1
+          }));
+        await this.commit(records);
+        return;
+      }
       // The result is final, but the server re-evaluates comment visibility on
       // receipt reads. This also resolves deletion before the first snapshot.
       if (
@@ -3170,58 +3105,6 @@ export class OfflineRepository {
           }
           if (Object.keys(fields).length)
             records.push(this.change(taskRow, fields));
-        }
-        const drafts = await this.collection(DRAFTS)
-          .query(Q.where('task_id', String(request.taskId)))
-          .fetch();
-        const pending = (await this.unresolvedRows(request.taskId))
-          .map((item) => this.operation(item))
-          .filter((op) => op.id !== operation.id);
-        const tail = pending[pending.length - 1];
-        const updates: { row: Model; draft: TaskDraft }[] = [];
-        for (const draftRow of drafts) {
-          const draft = json<TaskDraft>(draftRow);
-          if (draft.basedOnOperationId !== operation.id) continue;
-          const field = draft.field || 'value';
-          let next: TaskDraft;
-          if (receipt.status === 'APPLIED' && receipt.task) {
-            if (
-              tail &&
-              isTaskOperation(tail.request) &&
-              tail.request.baseVersion === draft.baseVersion
-            ) {
-              next = { ...draft, basedOnOperationId: tail.id };
-            } else {
-              next = {
-                ...draft,
-                basedOnOperationId: undefined,
-                blockedReason: undefined,
-                baseVersion: receipt.task.version,
-                baseValue: String(receipt.task[field] ?? '')
-              };
-            }
-          } else
-            next = {
-              ...draft,
-              blockedReason: withheld
-                ? 'RECEIPT_WITHOUT_TASK'
-                : receipt.code || receipt.status
-            };
-          updates.push({ row: draftRow, draft: next });
-        }
-        if (updates.length) {
-          const clock = await this.nextDraftRevision();
-          updates.forEach((update, index) => {
-            const revision = clock.revision + index;
-            records.push(
-              this.change(update.row, {
-                payload: JSON.stringify({ ...update.draft, revision }),
-                revision
-              })
-            );
-          });
-          clock.revision += updates.length - 1;
-          records.push(this.clockChange(clock));
         }
       }
       if (isComment && receipt.status === 'APPLIED') {
@@ -3428,8 +3311,9 @@ export class OfflineRepository {
   async removePreparation(workOrderId: number): Promise<void> {
     this.assertStorage();
     await this.database.write(async () => {
-      if (await this.hasUnresolved(workOrderId))
-        throw new OfflineError('WORK_PENDING');
+      const drafts = await this.collection(DRAFTS)
+        .query(Q.where('work_order_id', String(workOrderId)))
+        .fetch();
       const [workOrder, tasks, operations] = await Promise.all([
         this.find(WORK_ORDERS, String(workOrderId)),
         this.collection(TASKS)
@@ -3469,9 +3353,12 @@ export class OfflineRepository {
       }
       await this.commit([
         ...references,
-        ...[...(workOrder ? [workOrder] : []), ...tasks, ...operations].map(
-          (row) => row.prepareDestroyPermanently()
-        ),
+        ...[
+          ...(workOrder ? [workOrder] : []),
+          ...drafts,
+          ...tasks,
+          ...operations
+        ].map((row) => row.prepareDestroyPermanently()),
         ...(!cleanup
           ? [
               this.create('offline_cleanup', String(workOrderId), {
@@ -3503,9 +3390,8 @@ export class OfflineRepository {
   async getTask(taskId: number, field: TaskField = 'value'): Promise<TaskView> {
     this.assertStorage();
     return this.database.read(async () => {
-      const [taskRow, draftRow, allOperations] = await Promise.all([
+      const [taskRow, allOperations] = await Promise.all([
         this.find(TASKS, String(taskId)),
-        this.find(DRAFTS, draftId(taskId, field)),
         this.unresolvedRows(taskId)
       ]);
       const workOrder = taskRow
@@ -3539,19 +3425,6 @@ export class OfflineRepository {
           ...operation,
           blockedReason: await this.blockedReason(operation)
         };
-      let draft = draftRow ? json<TaskDraft>(draftRow) : null;
-      if (draft?.basedOnOperationId && !draft.blockedReason) {
-        const predecessor = await this.getOperation(draft.basedOnOperationId);
-        if (
-          !predecessor ||
-          ['CONFLICT', 'REJECTED', 'ABANDONED'].includes(predecessor.status)
-        )
-          draft = { ...draft, blockedReason: 'PREDECESSOR_FAILED' };
-        else {
-          const reason = await this.blockedReason(predecessor);
-          if (reason) draft = { ...draft, blockedReason: reason };
-        }
-      }
       const serverTask = available ? json<OfflineTask>(taskRow!) : null;
       const userId = this.identity().userId;
       return {
@@ -3560,13 +3433,12 @@ export class OfflineRepository {
           ? {
               ...serverTask,
               [field]:
-                draft?.value ??
-                (operation && operation.status !== 'APPLIED'
+                operation && operation.status !== 'APPLIED'
                   ? operationText(operation.request)
-                  : serverTask[field])
+                  : serverTask[field]
             }
           : null,
-        draft: available ? draft : null,
+        draft: null,
         operation: available ? operation : null,
         available,
         unavailableReason: available
@@ -3628,7 +3500,7 @@ export class OfflineRepository {
       if (!row) return null;
       const available = !!raw(row, 'available');
       const snapshot = available ? json<OfflineSnapshot>(row) : null;
-      const [tasks, draftRows, operationRows] = available
+      const [tasks, operationRows, commentRows] = available
         ? await Promise.all([
             this.collection(TASKS)
               .query(
@@ -3636,17 +3508,13 @@ export class OfflineRepository {
                 Q.where('available', true)
               )
               .fetch(),
-            this.collection(DRAFTS)
-              .query(Q.where('work_order_id', String(workOrderId)))
-              .fetch(),
-            this.unresolvedRows(undefined, workOrderId)
+            this.unresolvedRows(undefined, workOrderId),
+            this.collection(OPERATIONS)
+              .query(Q.where('work_order_id', String(workOrderId)),
+                Q.sortBy('created_at', Q.asc))
+              .fetch()
           ])
         : [[], [], []];
-      const drafts = new Map(
-        draftRows
-          .filter((row) => raw(row, 'task_id') !== '' && !json<any>(row).kind)
-          .map((row) => [row.id, json<TaskDraft>(row)])
-      );
       const operations = new Map<string, LocalOperation>();
       operationRows.forEach((row) => {
         const operation = this.operation(row);
@@ -3665,19 +3533,40 @@ export class OfflineRepository {
         for (const field of ['value', 'notes'] as TaskField[]) {
           const id = draftId(server.id, field);
           const operation = operations.get(id);
-          projected[field] =
-            drafts.get(id)?.value ??
-            (operation
-              ? operationText(operation.request)
-              : String(server[field] ?? ''));
+          projected[field] = operation
+            ? operationText(operation.request)
+            : String(server[field] ?? '');
         }
         return projected;
       });
+      const commentMutations = commentRows
+        .map((row) => this.operation(row))
+        .filter((operation) =>
+          (operation.request.type === 'UPDATE_COMMENT' ||
+            operation.request.type === 'DELETE_COMMENT') &&
+          (UNRESOLVED.includes(operation.status) ||
+            (operation.status === 'APPLIED' && !operation.snapshotConfirmed))
+        );
+      const projectedComments = [...(snapshot?.comments || [])];
+      for (const operation of commentMutations) {
+        if (!ACTIVE.includes(operation.status) &&
+          !(operation.status === 'APPLIED' && !operation.snapshotConfirmed)) continue;
+        const request = operation.request;
+        if (request.type === 'DELETE_COMMENT') {
+          const index = projectedComments.findIndex((comment) => comment.id === request.commentId);
+          if (index >= 0) projectedComments.splice(index, 1);
+        } else if (request.type === 'UPDATE_COMMENT') {
+          const index = projectedComments.findIndex((comment) => comment.id === request.commentId);
+          if (index >= 0) projectedComments[index] = {
+            ...projectedComments[index], content: request.content
+          };
+        }
+      }
       return {
         id: workOrderId,
         workOrder: snapshot?.workOrder || null,
         tasks: projectedTasks,
-        comments: snapshot?.comments || [],
+        comments: projectedComments,
         history: snapshot?.history || [],
         canEdit: !!snapshot?.canEdit,
         canComment: !!(snapshot?.canComment ?? snapshot?.canEdit),
@@ -3690,6 +3579,7 @@ export class OfflineRepository {
         commentOperations: available
           ? await this.getCommentOperations(workOrderId)
           : [],
+        commentMutations,
         preparedAt: String(raw(row, 'prepared_at')),
         available,
         unavailableReason: available
@@ -3736,6 +3626,53 @@ export class OfflineRepository {
       );
   }
 
+  /** The list needs just a badge and a proposed status, even for large preparations. */
+  observeWorkOrderActivity() {
+    return this.collection(OPERATIONS)
+      .query(
+        Q.or(
+          Q.where('status', Q.oneOf(UNRESOLVED)),
+          Q.and(
+            Q.where('status', 'APPLIED'),
+            Q.where('snapshot_confirmed', Q.notEq(true))
+          )
+        ),
+        Q.sortBy('submitted_revision', Q.asc)
+      )
+      .observeWithColumns(['status', 'request', 'snapshot_confirmed'])
+      .pipe(
+        map((rows) => {
+          this.assertStorage();
+          const byId = new Map<number, WorkOrderActivity>();
+          for (const row of rows) {
+            const state = raw(row, 'status') as OperationStatus;
+            const id = Number(raw(row, 'work_order_id'));
+            const activity = byId.get(id) || {
+              badge: 'offline_badge_prepared'
+            };
+            if (state === 'CONFLICT') activity.badge = 'offline_badge_conflict';
+            else if (
+              state === 'REJECTED' &&
+              activity.badge !== 'offline_badge_conflict'
+            )
+              activity.badge = 'offline_badge_refused';
+            else if (
+              ACTIVE.includes(state) &&
+              activity.badge === 'offline_badge_prepared'
+            )
+              activity.badge = 'offline_badge_pending';
+            if (ACTIVE.includes(state) || state === 'APPLIED') {
+              const request = this.operation(row).request;
+              if (isStatusOperation(request))
+                activity.status = request.statusChange.status;
+            }
+            byId.set(id, activity);
+          }
+          return byId;
+        })
+      );
+  }
+
   async getPendingWork(workOrderId?: number): Promise<PendingWork[]> {
     this.assertStorage();
     const conditions =
@@ -3747,7 +3684,11 @@ export class OfflineRepository {
         .query(...conditions)
         .fetch(),
       this.collection(OPERATIONS)
-        .query(...conditions, Q.sortBy('created_at', Q.asc))
+        .query(
+          ...conditions,
+          Q.sortBy('submitted_revision', Q.asc),
+          Q.sortBy('created_at', Q.asc)
+        )
         .fetch()
     ]);
     const items: PendingWork[] = [];
@@ -3847,8 +3788,12 @@ export class OfflineRepository {
       const operation = this.operation(row);
       const request = operation.request;
       const comment = request.type === 'CREATE_COMMENT';
+      const commentMutation = request.type === 'UPDATE_COMMENT' ||
+        request.type === 'DELETE_COMMENT';
       if (
         !UNRESOLVED.includes(operation.status) &&
+        !(commentMutation && operation.status === 'APPLIED' &&
+          !operation.snapshotConfirmed) &&
         !(
           comment &&
           operation.status === 'APPLIED' &&
@@ -3867,38 +3812,66 @@ export class OfflineRepository {
       )
         continue;
       const field = operationField(request);
-      const target =
-        !isTaskOperation(request) &&
-        'taskId' in request &&
-        request.taskId != null
-          ? await this.getTask(request.taskId, 'notes')
-          : !isTaskOperation(request)
-          ? await this.getWorkOrderProjection(request.workOrderId)
-          : await this.getTask(request.taskId, field as TaskField);
+      const wo = await this.find(WORK_ORDERS, String(request.workOrderId));
+      const taskId = 'taskId' in request ? request.taskId : null;
+      const taskRow = taskId ? await this.find(TASKS, String(taskId)) : null;
+      const available =
+        !!wo &&
+        !!raw(wo, 'available') &&
+        (!taskId || (!!taskRow && !!raw(taskRow, 'available')));
+      const unavailableRow = wo && !raw(wo, 'available') ? wo : taskRow;
+      const fileIds = transferIds(request);
+      const fileNames =
+        available && field === 'attachments'
+          ? await Promise.all(
+              fileIds.map(async (id) => (await this.getTransferFile(id))?.name)
+            )
+          : [];
       items.push({
         kind: 'OPERATION',
         operationType: request.type,
         id: operation.id,
         workOrderId: request.workOrderId,
         taskId: 'taskId' in request ? request.taskId : undefined,
+        commentId: commentMutation ? request.commentId : undefined,
         field,
         status: operation.status,
         attemptCount: operation.attemptCount,
-        targetAvailable: !!target?.available,
+        targetAvailable: available,
         reason:
-          target?.unavailableReason ||
+          (!available &&
+            unavailableRow &&
+            String(
+              raw(unavailableRow, 'unavailable_reason') || 'TARGET_UNAVAILABLE'
+            )) ||
           (await this.blockedReason(operation)) ||
           operation.receipt?.code ||
           null,
         canAbandon: isTimeOperation(request)
           ? await this.canAbandonTimeOperation(operation)
           : this.canAbandonKnownOperation(operation),
-        ...(target?.available
+        ...(available
           ? {
               label: !isTaskOperation(request)
                 ? undefined
-                : (target as TaskView).task?.taskBase.label,
-              value: operationText(request)
+                : json<OfflineTask>(taskRow).taskBase.label,
+              ...(isStatusOperation(request)
+                ? { oldValue: json<OfflineSnapshot>(wo).workOrder.status }
+                : {}),
+              ...(isTimeOperation(request) && request.time.endedAt
+                ? {
+                    minutes:
+                      (Date.parse(request.time.endedAt) -
+                        Date.parse(request.time.startedAt)) /
+                      60000
+                  }
+                : {}),
+              ...(isTimeOperation(request)
+                ? { periodId: request.time.periodId }
+                : {}),
+              ...(fileIds.length ? { fileIds } : {}),
+              value:
+                fileNames.filter(Boolean).join(', ') || operationText(request)
             }
           : {})
       });
@@ -4067,71 +4040,6 @@ export class OfflineRepository {
   }
 
   /** Reserve the selected file and its exact draft revision before copying bytes. */
-  async createFileSelection(
-    file: LocalFile,
-    workOrderId: number,
-    target: FileTarget
-  ): Promise<void> {
-    this.assertStorage();
-    await this.database.write(async () => {
-      const workOrder = await this.fileTarget(workOrderId, target);
-      if (await this.find(FILES, file.id))
-        throw new OfflineError('FILE_IDENTITY');
-      const id = this.fileDraftId(workOrderId, target);
-      const row = await this.find(DRAFTS, id);
-      const existing = row ? json<CommentDraft | AttachmentDraft>(row) : null;
-      const clock = await this.nextDraftRevision();
-      const common = {
-        id,
-        workOrderId,
-        revision: clock.revision,
-        updatedAt: this.now()
-      };
-      const draft: CommentDraft | AttachmentDraft =
-        target.kind === 'COMMENT'
-          ? {
-              ...common,
-              kind: 'COMMENT',
-              content: (existing as CommentDraft)?.content || '',
-              fileIds: [...(existing?.fileIds || []), file.id],
-              attachmentPending: false
-            }
-          : {
-              ...common,
-              kind: 'ATTACHMENTS',
-              taskId: target.taskId,
-              fileIds: target.image
-                ? existing?.fileIds || []
-                : [...(existing?.fileIds || []), file.id],
-              imageFileId: target.image
-                ? file.id
-                : (existing as AttachmentDraft)?.imageFileId,
-              baseImageId:
-                existing?.kind === 'ATTACHMENTS'
-                  ? existing.baseImageId
-                  : json<OfflineSnapshot>(workOrder).workOrder.image?.id ?? null
-            };
-      const fields = {
-        work_order_id: String(workOrderId),
-        task_id: target.taskId ? String(target.taskId) : '',
-        payload: JSON.stringify(draft),
-        revision: clock.revision
-      };
-      await this.commit([
-        this.clockChange(clock),
-        row ? this.change(row, fields) : this.create(DRAFTS, id, fields),
-        this.create(FILES, file.id, {
-          payload: JSON.stringify({
-            ...file,
-            target,
-            importWorkOrderId: workOrderId
-          }),
-          server_file_id: null
-        })
-      ]);
-    });
-  }
-
   async putFile(file: LocalFile): Promise<void> {
     this.assertStorage();
     await this.database.write(async () => {
@@ -4358,34 +4266,38 @@ export class OfflineRepository {
     };
   }
 
-  async submitAttachmentDraft(
+  async commitAttachments(
     workOrderId: number,
-    expectedRevision: number,
-    taskId?: number
+    target: FileTarget,
+    selected: string[],
+    baseImageId: number | null,
+    expectedRevision: number | null
   ): Promise<LocalOperation> {
     this.assertStorage();
     return this.database.write(async () => {
-      await this.fileTarget(workOrderId, {
-        kind: taskId ? 'TASK' : 'WORK_ORDER',
-        taskId
-      });
+      const taskId = target.taskId;
+      await this.fileTarget(workOrderId, target);
       const row = await this.find(
         DRAFTS,
         attachmentDraftId(workOrderId, taskId)
       );
-      if (!row || Number(raw(row, 'revision')) !== expectedRevision)
+      if ((row ? Number(raw(row, 'revision')) : null) !== expectedRevision)
         throw new OfflineError('DRAFT_CHANGED');
-      const draft = json<AttachmentDraft>(row);
-      const ids = [
-        ...draft.fileIds,
-        ...(draft.imageFileId ? [draft.imageFileId] : [])
+      const reviewed = row ? json<AttachmentDraft>(row) : null;
+      const clock = await this.nextDraftRevision();
+      const fileIds = [
+        ...(reviewed?.fileIds ?? []),
+        ...(target.image ? [] : selected)
       ];
+      const imageFileId =
+        target.image && selected.length ? selected[0] : reviewed?.imageFileId;
+      const ids = imageFileId ? [...fileIds, imageFileId] : fileIds;
       if (!ids.length) throw new OfflineError('FILE_NOT_READY');
       const transfers = await this.prepareTransfers(
         workOrderId,
         { kind: taskId ? 'TASK' : 'WORK_ORDER', taskId },
         ids,
-        expectedRevision
+        clock.revision
       );
       const common = {
         ...this.identity(),
@@ -4403,21 +4315,24 @@ export class OfflineRepository {
         : {
             ...common,
             type: 'UPDATE_WORK_ORDER_ATTACHMENTS',
-            addTransferIds: transfers.ids.slice(0, draft.fileIds.length),
-            ...(draft.imageFileId
+            addTransferIds: transfers.ids.slice(0, fileIds.length),
+            ...(imageFileId
               ? {
                   imageChange: {
                     transferId: transfers.ids[transfers.ids.length - 1],
-                    baseImageId: draft.baseImageId
+                    baseImageId: reviewed?.imageFileId
+                      ? reviewed.baseImageId
+                      : baseImageId
                   }
                 }
               : {})
           };
-      const operation = this.createOperation(request, expectedRevision);
+      const operation = this.createOperation(request, clock.revision);
       await this.commit([
         ...transfers.records(),
         operation,
-        row.prepareDestroyPermanently()
+        this.clockChange(clock),
+        ...(row ? [row.prepareDestroyPermanently()] : [])
       ]);
       return this.operation(operation);
     });
@@ -4589,6 +4504,14 @@ export class OfflineRepository {
         (comment.files || []).map((file) => file.id)
       )
     ]);
+  }
+
+  async getPreparedFileIds(workOrderId: number): Promise<number[]> {
+    this.assertStorage();
+    const row = await this.find(WORK_ORDERS, String(workOrderId));
+    return row && raw(row, 'available')
+      ? [...this.snapshotFileIds(json<OfflineSnapshot>(row))]
+      : [];
   }
 
   private async snapshotFileChanges(
@@ -4786,6 +4709,16 @@ export class OfflineRepository {
     );
   }
 
+  observeServerFiles(workOrderId: number, serverFileIds: number[]) {
+    return this.changes().pipe(
+      switchMap(() =>
+        Promise.all(
+          serverFileIds.map((id) => this.getServerFile(workOrderId, id))
+        )
+      )
+    );
+  }
+
   private changes() {
     return combineLatest([
       this.collection(FILES)
@@ -4809,6 +4742,7 @@ export class OfflineRepository {
       this.collection(OPERATIONS)
         .query()
         .observeWithColumns([
+          'request',
           'status',
           'attempt_count',
           'receipt',

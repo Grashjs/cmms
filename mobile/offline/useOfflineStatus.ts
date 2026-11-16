@@ -67,8 +67,7 @@ export function useOfflineStatus(workOrderId: number, enabled = true) {
     const check = guard();
     ++writeCount.current;
     setSaving(true);
-    // Reserve the provider lane synchronously: account changes must await every
-    // keystroke already accepted by this hook, not only its first queued write.
+    // Reserve the provider lane synchronously so account changes await accepted saves.
     const pending = offline
       .saveStatusDraft(workOrderId, input)
       .then((result) => {
@@ -98,7 +97,7 @@ export function useOfflineStatus(workOrderId: number, enabled = true) {
       });
     return pending;
   };
-  const submit = async (revision?: number) => {
+  const submit = async (input: StatusInput, revision: number | null) => {
     if (submitting.current) throw new OfflineError('PREVIOUS_OPERATION');
     const check = guard();
     submitting.current = true;
@@ -106,11 +105,13 @@ export function useOfflineStatus(workOrderId: number, enabled = true) {
     try {
       await writing.current;
       check();
-      const exact = revision ?? draft.current?.revision;
-      if (exact == null) throw new OfflineError('DRAFT_CHANGED');
-      const result = await offline.submitStatusDraft(workOrderId, exact);
+      const result = await offline.submitStatusDraft(
+        workOrderId,
+        revision,
+        input
+      );
       check();
-      if (draft.current?.revision === exact) draft.current = null;
+      if (draft.current?.revision === revision) draft.current = null;
       return result;
     } finally {
       try {
@@ -131,9 +132,7 @@ export function useOfflineStatus(workOrderId: number, enabled = true) {
       const current = await offline.repository.getStatusView(workOrderId);
       check();
       if (current.draft) throw new OfflineError('STATUS_WORK_PENDING');
-      const saved = await save({ status });
-      check();
-      return await submit(saved.revision);
+      return await submit({ status }, null);
     } finally {
       try {
         check();

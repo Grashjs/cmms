@@ -3,16 +3,19 @@ import { useContext, useState } from 'react';
 import { View } from './Themed';
 import { Text, useTheme } from 'react-native-paper';
 import { TouchableOpacity } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { CompanySettingsContext } from '../contexts/CompanySettingsContext';
 
 export default function CustomDateTimePicker({
   onChange,
   value,
-  label
+  label,
+  showEmptyIcon = false
 }: {
   onChange: (date: Date) => void;
-  value: Date;
+  value: Date | null;
   label: string;
+  showEmptyIcon?: boolean;
 }) {
   const theme = useTheme();
   const { getFormattedDate } = useContext(CompanySettingsContext);
@@ -40,6 +43,9 @@ export default function CustomDateTimePicker({
           <Text style={{ color: theme.colors.primary }}>
             {getFormattedDate(value)}
           </Text>
+        )}
+        {!value && showEmptyIcon && (
+          <MaterialCommunityIcons name="calendar-clock" size={24} color={theme.colors.primary} />
         )}
       </TouchableOpacity>
       <DateTimePickerModal

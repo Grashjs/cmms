@@ -1,69 +1,81 @@
-import React from 'react';
-import { View } from 'react-native';
-import { Button, Text } from 'react-native-paper';
+import React, { useState } from 'react';
+import { Alert, TextInput, View } from 'react-native';
+import { Button, IconButton, Text } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { useOffline } from '../OfflineProvider';
 import { operationText } from '../types';
 import type { LocalOperation } from '../types';
 import { OfflineFileItem } from './OfflineFileItem';
+import { useOffline } from '../OfflineProvider';
 
-/** Unsent text is local work; APPLIED rows only report a pending local refresh. */
+function PendingComment({ operation }: { operation: LocalOperation }) {
+  const offline = useOffline();
+  const { t } = useTranslation();
+  const [editing, setEditing] = useState(false);
+  const [content, setContent] = useState(operationText(operation.request));
+  const [busy, setBusy] = useState(false);
+  const canChange = operation.request.type === 'CREATE_COMMENT' &&
+    operation.status === 'QUEUED' && operation.attemptCount === 0 && offline.writable;
+  const run = async (action: () => Promise<void>) => {
+    setBusy(true);
+    try { await action(); }
+    catch (error) { offline.reportError(error); }
+    finally { setBusy(false); }
+  };
+  return (
+    <View style={{ marginVertical: 8, padding: 12 }}>
+      {editing ? (
+        <View>
+          <TextInput value={content} onChangeText={setContent} multiline
+            style={{ minHeight: 60, color: 'black' }} />
+          <View style={{ flexDirection: 'row' }}>
+            <Button disabled={busy || !content.trim()} onPress={() => void run(async () => {
+              await offline.editQueuedComment(operation.id, content);
+              setEditing(false);
+            })}>{t('save')}</Button>
+            <Button onPress={() => setEditing(false)}>{t('cancel')}</Button>
+          </View>
+        </View>
+      ) : (
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Text selectable style={{ flex: 1 }}>
+            {operationText(operation.request).replace(
+              /@\[([^\]]+)\]\(user:\d+\)/g, '@$1'
+            )}
+          </Text>
+          {canChange && (
+            <View style={{ flexDirection: 'row' }}>
+              <IconButton icon="pencil" size={20} disabled={busy}
+                onPress={() => { setContent(operationText(operation.request)); setEditing(true); }} />
+              <IconButton icon="delete" size={20} disabled={busy}
+                onPress={() => Alert.alert(t('confirmation'), t('confirm_delete_comment'), [
+                  { text: t('cancel'), style: 'cancel' },
+                  { text: t('to_delete'), style: 'destructive',
+                    onPress: () => void run(() => offline.abandonOperation(operation.id)) }
+                ])} />
+            </View>
+          )}
+        </View>
+      )}
+      {operation.request.type === 'CREATE_COMMENT' &&
+        operation.request.fileTransferIds?.map((localId) => (
+          <OfflineFileItem key={localId}
+            workOrderId={operation.request.workOrderId} localId={localId} compact />
+        ))}
+    </View>
+  );
+}
+
+/** Keep published comments visible until the server copy contains them. */
 export function OfflineCommentOperations({
   operations
 }: {
   operations: LocalOperation[];
 }) {
-  const offline = useOffline();
-  const { t } = useTranslation();
   return (
     <View>
-      {operations.map((operation) => {
-        const applied = operation.status === 'APPLIED';
-        const status = applied
-          ? 'offline_comment_refresh_pending'
-          : operation.status === 'REJECTED'
-          ? 'offline_rejected'
-          : operation.status === 'CONFLICT'
-          ? 'offline_conflict'
-          : operation.status === 'SENDING'
-          ? 'offline_sending'
-          : operation.status === 'UNKNOWN'
-          ? 'offline_unknown'
-          : 'offline_queued';
-        return (
-          <View key={operation.id} style={{ marginVertical: 8, padding: 12 }}>
-            {!applied && (
-              <Text variant="titleSmall">{t('offline_comment_pending')}</Text>
-            )}
-            <Text>{t(status)}</Text>
-            {!applied && (
-              <Text selectable>
-                {operationText(operation.request).replace(
-                  /@\[([^\]]+)\]\(user:\d+\)/g,
-                  '@$1'
-                )}
-              </Text>
-            )}
-            {!applied &&
-              operation.request.type === 'CREATE_COMMENT' &&
-              operation.request.fileTransferIds?.map((localId) => (
-                <OfflineFileItem
-                  key={localId}
-                  workOrderId={operation.request.workOrderId}
-                  localId={localId}
-                />
-              ))}
-            {(applied || operation.status === 'UNKNOWN') && (
-              <Button
-                disabled={!offline.networkAvailable || offline.syncing}
-                onPress={() => void offline.sync().catch(offline.reportError)}
-              >
-                {t('offline_sync')}
-              </Button>
-            )}
-          </View>
-        );
-      })}
+      {operations.map((operation) => (
+        <PendingComment key={operation.id} operation={operation} />
+      ))}
     </View>
   );
 }

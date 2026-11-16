@@ -14,7 +14,7 @@ export const OFFLINE_LIMITS = Object.freeze({
   snapshotBytes: 2 * 1024 * 1024,
   receiptIds: 100,
   fileBytes: 35 * 1024 * 1024,
-  localFileBytes: 500 * 1024 * 1024,
+  localFileBytes: 1024 * 1024 * 1024,
   freeDiskReserve: 100 * 1024 * 1024
 });
 
@@ -190,6 +190,17 @@ export type OperationRequest =
       fileTransferIds?: string[];
     })
   | (OperationIdentity & {
+      type: 'UPDATE_COMMENT';
+      commentId: number;
+      baseCommentUpdatedAt: string;
+      content: string;
+    })
+  | (OperationIdentity & {
+      type: 'DELETE_COMMENT';
+      commentId: number;
+      baseCommentUpdatedAt: string;
+    })
+  | (OperationIdentity & {
       type: 'UPLOAD_FILE';
       target: 'WORK_ORDER' | 'TASK' | 'COMMENT';
       taskId?: number;
@@ -248,7 +259,9 @@ export function operationField(
     ? 'status'
     : isTimeOperation(request)
     ? 'time'
-    : request.type === 'CREATE_COMMENT'
+    : request.type === 'CREATE_COMMENT' ||
+      request.type === 'UPDATE_COMMENT' ||
+      request.type === 'DELETE_COMMENT'
     ? 'comment'
     : request.type === 'SET_TASK_NOTES'
     ? 'notes'
@@ -261,8 +274,10 @@ export function operationText(request: OperationRequest): string {
     ? request.statusChange.status
     : isTimeOperation(request)
     ? [request.time.startedAt, request.time.endedAt].filter(Boolean).join(' – ')
-    : request.type === 'CREATE_COMMENT'
+    : request.type === 'CREATE_COMMENT' || request.type === 'UPDATE_COMMENT'
     ? request.content
+    : request.type === 'DELETE_COMMENT'
+    ? ''
     : request.type === 'SET_TASK_NOTES'
     ? request.notes
     : request.type === 'SET_TASK_VALUE'
@@ -468,6 +483,7 @@ export interface PreparedWorkOrderView {
   comments: Comment[];
   commentDraft: CommentDraft | null;
   commentOperations: LocalOperation[];
+  commentMutations: LocalOperation[];
   canEdit: boolean;
   canComment: boolean;
   labors: OfflineLabor[];
@@ -486,6 +502,7 @@ export type PreparedWorkOrderSummary = Omit<
   | 'history'
   | 'commentDraft'
   | 'commentOperations'
+  | 'commentMutations'
   | 'canEdit'
   | 'canComment'
   | 'labors'
@@ -493,12 +510,23 @@ export type PreparedWorkOrderSummary = Omit<
   | 'timerStatusRevision'
 >;
 
+export interface WorkOrderActivity {
+  badge:
+    | 'offline_badge_conflict'
+    | 'offline_badge_refused'
+    | 'offline_badge_pending'
+    | 'offline_badge_prepared';
+  status?: WorkOrderStatus;
+}
+
 export interface PendingWork {
+  periodId?: string;
   operationType?: OperationRequest['type'];
   kind: 'DRAFT' | 'OPERATION';
   id: string;
   workOrderId: number;
   taskId?: number;
+  commentId?: number;
   field: TaskField | 'comment' | 'attachments' | 'time' | 'status';
   draftRevision?: number;
   status?: OperationStatus;
@@ -506,6 +534,9 @@ export interface PendingWork {
   targetAvailable: boolean;
   reason: string | null;
   canAbandon: boolean;
+  minutes?: number;
+  oldValue?: string;
+  fileIds?: string[];
   // Never expose a withdrawn target's title, server data or local value.
   label?: string;
   value?: string;

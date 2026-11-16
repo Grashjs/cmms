@@ -142,6 +142,25 @@ public class CommentService {
     }
 
     public record OfflineCommentCreated(long commentId, long companyId, long actorId) {}
+    public record OfflineCommentUpdated(long commentId, long companyId, long actorId) {}
+
+    public Comment updateOffline(Comment comment, String content, User user) {
+        comment.setContent(cleanOfflineContent(content));
+        Comment saved = commentRepository.saveAndFlush(comment);
+        events.publishEvent(new OfflineCommentUpdated(saved.getId(), user.getCompany().getId(), user.getId()));
+        return saved;
+    }
+
+    @Async
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void afterOfflineCommentUpdate(OfflineCommentUpdated event) {
+        Comment comment = commentRepository.findByIdAndCompany_Id(event.commentId(), event.companyId()).orElse(null);
+        User actor = userRepository.findByIdAndCompany_Id(event.actorId(), event.companyId()).orElse(null);
+        if (comment == null || actor == null) return;
+        sendCommentNotifications(comment, comment.getWorkOrder(),
+                getNotifiedUsers(comment, comment.getWorkOrder(), actor), actor, true);
+    }
 
     /** Spring invokes this listener after commit; only identifiers cross the asynchronous boundary. */
     @Async

@@ -154,6 +154,7 @@ export default Sentry.wrap(function App() {
                     <SheetProvider>
                       <RootLayout>
                         <FlashMessage
+                          duration={4000}
                           position="top"
                           statusBarHeight={Constants.statusBarHeight}
                         />

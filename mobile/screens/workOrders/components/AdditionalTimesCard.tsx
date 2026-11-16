@@ -152,31 +152,24 @@ export default function AdditionalTimesCard({
           </View>
         ))
       )}
-      {(prepared ? canCreatePersonal && offline.writable : canAddTime) && (
+      {(prepared
+        ? connectedAvailable
+          ? canAddTime
+          : canCreatePersonal && offline.writable
+        : canAddTime) && (
         <Fragment>
           <Divider style={{ marginTop: 5 }} />
           <Button
             onPress={() =>
               navigation.navigate('AddAdditionalTime', {
-                workOrderId: workOrder.id
+                workOrderId: workOrder.id,
+                connectedOnly: prepared && connectedAvailable
               })
             }
           >
-            {t(prepared ? 'offline_time_personal' : 'add_time')}
+            {t('add_time')}
           </Button>
         </Fragment>
-      )}
-      {prepared && canAddTime && connectedAvailable && (
-        <Button
-          onPress={() =>
-            navigation.navigate('AddAdditionalTime', {
-              workOrderId: workOrder.id,
-              connectedOnly: true
-            })
-          }
-        >
-          {t('offline_time_connected_form')}
-        </Button>
       )}
     </View>
   );
