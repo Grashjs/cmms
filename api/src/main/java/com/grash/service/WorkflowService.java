@@ -130,12 +130,13 @@ public class WorkflowService {
                     request.setPriority(action.getPriority());
                     break;
                 case APPROVE:
+                    Optional<User> companyOwner = userRepository.findCompanyOwner(workflow.getCompany().getId());
+                    if (companyOwner.isEmpty()) {
+                        break;
+                    }
                     RequestApproveDTO approveDTO = new RequestApproveDTO();
                     approveDTO.setAssetStatus(AssetStatus.DOWN);
-                    User approver = Optional.ofNullable(workflow.getCreatedBy())
-                            .flatMap(userRepository::findById)
-                            .orElseGet(() -> userRepository.findCompanyOwner(workflow.getCompany().getId()).get());
-                    requestService.approve(request.getId(), approveDTO, approver);
+                    requestService.approveFromWorkflow(request.getId(), approveDTO, companyOwner.get());
                     break;
                 default:
                     break;

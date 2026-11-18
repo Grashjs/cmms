@@ -7,6 +7,7 @@ import com.grash.dto.RequestPatchDTO;
 import com.grash.dto.RequestPostDTO;
 import com.grash.dto.RequestShowDTO;
 import com.grash.dto.license.LicenseEntitlement;
+import com.grash.dto.workOrder.WorkOrderPostDTO;
 import com.grash.exception.CustomException;
 import com.grash.factory.MailServiceFactory;
 import com.grash.mapper.RequestMapper;
@@ -583,6 +584,40 @@ class RequestServiceTest {
                     () -> requestService.approve(1L, new RequestApproveDTO(), user));
 
             assertEquals(HttpStatus.NOT_ACCEPTABLE, ex.getHttpStatus());
+        }
+
+        @Test
+        void approveFromWorkflow_doesNotReTriggerWorkflows() {
+            Request saved = buildRequest(1L);
+            when(requestRepository.findById(1L)).thenReturn(Optional.of(saved));
+            when(workOrderService.getWorkOrderFromWorkOrderBase(saved)).thenReturn(new WorkOrderPostDTO());
+            WorkOrder created = new WorkOrder();
+            created.setId(42L);
+            when(workOrderService.create(any(), eq(company))).thenReturn(created);
+            when(userService.findByCompany(1L)).thenReturn(Collections.emptyList());
+            when(userService.findById(1L)).thenReturn(Optional.of(user));
+            when(messageSource.getMessage(anyString(), any(), any())).thenReturn("title");
+            when(mailServiceFactory.getMailService()).thenReturn(mailService);
+
+            WorkOrder result = requestService.approveFromWorkflow(1L, new RequestApproveDTO(), user);
+
+            assertEquals(created, result);
+            verify(workflowService, never()).findByMainConditionAndCompany(any(), any());
+        }
+
+        @Test
+        void approveFromWorkflow_alreadyApproved_returnsExistingWorkOrder() {
+            WorkOrder existing = new WorkOrder();
+            existing.setId(99L);
+            Request saved = buildRequest(1L);
+            saved.setWorkOrder(existing);
+            when(requestRepository.findById(1L)).thenReturn(Optional.of(saved));
+
+            WorkOrder result = requestService.approveFromWorkflow(1L, new RequestApproveDTO(), user);
+
+            assertEquals(existing, result);
+            verify(workflowService, never()).findByMainConditionAndCompany(any(), any());
+            verify(workOrderService, never()).create(any(), any());
         }
     }
 

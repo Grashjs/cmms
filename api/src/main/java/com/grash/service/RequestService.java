@@ -371,19 +371,36 @@ public class RequestService {
 
     @Transactional
     public WorkOrder approve(Long id, RequestApproveDTO requestApproveDTO, User user) {
-        Optional<Request> optionalRequest = requestRepository.findById(id);
         if (!(user.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS) || user.getRole().getCode().equals(RoleCode.LIMITED_ADMIN))) {
             throw new CustomException("Forbidden", HttpStatus.FORBIDDEN);
         }
+        return approveInternal(id, requestApproveDTO, user, true);
+    }
+
+    @Transactional
+    public WorkOrder approveFromWorkflow(Long id, RequestApproveDTO requestApproveDTO, User user) {
+        return approveInternal(id, requestApproveDTO, user, false);
+    }
+
+    private WorkOrder approveInternal(Long id, RequestApproveDTO requestApproveDTO, User user, boolean runWorkflows) {
+        Optional<Request> optionalRequest = requestRepository.findById(id);
         if (optionalRequest.isPresent()) {
             Request savedRequest = optionalRequest.get();
             if (savedRequest.getWorkOrder() != null) {
+                if (!runWorkflows) {
+                    return savedRequest.getWorkOrder();
+                }
                 throw new CustomException("Request is already approved", HttpStatus.NOT_ACCEPTABLE);
             }
-            Collection<Workflow> workflows =
-                    workflowService.findByMainConditionAndCompany(WFMainCondition.REQUEST_APPROVED,
-                            user.getCompany().getId());
-            workflows.forEach(workflow -> workflowService.runRequest(workflow, savedRequest));
+            if (runWorkflows) {
+                Collection<Workflow> workflows =
+                        workflowService.findByMainConditionAndCompany(WFMainCondition.REQUEST_APPROVED,
+                                user.getCompany().getId());
+                workflows.forEach(workflow -> workflowService.runRequest(workflow, savedRequest));
+                if (savedRequest.getWorkOrder() != null) {
+                    return savedRequest.getWorkOrder();
+                }
+            }
 
             WorkOrder createdWorkOrder = createWorkOrderFromRequest(savedRequest, user);
             if (savedRequest.getAsset() != null && requestApproveDTO.getAssetStatus() != null) {
