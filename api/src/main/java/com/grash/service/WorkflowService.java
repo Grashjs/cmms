@@ -12,6 +12,8 @@ import com.grash.repository.*;
 import com.grash.utils.AuditComparator;
 import com.grash.utils.Sanitizer;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -29,8 +31,13 @@ public class WorkflowService {
     private final RequestRepository requestRepository;
     private final AssetRepository assetRepository;
     private final PurchaseOrderRepository purchaseOrderRepository;
-    private final RequestService requestService;
+    private RequestService requestService;
     private final UserRepository userRepository;
+
+    @Autowired
+    public void setRequestService(@Lazy RequestService requestService) {
+        this.requestService = requestService;
+    }
 
     public Workflow create(Workflow Workflow) {
         Sanitizer.sanitizeWorkflow(Workflow);
