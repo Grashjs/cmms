@@ -1,10 +1,12 @@
 package com.grash.service;
 
+import com.grash.dto.RequestApproveDTO;
 import com.grash.dto.WorkflowPatchDTO;
 import com.grash.exception.CustomException;
 import com.grash.mapper.WorkflowMapper;
 import com.grash.model.*;
 import com.grash.model.enums.ApprovalStatus;
+import com.grash.model.enums.AssetStatus;
 import com.grash.model.enums.workflow.WFMainCondition;
 import com.grash.repository.*;
 import com.grash.utils.AuditComparator;
@@ -27,6 +29,8 @@ public class WorkflowService {
     private final RequestRepository requestRepository;
     private final AssetRepository assetRepository;
     private final PurchaseOrderRepository purchaseOrderRepository;
+    private final RequestService requestService;
+    private final UserRepository userRepository;
 
     public Workflow create(Workflow Workflow) {
         Sanitizer.sanitizeWorkflow(Workflow);
@@ -124,6 +128,11 @@ public class WorkflowService {
                     break;
                 case ASSIGN_PRIORITY:
                     request.setPriority(action.getPriority());
+                    break;
+                case APPROVE:
+                    RequestApproveDTO approveDTO = new RequestApproveDTO();
+                    approveDTO.setAssetStatus(AssetStatus.DOWN);
+                    requestService.approve(request.getId(), approveDTO, workflow.getCreatedBy() == null ? userRepository.findCompanyOwner(workflow.getCompany().getId()).get() : userRepository.findById(workflow.getCreatedBy()).get());
                     break;
                 default:
                     break;
