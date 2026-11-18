@@ -91,7 +91,8 @@ public class WorkOrderController {
         if (optionalAsset.isPresent()) {
             if (!optionalAsset.get().canBeViewedBy(user))
                 throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-            return workOrderService.findByAsset(id).stream().map(workOrderMapper::toShowDto).collect(Collectors.toList());
+            return workOrderService.findByAsset(id).stream()
+                    .filter(workOrder -> workOrder.canBeViewedBy(user)).map(workOrderMapper::toShowDto).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -104,7 +105,8 @@ public class WorkOrderController {
         if (optionalLocation.isPresent()) {
             if (!optionalLocation.get().canBeViewedBy(user))
                 throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-            return workOrderService.findByLocation(id).stream().map(workOrderMapper::toShowDto).collect(Collectors.toList());
+            return workOrderService.findByLocation(id).stream()
+                    .filter(workOrder -> workOrder.canBeViewedBy(user)).map(workOrderMapper::toShowDto).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
@@ -133,7 +135,8 @@ public class WorkOrderController {
         if (optionalPart.isPresent()) {
             if (!optionalPart.get().canBeViewedBy(user))
                 throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-            return workOrderService.getWorkOrdersByPart(id).stream().map(workOrderMapper::toShowDto).collect(Collectors.toList());
+            return workOrderService.getWorkOrdersByPart(id).stream()
+                    .filter(workOrder -> workOrder.canBeViewedBy(user)).map(workOrderMapper::toShowDto).collect(Collectors.toList());
         } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
     }
 
