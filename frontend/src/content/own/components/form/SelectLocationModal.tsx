@@ -8,6 +8,8 @@ import {
   DialogContent,
   DialogTitle,
   IconButton,
+  InputAdornment,
+  TextField,
   Typography,
   useTheme
 } from '@mui/material';
@@ -19,6 +21,7 @@ import {
 } from '../../../../slices/location';
 import { LocationMiniDTO } from '../../../../models/owns/location';
 import ReplayTwoToneIcon from '@mui/icons-material/ReplayTwoTone';
+import SearchIcon from '@mui/icons-material/Search';
 import NoRowsMessageWrapper from '../NoRowsMessageWrapper';
 import { usePrevious } from '../../../../hooks/usePrevious';
 import { createColumnHelper } from '@tanstack/react-table';
@@ -54,6 +57,7 @@ const SelectLocationModal: React.FC<SelectLocationModalProps> = ({
 
   // State for tracking expanded rows
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [search, setSearch] = useState<string>('');
 
   // State for tracking selected locations
   const [selectedLocations, setSelectedLocations] = useState<LocationMiniDTO[]>(
@@ -79,12 +83,14 @@ const SelectLocationModal: React.FC<SelectLocationModalProps> = ({
   const getHierarchicalData = (
     flatList: LocationMiniDTO[],
     expanded: Record<string, boolean>,
+    visibleIds: Set<number> | null,
     parentId: number | null = null,
     depth: number = 0
   ): (LocationMiniDTO & { depth: number })[] => {
     let result: (LocationMiniDTO & { depth: number })[] = [];
 
     const nodes = flatList.filter((item) => {
+      if (visibleIds && !visibleIds.has(item.id)) return false;
       if (parentId === null) {
         return !item.parentId;
       }
@@ -98,6 +104,7 @@ const SelectLocationModal: React.FC<SelectLocationModalProps> = ({
         const children = getHierarchicalData(
           flatList,
           expanded,
+          visibleIds,
           node.id,
           depth + 1
         );
@@ -108,9 +115,39 @@ const SelectLocationModal: React.FC<SelectLocationModalProps> = ({
     return result;
   };
 
+  const visibleIds = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    if (!query) return null;
+    const byId = new Map(locationsMini.map((location) => [location.id, location]));
+    const ids = new Set<number>();
+    locationsMini.forEach((location) => {
+      if (
+        `${location.name ?? ''} ${location.customId ?? ''}`
+          .toLowerCase()
+          .includes(query)
+      ) {
+        let current: LocationMiniDTO | undefined = location;
+        while (current) {
+          ids.add(current.id);
+          current = current.parentId ? byId.get(current.parentId) : undefined;
+        }
+      }
+    });
+    return ids;
+  }, [locationsMini, search]);
+
+  const effectiveExpanded = useMemo(() => {
+    if (!visibleIds) return expanded;
+    const allVisible: Record<string, boolean> = {};
+    visibleIds.forEach((id) => {
+      allVisible[id] = true;
+    });
+    return allVisible;
+  }, [visibleIds, expanded]);
+
   const tableData = useMemo(
-    () => getHierarchicalData(locationsMini, expanded),
-    [locationsMini, expanded]
+    () => getHierarchicalData(locationsMini, effectiveExpanded, visibleIds),
+    [locationsMini, effectiveExpanded, visibleIds]
   );
 
   const filteredTableData = tableData.filter(
@@ -147,6 +184,13 @@ const SelectLocationModal: React.FC<SelectLocationModalProps> = ({
       setRowSelection({});
     }
   }, [open, single]);
+
+  useEffect(() => {
+    if (open) {
+      setSearch('');
+      setExpanded({});
+    }
+  }, [open]);
 
   const handleToggleExpand = (row: LocationRow) => {
     setExpanded((prev) => ({ ...prev, [row.id]: !prev[row.id] }));
@@ -298,8 +342,32 @@ const SelectLocationModal: React.FC<SelectLocationModalProps> = ({
         </Box>
       )}
 
-      <DialogContent dividers sx={{ p: 1, height: '60vh' }}>
-        <Box sx={{ height: '100%', width: '100%' }}>
+      <DialogContent
+        dividers
+        sx={{
+          p: 1,
+          height: '60vh',
+          display: 'flex',
+          flexDirection: 'column'
+        }}
+      >
+        <Box sx={{ pb: 1 }}>
+          <TextField
+            fullWidth
+            size="small"
+            placeholder={t('search')}
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon fontSize="small" />
+                </InputAdornment>
+              )
+            }}
+          />
+        </Box>
+        <Box sx={{ flex: 1, width: '100%', minHeight: 0 }}>
           <CustomDatagrid2
             columns={columns}
             data={filteredTableData}

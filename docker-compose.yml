@@ -137,7 +137,7 @@ services:
     command: server --address ":9000" --console-address ":9001" /data
 
   nginx:
-    image: nginx:1.27-alpine
+    image: nginx:1.31.9-alpine
     container_name: atlas_nginx
     depends_on:
       - frontend

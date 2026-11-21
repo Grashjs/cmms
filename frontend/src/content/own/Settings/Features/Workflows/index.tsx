@@ -5,6 +5,7 @@ import {
   CircularProgress,
   Grid,
   IconButton,
+  InputAdornment,
   MenuItem,
   Select,
   Stack,
@@ -14,6 +15,9 @@ import {
 import { useTranslation } from 'react-i18next';
 import SettingsLayout from '../../SettingsLayout';
 import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
+import SearchIcon from '@mui/icons-material/Search';
+import SelectLocationModal from '../../../components/form/SelectLocationModal';
+import SelectAssetModal from '../../../components/form/SelectAssetModal';
 import { useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from '../../../../../store';
 import { CustomSnackBarContext } from '../../../../../contexts/CustomSnackBarContext';
@@ -94,7 +98,14 @@ interface Field<T, C> {
   formatter?: (value: T) => { label: string; value: string | number };
   apiFormatter?: (value: string | number) => string | number | { id: number };
   onOpen?: () => void;
+  selectionType?: 'location' | 'asset';
 }
+
+type SelectionModalState = {
+  kind: 'location' | 'asset';
+  target: 'condition' | 'action';
+  index?: number;
+} | null;
 function Workflows() {
   const { t }: { t: any } = useTranslation();
   const [view, setView] = useState<'list' | 'create' | 'update'>('list');
@@ -160,6 +171,8 @@ function Workflows() {
     value: null
   });
   const [openDelete, setOpenDelete] = useState<boolean>(false);
+  const [selectionModal, setSelectionModal] =
+    useState<SelectionModalState>(null);
   const { hasFeature } = useAuth();
   const dispatch = useDispatch();
   const { showSnackBar } = useContext(CustomSnackBarContext);
@@ -210,6 +223,7 @@ function Workflows() {
   > = {
     ASSET_IS: {
       type: 'select',
+      selectionType: 'asset',
       items: assetsMini,
       accessor: 'asset',
       onOpen: fetchAssets,
@@ -253,6 +267,7 @@ function Workflows() {
     },
     LOCATION_IS: {
       type: 'select',
+      selectionType: 'location',
       items: locationsMini,
       accessor: 'location',
       onOpen: fetchLocations,
@@ -339,6 +354,7 @@ function Workflows() {
     APPROVE: { type: 'simple' },
     ASSIGN_ASSET: {
       type: 'select',
+      selectionType: 'asset',
       items: assetsMini,
       accessor: 'asset',
       onOpen: fetchAssets,
@@ -377,6 +393,7 @@ function Workflows() {
     },
     ASSIGN_LOCATION: {
       type: 'select',
+      selectionType: 'location',
       items: locationsMini,
       accessor: 'location',
       onOpen: fetchLocations,
@@ -742,6 +759,79 @@ function Workflows() {
     newConditions.splice(index, 1);
     setCurrentConditions(newConditions);
   };
+  const getFieldLabel = (config: Field<any, any>, value: string | number) => {
+    if (value === null || value === undefined || value === '') return '';
+    const item = config.items?.find(
+      (candidate) => config.formatter(candidate).value === value
+    );
+    return item ? config.formatter(item).label : '';
+  };
+  const getSelectedItem = (
+    config: Field<any, any>,
+    value: string | number
+  ): AssetMiniDTO | LocationMiniDTO | undefined => {
+    if (value === null || value === undefined || value === '') return undefined;
+    return config.items?.find(
+      (candidate) => config.formatter(candidate).value === value
+    ) as AssetMiniDTO | LocationMiniDTO | undefined;
+  };
+  const getSelectionConfig = (): Field<any, any> | undefined => {
+    if (!selectionModal) return undefined;
+    if (selectionModal.target === 'condition') {
+      const condition = currentConditions[selectionModal.index];
+      return condition ? conditionsConfig[condition.type] : undefined;
+    }
+    return actionsConfig[currentAction.type];
+  };
+  const getSelectionValue = (): string | number => {
+    if (!selectionModal) return null;
+    if (selectionModal.target === 'condition') {
+      return currentConditions[selectionModal.index]?.value;
+    }
+    return currentAction.value;
+  };
+  const handleSelection = (items: (LocationMiniDTO | AssetMiniDTO)[]) => {
+    if (!selectionModal) return;
+    const value = items.length ? items[0].id : null;
+    if (selectionModal.target === 'condition') {
+      handleConditionValueChange(value, selectionModal.index);
+    } else {
+      handleActionValueChange(value);
+    }
+    setSelectionModal(null);
+  };
+  const renderSelectionField = (
+    config: Field<any, any>,
+    value: string | number,
+    target: 'condition' | 'action',
+    index?: number
+  ) => (
+    <TextField
+      fullWidth
+      value={getFieldLabel(config, value)}
+      placeholder={
+        config.selectionType === 'location'
+          ? t('select_location')
+          : t('select_asset')
+      }
+      onClick={() =>
+        setSelectionModal({
+          kind: config.selectionType as 'location' | 'asset',
+          target,
+          index
+        })
+      }
+      InputProps={{
+        readOnly: true,
+        endAdornment: (
+          <InputAdornment position="end">
+            <SearchIcon fontSize="small" />
+          </InputAdornment>
+        )
+      }}
+      sx={{ cursor: 'pointer', '& input': { cursor: 'pointer' } }}
+    />
+  );
   const renderSingleCondition = (condition: UICondition, index: number) => {
     const config = conditionsConfig[condition.type];
     return (
@@ -773,6 +863,8 @@ function Workflows() {
                 }
                 type={config.type}
               />
+            ) : config.type === 'select' && config.selectionType ? (
+              renderSelectionField(config, condition.value, 'condition', index)
             ) : config.type === 'select' ? (
               <Select
                 value={condition.value}
@@ -850,6 +942,8 @@ function Workflows() {
               onChange={(event) => handleActionValueChange(event.target.value)}
               type={config.type}
             />
+          ) : config.type === 'select' && config.selectionType ? (
+            renderSelectionField(config, action.value, 'action')
           ) : config.type === 'select' ? (
             <Select
               value={action.value}
@@ -904,6 +998,11 @@ function Workflows() {
       </Box>
     );
   };
+  const selectionConfig = getSelectionConfig();
+  const selectionValue = getSelectionValue();
+  const selectedItem = selectionConfig
+    ? getSelectedItem(selectionConfig, selectionValue)
+    : undefined;
   return (
     <Box
       sx={{
@@ -1061,6 +1160,26 @@ function Workflows() {
             </Grid>
           )}
         </Grid>
+
+        <SelectLocationModal
+          open={selectionModal?.kind === 'location'}
+          onClose={() => setSelectionModal(null)}
+          maxSelections={1}
+          initialSelectedLocations={
+            selectedItem ? [selectedItem as LocationMiniDTO] : []
+          }
+          onSelect={handleSelection}
+        />
+
+        <SelectAssetModal
+          open={selectionModal?.kind === 'asset'}
+          onClose={() => setSelectionModal(null)}
+          maxSelections={1}
+          initialSelectedAssets={
+            selectedItem ? [selectedItem as AssetMiniDTO] : []
+          }
+          onSelect={handleSelection}
+        />
 
         <ConfirmDialog
           open={openDelete}

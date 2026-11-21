@@ -8,6 +8,8 @@ import {
   DialogContent,
   DialogTitle,
   IconButton,
+  InputAdornment,
+  TextField,
   Typography,
   useTheme
 } from '@mui/material';
@@ -16,6 +18,7 @@ import { useDispatch, useSelector } from '../../../../store';
 import { getAssetsMini, resetAssetsHierarchy } from '../../../../slices/asset';
 import { AssetMiniDTO } from '../../../../models/owns/asset';
 import ReplayTwoToneIcon from '@mui/icons-material/ReplayTwoTone';
+import SearchIcon from '@mui/icons-material/Search';
 import NoRowsMessageWrapper from '../NoRowsMessageWrapper';
 import { usePrevious } from '../../../../hooks/usePrevious';
 import { createColumnHelper } from '@tanstack/react-table';
@@ -52,6 +55,7 @@ const SelectAssetModal: React.FC<SelectAssetModalProps> = ({
 
   // State for tracking expanded rows
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [search, setSearch] = useState<string>('');
 
   // State for tracking selected assets
   const [selectedAssets, setSelectedAssets] = useState<AssetMiniDTO[]>(
@@ -75,12 +79,14 @@ const SelectAssetModal: React.FC<SelectAssetModalProps> = ({
   const getHierarchicalData = (
     flatList: AssetMiniDTO[],
     expanded: Record<string, boolean>,
+    visibleIds: Set<number> | null,
     parentId: number | null = null,
     depth: number = 0
   ): (AssetMiniDTO & { depth: number })[] => {
     let result: (AssetMiniDTO & { depth: number })[] = [];
 
     const nodes = flatList.filter((item) => {
+      if (visibleIds && !visibleIds.has(item.id)) return false;
       if (parentId === null) {
         return !item.parentId;
       }
@@ -94,6 +100,7 @@ const SelectAssetModal: React.FC<SelectAssetModalProps> = ({
         const children = getHierarchicalData(
           flatList,
           expanded,
+          visibleIds,
           node.id,
           depth + 1
         );
@@ -104,9 +111,39 @@ const SelectAssetModal: React.FC<SelectAssetModalProps> = ({
     return result;
   };
 
+  const visibleIds = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    if (!query) return null;
+    const byId = new Map(assetsMini.map((asset) => [asset.id, asset]));
+    const ids = new Set<number>();
+    assetsMini.forEach((asset) => {
+      if (
+        `${asset.name ?? ''} ${asset.customId ?? ''}`
+          .toLowerCase()
+          .includes(query)
+      ) {
+        let current: AssetMiniDTO | undefined = asset;
+        while (current) {
+          ids.add(current.id);
+          current = current.parentId ? byId.get(current.parentId) : undefined;
+        }
+      }
+    });
+    return ids;
+  }, [assetsMini, search]);
+
+  const effectiveExpanded = useMemo(() => {
+    if (!visibleIds) return expanded;
+    const allVisible: Record<string, boolean> = {};
+    visibleIds.forEach((id) => {
+      allVisible[id] = true;
+    });
+    return allVisible;
+  }, [visibleIds, expanded]);
+
   const tableData = useMemo(
-    () => getHierarchicalData(assetsMini, expanded),
-    [assetsMini, expanded]
+    () => getHierarchicalData(assetsMini, effectiveExpanded, visibleIds),
+    [assetsMini, effectiveExpanded, visibleIds]
   );
 
   useEffect(() => {
@@ -139,6 +176,13 @@ const SelectAssetModal: React.FC<SelectAssetModalProps> = ({
       setRowSelection({});
     }
   }, [open, single]);
+
+  useEffect(() => {
+    if (open) {
+      setSearch('');
+      setExpanded({});
+    }
+  }, [open]);
 
   const handleToggleExpand = (row: AssetRow) => {
     setExpanded((prev) => ({ ...prev, [row.id]: !prev[row.id] }));
@@ -296,8 +340,32 @@ const SelectAssetModal: React.FC<SelectAssetModalProps> = ({
         </Box>
       )}
 
-      <DialogContent dividers sx={{ p: 1, height: '60vh' }}>
-        <Box sx={{ height: '100%', width: '100%' }}>
+      <DialogContent
+        dividers
+        sx={{
+          p: 1,
+          height: '60vh',
+          display: 'flex',
+          flexDirection: 'column'
+        }}
+      >
+        <Box sx={{ pb: 1 }}>
+          <TextField
+            fullWidth
+            size="small"
+            placeholder={t('search')}
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon fontSize="small" />
+                </InputAdornment>
+              )
+            }}
+          />
+        </Box>
+        <Box sx={{ flex: 1, width: '100%', minHeight: 0 }}>
           <CustomDatagrid2
             columns={columns}
             data={filteredTableData}

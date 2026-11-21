@@ -327,7 +327,7 @@ function Requests() {
       cell: (info) => info.getValue() || '',
       size: 150
     }),
-    columnHelper.accessor((row) => row.asset?.name, {
+    columnHelper.accessor((row) => row.location?.name, {
       id: 'location',
       header: () => t('location'),
       cell: (info) => info.getValue() || '',
