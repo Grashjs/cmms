@@ -351,13 +351,17 @@ function WorkOrders() {
     } else {
       setOpenDrawerFromUrl(false);
       setOpenDrawerForSingleWO(true);
-      dispatch(getSingleWorkOrder(id));
+      dispatch(getSingleWorkOrder(id)).catch(onSingleWorkOrderError);
     }
   };
   const handleCloseDetails = () => {
     window.history.replaceState(null, 'WorkOrder', `/app/work-orders`);
     setOpenDrawer(false);
     setOpenDrawerForSingleWO(false);
+  };
+  const onSingleWorkOrderError = () => {
+    showSnackBar(t('wo_not_found_or_no_access'), 'error');
+    handleCloseDetails();
   };
   const handleCloseFilterDrawer = () => setOpenFilterDrawer(false);
   useEffect(() => {
@@ -379,7 +383,9 @@ function WorkOrders() {
   useEffect(() => {
     if (workOrderId && isNumeric(workOrderId)) {
       setOpenDrawerForSingleWO(true);
-      dispatch(getSingleWorkOrder(Number(workOrderId)));
+      dispatch(getSingleWorkOrder(Number(workOrderId))).catch(
+        onSingleWorkOrderError
+      );
     }
   }, [workOrderId]);
 
