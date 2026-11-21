@@ -29,7 +29,7 @@ public class MultipartFileImpl implements MultipartFile {
     public String getContentType() {
         String nameLowerCase = name.toLowerCase();
         if (nameLowerCase.endsWith(".csv")) {
-            return "text/csv";
+            return "text/csv; charset=UTF-8";
         } else if (nameLowerCase.endsWith(".pdf")) {
             return "application/pdf";
         }

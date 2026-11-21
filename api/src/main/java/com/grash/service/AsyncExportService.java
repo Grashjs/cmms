@@ -43,6 +43,8 @@ public class AsyncExportService {
         try {
             ByteArrayOutputStream target = new ByteArrayOutputStream();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
+            // UTF-8 BOM so Excel detects the encoding (accents, ñ, etc.)
+            outputStreamWriter.write('\uFEFF');
             int page = 0;
             Page<WorkOrder> result;
             String csvSeparator = user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator();
@@ -78,6 +80,8 @@ public class AsyncExportService {
         try {
             ByteArrayOutputStream target = new ByteArrayOutputStream();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
+            // UTF-8 BOM so Excel detects the encoding (accents, ñ, etc.)
+            outputStreamWriter.write('\uFEFF');
             int page = 0;
             Page<Asset> result;
             String csvSeparator = user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator();
@@ -113,6 +117,8 @@ public class AsyncExportService {
         try {
             ByteArrayOutputStream target = new ByteArrayOutputStream();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
+            // UTF-8 BOM so Excel detects the encoding (accents, ñ, etc.)
+            outputStreamWriter.write('\uFEFF');
             int page = 0;
             Page<Location> result;
             String csvSeparator = user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator();
@@ -148,6 +154,8 @@ public class AsyncExportService {
         try {
             ByteArrayOutputStream target = new ByteArrayOutputStream();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
+            // UTF-8 BOM so Excel detects the encoding (accents, ñ, etc.)
+            outputStreamWriter.write('\uFEFF');
             int page = 0;
             Page<Part> result;
             String csvSeparator = user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator();
@@ -183,6 +191,8 @@ public class AsyncExportService {
         try {
             ByteArrayOutputStream target = new ByteArrayOutputStream();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
+            // UTF-8 BOM so Excel detects the encoding (accents, ñ, etc.)
+            outputStreamWriter.write('\uFEFF');
             int page = 0;
             Page<Meter> result;
             String csvSeparator = user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator();
@@ -218,6 +228,8 @@ public class AsyncExportService {
         try {
             ByteArrayOutputStream target = new ByteArrayOutputStream();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
+            // UTF-8 BOM so Excel detects the encoding (accents, ñ, etc.)
+            outputStreamWriter.write('\uFEFF');
             int page = 0;
             Page<PreventiveMaintenance> result;
             String csvSeparator = user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator();
@@ -254,6 +266,8 @@ public class AsyncExportService {
         try {
             ByteArrayOutputStream target = new ByteArrayOutputStream();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
+            // UTF-8 BOM so Excel detects the encoding (accents, ñ, etc.)
+            outputStreamWriter.write('\uFEFF');
             int page = 0;
             Page<PartTransaction> result;
             String csvSeparator = user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator();
@@ -289,6 +303,8 @@ public class AsyncExportService {
         try {
             ByteArrayOutputStream target = new ByteArrayOutputStream();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
+            // UTF-8 BOM so Excel detects the encoding (accents, ñ, etc.)
+            outputStreamWriter.write('\uFEFF');
             int page = 0;
             Page<WorkOrder> result;
             String csvSeparator = user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator();
