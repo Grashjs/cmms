@@ -87,8 +87,10 @@ export default function SelectTasksModal({
                   label: option
                 })),
                 user,
-                asset
-                //  meter
+                asset,
+                // Only meter tasks carry a meter, even if one was picked
+                // before switching to another type.
+                meter: type === 'METER' ? meter : undefined
               })
             ]);
             navigation.pop(2);
