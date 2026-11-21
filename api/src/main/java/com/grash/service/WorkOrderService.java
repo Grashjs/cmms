@@ -97,6 +97,7 @@ public class WorkOrderService {
     private final IntercomService intercomService;
     private final ReviewEligibilityService reviewEligibilityService;
     private final BrandingService brandingService;
+    private final LocationFilterService locationFilterService;
     private final WorkOrderHistoryService workOrderHistoryService;
     private final SpringTemplateEngine thymeleafTemplateEngine;
     private final StorageServiceFactory storageServiceFactory;
@@ -374,6 +375,7 @@ public class WorkOrderService {
     }
 
     public Page<WorkOrder> findBySearchCriteria(SearchCriteria searchCriteria) {
+        locationFilterService.expandLocationFilters(searchCriteria);
         SpecificationBuilder<WorkOrder> builder = new SpecificationBuilder<>();
         searchCriteria.getFilterFields().forEach(builder::with);
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(),
@@ -382,6 +384,7 @@ public class WorkOrderService {
     }
 
     public Page<WorkOrder> findBySearchCriteriaWithEntityGraph(SearchCriteria searchCriteria) {
+        locationFilterService.expandLocationFilters(searchCriteria);
         SpecificationBuilder<WorkOrder> builder = new SpecificationBuilder<>();
         searchCriteria.getFilterFields().forEach(builder::with);
         Pageable page = PageRequest.of(searchCriteria.getPageNum(), searchCriteria.getPageSize(),

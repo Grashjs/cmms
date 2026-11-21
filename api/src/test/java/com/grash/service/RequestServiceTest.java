@@ -81,6 +81,8 @@ class RequestServiceTest {
     @Mock
     private TenantAspect tenantAspect;
     @Mock
+    private LocationFilterService locationFilterService;
+    @Mock
     private WorkflowService workflowService;
 
     private Company company;

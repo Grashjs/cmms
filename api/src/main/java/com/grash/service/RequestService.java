@@ -62,6 +62,7 @@ public class RequestService {
     private final AssetService assetService;
     private final RequestPortalService requestPortalService;
     private final TenantAspect tenantAspect;
+    private final LocationFilterService locationFilterService;
     private WorkflowService workflowService;
 
     @Value("${frontend.url}")
@@ -214,6 +215,7 @@ public class RequestService {
     }
 
     public Page<Request> findBySearchCriteria(SearchCriteria searchCriteria) {
+        locationFilterService.expandLocationFilters(searchCriteria);
         SpecificationBuilder<Request> builder = new SpecificationBuilder<>();
         SearchCriteria searchCriteriaClone = searchCriteria.clone();
 

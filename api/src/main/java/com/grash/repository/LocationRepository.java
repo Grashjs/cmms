@@ -36,6 +36,13 @@ public interface LocationRepository extends JpaRepository<Location, Long>, JpaSp
 
     List<Location> findByIdInAndCompany_Id(List<Long> ids, Long companyId);
 
+    @Query(value = "WITH RECURSIVE location_subtree AS (" +
+            "SELECT id FROM location WHERE id IN (:locationIds) " +
+            "UNION " +
+            "SELECT l.id FROM location l INNER JOIN location_subtree ls ON l.parent_location_id = ls.id" +
+            ") SELECT DISTINCT id FROM location_subtree", nativeQuery = true)
+    List<Long> findSubtreeIds(@Param("locationIds") Collection<Long> locationIds);
+
     int countByParentLocation_Id(Long locationId);
 
     void deleteByCompany_IdAndIsDemoTrue(Long companyId);

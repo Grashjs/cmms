@@ -128,6 +128,8 @@ class WorkOrderServiceTest {
     @Mock
     private BrandingService brandingService;
     @Mock
+    private LocationFilterService locationFilterService;
+    @Mock
     private WorkOrderHistoryService workOrderHistoryService;
     @Mock
     private org.springframework.core.env.Environment environment;
