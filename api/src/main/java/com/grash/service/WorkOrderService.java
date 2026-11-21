@@ -585,6 +585,7 @@ public class WorkOrderService {
     }
 
     public SearchCriteria getSearchCriteria(User user, SearchCriteria searchCriteria) {
+        expandLocationFilterToIncludeSubLocations(searchCriteria, user.getCompany().getId());
         if (user.getRole().getRoleType().equals(RoleType.ROLE_CLIENT)) {
             if (!user.getSuperAccountRelations().isEmpty()) {
                 List<Long> childCompanyIds = user.getSuperAccountRelations().stream()
@@ -662,6 +663,18 @@ public class WorkOrderService {
 //            else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN); //Work order is viewed by everyone
         }
         return searchCriteria;
+    }
+    
+    private void expandLocationFilterToIncludeSubLocations(SearchCriteria searchCriteria, Long companyId) {
+        searchCriteria.getFilterFields().forEach(filterField -> {
+            if (!"location".equals(filterField.getField())) return;
+            if (filterField.getValues() == null || filterField.getValues().isEmpty()) return;
+            List<Long> rootIds = filterField.getValues().stream()
+                    .map(value -> Long.valueOf(value.toString()))
+                    .collect(Collectors.toList());
+            List<Long> expandedIds = locationService.findDescendantIdsIncludingSelf(rootIds, companyId);
+            filterField.setValues(new ArrayList<>(expandedIds));
+        });
     }
 
     public Integer countUrgent(User user) {
