@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import TaskAltTwoToneIcon from '@mui/icons-material/TaskAltTwoTone';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import SingleTask from '../../components/form/SelectTasks/SingleTask';
 import { Task } from '../../../../models/owns/tasks';
 import { getTasksByWorkOrder, patchTask } from '../../../../slices/task';
@@ -45,6 +45,15 @@ export default function Tasks({
   });
   const [notes, setNotes] = useState<Map<number, boolean>>(initialNotes);
   const [tasks, setTasks] = useState<Task[]>(tasksProps);
+  // SingleTask calls handleChange from a debounced function created on mount,
+  // so these handlers must not rely on the `tasks` of the render they were
+  // created in: they read and update the latest tasks through this ref.
+  const tasksRef = useRef<Task[]>(tasks);
+  tasksRef.current = tasks;
+  const updateTasks = (updater: (tasks: Task[]) => Task[]) => {
+    tasksRef.current = updater(tasksRef.current);
+    setTasks(tasksRef.current);
+  };
   const [currentTask, setCurrentTask] = useState<Task>();
   const dispatch = useDispatch();
   const { showSnackBar } = useContext(CustomSnackBarContext);
@@ -52,28 +61,20 @@ export default function Tasks({
   useEffect(() => setTasks(tasksProps), [tasksProps]);
 
   function handleChange(value: string | number, id: number) {
-    const task = tasks.find((task) => task.id === id);
+    const task = tasksRef.current.find((task) => task.id === id);
     dispatch(patchTask(workOrderId, id, { ...task, value }))
       .then(() => showSnackBar(t('task_update_success'), 'success'))
       .catch(() => showSnackBar(t('task_update_failure'), 'error'));
 
-    const newTasks = tasks.map((task) => {
-      if (task.id === id) {
-        return { ...task, value };
-      }
-      return task;
-    });
-    setTasks(newTasks);
+    updateTasks((tasks) =>
+      tasks.map((task) => (task.id === id ? { ...task, value } : task))
+    );
   }
 
   function handleNoteChange(value: string, id: number) {
-    const newTasks = tasks.map((task) => {
-      if (task.id === id) {
-        return { ...task, notes: value };
-      }
-      return task;
-    });
-    setTasks(newTasks);
+    updateTasks((tasks) =>
+      tasks.map((task) => (task.id === id ? { ...task, notes: value } : task))
+    );
   }
 
   function toggleNotes(id: number) {
@@ -83,7 +84,7 @@ export default function Tasks({
   }
 
   function handleSaveNotes(value: string, id: number) {
-    const task = tasks.find((task) => task.id === id);
+    const task = tasksRef.current.find((task) => task.id === id);
     return dispatch(patchTask(workOrderId, id, { ...task, notes: value })).then(
       () => {
         showSnackBar(t('notes_save_success'), 'success');
