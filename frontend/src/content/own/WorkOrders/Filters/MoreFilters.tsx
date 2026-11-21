@@ -20,12 +20,15 @@ import { getLocationsMini } from '../../../../slices/location';
 import { getCategories } from '../../../../slices/category';
 import { getUsersMini } from '../../../../slices/user';
 
+type MoreFiltersEntity = 'workOrder' | 'request';
+
 interface OwnProps {
   onFilterChange: (filterFields: FilterField[]) => void;
   filterFields: FilterField[];
   onClose: () => void;
   onReset: () => void;
   showEnumFilters?: boolean;
+  entity?: MoreFiltersEntity;
 }
 
 function MoreFilters({
@@ -33,7 +36,8 @@ function MoreFilters({
   onFilterChange,
   onClose,
   onReset,
-  showEnumFilters = false
+  showEnumFilters = false,
+  entity = 'workOrder'
 }: OwnProps) {
   const { t }: { t: any } = useTranslation();
   const { customersMini } = useSelector((state) => state.customers);
@@ -43,6 +47,7 @@ function MoreFilters({
   const { assetsMini } = useSelector((state) => state.assets);
   const { teamsMini } = useSelector((state) => state.teams);
   const dispatch = useDispatch();
+  const isRequest = entity === 'request';
 
   const filtersConfig: {
     accessor: string;
@@ -79,6 +84,8 @@ function MoreFilters({
     { accessor: 'updatedAt', fieldName: 'updatedAt', type: 'date' },
     { accessor: 'completedOn', fieldName: 'completedOn', type: 'date' }
   ];
+  const requestStatuses = ['APPROVED', 'CANCELLED', 'PENDING'];
+  const workOrderStatuses = ['OPEN', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETE'];
   const enumFields: Array<IField> = showEnumFilters
     ? [
         {
@@ -96,25 +103,45 @@ function MoreFilters({
           type: 'select',
           label: t('status'),
           multiple: true,
-          items: ['OPEN', 'IN_PROGRESS', 'ON_HOLD', 'COMPLETE'].map((value) => ({
-            label: t(value),
-            value
-          }))
+          items: (isRequest ? requestStatuses : workOrderStatuses).map(
+            (value) => ({
+              label: t(value),
+              value
+            })
+          )
         }
       ]
     : [];
+  const typeField: IField = {
+    name: 'type',
+    type: 'select',
+    label: t('type'),
+    items: [
+      { label: t('ALL'), value: 'ALL' },
+      { label: t('REACTIVE'), value: 'REACTIVE' },
+      { label: t('REPEATING'), value: 'REPEATING' }
+    ]
+  };
+  const completedByField: IField = {
+    name: 'completedBy',
+    type: 'select',
+    label: t('completed_by'),
+    type2: 'user',
+    multiple: true
+  };
+  const archivedField: IField = {
+    name: 'archived',
+    type: 'checkbox',
+    label: t('archived')
+  };
+  const completedOnField: IField = {
+    name: 'completedOn',
+    type: 'dateRange',
+    label: t('completed_on')
+  };
   const fields: Array<IField> = [
     ...enumFields,
-    {
-      name: 'type',
-      type: 'select',
-      label: t('type'),
-      items: [
-        { label: t('ALL'), value: 'ALL' },
-        { label: t('REACTIVE'), value: 'REACTIVE' },
-        { label: t('REPEATING'), value: 'REPEATING' }
-      ]
-    },
+    ...(isRequest ? [] : [typeField]),
     {
       name: 'assets',
       type: 'select',
@@ -152,21 +179,7 @@ function MoreFilters({
       type2: 'user',
       multiple: true
     },
-    {
-      name: 'completedBy',
-      type: 'select',
-      label: t('completed_by'),
-      type2: 'user',
-      multiple: true
-    },
-    //TODO
-    // {
-    //   name: 'requestedBy',
-    //   type: 'select',
-    //   label: t('requested_by'),
-    //   type2: 'user',
-    //   multiple: true
-    // },
+    ...(isRequest ? [] : [completedByField]),
     {
       name: 'primaryUsers',
       type: 'select',
@@ -188,11 +201,7 @@ function MoreFilters({
       type2: 'customer',
       multiple: true
     },
-    {
-      name: 'archived',
-      type: 'checkbox',
-      label: t('archived')
-    },
+    ...(isRequest ? [] : [archivedField]),
     { name: 'datesGroup', type: 'titleGroupField', label: t('dates') },
     {
       name: 'dueDate',
@@ -204,11 +213,7 @@ function MoreFilters({
       type: 'dateRange',
       label: t('created_at')
     },
-    {
-      name: 'completedOn',
-      type: 'dateRange',
-      label: t('completed_on')
-    },
+    ...(isRequest ? [] : [completedOnField]),
     {
       name: 'updatedAt',
       type: 'dateRange',
@@ -228,24 +233,32 @@ function MoreFilters({
         break;
     }
   };
-  const getValuesFromFilterFields = (): {
-    [key: string]:
-      | { label: string; value: string }
-      | { label: string; value: number }[]
-      | { label: string; value: string }[]
-      | boolean
-      | [Date | null, Date | null];
-  } => {
+  const getValuesFromFilterFields = () => {
     const typeValue = filterFields.find(
       (filterField) => filterField.field === 'parentPreventiveMaintenance'
     );
     return {
-      type: typeValue
-        ? {
-            label: getTypeLabelAndValue(typeValue.operation).label,
-            value: getTypeLabelAndValue(typeValue.operation).value
-          }
-        : { label: t('ALL'), value: 'ALL' },
+      ...(isRequest
+        ? {}
+        : {
+            type: typeValue
+              ? {
+                  label: getTypeLabelAndValue(typeValue.operation).label,
+                  value: getTypeLabelAndValue(typeValue.operation).value
+                }
+              : { label: t('ALL'), value: 'ALL' },
+            archived: filterFields.find(
+              (filterField) => filterField.field === 'archived'
+            ).value,
+            completedOn: getDateValue(filterFields, 'completedOn'),
+            completedBy: getLabelAndValue(
+              filterFields,
+              usersMini,
+              'completedBy',
+              null,
+              (user: UserMiniDTO) => `${user.firstName} ${user.lastName}`
+            )
+          }),
       priority:
         filterFields.find(
           (filterField) => filterField.field === 'priority'
@@ -254,9 +267,6 @@ function MoreFilters({
         filterFields.find(
           (filterField) => filterField.field === 'status'
         )?.values?.map((value) => ({ label: t(value), value })) ?? [],
-      archived: filterFields.find(
-        (filterField) => filterField.field === 'archived'
-      ).value,
       assets: getLabelAndValue(filterFields, assetsMini, 'asset', 'name'),
       teams: getLabelAndValue(filterFields, teamsMini, 'team', 'name'),
       categories: getLabelAndValue(
@@ -277,13 +287,6 @@ function MoreFilters({
         locationsMini,
         'location',
         'name'
-      ),
-      completedBy: getLabelAndValue(
-        filterFields,
-        usersMini,
-        'completedBy',
-        null,
-        (user: UserMiniDTO) => `${user.firstName} ${user.lastName}`
       ),
       assignedTo: getLabelAndValue(
         filterFields,
@@ -307,7 +310,6 @@ function MoreFilters({
       ),
       createdAt: getDateValue(filterFields, 'createdAt'),
       updatedAt: getDateValue(filterFields, 'updatedAt'),
-      completedOn: getDateValue(filterFields, 'completedOn'),
       dueDate: filterFields.find(
         (filterField) => filterField.field === 'dueDate'
       )?.value
@@ -362,6 +364,13 @@ function MoreFilters({
           onSubmit={async (values) => {
             let newFilters = [...filterFields];
             filtersConfig.forEach((filterConfig) => {
+              if (
+                isRequest &&
+                ['completedBy', 'archived', 'completedOn'].includes(
+                  filterConfig.fieldName
+                )
+              )
+                return;
               newFilters = filterSingleField(
                 newFilters,
                 values,
@@ -371,29 +380,31 @@ function MoreFilters({
                 filterConfig.operator
               );
             });
-            // type filter
-            const type = values?.type ?? { value: 'ALL' };
+            if (!isRequest) {
+              // type filter
+              const type = values?.type ?? { value: 'ALL' };
 
-            newFilters = newFilters.filter(
-              ({ field }) => field !== 'parentPreventiveMaintenance'
-            );
-            switch (type.value) {
-              case 'REACTIVE':
-                newFilters.push({
-                  field: 'parentPreventiveMaintenance',
-                  operation: 'nu',
-                  value: ''
-                });
-                break;
-              case 'REPEATING':
-                newFilters.push({
-                  field: 'parentPreventiveMaintenance',
-                  operation: 'nn',
-                  value: ''
-                });
-                break;
-              default:
-                break;
+              newFilters = newFilters.filter(
+                ({ field }) => field !== 'parentPreventiveMaintenance'
+              );
+              switch (type.value) {
+                case 'REACTIVE':
+                  newFilters.push({
+                    field: 'parentPreventiveMaintenance',
+                    operation: 'nu',
+                    value: ''
+                  });
+                  break;
+                case 'REPEATING':
+                  newFilters.push({
+                    field: 'parentPreventiveMaintenance',
+                    operation: 'nn',
+                    value: ''
+                  });
+                  break;
+                default:
+                  break;
+              }
             }
             if (showEnumFilters) {
               ['priority', 'status'].forEach((fieldName) => {

@@ -80,7 +80,11 @@ import { getSingleLocation } from '../../../slices/location';
 import { getSingleAsset } from '../../../slices/asset';
 import { dayDiff } from '../../../utils/dates';
 import { FilterField, SearchCriteria } from '../../../models/owns/page';
-import { loadFilterFields, saveFilterFields } from '../../../utils/filter';
+import {
+  loadFilterFields,
+  normalizeFields,
+  saveFilterFields
+} from '../../../utils/filter';
 import WorkOrderCalendar from './Calendar';
 import WorkloadView from './WorkloadView';
 import MoreVertTwoToneIcon from '@mui/icons-material/MoreVertTwoTone';
@@ -122,11 +126,6 @@ const fieldMapping: Record<string, string> = {
   createdAt: 'createdAt',
   dueDate: 'dueDate'
 };
-const normalizeFields = (fields: FilterField[]) =>
-  [...fields]
-    .sort((a, b) => a.field.localeCompare(b.field))
-    .map((f) => ({ ...f, values: f.values ? [...f.values].sort() : f.values }));
-
 const FILTERS_STORAGE_KEY = 'workOrder_filters';
 const DEFAULT_FILTER_FIELDS: FilterField[] = [
   { field: 'archived', operation: 'eq', value: false },

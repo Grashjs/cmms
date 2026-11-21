@@ -2,6 +2,11 @@ import { FilterField, SearchOperator } from 'src/models/owns/page';
 
 export type FilterFieldType = 'simple' | 'array' | 'date' | 'dateLessThan';
 
+export const normalizeFields = (fields: FilterField[]) =>
+  [...fields]
+    .sort((a, b) => a.field.localeCompare(b.field))
+    .map((f) => ({ ...f, values: f.values ? [...f.values].sort() : f.values }));
+
 export const getLabelAndValue = <T extends { id: number }>(
   filterFields: FilterField[],
   minis: T[],
