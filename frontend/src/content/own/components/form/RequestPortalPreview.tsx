@@ -29,6 +29,7 @@ import {
 } from '../../../../slices/location';
 import { getAssetsMini, getPublicAssetsMini } from '../../../../slices/asset';
 import { FIELD_DEFS } from '../../Settings/Features/RequestPortal/components/RequestPortalModal';
+import { matchesSearch } from '../../../../utils/search';
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -218,9 +219,7 @@ export function AssetLocationClause({
         value: item.id,
         dto: item
       }))
-      .filter((option) =>
-        option.label.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      .filter((option) => matchesSearch(option.label, searchTerm));
   }, [isLocation, locationsMini, assetsMini, searchTerm, excludedIds]);
   const valueOption = field.value
     ? {
