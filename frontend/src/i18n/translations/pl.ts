@@ -1,4 +1,19 @@
 const plJSON = {
+  work_order_status_review: "Zlecenie pracy uległo zmianie. Sprawdź jego aktualny status przed ponownym wysłaniem. Wpisane dane zostały zachowane.",
+  work_order_status_review_current: "Sprawdź aktualny status na serwerze",
+  work_order_status_review_value: "Status na serwerze: {{status}} · Aktywne stopery: {{count}}",
+  work_order_status_review_confirm: "Zachowaj moje dane dla tej sprawdzonej wersji",
+
+  labor_review_current: 'Sprawdź aktualny czas',
+  labor_review_confirm: 'Zachowaj mój wpis dla tej wersji',
+  labor_changed_review:
+    'Ten wpis czasu został zmieniony. Przed ponownym zapisem sprawdź wersję na serwerze.',
+  labor_server_duration: 'Aktualny czas trwania na serwerze',
+
+  task_save_review: "Wprowadzone dane zostały zachowane. Zapisywanie jest wstrzymane; porównaj dane z wersją na serwerze przed wysłaniem wyświetlanych zmian.",
+  task_server_value: "Aktualna wartość na serwerze",
+  task_review_submit: "Sprawdź i wyślij wyświetlane zmiany",
+  task_review_discard: "Odrzuć lokalne zmiany i użyj wersji z serwera",
   DUPLICATE_OF: 'Duplikat',
   DUPLICATED_BY: 'Zduplikowany przez',
   RELATED_TO: 'Powiązany z',

@@ -1,10 +1,10 @@
-import api from './api';
+import api, { Options } from './api';
 import { UserResponseDTO } from '../models/user';
 import UserSettings from '../models/userSettings';
 import CompanySettings from '../models/companySettings';
 
-export const getUserInfos = async (): Promise<UserResponseDTO> => {
-  return api.get<UserResponseDTO>('auth/me');
+export const getUserInfos = async (options?: Options): Promise<UserResponseDTO> => {
+  return api.get<UserResponseDTO>('auth/me', options);
 };
 export const getUserSettings = async (id: number): Promise<UserSettings> => {
   return api.get<UserSettings>(`user-settings/${id}`);

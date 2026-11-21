@@ -73,30 +73,37 @@ public class FileService {
     @Transactional
     public Collection<File> uploadFiles(MultipartFile[] filesReq, String hidden, FileType fileType,
                                         Boolean bypass, Integer taskId, User user) {
+        checkUploadAccess(user, Boolean.TRUE.equals(bypass));
+        consumeUpload(user, Boolean.TRUE.equals(bypass));
+        Collection<File> result = new ArrayList<>();
+        Arrays.asList(filesReq).forEach(fileReq -> {
+            String filePath = storageServiceFactory.getStorageService().upload(fileReq,
+                    "company " + user.getCompany().getId());
+            Task task = null;
+            if (taskId != null) {
+                Optional<Task> optionalTask = taskRepository.findById(taskId.longValue());
+                if (optionalTask.isPresent()) {
+                    task = optionalTask.get();
+                }
+            }
+            result.add(create(new File(fileReq.getOriginalFilename(), filePath, fileType, task,
+                    hidden.equals("true"))));
+        });
+        return result;
+    }
+
+    /** Shared by connected uploads and prepared-work-order transfers. */
+    public void checkUploadAccess(User user, boolean bypass) {
         if (!licenseService.hasEntitlement(LicenseEntitlement.FILE_ATTACHMENTS))
             throw new CustomException("You need a license to add a file", HttpStatus.FORBIDDEN);
-        boolean isBypass = Boolean.TRUE.equals(bypass);
-        if (!rateLimiterService.tryConsumeFileUpload(String.valueOf(user.getId()), isBypass)) {
+        if (!bypass && (!user.getRole().getCreatePermissions().contains(PermissionEntity.FILES)
+                || !user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.FILE)))
+            throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    public void consumeUpload(User user, boolean bypass) {
+        if (!rateLimiterService.tryConsumeFileUpload(String.valueOf(user.getId()), bypass))
             throw new CustomException("Rate limit exceeded. Try again later.", HttpStatus.TOO_MANY_REQUESTS);
-        }
-        if (isBypass || (user.getRole().getCreatePermissions().contains(PermissionEntity.FILES) &&
-                user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.FILE))) {
-            Collection<File> result = new ArrayList<>();
-            Arrays.asList(filesReq).forEach(fileReq -> {
-                String filePath = storageServiceFactory.getStorageService().upload(fileReq,
-                        "company " + user.getCompany().getId());
-                Task task = null;
-                if (taskId != null) {
-                    Optional<Task> optionalTask = taskRepository.findById(taskId.longValue());
-                    if (optionalTask.isPresent()) {
-                        task = optionalTask.get();
-                    }
-                }
-                result.add(create(new File(fileReq.getOriginalFilename(), filePath, fileType, task,
-                        hidden.equals("true"))));
-            });
-            return result;
-        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
     }
 
     @Transactional

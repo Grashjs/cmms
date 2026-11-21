@@ -1,4 +1,19 @@
 const esJSON = {
+  work_order_status_review: "La orden de trabajo ha cambiado. Revise su estado actual antes de enviarla de nuevo. Su entrada se conserva.",
+  work_order_status_review_current: "Revisar el estado actual del servidor",
+  work_order_status_review_value: "Estado del servidor: {{status}} · Cronómetros activos: {{count}}",
+  work_order_status_review_confirm: "Conservar mi entrada sobre esta versión revisada",
+
+  labor_review_current: 'Revisar el tiempo actual',
+  labor_review_confirm: 'Conservar mi entrada sobre esta versión',
+  labor_changed_review:
+    'Este registro de tiempo ha cambiado. Revise la versión del servidor antes de guardar de nuevo.',
+  labor_server_duration: 'Duración actual en el servidor',
+
+  task_save_review: "Se conserva lo que ha escrito. El guardado está en pausa; compárelo con los datos del servidor antes de enviar los cambios mostrados.",
+  task_server_value: "Valor actual en el servidor",
+  task_review_submit: "Revisar y enviar los cambios mostrados",
+  task_review_discard: "Descartar los cambios locales y usar la versión del servidor",
   DUPLICATE_OF: 'Duplicado de',
   DUPLICATED_BY: 'Duplicado por',
   RELATED_TO: 'Relacionado a',

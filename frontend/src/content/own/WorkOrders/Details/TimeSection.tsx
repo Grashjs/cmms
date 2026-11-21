@@ -16,7 +16,7 @@ import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch } from '../../../../store';
-import { deleteLabor } from '../../../../slices/labor';
+import { deleteLabor, getLabors } from '../../../../slices/labor';
 import { CompanySettingsContext } from '../../../../contexts/CompanySettingsContext';
 import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
 import useAuth from '../../../../hooks/useAuth';
@@ -70,9 +70,12 @@ export default function TimeSection({
 
   const confirmDelete = () => {
     if (laborToDelete) {
-      dispatch(deleteLabor(workOrder.id, laborToDelete.id)).catch((err) =>
-        showSnackBar(getErrorMessage(err), 'error')
-      );
+      dispatch(
+        deleteLabor(workOrder.id, laborToDelete.id, laborToDelete.version)
+      ).catch((err) => {
+        showSnackBar(getErrorMessage(err), 'error');
+        void dispatch(getLabors(workOrder.id));
+      });
     }
     setOpenDeleteConfirm(false);
     setLaborToDelete(null);

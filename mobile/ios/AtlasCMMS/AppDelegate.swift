@@ -14,6 +14,15 @@ public class AppDelegate: ExpoAppDelegate {
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
   ) -> Bool {
+    // Atlas private storage: no backups, available only while the device is unlocked.
+    let offlineDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("atlas-offline", isDirectory: true)
+    try? FileManager.default.createDirectory(at: offlineDirectory, withIntermediateDirectories: true, attributes: [.protectionKey: FileProtectionType.complete])
+    try? FileManager.default.setAttributes([.protectionKey: FileProtectionType.complete], ofItemAtPath: offlineDirectory.path)
+    var protectedDirectory = offlineDirectory
+    var resourceValues = URLResourceValues()
+    resourceValues.isExcludedFromBackup = true
+    try? protectedDirectory.setResourceValues(resourceValues)
+
     let delegate = ReactNativeDelegate()
     let factory = ExpoReactNativeFactory(delegate: delegate)
     delegate.dependencyProvider = RCTAppDependencyProvider()

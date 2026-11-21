@@ -14,21 +14,24 @@ import { View } from '../../../components/Themed';
 import { getWorkOrdersByLocation } from '../../../slices/workOrder';
 import { getStatusColor } from '../../../utils/overall';
 import Tag from '../../../components/Tag';
+import { useProjectedWorkOrders } from '../../../offline/hooks';
 
 export default function LocationWorkOrders({
-                                             location,
-                                             navigation
-                                           }: {
+  location,
+  navigation
+}: {
   location: Location;
   navigation: any;
 }) {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const theme = useTheme();
-  const { workOrdersByLocation, loadingGet } = useSelector(
-    (state) => state.workOrders
+  const { workOrdersByLocation, preparedIdsByLocation, loadingGet } =
+    useSelector((state) => state.workOrders);
+  const workOrders = useProjectedWorkOrders(
+    workOrdersByLocation[location.id] ?? [],
+    preparedIdsByLocation?.[location.id] ?? []
   );
-  const workOrders = workOrdersByLocation[location.id] ?? [];
 
   useEffect(() => {
     if (location) dispatch(getWorkOrdersByLocation(location.id));
@@ -57,10 +60,12 @@ export default function LocationWorkOrders({
               padding: 20
             }}
           >
-            <Text style={{ fontWeight: 'bold', flexShrink: 1 }}>{workOrder.title}</Text>
+            <Text style={{ fontWeight: 'bold', flexShrink: 1 }}>
+              {workOrder.title}
+            </Text>
             <Tag
               text={t(workOrder.status)}
-              color='white'
+              color="white"
               backgroundColor={getStatusColor(workOrder.status, theme)}
             />
           </View>

@@ -3,6 +3,7 @@ import File from './file';
 import { UserMiniDTO } from './user';
 
 export default interface Comment extends Audit {
+  sourceOperationId?: string | null;
   user: UserMiniDTO;
   content: string;
   files: File[];

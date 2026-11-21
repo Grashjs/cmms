@@ -28,6 +28,7 @@ export interface TaskBase {
 
 export interface Task extends Audit {
   id: number;
+  version?: number;
   value?: string | number;
   notes: string;
   taskBase: TaskBase;

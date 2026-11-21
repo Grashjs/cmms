@@ -50,9 +50,9 @@ const slice = createSlice({
       }>
     ) {
       const { labor, workOrderId, id } = action.payload;
-      state.timesByWorkOrder[workOrderId] = state.timesByWorkOrder[
-        workOrderId
-      ].map((addTime) => {
+      state.timesByWorkOrder[workOrderId] = (
+        state.timesByWorkOrder[workOrderId] || []
+      ).map((addTime) => {
         if (addTime.id === id) {
           return labor;
         }
@@ -67,9 +67,9 @@ const slice = createSlice({
       }>
     ) {
       const { id, workOrderId } = action.payload;
-      state.timesByWorkOrder[workOrderId] = state.timesByWorkOrder[
-        workOrderId
-      ].filter((labor) => labor.id !== id);
+      state.timesByWorkOrder[workOrderId] = (
+        state.timesByWorkOrder[workOrderId] || []
+      ).filter((labor) => labor.id !== id);
     },
     controlTimer(
       state: LaborState,
@@ -79,7 +79,7 @@ const slice = createSlice({
       }>
     ) {
       const { labor, workOrderId } = action.payload;
-      const filteredLabors = state.timesByWorkOrder[workOrderId].filter(
+      const filteredLabors = (state.timesByWorkOrder[workOrderId] || []).filter(
         (aT) => aT.id !== labor.id
       );
       filteredLabors.push(labor);
@@ -136,12 +136,13 @@ export const editLabor =
         labor: laborResponse
       })
     );
+    return laborResponse;
   };
 export const deleteLabor =
-  (workOrderId: number, id: number): AppThunk =>
+  (workOrderId: number, id: number, version: number): AppThunk =>
   async (dispatch) => {
     const response = await api.deletes<{ success: boolean }>(
-      `${basePath}/${id}`
+      `${basePath}/${id}?version=${version}`
     );
     const { success } = response;
     if (success) {
@@ -150,10 +151,16 @@ export const deleteLabor =
   };
 
 export const controlTimer =
-  (start: boolean, id: number): AppThunk =>
+  (start: boolean, id: number, observed?: Labor): AppThunk =>
   async (dispatch) => {
     const response = await api.post<Labor>(
-      `${basePath}/work-order/${id}?start=${start}`,
+      `${basePath}/work-order/${id}?start=${start}${
+        !start
+          ? `&laborId=${observed?.id}&timerRunId=${encodeURIComponent(
+              observed?.timerRunId || ''
+            )}&version=${observed?.version}`
+          : ''
+      }`,
       {}
     );
     dispatch(

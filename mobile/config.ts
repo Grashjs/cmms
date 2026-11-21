@@ -1,6 +1,8 @@
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+export const OFFLINE_ENABLED = Constants.expoConfig?.extra?.OFFLINE_ENABLED === true;
+
 export const googleMapsConfig = {
   apiKey: process.env.GOOGLE_KEY
 };

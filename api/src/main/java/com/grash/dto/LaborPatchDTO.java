@@ -12,6 +12,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Schema(description = "DTO for patching labor information")
 public class LaborPatchDTO {
+    private Long version;
     @Schema(description = "Assigned user", implementation = IdDTO.class)
     private User assignedTo;
 
@@ -21,7 +22,7 @@ public class LaborPatchDTO {
     @Schema(description = "Hourly rate")
     private long hourlyRate;
 
-    @Schema(description = "Duration in minutes")
+    @Schema(description = "Duration in seconds")
     private int duration;
 
     @Schema(description = "Start timestamp")

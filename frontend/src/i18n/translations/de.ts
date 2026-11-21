@@ -1,4 +1,19 @@
 const deJSON = {
+  work_order_status_review: "Der Arbeitsauftrag wurde geändert. Prüfen Sie vor dem erneuten Senden den aktuellen Status. Ihre Eingabe bleibt erhalten.",
+  work_order_status_review_current: "Aktuellen Serverstatus prüfen",
+  work_order_status_review_value: "Serverstatus: {{status}} · Aktive Timer: {{count}}",
+  work_order_status_review_confirm: "Meine Eingabe für diese geprüfte Version behalten",
+
+  labor_review_current: 'Aktuelle Zeit prüfen',
+  labor_review_confirm: 'Meine Eingabe für diese Version behalten',
+  labor_changed_review:
+    'Dieser Zeiteintrag wurde geändert. Prüfen Sie die Serverversion vor dem erneuten Speichern.',
+  labor_server_duration: 'Aktuelle Dauer auf dem Server',
+
+  task_save_review: "Ihre Eingaben bleiben erhalten. Das Speichern ist angehalten. Vergleichen Sie Ihre Eingaben mit den Serverdaten, bevor Sie die angezeigten Änderungen senden.",
+  task_server_value: "Aktueller Wert auf dem Server",
+  task_review_submit: "Angezeigte Änderungen prüfen und senden",
+  task_review_discard: "Lokale Änderungen verwerfen und Serverversion verwenden",
   DUPLICATE_OF: 'Duplikat von',
   DUPLICATED_BY: 'Dupliziert von',
   RELATED_TO: 'Verwandt mit',

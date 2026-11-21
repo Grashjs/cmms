@@ -1,4 +1,19 @@
 const locale = {
+  work_order_status_review: "De werkorder is gewijzigd. Beoordeel de huidige status voordat u opnieuw indient. Uw invoer blijft bewaard.",
+  work_order_status_review_current: "Huidige serverstatus beoordelen",
+  work_order_status_review_value: "Serverstatus: {{status}} · Actieve timers: {{count}}",
+  work_order_status_review_confirm: "Mijn invoer op deze beoordeelde versie behouden",
+
+  labor_review_current: 'Huidige tijd bekijken',
+  labor_review_confirm: 'Mijn invoer voor deze versie behouden',
+  labor_changed_review:
+    'Deze tijdregistratie is gewijzigd. Bekijk de serverversie voordat u opnieuw opslaat.',
+  labor_server_duration: 'Huidige duur op de server',
+
+  task_save_review: "Uw invoer blijft behouden. Het opslaan is gepauzeerd; vergelijk uw invoer met de servergegevens voordat u de getoonde wijzigingen verstuurt.",
+  task_server_value: "Huidige waarde op de server",
+  task_review_submit: "Getoonde wijzigingen controleren en versturen",
+  task_review_discard: "Lokale wijzigingen verwerpen en de serverversie gebruiken",
   DUPLICATE_OF: 'Duplicaat van',
   DUPLICATED_BY: 'Gedupliceerd door',
   RELATED_TO: 'Gerelateerd aan',

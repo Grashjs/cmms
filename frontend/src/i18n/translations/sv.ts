@@ -1,4 +1,19 @@
 const locale = {
+  work_order_status_review: "Arbetsordern har ändrats. Granska dess aktuella status innan du skickar igen. Dina uppgifter bevaras.",
+  work_order_status_review_current: "Granska aktuell serverstatus",
+  work_order_status_review_value: "Serverstatus: {{status}} · Aktiva tidtagare: {{count}}",
+  work_order_status_review_confirm: "Behåll mina uppgifter för denna granskade version",
+
+  labor_review_current: 'Granska aktuell tid',
+  labor_review_confirm: 'Behåll min inmatning för den här versionen',
+  labor_changed_review:
+    'Den här tidsposten har ändrats. Granska serverversionen innan du sparar igen.',
+  labor_server_duration: 'Aktuell varaktighet på servern',
+
+  task_save_review: "Det du har skrivit finns kvar. Sparandet är pausat; jämför med uppgifterna på servern innan du skickar de visade ändringarna.",
+  task_server_value: "Aktuellt värde på servern",
+  task_review_submit: "Granska och skicka visade ändringar",
+  task_review_discard: "Kasta lokala ändringar och använd serverversionen",
   DUPLICATE_OF: 'Duplikat av',
   DUPLICATED_BY: 'Duplicerad av',
   RELATED_TO: 'Relaterat till',

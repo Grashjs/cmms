@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import PropTypes from 'prop-types';
 import { getWOBaseFields } from '../utils/woBase';
 import moment from 'moment-timezone';
+import { useOffline } from '../offline/OfflineProvider';
 
 type CompanySettingsContext = {
   getFormattedDate: (dateString: string | Date, hideTime?: boolean) => string;
@@ -34,6 +35,7 @@ export const CompanySettingsContext = createContext<CompanySettingsContext>(
 
 export const CompanySettingsProvider: FC<{ children: ReactNode }> = (props) => {
   const { companySettings, getFilteredFields, isAuthenticated } = useAuth();
+  const offline = useOffline();
   const dispatch = useDispatch();
   const { generalPreferences, workOrderRequestConfiguration } =
     companySettings ?? {
@@ -106,7 +108,18 @@ export const CompanySettingsProvider: FC<{ children: ReactNode }> = (props) => {
   };
 
   const getUserNameById = (id: number) => {
-    const user = allUsersMini.find((user) => user.id === id);
+    const localUsers = offline.readable
+      ? offline.prepared
+          .flatMap(({ workOrder }) => [
+            workOrder?.primaryUser,
+            ...(workOrder?.assignedTo ?? []),
+            workOrder?.completedBy
+          ])
+          .filter(Boolean)
+      : [];
+    const user =
+      localUsers.find((user) => user.id === id) ??
+      allUsersMini.find((user) => user.id === id);
     return user ? `${user.firstName} ${user.lastName}` : null;
   };
   const getWOFieldsAndShapes = (
@@ -239,8 +252,9 @@ export const CompanySettingsProvider: FC<{ children: ReactNode }> = (props) => {
     return [fields, shape];
   };
   useEffect(() => {
-    if (isAuthenticated) dispatch(getUsersMini(true));
-  }, [isAuthenticated]);
+    if (isAuthenticated && offline.networkAvailable)
+      dispatch(getUsersMini(true));
+  }, [isAuthenticated, offline.networkAvailable]);
   return (
     <CompanySettingsContext.Provider
       value={{

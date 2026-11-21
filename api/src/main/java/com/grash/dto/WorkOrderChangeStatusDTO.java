@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Schema(description = "DTO for changing the status of a work order")
 public class WorkOrderChangeStatusDTO {
+    private Long baseRevision;
+    private java.util.List<WorkOrderTimerRun> activeTimerRuns;
     @Schema(description = "The new status to set for the work order")
     private Status status;
     @Schema(description = "Signature captured upon status change to completed")

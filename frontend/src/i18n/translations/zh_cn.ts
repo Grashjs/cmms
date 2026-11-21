@@ -1,4 +1,18 @@
 const locale = {
+  work_order_status_review: "工单已更改。再次提交前请检查其当前状态。您的输入已保留。",
+  work_order_status_review_current: "检查服务器当前状态",
+  work_order_status_review_value: "服务器状态：{{status}} · 活动计时器：{{count}}",
+  work_order_status_review_confirm: "在此已检查版本上保留我的输入",
+
+  labor_review_current: '查看当前工时',
+  labor_review_confirm: '保留我的输入并使用此版本',
+  labor_changed_review: '此工时记录已更改。再次保存前请查看服务器版本。',
+  labor_server_duration: '服务器上的当前时长',
+
+  task_save_review: "您输入的内容已保留。保存已暂停；请先与服务器数据进行比较，再提交显示的更改。",
+  task_server_value: "服务器上的当前值",
+  task_review_submit: "检查并提交显示的更改",
+  task_review_discard: "放弃本地更改并使用服务器版本",
   DUPLICATE_OF: '复制自',
   DUPLICATED_BY: '被复制',
   RELATED_TO: '相关于',

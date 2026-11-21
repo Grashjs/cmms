@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ReactNode } from 'react';
+import React, { useState, useEffect, ReactNode, useRef } from 'react';
 import {
   View,
   Text,
@@ -13,7 +13,11 @@ import {
 import { Avatar, IconButton, useTheme, Button } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from '../store';
-import { deleteComment, updateComment } from '../slices/comment';
+import {
+  deleteComment,
+  updateComment,
+  ConfirmedCommentMutation
+} from '../slices/comment';
 import File from '../models/file';
 import mime from 'mime';
 import { CompanySettingsContext } from '../contexts/CompanySettingsContext';
@@ -25,7 +29,12 @@ import { downloadFile } from '../utils/fileDownload';
 import { useMentions } from 'react-native-controlled-mentions';
 import { TriggersConfig } from 'react-native-controlled-mentions/dist/types/types';
 
+import { useOffline } from '../offline/OfflineProvider';
+import type { LocalFile } from '../offline/types';
+
 interface CommentItemProps {
+  connectedDisabled?: boolean;
+  mutationPending?: boolean;
   comment: Comment;
   workOrderId: number;
   highlighted?: boolean;
@@ -55,6 +64,8 @@ const isImage = (file: File) => mime.getType(file.name)?.startsWith('image/');
 
 export default function CommentItem({
   comment,
+  connectedDisabled = false,
+  mutationPending = false,
   workOrderId,
   highlighted = false,
   users = []
@@ -72,15 +83,64 @@ export default function CommentItem({
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(comment.content);
   const [saving, setSaving] = useState(false);
+  const editRevision = useRef(0);
+  const [localUpdateFailed, setLocalUpdateFailed] = useState(false);
+  const expectedLocalComment = useRef<Comment | null>(null);
+  const [deletionConfirmed, setDeletionConfirmed] = useState(false);
+  const offline = useOffline();
+  const isPrepared =
+    offline.enabled && offline.prepared.some((item) => item.id === workOrderId);
+  const fileIds = (comment.files || []).map((file) => file.id).join(',');
+  const [localFiles, setLocalFiles] = useState<(LocalFile | null)[]>([]);
+  useEffect(() => {
+    setLocalFiles([]);
+    if (!isPrepared || !offline.readable || !offline.repository || !fileIds)
+      return;
+    const subscription = offline.repository
+      .observeServerFiles(workOrderId, fileIds.split(',').map(Number))
+      .subscribe({ next: setLocalFiles, error: () => setLocalFiles([]) });
+    return () => subscription.unsubscribe();
+  }, [isPrepared, offline.readable, offline.repository, workOrderId, fileIds]);
+  const showLocalUpdateFailure = (result: ConfirmedCommentMutation) => {
+    if (result.localUpdateError) {
+      expectedLocalComment.current = result.comment ?? null;
+      setLocalUpdateFailed(true);
+      offline.reportError(result.localUpdateError);
+    } else {
+      expectedLocalComment.current = null;
+      setLocalUpdateFailed(false);
+    }
+  };
+
+  useEffect(() => {
+    const expected = expectedLocalComment.current;
+    if (
+      localUpdateFailed &&
+      expected &&
+      comment.id === expected.id &&
+      comment.updatedAt === expected.updatedAt &&
+      comment.content === expected.content &&
+      JSON.stringify(comment.files.map((file) => file.id)) ===
+        JSON.stringify(expected.files.map((file) => file.id))
+    ) {
+      expectedLocalComment.current = null;
+      setLocalUpdateFailed(false);
+    }
+  }, [comment, localUpdateFailed]);
 
   const isOwner = comment.user?.id === user?.id;
   const isSystem = comment.system;
+  const canMutate = !isSystem && isOwner && !mutationPending &&
+    (!connectedDisabled || (isPrepared && offline.writable));
   const [imageViewerOpen, setImageViewerOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   const { textInputProps, triggers } = useMentions({
     value: editContent,
-    onChange: setEditContent,
+    onChange: (content) => {
+      editRevision.current++;
+      setEditContent(content);
+    },
     triggersConfig
   });
 
@@ -97,14 +157,42 @@ export default function CommentItem({
       {
         text: t('to_delete'),
         style: 'destructive',
-        onPress: () => dispatch(deleteComment(comment.id, workOrderId))
+        onPress: () => {
+          if (deletionConfirmed) return;
+          setSaving(true);
+          if (isPrepared && connectedDisabled) {
+            void offline.changeComment(workOrderId, comment.id, comment.updatedAt)
+              .then(() => setDeletionConfirmed(true))
+              .catch(offline.reportError)
+              .finally(() => setSaving(false));
+            return;
+          }
+          void dispatch(deleteComment(comment.id, workOrderId))
+            .then((result: ConfirmedCommentMutation) => {
+              setDeletionConfirmed(true);
+              showLocalUpdateFailure(result);
+            })
+            .catch(offline.reportError)
+            .finally(() => setSaving(false));
+        }
       }
     ]);
   };
 
   const handleUpdate = () => {
-    if (editContent && editContent.trim()) {
+    if (editContent && editContent.trim() && !saving) {
+      const revision = editRevision.current;
       setSaving(true);
+      if (isPrepared && connectedDisabled) {
+        void offline.changeComment(workOrderId, comment.id,
+          comment.updatedAt, editContent)
+          .then(() => {
+            if (editRevision.current === revision) setIsEditing(false);
+          })
+          .catch(offline.reportError)
+          .finally(() => setSaving(false));
+        return;
+      }
       dispatch(
         updateComment(
           comment.id,
@@ -115,16 +203,30 @@ export default function CommentItem({
           workOrderId
         )
       )
-        .then(() => {
-          setIsEditing(false);
-          setSaving(false);
+        .then((result: ConfirmedCommentMutation) => {
+          if (editRevision.current === revision) setIsEditing(false);
+          showLocalUpdateFailure(result);
         })
-        .catch(() => setSaving(false));
+        .catch(offline.reportError)
+        .finally(() => setSaving(false));
     }
   };
 
   const imageFiles = comment.files?.filter(isImage) || [];
   const otherFiles = comment.files?.filter((f) => !isImage(f)) || [];
+  const localByServerId = new Map(
+    localFiles.filter(Boolean).map((file) => [file!.serverFileId, file!])
+  );
+  const displayImages = imageFiles
+    .map((file) => ({
+      id: file.id,
+      uri: isPrepared
+        ? localByServerId.get(file.id)?.status === 'READY'
+          ? localByServerId.get(file.id)?.uri
+          : undefined
+        : file.url
+    }))
+    .filter((file) => !!file.uri);
 
   const renderContentWithMentions = (content: string) => {
     const mentionRegex = /@\[([^\]]+)\]\(user:(\d+)\)/g;
@@ -145,6 +247,7 @@ export default function CommentItem({
           key={`mention-${match.index}`}
           style={{ color: theme.colors.primary, fontWeight: '600' }}
           onPress={() =>
+            !connectedDisabled &&
             navigation.navigate('UserDetails', { id: Number(userId) })
           }
         >
@@ -174,11 +277,12 @@ export default function CommentItem({
     >
       <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
         <TouchableOpacity
+          disabled={connectedDisabled}
           onPress={() =>
             navigation.navigate('UserDetails', { id: comment.user?.id })
           }
         >
-          {comment.user.image ? (
+          {comment.user?.image && !connectedDisabled ? (
             <Avatar.Image size={40} source={{ uri: comment.user.image.url }} />
           ) : (
             <Avatar.Text
@@ -200,6 +304,7 @@ export default function CommentItem({
           >
             <View style={{ flex: 1, marginRight: 8 }}>
               <TouchableOpacity
+                disabled={connectedDisabled}
                 onPress={() =>
                   navigation.navigate('UserDetails', { id: comment.user?.id })
                 }
@@ -220,18 +325,31 @@ export default function CommentItem({
                 {getFormattedDate(comment.updatedAt || comment.createdAt)}
               </Text>
             </View>
-            {!isSystem && isOwner && !isEditing && (
-              <View style={{ flexDirection: 'row' }}>
-                <IconButton
-                  icon="pencil"
-                  size={20}
-                  onPress={() => setIsEditing(true)}
-                />
-                <IconButton icon="delete" size={20} onPress={handleDelete} />
-              </View>
-            )}
+            {canMutate &&
+              !isEditing &&
+              !deletionConfirmed && (
+                <View style={{ flexDirection: 'row' }}>
+                  <IconButton
+                    icon="pencil"
+                    size={20}
+                    disabled={saving}
+                    onPress={() => setIsEditing(true)}
+                  />
+                  <IconButton
+                    icon="delete"
+                    size={20}
+                    disabled={saving}
+                    onPress={handleDelete}
+                  />
+                </View>
+              )}
           </View>
 
+          {localUpdateFailed && (
+            <Text accessibilityRole="alert">
+              {t('offline_comment_saved_refresh_pending')}
+            </Text>
+          )}
           {isEditing ? (
             <View>
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -316,58 +434,74 @@ export default function CommentItem({
             </Text>
           )}
 
-          {comment.files?.length > 0 && !isEditing && (
-            <View style={{ marginTop: 8 }}>
-              {imageFiles.length > 0 && (
-                <ScrollView
-                  horizontal
-                  style={{ marginBottom: otherFiles.length > 0 ? 8 : 0 }}
-                >
-                  {imageFiles.map((file, index) => (
-                    <TouchableOpacity
-                      key={file.id}
-                      onPress={() => {
-                        setSelectedImageIndex(index);
-                        setImageViewerOpen(true);
-                      }}
-                    >
-                      <Image
-                        source={{ uri: file.url }}
-                        style={{
-                          width: 80,
-                          height: 80,
-                          borderRadius: 4,
-                          marginRight: 8
-                        }}
-                      />
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              )}
-              {otherFiles.map((file) => (
-                <TouchableOpacity
-                  key={file.id}
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    padding: 2,
-                    backgroundColor: theme.colors.background,
-                    borderRadius: 4,
-                    marginBottom: 4
-                  }}
-                  onPress={() => downloadFile(file.url, file.name)}
-                >
-                  <IconButton icon="file" size={20} />
-                  <Text style={{ flex: 1 }} numberOfLines={1}>
-                    {file.name}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+          {!isPrepared && connectedDisabled && !!comment.files?.length && (
+            <Text>{t('offline_files_not_downloaded')}</Text>
           )}
+          {(isPrepared || !connectedDisabled) &&
+            comment.files?.length > 0 &&
+            !isEditing && (
+              <View style={{ marginTop: 8 }}>
+                {displayImages.length > 0 && (
+                  <ScrollView
+                    horizontal
+                    style={{ marginBottom: otherFiles.length > 0 ? 8 : 0 }}
+                  >
+                    {displayImages.map((file, index) => (
+                      <TouchableOpacity
+                        key={file.id}
+                        onPress={() => {
+                          setSelectedImageIndex(index);
+                          setImageViewerOpen(true);
+                        }}
+                      >
+                        <Image
+                          source={{ uri: file.uri }}
+                          style={{
+                            width: 80,
+                            height: 80,
+                            borderRadius: 4,
+                            marginRight: 8
+                          }}
+                        />
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                )}
+                {otherFiles.map((file) => (
+                  <TouchableOpacity
+                    key={file.id}
+                    disabled={isPrepared && localByServerId.get(file.id)?.status !== 'READY'}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      padding: 2,
+                      backgroundColor: theme.colors.background,
+                      borderRadius: 4,
+                      marginBottom: 4
+                    }}
+                    onPress={() => {
+                      const local = localByServerId.get(file.id);
+                      if (isPrepared && local?.status === 'READY')
+                        void offline.openFile(local.id).catch(offline.reportError);
+                      else if (!isPrepared)
+                        void downloadFile(file.url, file.name);
+                    }}
+                  >
+                    <IconButton icon="file" size={20} />
+                    <Text style={{ flex: 1 }} numberOfLines={1}>
+                      {file.name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+                {isPrepared && comment.files.some((file) =>
+                  localByServerId.get(file.id)?.status !== 'READY') && (
+                  <Text>{t(offline.syncing ? 'offline_saving' : 'offline_file_failed')}</Text>
+                )}
+              </View>
+            )}
           {imageViewerOpen && (
             <ImageView
-              images={imageFiles.map((f) => ({ uri: f.url }))}
+              images={displayImages.map((file) => ({ uri: file.uri! }))}
               imageIndex={selectedImageIndex}
               visible={imageViewerOpen}
               onRequestClose={() => setImageViewerOpen(false)}

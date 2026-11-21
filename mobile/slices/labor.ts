@@ -4,6 +4,11 @@ import type { AppThunk } from '../store';
 import Labor from '../models/labor';
 import api from '../utils/api';
 import { revertAll } from '../utils/redux';
+import { getPreparedRuntime } from '../offline/runtime';
+import {
+  assertSessionGeneration,
+  sessionGeneration
+} from '../offline/sessionBridge';
 
 const basePath = 'labors';
 
@@ -22,6 +27,12 @@ const slice = createSlice({
   initialState,
   extraReducers: (builder) => builder.addCase(revertAll, () => initialState),
   reducers: {
+    removePreparedLabors(state: LaborState, action: PayloadAction<number[]>) {
+      for (const id of action.payload) {
+        delete state.timesByWorkOrder[id];
+        delete state.loadingLabors[id];
+      }
+    },
     getLabors(
       state: LaborState,
       action: PayloadAction<{ id: number; labors: Labor[] }>
@@ -50,9 +61,9 @@ const slice = createSlice({
       }>
     ) {
       const { labor, workOrderId, id } = action.payload;
-      state.timesByWorkOrder[workOrderId] = state.timesByWorkOrder[
-        workOrderId
-      ].map((addTime) => {
+      state.timesByWorkOrder[workOrderId] = (
+        state.timesByWorkOrder[workOrderId] || []
+      ).map((addTime) => {
         if (addTime.id === id) {
           return labor;
         }
@@ -67,9 +78,9 @@ const slice = createSlice({
       }>
     ) {
       const { id, workOrderId } = action.payload;
-      state.timesByWorkOrder[workOrderId] = state.timesByWorkOrder[
-        workOrderId
-      ].filter((labor) => labor.id !== id);
+      state.timesByWorkOrder[workOrderId] = (
+        state.timesByWorkOrder[workOrderId] || []
+      ).filter((labor) => labor.id !== id);
     },
     controlTimer(
       state: LaborState,
@@ -79,7 +90,7 @@ const slice = createSlice({
       }>
     ) {
       const { labor, workOrderId } = action.payload;
-      const filteredLabors = state.timesByWorkOrder[workOrderId].filter(
+      const filteredLabors = (state.timesByWorkOrder[workOrderId] || []).filter(
         (aT) => aT.id !== labor.id
       );
       filteredLabors.push(labor);
@@ -96,72 +107,116 @@ const slice = createSlice({
 });
 
 export const reducer = slice.reducer;
+export const { removePreparedLabors } = slice.actions;
 
 export const getLabors =
   (id: number): AppThunk =>
   async (dispatch) => {
+    if (getPreparedRuntime(id)) return;
+    const generation = sessionGeneration();
     dispatch(slice.actions.setLoadingByWorkOrder({ id, loading: true }));
     try {
       const labors = await api.get<Labor[]>(`${basePath}/work-order/${id}`);
-      dispatch(slice.actions.getLabors({ id, labors }));
+      assertSessionGeneration(generation);
+      if (!getPreparedRuntime(id))
+        dispatch(slice.actions.getLabors({ id, labors }));
     } catch {
     } finally {
-      dispatch(slice.actions.setLoadingByWorkOrder({ id, loading: false }));
+      if (generation === sessionGeneration() && !getPreparedRuntime(id))
+        dispatch(slice.actions.setLoadingByWorkOrder({ id, loading: false }));
     }
   };
+
+export interface ConfirmedLaborMutation {
+  labor?: Labor;
+  localUpdateError?: unknown;
+}
+
+/** Mutation success and a failed canonical refresh are separate outcomes. */
+async function mutateLabor(
+  workOrderId: number,
+  mutation: () => Promise<Labor | undefined>,
+  publishConnected: (labor?: Labor) => void
+): Promise<ConfirmedLaborMutation> {
+  const generation = sessionGeneration();
+  assertSessionGeneration(generation);
+  const prepared = getPreparedRuntime(workOrderId);
+  const execute = async () => {
+    assertSessionGeneration(generation);
+    const labor = await mutation();
+    assertSessionGeneration(generation);
+    return labor;
+  };
+  const labor = await (prepared
+    ? prepared.runConnectedLabor(workOrderId, execute)
+    : execute());
+  assertSessionGeneration(generation);
+  const current = getPreparedRuntime(workOrderId);
+  if (current) {
+    try {
+      // refresh owns the same lane, so run it after the mutation leaves that lane.
+      await current.refresh(workOrderId);
+      assertSessionGeneration(generation);
+    } catch (localUpdateError) {
+      assertSessionGeneration(generation);
+      return { labor, localUpdateError };
+    }
+  } else publishConnected(labor);
+  return { labor };
+}
 
 export const createLabor =
   (id: number, labor: Partial<Labor>): AppThunk =>
-  async (dispatch) => {
-    const laborResponse = await api.post<Labor>(`${basePath}`, {
-      ...labor,
-      workOrder: { id }
-    });
-    dispatch(
-      slice.actions.createLabor({
-        workOrderId: id,
-        labor: laborResponse
-      })
+  async (dispatch) =>
+    mutateLabor(
+      id,
+      () => api.post<Labor>(`${basePath}`, { ...labor, workOrder: { id } }),
+      (created) =>
+        dispatch(slice.actions.createLabor({ workOrderId: id, labor: created }))
     );
-  };
 
 export const editLabor =
   (id: number, workOrderId: number, labor: Partial<Labor>): AppThunk =>
-  async (dispatch) => {
-    const laborResponse = await api.patch<Labor>(`${basePath}/${id}`, labor);
-    dispatch(
-      slice.actions.editLabor({
-        workOrderId,
-        id,
-        labor: laborResponse
-      })
+  async (dispatch) =>
+    mutateLabor(
+      workOrderId,
+      () => api.patch<Labor>(`${basePath}/${id}`, labor),
+      (updated) =>
+        dispatch(slice.actions.editLabor({ workOrderId, id, labor: updated }))
     );
-  };
+
 export const deleteLabor =
-  (workOrderId: number, id: number): AppThunk =>
-  async (dispatch) => {
-    const response = await api.deletes<{ success: boolean }>(
-      `${basePath}/${id}`
+  (workOrderId: number, id: number, version: number): AppThunk =>
+  async (dispatch) =>
+    mutateLabor(
+      workOrderId,
+      async () => {
+        await api.deletes<{ success: boolean }>(
+          `${basePath}/${id}?version=${version}`
+        );
+        return undefined;
+      },
+      () => dispatch(slice.actions.deleteLabor({ workOrderId, id }))
     );
-    const { success } = response;
-    if (success) {
-      dispatch(slice.actions.deleteLabor({ workOrderId, id }));
-    }
-  };
 
 export const controlTimer =
-  (start: boolean, id: number): AppThunk =>
-  async (dispatch) => {
-    const response = await api.post<Labor>(
-      `${basePath}/work-order/${id}?start=${start}`,
-      {}
+  (start: boolean, id: number, observed?: Labor): AppThunk =>
+  async (dispatch) =>
+    mutateLabor(
+      id,
+      () =>
+        api.post<Labor>(
+          `${basePath}/work-order/${id}?start=${start}${
+            !start
+              ? `&laborId=${observed?.id}&timerRunId=${encodeURIComponent(
+                  observed?.timerRunId || ''
+                )}&version=${observed?.version}`
+              : ''
+          }`,
+          {}
+        ),
+      (labor) =>
+        dispatch(slice.actions.controlTimer({ labor, workOrderId: id }))
     );
-    dispatch(
-      slice.actions.controlTimer({
-        labor: response,
-        workOrderId: id
-      })
-    );
-  };
 
 export default slice;

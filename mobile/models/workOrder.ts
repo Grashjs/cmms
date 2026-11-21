@@ -13,6 +13,11 @@ import { WorkOrderBase } from './workOrderBase';
 export type Priority = 'HIGH' | 'MEDIUM' | 'LOW' | 'NONE';
 export type WorkOrderStatus = 'OPEN' | 'ON_HOLD' | 'IN_PROGRESS' | 'COMPLETE';
 
+export interface WorkOrderStatusGuard {
+  baseRevision: number;
+  activeTimerRuns: { laborId: number; timerRunId: string }[];
+}
+
 export default interface WorkOrder extends WorkOrderBase {
   category: Category | null;
   id: number;
@@ -25,6 +30,7 @@ export default interface WorkOrder extends WorkOrderBase {
   feedback: string;
   requiredSignature: boolean;
   status: WorkOrderStatus;
+  timerStatusRevision: number;
   audioDescription: File;
   customId: string;
   //parentPreventiveMaintenance:

@@ -241,4 +241,10 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_09_09_1788956680_user_settings_language.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_10_29_00000000001_mobile_offline_foundation.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2026_10_31_00000000001_mobile_offline_comments.xml"
+             relativeToChangelogFile="true"/>
+    <include file="changelog/2026_11_03_00000000001_mobile_offline_time.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

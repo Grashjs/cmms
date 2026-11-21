@@ -15,6 +15,29 @@ import java.util.List;
 import java.util.Optional;
 
 public interface WorkOrderRepository extends JpaRepository<WorkOrder, Long>, JpaSpecificationExecutor<WorkOrder> {
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("select w from WorkOrder w where w.id = :id and w.company.id = :companyId")
+    Optional<WorkOrder> findForUpdate(@Param("id") Long id, @Param("companyId") Long companyId);
+
+    interface ClosurePresence {
+        boolean getHasFiles();
+        boolean getHasUnansweredTasks();
+        boolean getHasTime();
+        boolean getHasParts();
+        boolean getHasCosts();
+    }
+
+    /** One database snapshot for the existing closure predicates, not a lock on future edits. */
+    @Query(value = """
+            select (exists(select 1 from work_order_files f where f.work_order_id = :id)
+                       or exists(select 1 from comment c join comment_files f on f.comment_id = c.id where c.work_order_id = :id)) as "hasFiles",
+                   exists(select 1 from task t where t.work_order_id = :id and (t.value is null or t.value = '')) as "hasUnansweredTasks",
+                   exists(select 1 from labor l where l.work_order_id = :id and l.duration > 0) as "hasTime",
+                   exists(select 1 from part_quantity p where p.work_order_id = :id) as "hasParts",
+                   exists(select 1 from additional_cost c where c.work_order_id = :id) as "hasCosts"
+            """, nativeQuery = true)
+    ClosurePresence closurePresence(@Param("id") Long id);
+
     Collection<WorkOrder> findByCompany_Id(Long id);
 
     @Query("SELECT w FROM WorkOrder w " +

@@ -5,6 +5,8 @@ import Category, { categories } from './category';
 export default interface Labor extends Audit {
   assignedTo: User | null;
   id: number;
+  version?: number;
+  timerRunId?: string;
   hourlyRate: number;
   includeToTotalTime: boolean;
   startedAt: string;

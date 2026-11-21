@@ -60,6 +60,9 @@ import jakarta.persistence.criteria.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.time.Instant;
+import java.util.function.BiConsumer;
+import com.grash.dto.offline.MobileOfflineStatusChange;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -109,6 +112,7 @@ public class WorkOrderService {
     private PreventiveMaintenanceService preventiveMaintenanceService;
     private PreventiveMaintenanceMapper preventiveMaintenanceMapper;
     private final FileRepository fileRepository;
+    private final FileService fileService;
 
     @Transactional
     public WorkOrder create(WorkOrder workOrder, Company company) {
@@ -208,6 +212,7 @@ public class WorkOrderService {
             Long previousCategoryId = savedWorkOrder.getCategory() != null ? savedWorkOrder.getCategory().getId() :
                     null;
 
+            applyAttachmentPatch(savedWorkOrder, workOrder, user);
             WorkOrder newWorkOrder = workOrderMapper.updateWorkOrder(savedWorkOrder, workOrder);
             Sanitizer.sanitizeWorkOrder(newWorkOrder);
             if (!workOrder.getCustomFields().isEmpty()) {
@@ -245,12 +250,22 @@ public class WorkOrderService {
 
     @Transactional
     public WorkOrder patch(Long id, WorkOrderPatchDTO workOrder, User user) {
-        Optional<WorkOrder> optionalWorkOrder = findById(id);
+        return patch(id, workOrder, user, false);
+    }
+
+    @Transactional
+    public WorkOrder patch(Long id, WorkOrderPatchDTO workOrder, User user, boolean attachmentsOnly) {
+        Optional<WorkOrder> optionalWorkOrder = workOrderRepository.findForUpdate(id, user.getCompany().getId());
         if (optionalWorkOrder.isPresent()) {
             WorkOrder savedWorkOrder = optionalWorkOrder.get();
+            em.refresh(savedWorkOrder);
             if (savedWorkOrder.canBeEditedBy(user)) {
+                // The explicit attachment-only request inherits current business fields under this
+                // same lock, never stale form fields or the DTO's default/null values.
+                WorkOrderPatchDTO effectivePatch = attachmentsOnly
+                        ? attachmentOnlyPatch(savedWorkOrder, workOrder) : workOrder;
                 em.detach(savedWorkOrder);
-                WorkOrder patchedWorkOrder = update(id, workOrder, user);
+                WorkOrder patchedWorkOrder = update(id, effectivePatch, user);
 
                 if (patchedWorkOrder.isArchived() && !savedWorkOrder.isArchived()) {
                     Collection<Workflow> workflows =
@@ -308,6 +323,16 @@ public class WorkOrderService {
 
     public Collection<WorkOrder> findByIdsAndCompany(List<Long> ids, Long companyId) {
         return workOrderRepository.findByIdInAndCompany_Id(ids, companyId);
+    }
+
+    /** Import already owns a transaction; lock in ID order before changing shared status decisions. */
+    public Collection<WorkOrder> findByIdsAndCompanyForUpdate(List<Long> ids, Long companyId) {
+        List<WorkOrder> result = new ArrayList<>();
+        ids.stream().distinct().sorted().forEach(id -> workOrderRepository.findForUpdate(id, companyId).ifPresent(wo -> {
+            em.refresh(wo);
+            result.add(wo);
+        }));
+        return result;
     }
 
     public Collection<WorkOrder> findByCompany(Long id) {
@@ -415,6 +440,11 @@ public class WorkOrderService {
 
     @Transactional
     public WorkOrder saveAndFlushWithWebhook(WorkOrder workOrder, Company company, WorkOrder originalWorkOrder) {
+        return saveAndFlushWithWebhook(workOrder, company, originalWorkOrder, (name, action) -> action.run());
+    }
+
+    private WorkOrder saveAndFlushWithWebhook(WorkOrder workOrder, Company company, WorkOrder originalWorkOrder,
+                                             BiConsumer<String, Runnable> effects) {
         Collection<WOField> changedFields = detectChangedFieldsFromEntity(originalWorkOrder, workOrder);
         boolean statusChanged = !Objects.equals(originalWorkOrder.getStatus(), workOrder.getStatus());
         Long originalCategoryId = originalWorkOrder.getCategory() != null ? originalWorkOrder.getCategory().getId() :
@@ -430,13 +460,15 @@ public class WorkOrderService {
         webhookPayload.put("previousStatus", originalWorkOrder.getStatus());
         webhookPayload.put("newStatus", updatedWorkOrder.getStatus());
 
-        webhookDispatchService.dispatchWebhook(company, WebhookEvent.WORK_ORDER_CHANGE, webhookPayload,
-                "changedWorkOrder", serializedWorkOrder, changedFields, null, null, null, null);
+        Map<String, Object> changePayload = new HashMap<>(webhookPayload);
+        effects.accept("work-order-webhook", () -> webhookDispatchService.dispatchWebhook(company, WebhookEvent.WORK_ORDER_CHANGE, changePayload,
+                "changedWorkOrder", serializedWorkOrder, changedFields, null, null, null, null));
 
         if (statusChanged) {
-            webhookDispatchService.dispatchWebhook(company, WebhookEvent.WORK_ORDER_STATUS_CHANGE, webhookPayload,
-                    "changedWorkOrder", serializedWorkOrder, changedFields, null,
-                    updatedWorkOrder.getStatus(), null, null);
+            Status status = updatedWorkOrder.getStatus();
+            Map<String, Object> statusPayload = new HashMap<>(webhookPayload);
+            effects.accept("status-webhook", () -> webhookDispatchService.dispatchWebhook(company, WebhookEvent.WORK_ORDER_STATUS_CHANGE, statusPayload,
+                    "changedWorkOrder", serializedWorkOrder, changedFields, null, status, null, null));
         }
 
         if (categoryChanged) {
@@ -447,8 +479,9 @@ public class WorkOrderService {
             WorkOrderCategory newCategory = updatedWorkOrder.getCategory();
             Collection<WorkOrderCategory> categories = newCategory != null ? Collections.singletonList(newCategory) :
                     Collections.emptyList();
-            webhookDispatchService.dispatchWebhook(company, WebhookEvent.NEW_CATEGORY_ON_WORK_ORDER, webhookPayload,
-                    "changedWorkOrder", serializedWorkOrder, changedFields, null, null, categories, null);
+            Map<String, Object> categoryPayload = new HashMap<>(webhookPayload);
+            effects.accept("category-webhook", () -> webhookDispatchService.dispatchWebhook(company, WebhookEvent.NEW_CATEGORY_ON_WORK_ORDER, categoryPayload,
+                    "changedWorkOrder", serializedWorkOrder, changedFields, null, null, categories, null));
         }
 
         return updatedWorkOrder;
@@ -552,6 +585,12 @@ public class WorkOrderService {
     }
 
     public void importWorkOrder(WorkOrder workOrder, WorkOrderImportDTO dto, Company company) {
+        Status previousStatus = workOrder.getStatus();
+        String previousFeedback = workOrder.getFeedback();
+        String previousSignature = workOrder.getSignature();
+        Date previousCompletedOn = workOrder.getCompletedOn();
+        Long previousCompletedBy = workOrder.getCompletedBy() == null ? null : workOrder.getCompletedBy().getId();
+        boolean previousRequiredSignature = workOrder.isRequiredSignature();
         checkUsageBasedLimit(company);
         Helper.populateWorkOrderBaseFromImportDTO(workOrder, dto, company, locationService, teamService, userService,
                 assetService, workOrderCategoryService);
@@ -565,7 +604,8 @@ public class WorkOrderService {
         optionalCompletedBy.ifPresent(workOrder::setCompletedBy);
         workOrder.setCompletedOn(dto.getCompletedOn() == null ? null : Helper.addSeconds(new Date(), 60 * 10));
         workOrder.setArchived(Helper.getBooleanFromString(dto.getArchived()));
-        workOrder.setStatus(Status.getStatusFromString(dto.getStatus()));
+        Status importedStatus = Status.getStatusFromString(dto.getStatus());
+        workOrder.setStatus(importedStatus);
         workOrder.setFeedback(dto.getFeedback());
         List<Customer> customers = new ArrayList<>();
         dto.getCustomersNames().forEach(name -> {
@@ -574,6 +614,14 @@ public class WorkOrderService {
         });
         workOrder.setCustomers(customers);
         Sanitizer.sanitizeWorkOrder(workOrder);
+        Long completedBy = workOrder.getCompletedBy() == null ? null : workOrder.getCompletedBy().getId();
+        if (workOrder.getId() != null && (previousStatus != workOrder.getStatus()
+                || !Objects.equals(previousFeedback, workOrder.getFeedback())
+                || !Objects.equals(previousSignature, workOrder.getSignature())
+                || !Objects.equals(previousCompletedOn, workOrder.getCompletedOn())
+                || !Objects.equals(previousCompletedBy, completedBy)
+                || previousRequiredSignature != workOrder.isRequiredSignature()))
+            workOrder.setTimerStatusRevision(Math.addExact(workOrder.getTimerStatusRevision(), 1));
     }
 
     public Collection<WorkOrder> findByCreatedByAndCreatedAtBetween(Long id, Date date1, Date date2) {
@@ -829,10 +877,106 @@ public class WorkOrderService {
         return workOrderRepository.findByCompany_IdWithTimeAndCost(id, pageable);
     }
 
+    public static List<String> requiredClosureFields(User user) {
+        var settings = user.getCompany().getCompanySettings();
+        if (settings == null || settings.getWorkOrderConfiguration() == null) return List.of();
+        return settings.getWorkOrderConfiguration().getWorkOrderFieldConfigurations().stream()
+                .filter(field -> field.getFieldType() == FieldType.REQUIRED)
+                .map(FieldConfiguration::getFieldName).filter(name -> name.startsWith("complete")).sorted().toList();
+    }
+
+    public List<WorkOrderTimerRun> activeTimerRuns(long id) {
+        return laborService.findByWorkOrder(id).stream().filter(labor -> labor.isLogged() && labor.getStatus() == TimeStatus.RUNNING)
+                .map(labor -> new WorkOrderTimerRun(labor.getId(), labor.getTimerRunId())).toList();
+    }
+
+    /** Every expected refusal is checked before the shared mutation, so offline can persist a refusal receipt. */
+    private String statusError(WorkOrder wo, WorkOrderChangeStatusDTO dto, User user) {
+        if (dto.getStatus() == null) return "INVALID_STATUS";
+        if (!wo.canBeEditedBy(user)) return "ACCESS_REVOKED";
+        if (dto.getBaseRevision() == null) return "STATUS_REVISION_REQUIRED";
+        if (dto.getBaseRevision() != wo.getTimerStatusRevision()) return "STATUS_REVISION_CONFLICT";
+        if (dto.getActiveTimerRuns() == null || dto.getActiveTimerRuns().stream().anyMatch(run -> run == null
+                || run.laborId() == null || run.timerRunId() == null)) return "STATUS_TIMER_RUNS_REQUIRED";
+        if (dto.getStatus() != Status.IN_PROGRESS && !new HashSet<>(dto.getActiveTimerRuns()).equals(new HashSet<>(activeTimerRuns(wo.getId()))))
+            return "STATUS_TIMER_RUNS_CHANGED";
+        if (dto.getSignature() != null && (!licenseService.hasEntitlement(LicenseEntitlement.SIGNATURE_CAPTURE)
+                || !user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.SIGNATURE)))
+            return "SIGNATURE_CAPTURE_REQUIRED";
+        if (dto.getSignature() != null && !dto.getSignature().trim().isEmpty() && !dto.getSignature().trim().startsWith("data:image/"))
+            return "INVALID_SIGNATURE";
+        if (dto.getStatus() == Status.COMPLETE && wo.isRequiredSignature()
+                && (dto.getSignature() == null || dto.getSignature().trim().isEmpty())) return "REQUIRED_SIGNATURE";
+        if (dto.getStatus() == Status.COMPLETE) {
+            var settings = user.getCompany().getCompanySettings();
+            String feedback = Sanitizer.cleanText(dto.getFeedback());
+            if (settings != null && settings.getGeneralPreferences() != null && settings.getGeneralPreferences().isAskFeedBackOnWOClosed()
+                    && (feedback == null || feedback.isBlank())) return "REQUIRED_FEEDBACK";
+            List<String> required = requiredClosureFields(user);
+            if (!required.isEmpty()) {
+                var presence = workOrderRepository.closurePresence(wo.getId());
+                if (required.contains("completeFiles") && !presence.getHasFiles()) return "required_files_on_completion";
+                if (required.contains("completeTasks") && presence.getHasUnansweredTasks()) return "required_tasks_on_completion";
+                if (required.contains("completeTime") && !presence.getHasTime()) return "required_labor_on_completion";
+                if (required.contains("completeParts") && !presence.getHasParts()) return "required_part_on_completion";
+                if (required.contains("completeCost") && !presence.getHasCosts()) return "required_cost_on_completion";
+            }
+        }
+        return null;
+    }
+
     @Transactional
     public WorkOrder changeStatus(WorkOrderChangeStatusDTO dto, Long id, User user, String platform) {
-        Optional<WorkOrder> optionalWorkOrder = findById(id);
+        WorkOrder wo = workOrderRepository.findForUpdate(id, user.getCompany().getId())
+                .orElseThrow(() -> new CustomException("Not found", HttpStatus.NOT_FOUND));
+        em.refresh(wo);
+        String error = statusError(wo, dto, user);
+        if (error != null) throw new CustomException(error, error.equals("INVALID_STATUS") ? HttpStatus.NOT_ACCEPTABLE
+                : error.startsWith("STATUS_") ? HttpStatus.CONFLICT : error.equals("ACCESS_REVOKED") || error.equals("SIGNATURE_CAPTURE_REQUIRED") ? HttpStatus.FORBIDDEN : HttpStatus.BAD_REQUEST);
+        return mutateStatus(dto, id, user, platform, null);
+    }
+
+    public record OfflineStatusOutcome(WorkOrder workOrder, List<WorkOrderTimerRun> stoppedTimerRuns, String error, boolean conflict) {}
+
+    @Transactional
+    public OfflineStatusOutcome applyOfflineStatus(long id, MobileOfflineStatusChange change, long revision,
+                                                   List<WorkOrderTimerRun> expectedRuns, User user, String platform, UUID operationId) {
+        WorkOrder wo = workOrderRepository.findForUpdate(id, user.getCompany().getId()).orElse(null);
+        if (wo == null) return new OfflineStatusOutcome(null, List.of(), "TARGET_NOT_FOUND", false);
+        em.refresh(wo);
+        WorkOrderChangeStatusDTO dto = new WorkOrderChangeStatusDTO();
+        dto.setStatus(change.status()); dto.setFeedback(change.feedback()); dto.setSignature(change.signature());
+        dto.setBaseRevision(revision); dto.setActiveTimerRuns(expectedRuns);
+        String error = statusError(wo, dto, user);
+        if (error != null) return new OfflineStatusOutcome(wo, List.of(), error, error.startsWith("STATUS_"));
+        if (wo.getStatus() == Status.COMPLETE && change.status() == Status.COMPLETE)
+            return new OfflineStatusOutcome(wo, List.of(), "ALREADY_COMPLETED", true);
+        List<WorkOrderTimerRun> stopped = dto.getStatus() == Status.IN_PROGRESS ? List.of() : activeTimerRuns(id);
+        WorkOrder result = mutateStatus(dto, id, user, platform, operationId);
+        return new OfflineStatusOutcome(result, stopped, null, false);
+    }
+
+    /** Connected delivery stays immediate; only offline delivery waits for its receipt transaction. */
+    private void statusEffect(UUID operationId, long workOrderId, String name, Runnable action) {
+        if (operationId == null) { action.run(); return; }
+        if (!org.springframework.transaction.support.TransactionSynchronizationManager.isSynchronizationActive())
+            throw new IllegalStateException("Offline status effects require the receipt transaction");
+        org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization(
+                new org.springframework.transaction.support.TransactionSynchronization() {
+                    @Override public void afterCommit() {
+                        try { action.run(); }
+                        catch (Exception failure) {
+                            log.error("OFFLINE_STATUS_EFFECT_FAILED operation={} workOrder={} effect={}", operationId, workOrderId, name, failure);
+                        }
+                    }
+                });
+    }
+
+    private WorkOrder mutateStatus(WorkOrderChangeStatusDTO dto, Long id, User user, String platform, UUID operationId) {
+        BiConsumer<String, Runnable> effects = (name, action) -> statusEffect(operationId, id, name, action);
+        Optional<WorkOrder> optionalWorkOrder = workOrderRepository.findForUpdate(id, user.getCompany().getId());
         WorkOrder savedWorkOrder = optionalWorkOrder.get();
+        em.refresh(savedWorkOrder);
         em.detach(savedWorkOrder); // detach FIRST
         WorkOrder originalWorkOrder = savedWorkOrder;
         WorkOrder mutableWO = findById(id).get(); // fresh managed copy
@@ -862,6 +1006,8 @@ public class WorkOrderService {
         }
         if (mutableWO.canBeEditedBy(user) && (dto.getSignature() == null ||
                 user.getCompany().getSubscription().getSubscriptionPlan().getFeatures().contains(PlanFeatures.SIGNATURE))) {
+            // Reaffirming a pause is still an explicit decision that a delayed start must respect.
+            mutableWO.setTimerStatusRevision(Math.addExact(mutableWO.getTimerStatusRevision(), 1));
             if (!dto.getStatus().equals(Status.IN_PROGRESS)) {
                 if (dto.getStatus().equals(Status.COMPLETE)) {
                     mutableWO.setCompletedBy(user);
@@ -870,25 +1016,33 @@ public class WorkOrderService {
                         Asset asset = mutableWO.getAsset();
                         Collection<WorkOrder> workOrdersOfSameAsset = findByAsset(asset.getId());
                         if (workOrdersOfSameAsset.stream().noneMatch(workOrder1 -> !workOrder1.getId().equals(id) && !workOrder1.getStatus().equals(Status.COMPLETE))) {
-                            assetService.stopDownTime(asset.getId(), Helper.getLocale(user));
+                            if (operationId == null) assetService.stopDownTime(asset.getId(), Helper.getLocale(user));
+                            else assetService.stopDownTime(asset.getId(), Helper.getLocale(user), effects);
                         }
                     }
-                    if (mutableWO.getParentPreventiveMaintenance() != null)
-                        scheduleService.scheduleNextWorkOrderJobAfterCompletion(mutableWO.getParentPreventiveMaintenance().getSchedule().getId(), mutableWO.getCompletedOn());
+                    if (mutableWO.getParentPreventiveMaintenance() != null) {
+                        Long scheduleId = mutableWO.getParentPreventiveMaintenance().getSchedule().getId();
+                        Date completedDate = new Date(mutableWO.getCompletedOn().getTime());
+                        effects.accept("next-maintenance", () -> {
+                            if (operationId == null) scheduleService.scheduleNextWorkOrderJobAfterCompletion(scheduleId, completedDate);
+                            else scheduleService.scheduleNextWorkOrderJobAfterOfflineCompletion(scheduleId, completedDate);
+                        });
+                    }
                 }
                 Collection<Labor> labors = laborService.findByWorkOrder(id);
                 Collection<Labor> primaryTimes = labors.stream().filter(Labor::isLogged).toList();
                 primaryTimes.forEach(laborService::stop);
             }
             WorkOrder patchedWorkOrder = saveAndFlushWithWebhook(mutableWO, user.getCompany(),
-                    originalWorkOrder);
+                    originalWorkOrder, effects);
 
             if (patchedWorkOrder.getStatus().equals(Status.COMPLETE) && !savedWorkOrderStatusBefore.equals(Status.COMPLETE)) {
                 List<User> admins =
                         userService.findWorkersByCompany(user.getCompany().getId()).stream().filter(ownUser -> ownUser.getRole().getViewPermissions().contains(PermissionEntity.SETTINGS) && ownUser.isEnabled() && ownUser.getUserSettings().shouldEmailUpdatesForWorkOrders()).collect(Collectors.toList());
-                notificationService.createMultiple(admins.stream().map(admin -> new Notification(messageSource.getMessage("complete_work_order_content", new String[]{patchedWorkOrder.getTitle(), user.getFullName()}, Helper.getLocale(admin)), admin,
-                                NotificationType.WORK_ORDER, id)).collect(Collectors.toList()), true,
-                        messageSource.getMessage("complete_work_order", null, Helper.getLocale(user)));
+                List<Notification> completionNotifications = admins.stream().map(admin -> new Notification(messageSource.getMessage("complete_work_order_content", new String[]{patchedWorkOrder.getTitle(), user.getFullName()}, Helper.getLocale(admin)), admin,
+                        NotificationType.WORK_ORDER, id)).collect(Collectors.toList());
+                String completionTitle = messageSource.getMessage("complete_work_order", null, Helper.getLocale(user));
+                effects.accept("completion-notifications", () -> notificationService.createMultiple(completionNotifications, true, completionTitle));
                 Collection<Workflow> workflows =
                         workflowService.findByMainConditionAndCompany(WFMainCondition.WORK_ORDER_CLOSED,
                                 user.getCompany().getId());
@@ -919,17 +1073,22 @@ public class WorkOrderService {
                                 messageSource.getMessage(patchedWorkOrder.getStatus().toString(), null, locale)},
                         locale);
                 if (requester != null) {
-                    notificationService.create(new Notification(message, requester,
-                            NotificationType.WORK_ORDER, id));
+                    Notification requesterNotification = new Notification(message, requester, NotificationType.WORK_ORDER, id);
+                    effects.accept("requester-notification", () -> notificationService.create(requesterNotification));
                 }
                 if ((requester != null && requester.getUserSettings().shouldEmailUpdatesForRequests() && requester.isEnabled()) || requesterEmail != null) {
                     Map<String, Object> mailVariables = new HashMap<String, Object>() {{
                         put("workOrderLink", frontendUrl + "/app/work-orders/" + id);
                         put("message", message);
                     }};
-                    mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(new String[]{requesterEmail},
-                            messageSource.getMessage("request_update", null, locale), mailVariables, "requester" +
-                                    "-update.html", Helper.getLocale(user), null);
+                    if (operationId != null) {
+                        mailVariables.put("offlineOperationId", operationId.toString());
+                        mailVariables.put("workOrderId", id);
+                    }
+                    String email = requesterEmail;
+                    String subject = messageSource.getMessage("request_update", null, locale);
+                    effects.accept("requester-email", () -> mailServiceFactory.getMailService().sendMessageUsingThymeleafTemplate(new String[]{email},
+                            subject, mailVariables, "requester-update.html", locale, null));
                 }
             }
             return patchedWorkOrder;
@@ -1295,33 +1454,142 @@ public class WorkOrderService {
 
     }
 
-    public List<File> addFiles(Long workOrderId, List<File> files, User user) {
-        Optional<WorkOrder> optionalWorkOrder = findById(workOrderId);
-        if (optionalWorkOrder.isPresent()) {
-            WorkOrder savedWorkOrder = optionalWorkOrder.get();
-            if (!savedWorkOrder.canBeEditedBy(user))
-                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-            List<File> existingFiles = fileRepository.findByIdIn(files.stream().map(File::getId).toList());
-            existingFiles.forEach(file -> {
-                if (!file.canBeViewedBy(user)) {
-                    throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-                }
-            });
-            savedWorkOrder.getFiles().addAll(files);
-            save(savedWorkOrder);
-            return savedWorkOrder.getFiles();
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+    private WorkOrderPatchDTO attachmentOnlyPatch(WorkOrder current, WorkOrderPatchDTO requested) {
+        if (!requested.isImagePresent() && !requested.isFilesPresent())
+            throw new CustomException("ATTACHMENTS_REQUIRED", HttpStatus.BAD_REQUEST);
+        WorkOrderPatchDTO effective = workOrderMapper.toPatchDto(current);
+        if (requested.isImagePresent()) effective.setImage(requested.getImage());
+        if (requested.isFilesPresent()) effective.setFiles(requested.getFiles());
+        // MapStruct calls the setters when copying the current model. Presence must
+        // describe the incoming mutation, not the complete business-field snapshot.
+        effective.setImagePresent(requested.isImagePresent());
+        effective.setFilesPresent(requested.isFilesPresent());
+        effective.setAttachmentsBase(requested.getAttachmentsBase());
+        effective.setCustomFields(Collections.emptyList());
+        return effective;
     }
 
+    /** All attachment writes share the work-order row lock, including ordinary connected edits. */
+    void applyAttachmentPatch(WorkOrder workOrder, WorkOrderPatchDTO patch, User user) {
+        var base = patch.getAttachmentsBase();
+        if (patch.isImagePresent()) {
+            Long current = workOrder.getImage() == null ? null : workOrder.getImage().getId();
+            Long requestedImage = patch.getImage() == null ? null : patch.getImage().getId();
+            if (base == null && !Objects.equals(current, requestedImage))
+                throw new CustomException("ATTACHMENTS_BASE_REQUIRED", HttpStatus.CONFLICT);
+            if (base != null && !Objects.equals(current, base.imageId()))
+                throw new CustomException("ATTACHMENTS_CONFLICT", HttpStatus.CONFLICT);
+            // Keeping the intervention's current image is not a catalogue lookup.
+            if (!Objects.equals(current, requestedImage))
+                workOrder.setImage(patch.getImage() == null ? null : checkedPatchAttachment(requestedImage, user));
+        }
+        if (patch.isFilesPresent()) {
+            List<File> requested = patch.getFiles() == null ? List.of() : patch.getFiles();
+            Set<Long> requestedIds = new LinkedHashSet<>();
+            for (File file : requested) {
+                if (file == null || file.getId() == null)
+                    throw new CustomException("FILE_NOT_FOUND", HttpStatus.BAD_REQUEST);
+                requestedIds.add(file.getId());
+            }
+            Set<Long> current = workOrder.getFiles().stream().map(File::getId).collect(Collectors.toSet());
+            if (base == null || base.fileIds() == null) {
+                if (!current.equals(requestedIds))
+                    throw new CustomException("ATTACHMENTS_BASE_REQUIRED", HttpStatus.CONFLICT);
+            } else {
+                Set<Long> initial = new HashSet<>(base.fileIds());
+                List<File> additions = new ArrayList<>();
+                for (Long id : requestedIds) {
+                    // Current associations need no catalogue permission. An old baseline
+                    // item removed elsewhere is not reattached by an unchanged form value.
+                    if (!initial.contains(id) && !current.contains(id)) additions.add(checkedPatchAttachment(id, user));
+                }
+                workOrder.getFiles().removeIf(file -> initial.contains(file.getId()) && !requestedIds.contains(file.getId()));
+                workOrder.getFiles().addAll(additions);
+            }
+        }
+    }
+
+    private File findAttachment(Long id, User user) {
+        if (id == null) throw new CustomException("FILE_NOT_FOUND", HttpStatus.BAD_REQUEST);
+        return fileRepository.findByIdAndCompany_Id(id, user.getCompany().getId())
+                .orElseThrow(() -> new CustomException("FILE_NOT_FOUND", HttpStatus.NOT_FOUND));
+    }
+
+    private File checkedPatchAttachment(Long id, User user) {
+        File file = findAttachment(id, user);
+        if (file.canBeViewedBy(user)) return file;
+        // Connected form uploads are identified by immutable server audit ownership,
+        // not the caller's File DTO or a guessable id. Keep the upload's current
+        // creation/license/plan checks without consuming another upload allowance.
+        if (file.getCreatedBy() == null || !file.getCreatedBy().equals(user.getId()))
+            throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        fileService.checkUploadAccess(user, false);
+        return file;
+    }
+
+    private File checkedAttachment(Long id, User user) {
+        File file = findAttachment(id, user);
+        if (!file.canBeViewedBy(user)) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        return file;
+    }
+
+    public record OfflineAttachmentOutcome(WorkOrder workOrder, String error, boolean conflict) {}
+
+    @Transactional
+    public OfflineAttachmentOutcome applyOfflineAttachments(long id, List<File> additions, File image,
+                                                              Long baseImageId, boolean changesImage, User user) {
+        var found = workOrderRepository.findForUpdate(id, user.getCompany().getId());
+        if (found.isEmpty()) return new OfflineAttachmentOutcome(null, "TARGET_NOT_FOUND", false);
+        WorkOrder workOrder = found.get();
+        em.refresh(workOrder);
+        if (!workOrder.canBeEditedBy(user)) return new OfflineAttachmentOutcome(null, "ACCESS_REVOKED", false);
+        Long currentImage = workOrder.getImage() == null ? null : workOrder.getImage().getId();
+        if (changesImage && !Objects.equals(currentImage, baseImageId))
+            return new OfflineAttachmentOutcome(workOrder, "ATTACHMENTS_CONFLICT", true);
+        if (changesImage && (image == null || image.getType() != FileType.IMAGE))
+            return new OfflineAttachmentOutcome(workOrder, "INVALID_FILE_TARGET", false);
+        Set<Long> current = workOrder.getFiles().stream().map(File::getId).collect(Collectors.toSet());
+        additions.forEach(file -> { if (current.add(file.getId())) workOrder.getFiles().add(file); });
+        if (changesImage) workOrder.setImage(image);
+        workOrderRepository.saveAndFlush(workOrder);
+        return new OfflineAttachmentOutcome(workOrder, null, false);
+    }
+
+    public record OfflineAttachmentsChanged(long workOrderId, long companyId) {}
+
+    @org.springframework.transaction.event.TransactionalEventListener(phase = org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT)
+    @org.springframework.transaction.annotation.Transactional(propagation = org.springframework.transaction.annotation.Propagation.REQUIRES_NEW)
+    public void afterOfflineAttachmentsChanged(OfflineAttachmentsChanged event) {
+        workOrderRepository.findByIdAndCompany_Id(event.workOrderId(), event.companyId()).ifPresent(workOrder -> {
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("workOrderId", workOrder.getId());
+            payload.put("workOrderTitle", workOrder.getTitle());
+            webhookDispatchService.dispatchWebhook(workOrder.getCompany(), WebhookEvent.WORK_ORDER_CHANGE, payload,
+                    "changedWorkOrder", workOrderMapper.toShowDto(workOrder), List.of(), null, null, null, null);
+        });
+    }
+
+    @Transactional
+    public List<File> addFiles(Long workOrderId, List<File> files, User user) {
+        WorkOrder workOrder = workOrderRepository.findForUpdate(workOrderId, user.getCompany().getId())
+                .orElseThrow(() -> new CustomException("Not found", HttpStatus.NOT_FOUND));
+        em.refresh(workOrder);
+        if (!workOrder.canBeEditedBy(user)) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        List<File> checked = files.stream().map(file -> checkedAttachment(file.getId(), user)).toList();
+        Set<Long> current = workOrder.getFiles().stream().map(File::getId).collect(Collectors.toSet());
+        checked.forEach(file -> { if (current.add(file.getId())) workOrder.getFiles().add(file); });
+        save(workOrder);
+        return workOrder.getFiles();
+    }
+
+    @Transactional
     public List<File> removeFile(Long workOrderId, Long fileId, User user) {
-        Optional<WorkOrder> optionalWorkOrder = findById(workOrderId);
-        if (optionalWorkOrder.isPresent()) {
-            WorkOrder savedWorkOrder = optionalWorkOrder.get();
-            if (!savedWorkOrder.canBeEditedBy(user))
-                throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
-            savedWorkOrder.getFiles().removeIf(file -> file.getId().equals(fileId));
-            save(savedWorkOrder);
-            return savedWorkOrder.getFiles();
-        } else throw new CustomException("Not found", HttpStatus.NOT_FOUND);
+        WorkOrder workOrder = workOrderRepository.findForUpdate(workOrderId, user.getCompany().getId())
+                .orElseThrow(() -> new CustomException("Not found", HttpStatus.NOT_FOUND));
+        em.refresh(workOrder);
+        if (!workOrder.canBeEditedBy(user)) throw new CustomException("Access denied", HttpStatus.FORBIDDEN);
+        workOrder.getFiles().removeIf(file -> file.getId().equals(fileId));
+        save(workOrder);
+        return workOrder.getFiles();
     }
 }

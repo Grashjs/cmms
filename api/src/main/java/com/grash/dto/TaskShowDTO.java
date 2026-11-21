@@ -23,6 +23,8 @@ import java.util.List;
 @NoArgsConstructor
 @Schema(description = "DTO for displaying task details in API responses")
 public class TaskShowDTO extends AuditShowDTO {
+    private long version;
+
     @Schema(description = "Base task information")
     private TaskBaseShowDTO taskBase;
 

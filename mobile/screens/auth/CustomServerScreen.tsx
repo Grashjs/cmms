@@ -18,6 +18,19 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAppTheme } from '../../custom-theme';
 import { useDispatch } from '../../store';
 import { getInstanceConfig } from '../../slices/instanceConfig';
+import {
+  beforeSessionChange,
+  finishSessionChange
+} from '../../offline/sessionBridge';
+import {
+  canonicalizeServerUrl,
+  getOnlineIdentity,
+  revokeLocalAccess
+} from '../../offline/accessPolicy';
+import { getCredentials, setCredentials } from '../../utils/credentialStore';
+import { getApiUrl } from '../../config';
+import { Platform } from 'react-native';
+import { revertAll } from '../../utils/redux';
 
 export default function CustomServerScreen({
   navigation
@@ -27,6 +40,25 @@ export default function CustomServerScreen({
   const theme = useAppTheme();
   const [currentUrl, setCurrentUrl] = useState<string>('');
   const dispatch = useDispatch();
+
+  const changeServer = async (url: string | null) => {
+    const canonical = url ? canonicalizeServerUrl(url) : null;
+    await beforeSessionChange('server');
+    try {
+      const previousUrl = await getApiUrl();
+      // Finish any legacy migration against the OLD server, before changing the URL.
+      await getCredentials(previousUrl);
+      const previous =
+        Platform.OS === 'web' ? null : await getOnlineIdentity(previousUrl);
+      if (previous) await revokeLocalAccess(previous.context);
+      await setCredentials(null, previousUrl);
+      if (canonical) await AsyncStorage.setItem('customApiUrl', canonical);
+      else await AsyncStorage.removeItem('customApiUrl');
+      dispatch(revertAll());
+    } finally {
+      finishSessionChange();
+    }
+  };
 
   useEffect(() => {
     // Load the current custom URL if it exists
@@ -71,7 +103,7 @@ export default function CustomServerScreen({
               }
 
               // Save the custom URL to AsyncStorage
-              await AsyncStorage.setItem('customApiUrl', url);
+              await changeServer(url);
               showSnackBar(t('server_url_saved'), 'success');
 
               dispatch(getInstanceConfig());
@@ -136,10 +168,14 @@ export default function CustomServerScreen({
                 <Button
                   mode="outlined"
                   onPress={async () => {
-                    await AsyncStorage.removeItem('customApiUrl');
-                    setCurrentUrl('');
-                    dispatch(getInstanceConfig());
-                    showSnackBar(t('server_url_reset'), 'success');
+                    try {
+                      await changeServer(null);
+                      setCurrentUrl('');
+                      dispatch(getInstanceConfig());
+                      showSnackBar(t('server_url_reset'), 'success');
+                    } catch {
+                      showSnackBar(t('error_saving_url'), 'error');
+                    }
                   }}
                   style={{ marginTop: 20 }}
                   color={theme.colors.error}

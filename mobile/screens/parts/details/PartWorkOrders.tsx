@@ -14,21 +14,25 @@ import { View } from '../../../components/Themed';
 import { getWorkOrdersByPart } from '../../../slices/workOrder';
 import { getStatusColor } from '../../../utils/overall';
 import Tag from '../../../components/Tag';
+import { useProjectedWorkOrders } from '../../../offline/hooks';
 
 export default function PartWorkOrders({
-                                         part,
-                                         navigation
-                                       }: {
+  part,
+  navigation
+}: {
   part: Part;
   navigation: any;
 }) {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const theme = useTheme();
-  const { workOrdersByPart, loadingGet } = useSelector(
+  const { workOrdersByPart, preparedIdsByPart, loadingGet } = useSelector(
     (state) => state.workOrders
   );
-  const workOrders = workOrdersByPart[part.id] ?? [];
+  const workOrders = useProjectedWorkOrders(
+    workOrdersByPart[part.id] ?? [],
+    preparedIdsByPart?.[part.id] ?? []
+  );
 
   useEffect(() => {
     if (part) dispatch(getWorkOrdersByPart(part.id));
@@ -62,7 +66,7 @@ export default function PartWorkOrders({
             </Text>
             <Tag
               text={t(workOrder.status)}
-              color='white'
+              color="white"
               backgroundColor={getStatusColor(workOrder.status, theme)}
             />
           </View>

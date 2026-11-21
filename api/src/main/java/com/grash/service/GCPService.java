@@ -134,6 +134,14 @@ public class GCPService implements StorageService {
         }
     }
 
+    @Override
+    public Metadata stat(String filePath) {
+        checkIfConfigured();
+        Blob blob = storage.get(BlobId.of(gcpBucketName, filePath));
+        if (blob == null) throw new CustomException("FILE_NOT_FOUND", HttpStatus.NOT_FOUND);
+        return new Metadata(blob.getSize(), blob.getContentType());
+    }
+
     public boolean exists(String filePath) {
         checkIfConfigured();
         Blob blob = storage.get(BlobId.of(gcpBucketName, filePath));

@@ -90,7 +90,7 @@ export type RootStackParamList = {
   VendorDetails: { id: number; vendorProp?: Vendor };
   Modal: undefined;
   Tasks: {
-    tasksProps: Task[];
+    tasksProps?: Task[];
     workOrderId: number;
   };
   SelectParts: { onChange: (parts: PartMiniDTO[]) => void; selected: number[] };
@@ -145,7 +145,10 @@ export type RootStackParamList = {
   SelectNfc: { onChange: (value: string) => void };
   SelectBarcode: { onChange: (value: string) => void };
   CompleteWorkOrder: {
-    onComplete: (
+    workOrderId?: number;
+    connectedWorkOrderId?: number;
+    onReviewStatus?: (guard: import('./models/workOrder').WorkOrderStatusGuard) => void;
+    onComplete?: (
       signature: string | undefined,
       feedback: string | undefined
     ) => Promise<any>;
@@ -167,7 +170,7 @@ export type RootStackParamList = {
   };
   AddAdditionalCost: { workOrderId: number };
   EditAdditionalCost: { workOrderId: number; additionalCost: AdditionalCost };
-  AddAdditionalTime: { workOrderId: number };
+  AddAdditionalTime: { workOrderId: number; connectedOnly?: boolean };
   EditAdditionalTime: { workOrderId: number; labor: Labor };
   ScanAsset: {
     onChange?: (asset: AssetMiniDTO) => void;

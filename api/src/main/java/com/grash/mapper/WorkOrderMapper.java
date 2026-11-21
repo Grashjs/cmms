@@ -13,6 +13,8 @@ import org.mapstruct.*;
         , TeamMapper.class, UserMapper.class,
         CustomerMapper.class, AssetMapper.class, CustomFieldValueMapper.class})
 public interface WorkOrderMapper {
+    @Mapping(target = "image", ignore = true)
+    @Mapping(target = "files", ignore = true)
     WorkOrder updateWorkOrder(@MappingTarget WorkOrder entity, WorkOrderPatchDTO dto);
 
     @Mappings({})

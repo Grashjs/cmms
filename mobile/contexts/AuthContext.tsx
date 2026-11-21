@@ -8,10 +8,28 @@ import {
   useState
 } from 'react';
 import { OwnUser, UserResponseDTO } from '../models/user';
-import api, { authHeader, refreshAccessToken } from '../utils/api';
+import api, {
+  AUTH_REQUEST_TIMEOUT_MS,
+  authHeader,
+  Options,
+  refreshAccessToken
+} from '../utils/api';
 import { verify } from '../utils/jwt';
 import { Alert, AppState, Linking, Platform } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getCredentials, setCredentials } from '../utils/credentialStore';
+import {
+  BootstrapSnapshot,
+  getOnlineIdentity,
+  rememberOnlineIdentity,
+  restoreLocalAuthorization,
+  revokeLocalAccess
+} from '../offline/accessPolicy';
+import {
+  assertSessionGeneration,
+  beforeSessionChange,
+  finishSessionChange,
+  sessionGeneration
+} from '../offline/sessionBridge';
 import {
   getCompanySettings,
   getUserInfos,
@@ -37,7 +55,7 @@ import { useTranslation } from 'react-i18next';
 import analytics from '@react-native-firebase/analytics';
 import { useDispatch } from '../store';
 import { revertAll } from '../utils/redux';
-import { getApiUrl } from '../config';
+import { getApiUrl, OFFLINE_ENABLED } from '../config';
 import { newReceivedNotification } from '../slices/notification';
 import Notification from '../models/notification';
 import { getMobileOverviewStats } from '../slices/analytics/workOrder';
@@ -58,6 +76,7 @@ import Part from '../models/part';
 import Request from '../models/request';
 
 interface AuthState {
+  localSession: boolean;
   isInitialized: boolean;
   isAuthenticated: boolean;
   user: UserResponseDTO | null;
@@ -79,10 +98,11 @@ interface AuthResponse {
 interface AuthContextValue extends AuthState {
   method: 'JWT';
   login: (email: string, password: string, ldap?: boolean) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   reviewEligible: boolean;
   register: (values: any) => Promise<void>;
   getInfos: () => void;
+  getServerSession: () => Promise<BootstrapSnapshot | null>;
   deleteAccount: () => Promise<void>;
   switchAccount: (id: number) => Promise<void>;
   patchUserSettings: (values: Partial<UserSettings>) => Promise<UserSettings>;
@@ -132,6 +152,8 @@ interface AuthProviderProps {
 type InitializeAction = {
   type: 'INITIALIZE';
   payload: {
+    localSession?: boolean;
+    userSettings?: UserSettings | null;
     isAuthenticated: boolean;
     user: UserResponseDTO | null;
     companySettings: CompanySettings | null;
@@ -265,6 +287,7 @@ type Action =
   | ReviewEligibleAction;
 
 const initialAuthState: AuthState = {
+  localSession: false,
   isAuthenticated: false,
   isInitialized: false,
   user: null,
@@ -274,25 +297,11 @@ const initialAuthState: AuthState = {
   reviewEligible: false
 };
 
-const setSession = (
+const setSession = async (
   accessToken: string | null,
   refreshToken: string | null
-): void => {
-  if (accessToken) {
-    AsyncStorage.setItem('accessToken', accessToken);
-  } else {
-    AsyncStorage.removeItem('accessToken');
-    AsyncStorage.removeItem('companyId');
-  }
-  if (refreshToken) {
-    AsyncStorage.setItem('refreshToken', refreshToken);
-  } else {
-    AsyncStorage.removeItem('refreshToken');
-  }
-};
-
-const setCompanyId = (companyId: number) => {
-  AsyncStorage.setItem('companyId', companyId.toString());
+): Promise<void> => {
+  await setCredentials(accessToken ? { accessToken, refreshToken } : null);
 };
 
 const handlers: Record<
@@ -306,6 +315,8 @@ const handlers: Record<
       ...state,
       isAuthenticated,
       isInitialized: true,
+      localSession: action.payload.localSession ?? false,
+      userSettings: action.payload.userSettings ?? null,
       user,
       companySettings,
       company
@@ -317,6 +328,7 @@ const handlers: Record<
     return {
       ...state,
       isAuthenticated: true,
+      localSession: false,
       user,
       companySettings,
       company
@@ -325,7 +337,11 @@ const handlers: Record<
   LOGOUT: (state: AuthState): AuthState => ({
     ...state,
     isAuthenticated: false,
-    user: null
+    localSession: false,
+    user: null,
+    company: null,
+    companySettings: null,
+    userSettings: null
   }),
   REGISTER: (state: AuthState, action: RegisterAction): AuthState => {
     const { user, companySettings, company } = action.payload;
@@ -333,6 +349,7 @@ const handlers: Record<
     return {
       ...state,
       isAuthenticated: true,
+      localSession: false,
       user,
       companySettings,
       company
@@ -514,6 +531,7 @@ const AuthContext = createContext<AuthContextValue>({
   logout: () => Promise.resolve(),
   register: () => Promise.resolve(),
   getInfos: () => Promise.resolve(),
+  getServerSession: () => Promise.resolve(null),
   deleteAccount: () => Promise.resolve(),
   patchUserSettings: () => Promise.resolve(null),
   patchCompany: () => Promise.resolve(),
@@ -579,14 +597,14 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       }
     };
     const registerStompClient = async () => {
-      if (state?.user) {
+      if (state?.user && !state.localSession) {
         if (!stompClient) {
           // Get the current API URL
           const currentApiUrl = await getApiUrl();
           const socket = new SockJS(`${currentApiUrl}ws`);
           const client = Stomp.over(socket);
           client.connect(
-            { token: await AsyncStorage.getItem('accessToken') },
+            { token: (await getCredentials())?.accessToken },
             function (frame) {
               const subscription = client.subscribe(
                 `/user/${state.user.email}/notifications`,
@@ -616,13 +634,24 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     };
     registerStompClient();
     return disconnect;
-  }, [state?.user?.id, state?.userSettings, stompClient]);
+  }, [state?.user?.id, state?.userSettings, state.localSession, stompClient]);
   const switchLanguage = ({ lng }: { lng: any }) => {
     internationalization.changeLanguage(lng);
   };
-  const updateUserInfos = async () => {
-    const user = await getUserInfos();
-    setCompanyId(user.companyId);
+  const updateUserInfos = async (options?: Options) => {
+    const generation = sessionGeneration();
+    const serverUrl = await getApiUrl();
+    assertSessionGeneration(generation);
+    const user = await getUserInfos(options);
+    assertSessionGeneration(generation);
+    const credentials = await getCredentials(serverUrl);
+    assertSessionGeneration(generation);
+    if (credentials)
+      await setCredentials(
+        { ...credentials, companyId: user.companyId, userId: user.id },
+        serverUrl,
+        generation
+      );
     return user;
   };
 
@@ -703,8 +732,10 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   };
   const setupUser = async (
     user: UserResponseDTO,
-    companySettings: CompanySettings
+    companySettings: CompanySettings,
+    options?: Options
   ) => {
+    const generation = sessionGeneration();
     switchLanguage({
       lng:
         user.language?.toLowerCase() ||
@@ -713,6 +744,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     checkPushNotificationState();
     globalDispatch(getCustomFields());
     getApiUrl().then((apiUrl) => {
+      if (generation !== sessionGeneration()) return;
       if (apiUrl.toLowerCase().includes('api.atlas-cmms.com')) {
         const clarityId = Constants.expoConfig.extra.CLARITY_ID;
         if (clarityId) {
@@ -729,62 +761,142 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       }
     });
     try {
-      await api.post('reviews/session', {});
+      await api.post('reviews/session', {}, options);
+      assertSessionGeneration(generation);
       api
-        .get<{ eligible: boolean }>('reviews/eligibility')
-        .then(({ eligible }) =>
-          dispatch({ type: 'REVIEW_ELIGIBLE', payload: eligible })
-        );
+        .get<{ eligible: boolean }>('reviews/eligibility', options)
+        .then(({ eligible }) => {
+          assertSessionGeneration(generation);
+          dispatch({ type: 'REVIEW_ELIGIBLE', payload: eligible });
+        })
+        .catch(() => {
+          /* Reviews must not prevent access to the application. */
+        });
     } catch (e) {
       console.error('Review eligibility check failed', e);
     }
   };
-  const getInfos = async (): Promise<void> => {
-    // AsyncStorage.clear();
-
+  const getServerSession = async (): Promise<BootstrapSnapshot | null> => {
+    if (state.localSession || !state.user || !state.company) return null;
+    const generation = sessionGeneration();
+    const serverUrl = await getApiUrl();
     try {
-      const accessToken = await AsyncStorage.getItem('accessToken');
-      const refreshToken = await AsyncStorage.getItem('refreshToken');
-
-      let authenticated = false;
-      if (accessToken && (await verify(accessToken))) {
-        authenticated = true;
-      } else if (refreshToken) {
-        const refreshed = await refreshAccessToken();
-        if (refreshed) {
-          authenticated = true;
-        }
-      }
-
+      assertSessionGeneration(generation);
+    } catch {
+      return null;
+    }
+    const credentials = await getCredentials(serverUrl);
+    if (
+      !credentials ||
+      credentials.companyId !== state.user.companyId ||
+      credentials.userId !== state.user.id
+    )
+      return null;
+    try {
+      assertSessionGeneration(generation);
+    } catch {
+      return null;
+    }
+    return {
+      context: {
+        serverUrl,
+        companyId: state.user.companyId,
+        userId: state.user.id
+      },
+      user: state.user,
+      company: state.company,
+      companySettings: state.companySettings,
+      userSettings: state.userSettings
+    };
+  };
+  const rememberSession = async (
+    user: UserResponseDTO,
+    company: Company,
+    serverUrl: string
+  ) => {
+    if (Platform.OS === 'web' || !OFFLINE_ENABLED) return;
+    await rememberOnlineIdentity({
+      context: { serverUrl, companyId: user.companyId, userId: user.id },
+      user,
+      company,
+      companySettings: company.companySettings,
+      userSettings: null
+    });
+  };
+  const getInfos = async (): Promise<void> => {
+    const generation = sessionGeneration();
+    const serverUrl = await getApiUrl();
+    let snapshot: BootstrapSnapshot | null = null;
+    const bootstrap = new AbortController();
+    const deadline = setTimeout(
+      () => bootstrap.abort(),
+      3 * AUTH_REQUEST_TIMEOUT_MS
+    );
+    const options = {
+      timeoutMs: AUTH_REQUEST_TIMEOUT_MS,
+      signal: bootstrap.signal
+    };
+    try {
+      const credentials = await getCredentials(serverUrl);
+      const authenticated =
+        (credentials?.accessToken && (await verify(credentials.accessToken))) ||
+        (credentials?.refreshToken && (await refreshAccessToken(serverUrl)));
+      assertSessionGeneration(generation);
       if (authenticated) {
-        const newAccessToken = await AsyncStorage.getItem('accessToken');
-        const newRefreshToken = await AsyncStorage.getItem('refreshToken');
-        setSession(newAccessToken, newRefreshToken);
-        const user = await updateUserInfos();
-        const company = await api.get<Company>(`companies/${user.companyId}`);
-        await setupUser(user, company.companySettings);
+        const user = await updateUserInfos(options);
+        assertSessionGeneration(generation);
+        const company = await api.get<Company>(
+          `companies/${user.companyId}`,
+          options
+        );
+        assertSessionGeneration(generation);
+        await rememberSession(user, company, serverUrl);
+        assertSessionGeneration(generation);
+        await setupUser(user, company.companySettings, options);
+        assertSessionGeneration(generation);
         dispatch({
           type: 'INITIALIZE',
           payload: {
             isAuthenticated: true,
+            localSession: false,
             user,
             companySettings: company.companySettings,
             company
           }
         });
-      } else {
-        dispatch({
-          type: 'INITIALIZE',
-          payload: {
-            isAuthenticated: false,
-            user: null,
-            companySettings: null,
-            company: null
-          }
-        });
+        return;
       }
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      // The server may be unreachable. Local access is a separate, time-bounded authorization.
+    } finally {
+      clearTimeout(deadline);
+    }
+    if (generation !== sessionGeneration()) return;
+    if (OFFLINE_ENABLED && Platform.OS !== 'web')
+      snapshot = await restoreLocalAuthorization(serverUrl).catch(() => null);
+    try {
+      assertSessionGeneration(generation);
+    } catch {
+      return;
+    }
+    if (snapshot) {
+      switchLanguage({
+        lng:
+          snapshot.user.language?.toLowerCase() ||
+          snapshot.companySettings.generalPreferences.language.toLowerCase()
+      });
+      dispatch({
+        type: 'INITIALIZE',
+        payload: {
+          isAuthenticated: true,
+          localSession: true,
+          user: snapshot.user,
+          company: snapshot.company,
+          companySettings: snapshot.companySettings,
+          userSettings: snapshot.userSettings
+        }
+      });
+    } else
       dispatch({
         type: 'INITIALIZE',
         payload: {
@@ -794,30 +906,48 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
           company: null
         }
       });
-    }
   };
   const switchAccount = async (id: number): Promise<void> => {
     const response = await api.get<AuthResponse>(
       `auth/switch-account?id=${id}`
     );
-    const { accessToken, refreshToken } = response;
-    return loginInternal(accessToken, refreshToken);
+    await loginInternal(response.accessToken, response.refreshToken, 'account');
   };
-  const loginInternal = async (accessToken: string, refreshToken: string) => {
-    globalDispatch(revertAll());
-    setSession(accessToken, refreshToken);
+  const loginInternal = async (
+    accessToken: string,
+    refreshToken: string,
+    reason: 'login' | 'account' = 'login'
+  ) => {
+    await beforeSessionChange(reason);
+    try {
+      const previous =
+        Platform.OS === 'web'
+          ? null
+          : await getOnlineIdentity(await getApiUrl());
+      if (previous) await revokeLocalAccess(previous.context);
+      globalDispatch(revertAll());
+      dispatch({ type: 'LOGOUT' });
+      await setSession(accessToken, refreshToken);
+    } finally {
+      finishSessionChange();
+    }
+    const generation = sessionGeneration();
+    const serverUrl = await getApiUrl();
+    assertSessionGeneration(generation);
     const user = await updateUserInfos();
+    assertSessionGeneration(generation);
     const company = await api.get<Company>(`companies/${user.companyId}`);
+    assertSessionGeneration(generation);
+    await rememberSession(user, company, serverUrl);
+    assertSessionGeneration(generation);
     await setupUser(user, company.companySettings);
+    assertSessionGeneration(generation);
     dispatch({
       type: 'LOGIN',
-      payload: {
-        user,
-        companySettings: company.companySettings,
-        company
-      }
+      payload: { user, companySettings: company.companySettings, company }
     });
   };
+
   const login = async (
     email: string,
     password: string,
@@ -835,24 +965,47 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
             type: 'client',
             password
           },
-      { headers: await authHeader(true) }
+      { publicRoute: true, headers: await authHeader(true) }
     );
     const { accessToken, refreshToken } = response;
     return loginInternal(accessToken, refreshToken);
   };
 
   const logout = async (): Promise<void> => {
+    await beforeSessionChange('logout');
     try {
-      await api.post('auth/logout', {});
-    } catch {
-      // Server-side logout is best-effort; the local session is the source
-      // of truth for the device.
-    } finally {
-      // Always clear the local session, even when the server is unreachable
-      // (offline / dead zone) — otherwise the user is stuck logged in.
-      setSession(null, null);
+      const url = await getApiUrl();
+      const credentials = await getCredentials(url);
+      const previous =
+        Platform.OS === 'web' ? null : await getOnlineIdentity(url);
+      if (previous) await revokeLocalAccess(previous.context);
+      // The existing backend invalidates every session for this user. Await the
+      // bounded best-effort request before allowing a new login on this device.
+      if (credentials?.accessToken) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 5000);
+        try {
+          await fetch(url + 'auth/logout', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${credentials.accessToken}`
+            },
+            body: '{}',
+            signal: controller.signal
+          });
+        } catch {
+          /* Local logout does not depend on network availability. */
+        } finally {
+          clearTimeout(timeout);
+        }
+      }
+      await setCredentials(null, url);
+      globalDispatch(revertAll());
       Sentry.setUser(null);
       dispatch({ type: 'LOGOUT' });
+    } finally {
+      finishSessionChange();
     }
   };
 
@@ -876,29 +1029,18 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         timeZone: moment.tz.guess(),
         utmParams: { referrer: `${Platform.OS}_app` }
       },
-      { headers: await authHeader(true) }
+      { publicRoute: true, headers: await authHeader(true) }
     );
     const { message, success, refreshToken } = response;
     if (message.startsWith('Successful')) {
       return;
     } else {
-      setSession(message, refreshToken);
-      const user = await updateUserInfos();
-      const company = await api.get<Company>(`companies/${user.companyId}`);
-      await setupUser(user, company.companySettings);
+      await loginInternal(message, refreshToken);
       await analytics().logEvent('sign_up', {
         email: values.email,
         firstName: values.firstName,
         lastName: values.lastName,
         employeesCount: values.employeesCount
-      });
-      dispatch({
-        type: 'REGISTER',
-        payload: {
-          user,
-          companySettings: company.companySettings,
-          company
-        }
       });
     }
   };
@@ -974,18 +1116,27 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
     oldPassword: string;
     newPassword: string;
   }): Promise<boolean> => {
+    const generation = sessionGeneration();
+    const serverUrl = await getApiUrl();
+    assertSessionGeneration(generation);
     const response = await api.post<{
       accessToken: string;
       refreshToken: string;
     }>(`auth/updatepwd`, values);
     const { accessToken, refreshToken } = response;
-    setSession(accessToken, refreshToken);
+    assertSessionGeneration(generation);
+    const credentials = await getCredentials(serverUrl);
+    await setCredentials(
+      { ...credentials, accessToken, refreshToken },
+      serverUrl,
+      generation
+    );
     return true;
   };
   const resetPassword = async (email: string): Promise<boolean> => {
     const response = await api.get<{ success: boolean }>(
       `auth/resetpwd?email=${email}`,
-      { headers: await authHeader(true) }
+      { publicRoute: true, headers: await authHeader(true) }
     );
     const { success } = response;
     return success;
@@ -1304,6 +1455,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
         logout,
         register,
         getInfos,
+        getServerSession,
         deleteAccount,
         patchUser,
         patchSubscription,

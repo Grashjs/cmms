@@ -557,6 +557,25 @@ class WorkOrderControllerTest extends AbstractControllerTest {
         }
 
         @Test
+        void attachmentOnlyPatchIsAnExplicitOptInAndPreservesFieldPresence() throws Exception {
+            setCurrentUser(clientUser);
+            when(userService.whoami(any())).thenReturn(clientUser);
+            WorkOrder updated = new WorkOrder(); updated.setId(1L);
+            when(workOrderService.patch(eq(1L), any(), eq(clientUser), eq(true))).thenReturn(updated);
+            when(workOrderMapper.toShowDto(updated)).thenReturn(showDto);
+
+            mockMvc.perform(patch("/work-orders/1?attachmentsOnly=true")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("{\"image\":null,\"attachmentsBase\":{\"imageId\":10}}"))
+                    .andExpect(status().isOk());
+
+            verify(workOrderService).patch(eq(1L), argThat(body -> body.isImagePresent()
+                    && body.getImage() == null && !body.isFilesPresent()
+                    && body.getAttachmentsBase().imageId().equals(10L)), eq(clientUser), eq(true));
+            verify(workOrderService, never()).patch(anyLong(), any(), any());
+        }
+
+        @Test
         void delete_returnsSuccessResponse() throws Exception {
             setCurrentUser(clientUser);
             when(userService.whoami(any())).thenReturn(clientUser);

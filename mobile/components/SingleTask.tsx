@@ -8,42 +8,58 @@ import {
   useTheme
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import useAuth from '../hooks/useAuth';
 import debounce from 'lodash.debounce';
 import { SheetManager } from 'react-native-actions-sheet';
 import { PermissionEntity } from '../models/role';
 import { PlanFeature } from '../models/subscriptionPlan';
-import { Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { Image, TouchableOpacity } from 'react-native';
+import type { ReactNode } from 'react';
 
 interface SingleTaskProps {
   task: Task;
+  imagesEditor?: ReactNode;
+  connectedDisabled?: boolean;
+  saving?: boolean;
   preview?: boolean;
-  handleChange?: (value: string | number, id: number) => void;
+  handleChange?: (value: string | number, id: number) => Promise<boolean> | void;
+  localCommitOnSave?: boolean;
   handleSaveNotes?: (value: string, id: number) => Promise<void>;
   handleNoteChange?: (value: string, id: number) => void;
   handleSelectImages?: (id: number) => void;
   handleZoomImage?: (images: string[], image: string) => void;
+  onInputFocus?: (target: number) => void;
   toggleNotes?: (id: number) => void;
   notes?: Map<number, boolean>;
 }
 
 export default function SingleTask({
   task,
+  imagesEditor,
+  connectedDisabled = false,
+  saving = false,
   handleChange,
+  localCommitOnSave = false,
   handleNoteChange,
   handleSaveNotes,
   preview,
   toggleNotes,
   notes,
   handleSelectImages,
-  handleZoomImage
+  handleZoomImage,
+  onInputFocus
 }: SingleTaskProps) {
   const theme = useTheme();
   const { t }: { t: any } = useTranslation();
   const [savingNotes, setSavingNotes] = useState<boolean>(false);
+  const notesVisible = !!notes?.get(task.id);
   const { user, hasCreatePermission, hasFeature } = useAuth();
-  const [inputValue, setInputValue] = useState<string>(task.value?.toString() || '');
+  const [inputValue, setInputValue] = useState<string>(
+    task.value?.toString() || ''
+  );
+  const valueInput = useRef<any>(null);
+  const inputRevision = useRef(0);
   const changeHandler = (newValue: string) => {
     if (!preview) {
       let formattedValue = newValue;
@@ -51,22 +67,45 @@ export default function SingleTask({
         task.taskBase.taskType === 'METER' ||
         task.taskBase.taskType === 'NUMBER'
       ) {
-        formattedValue = newValue?.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1') ?? '';
+        formattedValue =
+          newValue?.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1') ?? '';
         setInputValue(formattedValue);
       } else setInputValue(formattedValue);
-      if (formattedValue !== '') handleChange(formattedValue, task.id);
+      if (localCommitOnSave) {
+        editingText.current = true;
+        if (formattedValue === '') {
+          debouncedChangeHandler.cancel();
+          return;
+        }
+        const revision = ++inputRevision.current;
+        debouncedChangeHandler(formattedValue, revision);
+      } else if (formattedValue !== '') handleChange(formattedValue, task.id);
     }
   };
 
+  const editingText = useRef(false);
+  const changeHandlerRef = useRef((value: string) => handleChange?.(value, task.id));
+  changeHandlerRef.current = (value: string) => handleChange?.(value, task.id);
   const debouncedChangeHandler = useMemo(
-    () => debounce(changeHandler, 1000),
+    () =>
+      debounce((value: string, revision: number) => {
+        editingText.current = false;
+        void Promise.resolve(changeHandlerRef.current(value)).then((saved) => {
+          if (localCommitOnSave && saved && revision === inputRevision.current)
+            valueInput.current?.blur();
+        });
+      }, 1000),
     []
   );
-  
+  useEffect(
+    () => () => debouncedChangeHandler.cancel(),
+    [debouncedChangeHandler]
+  );
+
   useEffect(() => {
-  setInputValue(task.value?.toString() || '');
-}, [task.value]);
-  
+    if (!editingText.current) setInputValue(task.value?.toString() || '');
+  }, [task.value]);
+
   const onDropdownValueChange = (value) => {
     !preview &&
       !(task.taskBase.user && task.taskBase.user.id !== user.id) &&
@@ -120,6 +159,7 @@ export default function SingleTask({
             icon={'image'}
             onPress={() => handleSelectImages(task.id)}
             disabled={
+              connectedDisabled ||
               preview ||
               !(
                 hasCreatePermission(PermissionEntity.FILES) &&
@@ -138,6 +178,7 @@ export default function SingleTask({
         task.taskBase.taskType
       ) ? (
         <TouchableOpacity
+          disabled={connectedDisabled || saving}
           onPress={() => {
             SheetManager.show('dropdown-sheet', {
               payload: {
@@ -177,21 +218,39 @@ export default function SingleTask({
       ) : task.taskBase.taskType === 'METER' ||
         task.taskBase.taskType === 'NUMBER' ? (
         <TextInput
+          ref={valueInput}
+          onFocus={(event) => onInputFocus?.(event.nativeEvent.target)}
           defaultValue={task.value?.toString()}
           onChangeText={changeHandler}
+          onBlur={() => localCommitOnSave && debouncedChangeHandler.flush()}
           label={t('value')}
           value={inputValue}
           mode={'outlined'}
           keyboardType="decimal-pad"
-          disabled={task.taskBase.user && task.taskBase.user.id !== user.id}
+          disabled={
+            connectedDisabled ||
+            saving ||
+            (task.taskBase.user && task.taskBase.user.id !== user.id)
+          }
         />
       ) : (
         <TextInput
-          defaultValue={task.value?.toString()}
-          onChangeText={debouncedChangeHandler}
+          ref={valueInput}
+          onFocus={(event) => onInputFocus?.(event.nativeEvent.target)}
+          value={inputValue}
+          onChangeText={(text) => {
+            editingText.current = true;
+            setInputValue(text);
+            debouncedChangeHandler(text, ++inputRevision.current);
+          }}
+          onBlur={() => debouncedChangeHandler.flush()}
           label={t('value')}
           mode={'outlined'}
-          disabled={task.taskBase.user && task.taskBase.user.id !== user.id}
+          disabled={
+            connectedDisabled ||
+            saving ||
+            (task.taskBase.user && task.taskBase.user.id !== user.id)
+          }
         />
       )}
       {task.taskBase.asset && (
@@ -228,11 +287,13 @@ export default function SingleTask({
           </TouchableOpacity>
         </View>
       )}
-      {notes.get(task.id) && (
-        <View>
+      {notesVisible && (
+        <View style={{ display: notesVisible ? 'flex' : 'none' }}>
           <TextInput
             mode={'outlined'}
             multiline
+            onFocus={(event) => onInputFocus?.(event.nativeEvent.target)}
+            disabled={connectedDisabled}
             value={task.notes}
             label={t('notes')}
             onChangeText={(value) =>
@@ -243,7 +304,7 @@ export default function SingleTask({
             style={{ marginTop: 10 }}
             mode="contained"
             loading={savingNotes}
-            disabled={savingNotes}
+            disabled={savingNotes || saving || connectedDisabled}
             onPress={() => {
               setSavingNotes(true);
               handleSaveNotes(task.notes, task.id).finally(() =>
@@ -255,24 +316,29 @@ export default function SingleTask({
           </Button>
         </View>
       )}
-      {task.images.map((image) => (
-        <TouchableOpacity
-          key={image.id}
-          onPress={() =>
-            handleZoomImage(
-              task.images.map((img) => img.url),
-              image.url
-            )
-          }
-          style={{ marginTop: 10 }}
-        >
-          <Image
-            source={{ uri: image.url }}
-            style={{ borderRadius: 5, height: 150 }}
-          />
-        </TouchableOpacity>
-      ))}
+      {imagesEditor}
+      {!imagesEditor && connectedDisabled && !!task.images?.length && (
+        <Text>{t('offline_files_not_downloaded')}</Text>
+      )}
+      {!imagesEditor &&
+        !connectedDisabled &&
+        task.images?.map((image) => (
+          <TouchableOpacity
+            key={image.id}
+            onPress={() =>
+              handleZoomImage(
+                task.images.map((img) => img.url),
+                image.url
+              )
+            }
+            style={{ marginTop: 10 }}
+          >
+            <Image
+              source={{ uri: image.url }}
+              style={{ borderRadius: 5, height: 150 }}
+            />
+          </TouchableOpacity>
+        ))}
     </View>
   );
 }
-const styles = StyleSheet.create({});

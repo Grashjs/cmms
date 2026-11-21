@@ -21,7 +21,7 @@ import ArrowDropDownCircleTwoToneIcon from '@mui/icons-material/ArrowDropDownCir
 import { Task, TaskOption, TaskType } from '../../../../../models/owns/tasks';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import debounce from 'lodash.debounce';
 import { getAssetUrl, getUserUrl } from '../../../../../utils/urlPaths';
 import useAuth from '../../../../../hooks/useAuth';
@@ -32,7 +32,8 @@ interface SingleTaskProps {
   task: Task;
   preview?: boolean;
   disabled?: boolean;
-  handleChange?: (value: string | number, id: number) => void;
+  handleChange?: (value: string | number, id: number, revision?: number) => void;
+  onValueInput?: (value: string, id: number) => number;
   handleSaveNotes?: (value: string, id: number) => Promise<void>;
   handleNoteChange?: (value: string, id: number) => void;
   handleSelectImages?: (id: number) => void;
@@ -44,6 +45,7 @@ interface SingleTaskProps {
 export default function SingleTask({
   task,
   handleChange,
+  onValueInput,
   handleNoteChange,
   handleSaveNotes,
   preview,
@@ -59,13 +61,11 @@ export default function SingleTask({
   const [savingNotes, setSavingNotes] = useState<boolean>(false);
   const { user, hasCreatePermission, hasFeature } = useAuth();
 
-  const changeHandler = (event) =>
-    !preview && handleChange(event.target.value, task.id);
-
-  const debouncedChangeHandler = useMemo(
-    () => debounce(changeHandler, 1500),
-    []
-  );
+  const changeHandler = useRef(handleChange);
+  changeHandler.current = handleChange;
+  const debouncedChangeHandler = useMemo(() => debounce((value: string, revision?: number) =>
+    changeHandler.current?.(value, task.id, revision), 1500), [task.id]);
+  useEffect(() => () => debouncedChangeHandler.cancel(), [debouncedChangeHandler]);
 
   const subtaskOptions = [
     { label: t('OPEN'), value: 'OPEN' },
@@ -144,8 +144,13 @@ export default function SingleTask({
           ) : (
             <Box sx={{ backgroundColor: 'white' }}>
               <TextField
-                onChange={debouncedChangeHandler}
-                defaultValue={task.value}
+                onChange={(event) => {
+                  if (preview) return;
+                  const value = event.target.value;
+                  const revision = onValueInput?.(value, task.id);
+                  debouncedChangeHandler(value, revision);
+                }}
+                value={task.value ?? ''}
                 label={t('value')}
                 disabled={
                   (task.taskBase.user && task.taskBase.user.id !== user.id) ||

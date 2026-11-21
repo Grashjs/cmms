@@ -1,4 +1,19 @@
 const frJSON = {
+  work_order_status_review: "L’intervention a changé. Examinez son statut actuel avant une nouvelle soumission. Votre saisie est conservée.",
+  work_order_status_review_current: "Examiner le statut actuel du serveur",
+  work_order_status_review_value: "Statut serveur : {{status}} · Chronomètres actifs : {{count}}",
+  work_order_status_review_confirm: "Conserver ma saisie sur cette version examinée",
+
+  labor_review_current: 'Examiner le temps actuel',
+  labor_review_confirm: 'Conserver ma saisie sur cette version',
+  labor_changed_review:
+    'Ce temps a changé. Examinez la version serveur avant une nouvelle sauvegarde.',
+  labor_server_duration: 'Durée actuelle sur le serveur',
+
+  task_save_review: 'Votre saisie est conservée. Enregistrement suspendu : comparez-la au serveur avant d’envoyer les modifications affichées.',
+  task_server_value: 'Valeur actuelle sur le serveur',
+  task_review_submit: 'Vérifier et envoyer les modifications affichées',
+  task_review_discard: 'Abandonner la saisie et reprendre la version serveur',
   Blueprints: 'Plans',
   'Extended Sidebar': 'Barre latérale étendue',
   'Accent Sidebar': "Barre latérale d'accentuation",

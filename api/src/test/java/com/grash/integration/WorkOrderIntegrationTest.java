@@ -63,6 +63,8 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
     @Autowired
     private WorkOrderService workOrderService;
     @Autowired
+    private com.grash.mapper.WorkOrderMapper workOrderMapper;
+    @Autowired
     private CurrencyRepository currencyRepository;
     @Autowired
     private GeneralPreferencesRepository generalPreferencesRepository;
@@ -93,6 +95,8 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
 
     @MockitoBean
     private WebhookDispatchService webhookDispatchService;
+    @MockitoBean
+    private com.grash.factory.StorageServiceFactory storageServiceFactory;
 
     private Company company;
     private User user;
@@ -100,6 +104,9 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
 
     @BeforeEach
     void setUpBase() {
+        var storage = org.mockito.Mockito.mock(com.grash.service.StorageService.class);
+        org.mockito.Mockito.when(storageServiceFactory.getStorageService()).thenReturn(storage);
+        org.mockito.Mockito.when(storage.generateSignedUrl(anyString(), anyLong())).thenReturn("https://storage.test/file");
 
         SubscriptionPlan plan = SubscriptionPlan.builder()
                 .name("Test Plan")
@@ -256,6 +263,9 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
             Long id = saved.getId();
 
             WorkOrderChangeStatusDTO dto = new WorkOrderChangeStatusDTO();
+            dto.setBaseRevision(saved.getTimerStatusRevision());
+            dto.setActiveTimerRuns(workOrderService.activeTimerRuns(saved.getId()));
+            dto.setFeedback("Completed on site");
             dto.setStatus(Status.COMPLETE);
 
             WorkOrder result = workOrderService.changeStatus(dto, id, user, "ios");
@@ -278,6 +288,9 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
             WorkOrder saved = createInitialWO();
 
             WorkOrderChangeStatusDTO dto = new WorkOrderChangeStatusDTO();
+            dto.setBaseRevision(saved.getTimerStatusRevision());
+            dto.setActiveTimerRuns(workOrderService.activeTimerRuns(saved.getId()));
+            dto.setFeedback("Completed on site");
             dto.setStatus(Status.IN_PROGRESS);
 
             WorkOrder result = workOrderService.changeStatus(dto, saved.getId(), user, "ios");
@@ -292,6 +305,9 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
             WorkOrder saved = createInitialWO();
 
             WorkOrderChangeStatusDTO dto = new WorkOrderChangeStatusDTO();
+            dto.setBaseRevision(saved.getTimerStatusRevision());
+            dto.setActiveTimerRuns(workOrderService.activeTimerRuns(saved.getId()));
+            dto.setFeedback("Completed on site");
             dto.setStatus(Status.ON_HOLD);
 
             WorkOrder result = workOrderService.changeStatus(dto, saved.getId(), user, "ios");
@@ -304,6 +320,9 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
             WorkOrder saved = createInitialWO();
 
             WorkOrderChangeStatusDTO dto = new WorkOrderChangeStatusDTO();
+            dto.setBaseRevision(saved.getTimerStatusRevision());
+            dto.setActiveTimerRuns(workOrderService.activeTimerRuns(saved.getId()));
+            dto.setFeedback("Completed on site");
             dto.setStatus(null);
 
             CustomException ex = assertThrows(CustomException.class,
@@ -758,6 +777,47 @@ class WorkOrderIntegrationTest extends AbstractIntegrationTest {
             wo.setFiles(new ArrayList<>());
             wo.setCustomFieldValues(new ArrayList<>());
             return workOrderRepository.saveAndFlush(wo);
+        }
+
+        private com.grash.model.File persistedAttachment(String name) {
+            var file = new com.grash.model.File(); file.setName(name); file.setPath("/uploads/" + name);
+            file.setCompany(company); file.setCreatedBy(user.getId()); file.setType(FileType.IMAGE);
+            em.persist(file); em.flush(); return file;
+        }
+
+        @Test
+        void webFileDeltaPreservesAFileAddedSinceItsFormWasLoaded() {
+            adminRole.getViewPermissions().add(PermissionEntity.FILES);
+            WorkOrder wo = createFileWO();
+            var a = persistedAttachment("A.jpg"); var b = persistedAttachment("B.jpg"); var c = persistedAttachment("C.jpg");
+            wo.getFiles().add(a); em.flush();
+            var patch = workOrderMapper.toPatchDto(wo);
+            // Web removes A and adds C from its original A-only list.
+            patch.setFiles(List.of(c));
+            patch.setAttachmentsBase(new com.grash.dto.workOrder.WorkOrderPatchDTO.AttachmentsBase(null, List.of(a.getId())));
+            workOrderService.addFiles(wo.getId(), List.of(b), user);
+            em.flush(); em.clear();
+            user = em.find(User.class, user.getId()); setCurrentUser(user);
+            workOrderService.patch(wo.getId(), patch, user);
+            em.flush(); em.clear();
+            var saved = em.find(WorkOrder.class, wo.getId());
+            assertEquals(Set.of(b.getId(), c.getId()), saved.getFiles().stream().map(com.grash.model.File::getId)
+                    .collect(java.util.stream.Collectors.toSet()));
+        }
+
+        @Test
+        void updatingAnUnrelatedFieldDoesNotRestoreAnOutdatedPrimaryImage() {
+            WorkOrder wo = createFileWO();
+            var a = persistedAttachment("old.jpg"); var b = persistedAttachment("new.jpg");
+            wo.setImage(a); em.flush();
+            // Simulate another writer after this persistence context loaded the old image.
+            em.createNativeQuery("update work_order set image_id = :image where id = :id")
+                    .setParameter("image", b.getId()).setParameter("id", wo.getId()).executeUpdate();
+            wo.setTitle("Connected title changed");
+            em.flush(); em.clear();
+            var saved = em.find(WorkOrder.class, wo.getId());
+            assertEquals("Connected title changed", saved.getTitle());
+            assertEquals(b.getId(), saved.getImage().getId());
         }
 
         @Test

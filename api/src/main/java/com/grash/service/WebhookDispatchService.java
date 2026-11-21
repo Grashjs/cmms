@@ -112,7 +112,8 @@ public class WebhookDispatchService {
                 webhookEndpointRepository.save(endpoint);
 
             } catch (Exception e) {
-                log.error("Failed to send webhook to: {}", endpoint.getUrl(), e);
+                log.error("WEBHOOK_DELIVERY_FAILED endpoint={} event={} workOrder={} asset={}", endpoint.getId(), eventType,
+                        result.get("workOrderId"), result.get("assetId"), e);
             }
         }
     }

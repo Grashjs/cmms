@@ -1,4 +1,19 @@
 const locale = {
+  work_order_status_review: "The work order changed. Review its current status before submitting again. Your input is preserved.",
+  work_order_status_review_current: "Review current server status",
+  work_order_status_review_value: "Server status: {{status}} · Active timers: {{count}}",
+  work_order_status_review_confirm: "Keep my input on this reviewed version",
+
+  labor_review_current: 'Review current time',
+  labor_review_confirm: 'Keep my input on this version',
+  labor_changed_review:
+    'This time entry changed. Review the server version before saving again.',
+  labor_server_duration: 'Current server duration',
+
+  task_save_review: 'Your input is kept. Saving is paused; compare it with the server before submitting the displayed changes.',
+  task_server_value: 'Current server value',
+  task_review_submit: 'Review and submit displayed changes',
+  task_review_discard: 'Discard local changes and use server version',
   DUPLICATE_OF: 'Duplicate of',
   DUPLICATED_BY: 'Duplicated by',
   RELATED_TO: 'Related to',

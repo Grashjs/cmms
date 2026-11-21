@@ -15,6 +15,7 @@ import com.grash.repository.NotificationRepository;
 import com.grash.utils.Helper;
 import io.github.jav.exposerversdk.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final NotificationMapper notificationMapper;
@@ -40,9 +42,14 @@ public class NotificationService {
 
     @Async
     public void create(Notification notification) {
-        Notification savedNotification = notificationRepository.save(notification);
-        messagingTemplate.convertAndSendToUser(notification.getUser().getEmail(),
-                "/notifications", savedNotification);
+        try {
+            Notification savedNotification = notificationRepository.save(notification);
+            messagingTemplate.convertAndSendToUser(notification.getUser().getEmail(), "/notifications", savedNotification);
+        } catch (RuntimeException failure) {
+            log.error("NOTIFICATION_DELIVERY_FAILED type={} resource={} recipient={}", notification.getNotificationType(),
+                    notification.getResourceId(), notification.getUser().getId(), failure);
+            throw failure;
+        }
     }
 
     @Async
@@ -50,10 +57,15 @@ public class NotificationService {
         if (notifications.isEmpty()) return;
         List<Notification> notificationsToSend = excludeCurrentUser(notifications);
         if (notificationsToSend.isEmpty()) return;
-        List<Notification> savedNotifications = notificationRepository.saveAll(notificationsToSend);
-        savedNotifications.forEach(notification ->
-                messagingTemplate.convertAndSendToUser(notification.getUser().getEmail(),
-                        "/notifications", notification));
+        try {
+            List<Notification> savedNotifications = notificationRepository.saveAll(notificationsToSend);
+            savedNotifications.forEach(notification -> messagingTemplate.convertAndSendToUser(notification.getUser().getEmail(),
+                    "/notifications", notification));
+        } catch (RuntimeException failure) {
+            log.error("NOTIFICATION_DELIVERY_FAILED type={} resource={}", notificationsToSend.get(0).getNotificationType(),
+                    notificationsToSend.get(0).getResourceId(), failure);
+            throw failure;
+        }
         if (mobile && !notificationsToSend.isEmpty())
             try {
                 sendPushNotifications(notificationsToSend.stream().map(Notification::getUser).collect(Collectors.toList()),
@@ -62,7 +74,8 @@ public class NotificationService {
                             put("id", notificationsToSend.get(0).getResourceId());
                         }});
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("PUSH_DELIVERY_FAILED type={} resource={}", notificationsToSend.get(0).getNotificationType(),
+                        notificationsToSend.get(0).getResourceId(), e);
             }
     }
 

@@ -141,9 +141,11 @@ public class WorkOrderController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     public WorkOrderShowDTO patch(@Parameter(description = "Work order fields to update") @Valid @RequestBody WorkOrderPatchDTO
                                           workOrder, @PathVariable("id") Long id,
+                                  @RequestParam(value = "attachmentsOnly", defaultValue = "false") boolean attachmentsOnly,
                                   HttpServletRequest req) {
         User user = userService.whoami(req);
-        WorkOrder patchedWorkOrder = workOrderService.patch(id, workOrder, user);
+        WorkOrder patchedWorkOrder = attachmentsOnly ? workOrderService.patch(id, workOrder, user, true)
+                : workOrderService.patch(id, workOrder, user);
         return workOrderMapper.toShowDto(patchedWorkOrder);
     }
 

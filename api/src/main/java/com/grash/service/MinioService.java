@@ -146,6 +146,17 @@ public class MinioService implements StorageService {
         }
     }
 
+    @Override
+    public Metadata stat(String filePath) {
+        checkIfConfigured();
+        try {
+            var metadata = minioClient.statObject(StatObjectArgs.builder().bucket(minioBucket).object(filePath).build());
+            return new Metadata(metadata.size(), metadata.contentType());
+        } catch (Exception e) {
+            throw new CustomException("FILE_STORAGE_UNAVAILABLE", HttpStatus.SERVICE_UNAVAILABLE);
+        }
+    }
+
     public boolean exists(String filePath) {
         checkIfConfigured();
         try {
