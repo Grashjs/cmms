@@ -115,7 +115,6 @@ class WorkflowServiceTest {
         request.setLocation(unrelated);
 
         Company company = mock(Company.class);
-        when(company.getId()).thenReturn(1L);
 
         workflowService.runRequest(buildApproveWorkflow(campus, company), request);
 
