@@ -1,4 +1,4 @@
-import { createContext, FC, useContext, useEffect } from 'react';
+import { createContext, FC, useContext, useEffect, useMemo } from 'react';
 import useAuth from '../hooks/useAuth';
 import { addFiles } from '../slices/file';
 import { useDispatch, useSelector } from '../store';
@@ -48,7 +48,7 @@ export const CompanySettingsProvider: FC = ({ children }) => {
   const { workOrderConfiguration } = companySettings ?? {
     workOrderFieldConfigurations: []
   };
-  const { t }: { t: any } = useTranslation();
+  const { t, i18n }: { t: any; i18n: { language: string } } = useTranslation();
   const { showSnackBar } = useContext(CustomSnackBarContext);
   const brandConfig = useBrand();
 
@@ -66,12 +66,29 @@ export const CompanySettingsProvider: FC = ({ children }) => {
       return format(date, 'dd/MM/yy') + timeStr;
     }
   };
-  const getFormattedCurrency = (amount: number): string => {
+  const amountFormat = useMemo(() => {
+    const options: Intl.NumberFormatOptions = {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+      useGrouping: 'always' as unknown as boolean
+    };
+    const language = i18n.language === 'ba' ? 'bs' : i18n.language;
+    try {
+      return new Intl.NumberFormat(language?.replace('_', '-'), options);
+    } catch {
+      return new Intl.NumberFormat('en', options);
+    }
+  }, [i18n.language]);
+  const getFormattedCurrency = (amount: number | string): string => {
     const code = generalPreferences.currency.code;
+    const value = Number(amount);
+    const formattedAmount = Number.isFinite(value)
+      ? amountFormat.format(value)
+      : `${amount}`;
     const currenciesToReverse = ['$'];
     return currenciesToReverse.includes(code)
-      ? `${code} ${amount} `
-      : `${amount} ${code}`;
+      ? `${code} ${formattedAmount}`
+      : `${formattedAmount} ${code}`;
   };
 
   const onUploadError = (err: { message: string }) => {
