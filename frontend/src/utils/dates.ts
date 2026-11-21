@@ -36,7 +36,6 @@ export function getScheduleDescription(
 ): string {
   const { frequency, recurrenceType, daysOfWeek, recurrenceBasedOn } = schedule;
 
-  // WEEKLY → translated weekdays
   const weekdayNames = getWeekdays(locale);
 
   switch (recurrenceType) {
