@@ -39,8 +39,7 @@ public class PartAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getPartStats",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
+            key = "@analyticsCacheService.key(#user, #companyId, #dateRange)"
     )
     public ResponseEntity<PartStats> getPartStats(@Parameter(hidden = true) @CurrentUser User user,
                                                   @Parameter(description = "Date range for filtering analytics") @RequestBody DateRange dateRange,
@@ -65,8 +64,7 @@ public class PartAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getPartPareto",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
+            key = "@analyticsCacheService.key(#user, #companyId, #dateRange)"
     )
     public ResponseEntity<List<PartConsumptionsByPart>> getPareto(@Parameter(hidden = true) @CurrentUser User user,
                                                                   @Parameter(description = "Date range for filtering " +
@@ -97,8 +95,7 @@ public class PartAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getConsumptionByAsset",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
+            key = "@analyticsCacheService.key(#user, #companyId, #dateRange)"
     )
     public ResponseEntity<Collection<PartConsumptionsByAsset>> getConsumptionByAsset(@Parameter(hidden = true) @CurrentUser User user,
                                                                                      @Parameter(description = "Date " +
@@ -123,8 +120,7 @@ public class PartAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getConsumptionByPartCategory",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
+            key = "@analyticsCacheService.key(#user, #companyId, #dateRange)"
     )
     public ResponseEntity<Collection<PartConsumptionByCategory>> getConsumptionByPartCategory(@Parameter(hidden =
                                                                                                        true) @CurrentUser User user,
@@ -162,8 +158,7 @@ public class PartAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getConsumptionByWOCategory",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
+            key = "@analyticsCacheService.key(#user, #companyId, #dateRange)"
     )
     public ResponseEntity<Collection<PartConsumptionByWOCategory>> getConsumptionByWOCategory(@Parameter(hidden =
                                                                                                        true) @CurrentUser User user,
@@ -202,8 +197,7 @@ public class PartAnalyticsController {
     @PreAuthorize("hasRole('ROLE_CLIENT')")
     @Cacheable(
             value = "getPartConsumptionsByMonth",
-            key = "T(com.grash.utils.CacheKeyUtils).dateRangeKey(#user.id, #dateRange.start, #dateRange.end) + " +
-                    "(#companyId != null ? '_' + #companyId : '')"
+            key = "@analyticsCacheService.key(#user, #companyId, #dateRange)"
     )
     public ResponseEntity<List<PartConsumptionsByMonth>> getPartConsumptionsByMonth(@Parameter(hidden = true) @CurrentUser User user,
                                                                                     @Parameter(description = "Date " +

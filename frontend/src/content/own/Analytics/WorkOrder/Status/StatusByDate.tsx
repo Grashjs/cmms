@@ -18,6 +18,7 @@ import { getRandomColor } from '../../../../../utils/overall';
 import Loading from '../../Loading';
 import { getDayAndMonth } from '../../../../../utils/dates';
 import { getStatusesByDate } from '../../../../../slices/analytics/workOrder';
+import { FilterField } from '../../../../../models/owns/page';
 
 interface DowntimesByMonthProps {
   handleOpenModal: (
@@ -28,9 +29,10 @@ interface DowntimesByMonthProps {
   start: Date;
   end: Date;
   companyId?: number;
+  filterFields?: FilterField[];
 }
 
-function StatusByDate({ handleOpenModal, start, end, companyId }: DowntimesByMonthProps) {
+function StatusByDate({ handleOpenModal, start, end, companyId, filterFields }: DowntimesByMonthProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -41,8 +43,8 @@ function StatusByDate({ handleOpenModal, start, end, companyId }: DowntimesByMon
   useEffect(() => {
     const localStart = new Date(end);
     localStart.setDate(localStart.getDate() - 7);
-    dispatch(getStatusesByDate(start > localStart ? start : localStart, end, companyId));
-  }, [end, companyId]);
+    dispatch(getStatusesByDate(start > localStart ? start : localStart, end, companyId, filterFields));
+  }, [end, companyId, filterFields]);
 
   const columns: string[] = ['id'];
 

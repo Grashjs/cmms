@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from '../../../../../store';
 import { useEffect } from 'react';
 import { getIncompleteStats } from '../../../../../slices/analytics/workOrder';
 import Loading from '../../Loading';
+import { FilterField } from '../../../../../models/owns/page';
 
 interface WOStatusNumbersProps {
   handleOpenModal: (
@@ -15,10 +16,11 @@ interface WOStatusNumbersProps {
   ) => void,
   start: Date,
   end: Date,
-  companyId?: number
+  companyId?: number;
+  filterFields?: FilterField[];
 }
 
-function Overview({ handleOpenModal, start, end, companyId }: WOStatusNumbersProps) {
+function Overview({ handleOpenModal, start, end, companyId, filterFields }: WOStatusNumbersProps) {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const { incompleteOverview, loading } = useSelector(
@@ -26,8 +28,8 @@ function Overview({ handleOpenModal, start, end, companyId }: WOStatusNumbersPro
   );
 
   useEffect(() => {
-    dispatch(getIncompleteStats(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getIncompleteStats(start, end, companyId, filterFields));
+  }, [start, end, companyId, filterFields]);
 
   const formattedData: {
     label: string;

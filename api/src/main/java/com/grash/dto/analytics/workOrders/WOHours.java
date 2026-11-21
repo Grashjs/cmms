@@ -16,5 +16,5 @@ public class WOHours {
     private double estimated;
     
     @Schema(description = "Actual hours")
-    private int actual;
+    private double actual;
 }

@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from '../../../../../store';
 import { useEffect } from 'react';
 import Loading from '../../Loading';
 import { getRequestStatsByPriority } from '../../../../../slices/analytics/request';
+import { FilterField } from '../../../../../models/owns/page';
 
 interface OwnProps {
   handleOpenModal: (
@@ -17,9 +18,10 @@ interface OwnProps {
   start: Date;
   end: Date;
   companyId?: number;
+  filterFields?: FilterField[];
 }
 
-function RequestStatsByPriority({ handleOpenModal, start, end, companyId }: OwnProps) {
+function RequestStatsByPriority({ handleOpenModal, start, end, companyId, filterFields }: OwnProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -28,8 +30,8 @@ function RequestStatsByPriority({ handleOpenModal, start, end, companyId }: OwnP
   );
 
   useEffect(() => {
-    dispatch(getRequestStatsByPriority(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getRequestStatsByPriority(start, end, companyId, filterFields));
+  }, [start, end, companyId, filterFields]);
 
   const columns: string[] = ['id'];
 

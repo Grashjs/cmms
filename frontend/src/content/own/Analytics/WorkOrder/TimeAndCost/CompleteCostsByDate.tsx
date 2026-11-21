@@ -16,6 +16,7 @@ import { useEffect } from 'react';
 import { getCompleteCostsByDate } from '../../../../../slices/analytics/workOrder';
 import Loading from '../../Loading';
 import { getDayAndMonth } from '../../../../../utils/dates';
+import { FilterField } from '../../../../../models/owns/page';
 
 interface WOStatusIncompleteProps {
   handleOpenModal: (
@@ -26,9 +27,10 @@ interface WOStatusIncompleteProps {
   start: Date;
   end: Date;
   companyId?: number;
+  filterFields?: FilterField[];
 }
 
-function CompleteCostsByDate({ handleOpenModal, start, end, companyId }: WOStatusIncompleteProps) {
+function CompleteCostsByDate({ handleOpenModal, start, end, companyId, filterFields }: WOStatusIncompleteProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const { completeCostsByDate, loading } = useSelector(
@@ -37,8 +39,8 @@ function CompleteCostsByDate({ handleOpenModal, start, end, companyId }: WOStatu
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getCompleteCostsByDate(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getCompleteCostsByDate(start, end, companyId, filterFields));
+  }, [start, end, companyId, filterFields]);
 
   const formattedData: {
     label: string;

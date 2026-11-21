@@ -17,6 +17,7 @@ import { useDispatch, useSelector } from '../../../../../store';
 import { useEffect } from 'react';
 import { getIncompleteByPriority } from '../../../../../slices/analytics/workOrder';
 import Loading from '../../Loading';
+import { FilterField } from '../../../../../models/owns/page';
 
 interface WOStatusIncompleteProps {
   handleOpenModal: (
@@ -27,9 +28,10 @@ interface WOStatusIncompleteProps {
   start: Date;
   end: Date;
   companyId?: number;
+  filterFields?: FilterField[];
 }
 
-function IncompleteWO({ handleOpenModal, start, end, companyId }: WOStatusIncompleteProps) {
+function IncompleteWO({ handleOpenModal, start, end, companyId, filterFields }: WOStatusIncompleteProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const { incompleteByPriority, loading } = useSelector(
@@ -38,8 +40,8 @@ function IncompleteWO({ handleOpenModal, start, end, companyId }: WOStatusIncomp
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getIncompleteByPriority(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getIncompleteByPriority(start, end, companyId, filterFields));
+  }, [start, end, companyId, filterFields]);
 
   const columns: string[] = ['id'];
 

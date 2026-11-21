@@ -3,9 +3,15 @@ import { useTranslation } from 'react-i18next';
 import AnalyticsCard from '../../AnalyticsCard';
 import { Filter } from '../WOModal';
 import { useDispatch, useSelector } from '../../../../../store';
-import { useContext, useEffect } from 'react';
-import { getCompleteCosts } from '../../../../../slices/analytics/workOrder';
+import { ReactNode, useContext, useEffect } from 'react';
+import {
+  fetchCompleteCosts,
+  getCompleteCosts
+} from '../../../../../slices/analytics/workOrder';
 import { CompanySettingsContext } from '../../../../../contexts/CompanySettingsContext';
+import { FilterField } from '../../../../../models/owns/page';
+import DeltaBadge from '../../DeltaBadge';
+import usePreviousPeriod from '../../usePreviousPeriod';
 
 interface HoursWorkedProps {
   handleOpenModal: (
@@ -16,27 +22,47 @@ interface HoursWorkedProps {
   start: Date;
   end: Date;
   companyId?: number;
+  filterFields?: FilterField[];
 }
 
-function Costs({ handleOpenModal, start, end, companyId }: HoursWorkedProps) {
+function Costs({ handleOpenModal, start, end, companyId, filterFields }: HoursWorkedProps) {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const { completeCosts, loading } = useSelector((state) => state.woAnalytics);
   const { getFormattedCurrency } = useContext(CompanySettingsContext);
   useEffect(() => {
-    dispatch(getCompleteCosts(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getCompleteCosts(start, end, companyId, filterFields));
+  }, [start, end, companyId, filterFields]);
+  const previous = usePreviousPeriod(fetchCompleteCosts, start, end, companyId, filterFields);
 
   const columns = ['id'];
-  const formattedData: { label: string; value: string; filters: Filter[] }[] = [
+  const formattedData: { label: string; value: string; filters: Filter[]; delta?: ReactNode }[] = [
     {
       label: t('total_cost'),
       value: getFormattedCurrency(completeCosts.total.toFixed(2)),
+      delta: (
+        <DeltaBadge
+          current={completeCosts.total}
+          previous={previous.data?.total}
+          previousPeriod={previous}
+          higherIsBetter={false}
+          formatValue={(value) => getFormattedCurrency(value.toFixed(2))}
+        />
+      ),
       filters: []
     },
     {
       label: t('average_cost'),
       value: getFormattedCurrency(completeCosts.average.toFixed(2)),
+      delta: (
+        <DeltaBadge
+          current={completeCosts.average}
+          previous={previous.data?.average}
+          previousPeriod={previous}
+          higherIsBetter={false}
+          formatValue={(value) => getFormattedCurrency(value.toFixed(2))}
+        />
+      ),
       filters: []
     }
   ];
@@ -60,6 +86,7 @@ function Costs({ handleOpenModal, start, end, companyId }: HoursWorkedProps) {
                 {data.value}
               </Typography>
               <Typography>{data.label}</Typography>
+              {data.delta}
             </Stack>
           ))}
         </Stack>
