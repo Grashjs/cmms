@@ -6,13 +6,12 @@ import com.grash.model.abstracts.CompanyAudit;
 import com.grash.model.enums.PermissionEntity;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -135,6 +134,20 @@ public class Location extends CompanyAudit {
     @ArraySchema(schema = @Schema(implementation = IdDTO.class))
     @Schema(description = "Custom fields", accessMode = Schema.AccessMode.READ_ONLY)
     private List<CustomFieldValue> customFieldValues = new ArrayList<>();
+
+    public boolean isSameOrDescendantOf(Location location) {
+        if (location == null || location.getId() == null) {
+            return false;
+        }
+        Location current = this;
+        while (current != null) {
+            if (current.getId() != null && current.getId().equals(location.getId())) {
+                return true;
+            }
+            current = current.getParentLocation();
+        }
+        return false;
+    }
 
     public Collection<User> getUsers() {
         Collection<User> users = new ArrayList<>();

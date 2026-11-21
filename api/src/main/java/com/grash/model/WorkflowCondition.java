@@ -93,7 +93,7 @@ public class WorkflowCondition extends CompanyAudit {
             case CATEGORY_IS:
                 return workOrder.getCategory() != null && workOrder.getCategory().getId().equals(this.workOrderCategory.getId());
             case LOCATION_IS:
-                return workOrder.getLocation() != null && workOrder.getLocation().getId().equals(this.location.getId());
+                return workOrder.getLocation() != null && this.location != null && workOrder.getLocation().isSameOrDescendantOf(this.location);
             case USER_IS:
                 return workOrder.getPrimaryUser() != null && workOrder.getPrimaryUser().getId().equals(this.user.getId());
             case CREATED_AT_BETWEEN:
@@ -120,7 +120,7 @@ public class WorkflowCondition extends CompanyAudit {
             case CATEGORY_IS:
                 return request.getCategory() != null && request.getCategory().getId().equals(this.workOrderCategory.getId());
             case LOCATION_IS:
-                return request.getLocation() != null && request.getLocation().getId().equals(this.location.getId());
+                return request.getLocation() != null && this.location != null && request.getLocation().isSameOrDescendantOf(this.location);
             case USER_IS:
                 return request.getPrimaryUser() != null && request.getPrimaryUser().getId().equals(this.user.getId());
             case CREATED_AT_BETWEEN:
