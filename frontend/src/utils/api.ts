@@ -127,7 +127,6 @@ function deletes<T>(url, options?: Options) {
 }
 
 export function authHeader(publicRoute: boolean): HeadersInit {
-  // return authorization header with jwt token
   let accessToken = localStorage.getItem('accessToken');
 
   if (!publicRoute && accessToken) {
