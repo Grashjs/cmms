@@ -1,3 +1,5 @@
+import { canEditCustomRole } from '../../../../utils/managementAccess';
+import { getErrorMessage } from '../../../../utils/api';
 import SettingsLayout from '../SettingsLayout';
 
 import {
@@ -97,7 +99,7 @@ const LabelWrapper = styled(Box)(
 function Roles() {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
-  const { companySettings } = useAuth();
+  const { companySettings, user } = useAuth();
   const [openDelete, setOpenDelete] = useState(false);
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
   const [openDrawer, setOpenDrawer] = useState<boolean>(false);
@@ -160,7 +162,12 @@ function Roles() {
     showSnackBar(t('role_delete_success'), 'success');
   };
   const onDeleteFailure = (err) =>
-    showSnackBar(t('role_delete_failure'), 'error');
+    showSnackBar(
+      err?.status === 403
+        ? t('management_access_denied')
+        : getErrorMessage(err),
+      'error'
+    );
 
   const handleOpenDetails = (id: number) => {
     const foundRole = roles.find((role) => role.id === id);
@@ -305,7 +312,10 @@ function Roles() {
         let actions = [
           <GridActionsCellItem
             key="edit"
-            disabled={!hasFeature(PlanFeature.ROLE)}
+            disabled={
+              !hasFeature(PlanFeature.ROLE) ||
+              !canEditCustomRole(user, params.row, 'edit')
+            }
             icon={
               <EditTwoToneIcon
                 fontSize="small"
@@ -317,7 +327,10 @@ function Roles() {
           />,
           <GridActionsCellItem
             key="delete"
-            disabled={!hasFeature(PlanFeature.ROLE)}
+            disabled={
+              !hasFeature(PlanFeature.ROLE) ||
+              !canEditCustomRole(user, params.row, 'delete')
+            }
             icon={
               <DeleteTwoToneIcon
                 fontSize="small"

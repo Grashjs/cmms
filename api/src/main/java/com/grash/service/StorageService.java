@@ -4,8 +4,11 @@ import com.grash.model.File;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface StorageService {
+    /** Caller owns and must close this stream. Metadata is deliberately not used for delivery. */
+    java.io.InputStream openStream(String filePath);
+
     /**
-     * Uploads a file to the storage and returns the public URL.
+     * Uploads the original bytes with safe download metadata and returns the private object key.
      *
      * @param file   The file to be uploaded.
      * @param folder The folder where the file should be uploaded.
@@ -29,6 +32,7 @@ public interface StorageService {
      */
     byte[] download(File file);
 
+    /** Issues a protected API capability, never a raw provider URL. */
     String generateSignedUrl(File file, long expirationMinutes);
 
     String generateSignedUrl(String filePath, long expirationMinutes);
@@ -45,7 +49,7 @@ public interface StorageService {
      *
      * @param data        The file content.
      * @param filePath    The exact path/key to upload to.
-     * @param contentType The content type of the file.
+     * @param contentType Legacy caller hint; never trusted for browser delivery or storage metadata.
      */
     void uploadAt(byte[] data, String filePath, String contentType);
 

@@ -1,4 +1,6 @@
 const locale = {
+  management_access_denied: "Actie geweigerd: controleer uw rechten, de doelrol en de accounteigenaar.",
+  no_assignable_roles: "Met uw huidige rechten kunt u geen rol toewijzen.",
   DUPLICATE_OF: 'Duplicaat van',
   DUPLICATED_BY: 'Gedupliceerd door',
   RELATED_TO: 'Gerelateerd aan',
@@ -761,6 +763,14 @@ const locale = {
     "U kunt 20 gebruikers tegelijk toevoegen door na elke e-mailinvoer op 'tab' of 'enter' te drukken. Dubbele en geregistreerde e-mails worden verwijderd tijdens het registreren van de gevraagde gebruikers.",
   enter_email: 'Voer e-mailadres in',
   users_invite_success: 'Gebruikers zijn uitgenodigd',
+  invitation_send_email: 'Uitnodigingen per e-mail versturen',
+  invitation_links_notice:
+    'Kopieer deze links nu en stuur elke link alleen naar de bedoelde ontvanger. De links verlopen en kunnen maar één keer worden gebruikt. Als u een uitnodiging vernieuwt, wordt de vorige link ongeldig.',
+  invitation_link: 'Uitnodigingslink',
+  invitation_expires: 'Verloopt op: {{date}}',
+  invitation_unavailable:
+    'Deze uitnodiging is ongeldig, verlopen of al gebruikt. Vraag een bevoegde beheerder om een nieuwe uitnodigingslink. Oude links die alleen het e-mailadres en de rol bevatten, moeten worden vernieuwd.',
+  invitation_join_details: 'Lid worden van {{company}} als {{role}}',
   users_invite_failure:
     'Gebruikers kunnen niet worden uitgenodigd. Controleer het aantal leden van uw huidige abonnement',
   please_type_emails: 'Typ alstublieft e-mails om uit te nodigen',

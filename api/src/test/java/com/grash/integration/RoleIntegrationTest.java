@@ -44,6 +44,8 @@ class RoleIntegrationTest extends AbstractIntegrationTest {
     @Autowired
     private EntityManager em;
 
+    @Autowired private UserRepository userRepository;
+    @org.springframework.test.context.bean.override.mockito.MockitoSpyBean private com.grash.service.LicenseService license;
     private Company company;
     private Role companyRole;
 
@@ -53,7 +55,7 @@ class RoleIntegrationTest extends AbstractIntegrationTest {
                 .name("Test Plan")
                 .monthlyCostPerUser(10.0)
                 .yearlyCostPerUser(100.0)
-                .features(new HashSet<>())
+                .features(new HashSet<>(Set.of(com.grash.model.enums.PlanFeatures.ROLE)))
                 .build();
         plan = subscriptionPlanRepository.save(plan);
 
@@ -84,7 +86,16 @@ class RoleIntegrationTest extends AbstractIntegrationTest {
                 .paid(true)
                 .build();
         companyRole = roleRepository.save(companyRole);
+        User owner = new User(); owner.setCompany(company); owner.setRole(roleRepository.findDefaultRoleWithCode(RoleCode.ADMIN).orElseThrow());
+        owner.setEmail("role-test-" + UUID.randomUUID() + "@example.com"); owner.setUsername(UUID.randomUUID().toString());
+        owner.setFirstName("Role"); owner.setLastName("Owner"); owner.setPassword("fixture"); owner.setEnabled(true); owner.setOwnsCompany(true);
+        owner = userRepository.saveAndFlush(owner);
+        org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(
+                new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+                        com.grash.security.CustomUserDetail.builder().user(owner).build(), "", List.of()));
     }
+
+    @org.junit.jupiter.api.AfterEach void resetLicense() { org.mockito.Mockito.reset(license); }
 
     // ===== FindTests =====
 
@@ -189,7 +200,8 @@ class RoleIntegrationTest extends AbstractIntegrationTest {
     // ===== CreateTests =====
 
     @Test
-    void create_defaultCodeRole_persistsWithPermissions() {
+    void create_requestedDefaultCodeIsStoredAsScopedCustomRole() {
+        org.mockito.Mockito.doReturn(true).when(license).hasEntitlement(com.grash.dto.license.LicenseEntitlement.CUSTOM_ROLES);
         Role role = Role.builder()
                 .name("New Admin")
                 .roleType(RoleType.ROLE_CLIENT)
@@ -205,7 +217,8 @@ class RoleIntegrationTest extends AbstractIntegrationTest {
 
         Optional<Role> reloaded = roleRepository.findById(saved.getId());
         assertTrue(reloaded.isPresent());
-        assertEquals(RoleCode.ADMIN, reloaded.get().getCode());
+        assertEquals(RoleCode.USER_CREATED, reloaded.get().getCode());
+        assertEquals(company.getCompanySettings().getId(), reloaded.get().getCompanySettings().getId());
         assertEquals(new HashSet<>(List.of(PermissionEntity.WORK_ORDERS, PermissionEntity.ASSETS)),
                 reloaded.get().getCreatePermissions());
         assertEquals(new HashSet<>(List.of(PermissionEntity.SETTINGS)), reloaded.get().getViewPermissions());
@@ -213,6 +226,7 @@ class RoleIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     void create_userCreatedRole_withoutLicense_throwsForbidden() {
+        org.mockito.Mockito.doReturn(false).when(license).hasEntitlement(com.grash.dto.license.LicenseEntitlement.CUSTOM_ROLES);
         Role customRole = Role.builder()
                 .name("Custom")
                 .roleType(RoleType.ROLE_CLIENT)
@@ -274,7 +288,7 @@ class RoleIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     void delete_removesRole() {
-        Role roleToDelete = roleRepository.save(Role.builder()
+        Role roleToDelete = roleRepository.saveAndFlush(Role.builder()
                 .name("To Delete")
                 .roleType(RoleType.ROLE_CLIENT)
                 .code(RoleCode.USER_CREATED)
@@ -289,8 +303,8 @@ class RoleIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void delete_nonExistent_doesNothing() {
-        assertDoesNotThrow(() -> roleService.delete(999L));
+    void delete_nonExistent_isRejected() {
+        assertThrows(CustomException.class, () -> roleService.delete(999L));
     }
 
     // ===== SaveAllTests =====

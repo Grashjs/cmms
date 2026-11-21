@@ -1,4 +1,6 @@
 const plJSON = {
+  management_access_denied: "Odmowa wykonania operacji: sprawdź swoje uprawnienia, rolę docelową i właściciela konta.",
+  no_assignable_roles: "Nie ma roli, którą możesz przypisać z obecnymi uprawnieniami.",
   DUPLICATE_OF: 'Duplikat',
   DUPLICATED_BY: 'Zduplikowany przez',
   RELATED_TO: 'Powiązany z',
@@ -757,6 +759,14 @@ const plJSON = {
     "Możesz dodać 20 użytkowników jednocześnie, naciskając 'tab' lub 'enter' po każdym wpisaniu adresu e-mail. Duplikaty i zarejestrowane adresy zostaną usunięte podczas rejestracji.",
   enter_email: 'Wprowadź adres e-mail',
   users_invite_success: 'Użytkownicy zostali zaproszeni',
+  invitation_send_email: 'Wysyłaj zaproszenia e-mailem',
+  invitation_links_notice:
+    'Skopiuj teraz te linki i wyślij każdy z nich tylko do właściwego odbiorcy. Linki wygasają i można ich użyć tylko raz. Odnowienie zaproszenia unieważnia poprzedni link.',
+  invitation_link: 'Link zaproszenia',
+  invitation_expires: 'Wygasa: {{date}}',
+  invitation_unavailable:
+    'To zaproszenie jest nieprawidłowe, wygasło lub zostało już użyte. Poproś uprawnionego administratora o nowy link zaproszenia. Stare linki zawierające tylko adres e-mail i rolę wymagają odnowienia.',
+  invitation_join_details: 'Dołącz do {{company}} jako {{role}}',
   users_invite_failure:
     'Nie udało się zaprosić użytkowników. Sprawdź liczbę członków subskrypcji.',
   please_type_emails: 'Wpisz adresy e-mail, aby zaprosić',

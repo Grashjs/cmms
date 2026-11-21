@@ -67,10 +67,7 @@ interface AuthContextValue extends AuthState {
   ) => Promise<void>;
   loginInternal: (accessToken: string, refreshToken: string) => void;
   logout: () => void;
-  register: (
-    values: any,
-    invitationMode: boolean
-  ) => Promise<{ message: string; success: boolean }>;
+  register: (values: any) => Promise<{ message: string; success: boolean }>;
   getInfos: () => void;
   switchAccount: (id: number) => Promise<void>;
   patchUserSettings: (values: Partial<UserSettings>) => Promise<void>;
@@ -685,23 +682,24 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
   };
 
   const register = async (
-    values,
-    invitationMode: boolean
+    values
   ): Promise<{ success: boolean; message: string }> => {
-    const conversionKey = `signup_conversion_fired_${values.email}`;
-    fireGa4Event(
-      {
-        category: 'sign_up',
-        action: 'sign_up',
-        label: 'sign_up'
-      },
-      conversionKey
-    );
-    if (!values.role) fireGa4Event('company_signup');
-    // @ts-ignore
-    if (window.lintrk) {
+    if (!values.invitationToken) {
+      const conversionKey = `signup_conversion_fired_${values.email}`;
+      fireGa4Event(
+        {
+          category: 'sign_up',
+          action: 'sign_up',
+          label: 'sign_up'
+        },
+        conversionKey
+      );
+      fireGa4Event('company_signup');
       // @ts-ignore
-      window.lintrk('track', { conversion_id: 24670282 });
+      if (window.lintrk) {
+        // @ts-ignore
+        window.lintrk('track', { conversion_id: 24670282 });
+      }
     }
     const response = await api.post<{
       message: string;
@@ -720,7 +718,7 @@ export const AuthProvider: FC<AuthProviderProps> = (props) => {
       { headers: authHeader(true) }
     );
     const { message, success, refreshToken } = response;
-    if (message.startsWith('Successful') || invitationMode) {
+    if (message.startsWith('Successful')) {
       return;
     } else {
       await loginInternal(message, refreshToken);

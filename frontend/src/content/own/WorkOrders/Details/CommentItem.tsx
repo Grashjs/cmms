@@ -1,3 +1,4 @@
+import { attachmentUrl } from 'src/utils/attachment';
 import {
   Box,
   Typography,
@@ -357,7 +358,9 @@ export default function CommentItem(props: CommentItemProps) {
                           <IconButton
                             size="small"
                             component="a"
-                            href={file.url}
+                            href={attachmentUrl(file.url)}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             download={file.name}
                           >
                             <ArchiveTwoToneIcon fontSize="small" />

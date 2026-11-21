@@ -1,4 +1,22 @@
 const deJSON = {
+  management_access_denied: "Aktion abgelehnt: Prüfen Sie Ihre Berechtigungen, die Zielrolle und den Kontoinhaber.",
+  no_assignable_roles: "Mit Ihren aktuellen Berechtigungen können Sie keine Rolle zuweisen.",
+  invitation_created: 'Einladung erstellt',
+  invitation_delivery_notice:
+    'Geben Sie diesen persönlichen Link an die eingeladene Person weiter. Er läuft ab und kann nur einmal verwendet werden. Eine neue Einladung macht den vorherigen Link ungültig. Die Links werden beim Verlassen dieses Bildschirms gelöscht.',
+  invitation_expires: 'Gültig bis: {{date}}',
+  invitation_copy: 'Link kopieren',
+  invitation_share: 'Link teilen',
+  invitation_copied: 'Link kopiert',
+  invitation_copy_failed:
+    'Der Link konnte nicht kopiert werden. Bitte versuchen Sie es erneut.',
+  invitation_share_failed:
+    'Der Link konnte nicht geteilt werden. Bitte versuchen Sie es erneut.',
+  invitation_browser_acceptance:
+    'Die eingeladene Person schließt die Registrierung im Webbrowser ab und meldet sich anschließend in der mobilen App an.',
+  invitation_send_email: 'Zusätzlich eine Einladung per E-Mail anfordern',
+  invitation_email_optional:
+    'Eine E-Mail wird nur angefordert, wenn der Versand auf dem Server aktiviert ist. Eine erstellte Einladung bestätigt nicht die Zustellung der E-Mail. Sie können den Link jederzeit kopieren oder teilen.',
   DUPLICATE_OF: 'Duplikat von ',
   DUPLICATED_BY: 'Dupliziert von ',
   RELATED_TO: 'Verwandt mit ',

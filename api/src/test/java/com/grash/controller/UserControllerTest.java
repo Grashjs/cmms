@@ -250,10 +250,12 @@ class UserControllerTest extends AbstractControllerTest {
             when(userService.whoami(any())).thenReturn(clientUserWithoutPermission);
             when(userService.findByIdAndCompany(4L, 1L)).thenReturn(Optional.of(targetUser));
 
+            when(userService.update(eq(4L), any(UserPatchDTO.class), eq(clientUserWithoutPermission))).thenThrow(new CustomException("Access denied", HttpStatus.FORBIDDEN));
+
             mockMvc.perform(patch("/users/4")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"firstName\":\"Hacked\"}"))
-                    .andExpect(status().isNotAcceptable());
+                    .andExpect(status().isForbidden());
         }
 
         @Test
@@ -261,8 +263,10 @@ class UserControllerTest extends AbstractControllerTest {
             setCurrentUser(clientUserWithoutPermission);
             when(userService.whoami(any())).thenReturn(clientUserWithoutPermission);
 
+            when(userService.enableUser(4L, clientUserWithoutPermission)).thenThrow(new CustomException("Access denied", HttpStatus.FORBIDDEN));
+
             mockMvc.perform(patch("/users/4/enable"))
-                    .andExpect(status().isNotAcceptable());
+                    .andExpect(status().isForbidden());
         }
     }
 
@@ -300,10 +304,12 @@ class UserControllerTest extends AbstractControllerTest {
             when(userService.whoami(any())).thenReturn(clientUser);
             when(userService.findByIdAndCompany(99L, 1L)).thenReturn(Optional.empty());
 
+            when(userService.update(eq(99L), any(UserPatchDTO.class), eq(clientUser))).thenThrow(new CustomException("Not found", HttpStatus.NOT_FOUND));
+
             mockMvc.perform(patch("/users/99")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"firstName\":\"NewName\"}"))
-                    .andExpect(status().isNotAcceptable());
+                    .andExpect(status().isNotFound());
         }
     }
 
@@ -371,15 +377,20 @@ class UserControllerTest extends AbstractControllerTest {
         void invite_returnsSuccessResponse() throws Exception {
             setCurrentUser(clientUser);
             when(userService.whoami(any())).thenReturn(clientUser);
+            IssuedInvitationDTO issued = new IssuedInvitationDTO("new@test.com",
+                    "http://localhost:3000/account/register?invitationToken=opaque", new java.util.Date());
             when(userService.inviteUsers(any(UserInvitationDTO.class), eq(clientUser)))
-                    .thenReturn(new SuccessResponse(true, "Users have been invited"));
+                    .thenReturn(new InvitationResponse(true, "Users have been invited", List.of(issued)));
 
             mockMvc.perform(post("/users/invite")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("{\"role\":{\"id\":1},\"emails\":[\"new@test.com\"]}"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.success").value(true))
-                    .andExpect(jsonPath("$.message").value("Users have been invited"));
+                    .andExpect(jsonPath("$.message").value("Users have been invited"))
+                    .andExpect(jsonPath("$.invitations[0].email").value("new@test.com"))
+                    .andExpect(jsonPath("$.invitations[0].invitationLink")
+                            .value("http://localhost:3000/account/register?invitationToken=opaque"));
         }
 
         @Test
@@ -445,7 +456,7 @@ class UserControllerTest extends AbstractControllerTest {
             setCurrentUser(clientUser);
             when(userService.whoami(any())).thenReturn(clientUser);
             when(userService.findByIdAndCompany(1L, 1L)).thenReturn(Optional.of(clientUser));
-            when(userService.update(eq(1L), any(UserPatchDTO.class))).thenReturn(clientUser);
+            when(userService.update(eq(1L), any(UserPatchDTO.class), eq(clientUser))).thenReturn(clientUser);
             when(userMapper.toResponseDto(clientUser)).thenReturn(userResponseDto);
 
             mockMvc.perform(patch("/users/1")
@@ -460,7 +471,7 @@ class UserControllerTest extends AbstractControllerTest {
             setCurrentUser(clientUser);
             when(userService.whoami(any())).thenReturn(clientUser);
             when(userService.findByIdAndCompany(4L, 1L)).thenReturn(Optional.of(targetUser));
-            when(userService.update(eq(4L), any(UserPatchDTO.class))).thenReturn(targetUser);
+            when(userService.update(eq(4L), any(UserPatchDTO.class), eq(clientUser))).thenReturn(targetUser);
             when(userMapper.toResponseDto(targetUser)).thenReturn(userResponseDto);
 
             mockMvc.perform(patch("/users/4")
@@ -511,7 +522,7 @@ class UserControllerTest extends AbstractControllerTest {
             setCurrentUser(clientUser);
             when(userService.whoami(any())).thenReturn(clientUser);
             when(userService.findByIdAndCompany(4L, 1L)).thenReturn(Optional.of(targetUser));
-            when(userService.enableUser(targetUser)).thenReturn(targetUser);
+            when(userService.enableUser(4L, clientUser)).thenReturn(targetUser);
             when(userMapper.toResponseDto(targetUser)).thenReturn(userResponseDto);
 
             mockMvc.perform(patch("/users/4/enable"))

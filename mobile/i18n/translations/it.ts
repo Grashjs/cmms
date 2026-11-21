@@ -1,4 +1,20 @@
 const locale = {
+  management_access_denied: "Operazione negata: controlla i tuoi permessi, il ruolo di destinazione e il proprietario dell’account.",
+  no_assignable_roles: "Nessun ruolo può essere assegnato con i tuoi permessi attuali.",
+  invitation_created: 'Invito creato',
+  invitation_delivery_notice:
+    'Condividi questo link personale con la persona invitata. Il link scade, può essere usato una sola volta e un nuovo invito invalida il link precedente. I link vengono cancellati quando esci da questa schermata.',
+  invitation_expires: 'Scade il: {{date}}',
+  invitation_copy: 'Copia link',
+  invitation_share: 'Condividi link',
+  invitation_copied: 'Link copiato',
+  invitation_copy_failed: 'Impossibile copiare il link. Riprova.',
+  invitation_share_failed: 'Impossibile condividere il link. Riprova.',
+  invitation_browser_acceptance:
+    'La persona invitata completa la registrazione nel browser web, poi accede all’app mobile.',
+  invitation_send_email: 'Richiedi anche un invito via email',
+  invitation_email_optional:
+    'L’email viene richiesta solo se l’invio è abilitato sul server. La creazione di un invito non conferma la consegna dell’email. Puoi sempre copiare o condividere il link.',
   DUPLICATE_OF: 'Duplicato di',
   DUPLICATED_BY: 'Duplicato da',
   RELATED_TO: 'Correlato a',
