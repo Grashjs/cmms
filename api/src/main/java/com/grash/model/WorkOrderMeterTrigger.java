@@ -43,7 +43,7 @@ public class WorkOrderMeterTrigger extends WorkOrderBase {
 
     @NotNull
     @Schema(description = "Trigger value threshold", requiredMode = Schema.RequiredMode.REQUIRED)
-    private int value;
+    private double value;
 
     @NotNull
     @Schema(description = "Wait time before triggering", requiredMode = Schema.RequiredMode.REQUIRED)
