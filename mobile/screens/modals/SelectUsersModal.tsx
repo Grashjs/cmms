@@ -23,6 +23,7 @@ import {
   useTheme
 } from 'react-native-paper';
 import { getUserInitials } from '../../utils/displayers';
+import { matchesSearch } from '../../utils/search';
 
 export default function SelectUsersModal({
   navigation,
@@ -115,14 +116,8 @@ export default function SelectUsersModal({
         }}
       >
         {usersMini
-          .filter(
-            (user) =>
-              user.firstName
-                .toLowerCase()
-                .includes(searchQuery.toLowerCase().trim()) ||
-              user.lastName
-                .toLowerCase()
-                .includes(searchQuery.toLowerCase().trim())
+          .filter((user) =>
+            matchesSearch(`${user.firstName} ${user.lastName}`, searchQuery)
           )
           .map((user) => (
             <TouchableOpacity
