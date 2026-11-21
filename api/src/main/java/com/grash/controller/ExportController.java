@@ -1,5 +1,6 @@
 package com.grash.controller;
 
+import com.grash.advancedsearch.SearchCriteria;
 import com.grash.dto.SuccessResponse;
 import com.grash.exception.CustomException;
 import com.grash.model.User;
@@ -13,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,6 +30,7 @@ import jakarta.servlet.http.HttpServletRequest;
 public class ExportController {
     private final UserService userService;
     private final AsyncExportService asyncExportService;
+    private final WorkOrderService workOrderService;
 
     @GetMapping("/work-orders")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
@@ -36,6 +40,25 @@ public class ExportController {
 
         if (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS)) {
             asyncExportService.exportWorkOrders(user, uuid);
+            return ResponseEntity.ok()
+                    .body(new SuccessResponse(true, uuid));
+        } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);
+    }
+
+    @PostMapping("/work-orders/filtered")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    public ResponseEntity<SuccessResponse> exportFilteredWorkOrders(HttpServletRequest req,
+                                                                    @Parameter(description = "Unique identifier " +
+                                                                            "for tracking the export job") @RequestParam String uuid,
+                                                                    @Parameter(description = "Same search criteria " +
+                                                                            "as the work orders list (filters, " +
+                                                                            "search and sorting)") @RequestBody SearchCriteria searchCriteria) {
+        User user = userService.whoami(req);
+
+        if (user.getRole().getViewOtherPermissions().contains(PermissionEntity.WORK_ORDERS)) {
+            // Scope the criteria exactly like the list does (company, super account children...)
+            SearchCriteria scopedCriteria = workOrderService.getSearchCriteria(user, searchCriteria);
+            asyncExportService.exportFilteredWorkOrders(user, uuid, scopedCriteria);
             return ResponseEntity.ok()
                     .body(new SuccessResponse(true, uuid));
         } else throw new CustomException("Access Denied", HttpStatus.FORBIDDEN);

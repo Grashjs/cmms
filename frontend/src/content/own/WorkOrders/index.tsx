@@ -973,8 +973,17 @@ function WorkOrders() {
       </DialogContent>
     </Dialog>
   );
-  const exportMenuItems: { key: ExportEntityType; label: string }[] = [
-    { key: 'work-orders', label: 'export_work_orders' },
+  const exportMenuItems: {
+    key: ExportEntityType;
+    label: string;
+    filtered?: boolean;
+  }[] = [
+    { key: 'work-orders', label: 'export_all_work_orders' },
+    {
+      key: 'work-orders-filtered',
+      label: 'export_filtered_work_orders',
+      filtered: true
+    },
     { key: 'costs-times', label: 'export_cost_and_time' }
   ];
   const renderMenu = () => (
@@ -994,7 +1003,10 @@ function WorkOrders() {
             disabled={loadingExport[item.key]}
             onClick={async () => {
               try {
-                await exportEntity(item.key);
+                await exportEntity(
+                  item.key,
+                  item.filtered ? { criteria } : undefined
+                );
               } catch (error) {
                 showSnackBar(t('Export failed'), 'error');
               }

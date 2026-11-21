@@ -1,5 +1,6 @@
 package com.grash.service;
 
+import com.grash.advancedsearch.SearchCriteria;
 import com.grash.factory.StorageServiceFactory;
 import com.grash.model.*;
 import com.grash.model.User;
@@ -20,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
+import java.util.function.IntFunction;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +42,23 @@ public class AsyncExportService {
 
     @Async
     public void exportWorkOrders(User user, String uuid) {
+        exportWorkOrderPages(user, uuid, "work-orders",
+                page -> workOrderService.findByCompanyForExport(user.getCompany().getId(), PageRequest.of(page, 100)));
+    }
+
+    /**
+     * Exports only the work orders matching the criteria of the work orders list (filters, search
+     * and sorting). The criteria must already be scoped to the user with
+     * {@link WorkOrderService#getSearchCriteria}.
+     */
+    @Async
+    public void exportFilteredWorkOrders(User user, String uuid, SearchCriteria searchCriteria) {
+        exportWorkOrderPages(user, uuid, "work-orders-filtered",
+                page -> workOrderService.findBySearchCriteriaForExport(searchCriteria, page, 100));
+    }
+
+    private void exportWorkOrderPages(User user, String uuid, String exportName,
+                                      IntFunction<Page<WorkOrder>> fetchPage) {
         try {
             ByteArrayOutputStream target = new ByteArrayOutputStream();
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(target, StandardCharsets.UTF_8);
@@ -48,7 +67,7 @@ public class AsyncExportService {
             String csvSeparator = user.getCompany().getCompanySettings().getGeneralPreferences().getCsvSeparator();
             Locale locale = Helper.getLocale(user);
             do {
-                result = workOrderService.findByCompanyForExport(user.getCompany().getId(), PageRequest.of(page, 100));
+                result = fetchPage.apply(page);
                 csvFileGenerator.writeWorkOrdersToCsv(
                         result.getContent(),
                         outputStreamWriter,
@@ -64,11 +83,11 @@ public class AsyncExportService {
             byte[] bytes = target.toByteArray();
             MultipartFile file = new MultipartFileImpl(bytes, "Work Orders.csv");
             String filePath = storageServiceFactory.getStorageService().uploadAndSign(file,
-                    user.getCompany().getId() + "/exports/" + uuid + "/work-orders");
+                    user.getCompany().getId() + "/exports/" + uuid + "/" + exportName);
             messagingTemplate.convertAndSendToUser(user.getEmail(), "/exports/" + uuid, filePath);
-            log.info("Export completed for work-orders, uuid: {}", uuid);
+            log.info("Export completed for {}, uuid: {}", exportName, uuid);
         } catch (Exception e) {
-            log.error("Export failed for work-orders, uuid: {}", uuid, e);
+            log.error("Export failed for {}, uuid: {}", exportName, uuid, e);
             messagingTemplate.convertAndSendToUser(user.getEmail(), "/exports/" + uuid, "error: " + e.getMessage());
         }
     }
