@@ -138,12 +138,29 @@ public class WrapperSpecification<T> implements Specification<T> {
                 break;
             }
             case IN_MANY_TO_MANY: {
-                JoinType joinType = filterField.getJoinType() != null ? filterField.getJoinType() : JoinType.LEFT;
-                Join<Object, Object> join = root.join(filterField.getField(), joinType);
-                CriteriaBuilder.In<Object> inClause1 = cb.in(join.get("id"));
-                filterField.getValues().forEach(value -> inClause1.value(getRealValue(filterField.getEnumName(),
+                // EXISTS instead of a direct join: the join produces one row per element of the
+                // collection. Hibernate deduplicates the list, but not the count query (e.g. the
+                // "assigned to me" filter: a work order with 3 assignees was counted 3 times) and
+                // LIMIT cuts pages short. DISTINCT is not an option: PostgreSQL rejects it with an
+                // ORDER BY on joined fields (asset.name...).
+                if (query == null) {
+                    JoinType joinType = filterField.getJoinType() != null ? filterField.getJoinType() : JoinType.LEFT;
+                    Join<Object, Object> join = root.join(filterField.getField(), joinType);
+                    CriteriaBuilder.In<Object> inClause1 = cb.in(join.get("id"));
+                    filterField.getValues().forEach(value -> inClause1.value(getRealValue(filterField.getEnumName(),
+                            value)));
+                    result = inClause1;
+                    break;
+                }
+                Subquery<Long> subquery = query.subquery(Long.class);
+                @SuppressWarnings("unchecked")
+                Root<T> subRoot = subquery.from((Class<T>) root.getJavaType());
+                Join<Object, Object> subJoin = subRoot.join(filterField.getField());
+                CriteriaBuilder.In<Object> subIn = cb.in(subJoin.get("id"));
+                filterField.getValues().forEach(value -> subIn.value(getRealValue(filterField.getEnumName(),
                         value)));
-                result = inClause1;
+                subquery.select(subRoot.get("id")).where(cb.equal(subRoot.get("id"), root.get("id")), subIn);
+                result = cb.exists(subquery);
                 break;
             }
         }

@@ -116,11 +116,8 @@ public class WorkOrderService {
         if (workOrder instanceof WorkOrderPostDTO workOrderPostDTO) {
             workOrder = workOrderMapper.fromPostDto(workOrderPostDTO);
             workOrder.setCustomFieldValues(new ArrayList<>());
-            if (workOrderPostDTO.getAsset() != null && workOrderPostDTO.getAssetStatus() != null) {
-                Asset asset = assetService.findById(workOrderPostDTO.getAsset().getId()).get();
-                asset.setStatus(workOrderPostDTO.getAssetStatus());
-                assetService.save(asset);
-            }
+            if (workOrderPostDTO.getAsset() != null && workOrderPostDTO.getAssetStatus() != null)
+                applyAssetStatus(workOrderPostDTO.getAsset().getId(), workOrderPostDTO.getAssetStatus(), company);
             if (!workOrderPostDTO.getCustomFields().isEmpty()) {
                 setWOCustomFields(workOrder, workOrderPostDTO.getCustomFields(), company);
             }
@@ -198,6 +195,26 @@ public class WorkOrderService {
                     HttpStatus.FORBIDDEN);
     }
 
+    /**
+     * Asset status chosen in the work order form (creation or edit): opens/closes a downtime when the
+     * status goes from/to a real down status, like the asset form does, otherwise only updates the status.
+     */
+    private void applyAssetStatus(Long assetId, AssetStatus newStatus, Company company) {
+        Asset asset = assetService.findById(assetId)
+                .orElseThrow(() -> new CustomException("Asset not found", HttpStatus.NOT_FOUND));
+        AssetStatus oldStatus = asset.getStatus();
+        if (newStatus.isReallyDown() && (oldStatus == null || !oldStatus.isReallyDown())) {
+            assetService.triggerDownTime(asset.getId(), Helper.getLocale(company), newStatus);
+        } else if (!newStatus.isReallyDown() && oldStatus != null && oldStatus.isReallyDown()) {
+            assetService.stopDownTime(asset.getId(), Helper.getLocale(company));
+            asset.setStatus(newStatus);
+            assetService.save(asset);
+        } else {
+            asset.setStatus(newStatus);
+            assetService.save(asset);
+        }
+    }
+
     @Transactional
     protected WorkOrder update(Long id, WorkOrderPatchDTO workOrder, User user) {
         if (workOrderRepository.existsById(id)) {
@@ -210,6 +227,9 @@ public class WorkOrderService {
 
             WorkOrder newWorkOrder = workOrderMapper.updateWorkOrder(savedWorkOrder, workOrder);
             Sanitizer.sanitizeWorkOrder(newWorkOrder);
+            // The asset status sent by the edit form used to be ignored (it was only applied on creation)
+            if (workOrder.getAssetStatus() != null && newWorkOrder.getAsset() != null)
+                applyAssetStatus(newWorkOrder.getAsset().getId(), workOrder.getAssetStatus(), user.getCompany());
             if (!workOrder.getCustomFields().isEmpty()) {
                 setWOCustomFields(newWorkOrder, workOrder.getCustomFields(), user.getCompany());
             }
