@@ -76,7 +76,7 @@ export default (props: PropsType) => {
     };
 
   const filterRelatedFields = (fields: IField[], formik): IField[] => {
-    const fieldsClone = [...fields];
+    const fieldsToHide = new Set<string>();
     const withRelatedFields = fields.filter(
       (field) => field.relatedFields?.length
     );
@@ -91,15 +91,12 @@ export default (props: PropsType) => {
           (formik.values[name] === undefined && !relatedField.value)
         ) {
           if (relatedField.hide) {
-            const fieldToDeleteIndex = fieldsClone.findIndex(
-              (field) => field.name === relatedField.field
-            );
-            fieldsClone.splice(fieldToDeleteIndex, 1);
+            fieldsToHide.add(relatedField.field);
           }
         }
       });
     });
-    return fieldsClone;
+    return fields.filter((field) => !fieldsToHide.has(field.name));
   };
   return (
     <>
