@@ -17,19 +17,24 @@ export const CustomSnackBarContext = createContext<CustomSnackBarContext>(
 );
 
 export const CustomSnackBarProvider: FC = ({ children }) => {
-  const { enqueueSnackbar } = useSnackbar();
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const { t } = useTranslation();
   const showSnackBar = (
     message: string,
     type: 'error' | 'warning' | 'success'
   ) => {
-    enqueueSnackbar(message, {
+    const key = enqueueSnackbar(message, {
       variant: type,
       anchorOrigin: {
         vertical: 'top',
         horizontal: 'right'
       },
-      TransitionComponent: Zoom
+      TransitionComponent: Zoom,
+      // notistack's 5 s default kept the top-right action buttons covered;
+      // errors and warnings stay a bit longer so they can be read.
+      autoHideDuration: type === 'success' ? 2000 : 4000,
+      // Let users dismiss it right away to reach the controls underneath.
+      onClick: () => closeSnackbar(key)
     });
   };
 
