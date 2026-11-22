@@ -46,7 +46,9 @@ import {
   StatusInput,
   StatusOperation,
   OfflineStatusView,
-  ClosureCheck
+  ClosureCheck,
+  PreparationRequest,
+  PreparationSource
 } from './types';
 
 const WORK_ORDERS = 'offline_work_orders';
@@ -66,6 +68,16 @@ type AssetCopy = {
   observedAt: string;
   available: boolean;
 };
+type StoredSnapshot = OfflineSnapshot & {
+  keepCompletedCopy?: boolean;
+  removeAfterOperationId?: string;
+};
+type PreparationQueue = {
+  requests: PreparationRequest[];
+  handledNotifications: number[];
+};
+export type PreparationRemoval = 'explicit' | 'clean' | 'closure' | 'capacity';
+const PREPARATION_QUEUE_KEY = 'atlas.offline.preparation-queue';
 
 const UNRESOLVED: OperationStatus[] = [
   'QUEUED',
@@ -79,6 +91,27 @@ const failedDatabases = new WeakSet<Database>();
 const raw = (row: Model, key: string) => row._getRaw(key);
 const json = <T>(row: Model, key = 'payload'): T =>
   JSON.parse(String(raw(row, key)));
+function waitsForSnapshot(operation: LocalOperation): boolean {
+  if (operation.status !== 'APPLIED') return false;
+  const { request } = operation;
+  if (request.type === 'CREATE_COMMENT') {
+    return (
+      operation.serverCommentId == null &&
+      operation.receipt?.visibility === 'VISIBLE'
+    );
+  }
+  return (
+    !operation.snapshotConfirmed &&
+    ([
+      'UPDATE_COMMENT',
+      'DELETE_COMMENT',
+      'ADD_TASK_IMAGES',
+      'UPDATE_WORK_ORDER_ATTACHMENTS'
+    ].includes(request.type) ||
+      isTimeOperation(request) ||
+      isStatusOperation(request))
+  );
+}
 const draftId = (taskId: number, field: TaskField = 'value') =>
   `${taskId}:${field}`;
 const commentDraftId = (workOrderId: number) =>
@@ -239,6 +272,83 @@ export class OfflineRepository {
     return row ? Number(raw(row, 'availability_revision')) : 0;
   }
 
+  private async readPreparationQueue(): Promise<PreparationQueue> {
+    this.assertStorage();
+    return (
+      (await this.database.localStorage.get<PreparationQueue>(
+        PREPARATION_QUEUE_KEY
+      )) || { requests: [], handledNotifications: [] }
+    );
+  }
+
+  async getPreparationRequests(): Promise<PreparationRequest[]> {
+    return (await this.readPreparationQueue()).requests;
+  }
+
+  queuePreparations(
+    workOrderIds: number[],
+    source: PreparationSource,
+    allowed: () => boolean,
+    notificationId?: number
+  ): Promise<{ requests: PreparationRequest[]; added: boolean }> {
+    return this.database.write(async () => {
+      const queue = await this.readPreparationQueue();
+      if (
+        !allowed() ||
+        (notificationId !== undefined &&
+          queue.handledNotifications.includes(notificationId))
+      )
+        return { requests: queue.requests, added: false };
+      let added = false;
+      for (const workOrderId of new Set(workOrderIds)) {
+        if (!Number.isSafeInteger(workOrderId) || workOrderId <= 0) continue;
+        if (await this.find(WORK_ORDERS, String(workOrderId))) continue;
+        const existing = queue.requests.find(
+          (item) => item.workOrderId === workOrderId
+        );
+        if (existing && source !== 'MANUAL') continue;
+        if (
+          existing &&
+          existing.source === 'MANUAL' &&
+          existing.state === 'WAITING'
+        )
+          continue;
+        queue.requests = queue.requests.filter((item) => item !== existing);
+        queue.requests.push({
+          id: this.options.uuid(),
+          workOrderId,
+          source,
+          state: 'WAITING'
+        });
+        added = true;
+      }
+      if (!allowed()) throw new OfflineError('CONTEXT_CHANGED');
+      if (notificationId !== undefined) {
+        queue.handledNotifications.push(notificationId);
+        queue.handledNotifications = queue.handledNotifications.slice(-250);
+      }
+      if (added || notificationId !== undefined)
+        await this.database.localStorage.set(PREPARATION_QUEUE_KEY, queue);
+      return { requests: queue.requests, added };
+    });
+  }
+
+  settlePreparationRequest(
+    requestId: string,
+    state: PreparationRequest['state'] | null
+  ): Promise<PreparationRequest[]> {
+    return this.database.write(async () => {
+      const queue = await this.readPreparationQueue();
+      const request = queue.requests.find((item) => item.id === requestId);
+      if (!request || request.state === state) return queue.requests;
+      if (state) request.state = state;
+      else
+        queue.requests = queue.requests.filter((item) => item.id !== requestId);
+      await this.database.localStorage.set(PREPARATION_QUEUE_KEY, queue);
+      return queue.requests;
+    });
+  }
+
   async beginPreparation(workOrderId: number): Promise<string | null> {
     this.assertStorage();
     return this.database.write(async () => {
@@ -261,7 +371,8 @@ export class OfflineRepository {
   async prepareSnapshot(
     snapshot: OfflineSnapshot,
     expectedAvailabilityRevision?: number,
-    preparationToken?: string | null
+    preparationToken?: string | null,
+    firstPreparation?: { manual: boolean; allowed(): boolean }
   ): Promise<void> {
     assertSnapshot(snapshot);
     this.assertStorage();
@@ -295,6 +406,7 @@ export class OfflineRepository {
       if ((cleanup && !ownsIntent) || (preparationToken && !ownsIntent)) {
         throw new OfflineError('REMOVAL_PENDING');
       }
+      const previousSnapshot = existing ? json<StoredSnapshot>(existing) : null;
       if (
         existing &&
         Date.parse(String(raw(existing, 'prepared_at'))) >
@@ -335,6 +447,8 @@ export class OfflineRepository {
         if (operation.serverCommentId == null)
           associations.push({ row, commentId: comment.id });
       }
+      if (firstPreparation && !firstPreparation.allowed())
+        throw new OfflineError('PREPARATION_PAUSED');
       const records: Model[] = [
         ...(await this.snapshotFileChanges(snapshot)),
         ...(await this.snapshotAssetChanges(snapshot))
@@ -369,7 +483,17 @@ export class OfflineRepository {
         )
           records.push(this.change(timeRow, { snapshot_confirmed: true }));
       }
+      let removeAfterOperationId = previousSnapshot?.removeAfterOperationId;
       for (const op of await this.statusOperations(snapshot.workOrder.id)) {
+        if (
+          removeAfterOperationId === op.id &&
+          op.receipt?.statusResult &&
+          (snapshot.timerStatusRevision > op.receipt.statusResult.revision ||
+            (snapshot.timerStatusRevision ===
+              op.receipt.statusResult.revision &&
+              snapshot.workOrder.status !== 'COMPLETE'))
+        )
+          removeAfterOperationId = undefined;
         if (
           op.status === 'APPLIED' &&
           !op.snapshotConfirmed &&
@@ -385,7 +509,17 @@ export class OfflineRepository {
       if (ownsIntent) records.push(cleanup!.prepareDestroyPermanently());
       // Tasks live in their own table; do not maintain a second mutable copy.
       const workOrderFields = {
-        payload: JSON.stringify({ ...snapshot, tasks: [], assets: [] }),
+        payload: JSON.stringify({
+          ...snapshot,
+          tasks: [],
+          assets: [],
+          keepCompletedCopy:
+            previousSnapshot?.keepCompletedCopy ||
+            (firstPreparation?.manual &&
+              snapshot.workOrder.status === 'COMPLETE') ||
+            undefined,
+          removeAfterOperationId
+        }),
         prepared_at: snapshot.preparedAt,
         available: true,
         unavailable_reason: null,
@@ -1139,7 +1273,8 @@ export class OfflineRepository {
   async submitStatusDraft(
     workOrderId: number,
     expectedRevision: number | null,
-    input?: StatusInput
+    input?: StatusInput,
+    removeAfterSync = false
   ): Promise<LocalOperation> {
     this.assertStorage();
     return this.database.write(async () => {
@@ -1234,11 +1369,26 @@ export class OfflineRepository {
           dependencyOperationIds: [...new Set(dependencies)]
         }
       };
+      const copy = await this.find(WORK_ORDERS, String(workOrderId));
+      const stored = copy ? json<StoredSnapshot>(copy) : null;
+      const removeAfterOperationId =
+        draft.status === 'COMPLETE' && removeAfterSync
+          ? request.operationId
+          : undefined;
       const operation = this.createOperation(request, draft.revision);
       await this.commit([
         operation,
         this.clockChange(clock),
-        ...(row ? [row.prepareDestroyPermanently()] : [])
+        ...(row ? [row.prepareDestroyPermanently()] : []),
+        ...(copy &&
+        stored &&
+        stored.removeAfterOperationId !== removeAfterOperationId
+          ? [
+              this.change(copy, {
+                payload: JSON.stringify({ ...stored, removeAfterOperationId })
+              })
+            ]
+          : [])
       ]);
       return this.operation(operation);
     });
@@ -3308,24 +3458,115 @@ export class OfflineRepository {
     return false;
   }
 
-  async removePreparation(workOrderId: number): Promise<void> {
+  async getRetirementCandidates(
+    mode: 'closure' | 'capacity'
+  ): Promise<number[]> {
     this.assertStorage();
-    await this.database.write(async () => {
-      const drafts = await this.collection(DRAFTS)
-        .query(Q.where('work_order_id', String(workOrderId)))
-        .fetch();
-      const [workOrder, tasks, operations] = await Promise.all([
+    const rows = await this.collection(WORK_ORDERS)
+      .query(Q.where('available', true))
+      .fetch();
+    return rows
+      .map((row) => json<StoredSnapshot>(row))
+      .filter(
+        (copy) =>
+          copy.workOrder.status === 'COMPLETE' &&
+          (mode === 'closure'
+            ? !!copy.removeAfterOperationId
+            : !copy.keepCompletedCopy)
+      )
+      .sort(
+        (a, b) =>
+          Date.parse(a.workOrder.completedOn || a.preparedAt) -
+            Date.parse(b.workOrder.completedOn || b.preparedAt) ||
+          a.workOrder.id - b.workOrder.id
+      )
+      .map((copy) => copy.workOrder.id);
+  }
+
+  async removePreparation(
+    workOrderId: number,
+    mode: PreparationRemoval = 'explicit',
+    allowed = () => true
+  ): Promise<boolean> {
+    this.assertStorage();
+    return this.database.write(async () => {
+      const id = String(workOrderId);
+      const [
+        workOrder,
+        tasks,
+        operations,
+        drafts,
+        cleanup,
+        files,
+        assets,
+        queue
+      ] = await Promise.all([
         this.find(WORK_ORDERS, String(workOrderId)),
-        this.collection(TASKS)
-          .query(Q.where('work_order_id', String(workOrderId)))
+        this.collection(TASKS).query(Q.where('work_order_id', id)).fetch(),
+        this.collection(OPERATIONS).query(Q.where('work_order_id', id)).fetch(),
+        this.collection(DRAFTS).query(Q.where('work_order_id', id)).fetch(),
+        this.find('offline_cleanup', id),
+        this.collection(FILES).query().fetch(),
+        this.collection(ASSETS)
+          .query(Q.where('id', Q.notEq('access')))
           .fetch(),
-        this.collection(OPERATIONS)
-          .query(Q.where('work_order_id', String(workOrderId)))
-          .fetch()
+        this.readPreparationQueue()
       ]);
-      const cleanup = await this.find('offline_cleanup', String(workOrderId));
+      if (mode !== 'explicit') {
+        if (!workOrder || !allowed()) return false;
+        const snapshot = json<StoredSnapshot>(workOrder);
+        if (mode === 'closure' || mode === 'capacity') {
+          if (
+            !raw(workOrder, 'available') ||
+            snapshot.workOrder.status !== 'COMPLETE' ||
+            snapshot.labors?.some((labor) => labor.status === 'RUNNING')
+          )
+            return false;
+          if (mode === 'capacity' && snapshot.keepCompletedCopy) return false;
+          if (mode === 'closure') {
+            const row = operations.find(
+              (op) => op.id === snapshot.removeAfterOperationId
+            );
+            const close = row && this.operation(row);
+            if (
+              !close ||
+              close.status !== 'APPLIED' ||
+              !close.snapshotConfirmed ||
+              close.receipt?.statusResult?.status !== 'COMPLETE' ||
+              close.receipt.statusResult.revision !==
+                snapshot.timerStatusRevision
+            )
+              return false;
+          }
+        }
+        if (
+          (await this.hasUnresolved(workOrderId)) ||
+          operations.some((row) => waitsForSnapshot(this.operation(row))) ||
+          files.some((row) => {
+            const file = json<LocalFile>(row);
+            return (
+              file.importWorkOrderId === workOrderId &&
+              !!file.target &&
+              file.serverFileId == null &&
+              file.status !== 'DELETING'
+            );
+          })
+        )
+          return false;
+      }
+      if (!allowed()) return false;
+      // A request for an already imported copy can survive a crash before it is acknowledged.
+      if (
+        queue.requests.some((request) => request.workOrderId === workOrderId)
+      ) {
+        queue.requests = queue.requests.filter(
+          (request) => request.workOrderId !== workOrderId
+        );
+        await this.database.localStorage.set(PREPARATION_QUEUE_KEY, queue);
+      }
+      if (!allowed()) return false;
       const references: Model[] = [];
-      for (const row of await this.collection(FILES).query().fetch()) {
+      for (const row of files) {
         const file = json<LocalFile>(row);
         if (file.workOrderIds.includes(workOrderId))
           references.push(
@@ -3339,9 +3580,7 @@ export class OfflineRepository {
             })
           );
       }
-      for (const row of await this.collection(ASSETS)
-        .query(Q.where('id', Q.notEq('access')))
-        .fetch()) {
+      for (const row of assets) {
         const copy = json<AssetCopy>(row);
         if (!copy.refs.includes(workOrderId)) continue;
         const refs = copy.refs.filter((id) => id !== workOrderId);
@@ -3369,6 +3608,7 @@ export class OfflineRepository {
             ]
           : [])
       ]);
+      return true;
     });
   }
 
@@ -3626,6 +3866,33 @@ export class OfflineRepository {
       );
   }
 
+  observePreparationsMissingFiles() {
+    return combineLatest([
+      this.collection(WORK_ORDERS)
+        .query(Q.where('available', true))
+        .observeWithColumns(['payload']),
+      this.collection(FILES).query().observeWithColumns(['payload'])
+    ]).pipe(
+      map(([copies, files]) => {
+        this.assertStorage();
+        const ready = new Set(
+          files
+            .map((row) => json<LocalFile>(row))
+            .filter((file) => file.status === 'READY')
+            .map((file) => file.serverFileId)
+        );
+        return new Set(
+          copies
+            .map((row) => json<OfflineSnapshot>(row))
+            .filter((copy) =>
+              [...this.snapshotFileIds(copy)].some((id) => !ready.has(id))
+            )
+            .map((copy) => copy.workOrder.id)
+        );
+      })
+    );
+  }
+
   /** The list needs just a badge and a proposed status, even for large preparations. */
   observeWorkOrderActivity() {
     return this.collection(OPERATIONS)
@@ -3787,28 +4054,11 @@ export class OfflineRepository {
     for (const row of rows) {
       const operation = this.operation(row);
       const request = operation.request;
-      const comment = request.type === 'CREATE_COMMENT';
       const commentMutation = request.type === 'UPDATE_COMMENT' ||
         request.type === 'DELETE_COMMENT';
       if (
         !UNRESOLVED.includes(operation.status) &&
-        !(commentMutation && operation.status === 'APPLIED' &&
-          !operation.snapshotConfirmed) &&
-        !(
-          comment &&
-          operation.status === 'APPLIED' &&
-          operation.serverCommentId == null &&
-          operation.receipt?.visibility === 'VISIBLE'
-        ) &&
-        !(
-          operation.status === 'APPLIED' &&
-          (['ADD_TASK_IMAGES', 'UPDATE_WORK_ORDER_ATTACHMENTS'].includes(
-            request.type
-          ) ||
-            isTimeOperation(request) ||
-            isStatusOperation(request)) &&
-          !operation.snapshotConfirmed
-        )
+        !waitsForSnapshot(operation)
       )
         continue;
       const field = operationField(request);

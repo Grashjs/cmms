@@ -97,7 +97,11 @@ export function useOfflineStatus(workOrderId: number, enabled = true) {
       });
     return pending;
   };
-  const submit = async (input: StatusInput, revision: number | null) => {
+  const submit = async (
+    input: StatusInput,
+    revision: number | null,
+    removeAfterSync = false
+  ) => {
     if (submitting.current) throw new OfflineError('PREVIOUS_OPERATION');
     const check = guard();
     submitting.current = true;
@@ -108,7 +112,8 @@ export function useOfflineStatus(workOrderId: number, enabled = true) {
       const result = await offline.submitStatusDraft(
         workOrderId,
         revision,
-        input
+        input,
+        removeAfterSync
       );
       check();
       if (draft.current?.revision === revision) draft.current = null;

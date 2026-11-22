@@ -9,6 +9,7 @@ import React, {
 import { Alert, AppState, Modal, Platform, StyleSheet, View } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import * as Crypto from 'expo-crypto';
+import * as Notifications from 'expo-notifications';
 import { useTranslation } from 'react-i18next';
 import useAuth from '../hooks/useAuth';
 import { getApiUrl, OFFLINE_ENABLED } from '../config';
@@ -19,6 +20,7 @@ import { removePreparedTasks } from '../slices/task';
 import { removePreparedLabors } from '../slices/labor';
 import { removePreparedComments } from '../slices/comment';
 import { removePreparedWorkOrders } from '../slices/workOrder';
+import { navigationRef } from '../navigation/RootNavigation';
 import { setPreparedRuntime } from './runtime';
 import {
   registerOfflineLifecycle,
@@ -51,7 +53,9 @@ import type {
   LocalOperation,
   ObservedServerTimer,
   StatusDraft,
-  StatusInput
+  StatusInput,
+  PreparationRequest,
+  PreparationSource
 } from './types';
 import { OfflineError } from './types';
 import { offlineErrorKey } from './errors';
@@ -60,6 +64,13 @@ import { OfflineLockScreen } from './OfflineLockScreen';
 import { readOfflinePreference, writeOfflinePreference } from './preference';
 
 type AccessGate = 'checking' | 'locked' | 'unlocked' | 'open';
+const workOrderEditors = new Set([
+  'Tasks',
+  'EditWorkOrder',
+  'CompleteWorkOrder',
+  'AddAdditionalTime',
+  'EditAdditionalTime'
+]);
 type LockIssue =
   | 'none'
   | 'cancelled'
@@ -98,7 +109,8 @@ interface OfflineContextValue {
   submitStatusDraft(
     workOrderId: number,
     revision: number | null,
-    input?: StatusInput
+    input?: StatusInput,
+    removeAfterSync?: boolean
   ): Promise<LocalOperation>;
   abandonStatusDraft(workOrderId: number, revision: number): Promise<void>;
   reviewStatusOperation(
@@ -182,8 +194,11 @@ interface OfflineContextValue {
   syncSuccessSequence: number;
   repository: OfflineRepository | null;
   prepared: PreparedWorkOrderSummary[];
+  preparations: PreparationRequest[];
   sync(): Promise<void>;
-  prepare(id: number): Promise<void>;
+  prepareMany(ids: number[]): Promise<void>;
+  prepareOnOpen(id: number): boolean;
+  removeCleanPreparation(id: number): Promise<void>;
   refresh(id: number): Promise<void>;
   removePreparation(id: number): Promise<void>;
   commitTaskField(
@@ -264,6 +279,7 @@ const OfflineContext = createContext<OfflineContextValue>({
   syncSuccessSequence: 0,
   repository: null,
   prepared: [],
+  preparations: [],
   retryFileImport: noop,
   removeDraftFile: noop,
   commitAttachments: noop,
@@ -277,7 +293,9 @@ const OfflineContext = createContext<OfflineContextValue>({
     throw new OfflineError('OFFLINE_DISABLED');
   },
   sync: noop,
-  prepare: noop,
+  prepareMany: noop,
+  prepareOnOpen: () => false,
+  removeCleanPreparation: noop,
   refresh: noop,
   removePreparation: noop,
   commitTaskField: noop,
@@ -303,6 +321,7 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
   const [preferenceChanging, setPreferenceChanging] = useState(false);
   const [repository, setRepository] = useState<OfflineRepository | null>(null);
   const [prepared, setPrepared] = useState<PreparedWorkOrderSummary[]>([]);
+  const [preparations, setPreparations] = useState<PreparationRequest[]>([]);
   const [readable, setReadable] = useState(false);
   const [networkAvailable, setNetworkAvailable] = useState(false);
   const [syncing, setSyncing] = useState(false);
@@ -325,6 +344,9 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
   const accessGate = useRef<AccessGate>(availableInBuild ? 'checking' : 'open');
   const localChoice = useRef(false);
   const requestEligibleSync = useRef<(reason: string) => Promise<void>>(noop);
+  const enqueuePreparations =
+    useRef<(ids: number[], source: PreparationSource) => Promise<void>>(noop);
+  const resumeNotification = useRef<() => void>(() => {});
   const completionNoticePending = useRef(false);
   const changingChoice = useRef(false);
   const changePreference = useRef<(value: boolean) => Promise<void>>(
@@ -399,8 +421,10 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
           state.isConnected === true && state.isInternetReachable !== false;
         network.current = usable;
         setNetworkAvailable(usable);
-        if (usable && canStartOfflineAction())
+        if (usable && localChoice.current && foreground.current) {
+          resumeNotification.current();
           void requestEligibleSync.current('network').catch(reportError);
+        }
       }),
     []
   );
@@ -412,12 +436,15 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
         coordinator.current?.cancelTransfers();
         return;
       }
+      resumeNotification.current();
       if (accessGate.current === 'locked') {
         if (localChoice.current && protectedWork.current)
           void requestUnlock.current();
         return;
       }
-      if (accessGate.current === 'unlocked')
+      if (accessGate.current === 'open')
+        void requestEligibleSync.current('foreground').catch(reportError);
+      else if (accessGate.current === 'unlocked')
         void checkAccess
           .current()
           .then((allowed) => {
@@ -433,11 +460,18 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
     const currentSequence = ++sequence.current;
     let active = true;
     let unregister = () => {};
+    let stopPreparationEvents = () => {};
+    let preparingFirst = false;
+    let firstUnlockCancelled = false;
+    let passRunning = false;
+    let setupComplete = false;
     let expiryTimer: ReturnType<typeof setTimeout> | undefined;
     gateEpoch.current += 1;
     protectedWork.current = false;
     localChoice.current = false;
     requestEligibleSync.current = noop;
+    enqueuePreparations.current = noop;
+    resumeNotification.current = () => {};
     completionNoticePending.current = false;
     changingChoice.current = false;
     changePreference.current = async () => {
@@ -461,6 +495,7 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
     setPreparedRuntime(null);
     setRepository(null);
     setPrepared([]);
+    setPreparations([]);
     setReadable(false);
     canWrite.current = false;
     preparedIds.current = new Set();
@@ -600,6 +635,8 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
       setReadable(false);
       canWrite.current = localAllowed && availableInBuild;
       await scheduleExpiry();
+      const canPrepareCopy = () =>
+        !workOrderEditors.has(navigationRef.getCurrentRoute()?.name || '');
       const sync = new Coordinator(
         repo,
         client,
@@ -607,6 +644,20 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
           enabled: () => availableInBuild,
           online: () => network.current && canUseOfflineFeature(),
           sessionIsCurrent: isCurrent,
+          canPrepare: canPrepareCopy,
+          canRemoveCopy: (id) => {
+            const route = navigationRef.getCurrentRoute();
+            return (
+              canUseOfflineFeature() &&
+              canPrepareCopy() &&
+              !writes.current.size &&
+              (route?.name !== 'WODetails' ||
+                (route.params as { id?: number })?.id !== id)
+            );
+          },
+          onPreparationQueueChanged: (requests) => {
+            if (isCurrent()) setPreparations(requests);
+          },
           onEligibility: async (eligibility) => {
             if (!isCurrent()) return;
             if (
@@ -638,7 +689,11 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
           },
           onStateChanged: (state) => {
             if (!isCurrent()) return;
-            setSyncing(state.status === 'syncing');
+            const finished = passRunning && state.status !== 'syncing';
+            passRunning = state.status === 'syncing';
+            setSyncing(passRunning);
+            if (finished && !preparedIds.current.size && !preparingFirst)
+              void reconsiderProtection().catch(reportError);
           },
           onError: (failure) => {
             if (isCurrent() && localChoice.current && !changingChoice.current)
@@ -655,18 +710,114 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
         (await repo.getPendingWork()).length > 0 ||
         (await repo.getPendingReleases()).length > 0 ||
         (await repo.allFiles()).length > 0;
-      requestEligibleSync.current = async (reason) => {
+      const reconsiderProtection = async () => {
+        if (!isCurrent() || preparingFirst || passRunning) return;
+        const items = await repo.getPreparedWorkOrderSummaries();
+        const needed = await hasProtectedWork(items);
         if (
           !isCurrent() ||
           coordinator.current !== sync ||
-          !network.current ||
-          !canUseOfflineFeature()
+          preparingFirst ||
+          passRunning
         )
           return;
-        const hadRelease = (await repo.getPendingReleases()).length > 0;
-        const notifyCompletion = !completionNoticePending.current;
-        completionNoticePending.current = true;
+        protectedWork.current = needed;
+        if (!needed) {
+          changeGate('open');
+          setReadable(false);
+          setLockIssue('none');
+          if (foreground.current) startPreparedObservation.current();
+        }
+      };
+      const canQueue = () =>
+        setupComplete &&
+        availableInBuild &&
+        isCurrent() &&
+        localChoice.current &&
+        !changingChoice.current &&
+        foreground.current &&
+        (accessGate.current === 'open' || accessGate.current === 'unlocked');
+      const updateQueue = async (
+        ids: number[],
+        source: PreparationSource,
+        notificationId?: number
+      ) => {
+        if (!canQueue()) return;
+        const { requests, added } = await repo.queuePreparations(
+          ids,
+          source,
+          canQueue,
+          notificationId
+        );
+        if (!canQueue()) return;
+        setPreparations(requests);
+        if (added)
+          void requestEligibleSync.current(source).catch((error) => {
+            if (isCurrent()) reportError(error);
+          });
+      };
+      enqueuePreparations.current = updateQueue;
+      requestEligibleSync.current = async (reason) => {
+        const ready = () =>
+          canQueue() && coordinator.current === sync && network.current;
+        if (!ready()) return;
+        let first = false;
+        let hadRelease = false;
+        let notifyCompletion = false;
         try {
+          if (accessGate.current === 'open') {
+            if (
+              firstUnlockCancelled &&
+              reason !== 'MANUAL' &&
+              reason !== 'manual'
+            )
+              return;
+            if (
+              !canPrepareCopy() ||
+              !(await repo.getPreparationRequests()).some(
+                (request) => request.state !== 'FAILED'
+              )
+            )
+              return;
+            if (!ready() || accessGate.current !== 'open' || preparingFirst)
+              return;
+            first = preparingFirst = true;
+            const expectedEpoch = ++gateEpoch.current;
+            changeGate('checking');
+            const result = await verifyDeviceOwner({
+              prompt: t('offline_unlock_system_prompt'),
+              cancel: t('cancel'),
+              fallback: t('offline_unlock_use_code')
+            });
+            if (result !== 'unavailable' && !(await waitForActiveApp())) return;
+            if (
+              !isCurrent() ||
+              expectedEpoch !== gateEpoch.current ||
+              !foreground.current ||
+              !localChoice.current ||
+              changingChoice.current
+            )
+              return;
+            if (result !== 'verified') {
+              firstUnlockCancelled = true;
+              reportError(
+                new OfflineError(
+                  result === 'unavailable'
+                    ? 'DEVICE_LOCK_REQUIRED'
+                    : result === 'cancelled'
+                    ? 'DEVICE_UNLOCK_CANCELLED'
+                    : 'DEVICE_UNLOCK_FAILED'
+                )
+              );
+              return;
+            }
+            firstUnlockCancelled = false;
+            changeGate('unlocked');
+          }
+          if (!ready() || !canUseOfflineFeature()) return;
+          hadRelease = (await repo.getPendingReleases()).length > 0;
+          notifyCompletion = !completionNoticePending.current;
+          completionNoticePending.current = true;
           const hadPending = notifyCompletion && (await repo.getPendingWork()).some(
             (item) => item.kind === 'OPERATION' &&
               !['CONFLICT', 'REJECTED'].includes(item.status || '')
@@ -680,19 +831,15 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
           }
         } finally {
           if (notifyCompletion) completionNoticePending.current = false;
-          if (hadRelease && isCurrent() && coordinator.current === sync) {
-            const items = await repo.getPreparedWorkOrderSummaries();
-            const needed = await hasProtectedWork(items);
-            if (isCurrent() && coordinator.current === sync) {
-              protectedWork.current = needed;
-              if (!needed) {
-                changeGate('open');
-                setReadable(false);
-                setLockIssue('none');
-                if (foreground.current) startPreparedObservation.current();
-              }
-            }
-          }
+          if (first) preparingFirst = false;
+          if (
+            (first ||
+              hadRelease ||
+              (protectedWork.current && !preparedIds.current.size)) &&
+            isCurrent() &&
+            coordinator.current === sync
+          )
+            await reconsiderProtection();
         }
       };
       setRepository(repo);
@@ -709,14 +856,20 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
         if (items.length) {
           protectedWork.current = true;
           if (accessGate.current === 'open') lockAccess();
-        }
-        else
-          void hasProtectedWork(items).then((needed) => {
-            if (!isCurrent()) return;
-            protectedWork.current = needed;
-            if (!needed && accessGate.current === 'unlocked')
-              changeGate('open');
-          }).catch(reportError);
+        } else if (!preparingFirst && !passRunning)
+          void hasProtectedWork(items)
+            .then((needed) => {
+              if (!isCurrent()) return;
+              protectedWork.current = needed;
+              if (
+                !needed &&
+                !preparingFirst &&
+                !passRunning &&
+                accessGate.current === 'unlocked'
+              )
+                changeGate('open');
+            })
+            .catch(reportError);
         const ids = items.map((item) => item.id);
         if (availableInBuild && localChoice.current) {
           dispatch(removePreparedTasks(ids));
@@ -794,7 +947,8 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
           setReadable(needed);
           setLockIssue('none');
           observePrepared();
-          if (needed && network.current)
+          resumeNotification.current();
+          if (network.current)
             void requestEligibleSync.current('unlock').catch(reportError);
         } catch (failure) {
           if (stillWaiting()) {
@@ -991,6 +1145,15 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
             if (accessGate.current !== 'locked') lockAccess();
             setLockIssue('none');
             void requestUnlock.current();
+          } else if (next) {
+            void repo
+              .getPreparationRequests()
+              .then((requests) => {
+                if (!isCurrent() || !localChoice.current) return;
+                setPreparations(requests);
+                void requestEligibleSync.current('enabled').catch(reportError);
+              })
+              .catch(reportError);
           }
         } finally {
           if (currentSequence === sequence.current)
@@ -1006,6 +1169,94 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
       changeGate(needsLock ? 'locked' : 'open');
       setLockIssue(needsLock && !localAllowed ? 'authorization' : 'none');
       if (!needsLock) observePrepared();
+      if (availableInBuild) {
+        const queueNotification = async ({
+          date,
+          request
+        }: Notifications.Notification) => {
+          const { data, body } = request.content;
+          const id = Number(data?.id);
+          if (
+            data?.type !== 'WORK_ORDER' ||
+            !Number.isSafeInteger(id) ||
+            id <= 0 ||
+            !body ||
+            !Number.isFinite(date) ||
+            !canQueue() ||
+            !network.current
+          )
+            return;
+          // Expo SDK 53 serializes iOS notification dates in seconds and Android dates in milliseconds.
+          const receivedAt = Platform.OS === 'ios' ? date * 1000 : date;
+          const notificationId = await client.findReceivedWorkOrderNotification(
+            id,
+            body,
+            receivedAt
+          );
+          if (notificationId !== undefined && canQueue())
+            await updateQueue([id], 'NOTIFICATION', notificationId);
+        };
+        let tapped: Notifications.Notification | null = null;
+        resumeNotification.current = () => {
+          if (!tapped || !canQueue() || !network.current) return;
+          const notification = tapped;
+          tapped = null;
+          // The existing navigation listener still handles opening the fiche.
+          try {
+            Notifications.clearLastNotificationResponse();
+          } catch {}
+          void queueNotification(notification).catch(() => undefined);
+        };
+        const received = Notifications.addNotificationReceivedListener(
+          (notification) => {
+            void queueNotification(notification).catch(() => undefined);
+          }
+        );
+        const onTap = ({
+          notification
+        }: Notifications.NotificationResponse) => {
+          if (
+            !isCurrent() ||
+            !localChoice.current ||
+            notification.request.content.data?.type !== 'WORK_ORDER'
+          )
+            return;
+          tapped = notification;
+          resumeNotification.current();
+        };
+        const response =
+          Notifications.addNotificationResponseReceivedListener(onTap);
+        try {
+          const last = Notifications.getLastNotificationResponse();
+          if (last) onTap(last);
+        } catch {
+          // Cold start delivery is optional, like foreground push delivery.
+        }
+        let routeKey = navigationRef.getCurrentRoute()?.key;
+        const stopNavigation = navigationRef.addListener('state', () => {
+          const route = navigationRef.getCurrentRoute();
+          if (routeKey === route?.key) return;
+          routeKey = route?.key;
+          if (!canQueue() || !network.current || !canPrepareCopy()) return;
+          void (async () => {
+            const hasWork =
+              (await repo.getPreparationRequests()).some(
+                (request) => request.state !== 'FAILED'
+              ) || (await repo.getRetirementCandidates('closure')).length > 0;
+            if (hasWork && canQueue())
+              await requestEligibleSync.current('navigation');
+          })().catch((error) => {
+            if (isCurrent()) reportError(error);
+          });
+        });
+        stopPreparationEvents = () => {
+          received.remove();
+          response.remove();
+          stopNavigation();
+        };
+        const requests = await repo.getPreparationRequests();
+        if (isCurrent()) setPreparations(requests);
+      }
       setPreparedRuntime({
         hasPreparation: (id) =>
           availableInBuild &&
@@ -1099,11 +1350,14 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
           setPreparedRuntime(null);
           setReadable(false);
           setPrepared([]);
+          setPreparations([]);
           setRepository(null);
         }
       });
       if (isCurrent()) {
+        setupComplete = true;
         setInitialized(true);
+        resumeNotification.current();
         if (needsLock && foreground.current && localChoice.current)
           void requestUnlock.current();
         if (!needsLock && foreground.current && network.current)
@@ -1140,6 +1394,7 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
       stopPreparedObservation.current = noop;
       startPreparedObservation.current = noop;
       unregister();
+      stopPreparationEvents();
       if (expiryTimer) clearTimeout(expiryTimer);
       coordinator.current?.suspend();
       setPreparedRuntime(null);
@@ -1194,7 +1449,7 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
         throw new OfflineError('OFFLINE_DISABLED');
       const result = await action(repository);
       if (submit)
-        void coordinator.current?.trigger('submission').catch(reportError);
+        void requestEligibleSync.current('submission').catch(reportError);
       return result;
     });
   const projectionsOpen =
@@ -1239,11 +1494,11 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
       );
       return writing;
     },
-    submitStatusDraft: (id, revision, input) =>
+    submitStatusDraft: (id, revision, input, removeAfterSync) =>
       persistTime((repo) => {
         if (failedWrites.current.has(`work-order:${id}:status`))
           throw new OfflineError('STORAGE_FAILED');
-        return repo.submitStatusDraft(id, revision, input);
+        return repo.submitStatusDraft(id, revision, input, removeAfterSync);
       }, true),
     abandonStatusDraft: (id, revision) =>
       persist(async () => {
@@ -1309,9 +1564,13 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
     syncSuccessSequence,
     repository: projectionsOpen ? exposedRepository : null,
     prepared: projectionsOpen ? prepared : [],
+    preparations:
+      enabled && !transitioning && (projectionsOpen || gateForOwner === 'open')
+        ? preparations
+        : [],
     reportError,
     sync: async () => {
-      if (!canUseOfflineFeature()) return;
+      if (!enabled || authGeneration !== sessionGeneration()) return;
       setError(null);
       try {
         await requestEligibleSync.current('manual');
@@ -1319,69 +1578,42 @@ export function OfflineProvider({ children }: { children: React.ReactNode }) {
         reportError(failure);
       }
     },
-    prepare: async (id) => {
-      setError(null);
+    prepareMany: async (ids) => {
       if (
-        !coordinator.current ||
-        !availableInBuild ||
-        !localChoice.current ||
-        changingChoice.current
+        !enabled ||
+        !initialized ||
+        authGeneration !== sessionGeneration() ||
+        !foreground.current ||
+        changingChoice.current ||
+        sessionChangeInProgress() ||
+        (accessGate.current !== 'open' && accessGate.current !== 'unlocked')
       )
         throw new OfflineError('OFFLINE_DISABLED');
-      if (!foreground.current || sessionChangeInProgress())
+      setError(null);
+      await enqueuePreparations.current(ids, 'MANUAL');
+    },
+    prepareOnOpen: (id) => {
+      if (
+        !enabled ||
+        !initialized ||
+        authGeneration !== sessionGeneration() ||
+        !foreground.current ||
+        changingChoice.current ||
+        sessionChangeInProgress() ||
+        (accessGate.current !== 'open' && accessGate.current !== 'unlocked')
+      )
+        return false;
+      void enqueuePreparations.current([id], 'OPEN').catch((error) => {
+        if (authGeneration === sessionGeneration()) reportError(error);
+      });
+      return true;
+    },
+    removeCleanPreparation: async (id) => {
+      if (!canUseOfflineFeature() || authGeneration !== sessionGeneration())
         throw new OfflineError('OFFLINE_DISABLED');
-      if (accessGate.current === 'open') {
-        const generation = sessionGeneration();
-        const expectedCoordinator = coordinator.current;
-        const expectedEpoch = ++gateEpoch.current;
-        changeGate('checking');
-        try {
-          const result = await verifyDeviceOwner({
-            prompt: t('offline_unlock_system_prompt'),
-            cancel: t('cancel'),
-            fallback: t('offline_unlock_use_code')
-          });
-          if (result !== 'unavailable' && !(await waitForActiveApp()))
-            throw new OfflineError('CONTEXT_CHANGED');
-          if (
-            generation !== sessionGeneration() ||
-            expectedCoordinator !== coordinator.current ||
-            expectedEpoch !== gateEpoch.current ||
-            !foreground.current
-          )
-            throw new OfflineError('CONTEXT_CHANGED');
-          if (result !== 'verified')
-            throw new OfflineError(
-              result === 'unavailable'
-                ? 'DEVICE_LOCK_REQUIRED'
-                : result === 'cancelled'
-                ? 'DEVICE_UNLOCK_CANCELLED'
-                : 'DEVICE_UNLOCK_FAILED'
-            );
-          changeGate('unlocked');
-          await expectedCoordinator.prepare(id);
-        } finally {
-          if (
-            expectedCoordinator === coordinator.current &&
-            generation === sessionGeneration()
-          ) {
-            const repo = expectedCoordinator.repository;
-            const items = await repo.getPreparedWorkOrderSummaries();
-            protectedWork.current =
-              items.length > 0 ||
-              (await repo.hasUnresolved()) ||
-              (await repo.getPendingWork()).length > 0 ||
-              (await repo.getPendingReleases()).length > 0 ||
-              (await repo.allFiles()).length > 0;
-            if (!protectedWork.current) changeGate('open');
-            if (accessGate.current === 'open')
-              startPreparedObservation.current();
-          }
-        }
-      } else {
-        if (!canUseOfflineFeature()) throw new OfflineError('OFFLINE_DISABLED');
-        await coordinator.current.prepare(id);
-      }
+      await coordinator.current?.removePreparation(id, true);
+      if (authGeneration === sessionGeneration())
+        void requestEligibleSync.current('place-freed').catch(reportError);
     },
     refresh: async (id) => {
       if (!canUseOfflineFeature()) throw new OfflineError('OFFLINE_DISABLED');

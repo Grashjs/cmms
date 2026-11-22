@@ -12,6 +12,9 @@ import {
 import type { DownloadDescriptor, LocalFile } from './types';
 import * as FileSystem from 'expo-file-system';
 import { Platform } from 'react-native';
+import type WorkOrder from '../models/workOrder';
+import type Notification from '../models/notification';
+import type { Page } from '../models/page';
 
 export class OfflineApiError extends OfflineError {
   constructor(public readonly status: number, code: string) {
@@ -167,6 +170,45 @@ export class OfflineApi {
     if (snapshot.workOrder.id !== workOrderId)
       throw new OfflineError('TARGET_MISMATCH');
     return snapshot;
+  }
+
+  async workOrderForPreparation(id: number): Promise<WorkOrder> {
+    const workOrder = await this.request<WorkOrder>(
+      `/work-orders/${id}`,
+      'GET'
+    );
+    if (workOrder?.id !== id) throw new OfflineError('TARGET_MISMATCH');
+    return workOrder;
+  }
+
+  async findReceivedWorkOrderNotification(
+    workOrderId: number,
+    message: string,
+    deliveredAt: number
+  ): Promise<number | undefined> {
+    // The push has only a resource id. Match it to this authenticated inbox
+    // before admitting it, including when two servers have the same WO ids.
+    const result = await this.request<Page<Notification>>(
+      '/notifications/search',
+      'POST',
+      {
+        filterFields: [
+          { field: 'user', operation: 'eq', value: this.options.userId },
+          { field: 'resourceId', operation: 'eq', value: workOrderId }
+        ],
+        pageSize: 10,
+        pageNum: 0,
+        direction: 'DESC'
+      }
+    );
+    return result?.content?.find(
+      (item) =>
+        item.notificationType === 'WORK_ORDER' &&
+        item.resourceId === workOrderId &&
+        item.message === message &&
+        Number.isSafeInteger(item.id) &&
+        Math.abs(Date.parse(item.createdAt) - deliveredAt) <= 5 * 60_000
+    )?.id;
   }
 
   release(workOrderId: number): Promise<void> {

@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { Alert, StyleSheet } from 'react-native';
 import * as Yup from 'yup';
 import { View } from '../../components/Themed';
 import { RootStackScreenProps } from '../../types';
@@ -255,9 +255,38 @@ function PreparedClosureEditor({
       Yup.object(fields).validateSync(current.current);
       const revision = inputRevision.current;
       if (saveFailed) throw new OfflineError('DRAFT_SAVE_FAILED');
+      const removeAfterSync = await new Promise<boolean | null>((resolve) => {
+        Alert.alert(
+          t('offline_remove_after_sync_title'),
+          t('offline_remove_after_sync_help'),
+          [
+            {
+              text: t('cancel'),
+              style: 'cancel',
+              onPress: () => resolve(null)
+            },
+            { text: t('offline_keep_copy'), onPress: () => resolve(false) },
+            {
+              text: t('offline_confirm_copy_removal'),
+              onPress: () => resolve(true)
+            }
+          ],
+          { cancelable: true, onDismiss: () => resolve(null) }
+        );
+      });
+      assertSessionGeneration(generation);
+      if (
+        removeAfterSync === null ||
+        !mounted.current ||
+        revision !== inputRevision.current ||
+        submittedGesture !== gestureRevision.current ||
+        signature.current?.isPending()
+      )
+        return;
       await status.submit(
         current.current,
-        savedDraft.current?.revision ?? null
+        savedDraft.current?.revision ?? null,
+        removeAfterSync
       );
       assertSessionGeneration(generation);
       if (!mounted.current) return;

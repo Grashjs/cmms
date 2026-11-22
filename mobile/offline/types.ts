@@ -510,6 +510,14 @@ export type PreparedWorkOrderSummary = Omit<
   | 'timerStatusRevision'
 >;
 
+export type PreparationSource = 'MANUAL' | 'OPEN' | 'NOTIFICATION';
+export interface PreparationRequest {
+  id: string;
+  workOrderId: number;
+  source: PreparationSource;
+  state: 'WAITING' | 'FULL' | 'FAILED';
+}
+
 export interface WorkOrderActivity {
   badge:
     | 'offline_badge_conflict'

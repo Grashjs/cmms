@@ -11,7 +11,8 @@ import {
   isTaskOperation,
   isTimeOperation,
   isStatusOperation,
-  transferIds
+  transferIds,
+  PreparationRequest
 } from './types';
 
 interface SyncState {
@@ -24,6 +25,9 @@ interface SyncPolicy {
   onEligibility?: (eligibility: OfflineEligibility) => void | Promise<void>;
   onStateChanged?: (state: SyncState) => void;
   onError?: (error: unknown) => void;
+  canPrepare?: () => boolean;
+  canRemoveCopy?: (id: number) => boolean;
+  onPreparationQueueChanged?: (requests: PreparationRequest[]) => void;
 }
 interface CoordinatorTimers {
   setTimeout: (
@@ -142,7 +146,11 @@ export class SyncCoordinator {
       await this.repository.acknowledgeRelease(id);
     }
   }
-  private async refreshOne(workOrderId: number, downloadFiles = true) {
+  private async refreshOne(
+    workOrderId: number,
+    downloadFiles = true,
+    request?: PreparationRequest
+  ) {
     if (this.removing.has(workOrderId)) return;
     let snapshot;
     try {
@@ -157,12 +165,25 @@ export class SyncCoordinator {
       this.assertConnected();
       if (this.removing.has(workOrderId)) return;
       snapshot = await this.api.prepare(workOrderId);
-      if (this.current() && !this.removing.has(workOrderId))
+      if (
+        request &&
+        request.source !== 'MANUAL' &&
+        (snapshot.workOrder.archived ||
+          snapshot.workOrder.status === 'COMPLETE')
+      )
+        throw new OfflineError('PREPARATION_NOT_NEEDED');
+      if (this.current() && !this.removing.has(workOrderId)) {
         await this.repository.prepareSnapshot(
           snapshot,
           revision,
-          preparationToken
+          preparationToken,
+          request && {
+            manual: request.source === 'MANUAL',
+            allowed: () =>
+              this.canPrepareCopy() && !this.removing.has(workOrderId)
+          }
         );
+      } else return;
     } catch (error) {
       // Only an authoritative target response is a durable unavailability.
       // Timeouts, 5xx, over-limit and invalid/partial snapshots keep the old copy.
@@ -185,6 +206,131 @@ export class SyncCoordinator {
       throw error;
     }
     if (snapshot && downloadFiles) await this.downloadPreparedFiles(workOrderId);
+    return snapshot;
+  }
+
+  private canPrepareCopy() {
+    return this.connected() && (this.policy.canPrepare?.() ?? true);
+  }
+
+  private async settlePreparation(
+    request: PreparationRequest,
+    state: PreparationRequest['state'] | null
+  ) {
+    if (!this.current()) return;
+    const queue = await this.repository.settlePreparationRequest(
+      request.id,
+      state
+    );
+    if (this.current()) this.policy.onPreparationQueueChanged?.(queue);
+  }
+
+  private async retireCopy(id: number, mode: 'closure' | 'capacity') {
+    const allowed = () =>
+      this.connected() &&
+      !this.removing.has(id) &&
+      (this.policy.canRemoveCopy?.(id) ?? true);
+    if (
+      !allowed() ||
+      !(await this.repository.removePreparation(id, mode, allowed))
+    )
+      return false;
+    // The SQLite removal and release intent are durable before a network request.
+    if (!this.connected()) return true;
+    await this.releases();
+    if (this.connected()) await this.files?.cleanup();
+    return true;
+  }
+
+  private async processPreparations(checked: Set<number>): Promise<void> {
+    if (!this.connected()) return;
+    for (const id of await this.repository.getRetirementCandidates('closure')) {
+      if (checked.has(id)) await this.retireCopy(id, 'closure');
+    }
+    if (!this.canPrepareCopy()) return;
+    const requests = (await this.repository.getPreparationRequests())
+      .filter((request) => request.state !== 'FAILED')
+      .sort(
+        (a, b) => Number(b.source === 'MANUAL') - Number(a.source === 'MANUAL')
+      );
+    if (!requests.length) return;
+    const prepared = new Set(
+      (await this.repository.getPreparedWorkOrderSummaries()).map(
+        (item) => item.id
+      )
+    );
+    for (const request of requests) {
+      if (!this.canPrepareCopy()) return;
+      const id = request.workOrderId;
+      if (prepared.has(id) || this.removing.has(id)) {
+        await this.settlePreparation(request, null);
+        continue;
+      }
+      try {
+        // Verify that the target is still accessible before freeing a place.
+        const target = await this.api.workOrderForPreparation(id);
+        if (!this.canPrepareCopy()) return;
+        if (
+          request.source !== 'MANUAL' &&
+          (target.archived || target.status === 'COMPLETE')
+        ) {
+          await this.settlePreparation(request, null);
+          continue;
+        }
+        if (prepared.size >= OFFLINE_LIMITS.preparedWorkOrders) {
+          for (const candidate of await this.repository.getRetirementCandidates(
+            'capacity'
+          )) {
+            if (!this.canPrepareCopy()) return;
+            if (
+              checked.has(candidate) &&
+              (await this.retireCopy(candidate, 'capacity'))
+            ) {
+              prepared.delete(candidate);
+              break;
+            }
+          }
+        }
+        if (prepared.size >= OFFLINE_LIMITS.preparedWorkOrders) {
+          await this.settlePreparation(request, 'FULL');
+          if (request.state !== 'FULL')
+            this.policy.onError?.(new OfflineError('PREPARATION_QUEUE_FULL'));
+          return;
+        }
+        if (!this.canPrepareCopy()) return;
+        if (await this.refreshOne(id, false, request)) {
+          prepared.add(id);
+          await this.settlePreparation(request, null);
+        }
+      } catch (error) {
+        if (!this.current()) return;
+        const code = (error as { code?: string })?.code;
+        if (code === 'PREPARATION_NOT_NEEDED') {
+          await this.settlePreparation(request, null);
+        } else if (code === 'PREPARATION_PAUSED') {
+          return;
+        } else if (
+          code === 'PREPARED_LIMIT_EXCEEDED' ||
+          code === 'PREPARED_LIMIT'
+        ) {
+          await this.settlePreparation(request, 'FULL');
+          if (request.state !== 'FULL')
+            this.policy.onError?.(new OfflineError('PREPARATION_QUEUE_FULL'));
+          await this.releases();
+          return;
+        } else if (request.source === 'NOTIFICATION') {
+          // A failed push preparation remains an optional manual action.
+          await this.settlePreparation(request, 'FAILED');
+        } else if (code === 'NETWORK_UNAVAILABLE') {
+          throw error;
+        } else {
+          await this.settlePreparation(request, 'FAILED');
+          if (request.source === 'MANUAL') this.policy.onError?.(error);
+        }
+        // Settle any durable reservation left by a failed import before the next request.
+        await this.releases();
+      }
+    }
   }
 
   private async downloadPreparedFiles(workOrderId: number) {
@@ -280,10 +426,12 @@ export class SyncCoordinator {
     await this.releases();
     if (!(await this.authorize())) return;
     let firstRefreshError: unknown;
+    const checkedPreparations = new Set<number>();
     for (const workOrder of await this.repository.getPreparedWorkOrderSummaries()) {
       if (!this.connected() || !this.policy.enabled()) return;
       try {
-        await this.refreshOne(workOrder.id, false);
+        if (await this.refreshOne(workOrder.id, false))
+          checkedPreparations.add(workOrder.id);
       } catch (error) {
         if (
           error instanceof OfflineApiError &&
@@ -438,11 +586,14 @@ export class SyncCoordinator {
     for (const workOrderId of commentsToRefresh) {
       if (!this.connected() || !this.policy.enabled()) return;
       try {
-        await this.refreshOne(workOrderId, false);
+        checkedPreparations.delete(workOrderId);
+        if (await this.refreshOne(workOrderId, false))
+          checkedPreparations.add(workOrderId);
       } catch (error) {
         firstRefreshError ||= error;
       }
     }
+    await this.processPreparations(checkedPreparations);
     for (const workOrder of await this.repository.getPreparedWorkOrderSummaries()) {
       if (!this.connected() || !this.policy.enabled()) return;
       try {
@@ -538,11 +689,24 @@ export class SyncCoordinator {
     });
   }
 
-  removePreparation(workOrderId: number): Promise<void> {
+  removePreparation(workOrderId: number, clean = false): Promise<void> {
     this.removing.add(workOrderId);
     return this.enqueue(async () => {
       if (!this.current()) throw new OfflineError('CONTEXT_CHANGED');
-      await this.repository.removePreparation(workOrderId);
+      if (
+        !(await this.repository.removePreparation(
+          workOrderId,
+          clean ? 'clean' : 'explicit',
+          () =>
+            this.current() &&
+            (!clean || (this.policy.canRemoveCopy?.(workOrderId) ?? true))
+        ))
+      )
+        throw new OfflineError('WORK_PENDING');
+      if (this.policy.onPreparationQueueChanged)
+        this.policy.onPreparationQueueChanged(
+          await this.repository.getPreparationRequests()
+        );
       await this.files?.cleanup();
       // Release is a durable housekeeping action; its failure does not undo an
       // explicit, safe local withdrawal. It is retried before the next prepare.

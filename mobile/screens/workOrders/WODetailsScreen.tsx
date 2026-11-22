@@ -14,6 +14,7 @@ import {
   TextInput as RNTextInput
 } from 'react-native';
 import { useMentions } from 'react-native-controlled-mentions';
+import { useIsFocused } from '@react-navigation/native';
 import { View } from '../../components/Themed';
 import { RootStackParamList, RootStackScreenProps } from '../../types';
 import {
@@ -146,8 +147,11 @@ export default function WODetailsScreen({
   navigation,
   route
 }: RootStackScreenProps<'WODetails'>) {
-  const { id, workOrderProp } = route.params;
+  const { id, workOrderProp, openedFromPush } = route.params;
   const offline = useOffline();
+  const focused = useIsFocused();
+  const preparationRequested = useRef<number | null>(null);
+  const generationAtOpen = useRef(sessionGeneration());
   const prepared = useOfflineWorkOrder(id);
   const pendingWork = usePendingWork(id);
   const isPrepared = offline.prepared.some((item) => item.id === id);
@@ -160,6 +164,34 @@ export default function WODetailsScreen({
   const workOrder = isPrepared
     ? prepared?.workOrder
     : workOrderInfos[id]?.workOrder ?? workOrderProp;
+  useEffect(() => {
+    if (
+      !focused ||
+      !offline.initialized ||
+      !offline.enabled ||
+      openedFromPush ||
+      !workOrder ||
+      preparationRequested.current === id ||
+      generationAtOpen.current !== sessionGeneration()
+    )
+      return;
+    if (
+      isPrepared ||
+      workOrder.archived ||
+      workOrder.status === 'COMPLETE' ||
+      offline.prepareOnOpen(id)
+    )
+      preparationRequested.current = id;
+  }, [
+    focused,
+    offline.initialized,
+    offline.enabled,
+    offline.readable,
+    openedFromPush,
+    id,
+    workOrder,
+    isPrepared
+  ]);
   const { t } = useTranslation();
   const {
     hasEditPermission,
@@ -248,13 +280,11 @@ export default function WODetailsScreen({
       hasEditPermission(PermissionEntity.WORK_ORDERS, workOrder);
 
   const {
-    preparing,
     commentContent,
     commentRefreshPending,
     submittingComment,
     commentFiles,
     changeCommentContent,
-    prepareWorkOrder,
     handleCommentSubmit,
     pickCommentFile,
     removeCommentFile,
@@ -352,17 +382,19 @@ export default function WODetailsScreen({
       permissionEntity: PermissionEntity.PEOPLE_AND_TEAMS
     }
   ];
-  const getInfos = () => {
+  const getInfos = (refreshPrepared = true) => {
     if (!offline.initialized || (offline.enabled && !offline.networkAvailable))
       return;
     if (isPrepared) {
-      const generation = sessionGeneration();
-      void offline
-        .refresh(id)
-        .then(() => {
-          confirmCommentRefresh(generation);
-        })
-        .catch(offline.reportError);
+      if (refreshPrepared) {
+        const generation = sessionGeneration();
+        void offline
+          .refresh(id)
+          .then(() => {
+            confirmCommentRefresh(generation);
+          })
+          .catch(offline.reportError);
+      }
     } else if (!workOrderProp)
       dispatch(getWorkOrderDetails(id)).catch(offline.reportError);
     // Status changes need the observed timer identities even in simplified view.
@@ -422,8 +454,14 @@ export default function WODetailsScreen({
     //LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
   }, [loadingTasks, workOrder, tasks, connectedAvailable]);
 
+  const previousCopy = useRef({ id, isPrepared });
   useEffect(() => {
-    getInfos();
+    const justPrepared =
+      previousCopy.current.id === id &&
+      !previousCopy.current.isPrepared &&
+      isPrepared;
+    previousCopy.current = { id, isPrepared };
+    getInfos(!justPrepared);
   }, [
     workOrderProp,
     id,
@@ -950,7 +988,6 @@ export default function WODetailsScreen({
     return (
       <View style={{ padding: 20 }}>
         <Text>{t('offline_not_prepared')}</Text>
-        <Button disabled>{t('offline_prepare')}</Button>
       </View>
     );
   if (workOrder)
@@ -982,22 +1019,16 @@ export default function WODetailsScreen({
                 />
               }
             >
-              {offline.enabled && !isPrepared && (
-                <Button
-                  style={{ marginTop: 12 }}
-                  mode="outlined"
-                  loading={preparing}
-                  disabled={
-                    preparing ||
-                    submittingComment ||
-                    loadingCreate ||
-                    !offline.networkAvailable
-                  }
-                  onPress={prepareWorkOrder}
-                >
-                  {t('offline_prepare')}
-                </Button>
-              )}
+              {offline.enabled &&
+                !isPrepared &&
+                offline.preparations.some(
+                  (request) =>
+                    request.workOrderId === id && request.state !== 'FAILED'
+                ) && (
+                  <Text style={{ marginTop: 12 }}>
+                    {t('offline_preparation_waiting')}
+                  </Text>
+                )}
               {isPrepared && (
                 <View style={{ marginTop: 12 }}>
                   <OfflineStatus />
@@ -1570,7 +1601,6 @@ export default function WODetailsScreen({
                                 placeholderTextColor="black"
                                 style={{ flex: 1, color: 'black' }}
                                 {...textInputProps}
-                                editable={!preparing}
                               />
                             </View>
                             <IconButton
@@ -1584,8 +1614,7 @@ export default function WODetailsScreen({
                                     hasCreatePermission(
                                       PermissionEntity.FILES
                                     ) && hasFeature(PlanFeature.FILE)
-                                  )) ||
-                                preparing
+                                  ))
                               }
                               style={{ marginBottom: 8 }}
                             />
@@ -1600,7 +1629,7 @@ export default function WODetailsScreen({
                                 multiple
                                 selectionOnly
                                 maxFileSize={35}
-                                disabled={submittingComment || preparing}
+                                disabled={submittingComment}
                                 onChange={(files) =>
                                   void importCommentFiles(files)
                                 }
@@ -1658,7 +1687,6 @@ export default function WODetailsScreen({
                             disabled={
                               !commentContent.trim() ||
                               loadingCreate ||
-                              preparing ||
                               submittingComment ||
                               (!isPrepared &&
                                 !!commentFiles.length &&

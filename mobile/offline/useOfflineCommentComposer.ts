@@ -24,7 +24,6 @@ export function useOfflineCommentComposer({
   const offline = useOffline();
   const { uploadFiles } = useContext(CompanySettingsContext);
   const dispatch = useDispatch();
-  const [preparing, setPreparing] = useState(false);
   const [submittingComment, setSubmitting] = useState(false);
   const [commentContent, setContent] = useState('');
   const [commentFiles, setFiles] = useState<IFile[]>([]);
@@ -34,7 +33,16 @@ export function useOfflineCommentComposer({
   const busy = useRef(false);
   const owner = useRef('');
   const generation = sessionGeneration();
-  const key = generation + ':' + id + ':' + isPrepared;
+  const scope = `${generation}:${id}`;
+  const presentation = useRef({ scope, isPrepared, revision: 0 });
+  if (presentation.current.scope !== scope)
+    presentation.current = { scope, isPrepared, revision: 0 };
+  // A download completing while the fiche is open must preserve typed text
+  // and picked files. Leaving prepared mode still invalidates old callbacks.
+  if (presentation.current.isPrepared && !isPrepared)
+    presentation.current.revision += 1;
+  presentation.current.isPrepared = isPrepared;
+  const key = `${scope}:${presentation.current.revision}`;
   owner.current = key;
   const current = () =>
     owner.current === key && generation === sessionGeneration();
@@ -46,7 +54,6 @@ export function useOfflineCommentComposer({
     setContent('');
     setFiles([]);
     setSubmitting(false);
-    setPreparing(false);
     setRefreshPending(false);
     return () => {
       owner.current = '';
@@ -140,29 +147,12 @@ export function useOfflineCommentComposer({
       }
     }
   };
-  const prepareWorkOrder = async () => {
-    if (busy.current) return;
-    busy.current = true;
-    setPreparing(true);
-    try {
-      await offline.prepare(id);
-    } catch (error) {
-      if (current()) offline.reportError(error);
-    } finally {
-      if (current()) {
-        busy.current = false;
-        setPreparing(false);
-      }
-    }
-  };
   return {
-    preparing,
     submittingComment,
     commentContent,
     commentFiles,
     commentRefreshPending,
     changeCommentContent,
-    prepareWorkOrder,
     handleCommentSubmit,
     importCommentFiles,
     pickCommentFile,

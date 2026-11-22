@@ -1,4 +1,5 @@
 import {
+  Alert,
   Image,
   RefreshControl,
   ScrollView,
@@ -23,7 +24,8 @@ import {
   useTheme,
   Avatar,
   TouchableRipple,
-  Button
+  Button,
+  Checkbox
 } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import WorkOrder from '../../models/workOrder';
@@ -38,6 +40,10 @@ import Tag from '../../components/Tag';
 import { useDebouncedEffect } from '../../hooks/useDebouncedEffect';
 import _ from 'lodash';
 import EnumFilter from './components/EnumFilter';
+import OfflinePreparationFilters, {
+  type PreparationCopyFilter,
+  type PreparationStatusFilter
+} from './components/OfflinePreparationFilters';
 import { dayDiff } from '../../utils/dates';
 import { IconWithLabel } from '../../components/IconWithLabel';
 import QuickFilter from './components/QuickFilter';
@@ -45,7 +51,12 @@ import { useAppTheme } from '../../custom-theme';
 import { getUserInitials } from '../../utils/displayers';
 import { UserMiniDTO } from '../../models/user';
 import { useOffline } from '../../offline/OfflineProvider';
-import { useWorkOrderActivity } from '../../offline/hooks';
+import {
+  usePreparationsMissingFiles,
+  useWorkOrderActivity
+} from '../../offline/hooks';
+import { OFFLINE_LIMITS } from '../../offline/types';
+import { sessionGeneration } from '../../offline/sessionBridge';
 
 export default function WorkOrdersScreen({
   navigation,
@@ -54,9 +65,23 @@ export default function WorkOrdersScreen({
   const { t } = useTranslation();
   const offline = useOffline();
   const activity = useWorkOrderActivity();
+  const missingFiles = usePreparationsMissingFiles();
+  const generation = sessionGeneration();
+  const [manage, setManage] = useState(false);
+  const [copyFilter, setCopyFilter] = useState<PreparationCopyFilter>('all');
+  const [statusFilter, setStatusFilter] =
+    useState<PreparationStatusFilter>('all');
+  const [selected, setSelected] = useState<number[]>([]);
+  const [adding, setAdding] = useState(false);
+  const managing = offline.enabled && manage;
   const [offlineFilter, setOfflineFilter] = useState(false);
+  const disconnected = offline.enabled && !offline.networkAvailable;
+  const visibleCopyFilter =
+    disconnected && copyFilter === 'missing' ? 'prepared' : copyFilter;
   const onlyOffline =
-    offline.enabled && (offlineFilter || !offline.networkAvailable);
+    offline.enabled &&
+    (disconnected ||
+      (managing ? visibleCopyFilter === 'prepared' : offlineFilter));
   const preparedIdsInPage = useSelector(
     (state) => state.workOrders.preparedIdsInPage ?? []
   );
@@ -89,11 +114,40 @@ export default function WorkOrdersScreen({
   const connectedById = new Map(
     connectedWorkOrders.map((item) => [item.id, item])
   );
-  const listedWorkOrders = onlyOffline
-    ? localMatches.map((item) => item.workOrder)
-    : orderedIdsInPage.length
-    ? orderedIdsInPage.map((id) => connectedById.get(id)).filter(Boolean)
-    : connectedWorkOrders;
+  const copyIds = new Set(offline.prepared.map((item) => item.id));
+  const requests = new Map(
+    offline.preparations.map((request) => [request.workOrderId, request])
+  );
+  const atLimit = offline.preparations.some(
+    (request) => request.state === 'FULL'
+  );
+  const listedWorkOrders = (
+    onlyOffline
+      ? localMatches.map((item) => item.workOrder)
+      : orderedIdsInPage.length
+      ? orderedIdsInPage.map((id) => connectedById.get(id)).filter(Boolean)
+      : connectedWorkOrders
+  ).filter(
+    (item) =>
+      !managing ||
+      ((visibleCopyFilter !== 'missing' || !copyIds.has(item.id)) &&
+        (statusFilter === 'all' ||
+          (item.status === 'COMPLETE') === (statusFilter === 'complete')))
+  );
+  if (disconnected) listedWorkOrders.sort((a, b) => b.id - a.id);
+  const selectableIds = new Set(
+    managing
+      ? listedWorkOrders
+          .filter(({ id }) => {
+            const request = requests.get(id);
+            return !copyIds.has(id) && (!request || request.state === 'FAILED');
+          })
+          .map(({ id }) => id)
+      : []
+  );
+  const allVisibleSelected = [...selectableIds].every((id) =>
+    selected.includes(id)
+  );
   const theme = useAppTheme();
   const dispatch = useDispatch();
   const fromHomeInit = useRef<boolean>(false);
@@ -144,6 +198,30 @@ export default function WorkOrdersScreen({
   const [criteria, setCriteria] = useState<SearchCriteria>(
     getCriteriaFromFilterFields([])
   );
+  const listCriteria = React.useMemo(() => {
+    if (!managing) return criteria;
+    const filterFields = criteria.filterFields.filter(
+      (filter) => filter.field !== 'status' && filter.field !== 'archived'
+    );
+    if (statusFilter !== 'all')
+      filterFields.push({
+        field: 'status',
+        operation: 'in',
+        enumName: 'STATUS',
+        value: '',
+        values:
+          statusFilter === 'complete'
+            ? ['COMPLETE']
+            : ['OPEN', 'IN_PROGRESS', 'ON_HOLD']
+      });
+    return { ...criteria, filterFields };
+  }, [criteria, managing, statusFilter]);
+  useEffect(() => {
+    setManage(false);
+    setSelected([]);
+    setCopyFilter('all');
+    setStatusFilter('all');
+  }, [offline.enabled, generation]);
   useEffect(() => {
     if (!offline.initialized || onlyOffline) return;
     if (route.params?.fromHome && !fromHomeInit.current) {
@@ -152,14 +230,59 @@ export default function WorkOrdersScreen({
     }
     dispatch(
       getWorkOrders({
-        ...criteria,
+        ...listCriteria,
         pageSize: 10,
         pageNum: 0,
         direction: 'DESC'
       })
     ).catch(offline.reportError);
     fromHomeInit.current = true;
-  }, [criteria, onlyOffline, offline.initialized, offline.enabled]);
+  }, [listCriteria, onlyOffline, offline.initialized, offline.enabled]);
+
+  const fetchMore = () => {
+    if (!onlyOffline && !loadingGet && !lastPage)
+      void dispatch(getMoreWorkOrders(listCriteria, currentPageNum + 1)).catch(
+        offline.reportError
+      );
+  };
+  const enqueueSelection = async () => {
+    if (adding || !selected.length) return;
+    setAdding(true);
+    try {
+      await offline.prepareMany(selected);
+      if (generation === sessionGeneration()) setSelected([]);
+    } catch (error) {
+      if (generation === sessionGeneration()) offline.reportError(error);
+    } finally {
+      setAdding(false);
+    }
+  };
+  const removeCopy = (id: number) => {
+    Alert.alert(t('offline_remove'), t('offline_remove_clean_confirm'), [
+      { text: t('cancel'), style: 'cancel' },
+      {
+        text: t('offline_remove'),
+        style: 'destructive',
+        onPress: () => {
+          if (generation !== sessionGeneration()) return;
+          void offline
+            .removeCleanPreparation(id)
+            .then(() => {
+              if (
+                generation === sessionGeneration() &&
+                !onlyOffline &&
+                offline.networkAvailable
+              )
+                return dispatch(getWorkOrders(listCriteria));
+            })
+            .catch((error) => {
+              if (generation === sessionGeneration())
+                offline.reportError(error);
+            });
+        }
+      }
+    ]);
+  };
 
   useEffect(() => {
     const filterFields = route.params?.filterFields ?? [];
@@ -218,16 +341,92 @@ export default function WorkOrdersScreen({
           value={searchQuery}
           style={{ backgroundColor: theme.colors.background }}
         />
+        {offline.enabled && (
+          <View style={styles.managePanel}>
+            <View style={[styles.manageInset, styles.manageActions]}>
+              <Button
+                mode={managing ? 'outlined' : 'text'}
+                icon="download-outline"
+                onPress={() => {
+                  if (managing) setSelected([]);
+                  setManage(!managing);
+                }}
+              >
+                {t(managing ? 'close' : 'offline_manage_preparations')}
+              </Button>
+              <Text variant="labelMedium">
+                {t('offline_preparation_usage', {
+                  used: offline.prepared.length,
+                  limit: OFFLINE_LIMITS.preparedWorkOrders
+                })}
+              </Text>
+            </View>
+            {atLimit && (
+              <Text variant="bodySmall" style={styles.manageInset}>
+                {t('offline_preparation_capacity')}
+              </Text>
+            )}
+            {managing && (
+              <>
+                <OfflinePreparationFilters
+                  status={statusFilter}
+                  copy={visibleCopyFilter}
+                  networkAvailable={offline.networkAvailable}
+                  onStatusChange={setStatusFilter}
+                  onCopyChange={setCopyFilter}
+                />
+                {selectableIds.size > 0 && (
+                  <Button
+                    compact
+                    style={styles.manageInset}
+                    disabled={adding}
+                    onPress={() =>
+                      setSelected((ids) =>
+                        allVisibleSelected
+                          ? ids.filter((id) => !selectableIds.has(id))
+                          : [...new Set([...ids, ...selectableIds])]
+                      )
+                    }
+                  >
+                    {t(
+                      allVisibleSelected
+                        ? 'offline_deselect_all'
+                        : 'offline_select_all'
+                    )}
+                  </Button>
+                )}
+                {!!selected.length && (
+                  <Button
+                    mode="contained"
+                    style={styles.manageInset}
+                    loading={adding}
+                    disabled={adding}
+                    onPress={() => void enqueueSelection()}
+                  >
+                    {t('offline_prepare')} ({selected.length})
+                  </Button>
+                )}
+                {offline.preparations.some(
+                  (request) => request.state !== 'FAILED'
+                ) && (
+                  <Button
+                    compact
+                    style={styles.manageInset}
+                    disabled={!offline.networkAvailable || offline.syncing}
+                    onPress={() => void offline.sync()}
+                  >
+                    {t('offline_sync')}
+                  </Button>
+                )}
+              </>
+            )}
+          </View>
+        )}
         <ScrollView
           contentContainerStyle={{ paddingBottom: 100 }}
-          style={styles.scrollView}
+          style={[styles.scrollView, managing && styles.managedList]}
           onScroll={({ nativeEvent }) => {
-            if (isCloseToBottom(nativeEvent)) {
-              if (!onlyOffline && !loadingGet && !lastPage)
-                dispatch(getMoreWorkOrders(criteria, currentPageNum + 1)).catch(
-                  offline.reportError
-                );
-            }
+            if (isCloseToBottom(nativeEvent)) fetchMore();
           }}
           refreshControl={
             <RefreshControl
@@ -238,7 +437,7 @@ export default function WorkOrdersScreen({
           }
           scrollEventThrottle={400}
         >
-          {(!onlyOffline || offline.networkAvailable) && (
+          {!managing && (!onlyOffline || offline.networkAvailable) && (
             <ScrollView
               horizontal
               style={{
@@ -361,6 +560,14 @@ export default function WorkOrdersScreen({
                 : undefined;
               const status = localActivity?.status ?? workOrder.status;
               const badge = localActivity?.badge ?? 'offline_badge_prepared';
+              const preparation = requests.get(workOrder.id);
+              const selectable = selectableIds.has(workOrder.id);
+              const toggleSelection = () =>
+                setSelected((ids) =>
+                  ids.includes(workOrder.id)
+                    ? ids.filter((id) => id !== workOrder.id)
+                    : [...ids, workOrder.id]
+                );
               // Combine primaryUser and assignedTo without duplicates
               const allUsers: UserMiniDTO[] = [];
               const userIds = new Set();
@@ -381,15 +588,25 @@ export default function WorkOrdersScreen({
 
               return (
                 <TouchableOpacity
-                  onPress={() =>
+                  accessibilityRole={selectable ? 'checkbox' : undefined}
+                  accessibilityState={
+                    selectable
+                      ? { checked: selected.includes(workOrder.id) }
+                      : undefined
+                  }
+                  onPress={() => {
+                    if (managing) {
+                      if (selectable) toggleSelection();
+                      return;
+                    }
                     navigation.push('WODetails', {
                       id: workOrder.id,
                       ...(offline.enabled &&
                       visiblePrepared.some((item) => item.id === workOrder.id)
                         ? {}
                         : { workOrderProp: workOrder })
-                    })
-                  }
+                    });
+                  }}
                   key={workOrder.id}
                 >
                   <View style={styles.card}>
@@ -419,6 +636,20 @@ export default function WorkOrdersScreen({
                       )}
                       <View style={{ flex: 1 }}>
                         <View style={styles.cardHeader}>
+                          {selectable && (
+                            <View
+                              pointerEvents="none"
+                              importantForAccessibility="no-hide-descendants"
+                            >
+                              <Checkbox.Android
+                                status={
+                                  selected.includes(workOrder.id)
+                                    ? 'checked'
+                                    : 'unchecked'
+                                }
+                              />
+                            </View>
+                          )}
                           <View style={{ flex: 1, marginRight: 8 }}>
                             <Text
                               variant="titleMedium"
@@ -438,7 +669,25 @@ export default function WorkOrdersScreen({
                             backgroundColor={getStatusColor(status, theme)}
                           />
                         </View>
-                        {local && <Text variant="labelSmall">{t(badge)}</Text>}
+                        {local &&
+                          (badge !== 'offline_badge_prepared' ||
+                            !missingFiles?.has(workOrder.id)) && (
+                            <Text variant="labelSmall">{t(badge)}</Text>
+                          )}
+                        {local && missingFiles?.has(workOrder.id) && (
+                          <Text variant="labelSmall">
+                            {t('offline_files_not_downloaded')}
+                          </Text>
+                        )}
+                        {!local && preparation && (
+                          <Text variant="labelSmall">
+                            {t(
+                              preparation.state === 'FAILED'
+                                ? 'offline_preparation_failed'
+                                : 'offline_preparation_waiting'
+                            )}
+                          </Text>
+                        )}
                         {/* Body: Asset and Location */}
                         <View style={styles.cardBody}>
                           {workOrder.asset && (
@@ -521,6 +770,11 @@ export default function WorkOrdersScreen({
                         </View>
                       </View>
                     </View>
+                    {managing && local && (
+                      <Button compact onPress={() => removeCopy(workOrder.id)}>
+                        {t('offline_remove')}
+                      </Button>
+                    )}
                   </View>
                 </TouchableOpacity>
               );
@@ -542,6 +796,15 @@ export default function WorkOrdersScreen({
               </Text>
             </View>
           )}
+          {managing && !onlyOffline && !lastPage && (
+            <Button
+              loading={loadingGet}
+              disabled={loadingGet}
+              onPress={fetchMore}
+            >
+              {t('more')}
+            </Button>
+          )}
         </ScrollView>
       </Fragment>
     </View>
@@ -549,6 +812,14 @@ export default function WorkOrdersScreen({
 }
 
 const styles = StyleSheet.create({
+  managePanel: { gap: 5 },
+  manageInset: { marginHorizontal: 12 },
+  manageActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between'
+  },
   container: {
     flex: 1,
     // alignItems: 'center',
@@ -562,6 +833,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%'
   },
+  managedList: { marginTop: 8 },
   row: {
     display: 'flex',
     flexDirection: 'row',

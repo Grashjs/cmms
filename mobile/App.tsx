@@ -85,7 +85,9 @@ export default Sentry.wrap(function App() {
         const type = data.type as NotificationType;
         const id = data.id as number;
         let url = getNotificationUrl(type, id);
-        if (url) {
+        if (type === NotificationType.WORK_ORDER) {
+          navigate('WODetails', { id, openedFromPush: true });
+        } else if (url) {
           navigate(url.route, url.params);
         }
       });

@@ -53,6 +53,7 @@ const messageKeys: Record<string, string> = {
   REVISION_LIMIT: 'offline_save_failed',
   PREPARED_LIMIT: 'offline_limit',
   PREPARED_LIMIT_EXCEEDED: 'offline_limit',
+  PREPARATION_QUEUE_FULL: 'offline_preparation_capacity',
   SNAPSHOT_LIMIT: 'offline_limit',
   SNAPSHOT_LIMIT_EXCEEDED: 'offline_limit',
   RESPONSE_LIMIT: 'offline_limit',

@@ -106,3 +106,28 @@ export function useWorkOrderActivity() {
     ? observed.items
     : undefined;
 }
+
+export function usePreparationsMissingFiles() {
+  const { repository } = useOffline();
+  const [observed, setObserved] = useState<{
+    owner: typeof repository;
+    ids: Set<number>;
+  }>();
+  useEffect(() => {
+    if (!repository) return;
+    try {
+      const subscription = repository
+        .observePreparationsMissingFiles()
+        .subscribe({
+          next: (ids) => setObserved({ owner: repository, ids }),
+          error: () => setObserved(undefined)
+        });
+      return () => subscription.unsubscribe();
+    } catch (error) {
+      if (error?.code !== 'OFFLINE_DISABLED') throw error;
+    }
+  }, [repository]);
+  return repository && observed?.owner === repository
+    ? observed.ids
+    : undefined;
+}

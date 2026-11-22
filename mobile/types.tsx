@@ -73,7 +73,7 @@ export type RootStackParamList = {
         onSuccess?: (user: UserMiniDTO) => void; //unused. May be used in the future
       }
     | undefined;
-  WODetails: { id: number; workOrderProp?: WorkOrder };
+  WODetails: { id: number; workOrderProp?: WorkOrder; openedFromPush?: boolean };
   AssetDetails: { id: number; assetProp?: AssetDTO };
   LocationDetails: { id: number; locationProp?: Location };
   RequestDetails: { id: number; requestProp?: Request };
