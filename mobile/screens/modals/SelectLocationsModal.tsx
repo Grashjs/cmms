@@ -16,6 +16,7 @@ import {
   Text
 } from 'react-native-paper';
 import { useAppTheme } from '../../custom-theme';
+import { matchesSearch } from '../../utils/search';
 
 const ITEM_HEIGHT = 80;
 
@@ -145,7 +146,7 @@ export default function SelectLocationsModal({
   const filteredLocations = useMemo(
     () =>
       locationsMini.filter((location) =>
-        location.name.toLowerCase().includes(searchQuery.toLowerCase().trim())
+        matchesSearch(location.name, searchQuery)
       ),
     [locationsMini, searchQuery]
   );
