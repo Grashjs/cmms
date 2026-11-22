@@ -32,6 +32,11 @@ export const CompanySettingsContext = createContext<CompanySettingsContext>(
   {} as CompanySettingsContext
 );
 
+const hasValue = (value: unknown): boolean =>
+  Array.isArray(value)
+    ? value.length > 0
+    : value !== null && value !== undefined;
+
 export const CompanySettingsProvider: FC<{ children: ReactNode }> = (props) => {
   const { companySettings, getFilteredFields, isAuthenticated } = useAuth();
   const dispatch = useDispatch();
@@ -156,7 +161,9 @@ export const CompanySettingsProvider: FC<{ children: ReactNode }> = (props) => {
               yupSchema = Yup.string().required(requiredMessage).nullable();
               break;
             case 'file':
-              yupSchema = Yup.array().required(requiredMessage);
+              yupSchema = Yup.mixed()
+                .nullable()
+                .test('required', requiredMessage, hasValue);
               break;
             case 'number':
               yupSchema = Yup.number().required(requiredMessage).nullable();
@@ -165,7 +172,10 @@ export const CompanySettingsProvider: FC<{ children: ReactNode }> = (props) => {
               if (fields[fieldIndexInFields].type2 === 'priority')
                 yupSchema = Yup.string().required(requiredMessage);
               else if (fields[fieldIndexInFields].multiple) {
-                yupSchema = Yup.array().required(requiredMessage);
+                yupSchema = Yup.array()
+                  .nullable()
+                  .min(1, requiredMessage)
+                  .required(requiredMessage);
               } else {
                 yupSchema = Yup.object().required(requiredMessage).nullable();
               }
