@@ -392,6 +392,12 @@ const esJSON = {
   cancelled: 'Cancelada',
   reject: 'Rechazada',
   approve: 'Aprobada',
+  request_link_wo: 'Vincular a OT existente',
+  request_link_wo_description:
+    'Úselo cuando la solicitud repite un trabajo que ya tiene una orden de trabajo (abierta o cerrada). No se crea una OT nueva.',
+  request_link_wo_confirm:
+    'La solicitud quedará aprobada y vinculada a {{workOrder}}.',
+  request_link_wo_success: 'Solicitud vinculada a la orden de trabajo',
   request_create_success: 'Solicitud de trabajo creada exitosamente',
   request_create_failure: 'No se pudo crear la solicitud de trabajo',
   request_edit_failure: 'La solicitud no se pudo editar',
