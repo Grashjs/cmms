@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { ThemeProvider } from '@mui/material';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ThemeProvider, createTheme } from '@mui/material';
+import { zhTW } from '@mui/material/locale';
 import { themeCreator } from './base';
 import { StylesProvider } from '@mui/styles';
 import { CacheProvider } from '@emotion/react';
@@ -32,8 +33,12 @@ export const ThemeContext = React.createContext(
 const ThemeProviderWrapper: React.FC = (props) => {
   const curThemeName = localStorage.getItem('appTheme') || 'PureLightTheme';
   const [themeName, _setThemeName] = useState(curThemeName);
-  const theme = themeCreator(themeName);
   const { i18n } = useTranslation();
+  const language = i18n.language;
+  const theme = useMemo(() => {
+    const baseTheme = themeCreator(themeName);
+    return language === 'zh_tw' ? createTheme(baseTheme, zhTW) : baseTheme;
+  }, [themeName, language]);
   const rtl = i18n.dir() === 'rtl';
   const setThemeName = (themeName: string): void => {
     localStorage.setItem('appTheme', themeName);

@@ -163,6 +163,7 @@ public class Helper {
             case HU -> new Locale("hu", "HU");
             case NL -> new Locale("nl", "NL");
             case ZH_CN -> new Locale("zh", "CN");
+            case ZH_TW -> Locale.TAIWAN;
             case ZH -> new Locale("zh", "CN");
             case BA -> new Locale("ba", "BA");
             case JA -> new Locale("ja", "JP");

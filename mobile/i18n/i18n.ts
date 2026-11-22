@@ -18,6 +18,7 @@ import nlJSON from './translations/nl';
 import zhCnJSON from './translations/zh_cn';
 import baJSON from './translations/ba';
 import jaJSON from './translations/ja';
+import zhTwJSON from './translations/zh_tw';
 
 const resources = {
   de: { translation: deJSON },
@@ -35,7 +36,8 @@ const resources = {
   nl: { translation: nlJSON },
   zh_cn: { translation: zhCnJSON },
   ba: { translation: baJSON },
-  ja: { translation: jaJSON }
+  ja: { translation: jaJSON },
+  zh_tw: { translation: zhTwJSON }
 };
 
 i18n
@@ -71,7 +73,8 @@ export type SupportedLanguage =
   | 'NL'
   | 'ZH_CN'
   | 'BA'
-  | 'JA';
+  | 'JA'
+  | 'ZH_TW';
 
 export const supportedLanguages: {
   code: Lowercase<SupportedLanguage>;
@@ -92,7 +95,8 @@ export const supportedLanguages: {
   { code: 'nl', label: 'Dutch' },
   { code: 'zh_cn', label: 'Chinese (Simplified)' },
   { code: 'ba', label: 'Bosnian' },
-  { code: 'ja', label: 'Japanese' }
+  { code: 'ja', label: 'Japanese' },
+  { code: 'zh_tw', label: 'Chinese (Traditional)' }
 ];
 
 export default i18n;

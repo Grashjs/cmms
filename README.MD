@@ -161,7 +161,8 @@ repository's Issue Tracker or email [contact@atlas-cmms.com](8mailto:contact@atl
 - Italian
 - Russian
 - Dutch
-- Chinese
+- Chinese (Simplified)
+- Chinese (Traditional)
 - Hungarian
 - Bosnian
 - Japanese
