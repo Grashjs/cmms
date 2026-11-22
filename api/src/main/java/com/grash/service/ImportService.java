@@ -310,7 +310,18 @@ public class ImportService {
                 "import-templates/" + language.name().toLowerCase() + "/" + importEntity.name().toLowerCase() + ".csv";
         String fallbackPath = "import-templates/en/" + importEntity.name().toLowerCase() + ".csv";
 
-        return readFileWithFallback(path, fallbackPath);
+        byte[] content = readFileWithFallback(path, fallbackPath);
+        // Prepend a UTF-8 BOM so Excel detects the encoding (accents, ñ, etc.)
+        if (content.length >= 3 && (content[0] & 0xFF) == 0xEF && (content[1] & 0xFF) == 0xBB
+                && (content[2] & 0xFF) == 0xBF) {
+            return content;
+        }
+        byte[] withBom = new byte[content.length + 3];
+        withBom[0] = (byte) 0xEF;
+        withBom[1] = (byte) 0xBB;
+        withBom[2] = (byte) 0xBF;
+        System.arraycopy(content, 0, withBom, 3, content.length);
+        return withBom;
     }
 
     private byte[] readFileWithFallback(String path, String fallbackPath) throws IOException {

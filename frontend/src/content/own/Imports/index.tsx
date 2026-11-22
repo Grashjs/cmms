@@ -46,6 +46,19 @@ import i18n from 'i18next';
 import downloadFile from 'downloadjs';
 import useImport, { EntityType } from 'src/hooks/useImport';
 
+/**
+ * Decodes CSV bytes explicitly so accents and ñ are not garbled.
+ * Tries UTF-8 first (TextDecoder strips the BOM if present) and falls
+ * back to Windows-1252 for files saved by Excel as plain "CSV".
+ */
+const decodeCsv = (data: Uint8Array): string => {
+  try {
+    return new TextDecoder('utf-8', { fatal: true }).decode(data);
+  } catch {
+    return new TextDecoder('windows-1252').decode(data);
+  }
+};
+
 interface OwnProps {}
 
 export interface OwnHeader {
@@ -415,7 +428,9 @@ const Import = ({}: OwnProps) => {
                   reader.onload = (e: any) => {
                     const data = new Uint8Array(e.target.result);
 
-                    const workbook = read(data, { type: 'array' });
+                    const workbook = file.name?.toLowerCase().endsWith('.csv')
+                      ? read(decodeCsv(data), { type: 'string' })
+                      : read(data, { type: 'array' });
 
                     const sheetName = workbook.SheetNames[0];
                     const sheet = workbook.Sheets[sheetName];
