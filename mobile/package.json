@@ -37,6 +37,7 @@
     "expo-asset": "~11.1.7",
     "expo-audio": "~0.4.9",
     "expo-camera": "~16.1.11",
+    "expo-clipboard": "~7.1.5",
     "expo-constants": "~17.1.8",
     "expo-dev-client": "~5.2.4",
     "expo-device": "~7.1.4",

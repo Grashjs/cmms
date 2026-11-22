@@ -19,11 +19,13 @@ import {
 } from './config';
 import { ZendeskProvider } from 'react-use-zendesk';
 import * as Sentry from '@sentry/react';
+import { isInvitationPage } from './utils/invitation';
 
 Sentry.init({
   dsn: sentryDsn,
   environment: sentryEnvironment,
   release: sentryRelease,
+  enabled: !isInvitationPage(),
   tracesSampleRate: 0.1,
   integrations: [Sentry.browserTracingIntegration()]
 });
@@ -38,7 +40,7 @@ ReactDOM.render(
         <TitleProvider>
           <BrowserRouter>
             <ScrollTop />
-            <ZendeskProvider apiKey={zendeskKey}>
+            <ZendeskProvider apiKey={isInvitationPage() ? '' : zendeskKey}>
               <AuthProvider>
                 <Sentry.ErrorBoundary
                   fallback={<div>Something went wrong.</div>}

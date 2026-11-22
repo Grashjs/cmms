@@ -21,7 +21,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public CustomUserDetail loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userService.whoami(username, true);
+        User user = userService.whoami(username, false);
         return CustomUserDetail.builder()//
                 .user(user)//
                 .build();

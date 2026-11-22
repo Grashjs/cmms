@@ -5,6 +5,7 @@ import type { AppThunk } from '../store';
 import { OwnUser as User, UserMiniDTO } from '../models/user';
 import api from '../utils/api';
 import { revertAll } from '../utils/redux';
+import { InvitationResponse } from '../models/invitation';
 
 const basePath = 'users';
 
@@ -202,15 +203,14 @@ export const deleteUser =
   };
 
 export const inviteUsers =
-  (roleId: number, emails: string[]): AppThunk =>
-  async (dispatch) => {
-    const successResponse = await api.post<{ success: boolean }>(
-      'users/invite',
-      {
-        role: { id: roleId },
-        emails
-      }
-    );
+  (roleId: number, emails: string[], disableSendingEmail = false): AppThunk =>
+  async (): Promise<InvitationResponse> => {
+    // Return secrets only to the requesting screen, never to persisted Redux state.
+    return api.post<InvitationResponse>('users/invite', {
+      role: { id: roleId },
+      emails,
+      disableSendingEmail
+    });
   };
 
 export default slice;

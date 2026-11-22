@@ -1,3 +1,4 @@
+import { openAttachment } from 'src/utils/attachment';
 import { useState, useEffect, useCallback } from 'react';
 import { Stomp } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
@@ -74,7 +75,7 @@ export const useExport = (): UseExportReturn => {
               const url = message.body;
               if (url.includes('error:')) reject();
               else {
-                window.open(url, '_blank');
+                openAttachment(url);
                 resolve();
               }
             } catch (error) {

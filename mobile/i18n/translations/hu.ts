@@ -1,4 +1,21 @@
 const locale = {
+  management_access_denied: "A művelet megtagadva: ellenőrizze a jogosultságait, a célszerepkört és a fiók tulajdonosát.",
+  no_assignable_roles: "A jelenlegi jogosultságaival nem rendelhet hozzá szerepkört.",
+  invitation_created: 'Meghívó létrehozva',
+  invitation_delivery_notice:
+    'Oszd meg ezt a személyes hivatkozást a meghívott személlyel. A hivatkozás lejár, csak egyszer használható, és egy új meghívó érvényteleníti a korábbi hivatkozást. A hivatkozások törlődnek, amikor elhagyod ezt a képernyőt.',
+  invitation_expires: 'Lejárat: {{date}}',
+  invitation_copy: 'Hivatkozás másolása',
+  invitation_share: 'Hivatkozás megosztása',
+  invitation_copied: 'Hivatkozás kimásolva',
+  invitation_copy_failed: 'Nem sikerült másolni a hivatkozást. Próbáld újra.',
+  invitation_share_failed:
+    'Nem sikerült megosztani a hivatkozást. Próbáld újra.',
+  invitation_browser_acceptance:
+    'A meghívott személy a webböngészőben fejezi be a regisztrációt, majd bejelentkezik a mobilalkalmazásba.',
+  invitation_send_email: 'Meghívó kérése e-mailben is',
+  invitation_email_optional:
+    'E-mailt csak akkor kérünk, ha a küldés engedélyezett a kiszolgálón. A meghívó létrehozása nem igazolja az e-mail kézbesítését. A hivatkozást mindig kimásolhatod vagy megoszthatod.',
   DUPLICATE_OF: 'Másolata',
   DUPLICATED_BY: 'Másolta',
   RELATED_TO: 'Kapcsolódik',

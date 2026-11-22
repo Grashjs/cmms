@@ -1,4 +1,6 @@
 const ptBRJSON = {
+  management_access_denied: "Ação negada: verifique suas permissões, a função de destino e o proprietário da conta.",
+  no_assignable_roles: "Nenhuma função pode ser atribuída com suas permissões atuais.",
   DUPLICATE_OF: 'Duplicado de',
   DUPLICATED_BY: 'Duplicado por',
   RELATED_TO: 'Relacionado a',
@@ -779,6 +781,14 @@ const ptBRJSON = {
     "Você pode adicionar 20 usuários de cada vez pressionando 'tab' ou 'enter' após cada entrada de e-mail. E-mails duplicados e registrados serão removidos ao registrar os usuários solicitados.",
   enter_email: 'Insira o endereço de e-mail',
   users_invite_success: 'Os usuários foram convidados',
+  invitation_send_email: 'Enviar convites por e-mail',
+  invitation_links_notice:
+    'Copie estes links agora e envie cada um apenas ao destinatário correto. Os links expiram e só podem ser usados uma vez. Renovar um convite invalida o link anterior.',
+  invitation_link: 'Link do convite',
+  invitation_expires: 'Expira em: {{date}}',
+  invitation_unavailable:
+    'Este convite é inválido, expirou ou já foi usado. Peça um novo link de convite a um administrador autorizado. Os links antigos que contêm apenas e-mail e função precisam ser renovados.',
+  invitation_join_details: 'Entrar em {{company}} como {{role}}',
   users_invite_failure:
     'Os usuários não podem ser convidados. Verifique a contagem atual de membros da sua assinatura',
   please_type_emails: 'Por favor, digite os e-mails para convidar',

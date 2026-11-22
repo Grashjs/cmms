@@ -1,4 +1,20 @@
 const frJSON = {
+  management_access_denied: "Opération refusée : vérifiez vos droits, le rôle visé et le propriétaire du compte.",
+  no_assignable_roles: "Aucun rôle ne peut être attribué avec vos droits actuels.",
+  invitation_created: 'Invitation créée',
+  invitation_delivery_notice:
+    'Transmettez ce lien personnel à la personne invitée. Il expire, ne sert qu’une fois et une nouvelle invitation invalide le lien précédent. Les liens sont effacés à la fermeture de cet écran.',
+  invitation_expires: 'Expire le {{date}}',
+  invitation_copy: 'Copier le lien',
+  invitation_share: 'Partager le lien',
+  invitation_copied: 'Lien copié',
+  invitation_copy_failed: 'Impossible de copier le lien. Réessayez.',
+  invitation_share_failed: 'Impossible de partager le lien. Réessayez.',
+  invitation_browser_acceptance:
+    'La personne invitée termine son inscription dans le navigateur web, puis se connecte à l’application mobile.',
+  invitation_send_email: 'Demander aussi un email d’invitation',
+  invitation_email_optional:
+    'L’email est demandé uniquement si l’envoi est activé sur le serveur. Une invitation créée ne confirme pas la réception d’un email. Le lien peut toujours être copié ou partagé.',
   Blueprints: 'Plans',
   'Extended Sidebar': 'Barre latérale étendue',
   'Accent Sidebar': "Barre latérale d'accentuation",

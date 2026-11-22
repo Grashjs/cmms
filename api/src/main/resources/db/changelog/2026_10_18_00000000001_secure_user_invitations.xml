@@ -1,0 +1,60 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="secure_user_invitations" author="codex">
+        <addColumn tableName="user_invitation">
+            <column name="company_id" type="BIGINT"/>
+            <column name="token_hash" type="VARCHAR(64)"/>
+            <column name="expires_at" type="TIMESTAMP"/>
+            <column name="consumed_at" type="TIMESTAMP"/>
+            <column name="revoked_at" type="TIMESTAMP"/>
+            <column name="invited_by_id" type="BIGINT"/>
+            <column name="invited_role_id" type="BIGINT"/>
+            <column name="accepted_user_id" type="BIGINT"/>
+        </addColumn>
+
+        <!-- Legacy email/role links have no secret and must never become valid tokens.
+             Preserve their history, recover the tenant when possible, and revoke all of them.
+             An authorized company member must issue a fresh invitation after this upgrade. -->
+        <sql>
+            UPDATE user_invitation i
+            SET company_id = COALESCE(
+                    (SELECT c.id FROM role r JOIN company c ON c.company_settings_id = r.company_settings_id
+                     WHERE r.id = i.role_id),
+                    (SELECT u.company_id FROM own_user u WHERE u.id = i.created_by)),
+                invited_by_id = i.created_by,
+                invited_role_id = i.role_id,
+                revoked_at = CURRENT_TIMESTAMP,
+                expires_at = CURRENT_TIMESTAMP;
+        </sql>
+
+        <!-- Removing a role invalidates pending links without erasing acceptance history. -->
+        <dropNotNullConstraint tableName="user_invitation" columnName="role_id" columnDataType="BIGINT"/>
+        <dropForeignKeyConstraint baseTableName="user_invitation" constraintName="fkf77hi4ixclj9edbkfheps1sv9"/>
+        <addForeignKeyConstraint baseTableName="user_invitation" baseColumnNames="role_id"
+                                 referencedTableName="role" referencedColumnNames="id"
+                                 constraintName="fkf77hi4ixclj9edbkfheps1sv9" onDelete="SET NULL"/>
+
+        <addForeignKeyConstraint baseTableName="user_invitation" baseColumnNames="company_id"
+                                 referencedTableName="company" referencedColumnNames="id"
+                                 constraintName="fk_user_invitation_company" onDelete="CASCADE"/>
+        <addUniqueConstraint tableName="user_invitation" columnNames="token_hash"
+                             constraintName="uk_user_invitation_token_hash"/>
+        <createIndex tableName="user_invitation" indexName="idx_user_invitation_company_email">
+            <column name="company_id"/>
+            <column name="email"/>
+        </createIndex>
+        <sql>
+            ALTER TABLE user_invitation ADD CONSTRAINT ck_user_invitation_secure_or_revoked
+            CHECK (revoked_at IS NOT NULL OR
+                   (token_hash IS NOT NULL AND company_id IS NOT NULL AND expires_at IS NOT NULL
+                    AND invited_by_id IS NOT NULL AND invited_role_id IS NOT NULL));
+            ALTER TABLE user_invitation ADD CONSTRAINT ck_user_invitation_consumption_audit
+            CHECK ((consumed_at IS NULL AND accepted_user_id IS NULL)
+                   OR (consumed_at IS NOT NULL AND accepted_user_id IS NOT NULL));
+        </sql>
+    </changeSet>
+</databaseChangeLog>

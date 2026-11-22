@@ -12,6 +12,7 @@ import com.grash.service.LdapService;
 import com.grash.service.RateLimiterService;
 import com.grash.service.RefreshTokenService;
 import com.grash.service.UserService;
+import com.grash.service.UserInvitationService;
 import com.grash.service.VerificationTokenService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -40,6 +41,7 @@ public class AuthController {
     private static final String TOO_MANY_ATTEMPTS_MESSAGE = "Too many attempts. Please try again later.";
 
     private final UserService userService;
+    private final UserInvitationService userInvitationService;
     private final PasswordEncoder passwordEncoder;
     private final VerificationTokenService verificationTokenService;
     private final UserMapper userMapper;
@@ -92,6 +94,14 @@ public class AuthController {
             rateLimiterService.resetLoginAttempts(key);
         }
         return new ResponseEntity<>(authResponse, HttpStatus.OK);
+    }
+
+    @PostMapping("/invitations/preview")
+    public ResponseEntity<InvitationPreviewDTO> previewInvitation(@Valid @RequestBody InvitationPreviewRequest request) {
+        return ResponseEntity.ok()
+                .header("Cache-Control", "no-store")
+                .header("Referrer-Policy", "no-referrer")
+                .body(userInvitationService.preview(request.getToken()));
     }
 
     @PostMapping(

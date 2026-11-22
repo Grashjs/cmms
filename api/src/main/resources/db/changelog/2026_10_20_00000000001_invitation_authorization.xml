@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+    <changeSet id="2026_10_20_invitation_authorization" author="security">
+        <!-- No inferred grants: invitations without issuance snapshots require renewal. -->
+        <addColumn tableName="user_invitation">
+            <column name="role_authorization_hash" type="varchar(64)"/>
+            <column name="issuer_authorization_hash" type="varchar(64)"/>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

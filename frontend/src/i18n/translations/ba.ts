@@ -1,4 +1,6 @@
 const locale = {
+  management_access_denied: "Radnja je odbijena: provjerite svoja prava, ciljnu ulogu i vlasnika računa.",
+  no_assignable_roles: "Nema uloge koju možete dodijeliti sa svojim trenutnim pravima.",
   DUPLICATE_OF: 'Duplikat od',
   DUPLICATED_BY: 'Duplicirano od',
   RELATED_TO: 'Povezano sa',
@@ -742,6 +744,14 @@ const locale = {
     "Možete dodati 20 korisnika odjednom pritiskom na 'tab' ili 'enter' nakon unosa svake e-pošte. Svi duplicirani i već registrovani emailovi će biti uklonjeni prilikom registracije traženih korisnika.",
   enter_email: 'Unesite email adresu',
   users_invite_success: 'Korisnici su pozvani',
+  invitation_send_email: 'Pošalji pozivnice e-poštom',
+  invitation_links_notice:
+    'Kopirajte ove linkove sada i svaki pošaljite samo predviđenom primaocu. Linkovi imaju rok važenja i mogu se koristiti samo jednom. Obnavljanjem pozivnice prethodni link postaje nevažeći.',
+  invitation_link: 'Link pozivnice',
+  invitation_expires: 'Važi do: {{date}}',
+  invitation_unavailable:
+    'Ova pozivnica je nevažeća, istekla je ili je već iskorištena. Zatražite novi link pozivnice od ovlaštenog administratora. Stari linkovi koji sadrže samo adresu e-pošte i ulogu moraju se obnoviti.',
+  invitation_join_details: 'Pridruži se kompaniji {{company}} s ulogom {{role}}',
   users_invite_failure:
     'Korisnici ne mogu biti pozvani. Provjerite trenutni broj članova vaše pretplate.',
   please_type_emails: 'Molimo unesite e-poštu za poziv',

@@ -5,10 +5,10 @@ import com.grash.model.File;
 import com.grash.utils.Helper;
 import io.minio.*;
 import io.minio.errors.*;
-import io.minio.http.Method;
+import com.grash.storage.AttachmentLinks;
+import com.grash.storage.AttachmentPolicy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -17,13 +17,10 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.annotation.PostConstruct;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.*;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -37,29 +34,19 @@ public class MinioService implements StorageService {
     private String minioAccessKey;
     @Value("${storage.minio.secret-key}")
     private String minioSecretKey;
-    @Value("${storage.minio.public-endpoint}")
-    private String minioPublicEndpoint;
-    private final CacheService cacheService;
+    private final AttachmentLinks attachmentLinks;
 
     private MinioClient minioClient;
-    private static boolean configured = false;
+    private boolean configured = false;
 
     @PostConstruct
     private void init() {
-        if (minioEndpoint.isEmpty() || minioBucket.isEmpty() || minioAccessKey.isEmpty() || minioSecretKey.isEmpty() || minioPublicEndpoint.isEmpty()) {
+        if (minioEndpoint.isEmpty() || minioBucket.isEmpty() || minioAccessKey.isEmpty() || minioSecretKey.isEmpty()) {
             return;
         }
         try {
-            URI minioEndpointURI = new URI(minioEndpoint);
-            MinioClient.Builder minioClientBuilder = MinioClient.builder()
-                    .endpoint(minioEndpoint)
-                    .credentials(minioAccessKey, minioSecretKey);
-
-            if (Helper.isLocalhost(minioPublicEndpoint)) minioClientBuilder.httpClient(
-                    new OkHttpClient.Builder().proxy(new Proxy(Proxy.Type.HTTP,
-                            new InetSocketAddress(minioEndpointURI.getHost(), minioEndpointURI.getPort()))).build()
-            );
-            minioClient = minioClientBuilder.build();
+            minioClient = MinioClient.builder().endpoint(minioEndpoint)
+                    .credentials(minioAccessKey, minioSecretKey).build();
             // Check if the bucket exists, create if it doesn't
             boolean found = minioClient.bucketExists(BucketExistsArgs.builder().bucket(minioBucket).build());
             if (!found) {
@@ -68,8 +55,6 @@ public class MinioService implements StorageService {
             configured = true;
         } catch (MinioException | IOException | InvalidKeyException | NoSuchAlgorithmException e) {
             throw new CustomException("Error configuring MinIO: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -81,13 +66,14 @@ public class MinioService implements StorageService {
         }
 
         String filePath = Helper.generateUniqueFilePath(file.getOriginalFilename(), folder);
-        try {
+        try (InputStream input = file.getInputStream()) {
             minioClient.putObject(
                     PutObjectArgs.builder()
                             .bucket(minioBucket)
                             .object(filePath)
-                            .stream(file.getInputStream(), file.getSize(), -1)
-                            .contentType(file.getContentType())
+                            .stream(input, file.getSize(), -1)
+                            .contentType(AttachmentPolicy.DOWNLOAD_TYPE)
+                            .headers(AttachmentPolicy.storageHeaders(file.getOriginalFilename()))
                             .build()
             );
 
@@ -113,7 +99,8 @@ public class MinioService implements StorageService {
                             .bucket(minioBucket)
                             .object(filePath)
                             .stream(inputStream, data.length, -1)
-                            .contentType("image/jpeg")
+                            .contentType(AttachmentPolicy.DOWNLOAD_TYPE)
+                            .headers(AttachmentPolicy.storageHeaders(fileName))
                             .build()
             );
             return filePath;
@@ -137,7 +124,8 @@ public class MinioService implements StorageService {
                             .bucket(minioBucket)
                             .object(filePath)
                             .stream(inputStream, data.length, -1)
-                            .contentType(contentType)
+                            .contentType(AttachmentPolicy.DOWNLOAD_TYPE)
+                            .headers(AttachmentPolicy.storageHeaders(filePath))
                             .build()
             );
         } catch (MinioException | IOException | InvalidKeyException | NoSuchAlgorithmException e) {
@@ -162,57 +150,29 @@ public class MinioService implements StorageService {
     }
 
     public String generateSignedUrl(File file, long expirationMinutes) {
-        return cacheService.getCachedOrGenerateSignedUrl(file, expirationMinutes,
-                () -> generateSignedUrl(file.getPath(), expirationMinutes));
+        return attachmentLinks.sign(file.getPath(), file.getName(), expirationMinutes);
     }
 
     public String generateSignedUrl(String filePath, long expirationMinutes) {
+        return attachmentLinks.sign(filePath, filePath, expirationMinutes);
+    }
+
+    public InputStream openStream(String filePath) {
+        checkIfConfigured();
         try {
-            String internalUrl = minioClient.getPresignedObjectUrl(
-                    GetPresignedObjectUrlArgs.builder()
-                            .method(Method.GET)
-                            .bucket(minioBucket)
-                            .object(filePath)
-                            .expiry(Math.toIntExact(expirationMinutes), TimeUnit.MINUTES)
-                            .build()
-            );
-            if (!minioPublicEndpoint.isEmpty()) {
-                return internalUrl.replace(minioEndpoint, minioPublicEndpoint);
-            }
-            return internalUrl;
-        } catch (Exception exception) {
-            throw new RuntimeException(exception);
+            return minioClient.getObject(GetObjectArgs.builder().bucket(minioBucket).object(filePath).build());
+        } catch (ErrorResponseException e) {
+            throw new CustomException("File not found", HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            throw new CustomException("Error retrieving file", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     public byte[] download(String filePath) {
-        checkIfConfigured();
-        InputStream inputStream = null;
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        try {
-            inputStream = minioClient.getObject(
-                    GetObjectArgs.builder()
-                            .bucket(minioBucket)
-                            .object(filePath)
-                            .build()
-            );
-            byte[] buffer = new byte[8192];
-            int bytesRead;
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                byteArrayOutputStream.write(buffer, 0, bytesRead);
-            }
-            return byteArrayOutputStream.toByteArray();
-        } catch (MinioException | IOException | InvalidKeyException | NoSuchAlgorithmException e) {
+        try (InputStream input = openStream(filePath)) {
+            return input.readAllBytes();
+        } catch (IOException e) {
             throw new CustomException("Error retrieving file", HttpStatus.INTERNAL_SERVER_ERROR);
-        } finally {
-            try {
-                if (inputStream != null) {
-                    inputStream.close();
-                }
-                byteArrayOutputStream.close();
-            } catch (IOException e) {
-                throw new CustomException("Error closing stream", HttpStatus.INTERNAL_SERVER_ERROR);
-            }
         }
     }
 

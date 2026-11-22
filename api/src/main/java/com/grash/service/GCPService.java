@@ -1,6 +1,8 @@
 package com.grash.service;
 
 import com.google.auth.Credentials;
+import com.grash.storage.AttachmentLinks;
+import com.grash.storage.AttachmentPolicy;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.*;
 import com.grash.exception.CustomException;
@@ -18,8 +20,7 @@ import jakarta.annotation.PostConstruct;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.nio.channels.Channels;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -37,8 +38,8 @@ public class GCPService implements StorageService {
     @Value("${storage.gcp.bucket-name}")
     private String gcpBucketName;
     private Storage storage;
-    private static boolean configured = false;
-    private final CacheService cacheService;
+    private boolean configured = false;
+    private final AttachmentLinks attachmentLinks;
 
     @PostConstruct
     private void init() {
@@ -75,7 +76,9 @@ public class GCPService implements StorageService {
         try (InputStream inputStream = file.getInputStream()) {
             BlobId blobId = BlobId.of(gcpBucketName, filePath);
             BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
-                    .setContentType(file.getContentType())
+                    .setContentType(AttachmentPolicy.DOWNLOAD_TYPE)
+                    .setContentDisposition(AttachmentPolicy.disposition(file.getOriginalFilename(), false))
+                    .setCacheControl(AttachmentPolicy.CACHE_CONTROL)
                     .build();
 
             storage.createFrom(blobInfo, inputStream,
@@ -102,7 +105,10 @@ public class GCPService implements StorageService {
 
         try {
             storage.create(
-                    BlobInfo.newBuilder(BlobId.of(gcpBucketName, filePath)).build(),
+                    BlobInfo.newBuilder(BlobId.of(gcpBucketName, filePath))
+                            .setContentType(AttachmentPolicy.DOWNLOAD_TYPE)
+                            .setContentDisposition(AttachmentPolicy.disposition(fileName, false))
+                            .setCacheControl(AttachmentPolicy.CACHE_CONTROL).build(),
                     data,
                     Storage.BlobTargetOption.predefinedAcl(Storage.PredefinedAcl.PRIVATE)
             );
@@ -123,7 +129,9 @@ public class GCPService implements StorageService {
         try {
             storage.create(
                     BlobInfo.newBuilder(BlobId.of(gcpBucketName, filePath))
-                            .setContentType(contentType)
+                            .setContentType(AttachmentPolicy.DOWNLOAD_TYPE)
+                            .setContentDisposition(AttachmentPolicy.disposition(filePath, false))
+                            .setCacheControl(AttachmentPolicy.CACHE_CONTROL)
                             .build(),
                     data,
                     Storage.BlobTargetOption.predefinedAcl(Storage.PredefinedAcl.PRIVATE)
@@ -160,25 +168,19 @@ public class GCPService implements StorageService {
     }
 
     public String generateSignedUrl(File file, long expirationMinutes) {
-        return cacheService.getCachedOrGenerateSignedUrl(file, expirationMinutes,
-                () -> generateSignedUrl(file.getPath(), expirationMinutes));
+        return attachmentLinks.sign(file.getPath(), file.getName(), expirationMinutes);
     }
 
     public String generateSignedUrl(String filePath, long expirationMinutes) {
-        checkIfConfigured();
-        BlobInfo blobInfo = BlobInfo.newBuilder(BlobId.of(gcpBucketName, filePath)).build();
-        return generateSignedUrl(blobInfo, expirationMinutes);
+        return attachmentLinks.sign(filePath, filePath, expirationMinutes);
     }
 
-    public String generateSignedUrl(BlobInfo blobInfo, long expirationMinutes) {
-        try {
-            return storage.signUrl(blobInfo, expirationMinutes, java.util.concurrent.TimeUnit.MINUTES,
-                            Storage.SignUrlOption.withV4Signature())
-                    .toString();
-        } catch (StorageException e) {
-            throw new CustomException("Error generating signed URL: " + e.getMessage(),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public InputStream openStream(String filePath) {
+        checkIfConfigured();
+        Blob blob = storage.get(BlobId.of(gcpBucketName, filePath));
+        if (blob == null) throw new CustomException("File not found", HttpStatus.NOT_FOUND);
+        // Pin the generation: metadata/content must not change between lookup and reading.
+        return Channels.newInputStream(blob.reader(Blob.BlobSourceOption.generationMatch()));
     }
 
     private void checkIfConfigured() {

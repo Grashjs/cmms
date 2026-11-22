@@ -1,3 +1,4 @@
+import { attachmentUrl } from 'src/utils/attachment';
 import File from '../../../models/owns/file';
 import { IconButton, Link, List, ListItem, ListItemText } from '@mui/material';
 import DoDisturbOnTwoToneIcon from '@mui/icons-material/DoDisturbOnTwoTone';
@@ -41,7 +42,12 @@ export default function FilesList({
         >
           <ListItemText
             primary={
-              <Link href={file.url} variant="h6">
+              <Link
+                href={attachmentUrl(file.url)}
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="h6"
+              >
                 {file.name}
               </Link>
             }

@@ -47,6 +47,33 @@ class RateLimitFilterTest {
     }
 
     @Test
+    void attachmentUsesItsOwnQuotaWithoutExhaustingLoginQuota() throws Exception {
+        when(rateLimiterService.isRateLimitEnabled()).thenReturn(true);
+        when(request.getServletPath()).thenReturn("/files/content/signed-capability");
+        when(request.getMethod()).thenReturn("GET");
+        when(clientIpResolver.resolve(request)).thenReturn("10.0.0.1");
+        when(rateLimiterService.resolveAttachmentBucket("10.0.0.1")).thenReturn(bucket);
+        when(bucket.tryConsume(1)).thenReturn(true);
+        filter.doFilterInternal(request, response, filterChain);
+        verify(filterChain).doFilter(request, response);
+        verify(rateLimiterService, never()).resolveUnAuthenticatedUserBucket(any());
+    }
+
+    @Test
+    void attachmentQuotaExceededReturns429() throws Exception {
+        when(rateLimiterService.isRateLimitEnabled()).thenReturn(true);
+        when(request.getServletPath()).thenReturn("/files/content/signed-capability");
+        when(request.getMethod()).thenReturn("HEAD");
+        when(clientIpResolver.resolve(request)).thenReturn("10.0.0.1");
+        when(rateLimiterService.resolveAttachmentBucket("10.0.0.1")).thenReturn(bucket);
+        when(bucket.tryConsume(1)).thenReturn(false);
+        when(response.getWriter()).thenReturn(new PrintWriter(new StringWriter()));
+        filter.doFilterInternal(request, response, filterChain);
+        verify(filterChain, never()).doFilter(any(), any());
+        verify(response).setStatus(429);
+    }
+
+    @Test
     void rateLimitDisabled_skipsCheck() throws Exception {
         when(rateLimiterService.isRateLimitEnabled()).thenReturn(false);
 

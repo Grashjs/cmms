@@ -1,4 +1,6 @@
 const esJSON = {
+  management_access_denied: "Acción denegada: compruebe sus permisos, el rol de destino y el propietario de la cuenta.",
+  no_assignable_roles: "No hay ningún rol que pueda asignar con sus permisos actuales.",
   DUPLICATE_OF: 'Duplicado de',
   DUPLICATED_BY: 'Duplicado por',
   RELATED_TO: 'Relacionado a',
@@ -767,6 +769,14 @@ const esJSON = {
     "Puede agregar 20 usuarios a la vez presionando 'tab' o 'enter' después de cada entrada de correo electrónico. Cualquier correo electrónico duplicado y registrado se eliminará al registrar a los usuarios solicitados.",
   enter_email: 'Introduzca la dirección de correo electrónico',
   users_invite_success: 'Los usuarios han sido invitados',
+  invitation_send_email: 'Enviar invitaciones por correo electrónico',
+  invitation_links_notice:
+    'Copie estos enlaces ahora y envíe cada uno únicamente a su destinatario. Los enlaces caducan y solo se pueden usar una vez. Al renovar una invitación, el enlace anterior deja de ser válido.',
+  invitation_link: 'Enlace de invitación',
+  invitation_expires: 'Caduca: {{date}}',
+  invitation_unavailable:
+    'Esta invitación no es válida, ha caducado o ya se ha utilizado. Solicite un nuevo enlace de invitación a un administrador autorizado. Los enlaces antiguos que solo contienen el correo electrónico y el rol deben renovarse.',
+  invitation_join_details: 'Unirse a {{company}} como {{role}}',
   users_invite_failure:
     'No se puede invitar a los usuarios. Verifique el número de miembros de su suscripción actual',
   please_type_emails: 'Por favor escriba los correos electrónicos para invitar',

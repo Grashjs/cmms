@@ -1,6 +1,8 @@
 package com.grash.service;
 
 import com.grash.dto.AuthTokens;
+import com.grash.dto.IssuedInvitationDTO;
+import com.grash.dto.InvitationResponse;
 import com.grash.dto.SignupSuccessResponse;
 import com.grash.dto.SuccessResponse;
 import com.grash.dto.UserInvitationDTO;
@@ -103,6 +105,8 @@ class UserServiceTest {
     @Mock
     private ApiKeyService apiKeyService;
 
+    @Mock private com.grash.repository.RefreshTokenRepository policyTokens;
+    private CompanyAuthorizationService policy;
     private Company company;
     private User user;
     private Role role;
@@ -155,6 +159,30 @@ class UserServiceTest {
         user.setEnabledInSubscription(true);
         user.setOwnsCompany(false);
         user.setPhone("123-456-7890");
+        policy = spy(new CompanyAuthorizationService(userRepository, mock(com.grash.repository.RoleRepository.class),
+                mock(com.grash.repository.CompanyRepository.class), mock(com.grash.repository.UserInvitationRepository.class),
+                policyTokens, cacheService, em));
+        ReflectionTestUtils.setField(userService, "authorization", policy);
+        lenient().doAnswer(i -> { User actor = i.getArgument(0); validFixtureRole(actor.getRole()); return actor; }).when(policy).actor(any());
+        lenient().doReturn(user).when(policy).currentActor();
+        lenient().doAnswer(i -> {
+            Role found = roleService.findById(((Role) i.getArgument(0)).getId())
+                    .orElseThrow(() -> new CustomException("Role not found", HttpStatus.NOT_FOUND));
+            validFixtureRole(found); return found;
+        }).when(policy).role(any());
+        lenient().doAnswer(i -> {
+            Long id = i.getArgument(0); User actor = i.getArgument(1);
+            User found = userRepository.findByIdAndCompany_Id(id, actor.getCompany().getId())
+                    .or(() -> userRepository.findById(id))
+                    .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
+            validFixtureRole(found.getRole()); return found;
+        }).when(policy).target(anyLong(), any());
+
+    }
+
+    private void validFixtureRole(Role fixture) {
+        if (fixture.getCode() == null) fixture.setCode(fixture.getCompanySettings() == null ? RoleCode.TECHNICIAN : RoleCode.USER_CREATED);
+        if (fixture.getRoleType() == null) fixture.setRoleType(RoleType.ROLE_CLIENT);
     }
 
     private User buildUser(Long id, String email) {
@@ -347,30 +375,18 @@ class UserServiceTest {
         }
 
         @Test
-        void invitedUser_inviterNotFound_throws() {
-            Role invitedRole = Role.builder()
-                    .id(2L).name("Technician").roleType(RoleType.ROLE_CLIENT)
-                    .code(RoleCode.TECHNICIAN).paid(true).build();
-            signupRequest.setRole(invitedRole);
-            mappedUser.setRole(invitedRole);
-            UserInvitation invitation = new UserInvitation("new@test.com", invitedRole);
-            invitation.setId(1L);
-            invitation.setCreatedBy(99L);
-
-            when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
-            when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
-            when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(roleService.findById(2L)).thenReturn(Optional.of(invitedRole));
-            when(userInvitationService.findByRoleAndEmail(2L, "new@test.com"))
-                    .thenReturn(new ArrayList<>(List.of(invitation)));
-            when(userRepository.findById(99L)).thenReturn(Optional.empty());
-            when(licenseService.getLicensingState()).thenReturn(
-                    LicensingState.builder().hasLicense(false).usersCount(0).build());
-            when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)).thenReturn(true);
+        void invalidInvitation_throwsBeforeCreatingAccount() {
+            signupRequest.setInvitationToken("invalid-token");
+            when(userInvitationService.lockValidInvitation("invalid-token"))
+                    .thenThrow(new CustomException("Invalid invitation", HttpStatus.NOT_ACCEPTABLE));
 
             CustomException ex = assertThrows(CustomException.class,
                     () -> userService.signup(signupRequest));
+
             assertEquals(HttpStatus.NOT_ACCEPTABLE, ex.getHttpStatus());
+            verify(userRepository, never()).save(any());
+            verify(userRepository, never()).saveAndFlush(any());
+            verifyNoInteractions(jwtTokenProvider, refreshTokenService);
         }
 
         @Test
@@ -380,18 +396,17 @@ class UserServiceTest {
                     .code(RoleCode.VIEW_ONLY).paid(false).build();
             signupRequest.setRole(invitedRole);
             mappedUser.setRole(invitedRole);
+            signupRequest.setInvitationToken("invitation-token");
             UserInvitation invitation = new UserInvitation("new@test.com", invitedRole);
+            invitation.setCompany(company);
             invitation.setId(1L);
             invitation.setCreatedBy(1L);
 
             when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
             when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
             when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(roleService.findById(2L)).thenReturn(Optional.of(invitedRole));
-            when(userInvitationService.findByRoleAndEmail(2L, "new@test.com"))
-                    .thenReturn(new ArrayList<>(List.of(invitation)));
-            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-            when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+            when(userInvitationService.lockValidInvitation("invitation-token")).thenReturn(invitation);
+            when(userRepository.saveAndFlush(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
             when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
                     .thenReturn("signup-token");
 
@@ -408,22 +423,21 @@ class UserServiceTest {
                     .code(RoleCode.TECHNICIAN).paid(true).build();
             signupRequest.setRole(invitedRole);
             mappedUser.setRole(invitedRole);
+            signupRequest.setInvitationToken("invitation-token");
             UserInvitation invitation = new UserInvitation("new@test.com", invitedRole);
+            invitation.setCompany(company);
             invitation.setId(1L);
             invitation.setCreatedBy(1L);
 
             when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
             when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
             when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(roleService.findById(2L)).thenReturn(Optional.of(invitedRole));
-            when(userInvitationService.findByRoleAndEmail(2L, "new@test.com"))
-                    .thenReturn(new ArrayList<>(List.of(invitation)));
-            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            when(userInvitationService.lockValidInvitation("invitation-token")).thenReturn(invitation);
             when(licenseService.getLicensingState()).thenReturn(
                     LicensingState.builder().hasLicense(false).usersCount(0).build());
             when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)).thenReturn(true);
             when(userRepository.findByCompany_Id(1L)).thenReturn(List.of());
-            when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+            when(userRepository.saveAndFlush(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
             when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
                     .thenReturn("signup-token");
 
@@ -435,100 +449,52 @@ class UserServiceTest {
 
         @Test
         void invitedRoleNotFound_throws() {
-            Role invitedRole = Role.builder()
-                    .id(99L).name("Unknown").roleType(RoleType.ROLE_CLIENT)
-                    .code(RoleCode.USER_CREATED).paid(false).build();
-            signupRequest.setRole(invitedRole);
-            mappedUser.setRole(invitedRole);
-
-            when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
-            when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
-            when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(roleService.findById(99L)).thenReturn(Optional.empty());
-
+            signupRequest.setRole(role);
             CustomException ex = assertThrows(CustomException.class,
                     () -> userService.signup(signupRequest));
             assertEquals(HttpStatus.NOT_ACCEPTABLE, ex.getHttpStatus());
+            verify(userRepository, never()).save(any());
+            verify(userRepository, never()).saveAndFlush(any());
+            verifyNoInteractions(jwtTokenProvider, refreshTokenService);
         }
 
         @Test
-        void superAdminRole_withoutInvitationEmailOrInvitation_throwsForbidden() {
-            Role superAdminRole = Role.builder()
-                    .id(3L).name("Super Admin").roleType(RoleType.ROLE_SUPER_ADMIN)
-                    .code(RoleCode.ADMIN).paid(false).build();
-            signupRequest.setRole(superAdminRole);
-            mappedUser.setRole(superAdminRole);
-
-            when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
-            when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
-            when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(roleService.findById(3L)).thenReturn(Optional.of(superAdminRole));
-            when(userInvitationService.findByRoleAndEmail(3L, "new@test.com"))
-                    .thenReturn(new ArrayList<>());
-
-            CustomException ex = assertThrows(CustomException.class,
-                    () -> userService.signup(signupRequest));
-            assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
+        void superAdminRole_withoutToken_isRejectedByPublicSignup() {
+            signupRequest.setRole(Role.builder().id(3L).roleType(RoleType.ROLE_SUPER_ADMIN).build());
+            assertThrows(CustomException.class, () -> userService.signup(signupRequest));
+            verify(userRepository, never()).save(any());
+            verify(userRepository, never()).saveAndFlush(any());
+            verifyNoInteractions(jwtTokenProvider, refreshTokenService);
         }
 
         @Test
-        void superAdminRole_withInvitationWithoutEmailFeature_success() {
-            Role superAdminRole = Role.builder()
-                    .id(3L).name("Super Admin").roleType(RoleType.ROLE_SUPER_ADMIN)
-                    .code(RoleCode.ADMIN).paid(false).build();
-            CompanySettings superAdminSettings = new CompanySettings();
-            superAdminSettings.setCompany(company);
-            superAdminRole.setCompanySettings(superAdminSettings);
-            signupRequest.setRole(superAdminRole);
-            mappedUser.setRole(superAdminRole);
+        void superAdminRole_withInvitationWithoutEmailFeature_isRejectedByPublicSignup() {
+            ReflectionTestUtils.setField(userService, "enableInvitationViaEmail", false);
+            Role superAdminRole = Role.builder().id(3L).roleType(RoleType.ROLE_SUPER_ADMIN).build();
+            signupRequest.setInvitationToken("superadmin-invitation");
             UserInvitation invitation = new UserInvitation("new@test.com", superAdminRole);
-            invitation.setId(1L);
-            invitation.setCreatedBy(1L);
+            invitation.setCompany(company);
+            when(userInvitationService.lockValidInvitation("superadmin-invitation")).thenReturn(invitation);
 
-            when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
-            when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
-            when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(roleService.findById(3L)).thenReturn(Optional.of(superAdminRole));
-            when(userInvitationService.findByRoleAndEmail(3L, "new@test.com"))
-                    .thenReturn(new ArrayList<>(List.of(invitation)));
-            when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
-            when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
-                    .thenReturn("signup-token");
-
-            SignupSuccessResponse<User> response = userService.signup(signupRequest);
-
-            assertTrue(response.isSuccess());
-            assertNotNull(response.getUser());
-            assertEquals(company, response.getUser().getCompany());
+            assertThrows(CustomException.class, () -> userService.signup(signupRequest));
+            verify(userRepository, never()).save(any());
+            verify(userRepository, never()).saveAndFlush(any());
+            verifyNoInteractions(jwtTokenProvider, refreshTokenService);
         }
 
         @Test
-        void superAdminRole_withInvitationEmail_success() {
+        void superAdminRole_withInvitationEmail_isRejectedByPublicSignup() {
             ReflectionTestUtils.setField(userService, "enableInvitationViaEmail", true);
-            Role superAdminRole = Role.builder()
-                    .id(3L).name("Super Admin").roleType(RoleType.ROLE_SUPER_ADMIN)
-                    .code(RoleCode.ADMIN).paid(false).build();
-            signupRequest.setRole(superAdminRole);
-            mappedUser.setRole(superAdminRole);
+            Role superAdminRole = Role.builder().id(3L).roleType(RoleType.ROLE_SUPER_ADMIN).build();
+            signupRequest.setInvitationToken("superadmin-invitation");
             UserInvitation invitation = new UserInvitation("new@test.com", superAdminRole);
-            invitation.setId(1L);
-            invitation.setCreatedBy(1L);
+            invitation.setCompany(company);
+            when(userInvitationService.lockValidInvitation("superadmin-invitation")).thenReturn(invitation);
 
-            when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
-            when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
-            when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(roleService.findById(3L)).thenReturn(Optional.of(superAdminRole));
-            when(userInvitationService.findByRoleAndEmail(3L, "new@test.com"))
-                    .thenReturn(new ArrayList<>(List.of(invitation)));
-            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-            when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
-            when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
-                    .thenReturn("signup-token");
-
-            SignupSuccessResponse<User> response = userService.signup(signupRequest);
-
-            assertTrue(response.isSuccess());
-            assertNotNull(response.getUser());
+            assertThrows(CustomException.class, () -> userService.signup(signupRequest));
+            verify(userRepository, never()).save(any());
+            verify(userRepository, never()).saveAndFlush(any());
+            verifyNoInteractions(jwtTokenProvider, refreshTokenService);
         }
 
         @Test
@@ -662,23 +628,13 @@ class UserServiceTest {
 
         @Test
         void invitedRole_noInvitationsFound_throws() {
-            Role invitedRole = Role.builder()
-                    .id(2L).name("Technician").roleType(RoleType.ROLE_CLIENT)
-                    .code(RoleCode.TECHNICIAN).paid(false).build();
-            signupRequest.setRole(invitedRole);
-            mappedUser.setRole(invitedRole);
-            ReflectionTestUtils.setField(userService, "enableInvitationViaEmail", true);
-
-            when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
-            when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
-            when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(roleService.findById(2L)).thenReturn(Optional.of(invitedRole));
-            when(userInvitationService.findByRoleAndEmail(2L, "new@test.com"))
-                    .thenReturn(new ArrayList<>());
-
+            signupRequest.setRole(role);
             CustomException ex = assertThrows(CustomException.class,
                     () -> userService.signup(signupRequest));
             assertEquals(HttpStatus.NOT_ACCEPTABLE, ex.getHttpStatus());
+            verify(userRepository, never()).save(any());
+            verify(userRepository, never()).saveAndFlush(any());
+            verifyNoInteractions(jwtTokenProvider, refreshTokenService);
         }
 
         @Test
@@ -691,21 +647,21 @@ class UserServiceTest {
             invitedRole.setCompanySettings(companySettings);
             signupRequest.setRole(invitedRole);
             mappedUser.setRole(invitedRole);
+            signupRequest.setInvitationToken("invitation-token");
             UserInvitation invitation = new UserInvitation("new@test.com", invitedRole);
+            invitation.setCompany(company);
             invitation.setId(1L);
             invitation.setCreatedBy(1L);
 
             when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
             when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
             when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(roleService.findById(2L)).thenReturn(Optional.of(invitedRole));
-            when(userInvitationService.findByRoleAndEmail(2L, "new@test.com"))
-                    .thenReturn(new ArrayList<>(List.of(invitation)));
+            when(userInvitationService.lockValidInvitation("invitation-token")).thenReturn(invitation);
             when(licenseService.getLicensingState()).thenReturn(
                     LicensingState.builder().hasLicense(false).usersCount(0).build());
             when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)).thenReturn(true);
             when(userRepository.findByCompany_Id(1L)).thenReturn(List.of());
-            when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+            when(userRepository.saveAndFlush(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
             when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
                     .thenReturn("signup-token");
 
@@ -722,7 +678,9 @@ class UserServiceTest {
                     .code(RoleCode.TECHNICIAN).paid(true).build();
             signupRequest.setRole(invitedRole);
             mappedUser.setRole(invitedRole);
+            signupRequest.setInvitationToken("invitation-token");
             UserInvitation invitation = new UserInvitation("new@test.com", invitedRole);
+            invitation.setCompany(company);
             invitation.setId(1L);
             invitation.setCreatedBy(1L);
             company.getSubscription().setUsersCount(1);
@@ -733,10 +691,7 @@ class UserServiceTest {
             when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
             when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
             when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(roleService.findById(2L)).thenReturn(Optional.of(invitedRole));
-            when(userInvitationService.findByRoleAndEmail(2L, "new@test.com"))
-                    .thenReturn(new ArrayList<>(List.of(invitation)));
-            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            when(userInvitationService.lockValidInvitation("invitation-token")).thenReturn(invitation);
             when(licenseService.getLicensingState()).thenReturn(
                     LicensingState.builder().hasLicense(false).usersCount(0).build());
             when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)).thenReturn(true);
@@ -810,22 +765,21 @@ class UserServiceTest {
                     .code(RoleCode.TECHNICIAN).paid(true).build();
             signupRequest.setRole(invitedRole);
             mappedUser.setRole(invitedRole);
+            signupRequest.setInvitationToken("invitation-token");
             UserInvitation invitation = new UserInvitation("new@test.com", invitedRole);
+            invitation.setCompany(company);
             invitation.setId(1L);
             invitation.setCreatedBy(1L);
 
             when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
             when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
             when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(roleService.findById(2L)).thenReturn(Optional.of(invitedRole));
-            when(userInvitationService.findByRoleAndEmail(2L, "new@test.com"))
-                    .thenReturn(new ArrayList<>(List.of(invitation)));
-            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            when(userInvitationService.lockValidInvitation("invitation-token")).thenReturn(invitation);
             when(licenseService.getLicensingState()).thenReturn(
                     LicensingState.builder().hasLicense(false).usersCount(0).build());
             when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)).thenReturn(true);
             when(userRepository.findByCompany_Id(1L)).thenReturn(List.of());
-            when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+            when(userRepository.saveAndFlush(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
             when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
                     .thenReturn("signup-token");
 
@@ -841,7 +795,9 @@ class UserServiceTest {
                     .code(RoleCode.TECHNICIAN).paid(true).build();
             signupRequest.setRole(invitedRole);
             mappedUser.setRole(invitedRole);
+            signupRequest.setInvitationToken("invitation-token");
             UserInvitation invitation = new UserInvitation("new@test.com", invitedRole);
+            invitation.setCompany(company);
             invitation.setId(1L);
             invitation.setCreatedBy(1L);
             company.getSubscription().setUsersCount(2);
@@ -853,16 +809,13 @@ class UserServiceTest {
             when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
             when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
             when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(roleService.findById(2L)).thenReturn(Optional.of(invitedRole));
-            when(userInvitationService.findByRoleAndEmail(2L, "new@test.com"))
-                    .thenReturn(new ArrayList<>(List.of(invitation)));
-            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+            when(userInvitationService.lockValidInvitation("invitation-token")).thenReturn(invitation);
             when(licenseService.getLicensingState()).thenReturn(
                     LicensingState.builder().hasLicense(false).usersCount(0).build());
             when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)).thenReturn(true);
             when(userRepository.findByCompany_Id(1L))
                     .thenReturn(List.of(user, disabledUser, notInSubscriptionUser));
-            when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+            when(userRepository.saveAndFlush(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
             when(jwtTokenProvider.createToken(eq("new@test.com"), anyList()))
                     .thenReturn("signup-token");
 
@@ -935,34 +888,14 @@ class UserServiceTest {
         }
 
         @Test
-        void newCompanyNonLocalhost_roleSetOnRequest_notNullBranch() throws jakarta.mail.MessagingException,
-                java.io.IOException {
-            ReflectionTestUtils.setField(userService, "PUBLIC_API_URL", "https://app.test.com");
-            ReflectionTestUtils.setField(userService, "cloudVersion", false);
+        void newCompanyNonLocalhost_roleSetOnRequest_rejectsRoleWithoutToken() {
             signupRequest.setRole(role);
-
-            when(userMapper.toModel(signupRequest)).thenReturn(mappedUser);
-            when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
-            when(passwordEncoder.encode("password123")).thenReturn("encoded-pass");
-            when(licenseService.hasEntitlement(LicenseEntitlement.MULTI_INSTANCE)).thenReturn(true);
-            when(subscriptionPlanService.findByCode("BUSINESS"))
-                    .thenReturn(Optional.of(subscriptionPlan));
-            when(licenseService.getLicensingState()).thenReturn(
-                    LicensingState.builder().hasLicense(false).usersCount(0).build());
-            com.grash.model.Currency ccy = new com.grash.model.Currency();
-            ccy.setCode("$");
-            when(currencyService.findByCode("$")).thenReturn(Optional.of(ccy));
-            when(roleService.findDefaultRoleWithCode(RoleCode.ADMIN)).thenReturn(Optional.of(role));
-            when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
-            doNothing().when(cacheService).putUserInCache(any());
-            doNothing().when(mailService).sendHtmlMessage(any(), anyString(), anyString(), any());
-
-            SignupSuccessResponse<User> response = userService.signup(signupRequest);
-
-            assertTrue(response.isSuccess());
-            assertNull(response.getUser());
-            assertEquals("Successful registration. Check your mailbox to activate your account",
-                    response.getMessage());
+            CustomException ex = assertThrows(CustomException.class,
+                    () -> userService.signup(signupRequest));
+            assertEquals(HttpStatus.NOT_ACCEPTABLE, ex.getHttpStatus());
+            verify(userRepository, never()).save(any());
+            verify(userRepository, never()).saveAndFlush(any());
+            verifyNoInteractions(jwtTokenProvider, refreshTokenService);
         }
     }
 
@@ -1193,6 +1126,48 @@ class UserServiceTest {
     class Invite {
 
         @Test
+        void emailDeliveryDisabled_returnsManualInvitationLink() {
+            ReflectionTestUtils.setField(userService, "enableInvitationViaEmail", false);
+            role.setPaid(false);
+            IssuedInvitationDTO issued = new IssuedInvitationDTO("new@test.com",
+                    "http://localhost:3000/account/register?invitationToken=secret", new Date());
+            when(userInvitationService.issue("new@test.com", role, user)).thenReturn(issued);
+
+            IssuedInvitationDTO response = userService.invite("  NEW@Test.Com  ", role, user, false);
+
+            assertSame(issued, response);
+            verifyNoInteractions(mailServiceFactory);
+        }
+
+        @Test
+        void smtpDisabled_returnsManualInvitationLinkEvenWithEmailDeliveryConfigured() {
+            ReflectionTestUtils.setField(userService, "enableInvitationViaEmail", true);
+            ReflectionTestUtils.setField(userService, "enableMails", false);
+            role.setPaid(false);
+            IssuedInvitationDTO issued = new IssuedInvitationDTO("new@test.com",
+                    "http://localhost:3000/account/register?invitationToken=secret", new Date());
+            when(userInvitationService.issue("new@test.com", role, user)).thenReturn(issued);
+
+            assertSame(issued, userService.invite("new@test.com", role, user, false));
+
+            verifyNoInteractions(mailServiceFactory);
+        }
+
+        @Test
+        void authorizedIssuerCanChooseManualDeliveryWhenSmtpIsConfigured() {
+            ReflectionTestUtils.setField(userService, "enableInvitationViaEmail", true);
+            ReflectionTestUtils.setField(userService, "enableMails", true);
+            role.setPaid(false);
+            IssuedInvitationDTO issued = new IssuedInvitationDTO("new@test.com",
+                    "http://localhost:3000/account/register?invitationToken=secret", new Date());
+            when(userInvitationService.issue("new@test.com", role, user)).thenReturn(issued);
+
+            assertSame(issued, userService.invite("new@test.com", role, user, true));
+
+            verifyNoInteractions(mailServiceFactory);
+        }
+
+        @Test
         void newValidEmail_createsInvitation() {
             role.setPaid(false);
             when(userRepository.existsByEmailIgnoreCase("new@test.com")).thenReturn(false);
@@ -1200,7 +1175,7 @@ class UserServiceTest {
 
             userService.invite("new@test.com", role, user, false);
 
-            verify(userInvitationService).create(any(UserInvitation.class));
+            verify(userInvitationService).issue(anyString(), any(Role.class), eq(user));
         }
 
         @Test
@@ -1246,11 +1221,17 @@ class UserServiceTest {
             when(brandingService.getBrandConfig()).thenReturn(bc);
             when(messageSource.getMessage(anyString(), any(), any())).thenReturn("Invitation subject");
 
+            when(userInvitationService.issue("invited@test.com", role, user))
+                    .thenReturn(new com.grash.dto.IssuedInvitationDTO("invited@test.com",
+                            "http://localhost:3000/account/register?invitationToken=secure-token", new Date()));
+
             userService.invite("invited@test.com", role, user, false);
 
-            verify(userInvitationService).create(any(UserInvitation.class));
+            verify(userInvitationService).issue(anyString(), any(Role.class), eq(user));
             verify(mailService).sendMessageUsingThymeleafTemplate(
-                    eq(new String[]{"invited@test.com"}), anyString(), anyMap(), anyString(), any(), eq(null));
+                    eq(new String[]{"invited@test.com"}), anyString(),
+                    argThat(variables -> "http://localhost:3000/account/register?invitationToken=secure-token"
+                            .equals(variables.get("joinLink"))), anyString(), any(), eq(null));
         }
     }
 
@@ -1261,7 +1242,6 @@ class UserServiceTest {
         void updatesExistingUser() {
             UserPatchDTO patch = new UserPatchDTO();
             patch.setFirstName("Jane");
-            when(userRepository.existsById(1L)).thenReturn(true);
             when(userRepository.findById(1L)).thenReturn(Optional.of(user));
             when(userRepository.saveAndFlush(any())).thenAnswer(inv -> inv.getArgument(0));
             when(userMapper.updateUser(any(User.class), eq(patch))).thenReturn(user);
@@ -1270,14 +1250,13 @@ class UserServiceTest {
 
             assertNotNull(result);
             verify(em).refresh(user);
-            verify(cacheService).putUserInCache(user);
+            verify(cacheService).evictUserFromCache(user.getEmail());
         }
 
         @Test
         void updatesPassword_whenProvided() {
             UserPatchDTO patch = new UserPatchDTO();
             patch.setNewPassword("newpassword123");
-            when(userRepository.existsById(1L)).thenReturn(true);
             when(userRepository.findById(1L)).thenReturn(Optional.of(user));
             when(passwordEncoder.encode("newpassword123")).thenReturn("encoded-new");
             when(userRepository.saveAndFlush(any())).thenAnswer(inv -> inv.getArgument(0));
@@ -1293,7 +1272,6 @@ class UserServiceTest {
 
         @Test
         void nonExistentUser_throws() {
-            when(userRepository.existsById(999L)).thenReturn(false);
 
             CustomException ex = assertThrows(CustomException.class,
                     () -> userService.update(999L, new UserPatchDTO()));
@@ -1301,16 +1279,17 @@ class UserServiceTest {
         }
 
         @Test
-        void invitationViaEmailEnabled_throwsOnPasswordChange() {
+        void invitationViaEmailEnabled_rejectsOwnPasswordChangeBeforeMutation() {
             ReflectionTestUtils.setField(userService, "enableInvitationViaEmail", true);
-            UserPatchDTO patch = new UserPatchDTO();
-            patch.setNewPassword("newpassword123");
-            when(userRepository.existsById(1L)).thenReturn(true);
-            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-
-            CustomException ex = assertThrows(CustomException.class,
-                    () -> userService.update(1L, patch));
-            assertEquals(HttpStatus.NOT_FOUND, ex.getHttpStatus());
+            UserPatchDTO patch = new UserPatchDTO(); patch.setNewPassword("newpassword123");
+            patch.setFirstName("Must not change");
+            CustomException exception = assertThrows(CustomException.class, () -> userService.update(1L, patch));
+            assertEquals(HttpStatus.FORBIDDEN, exception.getHttpStatus());
+            assertEquals("encoded-password", user.getPassword());
+            assertEquals("John", user.getFirstName());
+            assertNull(user.getSessionInvalidatedAt());
+            verifyNoInteractions(passwordEncoder, userMapper, refreshTokenService);
+            verify(userRepository, never()).saveAndFlush(any());
         }
     }
 
@@ -1400,12 +1379,12 @@ class UserServiceTest {
             HttpServletRequest request = mock(HttpServletRequest.class);
             when(jwtTokenProvider.resolveToken(request)).thenReturn("valid-token");
             when(jwtTokenProvider.getUsername("valid-token")).thenReturn("john@test.com");
-            when(userRepository.findByEmailIgnoreCase("john@test.com")).thenReturn(Optional.of(user));
+            when(userRepository.findForAuthentication("john@test.com")).thenReturn(Optional.of(user));
 
             User result = userService.whoami(request, false);
 
             assertEquals("john@test.com", result.getEmail());
-            verify(userRepository).findByEmailIgnoreCase("john@test.com");
+            verify(userRepository).findForAuthentication("john@test.com");
         }
     }
 
@@ -1874,7 +1853,7 @@ class UserServiceTest {
             SuccessResponse response = userService.inviteUsers(invitationDTO, user);
 
             assertTrue(response.isSuccess());
-            verify(userInvitationService).create(any(UserInvitation.class));
+            verify(userInvitationService).issue(anyString(), any(Role.class), eq(user));
         }
 
         @Test
@@ -1891,7 +1870,26 @@ class UserServiceTest {
 
             assertTrue(response.isSuccess());
             assertEquals("Users have been invited", response.getMessage());
-            verify(userInvitationService).create(any(UserInvitation.class));
+            verify(userInvitationService).issue(anyString(), any(Role.class), eq(user));
+        }
+
+        @org.junit.jupiter.params.ParameterizedTest
+        @org.junit.jupiter.params.provider.ValueSource(booleans = {false, true})
+        void repeatedRecipientIssuesOneUsableLinkAndCountsOneSeat(boolean emailDelivery) {
+            ReflectionTestUtils.setField(userService, "enableInvitationViaEmail", emailDelivery);
+            invitationDTO.setEmails(List.of(" INVITED@test.com ", "invited@TEST.COM"));
+            company.getSubscription().setUsersCount(1);
+            when(roleService.findById(2L)).thenReturn(Optional.of(invitedRole));
+            when(licenseService.getLicensingState()).thenReturn(
+                    LicensingState.builder().hasLicense(false).usersCount(0).build());
+            when(licenseService.hasEntitlement(LicenseEntitlement.UNLIMITED_USERS)).thenReturn(true);
+            IssuedInvitationDTO issued = new IssuedInvitationDTO("invited@test.com", "https://example.test/#invitationToken=test", new Date());
+            when(userInvitationService.issue("invited@test.com", invitedRole, user)).thenReturn(issued);
+
+            InvitationResponse response = userService.inviteUsers(invitationDTO, user);
+
+            assertEquals(List.of(issued), response.getInvitations());
+            verify(userInvitationService, times(1)).issue(anyString(), any(), eq(user));
         }
 
         @Test
@@ -1984,7 +1982,7 @@ class UserServiceTest {
 
             CustomException ex = assertThrows(CustomException.class,
                     () -> userService.patchUserRole(2L, 2L, user));
-            assertEquals(HttpStatus.NOT_ACCEPTABLE, ex.getHttpStatus());
+            assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
         }
 
         @Test
@@ -2054,7 +2052,7 @@ class UserServiceTest {
 
             CustomException ex = assertThrows(CustomException.class,
                     () -> userService.disableUser(2L, user));
-            assertEquals(HttpStatus.NOT_ACCEPTABLE, ex.getHttpStatus());
+            assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
         }
 
         @Test
@@ -2069,7 +2067,7 @@ class UserServiceTest {
             assertNotNull(result.getSessionInvalidatedAt());
             verify(userRepository).save(targetUser);
             verify(cacheService).evictUserFromCache("target@test.com");
-            verify(refreshTokenService).revokeAllForUser(targetUser);
+            verify(policyTokens).revokeAllByUser(targetUser.getId());
         }
     }
 
@@ -2093,6 +2091,19 @@ class UserServiceTest {
         }
 
         @Test
+        void editPermissionAloneCannotDeleteAnotherAccount() {
+            when(userRepository.findByIdAndCompany_Id(2L, 1L)).thenReturn(Optional.of(targetUser));
+
+            assertThrows(CustomException.class, () -> userService.softDeleteUser(2L, user));
+
+            assertTrue(targetUser.isEnabled());
+            assertEquals("target@test.com", targetUser.getEmail());
+            assertNull(targetUser.getSessionInvalidatedAt());
+            verify(userRepository, never()).save(any());
+            verifyNoInteractions(apiKeyService, policyTokens);
+        }
+
+        @Test
         void userNotFound_throws404() {
             when(userRepository.findByIdAndCompany_Id(2L, 1L)).thenReturn(Optional.empty());
 
@@ -2111,12 +2122,13 @@ class UserServiceTest {
 
             CustomException ex = assertThrows(CustomException.class,
                     () -> userService.softDeleteUser(2L, user));
-            assertEquals(HttpStatus.NOT_ACCEPTABLE, ex.getHttpStatus());
+            assertEquals(HttpStatus.FORBIDDEN, ex.getHttpStatus());
         }
 
         @Test
         void success_selfSoftDelete() {
             user.setId(2L);
+            user.getRole().getEditOtherPermissions().clear();
             when(userRepository.findByIdAndCompany_Id(2L, 1L)).thenReturn(Optional.of(targetUser));
             when(userRepository.save(targetUser)).thenReturn(targetUser);
 
@@ -2128,11 +2140,13 @@ class UserServiceTest {
             assertNotNull(result.getSessionInvalidatedAt());
             verify(userRepository).save(targetUser);
             verify(cacheService).evictUserFromCache(result.getEmail());
-            verify(refreshTokenService).revokeAllForUser(targetUser);
+            verify(policyTokens).revokeAllByUser(targetUser.getId());
         }
 
         @Test
         void success_adminWithSettingsPermission() {
+            user.getRole().getEditOtherPermissions().clear();
+            user.getRole().setDeleteOtherPermissions(Set.of(PermissionEntity.PEOPLE_AND_TEAMS));
             when(userRepository.findByIdAndCompany_Id(2L, 1L)).thenReturn(Optional.of(targetUser));
             when(userRepository.save(targetUser)).thenReturn(targetUser);
 
@@ -2144,7 +2158,7 @@ class UserServiceTest {
             assertNotNull(result.getSessionInvalidatedAt());
             verify(userRepository).save(targetUser);
             verify(cacheService).evictUserFromCache(result.getEmail());
-            verify(refreshTokenService).revokeAllForUser(targetUser);
+            verify(policyTokens).revokeAllByUser(targetUser.getId());
         }
     }
 
