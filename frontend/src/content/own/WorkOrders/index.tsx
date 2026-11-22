@@ -125,6 +125,7 @@ const fieldMapping: Record<string, string> = {
   updatedAt: 'updatedAt',
   createdAt: 'createdAt',
   dueDate: 'dueDate'
+  contractors: 'contractors'
 };
 const FILTERS_STORAGE_KEY = 'workOrder_filters';
 const DEFAULT_FILTER_FIELDS: FilterField[] = [
@@ -564,6 +565,16 @@ function WorkOrders() {
         size: 170
       }
     ),
+    columnHelper.accessor((row) => row.contractors, {
+        id: 'contractors',
+        header: () => t('contractors'),
+        cell: (info) => {
+          const contractors = info.getValue();
+          if (!contractors?.length) return '';
+          return contractors.map((c) => c.companyName).join(', ');
+        },
+        size: 170
+    }),
     columnHelper.accessor((row) => row.location?.name, {
       id: 'location',
       header: () => t('location_name'),
