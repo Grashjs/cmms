@@ -81,6 +81,12 @@ public class WorkOrder extends WorkOrderBase {
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
     private PreventiveMaintenance parentPreventiveMaintenance;
 
+    @Schema(description = "The meter trigger that generated this work order", implementation = IdDTO.class)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED, withModifiedFlag = true)
+    private WorkOrderMeterTrigger parentMeterTrigger;
+
     @Schema(description = "The first time the work order was reacted to", accessMode = Schema.AccessMode.READ_ONLY)
     @NotAudited
     private Date firstTimeToReact;
