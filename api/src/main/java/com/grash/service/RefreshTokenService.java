@@ -86,6 +86,21 @@ public class RefreshTokenService {
         return new AuthTokens(accessToken, newRawToken, jwtTokenProvider.computeAccessTokenExpiration());
     }
 
+    /**
+     * Revokes a single refresh token (one device's session). Tokens that don't exist, are already revoked or
+     * belong to another user are ignored so logout stays idempotent and can't be used to probe tokens.
+     */
+    @Transactional
+    public void revoke(String rawToken, User user) {
+        refreshTokenRepository.findByTokenHash(hash(rawToken))
+                .filter(stored -> !stored.isRevoked())
+                .filter(stored -> user != null && stored.getUser().getId().equals(user.getId()))
+                .ifPresent(stored -> {
+                    stored.setRevoked(true);
+                    refreshTokenRepository.save(stored);
+                });
+    }
+
     @Transactional
     public void revokeAllForUser(User user) {
         refreshTokenRepository.revokeAllByUser(user.getId());
