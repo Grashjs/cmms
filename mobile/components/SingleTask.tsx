@@ -15,6 +15,7 @@ import { SheetManager } from 'react-native-actions-sheet';
 import { PermissionEntity } from '../models/role';
 import { PlanFeature } from '../models/subscriptionPlan';
 import { Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { sanitizeDecimalInput } from '../utils/validators';
 
 interface SingleTaskProps {
   task: Task;
@@ -51,7 +52,7 @@ export default function SingleTask({
         task.taskBase.taskType === 'METER' ||
         task.taskBase.taskType === 'NUMBER'
       ) {
-        formattedValue = newValue?.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1') ?? '';
+        formattedValue = sanitizeDecimalInput(newValue);
         setInputValue(formattedValue);
       } else setInputValue(formattedValue);
       if (formattedValue !== '') handleChange(formattedValue, task.id);

@@ -22,6 +22,7 @@ import { deletePartQuantity, editPartQuantity } from '../slices/partQuantity';
 import { useDispatch } from '../store';
 import { CustomSnackBarContext } from '../contexts/CustomSnackBarContext';
 import { getFormattedCostPerUnit } from '../utils/formatters';
+import { parseDecimalInput } from '../utils/validators';
 
 export default function PartQuantities({
   partQuantities,
@@ -135,6 +136,7 @@ export default function PartQuantities({
             style={{ width: '100%', marginTop: 15 }}
             mode="outlined"
             label={t('quantity')}
+            keyboardType="decimal-pad"
             onChangeText={(newQuantity) => setQuantity(newQuantity)}
             value={quantity}
           />
@@ -144,9 +146,14 @@ export default function PartQuantities({
             style={{ marginTop: 15 }}
             mode={'contained'}
             buttonColor={theme.colors.primary}
-            onPress={() =>
-              onPartQuantityChange(Number(quantity), currentPartQuantity.id)
-            }
+            onPress={() => {
+              const value = parseDecimalInput(quantity);
+              if (isNaN(value)) {
+                showSnackBar(t('required_value'), 'error');
+                return;
+              }
+              onPartQuantityChange(value, currentPartQuantity.id);
+            }}
           >
             {t('save')}
           </Button>
