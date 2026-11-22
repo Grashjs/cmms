@@ -181,6 +181,7 @@ export default function WODetailsScreen({
     useContext(CompanySettingsContext);
   const [isExtended, setIsExtended] = React.useState(true);
   const [commentContent, setCommentContent] = useState('');
+  const [commentFocused, setCommentFocused] = useState(false);
   const [commentFiles, setCommentFiles] = useState<
     { uri: string; name: string; type: string }[]
   >([]);
@@ -1272,15 +1273,33 @@ export default function WODetailsScreen({
                                 multiline
                                 numberOfLines={3}
                                 onFocus={() => {
+                                  setCommentFocused(true);
                                   setTimeout(() => {
                                     scrollViewRef.current?.scrollToEnd({
                                       animated: true
                                     });
                                   }, 100);
                                 }}
+                                onBlur={() => setCommentFocused(false)}
                                 placeholder={t('add_comment_placeholder')}
-                                placeholderTextColor="black"
-                                style={{ flex: 1, color: 'black' }}
+                                placeholderTextColor={
+                                  theme.colors.onSurfaceVariant
+                                }
+                                style={{
+                                  flex: 1,
+                                  minHeight: 48,
+                                  maxHeight: 120,
+                                  paddingHorizontal: 12,
+                                  paddingVertical: 8,
+                                  borderWidth: commentFocused ? 2 : 1,
+                                  borderColor: commentFocused
+                                    ? theme.colors.primary
+                                    : theme.colors.outline,
+                                  borderRadius: 8,
+                                  backgroundColor: theme.colors.surface,
+                                  color: theme.colors.onSurface,
+                                  textAlignVertical: 'top'
+                                }}
                                 {...textInputProps}
                               />
                             </View>
