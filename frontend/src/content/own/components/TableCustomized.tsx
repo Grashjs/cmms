@@ -35,6 +35,7 @@ import { useSnackbar } from 'notistack';
 import { TableCustomizedColumnType, TableCustomizedDataType } from '../type';
 import { OverridableStringUnion } from '@mui/types';
 import { IconButtonPropsColorOverrides } from '@mui/material/IconButton/IconButton';
+import { matchesSearch } from '../../../utils/search';
 
 interface TableCustomizedProps {
   data: TableCustomizedDataType[];
@@ -105,7 +106,7 @@ const applyFilters = (
       let containsQuery = false;
 
       properties.forEach((property) => {
-        if (row[property].toLowerCase().includes(query.toLowerCase())) {
+        if (matchesSearch(row[property], query)) {
           containsQuery = true;
         }
       });
