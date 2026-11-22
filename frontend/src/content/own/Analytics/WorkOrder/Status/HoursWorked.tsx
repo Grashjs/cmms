@@ -3,9 +3,20 @@ import { useTranslation } from 'react-i18next';
 import AnalyticsCard from '../../AnalyticsCard';
 import { Filter } from '../WOModal';
 import { useDispatch, useSelector } from '../../../../../store';
-import { useEffect } from 'react';
-import { getWOHours } from '../../../../../slices/analytics/workOrder';
+import { ReactNode, useEffect } from 'react';
+import {
+  fetchWOHours,
+  getWOHours
+} from '../../../../../slices/analytics/workOrder';
+import { WOHours } from '../../../../../models/owns/analytics/workOrder';
 import Loading from '../../Loading';
+import { roundDecimals } from '../../../../../utils/formatters';
+import { FilterField } from '../../../../../models/owns/page';
+import DeltaBadge from '../../DeltaBadge';
+import usePreviousPeriod from '../../usePreviousPeriod';
+
+const estimationRatio = (stats: WOHours): number | null =>
+  stats.actual ? stats.estimated / stats.actual : null;
 
 interface HoursWorkedProps {
   handleOpenModal: (
@@ -16,28 +27,58 @@ interface HoursWorkedProps {
   start: Date;
   end: Date;
   companyId?: number;
+  filterFields?: FilterField[];
 }
 
-function HoursWorked({ handleOpenModal, start, end, companyId }: HoursWorkedProps) {
+function HoursWorked({ handleOpenModal, start, end, companyId, filterFields }: HoursWorkedProps) {
   const { t }: { t: any } = useTranslation();
   const dispatch = useDispatch();
   const { hours, loading } = useSelector((state) => state.woAnalytics);
 
   useEffect(() => {
-    dispatch(getWOHours(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getWOHours(start, end, companyId, filterFields));
+  }, [start, end, companyId, filterFields]);
+  const previous = usePreviousPeriod(fetchWOHours, start, end, companyId, filterFields);
 
   const columns = ['id'];
-  const formattedData: { label: string; value: string | number; filters: Filter[] }[] = [
-    { label: t('estimated_hours'), value: hours.estimated, filters: [] },
+  const formattedData: { label: string; value: string | number; filters: Filter[]; delta?: ReactNode }[] = [
+    {
+      label: t('estimated_hours'),
+      value: roundDecimals(hours.estimated),
+      delta: (
+        <DeltaBadge
+          current={hours.estimated}
+          previous={previous.data?.estimated}
+          previousPeriod={previous}
+          formatValue={roundDecimals}
+        />
+      ),
+      filters: []
+    },
     {
       label: t('total_time_spent_in_hours'),
-      value: hours.actual,
+      value: roundDecimals(hours.actual),
+      delta: (
+        <DeltaBadge
+          current={hours.actual}
+          previous={previous.data?.actual}
+          previousPeriod={previous}
+          formatValue={roundDecimals}
+        />
+      ),
       filters: []
     },
     {
       label: t('estimation_accuracy_ratio'),
-      value: (hours.estimated / hours.actual).toFixed(2),
+      value: hours.actual ? (hours.estimated / hours.actual).toFixed(2) : '-',
+      delta: (
+        <DeltaBadge
+          current={estimationRatio(hours)}
+          previous={previous.data && estimationRatio(previous.data)}
+          previousPeriod={previous}
+          formatValue={(value) => value.toFixed(2)}
+        />
+      ),
       filters: []
     }
   ];
@@ -64,6 +105,7 @@ function HoursWorked({ handleOpenModal, start, end, companyId }: HoursWorkedProp
                   {data.value}
                 </Typography>
                 <Typography>{data.label}</Typography>
+                {data.delta}
               </Stack>
             ))}
           </Stack>

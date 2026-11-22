@@ -6,6 +6,7 @@ import Status from './Status';
 import Analysis from './Analysis';
 import Aging from './Aging';
 import TimeAndCost from './TimeAndCost';
+import Kpis from './Kpis';
 
 export default function Index() {
   const { t }: { t: any } = useTranslation();
@@ -35,6 +36,8 @@ export default function Index() {
         return <Aging handleOpenWOModal={handleOpenWOModal} />;
       case 'time-cost':
         return <TimeAndCost handleOpenWOModal={handleOpenWOModal} />;
+      case 'kpis':
+        return <Kpis />;
       default:
         return null;
     }

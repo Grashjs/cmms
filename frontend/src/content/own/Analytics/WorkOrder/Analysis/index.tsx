@@ -14,6 +14,7 @@ import WOByCategory from './WOByCategory';
 import TimeByWeek from './TimeByWeek';
 import WOByWeek from './WOByWeek';
 import CustomDateRangePicker from '../../CustomDateRangePicker';
+import { FilterField } from '../../../../../models/owns/page';
 
 interface WOStatusStatsProps {
   handleOpenWOModal: (
@@ -34,6 +35,7 @@ function WOStatusStats({ handleOpenWOModal }: WOStatusStatsProps) {
   const [companyId, setCompanyId] = useState<number | undefined>(
     user?.superAccountRelations?.[0]?.childCompanyId ?? undefined
   );
+  const [filterFields, setFilterFields] = useState<FilterField[]>([]);
 
   useEffect(() => {
     setTitle(t('wo_analysis'));
@@ -53,31 +55,31 @@ function WOStatusStats({ handleOpenWOModal }: WOStatusStatsProps) {
         paddingX={1}
       >
         <Grid item xs={6}>
-          <CustomDateRangePicker start={start} end={end} setStart={setStart} setEnd={setEnd} companyId={companyId} onCompanyChange={setCompanyId} />
+          <CustomDateRangePicker start={start} end={end} setStart={setStart} setEnd={setEnd} companyId={companyId} onCompanyChange={setCompanyId} filterFields={filterFields} onFilterFieldsChange={setFilterFields} />
         </Grid>
         <Grid item xs={12} md={12}>
-          <Overview handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
+          <Overview handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} filterFields={filterFields} />
         </Grid>
         <Grid item xs={12} md={6}>
-          <WOByPrimaryUser handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
+          <WOByPrimaryUser handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} filterFields={filterFields} />
         </Grid>
         <Grid item xs={12} md={6}>
-          <WOByCompletedBy handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
+          <WOByCompletedBy handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} filterFields={filterFields} />
         </Grid>
         <Grid item xs={12} md={6}>
-          <WOByPriority handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
+          <WOByPriority handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} filterFields={filterFields} />
         </Grid>
         <Grid item xs={12} md={6}>
-          <WOByCategory handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
+          <WOByCategory handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} filterFields={filterFields} />
         </Grid>
         <Grid item xs={12} md={6}>
-          <WOByWeek handleOpenModal={handleOpenWOModal} companyId={companyId} />
+          <WOByWeek handleOpenModal={handleOpenWOModal} companyId={companyId} filterFields={filterFields} />
         </Grid>
         <Grid item xs={12} md={6}>
-          <TimeByWeek handleOpenModal={handleOpenWOModal} companyId={companyId} />
+          <TimeByWeek handleOpenModal={handleOpenWOModal} companyId={companyId} filterFields={filterFields} />
         </Grid>
         <Grid item xs={12} md={12}>
-          <Costs handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
+          <Costs handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} filterFields={filterFields} />
         </Grid>
       </Grid>
     </>

@@ -15,7 +15,7 @@ import java.util.Date;
 @Schema(description = "Request metrics grouped by month")
 public class RequestsByMonth {
     @Schema(description = "Cycle time in days")
-    private long cycleTime;
+    private double cycleTime;
     
     @Schema(description = "Date")
     private Date date;

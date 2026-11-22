@@ -391,6 +391,12 @@ function Meters() {
       required: true
     },
     {
+      name: 'cumulative',
+      type: 'switch',
+      label: t('cumulative_meter'),
+      helperText: t('cumulative_meter_description')
+    },
+    {
       name: 'category',
       type: 'select',
       type2: 'category',
@@ -482,7 +488,7 @@ function Meters() {
             values={
               copyMeterData
                 ? { ...getMeterFormValues(copyMeterData), id: null }
-                : {}
+                : { cumulative: false }
             }
             onChange={() => setIsFormDirty(true)}
             onSubmit={async (values) => {

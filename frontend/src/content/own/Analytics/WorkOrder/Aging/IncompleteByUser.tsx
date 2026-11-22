@@ -18,6 +18,7 @@ import { useEffect } from 'react';
 import { getIncompleteByUser } from '../../../../../slices/analytics/workOrder';
 import Loading from '../../Loading';
 import { getRandomColor } from '../../../../../utils/overall';
+import { FilterField } from '../../../../../models/owns/page';
 
 interface WOStatusIncompleteProps {
   handleOpenModal: (
@@ -27,10 +28,11 @@ interface WOStatusIncompleteProps {
   ) => void,
   start: Date,
   end: Date,
-  companyId?: number
+  companyId?: number;
+  filterFields?: FilterField[];
 }
 
-function IncompleteWOByUser({ handleOpenModal, start, end, companyId }: WOStatusIncompleteProps) {
+function IncompleteWOByUser({ handleOpenModal, start, end, companyId, filterFields }: WOStatusIncompleteProps) {
   const { t }: { t: any } = useTranslation();
   const theme = useTheme();
   const { incompleteByUser, loading } = useSelector(
@@ -39,8 +41,8 @@ function IncompleteWOByUser({ handleOpenModal, start, end, companyId }: WOStatus
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getIncompleteByUser(start, end, companyId));
-  }, [start, end, companyId]);
+    dispatch(getIncompleteByUser(start, end, companyId, filterFields));
+  }, [start, end, companyId, filterFields]);
 
   const columns: string[] = ['id'];
 

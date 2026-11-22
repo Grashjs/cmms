@@ -11,6 +11,7 @@ import RequestsByDate from './RequestsByDate';
 import CustomDateRangePicker from '../../CustomDateRangePicker';
 import RequestsByCategory from './RequestsByCategory';
 import RequestsResolution from './RequestsResolution';
+import { FilterField } from '../../../../../models/owns/page';
 
 interface WOStatusStatsProps {
   handleOpenWOModal: (
@@ -31,6 +32,7 @@ function RequestAnalysis({ handleOpenWOModal }: WOStatusStatsProps) {
   const [companyId, setCompanyId] = useState<number | undefined>(
     user?.superAccountRelations?.[0]?.childCompanyId ?? undefined
   );
+  const [filterFields, setFilterFields] = useState<FilterField[]>([]);
 
   useEffect(() => {
     setTitle(t('requests_analysis'));
@@ -50,22 +52,22 @@ function RequestAnalysis({ handleOpenWOModal }: WOStatusStatsProps) {
         paddingX={1}
       >
         <Grid item xs={6}>
-          <CustomDateRangePicker start={start} end={end} setStart={setStart} setEnd={setEnd} companyId={companyId} onCompanyChange={setCompanyId} />
+          <CustomDateRangePicker start={start} end={end} setStart={setStart} setEnd={setEnd} companyId={companyId} onCompanyChange={setCompanyId} filterFields={filterFields} onFilterFieldsChange={setFilterFields} />
         </Grid>
         <Grid item xs={12}>
-          <Overview handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
+          <Overview handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} filterFields={filterFields} />
         </Grid>
         <Grid item xs={12} md={6}>
-          <RequestStatsByPriority handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
+          <RequestStatsByPriority handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} filterFields={filterFields} />
         </Grid>
         <Grid item xs={12} md={6}>
-          <RequestsByCategory handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
+          <RequestsByCategory handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} filterFields={filterFields} />
         </Grid>
         <Grid item xs={12}>
-          <RequestsResolution handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
+          <RequestsResolution handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} filterFields={filterFields} />
         </Grid>
         <Grid item xs={12}>
-          <RequestsByDate handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} />
+          <RequestsByDate handleOpenModal={handleOpenWOModal} start={start} end={end} companyId={companyId} filterFields={filterFields} />
         </Grid>
       </Grid>
     </>
