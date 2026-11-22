@@ -129,7 +129,7 @@ export default function RequestDetails({
       value: request.category?.name
     },
     {
-      label: t('feedback'),
+      label: t('rejection_reason'),
       value: request.cancellationReason
     },
     {
