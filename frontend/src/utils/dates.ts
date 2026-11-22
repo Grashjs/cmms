@@ -1,4 +1,11 @@
-import { addDays, format, Locale as DateLocale, startOfWeek } from 'date-fns';
+import {
+  addDays,
+  endOfDay,
+  format,
+  Locale as DateLocale,
+  startOfDay,
+  startOfWeek
+} from 'date-fns';
 import Schedule from '../models/owns/schedule';
 export const dayDiff = (date1: Date, date2: Date) => {
   const diffInTime = date2.getTime() - date1.getTime();
@@ -15,6 +22,11 @@ export const getDayAndMonthAndYear = (str: string): string => {
   const arr = date.split(' ');
   return `${arr[1]} ${arr[2]} ${arr[3]}`;
 };
+export const toFullDayRange = (start: Date, end: Date): [Date, Date] => [
+  startOfDay(start),
+  endOfDay(end)
+];
+
 export const sameDay = (d1: Date, d2: Date) => {
   return (
     d1.getFullYear() === d2.getFullYear() &&

@@ -13,6 +13,7 @@ import {
   useTheme
 } from '@mui/material';
 import { DateRange } from 'react-date-range';
+import { toFullDayRange } from '../../../utils/dates';
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 import { useTranslation } from 'react-i18next';
@@ -66,8 +67,12 @@ export default function ({
 
   const handleSelect = (ranges: any) => {
     const selection = ranges.selection;
-    setStart(selection.startDate);
-    setEnd(selection.endDate);
+    const [rangeStart, rangeEnd] = toFullDayRange(
+      selection.startDate,
+      selection.endDate
+    );
+    setStart(rangeStart);
+    setEnd(rangeEnd);
     setState([selection]);
   };
 
