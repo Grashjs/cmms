@@ -19,6 +19,7 @@ import {
   HU,
   NL,
   CN,
+  TW,
   BA,
   JP
 } from 'country-flag-icons/react/3x2';
@@ -39,6 +40,7 @@ const translationLoaders: Record<string, () => Promise<{ default: object }>> = {
   hu: () => import('./translations/hu'),
   nl: () => import('./translations/nl'),
   zh_cn: () => import('./translations/zh_cn'),
+  zh_tw: () => import('./translations/zh_tw'),
   ba: () => import('./translations/ba'),
   ja: () => import('./translations/ja')
 };
@@ -59,6 +61,7 @@ const dateLocaleLoaders: Record<string, () => Promise<DateLocale>> = {
   hu: () => import('date-fns/locale').then((m) => m.hu),
   nl: () => import('date-fns/locale').then((m) => m.nl),
   zh_cn: () => import('date-fns/locale').then((m) => m.zhCN),
+  zh_tw: () => import('date-fns/locale').then((m) => m.zhTW),
   ba: () => import('date-fns/locale').then((m) => m.bs),
   ja: () => import('date-fns/locale').then((m) => m.ja)
 };
@@ -82,6 +85,8 @@ const calendarLocaleLoaders: Record<string, () => Promise<LocaleSingularArg>> =
     nl: () => import('@fullcalendar/core/locales/nl').then((m) => m.default),
     zh_cn: () =>
       import('@fullcalendar/core/locales/zh-cn').then((m) => m.default),
+    zh_tw: () =>
+      import('@fullcalendar/core/locales/zh-tw').then((m) => m.default),
     ba: () => import('@fullcalendar/core/locales/bs').then((m) => m.default),
     ja: () => import('@fullcalendar/core/locales/ja').then((m) => m.default)
   };
@@ -113,6 +118,8 @@ i18n
           return 'pt_br';
         if (lower === 'zh' || lower === 'zh-cn' || lower === 'zh_cn')
           return 'zh_cn';
+        const languageTag = lower.replace(/_/g, '-');
+        if (/^zh-(tw|hant|hk|mo)(-|$)/.test(languageTag)) return 'zh_tw';
         return lower.split('-')[0].split('_')[0];
       }
     }
@@ -185,6 +192,7 @@ export type SupportedLanguage =
   | 'HU'
   | 'NL'
   | 'ZH_CN'
+  | 'ZH_TW'
   | 'BA'
   | 'JA';
 
@@ -207,6 +215,7 @@ export const supportedLanguages: {
   { code: 'hu', label: 'Hungarian', Icon: HU },
   { code: 'nl', label: 'Dutch', Icon: NL },
   { code: 'zh_cn', label: 'Chinese (Simplified)', Icon: CN },
+  { code: 'zh_tw', label: 'Chinese (Traditional)', Icon: TW },
   { code: 'ba', label: 'Bosnian', Icon: BA },
   { code: 'ja', label: 'Japanese', Icon: JP }
 ];
