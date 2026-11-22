@@ -4,6 +4,7 @@ import com.grash.dto.IdDTO;
 import com.grash.dto.WorkOrderBasePatchDTO;
 import com.grash.dto.cutomField.CustomFieldValuePostDTO;
 import com.grash.model.User;
+import com.grash.model.enums.AssetStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,4 +21,7 @@ public class WorkOrderPatchDTO extends WorkOrderBasePatchDTO {
     @Schema(description = "Whether the work order is archived")
     private boolean archived;
     private List<CustomFieldValuePostDTO> customFields = new ArrayList<>();
+    // Not a work order field: applied to the asset by WorkOrderService.update, as on creation
+    @Schema(description = "Optional new status of the work order's asset")
+    private AssetStatus assetStatus;
 }
