@@ -5,7 +5,12 @@ import com.grash.dto.webhookEndpoint.WebhookEndpointPatchDTO;
 import com.grash.dto.webhookEndpoint.WebhookEndpointPostDTO;
 import com.grash.dto.webhookEndpoint.WebhookEndpointShowDTO;
 import com.grash.exception.CustomException;
+import com.grash.dto.webhookEndpoint.WebhookDeliveryLogShowDTO;
+import com.grash.mapper.WebhookDeliveryLogMapper;
 import com.grash.mapper.WebhookEndpointMapper;
+import com.grash.service.WebhookDeliveryLogService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import com.grash.model.User;
 import com.grash.model.WebhookEndpoint;
 import com.grash.model.enums.PermissionEntity;
@@ -56,6 +61,30 @@ public class WebhookEndpointController {
 
     private final WebhookEndpointService webhookEndpointService;
     private final WebhookEndpointMapper webhookEndpointMapper;
+    private final WebhookDeliveryLogService webhookDeliveryLogService;
+    private final WebhookDeliveryLogMapper webhookDeliveryLogMapper;
+
+    @GetMapping("/{id}/logs")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @Operation(summary = "List delivery logs of a webhook subscription",
+            description = "Paginated delivery attempts (e.g. ?page=0&size=20&sort=createdAt,desc)")
+    public ResponseEntity<Page<WebhookDeliveryLogShowDTO>> getLogs(
+            @Parameter(hidden = true) @CurrentUser User user,
+            @PathVariable Long id,
+            @Parameter(hidden = true) Pageable pageable) {
+        return ResponseEntity.ok(webhookDeliveryLogService.findByEndpoint(id, pageable, user)
+                .map(webhookDeliveryLogMapper::toShowDto));
+    }
+
+    @PostMapping("/logs/{logId}/retry")
+    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @Operation(summary = "Retry a webhook delivery",
+            description = "Re-sends the stored payload synchronously and returns the new delivery log")
+    public ResponseEntity<WebhookDeliveryLogShowDTO> retryLog(
+            @Parameter(hidden = true) @CurrentUser User user,
+            @PathVariable Long logId) {
+        return ResponseEntity.ok(webhookDeliveryLogMapper.toShowDto(webhookDeliveryLogService.retry(logId, user)));
+    }
 
     @PostMapping
     @PreAuthorize("hasRole('ROLE_CLIENT')")

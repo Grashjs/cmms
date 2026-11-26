@@ -241,4 +241,6 @@
              relativeToChangelogFile="true"/>
     <include file="changelog/2026_09_09_1788956680_user_settings_language.xml"
              relativeToChangelogFile="true"/>
+    <include file="changelog/2026_11_26_1795712649_create_webhook_delivery_log.xml"
+             relativeToChangelogFile="true"/>
 </databaseChangeLog>

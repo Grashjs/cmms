@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+
+    <changeSet id="1795712649-1" author="Atlas">
+        <comment>Create webhook_delivery_log table</comment>
+        <createTable tableName="webhook_delivery_log">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="company_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="webhook_endpoint_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="event_type" type="VARCHAR(255)"/>
+            <column name="payload" type="TEXT"/>
+            <column name="response_status" type="INT"/>
+            <column name="response_body" type="TEXT"/>
+            <column name="duration_ms" type="BIGINT"/>
+            <column name="success" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="error_message" type="TEXT"/>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="BIGINT"/>
+            <column name="updated_by" type="BIGINT"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="webhook_delivery_log" baseColumnNames="company_id"
+                                 constraintName="fk_webhook_delivery_log_company"
+                                 referencedTableName="company" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+        <addForeignKeyConstraint baseTableName="webhook_delivery_log" baseColumnNames="webhook_endpoint_id"
+                                 constraintName="fk_webhook_delivery_log_endpoint"
+                                 referencedTableName="webhook_endpoint" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <createIndex tableName="webhook_delivery_log" indexName="idx_webhook_delivery_log_endpoint">
+            <column name="webhook_endpoint_id"/>
+        </createIndex>
+
+        <createSequence sequenceName="webhook_delivery_log_seq" startValue="1" incrementBy="50"/>
+    </changeSet>
+</databaseChangeLog>

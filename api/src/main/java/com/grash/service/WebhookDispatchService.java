@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grash.dto.license.LicenseEntitlement;
 import com.grash.exception.CustomException;
 import com.grash.model.Company;
+import com.grash.model.WebhookDeliveryLog;
 import com.grash.model.WebhookEndpoint;
 import com.grash.model.WorkOrderCategory;
 import com.grash.model.enums.AssetStatus;
@@ -13,9 +14,12 @@ import com.grash.model.enums.webhook.PartField;
 import com.grash.model.enums.webhook.WOField;
 import com.grash.model.enums.webhook.WebhookEvent;
 import com.grash.repository.CompanyRepository;
+import com.grash.repository.WebhookDeliveryLogRepository;
 import com.grash.repository.WebhookEndpointRepository;
 import com.grash.utils.WebhookUrlValidator;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -23,6 +27,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.crypto.Mac;
@@ -36,9 +41,14 @@ import java.util.stream.Collectors;
 @Slf4j
 public class WebhookDispatchService {
 
+    static final int MAX_RESPONSE_BODY_LENGTH = 4000;
+    private static final int MAX_ERROR_LENGTH = 1000;
+
     private final WebhookEndpointRepository webhookEndpointRepository;
     private final CompanyRepository companyRepository;
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final WebhookDeliveryLogRepository webhookDeliveryLogRepository;
+    @Setter(AccessLevel.PACKAGE)
+    private RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper;
     private final LicenseService licenseService;
 
@@ -107,46 +117,72 @@ public class WebhookDispatchService {
         for (WebhookEndpoint endpoint : endpoints) {
             try {
                 result.put(serializedField, endpoint.isSerialize() ? serializedPayload : null);
-                sendWebhook(endpoint, eventType, result);
-                endpoint.setLastTriggeredAt(new Date());
-                webhookEndpointRepository.save(endpoint);
-
+                String jsonPayload = objectMapper.writeValueAsString(result);
+                deliver(endpoint, eventType.name(), jsonPayload);
             } catch (Exception e) {
                 log.error("Failed to send webhook to: {}", endpoint.getUrl(), e);
             }
         }
     }
 
-    private void sendWebhook(WebhookEndpoint endpoint, WebhookEvent eventType, Object payload) {
+    /**
+     * Sends the payload (already serialized) to the endpoint synchronously and records the attempt.
+     * Never throws because of delivery errors: failures are stored in the returned log.
+     * Reused by the manual retry. License checks are the responsibility of the callers.
+     */
+    public WebhookDeliveryLog deliver(WebhookEndpoint endpoint, String eventType, String jsonPayload) {
+        WebhookDeliveryLog deliveryLog = new WebhookDeliveryLog();
+        deliveryLog.setWebhookEndpoint(endpoint);
+        deliveryLog.setCompany(endpoint.getCompany());
+        deliveryLog.setEventType(eventType);
+        deliveryLog.setPayload(jsonPayload);
+        long start = System.nanoTime();
         try {
             WebhookUrlValidator.validate(endpoint.getUrl());
             log.info("Sending webhook to: {}", endpoint.getUrl());
-            String jsonPayload = objectMapper.writeValueAsString(payload);
             String signature = generateSignature(jsonPayload, endpoint.getSecret());
-            String timestamp = String.valueOf(System.currentTimeMillis());
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("X-Webhook-Signature", signature);
-            headers.set("X-Webhook-Timestamp", timestamp);
+            headers.set("X-Atlas-Signature", signature);
+            headers.set("X-Webhook-Timestamp", String.valueOf(System.currentTimeMillis()));
             headers.set("X-Webhook-Id", UUID.randomUUID().toString());
-            headers.set("X-Webhook-Event", eventType.name());
+            headers.set("X-Webhook-Event", eventType);
 
             HttpEntity<String> request = new HttpEntity<>(jsonPayload, headers);
-
-            ResponseEntity<String> response = restTemplate.postForEntity(
-                    endpoint.getUrl(),
-                    request,
-                    String.class
-            );
-
-            if (!response.getStatusCode().is2xxSuccessful()) {
-                throw new RuntimeException("Webhook failed with status: " + response.getStatusCode());
+            try {
+                ResponseEntity<String> response = restTemplate.postForEntity(endpoint.getUrl(), request,
+                        String.class);
+                deliveryLog.setResponseStatus(response.getStatusCode().value());
+                deliveryLog.setResponseBody(truncate(response.getBody(), MAX_RESPONSE_BODY_LENGTH));
+                deliveryLog.setSuccess(response.getStatusCode().is2xxSuccessful());
+                if (!deliveryLog.isSuccess()) {
+                    deliveryLog.setErrorMessage("Webhook failed with status: " + response.getStatusCode());
+                }
+            } catch (RestClientResponseException e) {
+                deliveryLog.setResponseStatus(e.getStatusCode().value());
+                deliveryLog.setResponseBody(truncate(e.getResponseBodyAsString(), MAX_RESPONSE_BODY_LENGTH));
+                deliveryLog.setSuccess(false);
+                deliveryLog.setErrorMessage(truncate(e.getMessage(), MAX_ERROR_LENGTH));
             }
-
         } catch (Exception e) {
-            throw new RuntimeException("Failed to send webhook", e);
+            deliveryLog.setSuccess(false);
+            deliveryLog.setErrorMessage(truncate(e.getMessage() != null ? e.getMessage() : e.toString(),
+                    MAX_ERROR_LENGTH));
         }
+        deliveryLog.setDurationMs((System.nanoTime() - start) / 1_000_000);
+        WebhookDeliveryLog saved = webhookDeliveryLogRepository.save(deliveryLog);
+        if (saved.isSuccess()) {
+            endpoint.setLastTriggeredAt(new Date());
+            webhookEndpointRepository.save(endpoint);
+        }
+        return saved;
+    }
+
+    private static String truncate(String value, int max) {
+        if (value == null || value.length() <= max) return value;
+        return value.substring(0, max);
     }
 
     private String generateSignature(String payload, String secret) {

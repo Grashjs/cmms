@@ -4,8 +4,6 @@ import { ChangeEvent, useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import WebhookIcon from '@mui/icons-material/Webhook';
 import KeyIcon from '@mui/icons-material/Key';
-import LeakAddIcon from '@mui/icons-material/LeakAdd';
-import Connectors from './Connectors';
 import { PlanFeature } from '../../../../models/owns/subscriptionPlan';
 import FeatureErrorMessage from '../../components/FeatureErrorMessage';
 import useAuth from '../../../../hooks/useAuth';
@@ -20,11 +18,6 @@ function IntegrationsLayout() {
 
   const tabs = [
     {
-      value: 'connectors',
-      label: t('connectors'),
-      icon: <LeakAddIcon />
-    },
-    {
       value: 'api-keys',
       label: t('api_keys'),
       icon: <KeyIcon />
@@ -38,9 +31,9 @@ function IntegrationsLayout() {
 
   // Determine active tab from URL
   const pathSegments = location.pathname.split('/');
-  const currentTab = pathSegments[pathSegments.length - 1] || 'connectors';
+  const currentTab = pathSegments[pathSegments.length - 1] || 'api-keys';
   const isValidTab = tabs.some((tab) => tab.value === currentTab);
-  const activeTab = isValidTab ? currentTab : 'connectors';
+  const activeTab = isValidTab ? currentTab : 'api-keys';
 
   const handleTabsChange = (_event: ChangeEvent<{}>, value: string): void => {
     navigate(`/app/settings/integrations/${value}`);

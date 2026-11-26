@@ -65,6 +65,8 @@ import AddTwoToneIcon from '@mui/icons-material/AddTwoTone';
 import DeleteTwoToneIcon from '@mui/icons-material/DeleteTwoTone';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CloseIcon from '@mui/icons-material/Close';
+import HistoryIcon from '@mui/icons-material/History';
+import WebhookLogsModal from './WebhookLogsModal';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import { CustomSnackBarContext } from '../../../../contexts/CustomSnackBarContext';
 import { Form, Formik } from 'formik';
@@ -111,6 +113,7 @@ function Webhooks() {
   const [currentEndpoint, setCurrentEndpoint] =
     useState<WebhookEndpointShowDTO | null>(null);
   const [rotatingSecretId, setRotatingSecretId] = useState<number | null>(null);
+  const [logsEndpointId, setLogsEndpointId] = useState<number | null>(null);
 
   const handleOpenCreateModal = () => setOpenCreateModal(true);
   const handleCloseCreateModal = () => setOpenCreateModal(false);
@@ -260,14 +263,24 @@ function Webhooks() {
     {
       header: t('actions'),
       cell: (info) => (
-        <IconButton
-          color="error"
-          onClick={() => handleOpenDeleteDialog(info.row.original)}
-        >
-          <DeleteTwoToneIcon />
-        </IconButton>
+        <Stack direction="row" spacing={0.5} alignItems="center">
+          <Tooltip title={t('webhook_logs')}>
+            <IconButton
+              color="primary"
+              onClick={() => setLogsEndpointId(info.row.original.id)}
+            >
+              <HistoryIcon />
+            </IconButton>
+          </Tooltip>
+          <IconButton
+            color="error"
+            onClick={() => handleOpenDeleteDialog(info.row.original)}
+          >
+            <DeleteTwoToneIcon />
+          </IconButton>
+        </Stack>
       ),
-      size: 80
+      size: 110
     }
   ];
   const onOpenWebhookDocs = async () => {
@@ -721,6 +734,12 @@ function Webhooks() {
           </Formik>
         </DialogContent>
       </DialogWrapper>
+
+      <WebhookLogsModal
+        open={logsEndpointId !== null}
+        endpointId={logsEndpointId}
+        onClose={() => setLogsEndpointId(null)}
+      />
 
       {/* Delete Confirmation Dialog */}
       <ConfirmDialog
